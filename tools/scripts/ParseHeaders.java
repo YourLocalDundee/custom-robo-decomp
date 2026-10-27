@@ -158,10 +158,12 @@ public class ParseHeaders extends GhidraScript {
 				}
 			}
 			w.println();
+			// machine-independent paths, so the report is byte-identical on every machine (tools\checksums.ps1)
+			String hdr = new File(melee).getAbsolutePath(), sym = Path.of(crTypes).toAbsolutePath().getParent().toString();
 			w.println("---- C parser messages");
-			w.println(res.cParseMessages());
+			w.println(res.cParseMessages().replace(hdr, "<headers>").replace(sym, "<symbols>"));
 			w.println("---- preprocessor messages");
-			w.println(res.cppParseMessages());
+			w.println(res.cppParseMessages().replace(hdr, "<headers>").replace(sym, "<symbols>"));
 		}
 		println(summary);
 	}

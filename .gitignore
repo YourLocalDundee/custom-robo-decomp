@@ -34,3 +34,6 @@ __pycache__/
 Thumbs.db
 desktop.ini
 BUILD_REPORT.md
+
+# Dolphin creates this when started from the repo folder
+User/

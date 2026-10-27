@@ -4,7 +4,8 @@
 #   3. tools\checksums.ps1        outputs must be byte-identical to docs\expected_checksums.txt
 #   4. archives + models          SFD repack and model round trip byte-identical; all 1,006 models to .dat,
 #                                 then glTF (.glb) + textures for Blender; one preview render
-#   5. mod test build             test_build\ = the game with robo 0 recoloured, bootable in Dolphin
+#   5. mod test build             test_build\ = the game with robo 0 recoloured, bootable in Dolphin;
+#                                 then as ISO -> .crpatch -> applied to the clean ISO, SHA-1 checked
 #   6. BUILD_REPORT.md            what was made and where everything is
 # Usage:  pwsh tools\from_scratch.ps1 -Iso "C:\path\to\Custom Robo (USA).iso" [-Dolphin "C:\your\Dolphin folder"]
 param([Parameter(Mandatory)][string]$Iso, [string]$Dolphin)
@@ -56,6 +57,7 @@ $($rows -join "`n")
 | Models for Blender | ``models_export\<category>\<name>\*.glb`` + textures | Blender: File > Import > glTF |
 | Preview render | ``previews\`` | sanity check |
 | Mod test build | ``test_build\`` | Dolphin: open ``test_build\sys\main.dol``; robo 0 has red/blue swapped |
+| Make your own mod | ``docs\MODDING.md`` | ``python -I tools\make_mod.py mods\<your mod>`` -> playable ISO + shareable .crpatch |
 | How it all works | ``docs\`` (start at docs\README.md), ``plan.md`` | |
 "@ | Set-Content -LiteralPath "$g\BUILD_REPORT.md"
     "report: $g\BUILD_REPORT.md"
@@ -85,5 +87,19 @@ Step 'preview render' {
 }
 Step 'mod test build' {
     python -I "$g\tools\make_test_build.py" "$g\Custom Robo extracted" "$g\unpacked" "$g\test_build" 0 1 2 3 4
+}
+Step 'patch round trip' {
+    # the mod test build as an ISO -> .crpatch -> applied to the clean ISO must give the same SHA-1 (apply checks)
+    $d = "$g\build\patch_test"
+    New-Item -ItemType Directory -Force $d | Out-Null
+    try {
+        python -I "$g\tools\iso_patch.py" build $Iso "$g\test_build" "$d\mod.iso"
+        if ($LASTEXITCODE) { throw 'iso_patch build failed' }
+        python -I "$g\tools\iso_patch.py" diff $Iso "$d\mod.iso" "$d\test.crpatch"
+        if ($LASTEXITCODE) { throw 'iso_patch diff failed' }
+        python -I "$g\tools\iso_patch.py" apply $Iso "$d\test.crpatch" "$d\applied.iso"
+    } finally {
+        Remove-Item -LiteralPath "$d\mod.iso", "$d\applied.iso" -ErrorAction SilentlyContinue
+    }
 }
 Report

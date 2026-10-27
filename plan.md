@@ -119,6 +119,8 @@ gameTesting\
    - First `cr_` types: `cr_FileDesc` (0x10), `cr_PackedEntry` (8), `cr_PackedArchive` (0x44), `cr_FileSlot` (0x78, ends in a `DVDFileInfo`). The globals fit back to back exactly (slots end where the dir tree starts; 43 packed archives end at the ready flag).
    - `tools/batches/batch5_types.ps1` stops the run on any type mismatch. Rebuilds still byte-identical (13 checksummed outputs).
 
+24. **Mods back into the game** (Oct 27, 2026): `tools/make_mod.py <mod dir>` turns a mod folder (edited `models/<cat>/<name>.dat`, replaced `files/`, `code/*.txt` main.dol patches with a checked `[was ...]`) into a playable ISO and a `.crpatch`. `tools/iso_patch.py`: `build` writes changed files over the clean ISO (in place or appended, FST/boot.bin updated), `diff` stores clean-ISO data as references (also when moved; LZ-style search around the same place) and only new bytes, `apply` checks base and result SHA-1. Tested: robo 0 recolour = 43 KB of new bytes; applied ISO identical (SHA-1); boots in Dolphin ("Custom Robo (GXCE01)"). `from_scratch.ps1` now also does a patch round trip. Guide: `docs/MODDING.md`. Not yet: different skeletons (blocks A/B/D), `*_effect` containers, new files on the disc, a main.dol that grows.
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.

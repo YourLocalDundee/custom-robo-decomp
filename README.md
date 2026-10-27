@@ -11,7 +11,8 @@ read the game's code, pull out its 3D models, and put modified models back in.
 | I want to… | Go to |
 |---|---|
 | Look at / export the robots, weapons, stages (Blender, glTF) | [docs/workflows.md](docs/workflows.md) |
-| Swap a model in the game | [docs/workflows.md](docs/workflows.md), [docs/formats/model_entry.md](docs/formats/model_entry.md) |
+| Make a mod (models, files, code) and share it as a patch | [docs/MODDING.md](docs/MODDING.md) |
+| Apply someone's mod to my ISO | [docs/MODDING.md](docs/MODDING.md#5-players-apply-a-patch) |
 | Read the game's code as C, search it | [Reading the code](#reading-the-code) below |
 | Help name functions | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Understand a file format | [docs/formats/](docs/formats/) |
