@@ -1,0 +1,276 @@
+Parsed 72 headers; ASSERT_SIZE ok 17, wrong 0, not parsed 0; field offsets ok 95, wrong 0 (structs not found: 0); prototypes applied 439, failed 0; globals typed 11, failed 0
+STRUCTSIZE HSD_AObj 0x1c
+STRUCTSIZE HSD_AObjDesc 0x10
+STRUCTSIZE HSD_AnimJoint 0x14
+STRUCTSIZE HSD_Archive 0x44
+STRUCTSIZE HSD_ArchiveExternInfo 0x8
+STRUCTSIZE HSD_ArchiveHeader 0x20
+STRUCTSIZE HSD_ArchivePublicInfo 0x8
+STRUCTSIZE HSD_ArchiveRelocationInfo 0x4
+STRUCTSIZE HSD_ByteCodeExpDesc 0x8
+STRUCTSIZE HSD_CObj 0x8c
+STRUCTSIZE HSD_CObjDesc 0x40
+STRUCTSIZE HSD_CObjInfo 0x40
+STRUCTSIZE HSD_CObj_projection_param 0x10
+STRUCTSIZE HSD_CObj_projection_param_frustum 0x10
+STRUCTSIZE HSD_CObj_projection_param_ortho 0x10
+STRUCTSIZE HSD_CObj_projection_param_perspective 0x8
+STRUCTSIZE HSD_CObj_u 0xc
+STRUCTSIZE HSD_CameraAnim 0xc
+STRUCTSIZE HSD_CameraDescCommon 0x30
+STRUCTSIZE HSD_CameraDescFrustum 0x40
+STRUCTSIZE HSD_CameraDescPerspective 0x38
+STRUCTSIZE HSD_Chan 0x30
+STRUCTSIZE HSD_ChanAnim 0x8
+STRUCTSIZE HSD_Class 0x4
+STRUCTSIZE HSD_ClassInfo 0x3c
+STRUCTSIZE HSD_ClassInfoHead 0x28
+STRUCTSIZE HSD_DList 0xc
+STRUCTSIZE HSD_DObj 0x18
+STRUCTSIZE HSD_DObjDesc 0x10
+STRUCTSIZE HSD_DObjInfo 0x44
+STRUCTSIZE HSD_DevCom 0x1
+STRUCTSIZE HSD_Envelope 0xc
+STRUCTSIZE HSD_EnvelopeDesc 0x8
+STRUCTSIZE HSD_Exp 0x10
+STRUCTSIZE HSD_ExpDesc 0x8
+STRUCTSIZE HSD_Exp_expr 0x4
+STRUCTSIZE HSD_FObj 0x30
+STRUCTSIZE HSD_FObjDesc 0x14
+STRUCTSIZE HSD_Fog 0x20
+STRUCTSIZE HSD_FogAdj 0x50
+STRUCTSIZE HSD_FogAdjDesc 0x44
+STRUCTSIZE HSD_FogAdjInfo 0x3c
+STRUCTSIZE HSD_FogDesc 0x14
+STRUCTSIZE HSD_FogInfo 0x3c
+STRUCTSIZE HSD_FreeList 0x4
+STRUCTSIZE HSD_GObj 0x38
+STRUCTSIZE HSD_GObjLibInitDataType 0xc
+STRUCTSIZE HSD_GObjProc 0x18
+STRUCTSIZE HSD_Generator 0x94
+STRUCTSIZE HSD_Generator_aux 0x34
+STRUCTSIZE HSD_Hash 0xc
+STRUCTSIZE HSD_HashClass 0x4
+STRUCTSIZE HSD_HashClassInfo 0x44
+STRUCTSIZE HSD_HashEntry 0xc
+STRUCTSIZE HSD_IDTable 0x194
+STRUCTSIZE HSD_IKHint 0x8
+STRUCTSIZE HSD_IKHintDesc 0x8
+STRUCTSIZE HSD_ImageDesc 0x18
+STRUCTSIZE HSD_JObj 0x88
+STRUCTSIZE HSD_JObjInfo 0x50
+STRUCTSIZE HSD_JObj_u 0x4
+STRUCTSIZE HSD_Joint 0x40
+STRUCTSIZE HSD_Joint_u 0x4
+STRUCTSIZE HSD_LObj 0xd4
+STRUCTSIZE HSD_LObjInfo 0x40
+STRUCTSIZE HSD_LObj_u 0x18
+STRUCTSIZE HSD_LightAnim 0x10
+STRUCTSIZE HSD_LightAttn 0x18
+STRUCTSIZE HSD_LightDesc 0x1c
+STRUCTSIZE HSD_LightDesc_u 0x4
+STRUCTSIZE HSD_LightPoint 0x14
+STRUCTSIZE HSD_LightPointDesc 0xc
+STRUCTSIZE HSD_LightSpot 0x14
+STRUCTSIZE HSD_LightSpotDesc 0x14
+STRUCTSIZE HSD_MObj 0x20
+STRUCTSIZE HSD_MObjDesc 0x18
+STRUCTSIZE HSD_MObjInfo 0x50
+STRUCTSIZE HSD_MatAnim 0x10
+STRUCTSIZE HSD_MatAnimJoint 0xc
+STRUCTSIZE HSD_Material 0x14
+STRUCTSIZE HSD_MemReport 0x2c
+STRUCTSIZE HSD_MemoryEntry 0x14
+STRUCTSIZE HSD_Obj 0x8
+STRUCTSIZE HSD_ObjAllocData 0x2c
+STRUCTSIZE HSD_ObjAllocLink 0x4
+STRUCTSIZE HSD_ObjData 0xc
+STRUCTSIZE HSD_ObjInfo 0x3c
+STRUCTSIZE HSD_PEDesc 0xc
+STRUCTSIZE HSD_PObj 0x1c
+STRUCTSIZE HSD_PObjDesc 0x18
+STRUCTSIZE HSD_PObjDesc_u 0x4
+STRUCTSIZE HSD_PObjInfo 0x48
+STRUCTSIZE HSD_PObjUnion 0x4
+STRUCTSIZE HSD_PSCmdList 0x40
+STRUCTSIZE HSD_PSFormGroup 0x8
+STRUCTSIZE HSD_PSTexGroup 0x1c
+STRUCTSIZE HSD_PSUserFunc 0xc
+STRUCTSIZE HSD_PadData 0x30
+STRUCTSIZE HSD_PadRumbleListData 0x20
+STRUCTSIZE HSD_PadStatus 0x44
+STRUCTSIZE HSD_Particle 0x98
+STRUCTSIZE HSD_PerfStat 0x90
+STRUCTSIZE HSD_RObj 0x1c
+STRUCTSIZE HSD_RObjAnimJoint 0x8
+STRUCTSIZE HSD_RObjDesc 0xc
+STRUCTSIZE HSD_RObjDesc_u 0x4
+STRUCTSIZE HSD_RObj_u 0x10
+STRUCTSIZE HSD_RectF32 0x10
+STRUCTSIZE HSD_RectS16 0x8
+STRUCTSIZE HSD_RenderAnim 0x8
+STRUCTSIZE HSD_Rumble 0x2
+STRUCTSIZE HSD_RumbleData 0xc
+STRUCTSIZE HSD_Rvalue 0xc
+STRUCTSIZE HSD_RvalueList 0x8
+STRUCTSIZE HSD_SList 0x8
+STRUCTSIZE HSD_SM 0x34
+STRUCTSIZE HSD_SObj 0x9c
+STRUCTSIZE HSD_SObjDesc 0x8
+STRUCTSIZE HSD_SObjDesc2 0xc
+STRUCTSIZE HSD_SObj_803A477C_t 0x9c
+STRUCTSIZE HSD_SObj_x38 0x4
+STRUCTSIZE HSD_SObj_x38_x0 0x4
+STRUCTSIZE HSD_SObj_x3C 0x4
+STRUCTSIZE HSD_SObj_x3C_x0 0x4
+STRUCTSIZE HSD_Shadow 0x28
+STRUCTSIZE HSD_ShapeAnim 0x8
+STRUCTSIZE HSD_ShapeAnimDObj 0x8
+STRUCTSIZE HSD_ShapeAnimJoint 0xc
+STRUCTSIZE HSD_ShapeSet 0x24
+STRUCTSIZE HSD_ShapeSetDesc 0x1c
+STRUCTSIZE HSD_ShapeSet_blend 0x4
+STRUCTSIZE HSD_Spline 0x18
+STRUCTSIZE HSD_SynthSFXNode 0x1
+STRUCTSIZE HSD_TEArg 0x8
+STRUCTSIZE HSD_TECnst 0x18
+STRUCTSIZE HSD_TECommon 0x8
+STRUCTSIZE HSD_TETev 0x6c
+STRUCTSIZE HSD_TExp 0x6c
+STRUCTSIZE HSD_TExpDag 0x28
+STRUCTSIZE HSD_TExpRes 0x2c
+STRUCTSIZE HSD_TExpRes_reg 0x2
+STRUCTSIZE HSD_TExpTevDesc 0x78
+STRUCTSIZE HSD_TObj 0xac
+STRUCTSIZE HSD_TObjDesc 0x5c
+STRUCTSIZE HSD_TObjInfo 0x48
+STRUCTSIZE HSD_TObjTev 0x20
+STRUCTSIZE HSD_TObjTevDesc 0x20
+STRUCTSIZE HSD_TevConf 0x5c
+STRUCTSIZE HSD_TevDesc 0x74
+STRUCTSIZE HSD_TevRegAnim 0x8
+STRUCTSIZE HSD_TexAnim 0x18
+STRUCTSIZE HSD_TexLODDesc 0x10
+STRUCTSIZE HSD_Text 0xa0
+STRUCTSIZE HSD_Tlut 0x10
+STRUCTSIZE HSD_TlutDesc 0x10
+STRUCTSIZE HSD_VIInfo 0x1f4
+STRUCTSIZE HSD_VIStatus 0x54
+STRUCTSIZE HSD_ViewingRect 0x54
+STRUCTSIZE HSD_VtxDescList 0x18
+STRUCTSIZE HSD_WObj 0x20
+STRUCTSIZE HSD_WObjAnim 0x8
+STRUCTSIZE HSD_WObjDesc 0x14
+STRUCTSIZE HSD_WObjInfo 0x40
+STRUCTSIZE HSD_psAppSRT 0xa4
+
+---- C parser messages
+
+---- preprocessor messages
+       D:\emulators\gameTesting\build\headers\src\Runtime\platform.h
+          D:\emulators\gameTesting\build\headers\src\MSL\stdbool.h
+          D:\emulators\gameTesting\build\headers\src\MSL\stddef.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\types.h
+             D:\emulators\gameTesting\build\headers\src\MSL\ctype.h
+             D:\emulators\gameTesting\build\headers\src\MSL\stdarg.h
+             D:\emulators\gameTesting\build\headers\src\MSL\stdio.h
+             D:\emulators\gameTesting\build\headers\src\MSL\string.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\cmath.h
+          D:\emulators\gameTesting\build\headers\src\MSL\sys\types.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\forward.h
+       D:\emulators\gameTesting\build\headers\libs\doldecomp\include\dat_macros.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\debug.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSContext.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSAlarm.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSAlloc.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSCache.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSDC.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSError.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSException.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSFont.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSIC.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSInterrupt.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSL2.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSLC.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSMessage.h
+                D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSThread.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSModule.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSMutex.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSReboot.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSReset.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSResetSW.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSRtc.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSSerial.h
+                D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\hw_regs.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSStopwatch.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\os\OSTime.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\dvd.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\fobj.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\mtx.h
+          D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\objalloc.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\object.h
+          D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\class.h
+       D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\dsp.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDBios.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDCheck.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDCreate.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDDelete.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDDir.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDFormat.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDMount.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDOpen.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDRdwr.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDRead.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDRename.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDStat.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\card\CARDWrite.h
+       D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXEnum.h
+       D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\pad.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\rumble.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\archive.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\jobj.h
+          D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\list.h
+          D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\pobj.h
+             D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\aobj.h
+          D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\spline.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\mobj.h
+          D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXBump.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXCommandList.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXCpu2Efb.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXCull.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXDispList.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXDraw.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXFifo.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXFrameBuffer.h
+                D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXStruct.h
+                   D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\vi\vitypes.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXGeometry.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXGet.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXLighting.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXManage.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXPerf.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXPixel.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXTev.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXTexture.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXTransform.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXVerify.h
+             D:\emulators\gameTesting\build\headers\libs\dolphin\include\dolphin\gx\GXVert.h
+          D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\texp.h
+          D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\tobj.h
+       D:\emulators\gameTesting\build\headers\libs\doldecomp\include\placeholder.h
+          D:\emulators\gameTesting\build\headers\libs\doldecomp\include\m2c_macros.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\psstructs.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\gobj.h
+       D:\emulators\gameTesting\build\headers\src\MSL\setjmp.h
+          D:\emulators\gameTesting\build\headers\src\Runtime\Gecko_setjmp.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\video.h
+       D:\emulators\gameTesting\build\headers\src\MSL\math.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\state.h
+       D:\emulators\gameTesting\build\headers\src\MSL\stdlib.h
+          D:\emulators\gameTesting\build\headers\src\MSL\strtoul.h
+          D:\emulators\gameTesting\build\headers\src\MSL\wchar.h
+       D:\emulators\gameTesting\build\headers\src\sysdolphin\baselib\mtx.h
+

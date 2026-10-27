@@ -1,4 +1,5 @@
-# Run every batch in order: names -> Ghidra rebuild (~3 min) -> cross-check -> game map -> search index, then a summary.
+# Run every batch in order: names -> Ghidra rebuild with types (~3 min) -> type checks -> cross-check -> game map
+# -> search index, then a summary.
 # Usage:  pwsh D:\emulators\gameTesting\tools\batches\run_all.ps1 [-SkipRebuild]
 param([switch]$SkipRebuild)
 $ErrorActionPreference = 'Stop'
@@ -8,6 +9,7 @@ $t0 = Get-Date
 python -I "$g\tools\lint_descriptive.py"
 if ($LASTEXITCODE) { throw 'symbols\descriptive.txt has problems (see above)' }
 if (-not $SkipRebuild) { & "$g\tools\rebuild_decomp.ps1" }
+& "$PSScriptRoot\batch5_types.ps1"
 & "$PSScriptRoot\batch2_crosscheck.ps1"
 & "$PSScriptRoot\batch3_game_map.ps1"
 & "$PSScriptRoot\batch4_index.ps1"

@@ -4,7 +4,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8000314C	__get_debug_bba	9	1	0				
 80003154	__start	69	0	13				
 800032B0	__init_registers	9	1	0				
-80003340	__init_data	24	1	3	memory			
+80003340	__init_data	23	1	3	memory			
 80003400	__init_hardware	12	1	3				
 80003424	__flush_cache	21	1	0				
 80003458	FUN_80003458	10	1	1				
@@ -12,7 +12,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800053E0	gTRKInterruptVectorTableEnd	10	1	1				
 8000540C	memset	10	73	1				
 8000543C	__fill_mem	56	1	0				
-800054F4	memcpy	35	38	0				
+800054F4	memcpy	36	38	0				
 800055E0	FUN_800055e0	9	8	0				
 800055E4	FUN_800055e4	9	1	0				
 800055E8	FUN_800055e8	22	1	9	video,~camera,~math,~render			
@@ -121,8 +121,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8001207C	FUN_8001207c	19	0	6				
 800120D8	FUN_800120d8	200	0	25	~anim,~camera,~math,~model,~video			
 800129F8	FUN_800129f8	606	0	24	math,render,~camera,~light,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
-80014A64	FUN_80014a64	239	0	12	math,~camera	jobj.h		s_jobj_80450393,s_jobj_h_8045038c
-80015388	FUN_80015388	99	1	8	camera,~math	jobj.h		s_jobj_80450393,s_jobj_h_8045038c
+80014A64	FUN_80014a64	238	0	12	math,~camera	jobj.h		s_jobj_80450393,s_jobj_h_8045038c
+80015388	FUN_80015388	102	1	8	camera,~math	jobj.h		s_jobj_80450393,s_jobj_h_8045038c
 8001566C	FUN_8001566c	18	0	1	~file-io,~math			
 800156DC	FUN_800156dc	38	0	6				
 800157F8	FUN_800157f8	11	0	2	~camera,~math,~model			
@@ -152,28 +152,28 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80016600	FUN_80016600	65	2	10	~anim,~memory,~model			s_scene_data_801b69b4
 80016820	FUN_80016820	9	0	0				
 80016824	FUN_80016824	13	0	4	render			
-80016868	FUN_80016868	176	0	25	file-io,render,video,~math	seq_movie.c		s_Fail_to_decode_video_data_801b69cb,s_seq_movie_c_801b69bf
+80016868	FUN_80016868	181	0	25	file-io,render,video,~math	seq_movie.c		s_Fail_to_decode_video_data_801b69cb,s_seq_movie_c_801b69bf
 80017100	FUN_80017100	14	0	0				
-80017128	FUN_80017128	120	0	19	file-io,memory,render,video	seq_movie.c	thpdemo_opening_a.thp	s_Can_t_allocate_the_memory_801b6a0e,s_THPSimpleOpen_fail_801b69fb,s_THPSimplePreLoad_fail_801b6a29,s_seq_movie_c_801b69bf,s_thpdemo_opening_a_thp_801b69e5
+80017128	FUN_80017128	121	0	19	file-io,memory,render,video	seq_movie.c	thpdemo_opening_a.thp	s_Can_t_allocate_the_memory_801b6a0e,s_THPSimpleOpen_fail_801b69fb,s_THPSimplePreLoad_fail_801b6a29,s_seq_movie_c_801b69bf,s_thpdemo_opening_a_thp_801b69e5
 80017668	FUN_80017668	44	0	7	~memory			
 800177F0	FUN_800177f0	142	1	3	memory			
-80017E10	FUN_80017e10	93	1	5	file-io			
-8001838C	FUN_8001838c	46	0	1	file-io			
+80017E10	FUN_80017e10	95	1	5	file-io			
+8001838C	FUN_8001838c	47	0	1	file-io			
 80018630	FUN_80018630	42	1	1				
-80018844	FUN_80018844	93	1	7	file-io,memory,~render,~video			
-80018C34	FUN_80018c34	153	1	32	math,render			
+80018844	FUN_80018844	97	1	7	file-io,memory,~render,~video			
+80018C34	FUN_80018c34	161	1	32	math,render			
 800191E8	FUN_800191e8	33	1	3	video,~input,~memory			
 800192C4	FUN_800192c4	86	0	1				s_Progressive_scan_mode_801e1334
-80019568	FUN_80019568	84	0	12	render,video			
+80019568	FUN_80019568	94	0	12	render,video			
 80019824	FUN_80019824	9	0	0				
 80019828	FUN_80019828	46	1	1				
 800199AC	FUN_800199ac	17	0	0				
 800199F0	FUN_800199f0	28	0	0				
 80019AF0	FUN_80019af0	141	1	0				
 80019E84	FUN_80019e84	80	1	16	~anim,~debug-print,~file-io,~memory,~model			s_scene_data_801b69b4
-8001A240	FUN_8001a240	248	0	22	math,render			
+8001A240	FUN_8001a240	247	0	22	math,render			
 8001AA98	FUN_8001aa98	9	0	0				
-8001AA9C	FUN_8001aa9c	183	0	26	render,video,~anim,~file-io,~input,~memory,~model			s_Would_you_like_to_display_801e1274
+8001AA9C	FUN_8001aa9c	188	0	26	render,video,~anim,~file-io,~input,~memory,~model			s_Would_you_like_to_display_801e1274
 8001B1A0	FUN_8001b1a0	12	5	0				
 8001B1D4	FUN_8001b1d4	31	1	1				
 8001B29C	FUN_8001b29c	36	2	0				
@@ -256,25 +256,25 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8001F758	FUN_8001f758	255	3	5	input,~memory			
 80020204	FUN_80020204	35	1	0				
 800202EC	cr_Archive_GetEntrySize	17	8	0				
-8002036C	cr_Archive_OpenRequestList	203	12	16	file-io,video,~math,~memory,~render			
+8002036C	cr_Archive_OpenRequestList	164	12	16	file-io,video,~math,~memory,~render			
 800208F0	FUN_800208f0	38	10	3	file-io			
 80020A40	FUN_80020a40	12	6	0				
 80020A60	FUN_80020a60	10	2	0				
-80020A70	cr_Archive_OpenEntry	110	16	1	file-io			
-80020E44	cr_FileSlot_QueueRead	49	18	5	file-io			
+80020A70	cr_Archive_OpenEntry	82	16	1	file-io			
+80020E44	cr_FileSlot_QueueRead	47	18	5	file-io			
 80021014	FUN_80021014	31	7	12	video,~file-io,~math,~memory,~render			
-800210B0	FUN_800210b0	82	0	3	file-io			
-80021350	FUN_80021350	81	0	3	file-io			
+800210B0	FUN_800210b0	63	0	3	file-io			
+80021350	FUN_80021350	64	0	3	file-io			
 800215F8	FUN_800215f8	27	22	1	file-io			
-80021674	FUN_80021674	133	1	6	file-io			
-800219E4	cr_Archive_SetEntryTable	19	1	0				
+80021674	FUN_80021674	113	1	6	file-io			
+800219E4	cr_Archive_SetEntryTable	18	1	0				
 80021A40	FUN_80021a40	23	2	12	video,~file-io,~math,~memory,~render			
 80021AA4	FUN_80021aa4	10	0	0				
 80021AB0	FUN_80021ab0	65	8	3	file-io,~render			
 80021CB4	cr_FileSys_Init	58	1	6	~file-io,~memory			s_MESGbmg1_801f12c0
-80021EF4	cr_FileSys_RegisterPath	63	1	3				
-800220C4	FUN_800220c4	134	1	14	file-io,memory			s___viewer_801bc91d,s__s__s_80450476
-800224F0	FUN_800224f0	66	1	17	render			
+80021EF4	cr_FileSys_RegisterPath	64	1	3				
+800220C4	FUN_800220c4	135	1	14	file-io,memory			s___viewer_801bc91d,s__s__s_80450476
+800224F0	FUN_800224f0	69	1	17	render			
 80022830	FUN_80022830	220	1	11	render			
 8002312C	FUN_8002312c	18	1	1				
 80023164	FUN_80023164	16	6	0				
@@ -293,9 +293,9 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80023678	FUN_80023678	37	10	0				
 80023780	FUN_80023780	17	1	1	memory			
 800237F8	FUN_800237f8	22	1	0				
-80023888	cr_Heap_AllocAligned	37	4	0				
+80023888	cr_Heap_AllocAligned	38	4	0				
 80023990	FUN_80023990	16	1	1	memory			
-80023A04	FUN_80023a04	92	1	24	file-io,render,video,~memory			
+80023A04	FUN_80023a04	95	1	24	file-io,render,video,~memory			
 80023CBC	FUN_80023cbc	51	1	4	~memory			
 80023EC8	FUN_80023ec8	18	1	9	~camera,~debug-print,~file-io,~math,~memcard,~render,~video			
 80023F0C	FUN_80023f0c	49	1	0				
@@ -312,7 +312,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800249C4	FUN_800249c4	21	0	0				
 80024A88	FUN_80024a88	30	0	1				
 80024BC4	FUN_80024bc4	76	0	0				
-80024EB0	FUN_80024eb0	184	0	5	math			
+80024EB0	FUN_80024eb0	180	0	5	math			
 8002557C	FUN_8002557c	77	0	4				
 800259D4	FUN_800259d4	44	0	0				
 80025C34	FUN_80025c34	109	0	2	~camera,~math			
@@ -327,55 +327,55 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80026D04	FUN_80026d04	62	5	1	~math			
 80026F58	FUN_80026f58	45	1	0				
 80027170	FUN_80027170	69	1	0				
-8002745C	FUN_8002745c	701	1	2	math			
-80029060	FUN_80029060	146	4	2	math			
+8002745C	FUN_8002745c	697	1	2	math			
+80029060	FUN_80029060	131	4	2	math			
 800294D8	FUN_800294d8	98	1	7	~math			
-80029924	FUN_80029924	48	1	1	math			
-80029A9C	FUN_80029a9c	36	3	1	math			
+80029924	FUN_80029924	46	1	1	math			
+80029A9C	FUN_80029a9c	34	3	1	math			
 80029C20	FUN_80029c20	18	9	0				
 80029C84	FUN_80029c84	98	1	0				
 80029F70	FUN_80029f70	18	9	0				
 80029FD4	FUN_80029fd4	105	1	0				
-8002A334	FUN_8002a334	77	1	2	math			
+8002A334	FUN_8002a334	67	1	2	math			
 8002A598	FUN_8002a598	73	1	3	~math			
 8002A81C	FUN_8002a81c	325	0	3				
-8002B284	FUN_8002b284	49	4	1	math			
-8002B3C4	FUN_8002b3c4	505	3	7	math			
-8002CC54	FUN_8002cc54	470	4	6	math			
+8002B284	FUN_8002b284	48	4	1	math			
+8002B3C4	FUN_8002b3c4	490	3	7	math			
+8002CC54	FUN_8002cc54	441	4	6	math			
 8002E04C	FUN_8002e04c	68	5	1				
 8002E2A0	FUN_8002e2a0	91	1	1				
-8002E564	FUN_8002e564	82	1	3	math			
-8002E944	FUN_8002e944	66	1	3	math			
-8002EBB0	FUN_8002ebb0	85	1	3	math			
-8002EFB0	FUN_8002efb0	103	4	3	math			
-8002F320	FUN_8002f320	140	9	11	camera,math			
+8002E564	FUN_8002e564	80	1	3	math			
+8002E944	FUN_8002e944	64	1	3	math			
+8002EBB0	FUN_8002ebb0	83	1	3	math			
+8002EFB0	FUN_8002efb0	97	4	3	math			
+8002F320	FUN_8002f320	139	9	11	camera,math			
 8002F7E4	FUN_8002f7e4	81	4	2	~camera,~math			
 8002FAB4	FUN_8002fab4	13	0	0				
-8002FAD0	FUN_8002fad0	122	0	4	math			
+8002FAD0	FUN_8002fad0	120	0	4	math			
 8002FEFC	FUN_8002fefc	100	1	0				
 800305AC	FUN_800305ac	78	0	1				
 8003081C	FUN_8003081c	321	0	4				
 80032A20	FUN_80032a20	152	1	1				
 8003315C	FUN_8003315c	62	0	1				
-800333DC	FUN_800333dc	389	0	5	math			s_CAMMODE_STAGE_INFO_801bca3d
+800333DC	FUN_800333dc	388	0	5	math			s_CAMMODE_STAGE_INFO_801bca3d
 80034380	FUN_80034380	13	0	2	~math			
 800343CC	FUN_800343cc	27	0	2	~math			
 80034498	FUN_80034498	114	0	3	~math			
 8003491C	FUN_8003491c	72	0	2	~math			
 80034BF0	FUN_80034bf0	162	0	6	~math			
-800351D4	FUN_800351d4	56	0	4	math			
+800351D4	FUN_800351d4	54	0	4	math			
 800353B8	FUN_800353b8	76	0	1				
 8003577C	FUN_8003577c	86	0	2				
 80035BCC	FUN_80035bcc	82	0	3	~math			
 80035ED4	FUN_80035ed4	13	0	4	~math			
 80035F18	FUN_80035f18	9	0	0				
 80035F1C	FUN_80035f1c	59	0	11	camera,math			
-80036100	FUN_80036100	77	0	4	math,~camera			
-8003633C	FUN_8003633c	163	0	5	math,~camera			
+80036100	FUN_80036100	73	0	4	math,~camera			
+8003633C	FUN_8003633c	159	0	5	math,~camera			
 80036954	FUN_80036954	67	1	3				
-80036BCC	FUN_80036bcc	131	9	6	camera,~math			
-80036FB0	FUN_80036fb0	133	1	6	camera,~math			
-800373AC	FUN_800373ac	50	8	13	render			
+80036BCC	FUN_80036bcc	130	9	6	camera,~math			
+80036FB0	FUN_80036fb0	132	1	6	camera,~math			
+800373AC	FUN_800373ac	53	8	13	render			
 8003764C	FUN_8003764c	68	1	0				
 80037894	FUN_80037894	63	1	0				
 80037A34	FUN_80037a34	15	1	2				
@@ -386,9 +386,9 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800381D0	FUN_800381d0	246	1	16	~math			
 800389C8	FUN_800389c8	56	1	6	~camera,~light,~math,~model,~render			
 80038BD8	FUN_80038bd8	45	1	2	~camera,~light,~math,~model,~render			
-80038CF8	FUN_80038cf8	137	2	3	model,~camera,~light,~math,~render			
-800392B0	FUN_800392b0	297	1	22	math	jobj.h		s_jobj_80450677,s_jobj_h_80450670
-80039FAC	FUN_80039fac	306	3	10	math	jobj.h		s_jobj_80450677,s_jobj_h_80450670
+80038CF8	FUN_80038cf8	140	2	3	model,~camera,~light,~math,~render			
+800392B0	FUN_800392b0	298	1	22	math	jobj.h		s_jobj_80450677,s_jobj_h_80450670
+80039FAC	FUN_80039fac	307	3	10	math	jobj.h		s_jobj_80450677,s_jobj_h_80450670
 8003ABA0	FUN_8003aba0	107	1	1				
 8003AFF0	FUN_8003aff0	56	1	1				
 8003B1BC	FUN_8003b1bc	67	1	0				
@@ -400,16 +400,16 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8003D7E0	FUN_8003d7e0	147	2	11	~math,~model			
 8003DD38	FUN_8003dd38	552	1	24	math			
 8003F000	FUN_8003f000	16	1	0				
-8003F048	FUN_8003f048	63	1	3	~anim,~model			
+8003F048	FUN_8003f048	62	1	3	~anim,~model			
 8003F1E8	FUN_8003f1e8	15	1	2				
 8003F248	FUN_8003f248	264	5	17	~math,~model			
-8003FB00	FUN_8003fb00	112	1	13	math,model,~camera,~light,~render	jobj.h		s_jobj_80450677,s_jobj_h_80450670
+8003FB00	FUN_8003fb00	116	1	13	math,model,~camera,~light,~render	jobj.h		s_jobj_80450677,s_jobj_h_80450670
 8003FE98	FUN_8003fe98	575	1	21	~math			
 800410C0	FUN_800410c0	23	1	1				
-80041140	FUN_80041140	65	1	4	~anim,~model			
+80041140	FUN_80041140	64	1	4	~anim,~model			
 800412F8	FUN_800412f8	15	1	2				
 80041358	FUN_80041358	454	1	15	~math,~model			
-800426D4	FUN_800426d4	106	1	13	math,model,~camera,~light,~render	jobj.h		s_jobj_80450677,s_jobj_h_80450670
+800426D4	FUN_800426d4	110	1	13	math,model,~camera,~light,~render	jobj.h		s_jobj_80450677,s_jobj_h_80450670
 80042AB8	FUN_80042ab8	607	1	32	~math,~model			
 800440BC	FUN_800440bc	34	1	2				
 80044174	FUN_80044174	50	1	4	~anim,~model			
@@ -514,9 +514,9 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80061B38	FUN_80061b38	11	1	2				
 80061B90	FUN_80061b90	11	6	2				
 80061BE8	FUN_80061be8	62	2	4				
-80061E18	FUN_80061e18	62	1	4	math	jobj.h		s_jobj_80450a2f,s_jobj_h_80450a28
-8006207C	FUN_8006207c	188	26	5	math	jobj.h		s_jobj_80450a2f,s_jobj_h_80450a28
-80062894	FUN_80062894	209	1	26	math,render			
+80061E18	FUN_80061e18	58	1	4	math	jobj.h		s_jobj_80450a2f,s_jobj_h_80450a28
+8006207C	FUN_8006207c	184	26	5	math	jobj.h		s_jobj_80450a2f,s_jobj_h_80450a28
+80062894	FUN_80062894	211	1	26	math,render			
 80062FF4	FUN_80062ff4	59	1	0				
 800633BC	FUN_800633bc	87	1	3				
 80063654	FUN_80063654	101	1	0				
@@ -558,7 +558,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800671C4	FUN_800671c4	28	3	0				
 80067250	FUN_80067250	15	1	1	~render			
 800672AC	FUN_800672ac	62	1	1				
-800674E4	FUN_800674e4	88	5	3				
+800674E4	FUN_800674e4	89	5	3				
 80067778	FUN_80067778	19	2	0				
 800677C4	FUN_800677c4	23	11	0				
 80067848	FUN_80067848	25	13	0				
@@ -608,33 +608,33 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8006B848	FUN_8006b848	453	1	9	~math			
 8006C970	FUN_8006c970	338	1	9	~math	jobj.h		s_jobj_80450b5b,s_jobj_h_80450b54
 8006D4F8	FUN_8006d4f8	135	1	2	~math			
-8006D9EC	FUN_8006d9ec	160	1	17	render			
-8006DF5C	FUN_8006df5c	123	1	17	render			
-8006E38C	FUN_8006e38c	79	1	23	render			
-8006E628	FUN_8006e628	15	3	1				
+8006D9EC	FUN_8006d9ec	162	1	17	render			
+8006DF5C	FUN_8006df5c	125	1	17	render			
+8006E38C	FUN_8006e38c	82	1	23	render			
+8006E628	FUN_8006e628	18	3	1				
 8006E690	FUN_8006e690	14	15	1				
 8006E6E8	FUN_8006e6e8	30	2	1				
 8006E778	FUN_8006e778	14	4	1				
 8006E7D0	FUN_8006e7d0	16	1	1	~camera,~math,~model,~render			
-8006E83C	FUN_8006e83c	69	1	9	camera,~model,~render	background.c,shadow.h		s_background_c_801c0b08,s_shadow_80450b78,s_shadow_h_801c0b4f
+8006E83C	FUN_8006e83c	73	1	9	camera,~model,~render	background.c,shadow.h		s_background_c_801c0b08,s_shadow_80450b78,s_shadow_h_801c0b4f
 8006EA34	FUN_8006ea34	137	1	19	camera,render,~math,~model,~video	shadow.h		s_shadow_80450b78,s_shadow_h_801c0b4f
-8006EEF8	FUN_8006eef8	276	1	17	math,render			
+8006EEF8	FUN_8006eef8	274	1	17	math,render			
 8006FAC4	FUN_8006fac4	17	1	1	~model			
 8006FB74	FUN_8006fb74	10	2	0				
 8006FB88	FUN_8006fb88	10	2	0				
 8006FB9C	FUN_8006fb9c	12	3	0				
 8006FBE0	FUN_8006fbe0	41	1	1		jobj.h		s_jobj_80450bd7,s_jobj_h_80450bd0,s_translate_801c0b58
 8006FDD0	FUN_8006fdd0	14	1	0				
-8006FE38	FUN_8006fe38	59	6	2				
+8006FE38	FUN_8006fe38	62	6	2				
 80070130	FUN_80070130	10	0	0				
 80070170	FUN_80070170	642	0	17	math,~model	jobj.h		s_jobj_80450bd7,s_jobj_h_80450bd0
 80071960	FUN_80071960	10	0	0				
-80071974	FUN_80071974	182	3	17	model,render,~camera,~math			
-80072064	FUN_80072064	235	2	23	camera,model,render,~anim,~math,~memory	background.c,jobj.h,lobj.h,shadow.h		s_background_c_801c0b08,s_jobj_80450bd7,s_jobj_h_80450bd0,s_lobj_80450c13,s_lobj_h_80450c0c,s_scene_data_801c0b62,s_shadow_80450b78,s_shadow_h_801c0b4f
+80071974	FUN_80071974	189	3	17	model,render,~camera,~math			
+80072064	FUN_80072064	240	2	23	camera,model,render,~anim,~math,~memory	background.c,jobj.h,lobj.h,shadow.h		s_background_c_801c0b08,s_jobj_80450bd7,s_jobj_h_80450bd0,s_lobj_80450c13,s_lobj_h_80450c0c,s_scene_data_801c0b62,s_shadow_80450b78,s_shadow_h_801c0b4f
 80072A58	FUN_80072a58	54	2	0				
 80072B90	FUN_80072b90	70	1	4	math,~model	jobj.h		s_jobj_80450bd7,s_jobj_h_80450bd0
 80072F18	FUN_80072f18	60	0	4	math	jobj.h		s_jobj_80450bd7,s_jobj_h_80450bd0
-800730F8	FUN_800730f8	123	0	5	math	jobj.h		s_jobj_80450bd7,s_jobj_h_80450bd0
+800730F8	FUN_800730f8	122	0	5	math	jobj.h		s_jobj_80450bd7,s_jobj_h_80450bd0
 800735C8	FUN_800735c8	46	2	2				s_scene_data_801c0b70
 80073728	FUN_80073728	69	3	8	~anim,~camera,~memory,~model,~render	lobj.h		s_lobj_80450c33,s_lobj_h_80450c2c,s_scene_data_801c0b70
 80073A74	FUN_80073a74	86	2	5	~anim,~camera,~model			s_scene_data_801c0b70
@@ -653,19 +653,19 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800755E8	FUN_800755e8	31	1	3	~anim,~memory,~model			
 80075718	FUN_80075718	9	1	0				
 8007571C	FUN_8007571c	41	1	4	~file-io,~render,~video			s_scene_data_801c0b80
-80075950	FUN_80075950	44	2	2				
+80075950	FUN_80075950	50	2	2				
 80075BBC	FUN_80075bbc	18	3	5	~math,~model			
 80075C14	FUN_80075c14	13	2	2	~math,~model			
 80075C54	FUN_80075c54	15	2	2	~camera,~debug-print,~light,~math,~memory,~render			
 80075CA4	FUN_80075ca4	9	1	0				
 80075CA8	FUN_80075ca8	16	1	7	~memory			
 80075D14	FUN_80075d14	45	1	2				
-80075EE8	FUN_80075ee8	75	1	15	render			
-800761D0	FUN_800761d0	54	1	1	math			
-80076394	FUN_80076394	20	2	2	model			
+80075EE8	FUN_80075ee8	77	1	15	render			
+800761D0	FUN_800761d0	52	1	1	math			
+80076394	FUN_80076394	23	2	2	model			
 80076404	FUN_80076404	38	1	0				
 800764D0	FUN_800764d0	170	3	4	~camera,~light,~math,~model,~render			
-80076B2C	FUN_80076b2c	227	1	4	math			
+80076B2C	FUN_80076b2c	228	1	4	math			
 80077290	FUN_80077290	16	2	0				
 800772C0	FUN_800772c0	30	1	2	~anim,~memory,~model			
 800773D0	FUN_800773d0	30	1	2	~anim,~memory,~model			
@@ -755,27 +755,27 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80081440	FUN_80081440	165	1	5	~math			
 80081908	FUN_80081908	73	1	4	math			
 80081B54	FUN_80081b54	60	1	1				
-80081D9C	FUN_80081d9c	160	1	10	math			
+80081D9C	FUN_80081d9c	158	1	10	math			
 80082364	FUN_80082364	139	0	0				
 80082A00	FUN_80082a00	115	3	3				
 80082F84	FUN_80082f84	278	1	9	~anim,~memory,~model			s_lobj_80450f4b,s_scene_data_801c0cd0
-80083C78	FUN_80083c78	281	1	15	math,model,render,~camera	5jobj.h		s_5jobj_h_80450f5b,s_jobj_80450f63
+80083C78	FUN_80083c78	283	1	15	math,model,render,~camera	5jobj.h		s_5jobj_h_80450f5b,s_jobj_80450f63
 80084908	FUN_80084908	78	2	3	math			
 80084CFC	FUN_80084cfc	117	3	1				
 80085280	FUN_80085280	41	2	2	~math			
-8008538C	FUN_8008538c	106	3	4	model			
+8008538C	FUN_8008538c	110	3	4	model			
 8008578C	FUN_8008578c	56	1	6	math			
 800858B0	FUN_800858b0	93	1	2	math			
 80085CE4	FUN_80085ce4	223	1	1				
 8008688C	FUN_8008688c	59	3	3				
 80086CA0	FUN_80086ca0	99	0	6	~math,~model			
 80086F54	FUN_80086f54	74	1	1				
-80087188	FUN_80087188	146	2	7	math			
-80087668	FUN_80087668	115	1	6	math			
+80087188	FUN_80087188	142	2	7	math			
+80087668	FUN_80087668	113	1	6	math			
 800879E8	FUN_800879e8	63	2	2	~math			
 80087CE0	FUN_80087ce0	152	0	8	~math,~model			
 800881B0	FUN_800881b0	132	2	6	math			
-8008871C	FUN_8008871c	54	0	9	math,~model			
+8008871C	FUN_8008871c	53	0	9	math,~model			
 8008891C	FUN_8008891c	50	0	0				
 80088C8C	FUN_80088c8c	115	1	3	~math			
 80089140	FUN_80089140	140	2	6	math			
@@ -828,7 +828,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8008E598	FUN_8008e598	18	3	0				
 8008E5D0	FUN_8008e5d0	53	2	3	render,~math			
 8008E750	FUN_8008e750	22	3	0				
-8008E7EC	FUN_8008e7ec	19	2	2	render			
+8008E7EC	FUN_8008e7ec	27	2	2	render			
 8008E8F4	FUN_8008e8f4	35	2	3	render			
 8008E9FC	FUN_8008e9fc	23	5	0				
 8008EA64	FUN_8008ea64	102	3	1				
@@ -853,8 +853,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80090058	FUN_80090058	26	1	4	~render			
 80090190	FUN_80090190	26	1	4	~render			
 80090298	FUN_80090298	85	1	5	~render	sprite.c		s_invalid_version_number_for_textu_801c0d41,s_sprite_c_801c0d38
-80090710	FUN_80090710	417	1	10	render			
-80091518	FUN_80091518	292	8	18	render,~math			
+80090710	FUN_80090710	412	1	10	render			
+80091518	FUN_80091518	298	8	18	render,~math			
 80091F84	FUN_80091f84	36	2	4	~render			
 800920D0	FUN_800920d0	10	2	1				
 80092108	FUN_80092108	10	15	1				
@@ -880,15 +880,15 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800943D8	FUN_800943d8	33	1	3	render			
 800944B8	FUN_800944b8	17	4	0				
 800944E4	FUN_800944e4	149	1	3				
-8009496C	FUN_8009496c	139	2	6	model			
+8009496C	FUN_8009496c	146	2	6	model			
 80094DD8	FUN_80094dd8	138	9	4				
-80095224	FUN_80095224	147	2	7	model			
+80095224	FUN_80095224	154	2	7	model			
 80095700	FUN_80095700	106	3	2				
 80095A30	FUN_80095a30	136	15	4	~math	jobj.h		s_jobj_80451097,s_jobj_h_80451090
 80095D7C	FUN_80095d7c	24	2	2	~math	jobj.h		s_jobj_80451097,s_jobj_h_80451090
 80095E00	FUN_80095e00	18	1	1		jobj.h		s_jobj_80451097,s_jobj_h_80451090
-80095E6C	FUN_80095e6c	153	6	13	camera,light,render,~math,~model	jobj.h		s_jobj_80451097,s_jobj_h_80451090
-80096374	FUN_80096374	49	1	5	camera,~math	jobj.h		s_jobj_80451097,s_jobj_h_80451090
+80095E6C	FUN_80095e6c	157	6	13	camera,light,render,~math,~model	jobj.h		s_jobj_80451097,s_jobj_h_80451090
+80096374	FUN_80096374	53	1	5	camera,~math	jobj.h		s_jobj_80451097,s_jobj_h_80451090
 800964B0	FUN_800964b0	20	1	0				
 80096528	FUN_80096528	12	2	0				
 80096544	FUN_80096544	16	1	1				
@@ -911,15 +911,15 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80097588	FUN_80097588	21	2	0				
 8009760C	FUN_8009760c	19	5	0				
 80097670	FUN_80097670	73	5	0				
-80097834	FUN_80097834	167	1	1	math			
-80097CA8	FUN_80097ca8	165	19	1	math			
+80097834	FUN_80097834	164	1	1	math			
+80097CA8	FUN_80097ca8	162	19	1	math			
 80098104	FUN_80098104	68	14	0				
 80098290	FUN_80098290	67	77	0				
 80098410	FUN_80098410	19	3	2				
 80098484	FUN_80098484	330	1	14	~debug-print,~file-io			
 80098F4C	FUN_80098f4c	12	1	1				
 80098F8C	FUN_80098f8c	29	1	1	~debug-print,~file-io			
-80099124	FUN_80099124	115	1	25	video,~debug-print,~file-io,~math,~memory,~render			
+80099124	FUN_80099124	116	1	25	video,~debug-print,~file-io,~math,~memory,~render			
 80099538	FUN_80099538	21	4	0				
 800995A0	FUN_800995a0	143	1	0				
 800999F0	FUN_800999f0	50	1	1				
@@ -945,7 +945,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800A0CB0	FUN_800a0cb0	39	0	0				
 800A0E14	FUN_800a0e14	10	0	1				
 800A0E3C	FUN_800a0e3c	10	0	1				
-800A0E64	FUN_800a0e64	1031	0	39	video,~file-io,~math,~render			s_MOTION____s_801c3bb3,s__2_4f_8045132f,s__2d____2d__s_801c3b9d,s__d____d_801c3baa
+800A0E64	FUN_800a0e64	1032	0	39	video,~file-io,~math,~render			s_MOTION____s_801c3bb3,s__2_4f_8045132f,s__2d____2d__s_801c3b9d,s__d____d_801c3baa
 800A3C0C	FUN_800a3c0c	172	1	2				
 800A4440	FUN_800a4440	10	0	0				
 800A4478	FUN_800a4478	18	0	4	~math			
@@ -972,8 +972,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800A59D8	FUN_800a59d8	63	1	5				
 800A5C60	FUN_800a5c60	47	1	1	math			
 800A5F3C	FUN_800a5f3c	45	0	5				
-800A6068	FUN_800a6068	69	1	10	math,model,~camera,~light,~render	jobj.h		s_jobj_804513c3,s_jobj_h_804513bc
-800A63C0	FUN_800a63c0	1382	1	57	~file-io,~math,~memory,~model			s__333_8022a0f8,s___ff__8022a0ec,s_m_tk_b2d_r_01_801bfffb
+800A6068	FUN_800a6068	70	1	10	math,model,~camera,~light,~render	jobj.h		s_jobj_804513c3,s_jobj_h_804513bc
+800A63C0	FUN_800a63c0	1387	1	57	~file-io,~math,~memory,~model			s__333_8022a0f8,s___ff__8022a0ec,s_m_tk_b2d_r_01_801bfffb
 800A9FEC	FUN_800a9fec	10	0	0				
 800AA024	FUN_800aa024	38	0	3	~math			
 800AA130	FUN_800aa130	25	0	0				
@@ -1045,11 +1045,11 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800B1FBC	FUN_800b1fbc	86	1	5	math,~anim,~memory,~model			
 800B2300	FUN_800b2300	10	0	0				
 800B2338	FUN_800b2338	10	0	0				
-800B2370	FUN_800b2370	287	1	16	render			
-800B3054	FUN_800b3054	88	1	14	render			
+800B2370	FUN_800b2370	289	1	16	render			
+800B3054	FUN_800b3054	90	1	14	render			
 800B3640	FUN_800b3640	70	7	2				
 800B381C	FUN_800b381c	181	1	2	math			
-800B3EF8	FUN_800b3ef8	66	1	15	render,~math			
+800B3EF8	FUN_800b3ef8	68	1	15	render,~math			
 800B4208	FUN_800b4208	20	1	1				
 800B4278	FUN_800b4278	92	8	2				
 800B44D0	FUN_800b44d0	71	1	3				
@@ -1091,7 +1091,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800BC9A4	FUN_800bc9a4	40	1	2				
 800BCBA8	FUN_800bcba8	13	1	1				
 800BCBFC	FUN_800bcbfc	14	3	1				
-800BCC60	FUN_800bcc60	26	1	3	model,~camera,~light,~math,~render			
+800BCC60	FUN_800bcc60	29	1	3	model,~camera,~light,~math,~render			
 800BCD80	FUN_800bcd80	70	1	3				
 800BD074	FUN_800bd074	175	1	4				
 800BD5F0	FUN_800bd5f0	13	1	1				
@@ -1238,11 +1238,11 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800C74CC	FUN_800c74cc	16	0	0				
 800C7564	FUN_800c7564	59	0	2				
 800C7854	FUN_800c7854	20	0	1				
-800C7928	FUN_800c7928	106	0	5	math			
+800C7928	FUN_800c7928	104	0	5	math			
 800C7D18	FUN_800c7d18	24	0	0				
-800C7DF4	FUN_800c7df4	107	0	7	math			
+800C7DF4	FUN_800c7df4	105	0	7	math			
 800C8218	FUN_800c8218	71	0	3				
-800C84FC	FUN_800c84fc	69	0	7	math			
+800C84FC	FUN_800c84fc	67	0	7	math			
 800C875C	FUN_800c875c	38	0	3				
 800C88DC	FUN_800c88dc	47	0	0				
 800C8ADC	FUN_800c8adc	58	0	0				
@@ -1253,13 +1253,13 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800C9184	FUN_800c9184	40	0	2				
 800C9300	FUN_800c9300	38	0	2				
 800C946C	FUN_800c946c	16	0	0				
-800C9504	FUN_800c9504	98	0	5	math			
-800C9898	FUN_800c9898	84	0	6	math			
-800C9B50	FUN_800c9b50	79	0	5	math			
-800C9E00	FUN_800c9e00	73	0	5	math			
+800C9504	FUN_800c9504	96	0	5	math			
+800C9898	FUN_800c9898	82	0	6	math			
+800C9B50	FUN_800c9b50	77	0	5	math			
+800C9E00	FUN_800c9e00	71	0	5	math			
 800CA070	FUN_800ca070	35	0	3				
-800CA188	FUN_800ca188	78	0	5	math			
-800CA43C	FUN_800ca43c	81	0	5	math			
+800CA188	FUN_800ca188	76	0	5	math			
+800CA43C	FUN_800ca43c	79	0	5	math			
 800CA708	FUN_800ca708	48	0	3				
 800CA888	FUN_800ca888	28	0	2				
 800CA984	FUN_800ca984	16	0	0				
@@ -1399,7 +1399,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800DB71C	FUN_800db71c	16	0	0				
 800DB7B4	FUN_800db7b4	26	0	0				
 800DB8A4	FUN_800db8a4	51	0	0				
-800DBAD0	FUN_800dbad0	902	1	26	math			
+800DBAD0	FUN_800dbad0	899	1	26	math			
 800DDCD4	FUN_800ddcd4	250	1	12	math	jobj.h		s_jobj_80451587,s_jobj_h_8045157f
 800DE7A8	FUN_800de7a8	234	1	2				
 800DEFBC	FUN_800defbc	9	0	0				
@@ -1424,10 +1424,10 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800E43EC	FUN_800e43ec	59	1	2				
 800E4618	FUN_800e4618	61	1	0				
 800E4770	FUN_800e4770	70	1	0				
-800E4958	FUN_800e4958	56	1	3	math			
+800E4958	FUN_800e4958	52	1	3	math			
 800E4AC4	FUN_800e4ac4	182	1	3				
 800E52D0	FUN_800e52d0	212	2	11				
-800E5938	FUN_800e5938	330	1	17	math			s_dddddddd_801ca557
+800E5938	FUN_800e5938	329	1	17	math			s_dddddddd_801ca557
 800E6348	FUN_800e6348	349	1	15				s_dddddddd_801ca557
 800E6E34	FUN_800e6e34	71	1	0				
 800E7310	FUN_800e7310	287	1	6				
@@ -1435,7 +1435,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800E8564	FUN_800e8564	305	1	16	~math			
 800E9000	FUN_800e9000	122	1	7				
 800E9428	FUN_800e9428	156	1	4				
-800E9914	FUN_800e9914	90	1	7	math			
+800E9914	FUN_800e9914	88	1	7	math			
 800E9C90	FUN_800e9c90	19	0	1				
 800E9D34	FUN_800e9d34	19	0	1				
 800E9DD8	FUN_800e9dd8	19	0	1				
@@ -1451,12 +1451,12 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800EAA38	FUN_800eaa38	66	0	1				
 800EAC38	FUN_800eac38	10	0	0				
 800EAC48	FUN_800eac48	82	6	12	file-io,video,~input,~memory,~render			
-800EAF34	FUN_800eaf34	28	1	1				
-800EB004	FUN_800eb004	28	2	1				
+800EAF34	FUN_800eaf34	29	1	1				
+800EB004	FUN_800eb004	29	2	1				
 800EB0D4	FUN_800eb0d4	10	3	0				
 800EB0E0	FUN_800eb0e0	10	0	0				
 800EB100	FUN_800eb100	15	1	1				
-800EB158	FUN_800eb158	81	11	10	memory,~memcard			s_Custom_Robo_802362a0,s__4d__02d__02d__02d__02d__02d_801c3d00
+800EB158	FUN_800eb158	83	11	10	memory,~memcard			s_Custom_Robo_802362a0,s__4d__02d__02d__02d__02d__02d_801c3d00
 800EB518	FUN_800eb518	85	11	3				
 800EB8A0	FUN_800eb8a0	67	1	1				
 800EBAE0	FUN_800ebae0	66	1	1				
@@ -1464,11 +1464,11 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800EBF64	FUN_800ebf64	149	1	1				
 800EC3CC	FUN_800ec3cc	177	1	1				
 800EC9F0	FUN_800ec9f0	10	0	1				
-800ECA28	FUN_800eca28	978	1	34	memcard,~memory			s_CustomRobo_BattleRevolution_80237ee0
+800ECA28	FUN_800eca28	980	1	34	memcard,~memory			s_CustomRobo_BattleRevolution_80237ee0
 800EEA98	FUN_800eea98	46	1	1				
 800EEC1C	FUN_800eec1c	32	1	0				
 800EECD0	FUN_800eecd0	32	1	3				
-800EEDDC	FUN_800eeddc	136	1	2	memcard			
+800EEDDC	FUN_800eeddc	137	1	2	memcard			
 800EF290	FUN_800ef290	10	1	1	memcard			
 800EF2B0	FUN_800ef2b0	10	1	1				
 800EF2E0	FUN_800ef2e0	45	2	1				
@@ -1544,7 +1544,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80100BD0	FUN_80100bd0	21	4	0				
 80100C30	FUN_80100c30	74	1	0				
 80100F68	FUN_80100f68	32	1	3	~memory,~model	lobj.h		s_lobj_804517ff,s_lobj_h_804517f8
-801010A8	FUN_801010a8	57	1	9	math,~camera,~light,~model,~render	jobj.h		s_jobj_804517f3,s_jobj_h_804517ec
+801010A8	FUN_801010a8	58	1	9	math,~camera,~light,~model,~render	jobj.h		s_jobj_804517f3,s_jobj_h_804517ec
 80101284	FUN_80101284	133	1	5	~math			
 80101730	FUN_80101730	60	1	6				
 80101950	FUN_80101950	19	1	4				
@@ -1579,7 +1579,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8010DBA0	FUN_8010dba0	9	0	0				
 8010DBA8	FUN_8010dba8	35	0	0				
 8010DD74	FUN_8010dd74	17	0	2	~file-io			
-8010DE04	FUN_8010de04	32	0	3				
+8010DE04	FUN_8010de04	31	0	3				
 8010DF48	FUN_8010df48	128	1	1				
 8010E3A4	FUN_8010e3a4	20	2	1				
 8010E478	FUN_8010e478	9	0	0				
@@ -1633,7 +1633,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80114A48	FUN_80114a48	85	0	7				
 80114EB8	FUN_80114eb8	70	0	7				
 8011513C	FUN_8011513c	85	0	7				
-801155AC	FUN_801155ac	79	1	18	render,~math			
+801155AC	FUN_801155ac	81	1	18	render,~math			
 80115918	FUN_80115918	61	0	1				s_r_B__80240902
 80115B10	FUN_80115b10	42	0	7				
 80115D04	FUN_80115d04	61	0	1				s_r_B__80240902
@@ -1653,13 +1653,13 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80118C08	FUN_80118c08	87	0	10	~memcard,~memory			
 80118ED4	FUN_80118ed4	87	0	5				
 8011936C	FUN_8011936c	95	0	10	~memcard,~memory			
-80119680	FUN_80119680	131	0	7				
+80119680	FUN_80119680	132	0	7				
 80119C8C	FUN_80119c8c	74	0	8				
 80119F34	FUN_80119f34	90	0	6				
 8011A37C	FUN_8011a37c	68	0	7				
 8011A5D0	FUN_8011a5d0	66	0	6				
 8011A8FC	FUN_8011a8fc	80	0	8				
-8011ABA4	FUN_8011aba4	87	0	6				
+8011ABA4	FUN_8011aba4	88	0	6				
 8011AF04	FUN_8011af04	10	0	0				
 8011AF64	FUN_8011af64	45	0	2				
 8011B168	FUN_8011b168	10	0	1				
@@ -1726,7 +1726,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80125DCC	FUN_80125dcc	160	0	7				
 8012646C	FUN_8012646c	311	0	7				
 8012752C	FUN_8012752c	92	1	2				
-80127954	FUN_80127954	197	1	5				s__3_1f_80451ae8,s__3_1f__80451acc,s__3d__80451b14,s__6d_80451adc
+80127954	FUN_80127954	198	1	5				s__3_1f_80451ae8,s__3_1f__80451acc,s__3d__80451b14,s__6d_80451adc
 8012855C	FUN_8012855c	89	1	2				
 801288F4	FUN_801288f4	113	0	6				
 80128F20	FUN_80128f20	864	0	10				
@@ -1790,8 +1790,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80131E44	OSGetConsoleType	14	3	0				
 80131E6C	ClearArena	60	1	4	memory			
 80131F94	InquiryCallback	15	0	0				
-80131FD0	OSInit	141	1	38	debug-print,file-io			s_11_27_16_80242868,s_Arena___0x_x___0x_x_802428fc,s_Console_Type___80242874,s_Development_HW_d___08x__802428d0,s_Dolphin_OS_80242834,s_EPPC_Arthur_802428b0,s_EPPC_Minnow_802428c0,s_Jul_23_2003_8024285c,s_Kernel_built____s__s_80242844,s_Mac_Emulator_80242890,s_Memory__d_MB_802428ec,s_PC_Emulator_802428a0
-801323A8	OSExceptionInit	63	1	6	memory			s_Exceptions_initialized____802429cc,s_Installing_OSDBIntegrator_80242950
+80131FD0	OSInit	140	1	38	debug-print,file-io			s_11_27_16_80242868,s_Arena___0x_x___0x_x_802428fc,s_Console_Type___80242874,s_Development_HW_d___08x__802428d0,s_Dolphin_OS_80242834,s_EPPC_Arthur_802428b0,s_EPPC_Minnow_802428c0,s_Jul_23_2003_8024285c,s_Kernel_built____s__s_80242844,s_Mac_Emulator_80242890,s_Memory__d_MB_802428ec,s_PC_Emulator_802428a0
+801323A8	OSExceptionInit	65	1	6	memory			s_Exceptions_initialized____802429cc,s_Installing_OSDBIntegrator_80242950
 80132628	__OSDBIntegrator	14	0	0				
 8013264C	__OSDBINTEND	17	0	0				
 80132650	__OSSetExceptionHandler	15	4	0				
@@ -1803,7 +1803,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80132808	OSInitAlarm	18	3	3				
 80132860	OSCreateAlarm	11	14	0				
 80132870	InsertAlarm	99	3	3				
-80132AC0	OSSetAlarm	21	16	4				
+80132AC0	OSSetAlarm	23	16	4				
 80132B28	OSCancelAlarm	52	10	4				
 80132C44	DecrementerExceptionCallback	77	0	9				
 80132E74	DecrementerExceptionHandler	136	0	9				
@@ -1821,20 +1821,20 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801335F8	OSSetArenaHi	10	2	0				
 80133600	OSSetArenaLo	10	4	0				
 80133608	OSAllocFromArenaLo	15	2	0				
-80133634	__OSInitAudioSystem	76	1	4	memory			
+80133634	__OSInitAudioSystem	72	1	4	memory			
 801337F0	__OSStopAudioSystem	39	1	1				
-801338C8	DCEnable	12	1	0				
+801338C8	DCEnable	10	1	0				
 801338DC	DCInvalidateRange	20	20	0				
 80133908	DCFlushRange	21	13	0				
 80133938	DCStoreRange	21	7	0				
 80133968	DCFlushRangeNoSync	20	3	0				
 80133994	DCZeroRange	20	1	0				
 801339C0	ICInvalidateRange	22	4	0				
-801339F4	ICFlashInvalidate	11	4	0				
-80133A04	ICEnable	12	1	0				
+801339F4	ICFlashInvalidate	9	4	0				
+80133A04	ICEnable	10	1	0				
 80133A18	__LCEnable	29	1	0				
 80133AE4	LCEnable	14	1	3				
-80133B1C	LCDisable	20	2	0				
+80133B1C	LCDisable	19	2	0				
 80133B44	LCStoreBlocks	9	1	0				
 80133B68	LCStoreData	26	3	1				
 80133C14	LCQueueWait	13	3	0				
@@ -1843,7 +1843,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80133E20	__OSCacheInit	40	2	10				s_L1_d_caches_initialized_80242fd8,s_L1_i_caches_initialized_80242fbc,s_L2_cache_initialized_80242ff4,s_Locked_cache_machine_check_handl_8024300c
 80133F14	__OSLoadFPUContext	45	1	0				
 80134038	__OSSaveFPUContext	245	2	0				
-80134160	OSSaveFPUContext	10	1	1				
+80134160	OSSaveFPUContext	12	1	1				
 80134168	OSSetCurrentContext	17	19	0				
 801341C4	OSGetCurrentContext	9	1	0				
 801341D0	OSSaveContext	78	1	0				
@@ -1853,11 +1853,11 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80134354	OSDumpContext	84	4	5	debug-print			s_0x_08x__0x_08x_0x_08x_802431d8,s_Address__Back_Chain_LR_Save_802431b0,s_FPRs___________8024314c,s_GQRs___________80243114,s_LR___0x_08x_CR___0x_08x_802430b4,s_PSFs___________8024317c,s_SRR0___0x_08x_SRR1___0x_08x_802430e4,s___________________________Contex_80243040,s_fr_d____d_fr_d____d_80243160,s_gqr_d___0x_08x_gqr_d___0x_08x_80243128,s_ps_d___0x_x_ps_d___0x_x_80243190,s_r__2d___0x_08x___14d__r__2d___0x_80243084
 801345FC	OSSwitchFPUContext	33	0	2				
 80134680	__OSContextInit	12	1	2				s_FPU_unavailable_handler_installe_802431f4
-801346C8	OSFillFPUContext	244	1	0				
-801347F4	OSReport	55	45	1				
-80134874	OSPanic	69	18	5	debug-print			s_0x_08x__0x_08x_0x_08x_80243258,s_Address__Back_Chain_LR_Save_80243230,s_in___s__on_line__d__80243218
+801346C8	OSFillFPUContext	253	1	0				
+801347F4	OSReport	68	45	1				
+80134874	OSPanic	80	18	5	debug-print			s_0x_08x__0x_08x_0x_08x_80243258,s_Address__Back_Chain_LR_Save_80243230,s_in___s__on_line__d__80243218
 801349A0	OSSetErrorHandler	89	1	6				
-80134BB8	__OSUnhandledException	91	1	13	debug-print			s_AI_DMA_Address___0x_04x_04x_80243460,s_ARAM_DMA_Address___0x_04x_04x_80243480,s_Attempted_to_fetch_instruction_f_80243350,s_DI_DMA_Address___0x_08x_802434a0,s_DSISR___0x_08x_DAR___0x_08x_802432ac,s_Instruction_at_0x_x__read_from_S_802432f0,s_Instruction_at_0x_x__read_from_S_8024339c,s_Last_interrupt___d___SRR0___0x_0_802434bc,s_Non_recoverable_Exception__d_80243274,s_Program_exception___Possible_ill_80243400,s_TB___0x_016llx_802432e0,s_Unhandled_Exception__d_80243294
+80134BB8	__OSUnhandledException	88	1	13	debug-print			s_AI_DMA_Address___0x_04x_04x_80243460,s_ARAM_DMA_Address___0x_04x_04x_80243480,s_Attempted_to_fetch_instruction_f_80243350,s_DI_DMA_Address___0x_08x_802434a0,s_DSISR___0x_08x_DAR___0x_08x_802432ac,s_Instruction_at_0x_x__read_from_S_802432f0,s_Instruction_at_0x_x__read_from_S_8024339c,s_Last_interrupt___d___SRR0___0x_0_802434bc,s_Non_recoverable_Exception__d_80243274,s_Program_exception___Possible_ill_80243400,s_TB___0x_016llx_802432e0,s_Unhandled_Exception__d_80243294
 80134EA0	PackArgs	68	2	1				
 8013503C	FUN_8013503c	93	1	0				
 801351B0	FUN_801351b0	21	3	0				
@@ -1888,8 +1888,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80136768	FUN_80136768	25	1	1				
 801367D8	Run	11	1	0				
 801367E8	FUN_801367e8	10	0	0				
-801367F4	__OSReboot	102	1	23	file-io			
-80136B34	OSRegisterResetFunction	36	4	0				
+801367F4	__OSReboot	105	1	23	file-io			
+80136B34	OSRegisterResetFunction	37	4	0				
 80136BB8	Reset	12	2	1				
 80136BBC	FUN_80136bbc	12	0	1				
 80136BD8	thunk_FUN_80136bbc	12	0	1				
@@ -1900,7 +1900,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80136C1C	FUN_80136c1c	11	1	0				
 80136C24	thunk_FUN_80136bbc	12	0	1				
 80136C28	__OSDoHotReset	13	1	3				
-80136C70	OSResetSystem	90	3	14	memory			
+80136C70	OSResetSystem	92	3	14	memory			
 80136F28	OSGetResetCode	18	3	0				
 80136F58	__OSResetSWInterruptHandler	39	0	2				
 8013704C	OSGetResetButtonState	100	1	4				
@@ -1917,7 +1917,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80137B08	OSGetSoundMode	25	2	3				
 80137B88	OSSetSoundMode	32	1	3				
 80137C2C	OSGetProgressiveMode	25	3	3				
-80137C9C	OSSetProgressiveMode	30	2	3				
+80137C9C	OSSetProgressiveMode	32	2	3				
 80137D40	OSGetWirelessID	25	1	3				
 80137DC4	OSSetWirelessID	29	4	3				
 80137E70	OSGetGbsMode	25	1	3				
@@ -1928,24 +1928,24 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80138020	__OSThreadInit	54	1	4				
 80138178	OSInitThreadQueue	11	6	0				
 80138188	OSGetCurrentThread	9	1	0				
-80138194	OSDisableScheduler	15	6	2				
-801381D4	OSEnableScheduler	15	7	2				
+80138194	OSDisableScheduler	16	6	2				
+801381D4	OSEnableScheduler	16	7	2				
 80138214	UnsetRun	32	3	0				
 8013827C	__OSGetEffectivePriority	19	3	0				
 801382B8	SetEffectivePriority	88	3	1				
-80138478	SelectThread	84	6	7				
+80138478	SelectThread	85	6	7				
 801386A0	__OSReschedule	12	5	1				
-801386D0	OSCancelThread	86	1	9				
-8013888C	OSResumeThread	110	1	5				
-80138B14	OSSuspendThread	71	1	6				
+801386D0	OSCancelThread	87	1	9				
+8013888C	OSResumeThread	118	1	5				
+80138B14	OSSuspendThread	72	1	6				
 80138C84	OSSleepThread	48	6	3				
 80138D70	OSWakeupThread	44	8	3				
 80138E74	OSClearStack	46	1	1				
-80138F20	OSGetTime	9	17	0				
-80138F38	OSGetTick	9	10	0				
+80138F20	OSGetTime	12	17	0				
+80138F38	OSGetTick	11	10	0				
 80138F40	__OSGetSystemTime	17	17	3				
 80138FA4	GetDates	69	1	0				
-80139140	OSTicksToCalendarTime	51	1	3				
+80139140	OSTicksToCalendarTime	53	1	3				
 80139344	__init_user	10	1	1				
 80139364	__init_cpp	14	1	0				
 801393B8	_ExitProcess	10	1	1				
@@ -1960,16 +1960,16 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801395F0	FUN_801395f0	48	2	0				
 80139640	FUN_80139640	84	12	0				
 80139738	PSMTXInvXpose	72	3	0				
-80139800	PSMTXRotRad	15	35	3	math			
-80139870	PSMTXRotTrig	81	1	0				
+80139800	PSMTXRotRad	17	35	3	math			
+80139870	PSMTXRotTrig	85	1	0				
 80139920	__PSMTXRotAxisRadInternal	54	1	0				
-801399D0	PSMTXRotAxisRad	15	6	3	~math			
+801399D0	PSMTXRotAxisRad	17	6	3	~math			
 80139A40	FUN_80139a40	29	6	0				
 80139A74	FUN_80139a74	29	12	0				
 80139A9C	PSMTXQuat	59	1	0				
-80139B40	FUN_80139b40	38	11	2	math			
+80139B40	FUN_80139b40	34	11	2	math			
 80139CCC	C_MTXLightFrustum	33	1	0				
-80139D60	C_MTXLightPerspective	30	1	1	math			
+80139D60	C_MTXLightPerspective	29	1	1	math			
 80139E2C	C_MTXLightOrtho	35	1	0				
 80139EB4	PSMTXMultVec	47	59	0				
 80139F08	PSMTXMultVecSR	43	6	0				
@@ -1978,19 +1978,19 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8013A0C8	C_MTXOrtho	39	9	0				
 8013A160	PSVECAdd	24	5	0				
 8013A184	PSVECSubtract	24	14	0				
-8013A1A8	PSVECScale	22	10	0				
+8013A1A8	PSVECScale	23	10	0				
 8013A1C4	PSVECNormalize	29	22	0				
-8013A208	PSVECSquareMag	12	1	0				
-8013A220	PSVECMag	24	8	0				
-8013A264	PSVECDotProduct	15	8	0				
+8013A208	PSVECSquareMag	11	1	0				
+8013A220	PSVECMag	19	8	0				
+8013A264	PSVECDotProduct	14	8	0				
 8013A284	FUN_8013a284	30	12	0				
 8013A2C0	__DVDInitWA	13	1	2				
 8013A300	__DVDInterruptHandler	143	0	6	file-io			
 8013A5E0	FUN_8013a5e0	29	0	2	file-io			
 8013A664	AlarmHandlerForTimeout	24	0	3				
-8013A6D4	Read	37	3	3				
+8013A6D4	Read	35	3	3				
 8013A7E4	SeekTwiceBeforeRead	25	1	1	file-io			
-8013A864	DVDLowRead	85	4	6	file-io			
+8013A864	DVDLowRead	84	4	6	file-io			
 8013AAFC	DVDLowSeek	20	5	2				
 8013AB90	DVDLowWaitCoverClose	13	3	0				
 8013ABBC	DVDLowReadDiskID	23	2	2				
@@ -1999,22 +1999,22 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8013AD78	DVDLowInquiry	22	1	2				
 8013AE14	DVDLowAudioStream	21	2	2				
 8013AEAC	DVDLowRequestAudioStatus	19	1	2				
-8013AF38	DVDLowAudioBufferConfig	23	3	2				
+8013AF38	DVDLowAudioBufferConfig	24	3	2				
 8013AFD4	DVDLowReset	29	1	1				
 8013B090	DVDLowBreak	11	1	0				
-8013B0A4	DVDLowClearCallback	15	1	0				
-8013B0C0	__DVDLowSetWAType	13	1	2				
+8013B0A4	DVDLowClearCallback	12	1	0				
+8013B0C0	__DVDLowSetWAType	15	1	2				
 8013B104	__DVDLowTestAlarm	15	1	0				
 8013B13C	__DVDFSInit	16	2	0				
 8013B174	DVDConvertPathToEntrynum	136	6	2		dvdfs.c		s_DVDConvertEntrynumToPath_possibl_80244100,s_dvdfs_c_8044ed98
 8013B468	DVDFastOpen	19	4	0				
-8013B4DC	DVDOpen	32	3	3	debug-print,file-io			s_Warning__DVDOpen____file___s__wa_802441c8
+8013B4DC	DVDOpen	33	3	3	debug-print,file-io			s_Warning__DVDOpen____file___s__wa_802441c8
 8013B5A4	DVDClose	10	9	1	file-io			
 8013B5C8	entryToPath	54	2	0				
 8013B728	DVDConvertEntrynumToPath	50	1	1				
 8013B87C	DVDGetCurrentDir	31	1	1				
 8013B940	DVDChangeDir	20	1	1	file-io			
-8013B9A0	DVDReadAsyncPrio	22	7	2	file-io	dvdfs.c		s_DVDReadAsync____specified_area_i_80244200,s_dvdfs_c_8044ed98
+8013B9A0	DVDReadAsyncPrio	20	7	2	file-io	dvdfs.c		s_DVDReadAsync____specified_area_i_80244200,s_dvdfs_c_8044ed98
 8013BA60	cbForReadAsync	12	0	0				
 8013BA90	DVDReadPrio	43	1	5	file-io	dvdfs.c		s_DVDRead____specified_area_is_out_80244234,s_dvdfs_c_8044ed98
 8013BBA8	cbForReadSync	10	0	1				
@@ -2042,45 +2042,45 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8013C8F8	cbForStateCheckID2	27	0	6	file-io	0dvd.c		s_0dvd_c_8044edab,s_DVDChangeDisk____FST_in_the_new_d_802442f4
 8013C9DC	FUN_8013c9dc	44	0	6	file-io			
 8013CAD8	AlarmHandler	13	0	3	file-io			
-8013CB1C	FUN_8013cb1c	30	1	5	file-io			
+8013CB1C	FUN_8013cb1c	33	1	5	file-io			
 8013CBE8	stateCoverClosed_CMD	10	1	1	file-io			
 8013CC18	cbForStateCoverClosed	22	0	5	file-io			
 8013CC88	stateMotorStopped	10	3	1	file-io			
-8013CCB0	cbForStateMotorStopped	32	0	5	file-io			
-8013CD94	stateReady	97	18	10	file-io			
-8013CFC4	stateBusy	118	3	9	file-io			
+8013CCB0	cbForStateMotorStopped	33	0	5	file-io			
+8013CD94	stateReady	100	18	10	file-io			
+8013CFC4	stateBusy	117	3	9	file-io			
 8013D2E4	cbForStateBusy	232	0	9	file-io			
-8013D91C	DVDReadAbsAsyncPrio	32	3	5				
-8013D9F8	DVDReadAbsAsyncForBS	32	1	5				
+8013D91C	DVDReadAbsAsyncPrio	31	3	5				
+8013D9F8	DVDReadAbsAsyncForBS	31	1	5				
 8013DAC8	DVDReadDiskID	30	2	5				
 8013DB9C	DVDCancelStreamAsync	26	1	5				
 8013DC58	DVDInquiryAsync	29	1	5				
 8013DD28	DVDReset	17	17	1	file-io			
-8013DD6C	DVDGetCommandBlockStatus	17	1	2				
-8013DDB8	DVDGetDriveStatus	40	2	2				
+8013DD6C	DVDGetCommandBlockStatus	18	1	2				
+8013DDB8	DVDGetDriveStatus	41	2	2				
 8013DE64	DVDSetAutoInvalidation	13	1	0				
 8013DE74	DVDResume	18	1	3				
-8013DEC4	DVDCancelAsync	100	3	6	file-io			
-8013E140	DVDCancel	27	2	4	file-io			
+8013DEC4	DVDCancelAsync	101	3	6	file-io			
+8013E140	DVDCancel	28	2	4	file-io			
 8013E1EC	cbForCancelSync	10	0	1				
 8013E210	DVDGetCurrentDiskID	9	2	0				
-8013E218	DVDCheckDisk	65	2	2				
+8013E218	DVDCheckDisk	66	2	2				
 8013E310	__DVDPrepareResetAsync	52	1	6	file-io			
 8013E42C	__DVDTestAlarm	17	1	1				
 8013E464	__DVDClearWaitingQueue	17	5	0				
-8013E49C	__DVDPushWaitingQueue	15	5	2				
-8013E504	__DVDPopWaitingQueue	37	2	2				
-8013E5A4	__DVDCheckWaitingQueue	24	1	2				
-8013E5FC	__DVDDequeueWaitingQueue	26	1	2				
+8013E49C	__DVDPushWaitingQueue	17	5	2				
+8013E504	__DVDPopWaitingQueue	38	2	2				
+8013E5A4	__DVDCheckWaitingQueue	25	1	2				
+8013E5FC	__DVDDequeueWaitingQueue	27	1	2				
 8013E65C	ErrorCode2Num	52	1	0				
 8013E778	__DVDStoreErrorCode	30	12	3				
 8013E7F4	DVDCompareDiskID	31	1	1				
 8013E8EC	__DVDPrintFatalMessage	12	1	0				
-8013E91C	cb	26	0	3	file-io			
+8013E91C	cb	31	0	3	file-io			
 8013E9F4	__fstLoad	39	1	7	debug-print,file-io,memory	Company________c.c,Game_Name______c_c_c.c		s_Company________c_c_80244484,s_Disk___________d_8024449c,s_Game_Name______c_c_c_c_80244468,s_Game_ver_______d_802444b0,s_Streaming______s_802444c4
 8013EB5C	__VIRetraceHandler	91	0	8				
-8013EDD0	VISetPreRetraceCallback	15	1	2				
-8013EE14	VISetPostRetraceCallback	15	1	2				
+8013EDD0	VISetPreRetraceCallback	16	1	2				
+8013EE14	VISetPostRetraceCallback	16	1	2				
 8013EE58	getTiming	40	3	0				
 8013EEF8	__VIInit	46	1	1				
 8013F0F8	VIInit	142	1	8				
@@ -2095,27 +2095,27 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801404B8	GetCurrentDisplayPosition	26	1	0				
 801404F4	getCurrentFieldEvenOdd	28	1	0				
 8014055C	VIGetNextField	21	1	3				
-801405F8	VIGetCurrentLine	32	1	2				
-80140690	VIGetTvFormat	27	3	2				
-801406F8	VIGetDTVStatus	14	3	2				
+801405F8	VIGetCurrentLine	33	1	2				
+80140690	VIGetTvFormat	28	3	2				
+801406F8	VIGetDTVStatus	15	3	2				
 80140734	__VIDisplayPositionToXY	85	1	0				
 80140950	FUN_80140950	24	1	1				
 801409B0	FUN_801409b0	67	1	0				
 80140B58	FUN_80140b58	38	1	1				
-80140C64	UpdateOrigin	52	2	1				
+80140C64	UpdateOrigin	53	2	1				
 80140E08	PADOriginCallback	26	0	6	memory			
 80140ECC	PADOriginUpdateCallback	30	0	5				
 80140F98	PADProbeCallback	26	0	5	memory			
-80141070	PADTypeAndStatusCallback	89	0	6	memory			
-8014139C	PADReceiveCheckCallback	34	0	5				
+80141070	PADTypeAndStatusCallback	90	0	6	memory			
+8014139C	PADReceiveCheckCallback	35	0	5				
 801414DC	PADReset	33	2	5	memory			
 801415EC	FUN_801415ec	33	1	5	memory			
-80141700	FUN_80141700	113	1	12	input,memory			
+80141700	FUN_80141700	115	1	12	input,memory			
 80141A00	FUN_80141a00	25	3	5				
 80141AB8	FUN_80141ab8	144	0	0				
-80141F28	__PADDisableRecalibration	18	1	2				
-80141FA4	AIRegisterDMACallback	15	3	2				
-80141FE8	AIInitDMA	19	5	2				
+80141F28	__PADDisableRecalibration	19	1	2				
+80141FA4	AIRegisterDMACallback	16	3	2				
+80141FE8	AIInitDMA	20	5	2				
 80142070	AIStartDMA	13	2	0				
 80142088	FUN_80142088	14	1	0				
 801420A4	FUN_801420a4	38	2	9				
@@ -2132,12 +2132,12 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80142528	__AISHandler	23	0	2				
 801425A4	__AIDHandler	28	0	3				
 80142650	__AICallbackStackSwitch	11	1	0				
-801426A8	__AI_SRC_INIT	83	3	1				
-8014288C	ARRegisterDMACallback	15	1	2				
-801428D0	ARGetDMAStatus	14	2	2				
-8014290C	ARStartDMA	27	5	2				
-801429FC	ARAlloc	18	2	2				
-80142A64	FUN_80142a64	33	1	6				
+801426A8	__AI_SRC_INIT	78	3	1				
+8014288C	ARRegisterDMACallback	16	1	2				
+801428D0	ARGetDMAStatus	15	2	2				
+8014290C	ARStartDMA	28	5	2				
+801429FC	ARAlloc	19	2	2				
+80142A64	FUN_80142a64	34	1	6				
 80142B28	FUN_80142b28	21	0	2				
 80142BA0	__ARClearInterrupt	13	2	0				
 80142BC0	__ARGetInterruptStatus	12	2	0				
@@ -2170,7 +2170,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80144E74	FUN_80144e74	10	1	0				
 80144E90	FUN_80144e90	10	1	0				
 80144EAC	FUN_80144eac	10	1	0				
-80144EC8	FUN_80144ec8	59	1	2				
+80144EC8	FUN_80144ec8	60	1	2				
 80145104	FUN_80145104	11	1	0				
 80145110	FUN_80145110	11	1	0				
 8014511C	FUN_8014511c	9	1	0				
@@ -2178,14 +2178,14 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80145160	FUN_80145160	163	2	13				
 80145810	FUN_80145810	13	1	0				
 80145834	FUN_80145834	13	1	0				
-80145848	FUN_80145848	88	2	12				
+80145848	FUN_80145848	67	2	12				
 80145A00	FUN_80145a00	29	0	4				
 80145ABC	FUN_80145abc	10	0	0				
 80145AC8	FUN_80145ac8	19	0	2				
 80145B20	FUN_80145b20	11	0	1				
 80145B4C	FUN_80145b4c	34	1	4				
 80145C18	FUN_80145c18	208	1	6				
-80145FB8	FUN_80145fb8	15	1	2				
+80145FB8	FUN_80145fb8	16	1	2				
 80145FFC	FUN_80145ffc	9	1	0				
 80146008	FUN_80146008	174	1	1				
 80146400	FUN_80146400	18	1	0				
@@ -2196,31 +2196,31 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80146E8C	FUN_80146e8c	9	1	0				
 80146E98	FUN_80146e98	21	2	0				
 80146ED8	FUN_80146ed8	116	1	2				
-801470D8	FUN_801470d8	32	2	2				
-8014719C	FUN_8014719c	16	3	2				
-801471F8	FUN_801471f8	104	2	2				
-8014744C	FUN_8014744c	18	2	2				
-801474B0	FUN_801474b0	14	1	2				
-8014750C	FUN_8014750c	14	3	2				
-80147564	FUN_80147564	13	1	2				
-801475B0	FUN_801475b0	44	2	2				
-801476C0	FUN_801476c0	13	1	2				
-8014770C	FUN_8014770c	14	2	2				
-80147760	FUN_80147760	14	2	2				
-801477B4	FUN_801477b4	14	1	2				
-80147808	FUN_80147808	22	2	2				
-801478AC	FUN_801478ac	20	2	2				
+801470D8	FUN_801470d8	34	2	2				
+8014719C	FUN_8014719c	18	3	2				
+801471F8	FUN_801471f8	105	2	2				
+8014744C	FUN_8014744c	20	2	2				
+801474B0	FUN_801474b0	16	1	2				
+8014750C	FUN_8014750c	16	3	2				
+80147564	FUN_80147564	15	1	2				
+801475B0	FUN_801475b0	45	2	2				
+801476C0	FUN_801476c0	15	1	2				
+8014770C	FUN_8014770c	16	2	2				
+80147760	FUN_80147760	16	2	2				
+801477B4	FUN_801477b4	16	1	2				
+80147808	FUN_80147808	24	2	2				
+801478AC	FUN_801478ac	22	2	2				
 80147944	FUN_80147944	25	1	3				
-801479DC	FUN_801479dc	15	2	2				
+801479DC	FUN_801479dc	17	2	2				
 80147A48	FUN_80147a48	16	1	0				
-80147A90	FUN_80147a90	192	1	3	memory			
+80147A90	FUN_80147a90	198	1	3	memory			
 80148018	FUN_80148018	61	1	0				
 801481A8	FUN_801481a8	294	1	0				
 801486B4	FUN_801486b4	37	2	0				
 801487D8	FUN_801487d8	19	1	3	~memory			
 80148848	FUN_80148848	14	1	3				
 80148894	FUN_80148894	43	0	2				
-80148998	FUN_80148998	157	1	3	memory			
+80148998	FUN_80148998	162	1	3	memory			
 80148E14	FUN_80148e14	230	1	0				
 801491C8	FUN_801491c8	37	2	0				
 801492EC	FUN_801492ec	18	1	3	~memory			
@@ -2228,13 +2228,13 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801493A4	FUN_801493a4	12	0	1				
 801493D4	FUN_801493d4	84	1	0				
 8014956C	FUN_8014956c	102	1	0				
-80149758	FUN_80149758	89	1	3				
+80149758	FUN_80149758	90	1	3				
 801499A0	FUN_801499a0	14	1	2				
-801499F0	FUN_801499f0	29	1	2				
+801499F0	FUN_801499f0	30	1	2				
 80149B00	FUN_80149b00	107	0	2				
 80149E50	FUN_80149e50	57	0	0				
-8014A020	FUN_8014a020	67	1	3				
-8014A2E8	FUN_8014a2e8	15	1	3				
+8014A020	FUN_8014a020	68	1	3				
+8014A2E8	FUN_8014a2e8	17	1	3				
 8014A330	FUN_8014a330	25	2	2				
 8014A3D0	FUN_8014a3d0	10	0	1	memory			
 8014A3F8	FUN_8014a3f8	10	0	1				
@@ -2246,11 +2246,11 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8014A478	FUN_8014a478	29	2	6				s_12_34_16_80248c44,s_Apr_17_2003_80248c38,s_DSPInit____Build_Date___s__s_80248c18
 8014A53C	FUN_8014a53c	9	1	0				
 8014A544	FUN_8014a544	19	2	4				
-8014A5B4	FUN_8014a5b4	33	1	2				
+8014A5B4	FUN_8014a5b4	34	1	2				
 8014A67C	FUN_8014a67c	9	2	0				
-8014A6CC	__DSPHandler	157	0	8				
+8014A6CC	__DSPHandler	158	0	8				
 8014AAF0	__DSP_exec_task	87	1	2				
-8014AC90	__DSP_boot_task	61	1	5				s_DSP_is_booting_task__0x_08X_80248c50,s___DSP_boot_task_____DRAM_MMEM_AD_80248d00,s___DSP_boot_task_____IRAM_DSP_ADD_80248ca0,s___DSP_boot_task_____IRAM_LENGTH___80248cd0,s___DSP_boot_task_____IRAM_MMEM_AD_80248c70,s___DSP_boot_task_____Start_Vector_80248d30
+8014AC90	__DSP_boot_task	62	1	5				s_DSP_is_booting_task__0x_08X_80248c50,s___DSP_boot_task_____DRAM_MMEM_AD_80248d00,s___DSP_boot_task_____IRAM_DSP_ADD_80248ca0,s___DSP_boot_task_____IRAM_LENGTH___80248cd0,s___DSP_boot_task_____IRAM_MMEM_AD_80248c70,s___DSP_boot_task_____Start_Vector_80248d30
 8014AE1C	__DSP_insert_task	47	1	0				
 8014AEBC	__DSP_remove_task	31	1	0				
 8014AF50	__CARDDefaultApiCallback	9	0	0				
@@ -2263,25 +2263,25 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8014B364	__CARDReadStatus	42	3	4				
 8014B454	__CARDClearStatus	35	2	4				
 8014B500	TimeoutHandler	31	0	1				
-8014B5A4	Retry	77	2	7				
+8014B5A4	Retry	80	2	7				
 8014B7D0	UnlockedCallback	56	0	2				
-8014B8E0	__CARDStart	63	3	7				
+8014B8E0	__CARDStart	66	3	7				
 8014BA94	__CARDReadSegment	41	2	5				
 8014BBC8	__CARDWritePage	39	2	5				
 8014BCE4	__CARDEraseSector	35	6	4				
 8014BDC4	CARDInit	29	1	8				
 8014BE70	__CARDGetFontEncode	9	2	0				
 8014BE78	__CARDSetDiskID	17	1	0				
-8014BEB0	__CARDGetControlBlock	30	12	2				
-8014BF68	__CARDPutControlBlock	19	26	2				
+8014BEB0	__CARDGetControlBlock	31	12	2				
+8014BF68	__CARDPutControlBlock	21	26	2				
 8014BFCC	CARDGetResultCode	12	1	0				
-8014BFFC	CARDFreeBlocks	57	1	5				
+8014BFFC	CARDFreeBlocks	59	1	5				
 8014C14C	FUN_8014c14c	24	1	3				
 8014C1E4	FUN_8014c1e4	19	0	1	memcard			
 8014C234	FUN_8014c234	74	1	0				
 8014C3A0	ReadArrayUnlock	55	2	4	memory			
 8014C4E4	DummyLen	29	2	1				
-8014C5A8	__CARDUnlock	236	1	7				
+8014C5A8	__CARDUnlock	228	1	7				
 8014D100	InitCallback	26	0	2				
 8014D170	DoneCallback	91	0	6				
 8014D494	BlockReadCallback	33	0	2				
@@ -2308,22 +2308,22 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8014ED5C	CARDProbeEx	71	1	6				
 8014EED8	DoMount	147	2	15				
 8014F2E8	__CARDMountCallback	48	1	5				
-8014F420	CARDMountAsync	67	1	8				
+8014F420	CARDMountAsync	70	1	8				
 8014F5C0	DoUnmount	21	2	5				
 8014F65C	CARDUnmount	27	2	6				
 8014F708	FormatCallback	42	0	4	memory			
 8014F84C	__CARDFormatRegionAsync	164	1	12	memory			
-8014FEA4	CARDFormatAsync	13	1	2				
+8014FEA4	CARDFormatAsync	14	1	2				
 8014FEEC	__CARDCompareFileName	32	2	0				
 8014FF54	__CARDAccess	25	2	1				
 8014FFE8	__CARDIsWritable	39	2	1				
 8015011C	__CARDIsReadable	32	2	2				
 80150210	__CARDGetFileNo	75	1	2				
-80150360	CARDOpen	56	1	5				
+80150360	CARDOpen	57	1	5				
 8015047C	CARDClose	17	1	2				
 801504D0	__CARDIsOpened	9	1	0				
-801504D8	CreateCallbackFat	48	0	6	memory			
-80150608	CARDCreateAsync	79	1	9				
+801504D8	CreateCallbackFat	49	0	6	memory			
+80150608	CARDCreateAsync	81	1	9				
 80150828	__CARDSeek	56	2	4				
 801509E0	ReadCallback	54	0	3				
 80150B10	FUN_80150b10	45	1	6				
@@ -2331,24 +2331,24 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80150DC4	FUN_80150dc4	23	0	2				
 80150E74	FUN_80150e74	40	1	6				
 80150F88	DeleteCallback	21	0	2				
-8015102C	CARDDeleteAsync	40	1	7	memory			
+8015102C	CARDDeleteAsync	44	1	7	memory			
 8015113C	UpdateIconOffsets	109	2	0				
-80151334	CARDGetStatus	38	1	6	memory			
+80151334	CARDGetStatus	39	1	6	memory			
 80151448	CARDSetStatusAsync	52	1	8				
 801515BC	CARDSetStatus	15	1	2	memcard			
 80151604	CARDGetSerialNo	33	1	2				
 801516C8	__GXDefaultTexRegionCallback	35	0	2	render			
 801517C4	__GXDefaultTlutRegionCallback	17	0	0				
-801517E8	FUN_801517e8	70	0	6	render			
-80151978	GXInit	247	1	17	render			
-80152110	__GXInitGX	231	1	73	render,video			
+801517E8	FUN_801517e8	71	0	6	render			
+80151978	GXInit	254	1	17	render			
+80152110	__GXInitGX	253	1	73	render,video			
 80152A48	GXCPInterruptHandler	39	0	6				
-80152B7C	GXInitFifoBase	15	1	2	render			
-80152BE8	GXInitFifoPtrs	17	1	2				
+80152B7C	GXInitFifoBase	18	1	2	render			
+80152BE8	GXInitFifoPtrs	19	1	2				
 80152C58	GXInitFifoLimits	11	1	0				
 80152C64	GXSetCPUFifo	34	1	6				
 80152D8C	GXSetGPFifo	43	1	8				
-80152F04	FUN_80152f04	15	1	2				
+80152F04	FUN_80152f04	16	1	2				
 80152F48	__GXFifoInit	15	1	3				
 80152F94	__GXFifoReadEnable	14	1	0				
 80152FB8	__GXFifoReadDisable	14	1	0				
@@ -2356,21 +2356,21 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80153010	__GXWriteFifoIntEnable	15	3	0				
 80153040	FUN_80153040	15	3	0				
 80153070	FUN_80153070	9	1	0				
-80153078	GXSetVtxDesc	101	23	0				
-801532E4	GXSetVtxDescv	104	1	0				
+80153078	GXSetVtxDesc	121	23	0				
+801532E4	GXSetVtxDescv	124	1	0				
 8015356C	__GXSetVCD	36	2	0				
 80153628	__GXCalculateVLim	38	2	0				
 8015374C	GXGetVtxDesc	92	2	0				
 80153900	GXGetVtxDescv	27	1	1	render			
 80153990	GXClearVtxDesc	18	24	0				
-801539C8	GXSetVtxAttrFmt	87	20	0				
+801539C8	GXSetVtxAttrFmt	90	20	0				
 80153C24	FUN_80153c24	96	2	0				
 80153EA4	FUN_80153ea4	31	2	0				
-80153F40	GXGetVtxAttrFmt	106	1	0				
-801541C0	GXGetVtxAttrFmtv	19	1	1	render			
+80153F40	GXGetVtxAttrFmt	109	1	0				
+801541C0	GXGetVtxAttrFmtv	22	1	1	render			
 80154234	GXSetArray	34	3	0				
 801542C0	GXInvalidateVtxCache	10	2	0				
-801542D0	GXSetTexCoordGen2	116	8	1				
+801542D0	GXSetTexCoordGen2	117	8	1				
 80154550	GXSetNumTexGens	17	21	0				
 8015458C	GXSetMisc	38	1	0				
 80154620	GXFlush	21	1	2				
@@ -2381,53 +2381,53 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801548D8	GXPokeAlphaMode	10	1	0				
 801548EC	GXPokeAlphaRead	10	1	0				
 8015490C	GXPokeAlphaUpdate	10	1	0				
-80154924	GXPokeBlendMode	25	1	0				
+80154924	GXPokeBlendMode	26	1	0				
 80154988	GXPokeColorUpdate	10	1	0				
 801549A0	GXPokeDstAlpha	10	1	0				
 801549C4	GXPokeDither	10	1	0				
 801549DC	FUN_801549dc	10	1	0				
-801549FC	GXSetDrawSyncCallback	15	1	2				
+801549FC	GXSetDrawSyncCallback	16	1	2				
 80154A40	GXTokenInterruptHandler	21	0	2				
-80154AC8	GXSetDrawDoneCallback	15	2	2				
+80154AC8	GXSetDrawDoneCallback	16	2	2				
 80154B0C	GXFinishInterruptHandler	21	0	3				
 80154B8C	__GXPEInit	15	1	3				
 80154C00	__GXSetDirtyState	31	2	6				
 80154C80	GXBegin	38	23	7				
 80154D50	__GXSendFlushPrim	42	2	0				
-80154DD8	GXSetLineWidth	17	7	0				
-80154E18	GXSetPointSize	17	3	0				
+80154DD8	GXSetLineWidth	19	7	0				
+80154E18	GXSetPointSize	19	3	0				
 80154E58	FUN_80154e58	19	2	0				
 80154EA0	FUN_80154ea0	20	6	0				
 80154EE4	FUN_80154ee4	17	1	0				
 80154F18	__GXSetGenMode	12	2	0				
-80154F3C	GXSetDispCopySrc	21	3	0				
-80154FB8	GXSetTexCopySrc	21	1	0				
+80154F3C	GXSetDispCopySrc	20	3	0				
+80154FB8	GXSetTexCopySrc	20	1	0				
 80155034	GXSetDispCopyDst	16	3	0				
-80155068	GXSetTexCopyDst	38	1	1				
-80155198	GXSetDispCopyFrame2Field	14	1	0				
+80155068	GXSetTexCopyDst	42	1	1				
+80155198	GXSetDispCopyFrame2Field	15	1	0				
 801551BC	FUN_801551bc	20	2	0				
 80155214	FUN_80155214	39	3	1				
 801552E0	GXSetCopyClear	16	2	0				
-80155358	GXSetCopyFilter	61	2	0				
-80155560	GXSetDispCopyGamma	10	5	0				
+80155358	GXSetCopyFilter	65	2	0				
+80155560	GXSetDispCopyGamma	11	5	0				
 80155574	GXCopyDisp	53	1	0				
 801556DC	GXCopyTex	64	1	0				
 80155868	GXClearBoundingBox	14	1	0				
 801558A0	__AXGetAuxBOutput	16	3	0				
-801558BC	GXInitLightSpot	69	1	1	~math			
-80155A4C	GXInitLightDistAttn	40	1	0				
-80155B1C	GXInitLightPos	12	3	0				
-80155B2C	GXInitLightDir	12	3	0				
+801558BC	GXInitLightSpot	70	1	1	~math			
+80155A4C	GXInitLightDistAttn	46	1	0				
+80155B1C	GXInitLightPos	16	3	0				
+80155B2C	GXInitLightDir	16	3	0				
 80155B48	GXInitLightColor	10	4	0				
 80155B54	GXLoadLightObjImm	44	5	0				
 80155BD0	GXSetChanAmbColor	50	8	0				
 80155CC0	GXSetChanMatColor	50	8	0				
 80155DB0	GXSetNumChans	17	20	0				
-80155DEC	GXSetChanCtrl	36	18	0				
-80155EA4	GXGetTexBufferSize	91	3	0				
+80155DEC	GXSetChanCtrl	37	18	0				
+80155EA4	GXGetTexBufferSize	96	3	0				
 80156000	__GetImageTileCount	75	1	0				
-801560C8	GXInitTexObj	84	9	1	memory			
-80156314	GXInitTexObjCI	14	5	1	render			
+801560C8	GXInitTexObj	85	9	1	memory			
+80156314	GXInitTexObjCI	13	5	1	render			
 8015635C	FUN_8015635c	37	10	0				
 801564C0	FUN_801564c0	9	1	0				
 801564C8	GXGetTexObjMipMap	12	1	0				
@@ -2435,41 +2435,41 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8015665C	GXLoadTexObj	13	9	1	render			
 801566B0	GXInitTlutObj	14	5	0				
 801566E8	GXLoadTlut	24	4	1				
-80156780	GXInitTexCacheRegion	47	1	0				
-80156874	GXInitTlutRegion	13	1	0				
+80156780	GXInitTexCacheRegion	49	1	0				
+80156874	GXInitTlutRegion	16	1	0				
 801568AC	GXInvalidateTexAll	15	4	1				
 801568F4	GXSetTexRegionCallback	13	1	0				
 80156908	FUN_80156908	13	1	0				
 8015691C	FUN_8015691c	31	1	0				
 801569BC	__GXSetSUTexRegs	60	2	1				
 80156B38	__GXSetTmemConfig	111	1	0				
-80156E8C	GXSetTevIndirect	19	1	0				
+80156E8C	GXSetTevIndirect	22	1	0				
 80156EF8	FUN_80156ef8	43	1	0				
 8015703C	FUN_8015703c	14	1	0				
-80157060	GXSetTevDirect	10	1	1	render			
+80157060	GXSetTevDirect	11	1	1	render			
 801570A8	__GXUpdateBPMask	9	2	0				
 801570AC	__GXSetIndirectMask	16	4	0				
 801570DC	__GXFlushTextureState	12	4	0				
 80157100	GXSetTevOp	34	14	0				
-8015718C	GXSetTevColorIn	22	11	0				
-801571D0	GXSetTevAlphaIn	22	11	0				
-80157214	GXSetTevColorOp	27	11	0				
-8015727C	GXSetTevAlphaOp	27	11	0				
-801572E4	GXSetTevColor	21	3	0				
+8015718C	GXSetTevColorIn	24	11	0				
+801571D0	GXSetTevAlphaIn	23	11	0				
+80157214	GXSetTevColorOp	29	11	0				
+8015727C	GXSetTevAlphaOp	29	11	0				
+801572E4	GXSetTevColor	23	3	0				
 80157360	FUN_80157360	23	2	0				
 801573DC	FUN_801573dc	16	2	0				
 80157450	FUN_80157450	21	4	0				
 801574AC	GXSetTevKColor	21	4	0				
 80157508	FUN_80157508	19	6	0				
-80157550	GXSetTevSwapModeTable	25	4	0				
+80157550	GXSetTevSwapModeTable	27	4	0				
 801575D0	GXSetAlphaCompare	14	8	0				
 80157614	GXSetZTexture	33	2	0				
-801576A0	GXSetTevOrder	65	21	0				
+801576A0	GXSetTevOrder	67	21	0				
 8015783C	GXSetNumTevStages	15	21	0				
 80157864	FUN_80157864	78	2	1				
 80157A88	FUN_80157a88	57	1	1				
 80157C38	FUN_80157c38	24	2	0				
-80157D5C	GXSetBlendMode	25	17	0				
+80157D5C	GXSetBlendMode	27	17	0				
 80157DB0	GXSetColorUpdate	18	4	0				
 80157DDC	GXSetAlphaUpdate	18	4	0				
 80157E08	GXSetZMode	19	15	0				
@@ -2480,18 +2480,18 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80157FAC	GXSetFieldMask	12	1	0				
 80157FE4	FUN_80157fe4	19	2	1				
 8015805C	FUN_8015805c	84	1	0				
-80158274	FUN_80158274	51	1	10	render			
+80158274	FUN_80158274	54	1	10	render			
 801584C4	FUN_801584c4	18	1	2				
 80158534	FUN_80158534	42	11	0				
 801585D8	GXSetProjectionv	52	1	0				
-80158664	GXGetProjectionv	38	2	0				
+80158664	GXGetProjectionv	39	2	0				
 801586AC	GXLoadPosMtxImm	36	17	0				
 801586FC	GXLoadNrmMtxImm	27	6	0				
 8015874C	GXSetCurrentMtx	11	19	1				
-80158780	GXLoadTexMtxImm	69	7	0				
+80158780	GXLoadTexMtxImm	70	7	0				
 80158834	__GXSetViewport	23	2	0				
-801588C4	GXSetViewportJitter	24	1	1				
-8015891C	GXSetViewport	21	12	1				
+801588C4	GXSetViewportJitter	31	1	1				
+8015891C	GXSetViewport	26	12	1				
 80158964	GXGetViewportv	33	2	0				
 80158988	FUN_80158988	24	12	0				
 80158A00	FUN_80158a00	12	2	0				
@@ -2501,7 +2501,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80159334	FUN_80159334	10	1	0				
 80159344	FUN_80159344	9	2	0				
 80159354	FUN_80159354	25	4	2	render			
-80159428	FUN_80159428	30	4	3	render			
+80159428	FUN_80159428	31	4	3	render			
 80159530	TRKNubMainLoop	52	1	9				
 80159628	TRKDestructEvent	10	1	1				
 8015964C	TRKConstructEvent	12	5	0				
@@ -2554,7 +2554,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8015B6EC	OutputData	21	1	1				s__02x_801c450c
 8015B794	HandlePositionFileSupportRequest	42	1	6	memory			
 8015B8A4	HandleCloseFileSupportRequest	36	1	6	memory			
-8015B98C	HandleOpenFileSupportRequest	45	1	7	memory			
+8015B98C	HandleOpenFileSupportRequest	46	1	7	memory			
 8015BAA8	TRKRequestSend	76	5	8				s_Calling_MessageSend_801c4518,s_RequestSend___Bad_ack_or_non_ack_801c456c,s_msg_command___0x_02x_hdr_,s_msg_error___0x_02x_801c4558
 8015BC88	TRKSuppAccessFile	90	1	9	memory			
 8015BEA8	TRKReleaseMutex	9	6	0				
@@ -2663,7 +2663,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8015F738	MWExitCriticalSection	10	2	1				
 8015F75C	MWEnterCriticalSection	13	2	1				
 8015F78C	MWInitializeCriticalSection	9	1	0				
-8015F790	__va_arg	55	2	0				
+8015F790	__va_arg	58	2	0				
 8015F858	__destroy_global_chain	18	1	0				
 8015F8A0	FUN_8015f8a0	23	44	0				
 8015F8FC	_savefpr_14	47	0	0				
@@ -2704,7 +2704,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8015FE64	__shr2u	10	2	0				
 8015FE88	FUN_8015fe88	15	3	0				
 8015FEB0	FUN_8015feb0	53	1	0				
-8015FF7C	FUN_8015ff7c	25	1	8	debug-print			s_GCN_Mem_Alloc_c___InitDefaultHea_801c4948,s_Metrowerks_CW_runtime_library_in_801c4980
+8015FF7C	FUN_8015ff7c	26	1	8	debug-print			s_GCN_Mem_Alloc_c___InitDefaultHea_801c4948,s_Metrowerks_CW_runtime_library_in_801c4980
 80160034	exit	36	1	5				
 80160124	free	16	2	4	memory			
 80160194	__pool_free	25	1	2				
@@ -2722,7 +2722,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80162740	__begin_critical_region	9	7	0				
 80162744	__kill_critical_regions	9	1	0				
 80162748	tolower	12	1	0				
-8016276C	__fwrite	105	1	7	memory			
+8016276C	__fwrite	107	1	7	memory			
 80162A78	fwrite	14	1	3				
 80162AF4	fflush	56	1	3				
 80162C2C	fclose	80	1	4				
@@ -2732,7 +2732,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801631A8	wcstombs	66	1	1				
 801632C0	FUN_801632c0	26	6	0				
 8016330C	__memrchr	20	1	0				
-80163338	memchr	20	1	0				
+80163338	memchr	21	1	0				
 80163364	memmove	51	2	4				
 80163430	__copy_longs_rev_unaligned	64	1	0				
 801634DC	__copy_longs_unaligned	69	1	0				
@@ -2740,10 +2740,10 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80163644	__copy_longs_aligned	67	1	0				
 80163700	__stdio_atexit	10	1	0				
 80163710	FUN_80163710	67	30	1				
-801637F0	vprintf	21	2	4				
+801637F0	vprintf	20	2	4				
 80163888	__StringWrite	19	0	1	memory			
 801638F4	__FileWrite	15	0	1				
-8016394C	__pformatter	339	2	10				
+8016394C	__pformatter	341	2	10				s_00
 801640C0	float2str	320	1	3				s__NAN_801c4acb,s__inf_801c4abe,s__nan_801c4ad0
 801647DC	round_decimal	64	1	0				
 80164908	double2hex	152	1	3				s__NAN_801c4acb,s__inf_801c4abe,s__nan_801c4ad0
@@ -2751,11 +2751,11 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80164F54	long2str	124	2	0				
 801651AC	parse_format	237	1	1				
 801656B0	strchr	22	3	0				
-801656E0	strncmp	29	1	0				
+801656E0	strncmp	30	1	0				
 80165720	strcmp	68	13	0				
 80165848	strcat	26	3	0				
-80165874	strncpy	30	3	0				
-801658B8	strcpy	58	11	0				
+80165874	strncpy	31	3	0				
+801658B8	strcpy	62	11	0				
 80165970	strlen	18	7	0				
 8016598C	fwide	36	2	0				
 80165A14	__write_console	29	0	4				
@@ -2775,7 +2775,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801689A8	FUN_801689a8	15	1	0				
 801689D0	cos	41	15	3				
 80168AA4	floor	74	1	0				
-80168BEC	frexp	34	1	0				
+80168BEC	frexp	33	1	0				
 80168C78	ldexp	90	3	1				
 80168E3C	modf	54	1	0				
 80168F38	sin	41	14	3				
@@ -2818,28 +2818,28 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80169BB8	FUN_80169bb8	31	1	1				
 80169C64	FUN_80169c64	80	5	0				
 80169EFC	SetExiInterruptMask	38	4	3				
-80169FF0	EXIImm	72	11	4				
+80169FF0	EXIImm	73	11	4				
 8016A24C	EXIImmEx	29	7	2				
-8016A2EC	EXIDma	32	5	4				
-8016A3D8	EXISync	76	11	4				
+8016A2EC	EXIDma	33	5	4				
+8016A3D8	EXISync	78	11	4				
 8016A624	EXIClearInterrupts	24	4	0				
 8016A66C	EXISetExiCallback	24	6	3				
-8016A6E8	__EXIProbe	57	7	4				
+8016A6E8	__EXIProbe	58	7	4				
 8016A85C	EXIProbe	22	4	2				
 8016A8DC	EXIProbeEx	34	1	2				
-8016A990	EXIAttach	42	2	6				
-8016AA9C	EXIDetach	29	3	3				
-8016AB58	EXISelect	39	13	4				
-8016AC84	EXIDeselect	45	16	4				
+8016A990	EXIAttach	43	2	6				
+8016AA9C	EXIDetach	30	3	3				
+8016AB58	EXISelect	40	13	4				
+8016AC84	EXIDeselect	46	16	4				
 8016AD94	EXIIntrruptHandler	23	0	2				
 8016AE5C	TCIntrruptHandler	70	0	3				
 8016B074	EXTIntrruptHandler	27	0	3				
 8016B144	EXIInit	54	1	6				
-8016B318	EXILock	48	12	3				
-8016B40C	EXIUnlock	35	15	4				
+8016B318	EXILock	49	12	3				
+8016B40C	EXIUnlock	36	15	4				
 8016B4E8	EXIGetState	9	2	0				
 8016B500	UnlockedHandler	12	0	1				
-8016B528	EXIGetID	143	8	13				
+8016B528	EXIGetID	144	8	13				
 8016B8D8	ProbeBarnacle	58	1	8				
 8016BA64	__OSEnableBarnacle	113	1	2				
 8016BC20	InitializeUART	28	1	1				
@@ -2848,20 +2848,20 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8016BEE8	CompleteTransfer	110	1	1				
 8016C1E4	SIInterruptHandler	102	0	7	video			
 8016C528	SIInit	28	1	5				
-8016C5DC	__SITransfer	93	3	2				
-8016C7E8	SIGetStatus	18	2	2				
+8016C5DC	__SITransfer	94	3	2				
+8016C7E8	SIGetStatus	19	2	2				
 8016C864	SISetCommand	10	4	0				
 8016C878	SITransferCommands	10	1	0				
-8016C888	SISetXY	16	1	2				
-8016C8F4	SIEnablePolling	20	3	2				
-8016C990	SIDisablePolling	19	5	2				
-8016C9FC	SIGetResponseRaw	25	1	2				
+8016C888	SISetXY	17	1	2				
+8016C8F4	SIEnablePolling	21	3	2				
+8016C990	SIDisablePolling	20	5	2				
+8016C9FC	SIGetResponseRaw	26	1	2				
 8016CAD0	FUN_8016cad0	27	4	3				
 8016CB94	FUN_8016cb94	21	0	1				
-8016CC20	SITransfer	56	6	5				
-8016CD8C	GetTypeCallback	90	0	4				
+8016CC20	SITransfer	55	6	5				
+8016CD8C	GetTypeCallback	89	0	4				
 8016D024	SIGetType	54	5	4				
-8016D1E8	FUN_8016d1e8	42	6	3				
+8016D1E8	FUN_8016d1e8	43	6	3				
 8016D324	SISetSamplingRate	47	2	5	debug-print,video			s_SISetSamplingRate__unknown_TV_fo_8024a3b8
 8016D408	FUN_8016d408	10	1	1				
 8016D42C	FUN_8016d42c	18	0	1		axdriver.c		s_axdriver_c_8024a3f0,s_axfxallocsize_
@@ -2875,10 +2875,10 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8016EE58	FUN_8016ee58	24	0	1		axdriver.c		s_axdriver_c_8024a3f0,s_pid_,s_v____v_
 8016EEFC	FUN_8016eefc	147	1	6	debug-print	axdriver.c		s__head____v_8024a418,s_axdriver_c_8024a3f0,s_vidhigh_exceeds_the_max_value_8024a530
 8016F294	FUN_8016f294	10	1	1	~debug-print			
-8016F2D8	FUN_8016f2d8	65	1	6		axdriver.c		s__v_,s_axdriver_c_8024a3f0
-8016F43C	FUN_8016f43c	64	1	7		axdriver.c		s__v_,s_axdriver_c_8024a3f0
-8016F594	FUN_8016f594	115	1	6		axdriver.c		s__v_,s_axdriver_c_8024a3f0
-8016F8E4	FUN_8016f8e4	39	2	5				
+8016F2D8	FUN_8016f2d8	66	1	6		axdriver.c		s__v_,s_axdriver_c_8024a3f0
+8016F43C	FUN_8016f43c	65	1	7		axdriver.c		s__v_,s_axdriver_c_8024a3f0
+8016F594	FUN_8016f594	116	1	6		axdriver.c		s__v_,s_axdriver_c_8024a3f0
+8016F8E4	FUN_8016f8e4	40	2	5				
 8016F9AC	FUN_8016f9ac	30	1	3				
 8016FA5C	FUN_8016fa5c	69	1	0				
 8016FBC8	FUN_8016fbc8	21	1	0				
@@ -2887,8 +2887,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8017004C	FUN_8017004c	23	2	1	~memory			
 801700BC	FUN_801700bc	60	2	0				
 801701D8	FUN_801701d8	143	1	10	~debug-print,~memory	axdriver.c		s__head____v_8024a418,s_axdriver_c_8024a3f0
-801704C8	FUN_801704c8	56	1	6		axdriver.c		s__v_,s_axdriver_c_8024a3f0
-801705E8	FUN_801705e8	56	1	6		axdriver.c		s__v_,s_axdriver_c_8024a3f0
+801704C8	FUN_801704c8	57	1	6		axdriver.c		s__v_,s_axdriver_c_8024a3f0
+801705E8	FUN_801705e8	57	1	6		axdriver.c		s__v_,s_axdriver_c_8024a3f0
 80170708	FUN_80170708	110	1	6	file-io,~debug-print			
 80170B28	FUN_80170b28	55	1	6	~file-io			
 80170C70	FUN_80170c70	14	1	1	~debug-print			
@@ -2905,23 +2905,23 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8017163C	FUN_8017163c	77	0	7	~file-io	devcom.c		s_devcom_c_8024a5e8
 801717DC	FUN_801717dc	68	0	4	~file-io	devcom.c		s_devcom_c_8024a5e8
 80171974	FUN_80171974	89	0	6	~file-io	devcom.c		s_devcom_c_8024a5e8,s_dvdDC_
-80171C18	FUN_80171c18	121	7	6	file-io	devcom.c		s_devcom_c_8024a5e8
+80171C18	FUN_80171c18	122	7	6	file-io	devcom.c		s_devcom_c_8024a5e8
 80171EC4	HSD_DevComRequest	93	13	8	~debug-print,~file-io	devcom.c		s___HSD_DevComGetDestType_type_____8024a624,s_dest___32____0_8024a680,s_devcom_c_8024a5e8,s_size___32____0_8024a690,s_size____0_8024a6a0,s_src___32____0_8024a670
-80172134	FUN_80172134	13	1	2				
+80172134	FUN_80172134	15	1	2				
 80172178	FUN_80172178	113	1	7	debug-print	dvdsche.c		s_assertion__s_failed__8024a6b0,s_dvdsche_c_8024a6d4,s_newid_____1_8024a6c8
 801723E4	FUN_801723e4	79	4	5	debug-print	dvdsche.c		s_assertion__s_failed__8024a6b0,s_dvdsche_c_8024a6d4,s_hsd_DVDScheNStreaming_8024a718,s_hsd_DVDScheStreamingFlag____1_,s_orderix_____1_8024a6e0
 801725D0	FUN_801725d0	29	3	5	debug-print	dvdsche.c		s_assertion__s_failed__8024a6b0,s_dvdsche_c_8024a6d4,s_hsd_DVDScheStreamingFlag____1_,s_id_
-801726B0	FUN_801726b0	22	1	4	debug-print	dvdsche.c		s_assertion__s_failed__8024a6b0,s_dvdsche_c_8024a6d4,s_hsd_DVDScheStreamingFlag____1_,s_id_
+801726B0	FUN_801726b0	24	1	4	debug-print	dvdsche.c		s_assertion__s_failed__8024a6b0,s_dvdsche_c_8024a6d4,s_hsd_DVDScheStreamingFlag____1_,s_id_
 8017277C	FUN_8017277c	275	4	0				
 80172DCC	FUN_80172dcc	11	1	0				
 80172DD8	FUN_80172dd8	16	2	2	debug-print	synth.c		s_audio_heap_overflow__size____u_8024a760,s_synth_c_8044ef10
 80172E44	FUN_80172e44	146	1	6	memory			
-80173274	FUN_80173274	38	0	6	debug-print,~memory	synth.c		s_Can_t_load_SFX_file__bank_id__d__8024a780,s_audio_heap_overflow__size____u_8024a760,s_hsd_SynthSFXBankHead_bankID___1__8024a7b4,s_synth_c_8044ef10
+80173274	FUN_80173274	39	0	6	debug-print,~memory	synth.c		s_Can_t_load_SFX_file__bank_id__d__8024a780,s_audio_heap_overflow__size____u_8024a760,s_hsd_SynthSFXBankHead_bankID___1__8024a7b4,s_synth_c_8044ef10
 801733F0	FUN_801733f0	16	1	3				
-8017346C	FUN_8017346c	51	3	8	debug-print,file-io	synth.c		s__bankID_,s_invalid_bankID____d__filename_____8024a80c,s_synth_c_8044ef10
+8017346C	FUN_8017346c	52	3	8	debug-print,file-io	synth.c		s__bankID_,s_invalid_bankID____d__filename_____8024a80c,s_synth_c_8044ef10
 801735EC	FUN_801735ec	9	3	0				
 801735FC	FUN_801735fc	22	1	0				
-80173654	FUN_80173654	43	2	3				
+80173654	FUN_80173654	44	2	3				
 80173774	FUN_80173774	25	1	1				
 801737E4	FUN_801737e4	24	1	1				
 80173850	FUN_80173850	35	2	5				
@@ -2933,7 +2933,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801749B4	FUN_801749b4	10	1	1				
 801749F4	FUN_801749f4	25	2	3				
 80174A9C	FUN_80174a9c	23	2	4				
-80174B40	FUN_80174b40	34	2	2				
+80174B40	FUN_80174b40	35	2	2				
 80174BFC	FUN_80174bfc	83	3	8		synth.c		s_flag_,s_synth_c_8044ef10
 80174E1C	FUN_80174e1c	40	1	6		synth.c		s_flag_,s_synth_c_8044ef10
 80174EF4	FUN_80174ef4	34	1	6		synth.c		s_flag_,s_synth_c_8044ef10
@@ -2943,13 +2943,13 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801752AC	FUN_801752ac	25	2	4		synth.c		s_flag____0____flag____1_8024adb0,s_synth_c_8044ef10
 801753A0	FUN_801753a0	32	1	5				
 80175458	FUN_80175458	410	1	10	~debug-print	synth.c		s__entry_,s__rearEntry_,s_rearEntry_,s_synth_c_8044ef10
-80175E10	FUN_80175e10	16	5	2				
-80175E6C	FUN_80175e6c	110	1	5				
+80175E10	FUN_80175e10	18	5	2				
+80175E6C	FUN_80175e6c	111	1	5				
 801760BC	FUN_801760bc	86	2	3				
 80176250	FUN_80176250	50	2	0				
-8017631C	FUN_8017631c	457	6	6		synth.c		s__entry_,s_rearEntry_,s_synth_c_8044ef10
-801772E0	FUN_801772e0	93	1	6				
-8017755C	FUN_8017755c	91	2	6				
+8017631C	FUN_8017631c	458	6	6		synth.c		s__entry_,s_rearEntry_,s_synth_c_8044ef10
+801772E0	FUN_801772e0	94	1	6				
+8017755C	FUN_8017755c	93	2	6				
 8017776C	FUN_8017776c	10	1	0				
 80177774	FUN_80177774	10	1	0				
 8017777C	FUN_8017777c	10	1	0				
@@ -2959,13 +2959,13 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80177D24	FUN_80177d24	41	0	3				
 80177E64	FUN_80177e64	57	0	6		synth.c		s_synth_c_8044ef10
 80177FD0	FUN_80177fd0	264	1	9	debug-print	synth.c		s_audio_heap_overflow__size____u_8024a760,s_bmbnext_8044ef34,s_pst__08x__pst_,s_pstream_,s_synth_c_8044ef10
-801787F8	FUN_801787f8	135	0	20	~debug-print	synth.c		s_rearEntry_,s_synth_c_8044ef10
+801787F8	FUN_801787f8	136	0	20	~debug-print	synth.c		s_rearEntry_,s_synth_c_8044ef10
 80178C00	FUN_80178c00	109	0	6	debug-print	synth.c		s_audio_heap_overflow__size____u_8024a760,s_bmbnext_8044ef34,s_synth_c_8044ef10
 80178ED0	FUN_80178ed0	33	0	3				
 80178FD0	FUN_80178fd0	99	0	8		synth.c		s_bufReading_____1_8024af68,s_entry_,s_synth_c_8044ef10
 8017929C	FUN_8017929c	19	0	2		synth.c		s_entry_8044ef48,s_synth_c_8044ef10
 8017933C	FUN_8017933c	150	3	7	~debug-print			
-801796F4	FUN_801796f4	18	1	2				
+801796F4	FUN_801796f4	19	1	2				
 80179740	FUN_80179740	219	1	13	debug-print	synth.c		s_HSD_AudioInit___pstBufNum_out_of_8024b018,s_HSD_AudioInit___pstNum_out_of_ra_8024afc0,s_pstBufNum_,s_pstNum_,s_synth_c_8044ef10
 80179C14	FUN_80179c14	167	1	0				
 80179F88	FUN_80179f88	51	1	4		particle.c		s_illigal_form_data__strange_numbe_8024b074,s_particle_c_8024b068,s_psInitDataBanks__unknown_version_8024b0a4
@@ -2985,7 +2985,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8017AF48	FUN_8017af48	95	1	4	math			
 8017B1B8	FUN_8017b1b8	61	1	2	~math	jobj.h		s_jobj_8044ef58,s_jobj_h_8044ef50
 8017B360	FUN_8017b360	57	1	1	~math			
-8017B4A4	FUN_8017b4a4	1766	2	35	math,model,~memory			
+8017B4A4	FUN_8017b4a4	1769	2	35	math,model,~memory			
 8017E3D4	FUN_8017e3d4	29	1	2		jobj.h		s_jobj_8044ef58,s_jobj_h_8044ef50
 8017E484	FUN_8017e484	29	1	2		jobj.h		s_jobj_8044ef58,s_jobj_h_8044ef50
 8017E534	FUN_8017e534	29	1	2		jobj.h		s_jobj_8044ef58,s_jobj_h_8044ef50
@@ -3004,21 +3004,21 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8017EE20	FUN_8017ee20	178	5	7				
 8017F1AC	FUN_8017f1ac	12	1	0				
 8017F1C4	FUN_8017f1c4	12	1	0				
-8017F1DC	FUN_8017f1dc	109	1	3	math			
-8017F4B8	FUN_8017f4b8	652	1	13	math	generator.c		s_generator_c_8024b348,s_psCamera_8024b354
+8017F1DC	FUN_8017f1dc	107	1	3	math			
+8017F4B8	FUN_8017f4b8	642	1	13	math	generator.c		s_generator_c_8024b348,s_psCamera_8024b354
 80180728	FUN_80180728	135	3	10	~math			
 80180AC8	FUN_80180ac8	29	0	2	~memory	object.h		s_HSD_OBJ_o__,s_object_h_8024b3a4
 80180B74	FUN_80180b74	262	3	7	memory			
 801812A4	FUN_801812a4	30	0	3	~memory	object.h		s_HSD_OBJ_o__,s_object_h_8024b3a4
 80181360	FUN_80181360	33	2	1		object.h		s_HSD_OBJ_o__,s_object_h_8024b3a4
-8018144C	FUN_8018144c	494	1	51	camera,debug-print,light,render,~math,~memory	psdisp.c		s_Particle_setBlendMode_Unknown_mo_8024b460,s_psdisp_c_8024b484
-801822D0	FUN_801822d0	295	1	6	math,~render			
-801829D0	FUN_801829d0	571	2	11	math,render			
-801835B0	FUN_801835b0	394	1	11	math,~render			
+8018144C	FUN_8018144c	504	1	51	camera,debug-print,light,render,~math,~memory	psdisp.c		s_Particle_setBlendMode_Unknown_mo_8024b460,s_psdisp_c_8024b484
+801822D0	FUN_801822d0	293	1	6	math,~render			
+801829D0	FUN_801829d0	572	2	11	math,render			
+801835B0	FUN_801835b0	386	1	11	math,~render			
 80183FEC	FUN_80183fec	175	1	8	math,render			
-80184450	FUN_80184450	278	1	12	math,render			
-80184B44	FUN_80184b44	135	1	1	render			
-80184F60	FUN_80184f60	96	1	4	light,render			
+80184450	FUN_80184450	274	1	12	math,render			
+80184B44	FUN_80184b44	136	1	1	render			
+80184F60	FUN_80184f60	103	1	4	light,render			
 801851D4	FUN_801851d4	21	1	4	render			
 80185304	FUN_80185304	10	1	0				
 80185310	FUN_80185310	170	1	6	render			
@@ -3036,39 +3036,39 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801860EC	FUN_801860ec	18	4	1		pslist.c		s_linkNo_,s_pslist_c_8024b490
 80186158	FUN_80186158	176	1	3	memory			
 80186490	FUN_80186490	10	1	0				
-80186498	HSD_DObjGetFlags	12	1	0				
-801864B0	HSD_DObjSetFlags	13	1	0				
+80186498	HSD_DObjGetFlags	15	1	0				
+801864B0	HSD_DObjSetFlags	16	1	0				
 801864C8	FUN_801864c8	13	1	0				
 801864E0	FUN_801864e0	38	2	2	~anim			
-80186590	HSD_DObjReqAnimAllByFlags	17	2	2				
+80186590	HSD_DObjReqAnimAllByFlags	24	2	2				
 80186610	FUN_80186610	18	2	3				
-8018667C	FUN_8018667c	46	0	5	debug-print,model	dobj.c		s_dobj_c_8044ef88,s_mobj_has_unexpected_blending_fla_8024b540
-8018678C	HSD_DObjLoadDesc	25	2	4	model,~memory	dobj.c		s_dobj_8044ef94,s_dobj_c_8044ef88
-80186824	HSD_DObjRemoveAll	18	1	0				
-80186898	HSD_DObjAlloc	20	1	2	~memory	dobj.c		s_dobj_8044ef94,s_dobj_c_8044ef88
-801868F4	HSD_DObjResolveRefsAll	15	2	1				
-80186960	HSD_DObjDisp	27	0	3	model			
-80186A20	DObjRelease	13	0	3	anim,model			
+8018667C	FUN_8018667c	51	0	5	debug-print,model	dobj.c		s_dobj_c_8044ef88,s_mobj_has_unexpected_blending_fla_8024b540
+8018678C	HSD_DObjLoadDesc	28	2	4	model,~memory	dobj.c		s_dobj_8044ef94,s_dobj_c_8044ef88
+80186824	HSD_DObjRemoveAll	21	1	0				
+80186898	HSD_DObjAlloc	23	1	2	~memory	dobj.c		s_dobj_8044ef94,s_dobj_c_8044ef88
+801868F4	HSD_DObjResolveRefsAll	18	2	1				
+80186960	HSD_DObjDisp	30	0	3	model			
+80186A20	DObjRelease	16	0	3	anim,model			
 80186A7C	DObjAmnesia	13	0	0				
-80186AC4	FUN_80186ac4	15	0	1	~memory			s_hsd_dobj_8024b60c,s_sysdolphin_base_library_8024b5f4
-80186B44	FUN_80186b44	60	1	8	anim,~model			
+80186AC4	FUN_80186ac4	18	0	1	~memory			s_hsd_dobj_8024b60c,s_sysdolphin_base_library_8024b5f4
+80186B44	FUN_80186b44	68	1	8	anim,~model			
 80186C98	FUN_80186c98	16	1	1				
 80186D0C	FUN_80186d0c	195	0	1		tobj.c		s_tobj_,s_tobj_c_8044efa0
 801872D8	FUN_801872d8	16	1	1				
-80187334	FUN_80187334	44	0	4	model			
-8018745C	HSD_TObjLoadDesc	25	2	4	model,~memory	tobj.c		s_tobj_8044efa8,s_tobj_c_8044efa0
+80187334	FUN_80187334	50	0	4	model			
+8018745C	HSD_TObjLoadDesc	28	2	4	model,~memory	tobj.c		s_tobj_8044efa8,s_tobj_c_8044efa0
 801874F4	HSD_TlutLoadDesc	18	2	2	memory			
 80187540	HSD_TObjTevLoadDesc	18	1	2	memory,model			
-8018758C	_HSD_TObjGetCurrentByType	22	3	0				
+8018758C	_HSD_TObjGetCurrentByType	25	3	0				
 801875C8	HSD_TexMapID2PTTexMtx	40	0	1		tobj.c		s_tobj_c_8044efa0,s_unexpected_texmap_id__8024b6d8
 8018765C	MakeTextureMtx	73	0	5	~math	tobj.c		s_tobj_c_8044efa0,s_v_tobj_
 80187830	TObjSetupMtx	125	1	9	camera,math,render	tobj.c		s_cobj_8044efb0,s_tobj_c_8044efa0
-80187B18	HSD_TObjSetupTextureCoordGen	71	3	3	render			
-80187DA8	HSD_TObjSetupVolatileTev	45	1	2	render			
-80187EC8	MakeColorGenTExp	344	1	10		tobj.c		s_tobj_c_8044efa0
-80188790	TObjMakeTExp	127	0	11		tobj.c		s_tobj_c_8044efa0
-80188DF8	HSD_TObjAssignResources	132	2	5		tobj.c		s_tobj_c_8044efa0,s_unexpected_texmap_id__8024b6d8
-80189058	HSD_TObjSetup	131	2	13	model,render	tobj.c		s_imagedesc_,s_imagedesc_8024b8c0,s_tlut_8044efbc,s_tobj_c_8044efa0
+80187B18	HSD_TObjSetupTextureCoordGen	66	3	3	render			
+80187DA8	HSD_TObjSetupVolatileTev	48	1	2	render			
+80187EC8	MakeColorGenTExp	354	1	10		tobj.c		s_tobj_c_8044efa0
+80188790	TObjMakeTExp	144	0	11		tobj.c		s_tobj_c_8044efa0
+80188DF8	HSD_TObjAssignResources	139	2	5		tobj.c		s_tobj_c_8044efa0,s_unexpected_texmap_id__8024b6d8
+80189058	HSD_TObjSetup	137	2	13	model,render	tobj.c		s_imagedesc_,s_imagedesc_8024b8c0,s_tlut_8044efbc,s_tobj_c_8044efa0
 80189334	HSD_TGTex2Index	40	0	1		tobj.c		s_tobj_c_8044efa0
 801893C8	HSD_TexCoordID2TexGenSrc	37	1	1		tobj.c		s_tobj_c_8044efa0
 80189450	HSD_TexCoord2Index	40	0	1		tobj.c		s_tobj_c_8044efa0
@@ -3077,28 +3077,28 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80189620	HSD_Index2TexMtx	50	1	2	debug-print	tobj.c		s_texmtx_index_exceed_hardware_lim_8024ba04,s_tobj_c_8044efa0
 801896DC	HSD_Index2TexMap	40	1	1		tobj.c		s_tobj_c_8044efa0
 8018976C	HSD_TexMap2Index	40	0	1		tobj.c		s_tobj_c_8044efa0
-801897FC	HSD_TObjRemoveAll	18	1	0				
-80189870	HSD_TObjGetNext	12	2	0				
-80189888	HSD_TObjAlloc	20	2	2	~memory	tobj.c		s_tobj_c_8044efa0
-801898E4	HSD_TObjFree	12	1	0				
+801897FC	HSD_TObjRemoveAll	21	1	0				
+80189870	HSD_TObjGetNext	15	2	0				
+80189888	HSD_TObjAlloc	23	2	2	~memory	tobj.c		s_tobj_c_8044efa0
+801898E4	HSD_TObjFree	15	1	0				
 80189918	HSD_TlutAlloc	16	1	3	memory	tobj.c		s_tlut_8044efbc,s_tobj_c_8044efa0
 80189970	HSD_TlutRemove	12	1	1				
 8018999C	HSD_TObjTevAlloc	16	1	3	memory	tobj.c		s_tobj_c_8044efa0
 801899F4	HSD_ImageDescAlloc	16	1	3	memory	tobj.c		s_idesc_8044efd0,s_tobj_c_8044efa0
 80189A4C	FUN_80189a4c	10	1	1				
 80189A70	FUN_80189a70	16	0	0				
-80189AC8	FUN_80189ac8	32	0	3	anim			
+80189AC8	FUN_80189ac8	35	0	3	anim			
 80189B84	FUN_80189b84	16	0	0				
 80189BE4	FUN_80189be4	18	0	1	~memory			s_hsd_tobj_8024bad8,s_sysdolphin_base_library_8024bac0
-80189C88	FUN_80189c88	100	1	13	light,~render			
+80189C88	FUN_80189c88	104	1	13	light,~render			
 80189EC4	FUN_80189ec4	41	1	8	~render			
 8018A038	FUN_8018a038	63	1	15	render,~light			
 8018A208	FUN_8018a208	19	1	0				
 8018A27C	FUN_8018a27c	10	1	0				
 8018A28C	FUN_8018a28c	13	2	1				
 8018A2C8	FUN_8018a2c8	17	2	1	render			
-8018A368	FUN_8018a368	20	3	1	render			
-8018A3F8	FUN_8018a3f8	25	2	3	render			
+8018A368	FUN_8018a368	21	3	1	render			
+8018A3F8	FUN_8018a3f8	26	2	3	render			
 8018A4A8	FUN_8018a4a8	16	4	1	render			
 8018A4F0	FUN_8018a4f0	16	3	1	render			
 8018A538	FUN_8018a538	17	2	1	render			
@@ -3110,14 +3110,14 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8018A6C8	HSD_StateInvalidate	19	16	0				
 8018A728	FUN_8018a728	12	1	1	~memory			
 8018A784	FUN_8018a784	109	2	3	render			
-8018AB28	FUN_8018ab28	36	1	1	render			
+8018AB28	FUN_8018ab28	37	1	1	render			
 8018AC20	FUN_8018ac20	13	1	1	render			
-8018AC60	FUN_8018ac60	25	1	3	render			
+8018AC60	FUN_8018ac60	24	1	3	render			
 8018ACDC	HSD_StateRegisterTexGen	15	1	1				
 8018AD0C	HSD_StateSetNumTexGens	11	2	1	render			
 8018AD3C	HSD_StateInitTev	10	2	0				
 8018AD48	HSD_StateGetNumTevStages	9	1	0				
-8018AD50	HSD_StateAssignTev	11	3	1				
+8018AD50	HSD_StateAssignTev	13	3	1				
 8018AD7C	HSD_StateSetNumTevStages	11	1	1	render			
 8018ADAC	FUN_8018adac	33	3	9	render			
 8018AEA4	FUN_8018aea4	38	1	11	render			
@@ -3130,32 +3130,32 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8018B410	_HSD_StateInvalidateTevStage	10	0	0				
 8018B41C	_HSD_StateInvalidateTevRegister	13	0	0				
 8018B43C	_HSD_StateInvalidateTexCoordGen	10	0	0				
-8018B448	HSD_MObjSetCurrent	10	1	0				
-8018B450	HSD_MObjSetFlags	12	2	0				
+8018B448	HSD_MObjSetCurrent	13	1	0				
+8018B450	HSD_MObjSetFlags	15	2	0				
 8018B468	FUN_8018b468	13	1	0				
 8018B480	FUN_8018b480	13	1	0				
-8018B498	FUN_8018b498	19	1	3	anim,~model			
+8018B498	FUN_8018b498	22	1	3	anim,~model			
 8018B500	FUN_8018b500	15	1	2				
 8018B564	FUN_8018b564	145	0	0				
 8018BA00	FUN_8018ba00	13	1	2				
-8018BA48	MObjLoad	24	0	4	memory,model			
-8018BAE8	HSD_MObjLoadDesc	26	1	5	model,~memory	mobj.c		s_mobj_8044eff8,s_mobj_c_8044eff0
-8018BB88	FUN_8018bb88	189	0	11		mobj.c		s_list_8044f000,s_mobj_c_8044eff0
-8018C554	FUN_8018c554	45	1	4	model			
-8018C674	MObjSetupTev	14	0	3	model	mobj.c		s_mobj_,s_mobj_c_8044eff0
-8018C6EC	HSD_MObjSetup	48	6	6	model,render,~light			
-8018C830	FUN_8018c830	10	0	1	model			
+8018BA48	MObjLoad	29	0	4	memory,model			
+8018BAE8	HSD_MObjLoadDesc	29	1	5	model,~memory	mobj.c		s_mobj_8044eff8,s_mobj_c_8044eff0
+8018BB88	FUN_8018bb88	217	0	11		mobj.c		s_list_8044f000,s_mobj_c_8044eff0
+8018C554	FUN_8018c554	48	1	4	model			
+8018C674	MObjSetupTev	17	0	3	model	mobj.c		s_mobj_,s_mobj_c_8044eff0
+8018C6EC	HSD_MObjSetup	52	6	6	model,render,~light			
+8018C830	FUN_8018c830	13	0	1	model			
 8018C854	FUN_8018c854	18	2	0				
 8018C884	FUN_8018c884	16	5	0				
 8018C8A4	FUN_8018c8a4	12	6	0				
-8018C8BC	HSD_MObjRemove	13	1	0				
-8018C90C	HSD_MObjAlloc	20	1	2	~memory	mobj.c		s_mobj_8044eff8,s_mobj_c_8044eff0
+8018C8BC	HSD_MObjRemove	16	1	0				
+8018C90C	HSD_MObjAlloc	23	1	2	~memory	mobj.c		s_mobj_8044eff8,s_mobj_c_8044eff0
 8018C968	HSD_MaterialAlloc	17	1	3	memory	mobj.c		s_mobj_c_8044eff0
-8018C9C8	HSD_MObjAddShadowTexture	25	1	1		mobj.c		s_mobj_c_8044eff0,s_tobj_8044f00c
-8018CA2C	HSD_MObjDeleteShadowTexture	31	2	0				
-8018CA90	MObjRelease	22	0	5	anim,model			
+8018C9C8	HSD_MObjAddShadowTexture	28	1	1		mobj.c		s_mobj_c_8044eff0,s_tobj_8044f00c
+8018CA2C	HSD_MObjDeleteShadowTexture	35	2	0				
+8018CA90	MObjRelease	25	0	5	anim,model			
 8018CB2C	MObjAmnesia	17	0	0				
-8018CB90	MObjInfoInit	19	0	1	~memory			s_hsd_mobj_8024bfd8,s_sysdolphin_base_library_8024bfc0
+8018CB90	MObjInfoInit	22	0	1	~memory			s_hsd_mobj_8024bfd8,s_sysdolphin_base_library_8024bfc0
 8018CC40	FUN_8018cc40	10	1	1	~memory			
 8018CC70	FUN_8018cc70	11	1	0				
 8018CC80	FUN_8018cc80	16	1	0				
@@ -3163,87 +3163,87 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8018CD2C	FUN_8018cd2c	28	1	1				
 8018CDAC	FUN_8018cdac	14	6	1				
 8018CDEC	FUN_8018cdec	57	7	4				
-8018CFA4	FUN_8018cfa4	48	6	9	anim,~memory,~model	object.h		s_HSD_OBJ_o__,s_object_h_8024bff4
-8018D0CC	HSD_AObjRemove	22	16	3				
-8018D13C	HSD_AObjAlloc	20	1	3	memory	aobj.c		s_aobj_c_8044f018
+8018CFA4	FUN_8018cfa4	52	6	9	anim,~memory,~model	object.h		s_HSD_OBJ_o__,s_object_h_8024bff4
+8018D0CC	HSD_AObjRemove	25	16	3				
+8018D13C	HSD_AObjAlloc	23	1	3	memory	aobj.c		s_aobj_c_8044f018
 8018D1A8	FUN_8018d1a8	12	1	1				
 8018D1DC	FUN_8018d1dc	13	2	0				
-8018D1EC	HSD_AObjSetRewindFrame	13	1	0				
-8018D1FC	HSD_AObjSetEndFrame	13	1	0				
+8018D1EC	HSD_AObjSetRewindFrame	18	1	0				
+8018D1FC	HSD_AObjSetEndFrame	18	1	0				
 8018D20C	FUN_8018d20c	14	2	1				
 8018D260	FUN_8018d260	9	3	0				
 8018D268	HSD_LObjGetLightMaskAttnFunc	9	1	0				
 8018D270	HSD_LObjGetLightMaskAlpha	9	1	0				
 8018D278	HSD_LObjGetLightMaskSpecular	9	1	0				
 8018D280	HSD_LObjGetNbActive	9	2	0				
-8018D288	HSD_LObjGetActiveByID	19	2	1				
+8018D288	HSD_LObjGetActiveByID	22	2	1				
 8018D2D0	FUN_8018d2d0	12	2	0				
 8018D2FC	FUN_8018d2fc	97	0	0				
-8018D548	FUN_8018d548	49	1	4	math			
+8018D548	FUN_8018d548	45	1	4	math			
 8018D66C	FUN_8018d66c	49	1	3	render			
-8018D7D0	FUN_8018d7d0	103	2	5	math,render	lobj.c		s_lobj_c_8044f028
-8018DA48	FUN_8018da48	467	6	18	math,render	lobj.c		s_lobj_c_8044f028
-8018E604	FUN_8018e604	132	6	3		lobj.h,object.h		s_HSD_OBJ_o__,s_lobj_8044f03c,s_lobj_h_8044f034,s_object_h_8024c0a4
+8018D7D0	FUN_8018d7d0	99	2	5	math,render	lobj.c		s_lobj_c_8044f028
+8018DA48	FUN_8018da48	473	6	18	math,render	lobj.c		s_lobj_c_8044f028
+8018E604	FUN_8018e604	133	6	3		lobj.h,object.h		s_HSD_OBJ_o__,s_lobj_8044f03c,s_lobj_h_8044f034,s_object_h_8024c0a4
 8018E944	FUN_8018e944	19	1	0				
 8018E978	HSD_LightID2Index	47	2	1		lobj.c		s_lobj_c_8044f028
 8018EA64	FUN_8018ea64	30	2	0				
 8018EAD4	FUN_8018ead4	88	2	1				
 8018ECE0	FUN_8018ece0	10	1	0				
 8018ECEC	FUN_8018ecec	10	1	0				
-8018ECF8	FUN_8018ecf8	22	4	3		lobj.c		s_lobj_,s_lobj_8044f03c,s_lobj_c_8044f028
-8018ED80	FUN_8018ed80	18	4	1				
-8018EDC0	FUN_8018edc0	18	2	1				
-8018EE00	FUN_8018ee00	170	0	3	debug-print	lobj.c		s_lobj_c_8044f028,s_unexpected_lightdesc_flags___x__8024c140
+8018ECF8	FUN_8018ecf8	25	4	3		lobj.c		s_lobj_,s_lobj_8044f03c,s_lobj_c_8044f028
+8018ED80	FUN_8018ed80	21	4	1				
+8018EDC0	FUN_8018edc0	21	2	1				
+8018EE00	FUN_8018ee00	173	0	3	debug-print	lobj.c		s_lobj_c_8044f028,s_unexpected_lightdesc_flags___x__8024c140
 8018F214	FUN_8018f214	38	7	3	~memory	lobj.c		s_lobj_c_8044f028
-8018F304	FUN_8018f304	55	0	1	anim			
+8018F304	FUN_8018f304	58	0	1	anim			
 8018F468	FUN_8018f468	16	0	0				
 8018F4C8	FUN_8018f4c8	15	0	1	~memory			s_hsd_lobj_8024c17c,s_sysdolphin_base_library_8024c164
-8018F548	FUN_8018f548	60	1	5	camera,~render			
-8018F6EC	FUN_8018f6ec	58	0	8	camera,~debug-print,~math			
-8018F830	FUN_8018f830	128	1	9	render			
-8018FA94	FUN_8018fa94	150	1	9	render			
-8018FD60	FUN_8018fd60	31	1	7	camera,~math			
-8018FE2C	FUN_8018fe2c	235	6	23	camera,render,video,~math	cobj.c		s_cobj_c_8044f058,s_unkown_type_of_render_pass__8024c220
+8018F548	FUN_8018f548	64	1	5	camera,~render			
+8018F6EC	FUN_8018f6ec	59	0	8	camera,~debug-print,~math			
+8018F830	FUN_8018f830	132	1	9	render			
+8018FA94	FUN_8018fa94	154	1	9	render			
+8018FD60	FUN_8018fd60	34	1	7	camera,~math			
+8018FE2C	FUN_8018fe2c	256	6	23	camera,render,video,~math	cobj.c		s_cobj_c_8044f058,s_unkown_type_of_render_pass__8024c220
 80190330	FUN_80190330	11	6	2				
-80190354	HSD_CObjGetInterestWObj	12	1	1		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
-80190394	HSD_CObjGetEyePositionWObj	12	1	1		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
-801903D4	HSD_CObjGetInterest	14	4	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
-80190440	HSD_CObjSetInterest	14	2	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
-801904AC	HSD_CObjGetEyePosition	14	4	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
-80190518	FUN_80190518	14	2	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
-80190584	FUN_80190584	37	3	4	math	cobj.c		s_cobj_,s_cobj_8044f060,s_cobj_c_8044f058
-80190688	FUN_80190688	72	1	8	math	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
-80190870	FUN_80190870	89	2	6	math	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
+80190354	HSD_CObjGetInterestWObj	15	1	1		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
+80190394	HSD_CObjGetEyePositionWObj	15	1	1		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
+801903D4	HSD_CObjGetInterest	17	4	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
+80190440	HSD_CObjSetInterest	17	2	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
+801904AC	HSD_CObjGetEyePosition	17	4	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
+80190518	FUN_80190518	17	2	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
+80190584	FUN_80190584	38	3	4	math	cobj.c		s_cobj_,s_cobj_8044f060,s_cobj_c_8044f058
+80190688	FUN_80190688	73	1	8	math	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
+80190870	FUN_80190870	88	2	6	math	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 80190B54	FUN_80190b54	22	4	1	~math			
 80190BBC	FUN_80190bbc	106	2	11	debug-print,math,~camera	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058,s_illegal_up_vector__8024c278
 80190EB8	FUN_80190eb8	10	2	0				
 80190EC8	FUN_80190ec8	18	2	0				
 80190F14	FUN_80190f14	13	1	2	math,~camera			
-80190F48	FUN_80190f48	19	1	3	camera			
+80190F48	FUN_80190f48	22	1	3	camera			
 80190FAC	FUN_80190fac	10	1	1	~camera,~math			
-80190FDC	FUN_80190fdc	145	3	14	camera,debug-print,math	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058,s_illegal_up_vector__8024c278
+80190FDC	FUN_80190fdc	142	3	14	camera,debug-print,math	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058,s_illegal_up_vector__8024c278
 80191404	FUN_80191404	16	6	0				
 80191424	FUN_80191424	16	5	0				
 80191444	FUN_80191444	12	3	0				
-8019145C	HSD_CObjSetNear	13	3	0				
-8019146C	HSD_CObjGetFar	12	2	0				
-80191484	HSD_CObjSetFar	13	3	0				
-80191494	HSD_CObjGetScissor	17	4	0				
+8019145C	HSD_CObjSetNear	18	3	0				
+8019146C	HSD_CObjGetFar	15	2	0				
+80191484	HSD_CObjSetFar	18	3	0				
+80191494	HSD_CObjGetScissor	26	4	0				
 801914B0	FUN_801914b0	17	4	0				
 801914CC	FUN_801914cc	20	4	0				
 801914F8	FUN_801914f8	16	4	0				
-80191514	HSD_CObjGetProjectionType	12	3	0				
+80191514	HSD_CObjGetProjectionType	15	3	0				
 8019152C	FUN_8019152c	13	2	0				
 8019153C	FUN_8019153c	17	1	0				
 80191560	FUN_80191560	17	1	0				
 80191584	FUN_80191584	13	2	0				
-8019159C	HSD_CObjClearFlags	13	3	0				
-801915B4	HSD_CObjGetCurrent	9	10	0				
+8019159C	HSD_CObjClearFlags	16	3	0				
+801915B4	HSD_CObjGetCurrent	12	10	0				
 801915BC	FUN_801915bc	20	1	2	~memory	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
-80191618	FUN_80191618	95	0	4	~camera,~debug-print,~math	cobj.c		s_cobj_c_8044f058
+80191618	FUN_80191618	98	0	4	~camera,~debug-print,~math	cobj.c		s_cobj_c_8044f058
 80191844	FUN_80191844	35	1	3	~memory	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
-80191908	CObjInit	23	0	1				
-8019197C	CObjRelease	54	0	3	anim	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
+80191908	CObjInit	26	0	1				
+8019197C	CObjRelease	57	0	3	anim	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 80191B00	FUN_80191b00	16	0	0				
 80191B60	FUN_80191b60	16	0	1	~memory			s_hsd_cobj_8024c2d4,s_sysdolphin_base_library_8024c2bc
 80191BEC	FUN_80191bec	10	1	1	~memory			
@@ -3257,13 +3257,13 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801936B8	FUN_801936b8	98	1	3	anim			
 801938E0	HSD_FObjAlloc	16	1	3	memory	fobj.c		s_fobj_c_8044f070
 8019393C	FUN_8019393c	10	2	1				
-80193968	FUN_80193968	29	1	2	anim,~model			
+80193968	FUN_80193968	32	1	2	anim,~model			
 801939F8	FUN_801939f8	16	1	1				
 80193A6C	FUN_80193a6c	23	0	0				
 80193AB8	FUN_80193ab8	16	1	1				
-80193B14	FUN_80193b14	101	0	10	memory,model	pobj.c		s_envelope_8024c374,s_pobj__unexected_type__8024c38c,s_pobj_c_8044f080,s_shape_set_8024c380
-80193D50	HSD_PObjLoadDesc	25	2	4	~memory	pobj.c		s_pobj_8044f088,s_pobj_c_8044f080
-80193DE8	HSD_PObjRemoveAll	18	1	0				
+80193B14	FUN_80193b14	106	0	10	memory,model	pobj.c		s_envelope_8024c374,s_pobj__unexected_type__8024c38c,s_pobj_c_8044f080,s_shape_set_8024c380
+80193D50	HSD_PObjLoadDesc	28	2	4	~memory	pobj.c		s_pobj_8044f088,s_pobj_c_8044f080
+80193DE8	HSD_PObjRemoveAll	21	1	0				
 80193E5C	FUN_80193e5c	20	1	2	~memory	pobj.c		s_pobj_8044f088,s_pobj_c_8044f080
 80193EB8	FUN_80193eb8	72	1	5		object.h,pobj.c		s_HSD_OBJ_o__,s_env_,s_object_h_8024c3d4,s_pobj_,s_pobj_c_8044f080
 8019408C	FUN_8019408c	12	3	1	render			
@@ -3273,87 +3273,87 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80194BD8	FUN_80194bd8	172	1	4	debug-print,render			s_attr__d__is_not_supported_by_sys_8024c4d8
 80194EFC	FUN_80194efc	299	1	8	~debug-print,~memory,~render	pobj.c		s_normal_buffer_size_,s_pobj_c_8044f080,s_vertex_buffer_size_
 80195638	FUN_80195638	13	1	0				
-80195650	FUN_80195650	94	1	12	math,model,render			
-801958D0	SetupEnvelopeModelMtx	163	1	17	math,model,render	pobj.c		s_envelope_,s_envelope_8024c374,s_jp_,s_pobj_c_8044f080
-80195C50	FUN_80195c50	93	0	10	math,model,render			
-80195EE4	FUN_80195ee4	93	0	8	render,~debug-print,~memory	pobj.c		s_pobj_,s_pobj_c_8044f080
-801961CC	FUN_801961cc	48	0	5	anim			
+80195650	FUN_80195650	98	1	12	math,model,render			
+801958D0	SetupEnvelopeModelMtx	167	1	17	math,model,render	pobj.c		s_envelope_,s_envelope_8024c374,s_jp_,s_pobj_c_8044f080
+80195C50	FUN_80195c50	97	0	10	math,model,render			
+80195EE4	FUN_80195ee4	98	0	8	render,~debug-print,~memory	pobj.c		s_pobj_,s_pobj_c_8044f080
+801961CC	FUN_801961cc	51	0	5	anim			
 801962F8	FUN_801962f8	29	0	1				
 801963A4	FUN_801963a4	17	0	1	~memory			s_hsd_pobj_8024c658,s_sysdolphin_base_library_8024c640
 8019643C	FUN_8019643c	44	1	1		jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
 80196568	FUN_80196568	18	4	1		jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
 801965C0	FUN_801965c0	24	2	2		jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
-80196630	FUN_80196630	116	1	7	math			
-80196900	FUN_80196900	21	1	3	model			
-80196988	FUN_80196988	106	1	6	model			
+80196630	FUN_80196630	115	1	7	math			
+80196900	FUN_80196900	25	1	3	model			
+80196988	FUN_80196988	115	1	6	model			
 80196C50	FUN_80196c50	10	35	1	~model			
 80196C74	FUN_80196c74	29	1	0				
-80196CCC	FUN_80196ccc	61	1	6	anim,~model			
-80196E0C	FUN_80196e0c	237	27	10	anim,~model			
+80196CCC	FUN_80196ccc	64	1	6	anim,~model			
+80196E0C	FUN_80196e0c	240	27	10	anim,~model			
 801971E8	JObjUpdateFunc	383	0	15	math	jobj.c,jobj.h		s___jobj_,s_jobj_,s_jobj_8044f0b0,s_jobj_c_8044f0b8,s_jobj_h_8044f0a8,s_jp_
-80197B2C	FUN_80197b2c	47	4	3				
-80197C90	FUN_80197c90	102	1	6				
+80197B2C	FUN_80197b2c	49	4	3				
+80197C90	FUN_80197c90	104	1	6				
 80197FD8	FUN_80197fd8	14	11	3				
-80198014	FUN_80198014	48	1	5	camera,~math	jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
-80198144	FUN_80198144	201	15	10	camera,~math,~model			
+80198014	FUN_80198014	51	1	5	camera,~math	jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
+80198144	FUN_80198144	205	15	10	camera,~math,~model			
 80198688	FUN_80198688	9	1	0				
 80198690	FUN_80198690	24	1	2	~math	jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
-80198700	FUN_80198700	80	0	11	math,memory,model	jobj.c		s_jobj_8044f0b0,s_jobj_c_8044f0b8
-801988FC	FUN_801988fc	31	33	5	model,~memory	jobj.c		s_jobj_8044f0b0,s_jobj_c_8044f0b8
-801989A4	FUN_801989a4	33	1	5	model	jobj.c,object.h		s_HSD_OBJ_o__,s_jobj_,s_jobj_c_8044f0b8,s_object_h_8024c848
-80198A9C	FUN_80198a9c	108	1	11	model	jobj.c,object.h		s_HSD_OBJ_o__,s_jobj_,s_jobj_c_8044f0b8,s_object_h_8024c848
+80198700	FUN_80198700	86	0	11	math,memory,model	jobj.c		s_jobj_8044f0b0,s_jobj_c_8044f0b8
+801988FC	FUN_801988fc	34	33	5	model,~memory	jobj.c		s_jobj_8044f0b0,s_jobj_c_8044f0b8
+801989A4	FUN_801989a4	36	1	5	model	jobj.c,object.h		s_HSD_OBJ_o__,s_jobj_,s_jobj_c_8044f0b8,s_object_h_8024c848
+80198A9C	FUN_80198a9c	112	1	11	model	jobj.c,object.h		s_HSD_OBJ_o__,s_jobj_,s_jobj_c_8044f0b8,s_object_h_8024c848
 80198D70	FUN_80198d70	13	1	1		object.h		s_HSD_OBJ_o__,s_object_h_8024c848
 80198DC4	FUN_80198dc4	10	1	1				
 80198DF0	FUN_80198df0	13	1	1		object.h		s_HSD_OBJ_o__,s_object_h_8024c848
 80198E3C	FUN_80198e3c	48	48	1		object.h		s_HSD_OBJ_o__,s_object_h_8024c848
 80198F84	FUN_80198f84	30	6	0				
-8019902C	HSD_JObjAddChild	43	1	2	debug-print	jobj.c		s___jobj_,s_child_,s_child_should_be_a_orphan__8024c8b8,s_child_should_not_have_siblings_8024c8ec,s_jobj_c_8044f0b8,s_last____child_8024c92c
+8019902C	HSD_JObjAddChild	45	1	2	debug-print	jobj.c		s___jobj_,s_child_,s_child_should_be_a_orphan__8024c8b8,s_child_should_not_have_siblings_8024c8ec,s_jobj_c_8044f0b8,s_last____child_8024c92c
 80199178	FUN_80199178	17	15	0				
 801991A4	FUN_801991a4	12	1	0				
 801991BC	FUN_801991bc	26	5	1				
 80199258	FUN_80199258	108	1	6				
 80199530	FUN_80199530	26	5	1				
 801995CC	FUN_801995cc	110	1	6				
-801998A8	HSD_JObjAlloc	20	3	2	~memory	jobj.c		s_jobj_8044f0b0,s_jobj_c_8044f0b8
-80199904	HSD_JObjSetCurrent	55	1	1		object.h		s_HSD_OBJ_o__,s_object_h_8024c848
-80199A94	HSD_JObjGetCurrent	9	3	0				
-80199A9C	resolveIKJoint1	250	1	12	math	jobj.c,jobj.h		s_jobj_8044f0b0,s_jobj_c_8044f0b8,s_jobj_h_8044f0a8,s_robj_8044f0d0
-8019A28C	resolveIKJoint2	197	1	13	math	jobj.c		s_jobj_c_8044f0b8,s_robj_8044f0d0
-8019A7E8	FUN_8019a7e8	95	33	8	math	jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
+801998A8	HSD_JObjAlloc	23	3	2	~memory	jobj.c		s_jobj_8044f0b0,s_jobj_c_8044f0b8
+80199904	HSD_JObjSetCurrent	59	1	1		object.h		s_HSD_OBJ_o__,s_object_h_8024c848
+80199A94	HSD_JObjGetCurrent	12	3	0				
+80199A9C	resolveIKJoint1	241	1	12	math	jobj.c,jobj.h		s_jobj_8044f0b0,s_jobj_c_8044f0b8,s_jobj_h_8044f0a8,s_robj_8044f0d0
+8019A28C	resolveIKJoint2	189	1	13	math	jobj.c		s_jobj_c_8044f0b8,s_robj_8044f0d0
+8019A7E8	FUN_8019a7e8	96	33	8	math	jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
 8019AA60	FUN_8019aa60	147	27	4		jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
 8019AD94	FUN_8019ad94	10	1	0				
 8019AD9C	FUN_8019ad9c	10	1	0				
 8019ADA4	FUN_8019ada4	21	0	0				
-8019AE08	FUN_8019ae08	184	0	5	anim,model	jobj.c,object.h		s_HSD_OBJ_o__,s_can_not_find_specified_jobj__may_8024c93c,s_jobj_c_8044f0b8,s_object_h_8024c848,s_prev_8044f0c4
+8019AE08	FUN_8019ae08	187	0	5	anim,model	jobj.c,object.h		s_HSD_OBJ_o__,s_can_not_find_specified_jobj__may_8024c93c,s_jobj_c_8044f0b8,s_object_h_8024c848,s_prev_8044f0c4
 8019B2DC	FUN_8019b2dc	23	0	4				
 8019B374	JObjAmnesia	17	0	0				
 8019B3D8	JObjInfoInit	20	0	1	~memory			s_hsd_jobj_8024ca1c,s_sysdolphin_base_library_8024ca04
 8019B494	FUN_8019b494	10	1	1	~memory			
 8019B4C4	FUN_8019b4c4	96	1	4	math			
-8019B7A0	FUN_8019b7a0	109	1	5	math			
-8019BAE4	FUN_8019bae4	105	1	3	math			
+8019B7A0	FUN_8019b7a0	110	1	5	math			
+8019BAE4	FUN_8019bae4	100	1	3	math			
 8019BE7C	FUN_8019be7c	49	1	3	math			
 8019C064	FUN_8019c064	39	1	6	~math	displayfunc.c		s_displayfunc_c_8024ca40,s_unkown_type_of_billboard__8024ca50
 8019C164	FUN_8019c164	39	1	4	~math	displayfunc.c		s_displayfunc_c_8024ca40,s_jobj_8044f0e8
-8019C270	FUN_8019c270	32	0	6	model,~math,~render			
-8019C340	HSD_JObjDispDObj	75	1	8	camera,math,memory			
+8019C270	FUN_8019c270	35	0	6	model,~math,~render			
+8019C340	HSD_JObjDispDObj	80	1	8	camera,math,memory			
 8019C548	zlist_sort	69	1	0				
 8019C6B4	_HSD_ZListSort	13	1	1				
-8019C704	_HSD_ZListDisp	31	1	2	camera			
+8019C704	_HSD_ZListDisp	35	1	2	camera			
 8019C7CC	FUN_8019c7cc	29	2	2				
-8019C86C	FUN_8019c86c	32	3	1	model			
+8019C86C	FUN_8019c86c	36	3	1	model			
 8019C918	FUN_8019c918	10	1	0				
-8019C920	FUN_8019c920	105	1	26	render			
+8019C920	FUN_8019c920	109	1	26	render			
 8019CC64	FUN_8019cc64	64	1	7	video,~render			
 8019CD6C	HSD_GXSetFifoObj	11	1	0				
 8019CD84	FUN_8019cd84	9	1	0				
-8019CD88	FUN_8019cd88	67	1	4	memory	initialize.c		s_No_memory_space_remains_for_XFB__8024cb10,s_initialize_c_8024cb00
+8019CD88	FUN_8019cd88	66	1	4	memory	initialize.c		s_No_memory_space_remains_for_XFB__8024cb10,s_initialize_c_8024cb00
 8019CEBC	FUN_8019cebc	15	1	2	memory	initialize.c		s_initialize_c_8024cb00,s_no_space_remains_for_gx_fifo__8024cb34
-8019CF0C	FUN_8019cf0c	29	1	7	render			
-8019CFB8	FUN_8019cfb8	60	1	8				
+8019CF0C	FUN_8019cf0c	32	1	7	render			
+8019CFB8	FUN_8019cfb8	62	1	8				
 8019D15C	FUN_8019d15c	22	0	3	memory	initialize.c		s_addr_8044f114,s_initialize_c_8024cb00
 8019D1BC	FUN_8019d1bc	13	0	2				
-8019D1F0	FUN_8019d1f0	11	0	2				
+8019D1F0	FUN_8019d1f0	13	0	2				
 8019D214	FUN_8019d214	18	0	3				
 8019D278	FUN_8019d278	15	0	0				
 8019D2A0	FUN_8019d2a0	12	3	1		initialize.c		s__iparam_memory_callbacks_8024cb54,s_initialize_c_8024cb00
@@ -3367,7 +3367,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8019D868	HSD_VIGXDrawDoneCB	13	0	0				
 8019D8AC	FUN_8019d8ac	9	1	0				
 8019D8BC	FUN_8019d8bc	68	3	13	render	video.c		s_unexpected_type_of_render_pass__8024cb7c,s_video_c_8044f120
-8019DB14	FUN_8019db14	59	10	7	video,~render			
+8019DB14	FUN_8019db14	60	10	7	video,~render			
 8019DC90	FUN_8019dc90	82	10	5		video.c		s__p_,s_idx_____1_8024cb70,s_video_c_8044f120
 8019DE54	FUN_8019de54	27	3	0				
 8019DEDC	FUN_8019dedc	11	3	0				
@@ -3377,14 +3377,14 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8019E60C	FUN_8019e60c	99	1	0				
 8019E914	FUN_8019e914	79	1	1				
 8019EB14	FUN_8019eb14	11	2	2				
-8019EB5C	FUN_8019eb5c	189	2	1	math			
+8019EB5C	FUN_8019eb5c	204	2	1	math			
 8019EF8C	FUN_8019ef8c	101	4	3	math			
-8019F2AC	FUN_8019f2ac	106	1	2	math			
+8019F2AC	FUN_8019f2ac	100	1	2	math			
 8019F5E4	FUN_8019f5e4	12	3	0				
-8019F600	FUN_8019f600	146	5	6	math			
+8019F600	FUN_8019f600	143	5	6	math			
 8019FAD8	FUN_8019fad8	53	1	2	math			
 8019FC14	FUN_8019fc14	128	5	4	math			
-8019FEEC	FUN_8019feec	56	1	3	math			
+8019FEEC	FUN_8019feec	57	1	3	math			
 801A0098	FUN_801a0098	21	1	0				
 801A015C	FUN_801a015c	39	1	1				
 801A023C	HSD_VecAlloc	15	1	2	memory	mtx.c		s_mtx_c_8044f128
@@ -3397,58 +3397,58 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A0408	HSD_GetNbBits	44	2	0				
 801A04C8	HSD_Index2PosNrmMtx	46	1	1		util.c		s_util_c_8044f138
 801A0568	HSD_ObjSetHeap	13	1	0				
-801A0584	HSD_ObjAllocAddFree	97	1	2		objalloc.c		s_data_8044f148,s_objalloc_c_8024cc60
-801A07D4	HSD_ObjAlloc	56	13	2	memory			
+801A0584	HSD_ObjAllocAddFree	100	1	2		objalloc.c		s_data_8044f148,s_objalloc_c_8024cc60
+801A07D4	HSD_ObjAlloc	52	13	2	memory			
 801A0924	FUN_801a0924	13	10	0				
-801A094C	FUN_801a094c	44	10	3	memory	objalloc.c		s_HSD_GetNbBits_align_____1_8024cc78,s_align_,s_data_8044f148,s_objalloc_c_8024cc60
+801A094C	FUN_801a094c	45	10	3	memory	objalloc.c		s_HSD_GetNbBits_align_____1_8024cc78,s_align_,s_data_8044f148,s_objalloc_c_8024cc60
 801A0A70	FUN_801a0a70	11	1	1	~memory			
 801A0AB4	FUN_801a0ab4	28	4	0				
 801A0B0C	FUN_801a0b0c	20	0	0				
-801A0B50	HSD_RObjAnimAll	16	2	1				
+801A0B50	HSD_RObjAnimAll	19	2	1				
 801A0BB8	FUN_801a0bb8	16	2	1				
-801A0C3C	FUN_801a0c3c	24	2	2	anim,~model			
+801A0C3C	FUN_801a0c3c	27	2	2	anim,~model			
 801A0CCC	FUN_801a0ccc	69	1	4	~math	robj.c		s_robj_c_8044f150,s_rp_
-801A0E80	FUN_801a0e80	201	1	8	math	robj.c		s_robj_c_8044f150,s_rp_
+801A0E80	FUN_801a0e80	195	1	8	math	robj.c		s_robj_c_8044f150,s_rp_
 801A1468	resolveLimits	96	1	2	~math	robj.c		s_jobj_8044f160,s_robj_c_8044f150
 801A1670	FUN_801a1670	186	2	9	math	jobj.h,robj.c		s_jobj_8044f160,s_jobj_h_8044f158,s_robj_c_8044f150,s_rp_
 801A1AF4	FUN_801a1af4	36	4	4		object.h,robj.c		s_HSD_OBJ_o__,s_object_h_8024ccf4,s_robj_,s_robj_c_8044f150
-801A1C08	FUN_801a1c08	179	3	6		robj.c		s_robj_c_8044f150,s_unexpected_type_of_robj__8024cd28
-801A207C	FUN_801a207c	26	4	4	anim			
-801A2118	HSD_RObjAlloc	16	1	3	memory	robj.c		s_robj_c_8044f150
-801A2174	HSD_RObjFree	10	1	1				
-801A21A0	expEvaluate	179	1	11	debug-print,~math	robj.c		s_Number_of_argment_of_expression_e_8024cd5c,s_jobj_8044f160,s_robj_c_8044f150
+801A1C08	FUN_801a1c08	182	3	6		robj.c		s_robj_c_8044f150,s_unexpected_type_of_robj__8024cd28
+801A207C	FUN_801a207c	29	4	4	anim			
+801A2118	HSD_RObjAlloc	19	1	3	memory	robj.c		s_robj_c_8044f150
+801A2174	HSD_RObjFree	13	1	1				
+801A21A0	expEvaluate	182	1	11	debug-print,~math	robj.c		s_Number_of_argment_of_expression_e_8024cd5c,s_jobj_8044f160,s_robj_c_8044f150
 801A263C	dummy_func	9	0	0				
-801A2644	HSD_RvalueRemoveAll	18	1	2				
+801A2644	HSD_RvalueRemoveAll	21	1	2				
 801A26B4	expLoadDesc	46	1	5	memory	robj.c		s_robj_c_8044f150,s_rvalue_8044f174
 801A27A8	bcexpLoadDesc	47	1	5	memory	robj.c		s_robj_c_8044f150,s_rvalue_8044f174
 801A28A0	FUN_801a28a0	30	1	3		object.h,robj.c		s_HSD_OBJ_o__,s_object_h_8024ccf4,s_robj_c_8044f150,s_rvalue_
 801A2988	FUN_801a2988	10	1	1	~memory			
 801A29B8	HSD_IDSetup	10	1	1	memory			
 801A29E8	HSD_IDInsertToTable	41	1	5	memory	id.c		s_entry_8044f188,s_id_c_8044f180
-801A2AD4	HSD_IDRemoveByIDFromTable	36	1	1				
+801A2AD4	HSD_IDRemoveByIDFromTable	34	1	1				
 801A2B80	FUN_801a2b80	28	8	0				
-801A2C08	WObjUpdateFunc	46	0	6		wobj.c		s_jp_,s_wobj_,s_wobj_c_8044f190
-801A2D4C	FUN_801a2d4c	18	0	4	~anim			
-801A2DB4	HSD_WObjInit	20	1	4	~anim			
-801A2E28	HSD_WObjLoadDesc	25	1	4	~memory	wobj.c		s_wobj_8044f19c,s_wobj_c_8044f190
-801A2EC0	HSD_WObjSetPosition	23	6	0				
-801A2F08	HSD_WObjSetPositionX	33	1	2	math			
-801A2FDC	HSD_WObjSetPositionY	33	1	2	math			
-801A30B0	HSD_WObjSetPositionZ	33	1	2	math			
-801A3184	HSD_WObjGetPosition	36	9	2	math			
-801A326C	HSD_WObjAlloc	20	3	2	~memory	wobj.c		s_wobj_8044f19c,s_wobj_c_8044f190
-801A32C8	WObjRelease	12	0	2	anim			
+801A2C08	WObjUpdateFunc	49	0	6		wobj.c		s_jp_,s_wobj_,s_wobj_c_8044f190
+801A2D4C	FUN_801a2d4c	21	0	4	~anim			
+801A2DB4	HSD_WObjInit	23	1	4	~anim			
+801A2E28	HSD_WObjLoadDesc	28	1	4	~memory	wobj.c		s_wobj_8044f19c,s_wobj_c_8044f190
+801A2EC0	HSD_WObjSetPosition	26	6	0				
+801A2F08	HSD_WObjSetPositionX	37	1	2	math			
+801A2FDC	HSD_WObjSetPositionY	37	1	2	math			
+801A30B0	HSD_WObjSetPositionZ	37	1	2	math			
+801A3184	HSD_WObjGetPosition	37	9	2	math			
+801A326C	HSD_WObjAlloc	23	3	2	~memory	wobj.c		s_wobj_8044f19c,s_wobj_c_8044f190
+801A32C8	WObjRelease	15	0	2	anim			
 801A331C	FUN_801a331c	13	0	0				
 801A3364	FUN_801a3364	15	0	1	~memory			s_had_wobj_8024ce9c,s_sysdolphin_base_library_8024ce84
-801A33E4	FUN_801a33e4	138	1	11	camera,memory,render	fog.c		s_You_must_specify_CObj_first__8024cf24,s_fog_c_8044f1b8
-801A36A0	HSD_FogLoadDesc	22	1	4	~memory,~render	fog.c		s_fog_c_8044f1b8
+801A33E4	FUN_801a33e4	142	1	11	camera,memory,render	fog.c		s_You_must_specify_CObj_first__8024cf24,s_fog_c_8044f1b8
+801A36A0	HSD_FogLoadDesc	25	1	4	~memory,~render	fog.c		s_fog_c_8044f1b8
 801A3730	FUN_801a3730	31	1	1	render			
 801A37BC	FUN_801a37bc	17	1	0				
 801A37E8	FUN_801a37e8	17	1	3	~memory	fog.c		s_fog_c_8044f1b8
 801A3864	FUN_801a3864	23	1	2	memory			
 801A38E0	FUN_801a38e0	12	1	0				
 801A38F8	FUN_801a38f8	95	0	0				
-801A3B28	FUN_801a3b28	30	0	1	anim			
+801A3B28	FUN_801a3b28	33	0	1	anim			
 801A3BF4	FUN_801a3bf4	13	0	1	~memory			s_hsd_fog_8044f1cc,s_sysdolphin_base_library_8024cf9c
 801A3C58	FUN_801a3c58	11	0	1	~memory			s_hsd_fogadj_8024cfb4,s_sysdolphin_base_library_8024cf9c
 801A3C9C	FUN_801a3c9c	13	1	1		perf.c		s_n_,s_perf_c_8044f1d8
@@ -3467,40 +3467,40 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A40EC	FUN_801a40ec	10	8	0				
 801A411C	FUN_801a411c	10	14	0				
 801A4154	FUN_801a4154	10	1	1	~memory			
-801A4184	HSD_ShadowAlloc	43	2	7	memory,model			
-801A4280	HSD_ShadowRemove	42	4	6	model			
-801A4388	HSD_ShadowInit	17	1	3	render	shadow.c		s_shadow_8044f210,s_shadow_c_8024d0d0
-801A43F8	FUN_801a43f8	50	2	8	render	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
-801A4558	FUN_801a4558	91	1	23	render,~camera,~math,~model,~video	shadow.c		s_shadow_,s_shadow_8044f210,s_shadow_c_8024d0d0
-801A4800	FUN_801a4800	66	1	12	render,~camera,~math	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
-801A4998	FUN_801a4998	41	1	7	camera,math	shadow.c		s_lobj_8044f218,s_shadow_8044f210,s_shadow_c_8024d0d0
-801A4ABC	FUN_801a4abc	74	3	10	model,render	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
-801A4C84	FUN_801a4c84	26	3	2		object.h		s_HSD_OBJ_o__,s_object_h_8024d1ec
+801A4184	HSD_ShadowAlloc	47	2	7	memory,model			
+801A4280	HSD_ShadowRemove	45	4	6	model			
+801A4388	HSD_ShadowInit	20	1	3	render	shadow.c		s_shadow_8044f210,s_shadow_c_8024d0d0
+801A43F8	FUN_801a43f8	51	2	8	render	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
+801A4558	FUN_801a4558	98	1	23	render,~camera,~math,~model,~video	shadow.c		s_shadow_,s_shadow_8044f210,s_shadow_c_8024d0d0
+801A4800	FUN_801a4800	67	1	12	render,~camera,~math	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
+801A4998	FUN_801a4998	44	1	7	camera,math	shadow.c		s_lobj_8044f218,s_shadow_8044f210,s_shadow_c_8024d0d0
+801A4ABC	FUN_801a4abc	78	3	10	model,render	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
+801A4C84	FUN_801a4c84	25	3	2		object.h		s_HSD_OBJ_o__,s_object_h_8024d1ec
 801A4D30	FUN_801a4d30	33	2	2				
-801A4DC4	FUN_801a4dc4	52	1	8	camera,math	shadow.c		s_shadow_c_8024d0d0
-801A4F00	FUN_801a4f00	67	1	9	camera,~math	shadow.c		s_shadow_8044f210,s_shadow_c_8024d0d0
-801A50C0	FUN_801a50c0	78	1	8	math	shadow.c		s_rect_8044f224,s_shadow_c_8024d0d0
+801A4DC4	FUN_801a4dc4	55	1	8	camera,math	shadow.c		s_shadow_c_8024d0d0
+801A4F00	FUN_801a4f00	69	1	9	camera,~math	shadow.c		s_shadow_8044f210,s_shadow_c_8024d0d0
+801A50C0	FUN_801a50c0	76	1	8	math	shadow.c		s_rect_8044f224,s_shadow_c_8024d0d0
 801A52CC	FUN_801a52cc	20	1	1		shadow.c		s_rect_8044f224,s_shadow_c_8024d0d0
-801A5348	FUN_801a5348	73	1	4	math	shadow.c		s_position_8024d250,s_rect_8044f224,s_shadow_c_8024d0d0
+801A5348	FUN_801a5348	79	1	4	math	shadow.c		s_position_8024d250,s_rect_8044f224,s_shadow_c_8024d0d0
 801A5558	FUN_801a5558	25	10	1				
 801A55FC	HSD_ArchiveGetExtern	12	1	0				
 801A5634	FUN_801a5634	42	1	3				
-801A5708	FUN_801a5708	142	1	11	debug-print,file-io,memory			s_Cannot_open_file__8024d2c4,s_Error_occured_when_reading_file___8024d2d8,s_Error_occured_when_reading_file___8024d348,s_Error_occured_when_reading_file___8024d378,s_Error_occured_when_reading_file___8024d3a8,s_Error_occured_when_reading_file___8024d3d8,s_Error_occured_when_reading_file___8024d408,s_Trying_to_open_file__s_8024d2ac,s_Unexpected_binary_file_size__Bro_8024d304
+801A5708	FUN_801a5708	144	1	11	debug-print,file-io,memory			s_Cannot_open_file__8024d2c4,s_Error_occured_when_reading_file___8024d2d8,s_Error_occured_when_reading_file___8024d348,s_Error_occured_when_reading_file___8024d378,s_Error_occured_when_reading_file___8024d3a8,s_Error_occured_when_reading_file___8024d3d8,s_Error_occured_when_reading_file___8024d408,s_Trying_to_open_file__s_8024d2ac,s_Unexpected_binary_file_size__Bro_8024d304
 801A5A48	FUN_801a5a48	32	1	1				
 801A5AE8	FUN_801a5ae8	10	0	1	~debug-print,~file-io,~memory			
-801A5B08	FUN_801a5b08	61	1	5				
+801A5B08	FUN_801a5b08	60	1	5				
 801A5C68	FUN_801a5c68	96	1	5				
 801A5E7C	FUN_801a5e7c	15	7	0				
 801A5ED4	FUN_801a5ed4	13	1	0				
-801A5F10	HSD_ByteCodeEval	1069	1	20	debug-print,math	bytecode.c		s_bytecode_c_8024d438,s_not_yet_implemented__8024d480,s_operand_,s_specified_stack_doesn_t_exist____8024d458,s_stack_,s_stack_8044f23c,s_unexpected_byte_code__8024d498,s_unexpected_opcode_0x_x__8024d4bc
+801A5F10	HSD_ByteCodeEval	734	1	20	debug-print,math	bytecode.c		s_bytecode_c_8024d438,s_not_yet_implemented__8024d480,s_operand_,s_specified_stack_doesn_t_exist____8024d458,s_stack_,s_stack_8044f23c,s_unexpected_byte_code__8024d498,s_unexpected_opcode_0x_x__8024d4bc
 801A74D8	FUN_801a74d8	34	11	2	memory	class.c		s_class_c_8044f248,s_class_info_
-801A75C0	FUN_801a75c0	96	3	5	memory	class.c		s_class_c_8044f248,s_idx_
+801A75C0	FUN_801a75c0	98	3	5	memory	class.c		s_class_c_8044f248,s_idx_
 801A7824	hsdAllocMemPiece	73	10	2	~memory			
 801A79EC	hsdFreeMemPiece	19	8	1	~memory			
-801A7A44	_hsdClassAlloc	18	0	1				
+801A7A44	_hsdClassAlloc	20	0	1				
 801A7A9C	_hsdClassInit	9	0	0				
 801A7AA4	_hsdClassRelease	9	0	0				
-801A7AA8	_hsdClassDestroy	21	0	1	~memory			
+801A7AA8	_hsdClassDestroy	22	0	1	~memory			
 801A7B14	FUN_801a7b14	17	0	0				
 801A7B40	FUN_801a7b40	24	0	0				s_hsd_class_8024d604,s_sysdolphin_base_library_8024d5ec
 801A7BDC	FUN_801a7bdc	31	18	1	memory			
@@ -3509,29 +3509,29 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A7DE4	FUN_801a7de4	18	7	0				
 801A7E20	FUN_801a7e20	38	3	0				
 801A7EA8	FUN_801a7ea8	233	7	3				
-801A8424	HSD_TExpFreeList	146	3	3		texp.c		s_texp_c_8044f258
-801A8744	HSD_TExpTev	33	3	3	memory	texp.c		s_texp_8044f260,s_texp_c_8044f258,s_texp_list_8024d680
-801A8804	HSD_TExpCnst	51	3	4		texp.c		s_texp_,s_texp_8044f260,s_texp_c_8044f258,s_texp_list_8024d680
-801A8924	HSD_TExpColorOp	43	3	3		texp.c		s_HSD_TExpGetType_texp_____HSD_TE__8024d6a8,s_texp_8044f260,s_texp_c_8044f258
-801A8A0C	HSD_TExpAlphaOp	43	3	3		texp.c		s_HSD_TExpGetType_texp_____HSD_TE__8024d6a8,s_texp_8044f260,s_texp_c_8044f258
+801A8424	HSD_TExpFreeList	150	3	3		texp.c		s_texp_c_8044f258
+801A8744	HSD_TExpTev	36	3	3	memory	texp.c		s_texp_8044f260,s_texp_c_8044f258,s_texp_list_8024d680
+801A8804	HSD_TExpCnst	55	3	4		texp.c		s_texp_,s_texp_8044f260,s_texp_c_8044f258,s_texp_list_8024d680
+801A8924	HSD_TExpColorOp	52	3	3		texp.c		s_HSD_TExpGetType_texp_____HSD_TE__8024d6a8,s_texp_8044f260,s_texp_c_8044f258
+801A8A0C	HSD_TExpAlphaOp	52	3	3		texp.c		s_HSD_TExpGetType_texp_____HSD_TE__8024d6a8,s_texp_8044f260,s_texp_c_8044f258
 801A8AF4	HSD_TExpColorInSub	277	1	5		texp.c		s_idx____3____sel____HSD_TE_A____e_8024d750,s_idx____3____sel____HSD_TE_RGB____8024d71c,s_sel____HSD_TE_RGB____sel____HSD__8024d6f4,s_swap____HSD_TE_UNDEF____tev_,s_tev_can_t_select_multiple_konst_i_8024d6cc,s_texp_c_8044f258
-801A90AC	HSD_TExpColorIn	38	3	4		texp.c		s_HSD_TExpGetType_texp_____HSD_TE__8024d6a8,s_texp_8044f260,s_texp_c_8044f258
+801A90AC	HSD_TExpColorIn	41	3	4		texp.c		s_HSD_TExpGetType_texp_____HSD_TE__8024d6a8,s_texp_8044f260,s_texp_c_8044f258
 801A91B4	HSD_TExpAlphaInSub	187	1	4		texp.c		s_Xtev_,s_exp_,s_idx____3____exp_,s_sel____HSD_TE_A_8024d810,s_sel____HSD_TE_A____sel____HSD_TE_8024d840,s_texp_c_8044f258
-801A95AC	HSD_TExpAlphaIn	38	3	4		texp.c		s_HSD_TExpGetType_texp_____HSD_TE__8024d6a8,s_texp_8044f260,s_texp_c_8044f258
-801A96B4	HSD_TExpOrder	34	3	1		texp.c		s_HSD_TExpGetType_texp_____HSD_TE__8024d6a8,s_texp_8044f260,s_texp_c_8044f258
+801A95AC	HSD_TExpAlphaIn	41	3	4		texp.c		s_HSD_TExpGetType_texp_____HSD_TE__8024d6a8,s_texp_8044f260,s_texp_c_8044f258
+801A96B4	HSD_TExpOrder	37	3	1		texp.c		s_HSD_TExpGetType_texp_____HSD_TE__8024d6a8,s_texp_8044f260,s_texp_c_8044f258
 801A9778	FUN_801a9778	66	1	0				
 801A98F0	FUN_801a98f0	101	1	0				
 801A9B1C	FUN_801a9b1c	72	1	0				
 801A9C80	FUN_801a9c80	253	1	6		texp.c		s_texp_c_8044f258,s_val_
 801AA34C	TExp2TevDesc	193	1	3		texp.c		s_HSD_TExpGetType_texp_____HSD_TE__8024d6a8,s_desc_8044f26c,s_tev_,s_texp_8044f260,s_texp_c_8044f258
-801AA74C	HSD_TExpSetReg	230	1	7	render	texp.c		s_clist_,s_texp_c_8044f258
-801AAC48	HSD_TExpSetupTev	18	1	3	render			
-801AACB4	HSD_TExpCompile	104	1	13	memory	texp.c		s_tevdesc_8044f274,s_texp_c_8044f258,s_texp_list_8024d680,s_val_
-801AAF5C	HSD_TExpFreeTevDesc	16	2	1				
-801AAF9C	assign_reg	96	1	3				
-801AB14C	FUN_801ab14c	104	1	3				
+801AA74C	HSD_TExpSetReg	232	1	7	render	texp.c		s_clist_,s_texp_c_8044f258
+801AAC48	HSD_TExpSetupTev	21	1	3	render			
+801AACB4	HSD_TExpCompile	107	1	13	memory	texp.c		s_tevdesc_8044f274,s_texp_c_8044f258,s_texp_list_8024d680,s_val_
+801AAF5C	HSD_TExpFreeTevDesc	19	2	1				
+801AAF9C	assign_reg	99	1	3				
+801AB14C	FUN_801ab14c	103	1	3				
 801AB384	FUN_801ab384	221	1	2				
-801AB7BC	HSD_TExpMakeDag	268	1	5		texpdag.c		s_HSD_TExpGetType_root_____HSD_TE__8024d9f4,s_j,s_l_,s_texpdag_c_8024d9e8
+801AB7BC	HSD_TExpMakeDag	271	1	5		texpdag.c		s_HSD_TExpGetType_root_____HSD_TE__8024d9f4,s_j,s_l_,s_texpdag_c_8024d9e8
 801ABC6C	FUN_801abc6c	163	1	5	memory			
 801ABFD4	FUN_801abfd4	183	1	5				
 801AC46C	FUN_801ac46c	336	1	1				

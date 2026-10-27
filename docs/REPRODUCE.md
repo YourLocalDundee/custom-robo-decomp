@@ -61,8 +61,10 @@ Everything below runs locally, with no network access, in this order (~2 minutes
 | | `CreateDtkFunctions.java` | creates functions at the starts dtk found and Ghidra missed | |
 | | `ApplySymbols.java` (×2) | applies `symbols\symbols.txt`, then `symbols\descriptive.txt` | |
 | | `DefineStrings.java` | marks ASCII strings in data sections so code shows `s_chara_bin_…` | |
+| | `ParseHeaders.java` | parses the HAL library headers from the Melee decomp (a declarations-only copy made by `tools\clean_headers.py`) and our `symbols\cr_types.h`; checks every `ASSERT_SIZE` and `/* +XX */` offset; applies prototypes to verified library functions and our `cr_` functions; types the globals in `symbols\cr_globals.txt` | → `symbols\types_report.txt` |
 | | `ExportXrefs.java` | writes functions / references / strings as TSV | → `decompiled\xrefs\` |
 | | `ExportDecompiledC.java` | writes the C of every function | → `decompiled\main_dol.c` |
+| Batch 5 | `tools\batches\batch5_types.ps1`, `tools\check_class_sizes.py` | stops if any header size/offset, prototype or global failed, or if a parsed HSD struct size differs from the size Custom Robo itself registers for that class | `symbols\types_report.txt` |
 | Batch 2 | `tools\crosscheck_dtk.py` | compares Ghidra with dtk (function starts, names, small-data) | → `symbols\crosscheck_report.txt` |
 | Batch 3 | `tools\game_map.py` | callers / callees / strings / subsystem hints per function | → `symbols\game_map.tsv`, `docs\game_map.md` |
 | Batch 4 | `tools\build_index.py` | SQLite search index + one file per function | → `decompiled\index.db`, `decompiled\funcs\` |

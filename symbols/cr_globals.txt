@@ -1,0 +1,17 @@
+// Custom Robo (GXCE01) global variables: OUR names (cr_g_ prefix) and types from symbols/cr_types.h.
+// Applied by tools/scripts/ParseHeaders.java; checked by tools/lint_descriptive.py. Rules: CONTRIBUTING.md.
+// Format:  cr_g_Name = .section:0xADDR; // type:object datatype:Type[*][N] // why: <evidence from the code>
+// The tables below fit back to back exactly: slots end at 0x80321084, entry numbers start at 0x8032109C,
+// packed archives end at 0x80321CB4 where the ready flag sits.
+
+cr_g_FileDescs = .data:0x801F1200; // type:object datatype:cr_FileDesc*[43] // why: cr_FileSys_Init walks 0x2B pointers here; every archive accessor indexes it by archive number
+cr_g_FileSlots = .bss:0x80320184; // type:object datatype:cr_FileSlot[32] // why: cr_Archive_OpenEntry scans 0x20 slots of 0x78 bytes from here for in_use == 0
+cr_g_DirTree = .bss:0x80321084; // type:object datatype:u32 // why: root of the path tree built by cr_FileSys_RegisterPath (passed as its starting node)
+cr_g_ArchiveDvdEntry = .bss:0x8032109C; // type:object datatype:s32[43] // why: cr_FileSys_Init sets all 0x2B to -1, then to desc[1] for single-file archives (packed == 1)
+cr_g_PackedArchives = .bss:0x80321148; // type:object datatype:cr_PackedArchive[43] // why: cr_Archive_SetEntryTable writes the 0x44-byte record of an archive here; accessors read +0x3C/+0x40
+cr_g_FileSysReady = .bss:0x80321CB4; // type:object datatype:u8 // why: cr_FileSys_Init returns at once when set and sets it to 1 at the end
+cr_g_ReadQueueHead = .bss:0x80321CB8; // type:object datatype:u8 // why: cr_FileSlot_QueueRead compares it with the tail to decide whether to start the read now
+cr_g_ReadQueueTail = .bss:0x80321CB9; // type:object datatype:u8 // why: cr_FileSlot_QueueRead stores the slot at cr_g_ReadQueue[tail] and advances it mod 0x20
+cr_g_ReadChunkSectors = .bss:0x80321CBA; // type:object datatype:u16 // why: read length cap in 0x800-byte sectors (0x80 at init, 0x200/0x400 in cr_Archive_OpenRequestList)
+cr_g_CurrentRead = .bss:0x80321CBC; // type:object datatype:cr_FileSlot* // why: cr_FileSlot_QueueRead stores the slot whose DVD read it starts
+cr_g_ReadQueue = .bss:0x80321CC0; // type:object datatype:cr_FileSlot*[32] // why: ring of 0x20 queued slots written by cr_FileSlot_QueueRead

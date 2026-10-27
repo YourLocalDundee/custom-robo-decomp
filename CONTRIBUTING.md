@@ -35,6 +35,22 @@ Thanks for helping! The most useful thing anyone can do is **name a function**. 
   `cr_Archive_OpenEntry` (provable) beats `cr_LoadRoboForBattle` (a guess).
 - Not sure? Name it less specifically (`cr_Model_Relocate`), or leave a note in `symbols/unverified.txt` instead.
 
+## Types, struct fields, parameters and globals
+
+What turns `*(int *)(param_1 + 0xc)` into `archive->packed`:
+
+| What | File | Source |
+|---|---|---|
+| HAL library structs + prototypes (JObj, DObj, …) | Melee's headers, parsed by `tools/scripts/ParseHeaders.java` | verified: header sizes/offsets **and** the sizes Custom Robo registers for each class (`tools/check_class_sizes.py`) |
+| Custom Robo's differences from Melee's library | `OVERRIDES` in `tools/clean_headers.py` | each with the code that shows it |
+| Our structs + prototypes for `cr_` functions | `symbols/cr_types.h` | every field: `/* +XX */` offset + the code that shows it; `ASSERT_SIZE` comment per struct |
+| Our globals | `symbols/cr_globals.txt` | `cr_g_Name = .bss:0xADDR; // type:object datatype:Type[N] // why: ...` |
+
+To add a struct: write it in `symbols/cr_types.h` with `/* +XX */` on every field and an
+`// ASSERT_SIZE(cr_Name, 0xSIZE)` comment; unknown parts are `unk_XX`. The rebuild stops if any size or
+offset doesn't match. Then give a function a prototype there (parameter names become the C's names) and
+type the globals that hold it in `symbols/cr_globals.txt`.
+
 ## Rules for everything
 
 - **Never commit game data**: no ISO, extracted files, models, textures, audio, or decompiled C.

@@ -83,3 +83,7 @@ python -I tools\find.py refs 801F1200           every instruction touching an ad
 python -I tools\find.py str snr_motion          strings + the functions using them
 python -I tools\find.py hint anim               game functions reaching animation code
 ```
+
+## Types (Oct 27, 2026)
+
+Library structs and prototypes come from Melee's headers (`ParseHeaders.java`), checked three ways: the headers' own ASSERT_SIZE lines, their `/* +XX */` field offsets, and the object sizes Custom Robo registers for each HSD class (`tools/check_class_sizes.py`). Custom Robo's differences are overrides in `tools/clean_headers.py`. Our own types: `symbols/cr_types.h`, globals: `symbols/cr_globals.txt`. Report: `symbols/types_report.txt`. Details: plan.md step 23.

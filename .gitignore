@@ -11,6 +11,7 @@ models_export/
 previews/
 test_build/
 decompiled/
+build/
 ghidra_project/
 
 # Third-party tools: downloaded by tools/setup.ps1, not stored here

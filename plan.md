@@ -113,6 +113,12 @@ gameTesting\
    - `symbols/descriptive.txt`: our own `cr_` names for game code with a `why:` note each, checked by `tools/lint_descriptive.py`, applied after verified names. First 11: file system / archives / model load callbacks. Correction found: `FUN_80020a70` opens an entry into a file slot (returns the slot), it does not return a disc offset.
    - `find.py func --brief`; README, CONTRIBUTING, `.gitignore`, `tools/setup.ps1` (pinned clones, dtk hash check, dtk analysis regenerated), `docs/REPRODUCE.md`, `tools/checksums.ps1` + `docs/expected_checksums.txt`. **Verified**: two full rebuilds give identical SHA-256 for all outputs incl. `main_dol.c`; `dtk dol split` regenerates `tools/dtk/proj/symbols.txt` byte-identical.
 
+23. **Types, fields, parameters, globals** (Oct 27, 2026). The C now reads `cr_g_FileSlots[i].in_use`, `HSD_JObj *`, named parameters:
+   - `tools/clean_headers.py` makes a declarations-only copy of Melee's HSD + SDK headers (inline bodies dropped; Ghidra misparses `T (*p)[N]`, rewritten). `tools/scripts/ParseHeaders.java` parses them + our `symbols/cr_types.h`, checks **17/17 ASSERT_SIZE and 95/95 `/* +XX */` field offsets**, applies **439 prototypes** (432 verified library functions, 7 `cr_`), types **11 globals** from `symbols/cr_globals.txt`.
+   - **Checked against the game itself** (`tools/check_class_sizes.py`): every HSD class registers its sizes at startup (`hsd_jobj` 0x54/0x88, …). 10 object structs match. Found: CR's `HSD_PObj` is 0x1C (Melee 0x18); its load method (0x80193B14) fills +4..+14 like Melee, so the extra word is at the end (override `cr_unk_18`). Every `HSD_*Info` method table is +4 (one extra method; `HSD_ObjInfo` itself matches) - these types are not applied.
+   - First `cr_` types: `cr_FileDesc` (0x10), `cr_PackedEntry` (8), `cr_PackedArchive` (0x44), `cr_FileSlot` (0x78, ends in a `DVDFileInfo`). The globals fit back to back exactly (slots end where the dir tree starts; 43 packed archives end at the ready flag).
+   - `tools/batches/batch5_types.ps1` stops the run on any type mismatch. Rebuilds still byte-identical (13 checksummed outputs).
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.

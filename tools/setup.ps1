@@ -63,7 +63,9 @@ if (-not (Test-Path -LiteralPath "$g\Custom Robo extracted")) {
 }
 
 # 3. Reference symbol lists (names + sizes only) from public GameCube decomps.
-PinnedClone melee "$t\melee" @('/config/', '/src/dolphin/', '/src/sysdolphin/')
+# Melee also: its HSD library + SDK headers (types and prototypes, parsed by ParseHeaders.java)
+PinnedClone melee "$t\melee" @('/config/', '/src/sysdolphin/', '/src/Runtime/', '/src/MSL/',
+    '/libs/doldecomp/include/', '/libs/dolphin/include/')
 foreach ($r in 'mkdd', 'pikmin2', 'ttyd', 'tww', 'tp') {
     PinnedClone $r "$t\refs\$r" @('/config/*/symbols.txt', '/config/*/splits.txt')
 }

@@ -13,6 +13,7 @@ $files = @(
     'symbols\symbols.txt'                     # verified names after batch 1 (layout proof is deterministic)
     'symbols\layout_candidates.txt'
     'symbols\verify_report.txt'
+    'symbols\types_report.txt'                # header types, prototypes, globals (ParseHeaders.java)
     'symbols\crosscheck_report.txt'
     'symbols\game_map.tsv'
     'decompiled\main_dol.c'                   # Ghidra's C output

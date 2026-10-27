@@ -66,6 +66,8 @@ Or open `ghidra_project\CustomRobo` in the Ghidra GUI to browse and click throug
 |---|---|---|
 | `OSReport`, `GXSetTevOrder`, `HSD_JObjAlloc` | **Verified**: matched to the same function in other GameCube decomps (Melee, Twilight Princess, Mario Kart DD, Pikmin 2, TTYD, Wind Waker) by signature, assert text, or position + size. In `symbols/symbols.txt`. | real names |
 | `cr_Archive_OpenEntry` | **Descriptive**: our name for what the function does. Custom Robo's own code has no surviving real names. In `symbols/descriptive.txt`, each with a `why:` note. | our best reading |
+| `HSD_JObj *jobj`, `jobj->child` | **Types**: the HAL library's structs and prototypes from the Melee decomp's headers, checked against the sizes Custom Robo registers for each class | verified |
+| `cr_FileSlot`, `cr_g_FileSlots[i].in_use` | **Our types/globals**: `symbols/cr_types.h`, `symbols/cr_globals.txt`, every field with its offset and evidence | our best reading |
 | `FUN_80012345` | not named yet; the number is its address | help wanted! |
 
 ## How it is built
