@@ -1,0 +1,27 @@
+// NOT APPLIED. Candidate names that failed verification or have no independent source.
+// Do not move a name into symbols.txt until it is backed by a source (Melee/SDK symbols, signatures, strings).
+
+// ---- Melee assert matches rejected (size differs >10% from Melee, or name not in Melee's verified symbols)
+MObjMakeTExp = .text:0x8018BB88; // type:function scope:global // melee-assert-match 1/1 verify:MISMATCH
+CObjLoad = .text:0x80191618; // type:function scope:global // melee-assert-match 1/1 verify:MISMATCH
+FObjLoadWait = .text:0x80192F74; // type:function scope:global // melee-assert-match 1/1 verify:UNSOURCED
+HSD_JObjReparent = .text:0x8019AE08; // type:function scope:global // melee-assert-match 1/1 verify:MISMATCH
+HSD_ObjAllocInit = .text:0x801A094C; // type:function scope:global // melee-assert-match 1/2 verify:MISMATCH
+resolveCnsOrientation = .text:0x801A1670; // type:function scope:global // melee-assert-match 1/1 verify:MISMATCH
+IDEntryAlloc = .text:0x801A29E8; // type:function scope:global // melee-assert-match 1/1 verify:UNSOURCED
+HSD_ShadowSetViewingRect = .text:0x801A4F00; // type:function scope:global // melee-assert-match 2/2 verify:MISMATCH
+HSD_ViewingRectAddRect = .text:0x801A5348; // type:function scope:global // melee-assert-match 2/2 verify:MISMATCH
+
+// ---- Inlining notes (a name can be missing from Melee's symbols because it is static/inline and folded into its caller)
+// 0x80192F74: asserts match FObjLoadWait, which is `static` in Melee fobj.c:207 and called inside FObjUpdateAnim (fobj.c:418).
+//   Caller FObjUpdateAnim is 0x1C0 in Melee vs 0x6D4 here -> NOT verified. Leave as FUN_80192f74.
+// 0x801A29E8: IDEntryAlloc is `static inline` (id.c:31), inlined into HSD_IDInsertToTable -> applied as HSD_IDInsertToTable (size within 10%).
+
+// ---- Behaviour notes only (descriptive, invented by us; NOT real names). Kept here so the work isn't lost.
+// 0x800202EC FUN_800202ec : (archive, entry) -> entry size
+// 0x8002036C FUN_8002036c : opens an archive entry, slot table at 0x80320184
+// 0x80020A70 FUN_80020a70 : (archive, entry) -> disc offset
+// 0x80020E44 FUN_80020e44 : reads an archive entry into memory
+// 0x80021CB4 FUN_80021cb4 : archive init
+// 0x800A63C0 FUN_800a63c0 : loads chara entry robo_id*5 and archives 8-11 by category byte DAT_803bfc95
+// 0x801F1200 PTR_PTR_801f1200 : pointer list to archive descriptors (index 1 -> "chara.bin" string at 0x801B6A66)

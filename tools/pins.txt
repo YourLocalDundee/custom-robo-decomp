@@ -1,0 +1,14 @@
+# Exact versions of everything tools/setup.ps1 downloads. Change only on purpose, and say why in the commit.
+# (ghidra.zip sha256 is the one Ghidra publishes on its release page; the others we hashed on download)
+# kind   name      source                                          version / commit / sha256
+git      melee     https://github.com/doldecomp/melee.git           24e685d57535c478a2e94802c85b31c2ba54ee67
+git      mkdd      https://github.com/doldecomp/mkdd.git            b56cc7677fa23058eff8f38784479c3b4b854060
+git      pikmin2   https://github.com/doldecomp/pikmin2.git         999140f3521e22619547d5d61862a6577ea73882
+git      tp        https://github.com/zeldaret/tp.git               c8fa8c9e2aab72cf4e5db0e5d1c84a9ea6ee6eb0
+git      ttyd      https://github.com/doldecomp/ttyd.git            62131fc31866f85a12e4817a8dc37f0c25eb5f8c
+git      tww       https://github.com/zeldaret/tww.git              81ebe0dfd449166e00de31ce9be2d7449e31536c
+git      HSDLib    https://github.com/Ploaj/HSDLib.git               85567e40797de3c820a55476eca54c704921a848
+file     dtk.exe   https://github.com/encounter/decomp-toolkit/releases/download/v1.8.4/dtk-windows-x86_64.exe   6a693e95aa4d30acccc673343302a4abdfa3146bd0fb15cb1a2bce924cbc782a
+file     ghidra.zip    https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip   ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db
+file     gcloader.zip  https://github.com/Cuyler36/Ghidra-GameCube-Loader/releases/download/1.3.1/GameCubeLoader-1.3.0-921504c-Ghidra_12.1.zip   9892f28fc1e7f19bb3fcec7cfb4ad2ab7504503b571d93de8b142a6f7bec8ed0
+file     dolphin.7z    https://dl.dolphin-emu.org/releases/2609a/dolphin-2609a-x64.7z   bbfd13bf9e6d2a4164a15c392b1f32a9b18150e5136746b388704608fbb60f76

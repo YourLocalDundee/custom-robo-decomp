@@ -1,0 +1,131 @@
+functions: dtk 3532, ghidra 3565; only in dtk 1; only in ghidra 34
+names from symbols.txt not at their address in the C: 5
+functions with unaff_r2: 74
+dtk named small-data labels (no lbl_/@ auto names): 79; not mentioned in the C by name or DAT_ address: 3
+
+## only in dtk
+8013271C
+
+## only in ghidra
+80136BBC FUN_80136bbc
+80136BD8 thunk_FUN_80136bbc
+80136BDC FUN_80136bdc
+80136BF8 thunk_FUN_80136bbc
+80136BFC FUN_80136bfc
+80136C18 thunk_FUN_80136bbc
+80136C1C FUN_80136c1c
+80136C24 thunk_FUN_80136bbc
+8015F928 _savefpr_25
+8015F930 _savefpr_27
+8015F974 _restfpr_25
+8015F97C _restfpr_27
+8015F9A0 _savegpr_17
+8015F9A4 _savegpr_18
+8015F9A8 _savegpr_19
+8015F9AC _savegpr_20
+8015F9B0 _savegpr_21
+8015F9B4 _savegpr_22
+8015F9B8 _savegpr_23
+8015F9BC _savegpr_24
+8015F9C0 _savegpr_25
+8015F9C4 _savegpr_26
+8015F9C8 _savegpr_27
+8015F9EC _restgpr_17
+8015F9F0 _restgpr_18
+8015F9F4 _restgpr_19
+8015F9F8 _restgpr_20
+8015F9FC _restgpr_21
+8015FA00 _restgpr_22
+8015FA04 _restgpr_23
+8015FA08 _restgpr_24
+8015FA0C _restgpr_25
+8015FA10 _restgpr_26
+8015FA14 _restgpr_27
+
+## name not applied (name, addr, ghidra has)
+OSDefaultExceptionHandler 8013271C None
+__save_fpr 8015F8FC _savefpr_14
+__restore_fpr 8015F948 _restfpr_14
+__save_gpr 8015F994 _savegpr_14
+__restore_gpr 8015F9E0 _restgpr_14
+
+## unaff_r2 functions
+800095F4 FUN_800095f4
+80011AC0 FUN_80011ac0
+8001F558 FUN_8001f558
+80022830 FUN_80022830
+80024EB0 FUN_80024eb0
+8003DD38 FUN_8003dd38
+8003F248 FUN_8003f248
+8003FE98 FUN_8003fe98
+80069AD8 FUN_80069ad8
+8006EEF8 FUN_8006eef8
+80070170 FUN_80070170
+80073CB8 cr_WeaponModel_OnLoaded
+80081B54 FUN_80081b54
+8008C8A8 FUN_8008c8a8
+8008CCF8 FUN_8008ccf8
+8008F6E8 FUN_8008f6e8
+800935F8 FUN_800935f8
+80099EAC FUN_80099eac
+800A0E64 FUN_800a0e64
+800B0CF8 FUN_800b0cf8
+800B81C4 FUN_800b81c4
+800BB034 FUN_800bb034
+800BB4C8 FUN_800bb4c8
+800BC038 FUN_800bc038
+800BC5C8 FUN_800bc5c8
+800D84B0 FUN_800d84b0
+800D9C88 FUN_800d9c88
+800E17F8 FUN_800e17f8
+800EB518 FUN_800eb518
+800F0DEC FUN_800f0dec
+800F5D44 FUN_800f5d44
+80101284 FUN_80101284
+8010EB5C FUN_8010eb5c
+8012093C FUN_8012093c
+80132E74 DecrementerExceptionHandler
+801341D0 OSSaveContext
+8013503C FUN_8013503c
+8013641C ExternalInterruptHandler
+8013B174 DVDConvertPathToEntrynum
+801569BC __GXSetSUTexRegs
+8015BAA8 TRKRequestSend
+8015BC88 TRKSuppAccessFile
+8015C094 TRKInterruptHandler
+8015C2C4 TRKSwapAndGo
+8015DF70 InitMetroTRK
+8015E008 InitMetroTRK_BBA
+8015F994 _savegpr_14
+8015F9A0 _savegpr_17
+8015F9A4 _savegpr_18
+8015F9A8 _savegpr_19
+8015F9AC _savegpr_20
+8015F9B0 _savegpr_21
+8015F9B4 _savegpr_22
+8015F9B8 _savegpr_23
+8015F9BC _savegpr_24
+8015F9C0 _savegpr_25
+8015F9C4 _savegpr_26
+8015F9C8 _savegpr_27
+8016394C __pformatter
+80164C40 longlong2str
+8016B528 EXIGetID
+80172178 FUN_80172178
+80173F64 FUN_80173f64
+80175458 FUN_80175458
+801787F8 FUN_801787f8
+8018144C FUN_8018144c
+80187EC8 MakeColorGenTExp
+8018F830 FUN_8018f830
+8018FE2C FUN_8018fe2c
+80194EFC FUN_80194efc
+801A5F10 HSD_ByteCodeEval
+801A8AF4 HSD_TExpColorInSub
+801ACCAC FUN_801accac
+801AE9B4 FUN_801ae9b4
+
+## small-data labels unseen in C
+.sbss 8044F8B0 ZeroPS
+.sbss 8044FC74 resetFuncRegistered$70
+.sbss 8044FD34 cmdTypeAndStatus$371

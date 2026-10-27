@@ -1,0 +1,20 @@
+// Custom Robo (GXCE01) DESCRIPTIVE names for the game's own code. These are OUR names, not Noise's.
+// No outside source of real names exists for Custom Robo's game code, so every name here is a description
+// of what the function does, prefixed cr_ so it can never be mistaken for a verified name (symbols.txt).
+// Format:  cr_Name = .text:0xADDR; // type:function scope:global // why: <evidence from the code>
+// Checked by tools/lint_descriptive.py on every run. Rules: CONTRIBUTING.md.
+
+// ---- File system / archives (SFD .bin files on disc). Archive descriptor table: pointer list at 0x801F1200 (0x2B archives).
+cr_FileSys_Init = .text:0x80021CB4; // type:function scope:global // why: runs once (flag 0x80321CB4); clears tables, allocates a 0x8000 buffer, walks all 0x2B archive descriptors at 0x801F1200 registering each path and its entry table
+cr_FileSys_RegisterPath = .text:0x80021EF4; // type:function scope:global // why: upper-cases a path and splits it on '/' or '\' into a directory tree rooted at 0x80321084; called per descriptor by cr_FileSys_Init
+cr_Archive_SetEntryTable = .text:0x800219E4; // type:function scope:global // why: stores entry count and a pointer to the (offset,size) entry table for one archive slot (stride 0x44 at 0x80321148); called by cr_FileSys_Init
+cr_Archive_GetEntrySize = .text:0x800202EC; // type:function scope:global // why: (archive, entry) -> reads +8 of the 0x10-byte loose-file descriptor, or +4 of the 8-byte packed entry record; same lookup as cr_Archive_OpenEntry
+cr_Archive_OpenEntry = .text:0x80020A70; // type:function scope:global // why: (archive, entry) -> DVDFastOpen on the file, claims a free one of 0x20 file slots (0x78 bytes at 0x80320184), stores the entry's offset and 32-byte-rounded size, returns the slot
+cr_Archive_OpenRequestList = .text:0x8002036C; // type:function scope:global // why: walks a list of {archive, u16 entry} requests ended by 0xFE (current request kept in DAT_8044f40c) and opens each entry like cr_Archive_OpenEntry
+cr_FileSlot_QueueRead = .text:0x80020E44; // type:function scope:global // why: (slot, buffer) -> queues the slot in a 0x20 ring (0x80321CC0) and starts DVDReadAsyncPrio, or HSD_DevComRequest when the dev-comm path is active
+cr_Heap_AllocAligned = .text:0x80023888; // type:function scope:global // why: rounds size up to 32 bytes, finds a block in the list at DAT_8044f444 with room for size + 0x20 header, links it, subtracts from the free total DAT_8044f440, returns header + 0x20
+
+// ---- Model loading. The loaders are load-complete callbacks: they read the finished request from DAT_8044f40c (+8 data, +0x10 slot).
+cr_RoboModel_OnLoaded = .text:0x800747B0; // type:function scope:global // why: relocates a robo/story-character model entry (header words 2,3,4,8 + reloc table words 6,7) then loads the root joint and its first joint animation; address stored as a callback by 0x800A0E64
+cr_CharaModel_OnLoaded = .text:0x800748A8; // type:function scope:global // why: same relocation + root joint + joint animation as cr_RoboModel_OnLoaded, results stored per slot in a 0x58-byte table at 0x8024DFA0; called from 0x800A63C0
+cr_WeaponModel_OnLoaded = .text:0x80073CB8; // type:function scope:global // why: relocates a weapon entry and loads header word 3 JObjDesc records (0x10 each) via the joint loader; see docs/formats/model_entry.md

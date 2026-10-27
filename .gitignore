@@ -1,0 +1,35 @@
+# NEVER commit game data or anything derived from Nintendo's code/assets (see README "What is not in this repo").
+*.iso
+*.gcm
+*.rvz
+*.ciso
+*.dol
+Custom Robo extracted/
+unpacked/
+models_dat/
+models_export/
+previews/
+test_build/
+decompiled/
+ghidra_project/
+
+# Third-party tools: downloaded by tools/setup.ps1, not stored here
+tools/ghidra_*/
+tools/pyenv/
+tools/HSDLib/
+tools/melee/
+tools/refs/
+tools/dtk/dtk.exe
+tools/downloads/
+tools/dolphin/
+tools/dtk/proj/main.dol
+tools/dtk/proj/out/
+tools/dtk/proj/symbols.txt
+tools/dtk/proj/splits.txt
+
+# Python / OS noise
+__pycache__/
+*.pyc
+Thumbs.db
+desktop.ini
+BUILD_REPORT.md

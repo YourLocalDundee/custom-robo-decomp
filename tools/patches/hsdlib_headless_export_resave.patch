@@ -1,0 +1,112 @@
+diff --git a/HSDRawViewer/BatchExport.cs b/HSDRawViewer/BatchExport.cs
+new file mode 100644
+index 0000000..a5cefa0
+--- /dev/null
++++ b/HSDRawViewer/BatchExport.cs
+@@ -0,0 +1,81 @@
++using System;
++using System.IO;
++using HSDRaw;
++using HSDRaw.Common;
++using HSDRawViewer.Converters;
++using HSDRawViewer.Tools.Animation;
++
++namespace HSDRawViewer
++{
++    /// <summary>
++    /// gameTesting patch: export every JObj root of each .dat to a model file without the GUI.
++    /// Prints one line per root: "ok <file> <root> joints=<n> dobjs=<n> pobjs=<n>" or "fail ...".
++    /// </summary>
++    public static class BatchExport
++    {
++        public static void Run(string outDir, string ext, string[] files)
++        {
++            int ok = 0, fail = 0;
++            foreach (var file in files)
++            {
++                try
++                {
++                    var dat = new HSDRawFile(file);
++                    foreach (var (name, jobj) in JointRoots(dat))
++                    {
++                        int joints = 0, dobjs = 0, pobjs = 0;
++                        foreach (var j in jobj.TreeList)
++                        {
++                            joints++;
++                            if (j.Dobj == null)
++                                continue;
++                            foreach (var d in j.Dobj.List)
++                            {
++                                dobjs++;
++                                if (d.Pobj != null)
++                                    pobjs += d.Pobj.List.Count;
++                            }
++                        }
++                        var dir = Path.Combine(outDir, Path.GetFileNameWithoutExtension(file));
++                        Directory.CreateDirectory(dir);
++                        var settings = new ModelExportSettings { Directory = dir + "\\" };
++                        ModelExporter.ExportFile(Path.Combine(dir, name + "." + ext), jobj, settings, new JointMap());
++                        Console.WriteLine($"ok {Path.GetFileName(file)} {name} joints={joints} dobjs={dobjs} pobjs={pobjs}");
++                        ok++;
++                    }
++                }
++                catch (Exception e)
++                {
++                    Console.WriteLine($"fail {Path.GetFileName(file)}: {e}");
++                    fail++;
++                }
++            }
++            Console.WriteLine($"done: {ok} exported, {fail} failed");
++        }
++
++        /// <summary>
++        /// Joint trees from "*_joint" roots, plus every RootJoint inside "scene_data" (SOBJ) roots.
++        /// </summary>
++        private static System.Collections.Generic.IEnumerable<(string, HSD_JOBJ)> JointRoots(HSDRawFile dat)
++        {
++            foreach (var root in dat.Roots)
++            {
++                if (root.Name.EndsWith("_joint"))
++                {
++                    yield return (root.Name, new HSD_JOBJ { _s = root.Data._s });
++                }
++                else if (root.Name.EndsWith("scene_data"))
++                {
++                    var sobj = new HSD_SOBJ { _s = root.Data._s };
++                    int i = 0;
++                    foreach (var desc in sobj.JOBJDescs.Array)
++                    {
++                        if (desc?.RootJoint != null)
++                            yield return ($"{root.Name}_{i}", desc.RootJoint);
++                        i++;
++                    }
++                }
++            }
++        }
++    }
++}
+diff --git a/HSDRawViewer/Program.cs b/HSDRawViewer/Program.cs
+index 8eb6817..7c4b247 100644
+--- a/HSDRawViewer/Program.cs
++++ b/HSDRawViewer/Program.cs
+@@ -15,6 +15,20 @@ namespace HSDRawViewer
+             Application.SetHighDpiMode(HighDpiMode.SystemAware);
+             Application.SetCompatibleTextRenderingDefault(false);
+             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
++            // gameTesting patch: headless batch export
++            //   HSDRawViewer.exe --export <out_dir> <ext: glb|dae|smd> <file.dat>...
++            if (args.Length >= 4 && args[0] == "--export")
++            {
++                BatchExport.Run(args[1], args[2], args[3..]);
++                return;
++            }
++            //   HSDRawViewer.exe --resave <in.dat> <out.dat>   (load + save: HSDLib rebuilds the layout)
++            if (args.Length == 3 && args[0] == "--resave")
++            {
++                new HSDRaw.HSDRawFile(args[1]).Save(args[2]);
++                System.Console.WriteLine($"resaved {args[1]} -> {args[2]}");
++                return;
++            }
+             PluginManager.Init();
+             Rendering.OpenTKResources.Init();
+             MainForm.Init();
