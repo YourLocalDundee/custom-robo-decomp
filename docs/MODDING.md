@@ -62,7 +62,7 @@ slot (55 bones) builds, its patch is 32 KB with 177 new bytes, and the ISO boots
 
 ### Robo numbers vs. entry numbers
 
-Each robo has **5 entries** in `chara.BIN` (variants, probably colours - not verified): **robo N = entries 5N to 5N+4**. The game loads entry `robo number x 5` (`FUN_800a63c0`). So `chara_000`-`chara_004` are robo 0 (Ray 01), `chara_020`-`chara_024` are robo 4, `chara_005` is robo 1 variant 0. `python -I toolsobo_joints.py table` lists them as robo/variant. To change a robo everywhere, replace all 5 of its entries.
+Each robo has **5 entries** in `chara.BIN` (variants, probably colours - not verified): **robo N = entries 5N to 5N+4**. The game loads entry `robo number x 5` (`FUN_800a63c0`). So `chara_000`-`chara_004` are robo 0 (Ray 01), `chara_020`-`chara_024` are robo 4, `chara_005` is robo 1 variant 0. `python -I tools\robo_joints.py table` lists them as robo/variant. To change a robo everywhere, replace all 5 of its entries.
 
 ## 3. Build it
 
