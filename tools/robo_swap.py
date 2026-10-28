@@ -8,9 +8,11 @@ usage: python -I tools/robo_swap.py <robo A> <robo B> [<clean.iso>] [--model-onl
     0x8021B160 u16*[robo]  motion set (17 animation IDs) - without it a body keeps the slot's animations
   --model-only leaves those two with the robo number (the first community test did that: robo 7's body ran
   with robo 0's animations and size; only its own model animation, the charge, came along).
+  --keep-motion swaps size but leaves the motion sets with the robo number.
+  --scale X multiplies both swapped sizes by X (e.g. --scale 3 = three times the body's own size).
 Needs models_dat/ and unpacked/ (from tools/from_scratch.ps1).
 """
-import json, shutil, subprocess, sys
+import json, shutil, struct, subprocess, sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script dir
@@ -21,13 +23,20 @@ VARIANTS = 5
 SCALE_TABLE, MOTION_TABLE = 0x8021B080, 0x8021B160  # cr_g_RoboScale, cr_g_RoboMotionSets
 
 
+def _is_num(x):
+    try: float(x); return True
+    except ValueError: return False
+
+
 def main():
     if len(sys.argv) < 3: sys.exit(__doc__)
     a, b = int(sys.argv[1]), int(sys.argv[2])
     count = len(list((G / 'unpacked' / 'chara').glob('[0-9][0-9][0-9].bin')))
     if a == b or not all(0 <= r < count // VARIANTS for r in (a, b)):
         sys.exit(f'robo numbers must differ and be 0..{count // VARIANTS - 1}')
-    name = f'swap_robo{a}_robo{b}'
+    keep_motion = '--keep-motion' in sys.argv
+    scale = float(sys.argv[sys.argv.index('--scale') + 1]) if '--scale' in sys.argv else 1.0
+    name = f'swap_robo{a}_robo{b}' + ('_keepmotion' if keep_motion else '') + (f'_x{scale:g}' if scale != 1.0 else '')
     mod = G / 'mods' / name
     shutil.rmtree(mod, ignore_errors=True)
     (mod / 'models' / 'chara').mkdir(parents=True)
@@ -45,14 +54,19 @@ def main():
     if '--model-only' not in sys.argv:
         dol = (G / 'Custom Robo extracted' / 'sys' / 'main.dol').read_bytes()
         lines = ['; per-robo tables read by robo number in cr_Robo_BuildModel (0x80074110), swapped with the bodies']
-        for table, what in ((SCALE_TABLE, 'size (f32)'), (MOTION_TABLE, 'motion set pointer')):
-            va, vb = (dol[make_mod.dol_offset(dol, table + 4 * r):][:4].hex() for r in (a, b))
-            lines.append(f'{table + 4 * a:08X}: {vb} [was {va}] ; robo {a} {what} <- robo {b}')
-            lines.append(f'{table + 4 * b:08X}: {va} [was {vb}] ; robo {b} {what} <- robo {a}')
+        word = lambda t, r: dol[make_mod.dol_offset(dol, t + 4 * r):][:4]
+        for r, src in ((a, b), (b, a)):  # size: the body's own size, times --scale
+            new = struct.pack('>f', struct.unpack('>f', word(SCALE_TABLE, src))[0] * scale)
+            lines.append(f'{SCALE_TABLE + 4 * r:08X}: {new.hex()} [was {word(SCALE_TABLE, r).hex()}] ; robo {r} size '
+                         f'<- robo {src} x {scale:g} = {struct.unpack(">f", new)[0]:.3f}')
+        if not keep_motion:
+            for r, src in ((a, b), (b, a)):
+                lines.append(f'{MOTION_TABLE + 4 * r:08X}: {word(MOTION_TABLE, src).hex()} [was {word(MOTION_TABLE, r).hex()}] '
+                             f'; robo {r} motion set pointer <- robo {src}')
         (mod / 'code').mkdir()
         (mod / 'code' / 'robo_tables.txt').write_text('\n'.join(lines) + '\n')
-        print('  + size and motion set swapped (code/robo_tables.txt)')
-    args = [x for x in sys.argv[3:] if not x.startswith('--')][:1]
+        print(f'  + size swapped (x{scale:g})' + ('' if keep_motion else ' and motion set swapped') + ' (code/robo_tables.txt)')
+    args = [x for x in sys.argv[3:] if not x.startswith('--') and not _is_num(x)][:1]
     sys.exit(subprocess.call([sys.executable, '-I', str(G / 'tools' / 'make_mod.py'), str(mod)] + args))
 
 
