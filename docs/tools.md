@@ -32,6 +32,7 @@ All in `D:\emulators\gameTesting\tools`. Python tools run with the system Python
 | `iso_patch.py` | `build` / `diff` / `apply` / `info`: modded ISO and data-free patches |
 | `robo_swap.py` | Swap two robos completely (`--model-only`, `--keep-motion`, `--size X`) |
 | `struct_fields.py` | Finds typed fields inside a `cr_` struct's unknown stretches from the C's accesses (`report` / `apply`) |
+| `name_evidence.py` | Harvests the game's own names (pointer tables to strings, identifier / format / source-file strings + their users) -> `docs/name_evidence.md` |
 | `boot_check.ps1` | Boots an ISO in Dolphin, reports warning dialogs (`-Snapshot` saves a picture) |
 
 ## Ghidra scripts (`tools\scripts`)

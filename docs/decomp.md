@@ -91,3 +91,7 @@ Library structs and prototypes come from Melee's headers (`ParseHeaders.java`), 
 ## Robo objects (Oct 27, 2026)
 
 `cr_Robo` (0x19A8 bytes, 24 in `cr_g_Robos` at 0x803BFE88) is the robo in play; `cr_g_CurrentRobo` points at the one being processed. Known fields and their evidence are in `symbols/cr_types.h`; plan.md step 30.
+
+## Real-name evidence (Oct 27, 2026)
+
+`tools/name_evidence.py` lists every name the game itself still holds (enum name tables, identifier strings, debug formats, source files) with the code that uses them: `docs/name_evidence.md`, `docs/name_tables.tsv`. Rule: use these before any `cr_` name (CONTRIBUTING.md). First result: the motion name table (0x80206DB0) gives the 17 field-character motion slots their real names (plan.md step 40).

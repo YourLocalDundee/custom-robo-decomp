@@ -12,8 +12,12 @@ Thanks for helping! The most useful thing anyone can do is **name a function**. 
 
    `tools/verify_symbols.py` checks every one. Don't add guesses here.
 
-2. **Descriptive names** — `symbols/descriptive.txt`. Our names for Custom Robo's own code (nobody outside Noise
-   knows the real ones). Anyone can add these.
+2. **Descriptive names** — `symbols/descriptive.txt`. Our names for the parts of Custom Robo's own code the game gives
+   no name to (check "Real names first" below before adding one). Anyone can add these.
+
+## Real names first
+
+The game still contains many of its own names: enum names in pointer tables (`SEQ_BATTLE`, `CAMMODE_RESULT`, motion names like `m_walk_fa`), debug and format strings, assert file names. **Before inventing a `cr_` name, look for the real one:** run `python -I tools\name_evidence.py` and read `docs/name_evidence.md` (and `docs/name_tables.tsv`). Use the game's own word wherever it exists, and quote it as the evidence. Descriptive `cr_` names are only for things the game gives no name to.
 
 ## Adding a descriptive name (step by step)
 

@@ -104,10 +104,27 @@ typedef struct cr_RoboEntrySlot {
 
 // ASSERT_SIZE(cr_MotionSet, 0x22)      sets are 0x22 bytes apart (0x8021D364, 0x8021D386, ...)
 
-/// One robo's animation choice: 17 motion IDs, one per action. 9 distinct sets are shared by the 56 robos /
-/// characters (cr_g_RoboMotionSets). Which action is which index: open.
+/// A field character's 17 motions. Slot names are the GAME'S OWN: the motion name table at 0x80206DB0 (3 strings per
+/// motion ID: name, "unknown", "2001/**/**"; printed by "MOTION = %s") names the IDs of set 0x8021D364 m_wait, m_walk_fa,
+/// m_run, m_turn_l, ... (set 0x8021D452: w_wait, w_walk_fa_2, ...). docs/name_evidence.md.
 typedef struct cr_MotionSet {
-    /* +00 */ u16 motion[17];
+    /* +00 */ u16 wait;
+    /* +02 */ u16 walk_fa;
+    /* +04 */ u16 run;
+    /* +06 */ u16 turn_l;
+    /* +08 */ u16 turn_r;
+    /* +0A */ u16 talk_a;
+    /* +0C */ u16 talk_b;
+    /* +0E */ u16 talk_c;
+    /* +10 */ u16 talk_d;
+    /* +12 */ u16 talk_e;
+    /* +14 */ u16 talk_question;
+    /* +16 */ u16 talk_yes;
+    /* +18 */ u16 talk_no;
+    /* +1A */ u16 talk_oh;
+    /* +1C */ u16 battle_in;
+    /* +1E */ u16 battle_wait;
+    /* +20 */ u16 battle_out;
 } cr_MotionSet;
 
 // ---- Robo objects ------------------------------------------------------------------------------------------
