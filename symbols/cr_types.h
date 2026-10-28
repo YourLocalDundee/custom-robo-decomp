@@ -130,7 +130,7 @@ typedef struct cr_Robo {
     /* +0040 */ u8 unk_0040[0x4];
     /* +0044 */ Vec3 pos;                  // position: FUN_8002fefc adds height to pos.y (+0x48)
     /* +0050 */ u8 unk_0050[0x8];
-    /* +0058 */ s32 unk_0058;              // set from a script value (FUN_800cf5ec)
+    /* +0058 */ s32 angle;                // 16-bit binary angle (0x10000 = full turn): passed to cr_Sin16/cr_Cos16; set from a script value (FUN_800cf5ec)
     /* +005C */ u8 unk_005c[0x5E];
     /* +00BA */ s16 unk_00ba;               // auto: 4 uses in 1 functions
     /* +00BC */ u8 unk_00bc;                // auto: 6 uses in 1 functions
@@ -271,7 +271,7 @@ typedef struct cr_Robo {
     /* +193C */ s16 unk_193c;              // script value (FUN_800cf5ec)
     /* +193E */ u16 unk_193e;              // script value; copied by cr_Robo_SetCurrentPointers
     /* +1940 */ u16 unk_1940;               // auto: 7 uses in 4 functions
-    /* +1942 */ u16 unk_1942;               // auto: 31 uses in 8 functions
+    /* +1942 */ u16 flags_1942;                              // bit flags only (tested & 1, 4, 8; set | 0x20; cleared & 0xfff7) - meaning of bits open
     /* +1944 */ u32 unk_1944;               // auto: 29 uses in 6 functions
     /* +1948 */ u32 flags2;                // bit 0x20 cleared by FUN_800cf5ec
     /* +194C */ u32 unk_194c;               // auto: 4 uses in 4 functions
@@ -329,5 +329,7 @@ void* cr_Heap_AllocAligned(u32 size);
 void cr_Robo_BuildModel(s32 robo);
 void cr_Robo_SetCurrentPointers(void);
 void cr_Robo_UpdateAll(void);
+f64 cr_Sin16(u32 angle);
+f64 cr_Cos16(u32 angle);
 
 #endif

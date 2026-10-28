@@ -147,6 +147,8 @@ gameTesting\
 
 31. **Typed fields in `cr_Robo`** (Oct 27, 2026). New `tools/struct_fields.py <struct> report|apply`: scans every access into a struct's unknown stretches (`*(float *)(robo->unk_194c + 0x10)`, `robo->unk_0bc8[3]`), and splits the stretches into typed fields where all accesses agree on one size and nothing overlaps; names stay `unk_XXXX` with "auto: N uses in M functions". cr_Robo: 105 + 1 typed fields; 11 offsets with conflicting access sizes stay unknown on purpose. Field offsets verified: 312 (was 154), size still 0x19A8. Report: docs/struct_cr_Robo.md. Next: real names for the most-used fields, from the functions that use them.
 
+32. **First real field names in cr_Robo; sin/cos** (Oct 27, 2026). `cr_Sin16` (0x8001F4C0) / `cr_Cos16` (0x8001F428): lookup-table sine/cosine on 16-bit binary angles (0x10000 = full turn, quarter-wave table at 0x801E6584); 65 uses now named. `cr_Robo.angle` (+0x58): the angle passed to them (facing/turn angle; set by scripts, advanced by +0x1958's value). `cr_Robo.flags_1942`: bit flags (meaning open). Ranked by use, the next fields to name: unk_0bc8 (an array of 0x48-byte records holding 0xC-byte vectors: needs its own struct), unk_193c (0x10-byte block copied with FUN_80023264), unk_193e, unk_1988, unk_1944.
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.
