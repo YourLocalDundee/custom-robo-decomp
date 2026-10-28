@@ -209,7 +209,7 @@ typedef struct cr_Robo {
     /* +0BC4 */ u16 has_extra_paths;       // 1 if the model has block D
     /* +0BC6 */ u8 unk_0bc6;               // set to 0 with block D
     /* +0BC7 */ u8 extra_paths_mode;       // 1 (robos 0, 0xD) or 2 (robo 2)
-    /* +0BC8 */ u8 unk_0bc8[0x240];
+    /* +0BC8 */ Vec3 vecs_0bc8[48];      // 0x240 bytes, read as rows of 6 Vec3 (stride 0x48 + 0xC): 101 float accesses; 6-per-row like extra_joints - meaning open
     /* +0E08 */ u32 unk_0e08;               // auto: 4 uses in 1 functions
     /* +0E0C */ u32 unk_0e0c;               // auto: 4 uses in 1 functions
     /* +0E10 */ u32 unk_0e10;               // auto: 4 uses in 1 functions

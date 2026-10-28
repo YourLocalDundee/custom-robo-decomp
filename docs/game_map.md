@@ -115,9 +115,9 @@ Functions below 0x80131000: 1761 (1732 still `FUN_`). All functions in the expor
 | 80128F20 | 866 | 0 |  |
 | 800DF4C8 | 787 | 1 |  |
 | 8002745C | 697 | 1 | math |
-| 800129F8 | 675 | 0 | math,render,~camera,~light,~model,~video |
 | 80049924 | 675 | 0 | ~math,~model |
 | 80070170 | 643 | 0 | math,~model |
+| 800129F8 | 609 | 0 | math,render,~camera,~light,~model,~video |
 | 80042AB8 | 607 | 1 | ~math,~model |
 | 8003FE98 | 577 | 1 | ~math |
 | 8005ED28 | 572 | 3 |  |

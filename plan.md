@@ -149,6 +149,8 @@ gameTesting\
 
 32. **First real field names in cr_Robo; sin/cos** (Oct 27, 2026). `cr_Sin16` (0x8001F4C0) / `cr_Cos16` (0x8001F428): lookup-table sine/cosine on 16-bit binary angles (0x10000 = full turn, quarter-wave table at 0x801E6584); 65 uses now named. `cr_Robo.angle` (+0x58): the angle passed to them (facing/turn angle; set by scripts, advanced by +0x1958's value). `cr_Robo.flags_1942`: bit flags (meaning open). Ranked by use, the next fields to name: unk_0bc8 (an array of 0x48-byte records holding 0xC-byte vectors: needs its own struct), unk_193c (0x10-byte block copied with FUN_80023264), unk_193e, unk_1988, unk_1944.
 
+33. **cr_Robo.vecs_0bc8** (Oct 27, 2026): the 0x240-byte stretch at +0xBC8 (101 uses, all 4-byte float accesses) is 48 `Vec3`, read as rows of 6 (stride 0x48 + 0xC) - typed `Vec3 vecs_0bc8[48]`; the C now reads `vecs_0bc8[i * 6 + 0x25].x` instead of raw casts. Rows of 6 match the 2 x 6 extra joints (block D) - meaning still open. Remaining next fields by use: unk_193c (0x10-byte block), unk_193e, unk_1988, unk_1944, unk_00bd, unk_1958 (added to angle each update - an angular speed?), unk_1984, unk_197c.
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.

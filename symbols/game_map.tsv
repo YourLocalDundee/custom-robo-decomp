@@ -120,7 +120,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80012078	FUN_80012078	9	0	0				
 8001207C	FUN_8001207c	19	0	6				
 800120D8	FUN_800120d8	202	0	25	~anim,~camera,~math,~model,~video			
-800129F8	FUN_800129f8	675	0	24	math,render,~camera,~light,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
+800129F8	FUN_800129f8	609	0	24	math,render,~camera,~light,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
 80014A64	FUN_80014a64	239	0	12	math,~camera	jobj.h		s_jobj_80450393,s_jobj_h_8045038c
 80015388	FUN_80015388	102	1	8	camera,~math	jobj.h		s_jobj_80450393,s_jobj_h_8045038c
 8001566C	FUN_8001566c	18	0	1				
