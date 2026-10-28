@@ -1060,9 +1060,9 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800B5418	FUN_800b5418	23	1	1	~memory,~model			
 800B54E8	FUN_800b54e8	164	1	6	~memory,~model			
 800B5B5C	FUN_800b5b5c	77	1	1				
-800B5D4C	FUN_800b5d4c	476	1	12	~file-io,~math			s_train_rst_801c3aa0
+800B5D4C	cr_AreaTriggers_Update	486	1	12	~file-io,~math			s_train_rst_801c3aa0
 800B6FA0	FUN_800b6fa0	80	2	7	~math			
-800B7280	FUN_800b7280	172	2	2	~math			
+800B7280	FUN_800b7280	175	2	2	~math			
 800B77AC	FUN_800b77ac	17	1	0				
 800B7810	FUN_800b7810	81	9	2				
 800B7B18	FUN_800b7b18	73	2	4	~math			
@@ -1281,7 +1281,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800CB684	FUN_800cb684	16	0	0				
 800CB71C	FUN_800cb71c	16	0	0				
 800CB7B4	FUN_800cb7b4	37	0	1				
-800CB8D8	FUN_800cb8d8	94	0	0				
+800CB8D8	FUN_800cb8d8	95	0	0				
 800CBBB0	FUN_800cbbb0	16	0	0				
 800CBC48	FUN_800cbc48	16	0	0				
 800CBCE0	FUN_800cbce0	16	0	0				
@@ -1477,7 +1477,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800F1860	FUN_800f1860	14	1	2				
 800F18B8	FUN_800f18b8	31	1	3				
 800F1954	FUN_800f1954	159	2	3				
-800F21C8	FUN_800f21c8	1128	1	24	~file-io,~math,~render,~video			s_fst_ret__02d_801c3d1d
+800F21C8	FUN_800f21c8	1137	1	24	~file-io,~math,~render,~video			s_fst_ret__02d_801c3d1d
 800F5448	FUN_800f5448	28	1	1				
 800F54C4	FUN_800f54c4	18	2	2				
 800F5574	FUN_800f5574	50	1	0				

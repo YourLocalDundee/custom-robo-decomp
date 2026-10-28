@@ -23,3 +23,4 @@ cr_g_RoboMotionSets = .data:0x8021B160; // type:object datatype:cr_MotionSet*[56
 cr_g_Robos = .bss:0x803BFE88; // type:object datatype:cr_Robo[24] // why: cr_Robo_UpdateAll loops 0x18 slots of 0x66A words (0x19A8 bytes); 24 x 0x19A8 = 0x267C0 = the object size decomp-toolkit found here
 cr_g_FirstRobo = .sbss:0x8044F760; // type:object datatype:cr_Robo* // why: set to &cr_g_Robos[0] at the end of cr_Robo_UpdateAll; used as the current robo by FUN_8009aec4
 cr_g_CurrentRoboIndex = .sbss:0x8044F768; // type:object datatype:s32 // why: slot index set together with cr_g_CurrentRobo in cr_Robo_UpdateAll
+cr_g_AreaTriggers = .bss:0x803BAF28; // type:object datatype:cr_AreaTrigger[28] // why: cr_AreaTriggers_Update loops 0x1C records of 0x10 words here (flags, min Vec3, max Vec3, robo index at +0x2A)

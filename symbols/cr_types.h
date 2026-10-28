@@ -310,6 +310,20 @@ typedef struct cr_Robo {
     /* +19A4 */ u32 unk_19a4;               // auto: 5 uses in 3 functions
 } cr_Robo;
 
+// ---- Area triggers -------------------------------------------------------------------------------------------
+
+// ASSERT_SIZE(cr_AreaTrigger, 0x40)   0x10-word stride in cr_AreaTriggers_Update; 0x1C of them
+
+/// A box that reacts when a given robo is inside it (story mode areas, most likely). cr_g_AreaTriggers[28].
+typedef struct cr_AreaTrigger {
+    /* +00 */ u32 flags;                 // bit 1: in use; bit 0x20: test the robo position (cr_AreaTriggers_Update)
+    /* +04 */ Vec3 min;                  // robo pos.x / pos.z compared against min.x / min.z
+    /* +10 */ Vec3 max;                  // ... and max.x / max.z
+    /* +1C */ u8 unk_1c[0xE];
+    /* +2A */ u16 robo;                  // index into cr_g_Robos of the robo tested
+    /* +2C */ u8 unk_2c[0x14];
+} cr_AreaTrigger;
+
 // ---- Prototypes of our descriptive functions (symbols/descriptive.txt) -----------------------------------
 
 void cr_FileSys_Init(void);
@@ -324,5 +338,6 @@ void cr_Robo_SetCurrentPointers(void);
 void cr_Robo_UpdateAll(void);
 f64 cr_Sin16(u32 angle);
 f64 cr_Cos16(u32 angle);
+void cr_AreaTriggers_Update(void);
 
 #endif

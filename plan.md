@@ -153,6 +153,8 @@ gameTesting\
 
 34. **Movement fields in cr_Robo** (Oct 27, 2026), each from its uses: `build_number` (+0x193E, passed to cr_Robo_BuildModel), `target_angle` (+0x1950, angle eases to it), `turn_speed` (+0x1958, added to angle each update; set as degrees*0x10000/360), `move_start` (+0x1960 Vec3, saved pos), `move_target` (+0x197C Vec3, pos steps toward it and lands on it), `countdown_198c`, `flags_1944`. Byte splits from the auto pass merged into the real 32-bit / Vec3 fields (305 offsets checked). FUN_8009aec4 and FUN_800b5d4c set move_target / turn_speed (scripted moves) - next to name. Still open: +0x196C..0x1978 (4 floats set together), unk_1940, unk_1954, unk_1990..1996.
 
+35. **Area triggers** (Oct 27, 2026): `cr_AreaTriggers_Update` (0x800B5D4C) loops `cr_g_AreaTriggers` (0x803BAF28, 28 x `cr_AreaTrigger` of 0x40 bytes = the 0x700-byte object decomp-toolkit found there): flags (bit 1 in use, 0x20 test), min/max Vec3 box, robo index at +0x2A; tests whether that robo's x/z is inside the box (story-mode areas, most likely). FUN_8009aec4 (called after the robo loop) is a big game-mode state machine on DAT_803bf941 - not named yet.
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.

@@ -27,3 +27,4 @@ cr_Robo_UpdateAll = .text:0x80099EAC; // type:function scope:global // why: loop
 // ---- Math
 cr_Sin16 = .text:0x8001F4C0; // type:function scope:global // why: 16-bit binary angle (0x10000 = full turn); quadrant from bits 0x8000/0x4000, quarter-wave table at 0x801E6584; first quadrant returns table[angle] directly = sine
 cr_Cos16 = .text:0x8001F428; // type:function scope:global // why: same table, first quadrant returns table[0x3FFF - angle] = cosine
+cr_AreaTriggers_Update = .text:0x800B5D4C; // type:function scope:global // why: loops 0x1C records of 0x40 bytes at 0x803BAF28; for records with flag bits 1 and 0x20 tests whether cr_g_Robos[record.robo].pos (x, z) lies inside the min/max box
