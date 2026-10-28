@@ -143,6 +143,8 @@ gameTesting\
    Conclusions from the last test: (a) the root joint scale is overridden at run time (most likely the joint animations set it every frame), so `--size` does not work; size needs scaled vertices or another hook. (b) Battle movement is **not** chosen through `cr_g_RoboMotionSets` (it is read by the robo builder and by the script command FUN_800cf5ec / FUN_800d0268 - likely scripted scenes); the earlier body-only swap result (robo 7's body with robo 0's moves) means battle moves stay with the robo number through something else, still to find.
    Open: what "charge not linked" is exactly; which of the 17 motion slots is which action; where motion data lives (motion.DBN / snr_motion.bin); robo+0xE14 meaning.
 
+30. **Robo object struct `cr_Robo`** (Oct 27, 2026). Robos in play live in a static array `cr_g_Robos` at 0x803BFE88: 24 slots x 0x19A8 bytes = 0x267C0, exactly the object size decomp-toolkit found there. `cr_Robo_UpdateAll` (0x80099EAC) calls each active slot's `update` every frame and adds 1.0 to `frame_count`. Fields named with evidence (symbols/cr_types.h): update, pos, motion, limb_scale, flags, number, frame_count, motion_set, limb_params, root_joint, role_joints[19], extra_joints[12], material, height, ...; unknown stretches stay unk_XXXX. Globals: cr_g_Robos, cr_g_CurrentRobo (now cr_Robo*), cr_g_FirstRobo, cr_g_CurrentRoboIndex. Result: 1,563 field accesses in 50 functions now read as `robo->field`; all type checks pass (22 sizes, 154 offsets). Next: name the most-used unknown stretches (unk_194c 122 uses, unk_0bc8 113, unk_06f8 62), and find what picks battle movement.
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.

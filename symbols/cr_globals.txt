@@ -16,7 +16,10 @@ cr_g_ReadChunkSectors = .bss:0x80321CBA; // type:object datatype:u16 // why: rea
 cr_g_CurrentRead = .bss:0x80321CBC; // type:object datatype:cr_FileSlot* // why: cr_FileSlot_QueueRead stores the slot whose DVD read it starts
 cr_g_ReadQueue = .bss:0x80321CC0; // type:object datatype:cr_FileSlot*[32] // why: ring of 0x20 queued slots written by cr_FileSlot_QueueRead
 cr_g_RoboEntries = .bss:0x8024DC80; // type:object datatype:cr_RoboEntrySlot[100] // why: FUN_800a0854 clears 100 8-byte slots here; cr_RoboModel_OnLoaded stores the entry and loaded=1 by robo number; ends exactly at the story-character table 0x8024DFA0
-cr_g_CurrentRobo = .sbss:0x8044F764; // type:object datatype:u8* // why: the robo object cr_Robo_BuildModel fills (+0x3F4 robo number, +0xB40 root joint, +0xB44 role joints)
+cr_g_CurrentRobo = .sbss:0x8044F764; // type:object datatype:cr_Robo* // why: the robo being processed: cr_Robo_UpdateAll sets it to each active slot of cr_g_Robos before calling its update; cr_Robo_BuildModel fills it
 cr_g_CurrentLimbParams = .sbss:0x8044F544; // type:object datatype:f32* // why: = current robo +0xB3C (block A) in cr_Robo_SetCurrentPointers; indexed as floats [0],[1],[2..],[0xe],[0xf..] by the limb code
 cr_g_RoboHeight = .data:0x8021B080; // type:object datatype:f32[56] // why: cr_Robo_BuildModel copies [robo number] to robo+0xE14; FUN_8002fefc adds it to the robo's Y position (robo 0 0.931, robo 7 1.026); NOT a size: x3 in game changed nothing visible (plan.md step 29)
 cr_g_RoboMotionSets = .data:0x8021B160; // type:object datatype:cr_MotionSet*[56] // why: cr_Robo_BuildModel copies [robo number] to robo+0x6F4; also read by FUN_800cf5ec / FUN_800d0268; 56 pointers to 9 distinct 17-ID sets (in-game test: a swapped body keeps the slot's animations without it)
+cr_g_Robos = .bss:0x803BFE88; // type:object datatype:cr_Robo[24] // why: cr_Robo_UpdateAll loops 0x18 slots of 0x66A words (0x19A8 bytes); 24 x 0x19A8 = 0x267C0 = the object size decomp-toolkit found here
+cr_g_FirstRobo = .sbss:0x8044F760; // type:object datatype:cr_Robo* // why: set to &cr_g_Robos[0] at the end of cr_Robo_UpdateAll; used as the current robo by FUN_8009aec4
+cr_g_CurrentRoboIndex = .sbss:0x8044F768; // type:object datatype:s32 // why: slot index set together with cr_g_CurrentRobo in cr_Robo_UpdateAll

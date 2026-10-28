@@ -110,6 +110,55 @@ typedef struct cr_MotionSet {
     /* +00 */ u16 motion[17];
 } cr_MotionSet;
 
+// ---- Robo objects ------------------------------------------------------------------------------------------
+
+// ASSERT_SIZE(cr_Robo, 0x19A8)   0x66A-word stride in FUN_80099eac; 24 of them = 0x267C0 = dtk's object at 0x803BFE88
+
+/// One robo in play (24 slots at 0x803BFE88, cr_g_Robos). Fields named only where code shows them; unk_ = not known yet.
+typedef struct cr_Robo {
+    /* +0000 */ void (*update)(void);      // non-zero = slot in use; called every frame by cr_Robo_UpdateAll
+    /* +0004 */ u8 unk_0004[0x30];
+    /* +0034 */ Vec3 pos_34;               // set to the same vector as pos by the script command FUN_800cf5ec
+    /* +0040 */ u8 unk_0040[0x4];
+    /* +0044 */ Vec3 pos;                  // position: FUN_8002fefc adds height to pos.y (+0x48)
+    /* +0050 */ u8 unk_0050[0x8];
+    /* +0058 */ s32 unk_0058;              // set from a script value (FUN_800cf5ec)
+    /* +005C */ u8 unk_005c[0x27A];
+    /* +02D6 */ u16 motion;                // motion ID to play (FUN_800cf5ec: from motion_set->motion[i] or a literal ID)
+    /* +02D8 */ u8 unk_02d8[0xE8];
+    /* +03C0 */ f32 limb_scale;            // 1.0 for every robo (FUN_800ba488); multiplies limb_params in the limb code
+    /* +03C4 */ u8 unk_03c4[0x10];
+    /* +03D4 */ u32 flags;                 // bit 0x40000000 set by FUN_800cf5ec
+    /* +03D8 */ u8 unk_03d8[0x1C];
+    /* +03F4 */ u16 number;                // robo number (chara entries 5N..5N+4); cr_Robo_BuildModel
+    /* +03F6 */ u8 unk_03f6[0x2F2];
+    /* +06E8 */ f32 frame_count;           // += 1.0 after every update (cr_Robo_UpdateAll)
+    /* +06EC */ u8 unk_06ec[0x8];
+    /* +06F4 */ cr_MotionSet* motion_set;  // = cr_g_RoboMotionSets[number] (cr_Robo_BuildModel, FUN_800cf5ec)
+    /* +06F8 */ u8 unk_06f8[0x444];
+    /* +0B3C */ f32* limb_params;          // model block A (cr_Robo_BuildModel)
+    /* +0B40 */ HSD_JObj* root_joint;      // loaded from the model (cr_Robo_BuildModel)
+    /* +0B44 */ HSD_JObj* role_joints[19]; // model block C roles: head, arms, legs... (tools/robo_joints.py ROLE_NAMES)
+    /* +0B90 */ HSD_JObj* extra_joints[12];// model block D paths (robos 0, 2, 0xD only; 0 in every robo model)
+    /* +0BC0 */ HSD_MObj* material;        // material of the model block B joint
+    /* +0BC4 */ u16 has_extra_paths;       // 1 if the model has block D
+    /* +0BC6 */ u8 unk_0bc6;               // set to 0 with block D
+    /* +0BC7 */ u8 extra_paths_mode;       // 1 (robos 0, 0xD) or 2 (robo 2)
+    /* +0BC8 */ u8 unk_0bc8[0x24C];
+    /* +0E14 */ f32 height;                // = cr_g_RoboHeight[number]; added to pos.y in FUN_8002fefc
+    /* +0E18 */ u8 unk_0e18[0xAF4];
+    /* +190C */ u32* unk_190c;             // script value; unk_1910 = *unk_190c (FUN_800cf5ec)
+    /* +1910 */ u32 unk_1910;
+    /* +1914 */ u8 unk_1914[0x20];
+    /* +1934 */ u32 unk_1934;              // script value (FUN_800cf5ec)
+    /* +1938 */ u8 unk_1938[0x4];
+    /* +193C */ s16 unk_193c;              // script value (FUN_800cf5ec)
+    /* +193E */ u16 unk_193e;              // script value; copied by cr_Robo_SetCurrentPointers
+    /* +1940 */ u8 unk_1940[0x8];
+    /* +1948 */ u32 flags2;                // bit 0x20 cleared by FUN_800cf5ec
+    /* +194C */ u8 unk_194c[0x5C];
+} cr_Robo;
+
 // ---- Prototypes of our descriptive functions (symbols/descriptive.txt) -----------------------------------
 
 void cr_FileSys_Init(void);
@@ -121,5 +170,6 @@ void cr_FileSlot_QueueRead(cr_FileSlot* slot, void* buffer);
 void* cr_Heap_AllocAligned(u32 size);
 void cr_Robo_BuildModel(s32 robo);
 void cr_Robo_SetCurrentPointers(void);
+void cr_Robo_UpdateAll(void);
 
 #endif

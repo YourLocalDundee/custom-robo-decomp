@@ -87,3 +87,7 @@ python -I tools\find.py hint anim               game functions reaching animatio
 ## Types (Oct 27, 2026)
 
 Library structs and prototypes come from Melee's headers (`ParseHeaders.java`), checked three ways: the headers' own ASSERT_SIZE lines, their `/* +XX */` field offsets, and the object sizes Custom Robo registers for each HSD class (`tools/check_class_sizes.py`). Custom Robo's differences are overrides in `tools/clean_headers.py`. Our own types: `symbols/cr_types.h`, globals: `symbols/cr_globals.txt`. Report: `symbols/types_report.txt`. Details: plan.md step 23.
+
+## Robo objects (Oct 27, 2026)
+
+`cr_Robo` (0x19A8 bytes, 24 in `cr_g_Robos` at 0x803BFE88) is the robo in play; `cr_g_CurrentRobo` points at the one being processed. Known fields and their evidence are in `symbols/cr_types.h`; plan.md step 30.
