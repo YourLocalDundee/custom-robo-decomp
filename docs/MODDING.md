@@ -70,19 +70,21 @@ Each robo has **5 entries** in `chara.BIN` (variants, probably colours - not ver
 python -I tools\robo_swap.py 0 7      # robo 0 (Ray 01) <-> robo 7
 ```
 
-It swaps the bodies **and** the two per-robo values the game looks up by robo number, so each body keeps its own
-**animation set** (`cr_g_RoboMotionSets`, 17 animations per robo) and **height value** (`cr_g_RoboHeight`, added to the
-robo's Y position). The model's own animation travels with the model anyway.
+It swaps the bodies **and** two per-robo values the game looks up by robo number: the **motion set**
+(`cr_g_RoboMotionSets`) and **height value** (`cr_g_RoboHeight`, added to the robo's Y position). Tested: swapping the
+motion set does **not** change battle movement (it is used by the robo builder and scripted scenes); battle moves stay
+with the robo number for a reason not found yet. The model's own animation travels with the model anyway.
 
 | Option | Does |
 |---|---|
 | `--model-only` | swap just the bodies (animation set and height stay with the robo number) |
 | `--keep-motion` | swap bodies + height, keep the animation sets with the robo number |
-| `--size X` | draw the swapped bodies X times bigger (root joint scale; **experimental**, see below) |
+| `--size X` | sets the root joint scale - **has no effect in game** (overridden at run time; plan.md step 29) |
 
 **Size.** The game has no per-robo size setting: the size factor the limb code uses is 1.0 for every robo and every
 model's root joint scale is 1.0, so a robo's size is in its vertices. `--size X` sets the root joint scale of the
-swapped models to X. Not yet confirmed in game; hitboxes, limb reach and camera may not follow.
+swapped models to X. **Tested: no effect** - the root scale is overridden at run time (most likely by the animations).
+Bigger robos need scaled vertices or another hook; open.
 
 Community tests so far (Oct 27, 2026; plan.md step 29): bodies swap and fight fine (also with different skeletons);
 with bodies only, a body runs with the slot's animations; changing `cr_g_RoboHeight` does **not** change the size.

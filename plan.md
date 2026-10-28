@@ -136,9 +136,11 @@ gameTesting\
    | swap robo 0 <-> robo 7, bodies only | battle runs; robo 7's body uses robo 0's animations; its own charge |
    | swap robo 0 <-> robo 6 (55 <-> 54 bones) + motion sets | battle runs, robos animate; user: "charge animation was not linked" (details pending) |
    | same + `cr_g_RoboHeight` x3 | robos **not** bigger -> the table is not size |
-   | same + root joint scale 3 (`--size 3`), A: motion swapped / B: motion kept | built, awaiting test (A vs B also isolates the charge) |
+   | same + root joint scale 3 (`--size 3`), A: motion swapped / B: motion kept | built; superseded by the next test |
+   | Ray 01 own body, root joint scale 3 + motion set pointers 0 <-> 6 (`mods/ray_moves_as_robo6_size3`) | **regular moves and regular size**: neither change has a visible effect in battle |
    Corrections: (1) entry 005 is robo 1, not "robo 5" (step 27). (2) 0x8021B080 is not a size: robo+0xE14 is **added to the Y position** in FUN_8002fefc and used in FUN_80054238 -> renamed `cr_g_RoboHeight` (meaning still open). (3) The size factor the limb code uses (robo+0x3C0, read as DAT_8044f558+0x154) is set to 1.0 (FLOAT_80451284) for **every** robo in FUN_800ba488, and every robo model's root joint scale is 1.0: robo size lives in the vertices; `robo_swap.py --size X` sets the root joint scale (experimental).
    Known issue (not caused by mods): a warning "Invalid read from 0x04efe5cb, PC = 0x801b5f38" in the THP decoder during the intro video, seen on the clean ISO too; click "Ignore for this session".
+   Conclusions from the last test: (a) the root joint scale is overridden at run time (most likely the joint animations set it every frame), so `--size` does not work; size needs scaled vertices or another hook. (b) Battle movement is **not** chosen through `cr_g_RoboMotionSets` (it is read by the robo builder and by the script command FUN_800cf5ec / FUN_800d0268 - likely scripted scenes); the earlier body-only swap result (robo 7's body with robo 0's moves) means battle moves stay with the robo number through something else, still to find.
    Open: what "charge not linked" is exactly; which of the 17 motion slots is which action; where motion data lives (motion.DBN / snr_motion.bin); robo+0xE14 meaning.
 
 ## Findings from the decompiled code

@@ -95,7 +95,7 @@ Source: joint positions of robo 0's bind pose (glTF export; joint numbers verifi
 
 ## Robo size
 
-The game draws every robo at the same scale: the factor the limb code multiplies block A by (robo+0x3C0) is set to 1.0 for every robo (FUN_800ba488), and every robo model's root joint has scale (1, 1, 1). A robo's size is in its vertices. Setting the root joint scale (HSD_Joint +0x20) scales the drawn model (`tools/robo_swap.py --size`; in-game effect on hitboxes / limbs / camera not yet tested).
+The game draws every robo at the same scale: the factor the limb code multiplies block A by (robo+0x3C0) is set to 1.0 for every robo (FUN_800ba488), and every robo model's root joint has scale (1, 1, 1). A robo's size is in its vertices. Setting the root joint scale (HSD_Joint +0x20) scales the drawn model (`tools/robo_swap.py --size`). **Tested in game: no visible effect** - the root scale is overridden at run time, most likely by the joint animations.
 
 ## Open questions
 
