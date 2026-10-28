@@ -114,7 +114,10 @@ typedef struct cr_MotionSet {
 
 // ASSERT_SIZE(cr_Robo, 0x19A8)   0x66A-word stride in FUN_80099eac; 24 of them = 0x267C0 = dtk's object at 0x803BFE88
 
-/// One robo in play (24 slots at 0x803BFE88, cr_g_Robos). Fields named only where code shows them; unk_ = not known yet.
+/// One robo in a story-mode scene (overworld / cutscene actor; 24 slots at 0x803BFE88, cr_g_Robos) - NOT the battle robo.
+/// Evidence: area triggers and script commands drive it, its height snaps to the ground (FUN_8006207c), scene_id / target_scene_id,
+/// and FUN_800b81c4 / FUN_800ba488 swap robo 0 for 0xD on a story flag. Battle robos are another system (plan.md step 39).
+/// Fields named only where code shows them; unk_ = not known yet.
 typedef struct cr_Robo {
     /* +0000 */ void (*update)(void);      // non-zero = slot in use; called every frame by cr_Robo_UpdateAll
     /* +0004 */ s32 unk_0004;               // auto: 5 uses in 3 functions
