@@ -102,6 +102,14 @@ typedef struct cr_RoboEntrySlot {
     /* +4 */ cr_RoboEntryHeader* entry;
 } cr_RoboEntrySlot;
 
+// ASSERT_SIZE(cr_MotionSet, 0x22)      sets are 0x22 bytes apart (0x8021D364, 0x8021D386, ...)
+
+/// One robo's animation choice: 17 motion IDs, one per action. 9 distinct sets are shared by the 56 robos /
+/// characters (cr_g_RoboMotionSets). Which action is which index: open.
+typedef struct cr_MotionSet {
+    /* +00 */ u16 motion[17];
+} cr_MotionSet;
+
 // ---- Prototypes of our descriptive functions (symbols/descriptive.txt) -----------------------------------
 
 void cr_FileSys_Init(void);

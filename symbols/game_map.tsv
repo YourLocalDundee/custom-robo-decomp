@@ -639,7 +639,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80073728	FUN_80073728	69	3	8	~anim,~camera,~memory,~model,~render	lobj.h		s_lobj_80450c33,s_lobj_h_80450c2c,s_scene_data_801c0b70
 80073A74	FUN_80073a74	86	2	5	~anim,~camera,~model			s_scene_data_801c0b70
 80073CB8	cr_WeaponModel_OnLoaded	161	1	3	~anim,~memory,~model			
-80074110	cr_Robo_BuildModel	241	6	4	~anim,~memory,~model			
+80074110	cr_Robo_BuildModel	240	6	4	~anim,~memory,~model			
 800746C4	FUN_800746c4	39	2	0				
 800747B0	cr_RoboModel_OnLoaded	35	0	0				
 800748A8	cr_CharaModel_OnLoaded	136	1	4	~anim,~memory,~model			

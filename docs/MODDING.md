@@ -70,6 +70,10 @@ Each robo has **5 entries** in `chara.BIN` (variants, probably colours - not ver
 python -I tools\robo_swap.py 0 7      # robo 0 (Ray 01) <-> robo 7
 ```
 
+It swaps the bodies **and** the two per-robo values the game looks up by robo number, so each body keeps its own:
+**size** (`cr_g_RoboScale`) and **animation set** (`cr_g_RoboMotionSets`, 17 animations per robo). The model's own animation (e.g. the charge) always travels with the model. `--model-only` swaps just the bodies.
+Found in the first community test (Oct 27, 2026): with bodies only, robo 7's body ran with robo 0's animations and size.
+
 ## 3. Build it
 
 ```powershell

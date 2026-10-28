@@ -127,6 +127,8 @@ gameTesting\
 
 27. **Naming rule: robo N = chara entries 5N..5N+4** (Oct 27, 2026; user correction). Earlier notes said "robo 5" for entry 005 - that is robo 1 variant 0; fixed in docs and tool output (`robo_joints.py table` shows robo/variant). Community test build: robo 0 <-> robo 4, all 5 variants each (entries 000-004 <-> 020-024, 55 <-> 53 joints).
 
+28. **Per-robo size and animations** (Oct 27, 2026; community test). Robo 0 <-> robo 7 body swap: robo 7's body ran with robo 0's animations and size, but its own charge. Cause: cr_Robo_BuildModel reads two tables by robo number - `cr_g_RoboScale` (0x8021B080, f32[56]) and `cr_g_RoboMotionSets` (0x8021B160, 56 pointers to 9 shared 17-ID `cr_MotionSet`s) - while the charge is the model's own joint animation. Only these two tables are indexed by robo+0x3F4 in the code. `tools/robo_swap.py` now swaps both (as checked main.dol patches); `--model-only` keeps the old behaviour. Open: which of the 17 IDs is which action; where motion IDs are loaded from (motion.DBN / snr_motion.bin).
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.
