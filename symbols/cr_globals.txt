@@ -15,3 +15,6 @@ cr_g_ReadQueueTail = .bss:0x80321CB9; // type:object datatype:u8 // why: cr_File
 cr_g_ReadChunkSectors = .bss:0x80321CBA; // type:object datatype:u16 // why: read length cap in 0x800-byte sectors (0x80 at init, 0x200/0x400 in cr_Archive_OpenRequestList)
 cr_g_CurrentRead = .bss:0x80321CBC; // type:object datatype:cr_FileSlot* // why: cr_FileSlot_QueueRead stores the slot whose DVD read it starts
 cr_g_ReadQueue = .bss:0x80321CC0; // type:object datatype:cr_FileSlot*[32] // why: ring of 0x20 queued slots written by cr_FileSlot_QueueRead
+cr_g_RoboEntries = .bss:0x8024DC80; // type:object datatype:cr_RoboEntrySlot[100] // why: FUN_800a0854 clears 100 8-byte slots here; cr_RoboModel_OnLoaded stores the entry and loaded=1 by robo number; ends exactly at the story-character table 0x8024DFA0
+cr_g_CurrentRobo = .sbss:0x8044F764; // type:object datatype:u8* // why: the robo object cr_Robo_BuildModel fills (+0x3F4 robo number, +0xB40 root joint, +0xB44 role joints)
+cr_g_CurrentLimbParams = .sbss:0x8044F544; // type:object datatype:f32* // why: = current robo +0xB3C (block A) in cr_Robo_SetCurrentPointers; indexed as floats [0],[1],[2..],[0xe],[0xf..] by the limb code

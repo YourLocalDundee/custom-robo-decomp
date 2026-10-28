@@ -17,7 +17,7 @@ import json, os, re, shutil, struct, sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script dir
-import crmodel, iso_patch, sfd  # noqa: E402
+import crmodel, iso_patch, robo_joints, sfd  # noqa: E402
 
 G = Path(__file__).resolve().parent.parent
 DISC = G / 'Custom Robo extracted'
@@ -38,6 +38,34 @@ def dol_offset(dol, addr):
     for o, a, s in zip(offs, addrs, sizes):
         if s and a <= addr < a + s: return o + addr - a
     sys.exit(f'{addr:08X} is not inside main.dol')
+
+
+def robo_roles(dat_path, entry, template, all_entries):
+    """Robo joint roles (trailer blocks B/C, optionally A) for an edited robo; see docs/MODDING.md.
+    With <name>.roles.json next to the .dat: B/C are rebuilt for the new skeleton. Without it, the skeleton
+    must be the template's (same joint tree), so the original paths still point at the same bones."""
+    roles_file = dat_path.with_suffix('.roles.json')
+    if not roles_file.exists():
+        new_tree = [p for _, p in robo_joints.joint_tree(entry)[0]]
+        old_tree = [p for _, p in robo_joints.joint_tree(template)[0]]
+        if new_tree != old_tree:
+            sys.exit(f'{dat_path}: the skeleton differs from the original ({len(old_tree)} -> {len(new_tree)} joints).\n'
+                     f'  Say which bone plays which role: start from\n'
+                     f'  python -I tools/robo_joints.py roles "unpacked/chara/{dat_path.stem[-3:]}.bin" > "{roles_file}"\n'
+                     f'  and change the joint numbers (JOBJ_n in HSDRawViewer / Blender) for your model.')
+        return entry
+    spec = json.loads(roles_file.read_text(encoding='utf-8'))
+    missing = [n for n in robo_joints.ROLE_NAMES if n not in spec.get('C', {})]
+    if missing or 'B_material_joint' not in spec: sys.exit(f'{roles_file}: needs B_material_joint and C.{missing}')
+    n = len(robo_joints.joint_tree(entry)[0])
+    joints = [spec['C'][name] for name in robo_joints.ROLE_NAMES]
+    bad = [j for j in joints + [spec['B_material_joint']] if j is not None and not (0 <= j < n)]
+    if bad: sys.exit(f'{roles_file}: joint numbers {bad} do not exist (the model has joints 0..{n - 1})')
+    block_a = None
+    if 'A_from' in spec:  # e.g. "chara_005": limb measurements of a robo with similar proportions
+        src = all_entries[int(spec['A_from'][-3:])]
+        h = struct.unpack_from('>16I', src); block_a = src[h[3]:h[4]]
+    return robo_joints.write_paths(entry, spec['B_material_joint'], joints, block_a)
 
 
 def main():
@@ -67,8 +95,11 @@ def main():
             if idx >= len(entries): sys.exit(f'{p}: {arch} has only {len(entries)} entries')
             dat = p.read_bytes()
             if kind == 'cr':
-                entries[idx] = crmodel.from_dat(dat, entries[idx])
+                template = entries[idx]
+                entries[idx] = crmodel.from_dat(dat, template)
                 if not crmodel.parse(entries[idx]): sys.exit(f'{p}: rebuilt entry does not parse')
+                if cat == 'chara':
+                    entries[idx] = robo_roles(p, entries[idx], template, entries)
             else:
                 entries[idx] = dat
             changed.append(f'{arch} entry {idx:03d} <- {p.relative_to(mod)}')

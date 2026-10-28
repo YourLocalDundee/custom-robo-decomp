@@ -66,6 +66,42 @@ typedef struct cr_FileSlot {
     /* +3C */ DVDFileInfo file_info; // filled by DVDFastOpen; passed to DVDReadAsyncPrio
 } cr_FileSlot;
 
+// ---- Robo models (docs/formats/model_entry.md) -------------------------------------------------------------
+
+// ASSERT_SIZE(cr_ModelDesc, 0x10)         JOBJDesc record (HSDLib HSD_JOBJDesc; 0x10 stride in the weapon loader)
+// ASSERT_SIZE(cr_RoboEntryHeader, 0x40)   header of a chara.BIN entry
+
+/// What header[2] leads to (via one more pointer): the root joint and its animations.
+typedef struct cr_ModelDesc {
+    /* +0 */ HSD_Joint* root;            // loaded by FUN_801988fc in cr_Robo_BuildModel
+    /* +4 */ void* joint_anims;          // if non-null, its first entry is attached by FUN_80196e0c
+    /* +8 */ void* material_anims;
+    /* +C */ void* shape_anims;
+} cr_ModelDesc;
+// ASSERT_SIZE(cr_RoboEntrySlot, 0x8)      8-byte stride in cr_RoboModel_OnLoaded / cr_Robo_BuildModel
+
+/// Header of a robo model entry after cr_RoboModel_OnLoaded relocated it (pointers are then real addresses).
+typedef struct cr_RoboEntryHeader {
+    /* +00 */ u32 data_base;          // always 0x40; added to every reloc slot
+    /* +04 */ u32 trailer_end;        // file offset where blocks A/B/C end
+    /* +08 */ cr_ModelDesc** model_desc; // -> pointer -> cr_ModelDesc (cr_Robo_BuildModel dereferences 3 times)
+    /* +0C */ f32* limb_params;       // block A: 0x20 floats for the procedural limb code (FUN_8005aee8 & co)
+    /* +10 */ u8* material_path;      // block B: one joint path ending in 0xFE; that joint's MObj is kept
+    /* +14 */ u32 unk_14;             // 1 in every robo
+    /* +18 */ u32 reloc_offset;       // file offset of the reloc table
+    /* +1C */ u32 reloc_count;
+    /* +20 */ u8* joint_paths;        // block C: 0x13 role paths (02 child, 01 next, FF end); see tools/robo_joints.py
+    /* +24 */ u32 extra_paths;        // block D offset or 0 (0 in every robo)
+    /* +28 */ u32 unk_28[6];          // 0 in every entry
+} cr_RoboEntryHeader;
+
+/// One loaded robo model (100 of them at 0x8024DC80, indexed by robo number).
+typedef struct cr_RoboEntrySlot {
+    /* +0 */ u16 users;               // +1 in cr_Robo_BuildModel
+    /* +2 */ u16 loaded;              // set to 1 by cr_RoboModel_OnLoaded; cr_Robo_BuildModel falls back to robo 0 if 0
+    /* +4 */ cr_RoboEntryHeader* entry;
+} cr_RoboEntrySlot;
+
 // ---- Prototypes of our descriptive functions (symbols/descriptive.txt) -----------------------------------
 
 void cr_FileSys_Init(void);
@@ -75,5 +111,7 @@ u32 cr_Archive_GetEntrySize(s32 archive, u16 entry);
 cr_FileSlot* cr_Archive_OpenEntry(s32 archive, u16 entry);
 void cr_FileSlot_QueueRead(cr_FileSlot* slot, void* buffer);
 void* cr_Heap_AllocAligned(u32 size);
+void cr_Robo_BuildModel(s32 robo);
+void cr_Robo_SetCurrentPointers(void);
 
 #endif

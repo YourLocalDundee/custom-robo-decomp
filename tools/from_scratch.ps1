@@ -77,6 +77,8 @@ Step 'model round trip' {
     $dirs = 'chara', 'weapon_gun', 'weapon_bom', 'weapon_pod', 'weapon_leg', 'scenario_us\snr_chara', 'scenario_jp\snr_chara' |
         ForEach-Object { "$g\unpacked\$_" } | Where-Object { Test-Path -LiteralPath $_ }
     python -I "$g\tools\crmodel.py" roundtrip @dirs
+    if ($LASTEXITCODE) { throw 'crmodel roundtrip failed' }
+    python -I "$g\tools\robo_joints.py" selftest "$g\unpacked\chara"
 }
 Step 'models to .dat' { python -I "$g\tools\extract_models.py" "$g\unpacked" "$g\Custom Robo extracted\files" "$g\models_dat" }
 Step 'models to glTF' { python -I "$g\tools\export_models.py" "$g\models_dat" "$g\models_export" }

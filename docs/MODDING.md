@@ -30,9 +30,35 @@ Everything is optional; use what your mod needs.
 Supported categories: `chara` (robos), `weapon_gun`, `weapon_bom`, `weapon_pod`, `weapon_leg`, `snr_chara`
 (story characters), `bg_data` (stages), `leg_effect`, `snr_obj`. Effects in `*_effect` containers are not yet.
 
-**Not yet possible:** a model with a *different* skeleton (more/fewer bones). The robo format keeps a list of
-bone paths and two blocks we have not decoded yet (docs/formats/model_entry.md). Same-skeleton edits
-(new shapes, textures, colours) work.
+### A robo with a different skeleton (more / fewer / other bones)
+
+The game moves a robo's arms and legs itself, through **19 role bones** it looks up in the model (head, two
+4-bone arms, two 4-bone legs, upper and lower body). Robos already differ (51-69 bones); a new skeleton is fine
+as long as you say which of your bones plays each role. Next to your `.dat`, put a roles file:
+
+```powershell
+python -I tools\robo_joints.py roles unpacked\chara\000.bin > mods\my_mod\models\chara\chara_000.roles.json
+```
+
+Then change the numbers to your model's bones (`JOBJ_n` in HSDRawViewer / Blender = joint number n):
+
+```json
+{
+  "B_material_joint": 1,
+  "C": { "upper_body": 28, "head": 32, "arm_a_shoulder": 35, "arm_a_upper": 37, "arm_a_fore": 39, "arm_a_hand": 41,
+         "arm_b_shoulder": 45, ..., "lower_body": 4, "leg_a_thigh": 8, ..., "leg_b_foot": 25 },
+  "A_from": "chara_005"
+}
+```
+
+- `C`: the 19 roles (table in docs/formats/model_entry.md). `null` = this robo has no such bone.
+- `B_material_joint`: a body bone whose material the game keeps (joint 1 in most robos; use the same body part).
+- `A_from` (optional): copy the limb measurements (block A) from the robo whose proportions are closest to yours;
+  otherwise the original robo's are kept.
+
+`make_mod.py` writes the new bone paths and checks they lead to exactly those bones. If you change the skeleton
+**without** a roles file, it stops and tells you the command above. Tested: robo 5's model (59 bones) in robo 0's
+slot (55 bones) builds, its patch is 32 KB with 177 new bytes, and the ISO boots. Not yet confirmed in a battle.
 
 ## 3. Build it
 

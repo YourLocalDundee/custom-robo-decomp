@@ -121,6 +121,8 @@ gameTesting\
 
 24. **Mods back into the game** (Oct 27, 2026): `tools/make_mod.py <mod dir>` turns a mod folder (edited `models/<cat>/<name>.dat`, replaced `files/`, `code/*.txt` main.dol patches with a checked `[was ...]`) into a playable ISO and a `.crpatch`. `tools/iso_patch.py`: `build` writes changed files over the clean ISO (in place or appended, FST/boot.bin updated), `diff` stores clean-ISO data as references (also when moved; LZ-style search around the same place) and only new bytes, `apply` checks base and result SHA-1. Tested: robo 0 recolour = 43 KB of new bytes; applied ISO identical (SHA-1); boots in Dolphin ("Custom Robo (GXCE01)"). `from_scratch.ps1` now also does a patch round trip. Guide: `docs/MODDING.md`. Not yet: different skeletons (blocks A/B/D), `*_effect` containers, new files on the disc, a main.dol that grows.
 
+25. **Robo skeletons decoded; custom skeletons supported** (Oct 27, 2026). Found by following the robo entry pointer: `cr_RoboModel_OnLoaded` only relocates and stores the entry (`cr_g_RoboEntries`, 100 x 8 bytes, ends exactly at the story-character table); `cr_Robo_BuildModel` (0x80074110) builds the robo: root joint, then **block C = 19 joint role paths** -> robo+0xB44, **block B = one path ending FE** -> that joint's MObj at +0xBC0, block D = extra paths (0 in all robos), **block A = 0x20 limb floats** -> +0xB3C -> `cr_g_CurrentLimbParams`, read only by the procedural arm/leg code. Roles named from robo 0's bind pose (head, 2 x 4-bone arms, 2 x 4-bone legs, upper/lower body); every robo has the pattern with its own joint numbers (51-69 joints). `tools/robo_joints.py` decodes / re-encodes paths: **170/170 robo entries re-encode byte-identical** (`selftest`, now in from_scratch). `make_mod.py` takes `<model>.roles.json` (+ optional `A_from`) for a new skeleton and refuses a changed skeleton without one. Tested: robo 5 model (59 joints) in slot 0 (55) builds, 32 KB patch (177 new bytes), boots. `iso_patch.py diff` now merges back-to-back copies (3 MB -> 32 KB). Open: in-battle confirmation, each block A float, block B material use, left/right.
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.
@@ -252,7 +254,7 @@ Each phase has a goal, the ideas for reaching it, and a finish line. Within a ph
 - [x] Exporter (`export_models.py`). [~] Importer: `crmodel.py from-dat` rebuilds a game entry from a .dat; tested with an edited + relocated model offline and boots (steps 19–20); in-game look not yet confirmed; not yet tested with a new skeleton.
 - [x] Byte-identical round trip on untouched models: 484/484.
 - [ ] Find the limits (file size, memory, vertex and bone counts).
-- [ ] Work out blocks A/B/D and the joint path list (C) well enough to generate them for a new skeleton.
+- [x] Work out blocks A/B/D and the joint path list (C) well enough to generate them for a new skeleton (step 25; block A reused from a similar robo).
 
 **Other model containers**
 - [x] Survey: `snr_chara` = robo format, `snr_obj` = standard .dat, `*_effect` = count+offset container of standard .dat (all extracted).

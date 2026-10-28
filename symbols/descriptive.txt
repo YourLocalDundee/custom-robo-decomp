@@ -18,3 +18,7 @@ cr_Heap_AllocAligned = .text:0x80023888; // type:function scope:global // why: r
 cr_RoboModel_OnLoaded = .text:0x800747B0; // type:function scope:global // why: relocates a robo/story-character model entry (header words 2,3,4,8 + reloc table words 6,7) then loads the root joint and its first joint animation; address stored as a callback by 0x800A0E64
 cr_CharaModel_OnLoaded = .text:0x800748A8; // type:function scope:global // why: same relocation + root joint + joint animation as cr_RoboModel_OnLoaded, results stored per slot in a 0x58-byte table at 0x8024DFA0; called from 0x800A63C0
 cr_WeaponModel_OnLoaded = .text:0x80073CB8; // type:function scope:global // why: relocates a weapon entry and loads header word 3 JObjDesc records (0x10 each) via the joint loader; see docs/formats/model_entry.md
+
+// ---- Robo model setup (plan.md step 25)
+cr_Robo_BuildModel = .text:0x80074110; // type:function scope:global // why: takes a robo number (falls back to 0 if not loaded); loads the root joint from the stored entry's header[2], walks the 0x13 block C joint paths into robo+0xB44, the block B path to a MObj at +0xBC0, block D paths at +0xB90; keeps block A at +0xB3C
+cr_Robo_SetCurrentPointers = .text:0x80050E74; // type:function scope:global // why: copies fixed offsets of the current robo object (DAT_8044f764) into a set of globals, incl. its block A pointer (+0xB3C) used by the limb code

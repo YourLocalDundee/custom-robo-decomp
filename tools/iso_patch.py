@@ -114,6 +114,15 @@ def diff(clean, modded, out):
             if src is not None:
                 ops.append(['copy', pos + i, src, len(yb)]); continue
             literal_bytes += match_block(a, n, pos + i, yb, ops, deltas)
+    merged = []  # back-to-back copies (e.g. a whole archive moved by a repack) become one op
+    for op in ops:
+        last = merged[-1] if merged else None
+        if (op[0] == 'copy' and last and last[0] == 'copy'
+                and last[1] + last[3] == op[1] and last[2] + last[3] == op[2]):
+            last[3] += op[3]
+        else:
+            merged.append(op)
+    ops = merged
     body = json.dumps({'base_sha1': CLEAN_SHA1, 'result_sha1': sha1_file(modded), 'ops': ops}).encode()
     with open(out, 'wb') as f: f.write(MAGIC + zlib.compress(body, 9))
     print(f'patch {out}: {len(ops)} ops, {literal_bytes} new bytes, {os.path.getsize(out)} bytes on disk')
