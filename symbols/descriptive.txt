@@ -422,3 +422,37 @@ cr_C_ACT_RET = .text:0x800BDCD0; // type:function scope:global // why: entry 296
 cr_C_ACT_REPEAT = .text:0x800BDB54; // type:function scope:global // why: entry 297 of the script command handler table 0x8021C3F4; command name C_ACT_REPEAT is entry 297 of the game's name table 0x8021BF44
 cr_C_ACT_JP = .text:0x800BDB24; // type:function scope:global // why: entry 298 of the script command handler table 0x8021C3F4; command name C_ACT_JP is entry 298 of the game's name table 0x8021BF44
 cr_C_ACT_CHK_BIT = .text:0x800BD7F0; // type:function scope:global // why: entry 299 of the script command handler table 0x8021C3F4; command name C_ACT_CHK_BIT is entry 299 of the game's name table 0x8021BF44
+
+// ---- Camera modes: CAMMODE_* names are the GAME'S OWN (name table 0x801F88A4, index = cam[0]); roles from the dispatcher
+//      table[mode*2 + cam[0x13CC]] at 0x801F7FF0 (plan.md step 45). Start = slot 0 (runs once after cr_Cam_SetMode, sets 0x13CC=1, calls Frame); Frame = slot 1.
+cr_Cam_SetMode = .text:0x80024830; // type:function scope:global // why: cr_g_CurrentCam[0] = arg, [0x13CC] = 0; called with CAMMODE values (cr_SEQ_LOGO_FrameA 1, cr_SEQ_BATTLE_FrameA 3/2/6/10, cr_SEQ_STAGE_SELECTOR_FrameA 15/16, cr_CM_PLAYER 11, cr_CM_MOVE 12, cr_CM_ROTATE 13, cr_CM_WATCH_MAN_KEEP 14)
+cr_CamMode_DefaultStart = .text:0x800247D0; // type:function scope:global // why: slot 0 of 11 modes in cr_g_CamModeFuncs; sets cam[0x13CC] = 1 and calls the mode's slot-1 handler
+cr_Cam_Init = .text:0x80036BCC; // type:function scope:global // why: clears cr_g_Cams (0x4F40) and the 4 x 0x30 matrices at 0x8032338C, sets cr_g_CurrentCam = &cr_g_Cams[0] and cr_g_CamPtrs[0..3], default floats per camera
+cr_CAMMODE_DEBUG_Frame = .text:0x80035ED4; // type:function scope:global // why: entry 0 slot 1 of cr_g_CamModeFuncs (CAMMODE_DEBUG)
+cr_CAMMODE_NOMOVE_Frame = .text:0x80035F18; // type:function scope:global // why: entry 1 slot 1 of cr_g_CamModeFuncs (CAMMODE_NOMOVE); empty function; also slot 1 of modes 19 and 20, and the default per-frame driver in FUN_80036954
+cr_CAMMODE_MIDDLE_Frame = .text:0x80035BCC; // type:function scope:global // why: entry 2 slot 1 of cr_g_CamModeFuncs (CAMMODE_MIDDLE)
+cr_CAMMODE_OPENING_Start = .text:0x8003577C; // type:function scope:global // why: entry 3 slot 0 of cr_g_CamModeFuncs (CAMMODE_OPENING)
+cr_CAMMODE_OPENING_Frame = .text:0x800353B8; // type:function scope:global // why: entry 3 slot 1 of cr_g_CamModeFuncs (CAMMODE_OPENING); sets the mode to 4 (CAMMODE_BTL_WAIT)
+cr_CAMMODE_BTL_WAIT_Start = .text:0x800351D4; // type:function scope:global // why: entry 4 slot 0 of cr_g_CamModeFuncs (CAMMODE_BTL_WAIT)
+cr_CAMMODE_BTL_WAIT_Frame = .text:0x80034BF0; // type:function scope:global // why: entry 4 slot 1 of cr_g_CamModeFuncs (CAMMODE_BTL_WAIT); sets the mode to 5 (CAMMODE_DICE_WAIT)
+cr_CAMMODE_DICE_WAIT_Frame = .text:0x8003491C; // type:function scope:global // why: entry 5 slot 1 of cr_g_CamModeFuncs (CAMMODE_DICE_WAIT); sets the mode to 8 (CAMMODE_ROT_WAIT)
+cr_CAMMODE_RESULT_Start = .text:0x800333DC; // type:function scope:global // why: entry 6 slot 0 of cr_g_CamModeFuncs (CAMMODE_RESULT)
+cr_CAMMODE_RESULT_Frame = .text:0x8003315C; // type:function scope:global // why: entry 6 slot 1 of cr_g_CamModeFuncs (CAMMODE_RESULT)
+cr_CAMMODE_CUSTOMIZE_Start = .text:0x8002A81C; // type:function scope:global // why: entry 7 slot 0 of cr_g_CamModeFuncs (CAMMODE_CUSTOMIZE); also slot 0 of mode 18
+cr_CAMMODE_CUSTOMIZE_Frame = .text:0x8003081C; // type:function scope:global // why: entry 7 slot 1 of cr_g_CamModeFuncs (CAMMODE_CUSTOMIZE)
+cr_CAMMODE_ROT_WAIT_Frame = .text:0x80034498; // type:function scope:global // why: entry 8 slot 1 of cr_g_CamModeFuncs (CAMMODE_ROT_WAIT); sets the mode to 2 (CAMMODE_MIDDLE)
+cr_CAMMODE_PEAK_Frame = .text:0x800343CC; // type:function scope:global // why: entry 9 slot 1 of cr_g_CamModeFuncs (CAMMODE_PEAK); sets the mode to 6 (CAMMODE_RESULT) or 10 (CAMMODE_DRAW)
+cr_CAMMODE_DRAW_Frame = .text:0x80034380; // type:function scope:global // why: entry 10 slot 1 of cr_g_CamModeFuncs (CAMMODE_DRAW)
+cr_CAMMODE_SNR_CHARA_Start = .text:0x800305AC; // type:function scope:global // why: entry 11 slot 0 of cr_g_CamModeFuncs (CAMMODE_SNR_CHARA)
+cr_CAMMODE_SNR_CHARA_Frame = .text:0x8002FEFC; // type:function scope:global // why: entry 11 slot 1 of cr_g_CamModeFuncs (CAMMODE_SNR_CHARA)
+cr_CAMMODE_SNR_AUTO_MOVE_Frame = .text:0x8002FAB4; // type:function scope:global // why: entry 12 slot 1 of cr_g_CamModeFuncs (CAMMODE_SNR_AUTO_MOVE)
+cr_CAMMODE_SNR_AUTO_Y_ANG_Frame = .text:0x800249C4; // type:function scope:global // why: entry 13 slot 1 of cr_g_CamModeFuncs (CAMMODE_SNR_AUTO_Y_ANG)
+cr_CAMMODE_SNR_WATCH_MEM_Frame = .text:0x8002FAD0; // type:function scope:global // why: entry 14 slot 1 of cr_g_CamModeFuncs (CAMMODE_SNR_WATCH_MEM)
+cr_CAMMODE_STAGE_SELECT_Start = .text:0x80026060; // type:function scope:global // why: entry 15 slot 0 of cr_g_CamModeFuncs (CAMMODE_STAGE_SELECT)
+cr_CAMMODE_STAGE_INFO_Start = .text:0x80025C34; // type:function scope:global // why: entry 16 slot 0 of cr_g_CamModeFuncs (CAMMODE_STAGE_INFO)
+// ---- Motions: one motion ID space (names: the game's own table 0x80206DB0) for field characters and battle objects (plan.md step 46)
+cr_Motion_Play = .text:0x80037D14; // type:function scope:global // why: (request, frame): stores request & 0x1FFF as the current object's motion ID (cr_g_CurrentChara_026c + 0x6A = cr_Chara.motion +0x2D6, or battle object +0xDA), the frame as a float at cr_g_CurrentChara_06dc + 0xC (cr_Chara.frame_count), handles flag bits 0x2000/0x4000/0x8000, then cr_Motion_LoadInfo
+cr_Motion_PlayFromFrame1 = .text:0x80037FBC; // type:function scope:global // why: clears DAT_8044f4ec and calls cr_Motion_Play(id, 1); called with cr_MotionSet slots by the field code, with battle set[0] by FUN_80101730, and by the "MOTION = %s" viewer in FUN_800a0e64
+cr_Motion_LoadInfo = .text:0x80037A80; // type:function scope:global // why: for the requested motion ID reads cr_g_MotionData[id] (0x1E7 if not loaded) into object+0x6DC/+0x6E0/+0x6E4 and cr_g_MotionInfo[id] (header frame count & 0xFFF to +0x690/+0x69E/+0x6A0, flags, then its list to FUN_8005ce74)
+cr_MotionFile_Register = .text:0x80074DCC; // type:function scope:global // why: walks a loaded motion file (u32 group count, offsets; per group n, n 3-word entries, n u16 motion IDs), relocates each entry and stores it in cr_g_MotionData[id & 0x7FFF] with bit 15 in cr_g_MotionDataBit15; IDs already loaded are overwritten with 0xFFFF
+cr_Battle_SetCurrentPointers = .text:0x80050F08; // type:function scope:global // why: battle counterpart of cr_Chara_SetCurrentPointers: points cr_g_CurrentChara_026c/_0678/_06dc/_09e8/_0e4c/_11cc/_154c at DAT_8044f348 +0x70/+0x4BC/+0x53C/+0x848/+0x974/+0xCF4/+0x1074 (so the shared motion code reads the battle object), limb params from +0x85C
