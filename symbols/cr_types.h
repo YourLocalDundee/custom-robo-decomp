@@ -583,5 +583,12 @@ void cr_Robo_UpdateAll(void);
 f64 cr_Sin16(u32 angle);
 f64 cr_Cos16(u32 angle);
 void cr_AreaTriggers_Update(void);
+void cr_Mtx_TranslateX(f32 d);
+void cr_Mtx_TranslateZX(f32 z, f32 x);
+void cr_Mtx_Mul(f32* m);
+f32* cr_Mtx_Store(f32* m);
+void cr_Mtx_Push(void);
+void cr_Mtx_Pop(void);
+f64 cr_Sqrt(f64 x);
 
 #endif

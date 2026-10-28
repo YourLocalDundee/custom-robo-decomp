@@ -159,6 +159,8 @@ gameTesting\
 
 37. **cr_Robo through its shortcut globals** (Oct 27, 2026): cr_Robo_SetCurrentPointers keeps 7 globals = current robo + fixed offset (+0x26C, +0x678, +0x6DC, +0x9E8, +0xE4C, +0x11CC, +0x154C; 1,000+ accesses, 500 through +0x6DC alone - the limb code). tools/struct_fields.py now counts accesses through these aliases as robo offsets: +184 typed fields; **548 field offsets checked** (was 311); 7 conflicting offsets left unknown in the whole struct. The globals are named cr_g_CurrentRobo_XXXX (u8*). Next: meaning of the big blocks (+0x6DC and +0x154C are the limb / pose workspace used with block A).
 
+38. **Matrix stack + limb posing** (Oct 27, 2026). The robo's arms/legs are built on a matrix stack: current matrix `cr_g_CurrentMtx` (0x8031FE68, 3x4), `cr_Mtx_TranslateX`, `cr_Mtx_TranslateZX`, `cr_Mtx_Mul`, `cr_Mtx_Store`, `cr_Mtx_Push` / `cr_Mtx_Pop` (stack top / depth / max depth globals), `cr_Sqrt` (51 callers). `cr_Robo_PoseLimbs` (0x8005AEE8) poses all four limbs with `cr_Robo_PoseLimbA` (block A floats 2.. and 8..) and `cr_Robo_PoseLimbB` (0xF.. and 0x15..): translate by block A lengths x limb_scale, rotate to a direction vector and cos/sin joint angles, store bone matrices (robo +0x11CC block), input matrices from +0x154C, end positions into the +0x6DC block. This is the code that makes swapped bodies move with their own proportions. Open: which pair is arms vs legs; per-field names inside +0x6DC / +0x11CC / +0x154C.
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.

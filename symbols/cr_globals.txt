@@ -31,3 +31,7 @@ cr_g_CurrentRobo_0e4c = .sbss:0x8044F554; // type:object datatype:u8* // why: cr
 cr_g_CurrentRobo_026c = .sbss:0x8044F558; // type:object datatype:u8* // why: cr_Robo_SetCurrentPointers sets it to cr_g_CurrentRobo + 0x26C every time the current robo changes (a shortcut into the robo; its accesses are counted as cr_Robo fields by tools/struct_fields.py)
 cr_g_CurrentRobo_09e8 = .sbss:0x8044F55C; // type:object datatype:u8* // why: cr_Robo_SetCurrentPointers sets it to cr_g_CurrentRobo + 0x9E8 every time the current robo changes (a shortcut into the robo; its accesses are counted as cr_Robo fields by tools/struct_fields.py)
 cr_g_CurrentRobo_06dc = .sbss:0x8044F560; // type:object datatype:u8* // why: cr_Robo_SetCurrentPointers sets it to cr_g_CurrentRobo + 0x6DC every time the current robo changes (a shortcut into the robo; its accesses are counted as cr_Robo fields by tools/struct_fields.py)
+cr_g_CurrentMtx = .bss:0x8031FE68; // type:object datatype:f32[12] // why: the 3x4 matrix every cr_Mtx_ function works on (translation in [3], [7], [11])
+cr_g_MtxStackMaxDepth = .sbss:0x8044F3D8; // type:object datatype:s32 // why: raised to the depth when cr_Mtx_Push goes deeper
+cr_g_MtxStackDepth = .sbss:0x8044F3DC; // type:object datatype:s32 // why: +1 in cr_Mtx_Push, -1 in cr_Mtx_Pop
+cr_g_MtxStackTop = .sbss:0x8044F3E0; // type:object datatype:f32* // why: where cr_Mtx_Push stores the next 0x30-byte matrix; cr_Mtx_Pop steps it back
