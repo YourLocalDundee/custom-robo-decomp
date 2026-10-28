@@ -269,35 +269,28 @@ typedef struct cr_Robo {
     /* +1934 */ u32 unk_1934;              // script value (FUN_800cf5ec)
     /* +1938 */ s32 unk_1938;               // auto: 6 uses in 2 functions
     /* +193C */ s16 unk_193c;              // script value (FUN_800cf5ec)
-    /* +193E */ u16 unk_193e;              // script value; copied by cr_Robo_SetCurrentPointers
+    /* +193E */ u16 build_number;        // robo number passed to cr_Robo_BuildModel; copied to +0x1940; compared with 2 and with DAT_8044eb00
     /* +1940 */ u16 unk_1940;               // auto: 7 uses in 4 functions
     /* +1942 */ u16 flags_1942;                              // bit flags only (tested & 1, 4, 8; set | 0x20; cleared & 0xfff7) - meaning of bits open
-    /* +1944 */ u32 unk_1944;               // auto: 29 uses in 6 functions
+    /* +1944 */ u32 flags_1944;          // bit flags (| 1, | 2, | 4; & ~4) - meaning of bits open
     /* +1948 */ u32 flags2;                // bit 0x20 cleared by FUN_800cf5ec
     /* +194C */ u32 unk_194c;               // auto: 4 uses in 4 functions
-    /* +1950 */ u32 unk_1950;               // auto: 19 uses in 7 functions
+    /* +1950 */ u32 target_angle;        // angle eases toward it, then angle = target_angle
     /* +1954 */ s32 unk_1954;               // auto: 5 uses in 4 functions
-    /* +1958 */ u8 unk_1958[0x1];
-    /* +1959 */ u8 unk_1959;                // auto: 4 uses in 2 functions
-    /* +195A */ u8 unk_195a;                // auto: 4 uses in 2 functions
-    /* +195B */ u8 unk_195b;                // auto: 4 uses in 2 functions
+    /* +1958 */ s32 turn_speed;          // added to angle every update; set as degrees * 0x10000 / 360
     /* +195C */ u8 unk_195c[0x1];
     /* +195D */ u8 unk_195d;                // auto: 2 uses in 2 functions
     /* +195E */ u8 unk_195e[0x2];
-    /* +1960 */ f32 unk_1960;               // auto: 7 uses in 4 functions
-    /* +1964 */ u8 unk_1964[0x4];
-    /* +1968 */ f32 unk_1968;               // auto: 7 uses in 4 functions
+    /* +1960 */ Vec3 move_start;         // = pos when a move starts (x, z read); pos restored from it
     /* +196C */ f32 unk_196c;               // auto: 6 uses in 4 functions
     /* +1970 */ f32 unk_1970;               // auto: 6 uses in 4 functions
     /* +1974 */ f32 unk_1974;               // auto: 6 uses in 4 functions
     /* +1978 */ f32 unk_1978;               // auto: 6 uses in 4 functions
-    /* +197C */ f32 unk_197c;               // auto: 24 uses in 10 functions
-    /* +1980 */ u8 unk_1980[0x4];
-    /* +1984 */ f32 unk_1984;               // auto: 24 uses in 10 functions
-    /* +1988 */ u8 unk_1988[0x5];
-    /* +198D */ u8 unk_198d;                // auto: 4 uses in 2 functions
-    /* +198E */ u8 unk_198e[0x1];
-    /* +198F */ u8 unk_198f;                // auto: 5 uses in 3 functions
+    /* +197C */ Vec3 move_target;        // pos steps toward it ((target - pos) / n) and is set to it at the end (x, z used)
+    /* +1988 */ u32 unk_1988;
+    /* +198C */ u16 countdown_198c;      // tested == 0, decremented, refilled from a table (DAT_803bfe7c[0xb])
+    /* +198E */ u8 unk_198e;
+    /* +198F */ u8 unk_198f;
     /* +1990 */ s16 unk_1990;               // auto: 4 uses in 2 functions
     /* +1992 */ u8 unk_1992[0x2];
     /* +1994 */ u16 unk_1994;               // auto: 4 uses in 2 functions

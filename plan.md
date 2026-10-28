@@ -151,6 +151,8 @@ gameTesting\
 
 33. **cr_Robo.vecs_0bc8** (Oct 27, 2026): the 0x240-byte stretch at +0xBC8 (101 uses, all 4-byte float accesses) is 48 `Vec3`, read as rows of 6 (stride 0x48 + 0xC) - typed `Vec3 vecs_0bc8[48]`; the C now reads `vecs_0bc8[i * 6 + 0x25].x` instead of raw casts. Rows of 6 match the 2 x 6 extra joints (block D) - meaning still open. Remaining next fields by use: unk_193c (0x10-byte block), unk_193e, unk_1988, unk_1944, unk_00bd, unk_1958 (added to angle each update - an angular speed?), unk_1984, unk_197c.
 
+34. **Movement fields in cr_Robo** (Oct 27, 2026), each from its uses: `build_number` (+0x193E, passed to cr_Robo_BuildModel), `target_angle` (+0x1950, angle eases to it), `turn_speed` (+0x1958, added to angle each update; set as degrees*0x10000/360), `move_start` (+0x1960 Vec3, saved pos), `move_target` (+0x197C Vec3, pos steps toward it and lands on it), `countdown_198c`, `flags_1944`. Byte splits from the auto pass merged into the real 32-bit / Vec3 fields (305 offsets checked). FUN_8009aec4 and FUN_800b5d4c set move_target / turn_speed (scripted moves) - next to name. Still open: +0x196C..0x1978 (4 floats set together), unk_1940, unk_1954, unk_1990..1996.
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.

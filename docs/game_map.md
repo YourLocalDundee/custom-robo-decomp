@@ -108,8 +108,8 @@ Functions below 0x80131000: 1761 (1732 still `FUN_`). All functions in the expor
 | 8010A5CC | 1004 | 1 | ~memory,~model |
 | 800ECA28 | 980 | 1 | memcard,~memory |
 | 8004B0A0 | 972 | 1 | math,~model |
-| 8009AEC4 | 938 | 1 | ~camera,~file-io,~math,~render,~video |
-| 800B81C4 | 925 | 0 | ~math |
+| 8009AEC4 | 918 | 1 | ~camera,~file-io,~math,~render,~video |
+| 800B81C4 | 911 | 0 | ~math |
 | 80054238 | 901 | 1 |  |
 | 800DBAD0 | 899 | 1 | math |
 | 80128F20 | 866 | 0 |  |
@@ -123,9 +123,9 @@ Functions below 0x80131000: 1761 (1732 still `FUN_`). All functions in the expor
 | 8005ED28 | 572 | 3 |  |
 | 8003DD38 | 552 | 1 | math |
 | 80010220 | 513 | 0 | ~camera,~debug-print,~file-io,~math,~memcard,~memory,~model,~render,~video |
-| 800B5D4C | 503 | 1 | ~file-io,~math |
 | 8002B3C4 | 492 | 3 | math |
 | 800EF39C | 487 | 3 |  |
+| 800B5D4C | 476 | 1 | ~file-io,~math |
 | 80009A90 | 462 | 1 |  |
 | 800F96A4 | 461 | 1 |  |
 | 80041358 | 454 | 1 | ~math,~model |
