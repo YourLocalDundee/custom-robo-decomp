@@ -40,6 +40,34 @@ def dol_offset(dol, addr):
     sys.exit(f'{addr:08X} is not inside main.dol')
 
 
+FILE_DESCS, ARCHIVE_SLOTS = 0x801F1200, 0x2B  # cr_g_FileDescs (symbols/cr_globals.txt)
+
+
+def sync_entry_table(dol, arch, old_archive, new_archive):
+    """main.dol keeps its own copy of every packed archive's entry table (count, 0, then (offset, size) per
+    entry), which the game reads instead of the archive's header (cr_Archive_OpenEntry / GetEntrySize).
+    Rewrite that copy for the repacked archive. Returns True if it changed. Found Oct 27, 2026: a mod that
+    changed an entry's size crashed the game until this table was updated."""
+    u = lambda a: struct.unpack_from('>I', dol, dol_offset(dol, a))[0]
+    old_n, new_n = struct.unpack_from('>I', old_archive, 4)[0], struct.unpack_from('>I', new_archive, 4)[0]
+    if old_n != new_n: sys.exit(f'{arch}: entry count changed ({old_n} -> {new_n}); not supported')
+    for i in range(ARCHIVE_SLOTS):
+        desc = u(FILE_DESCS + 4 * i)
+        if not desc or not u(desc): continue
+        p = dol_offset(dol, u(desc))
+        if dol[p:p + 128].split(b'\0')[0].decode('ascii', 'replace').lower() != arch.lower(): continue
+        table = u(desc + 12)
+        if table in (0, 1): sys.exit(f'{arch}: main.dol has no entry table for it (kind {table}); not supported yet')
+        t = dol_offset(dol, table)
+        if dol[t + 8:t + 8 + 8 * old_n] != old_archive[8:8 + 8 * old_n] or u(table) != old_n:
+            sys.exit(f'{arch}: main.dol entry table does not match the clean archive; refusing to patch it')
+        new = new_archive[8:8 + 8 * new_n]
+        if dol[t + 8:t + 8 + len(new)] == new: return False
+        dol[t + 8:t + 8 + len(new)] = new
+        return True
+    sys.exit(f'{arch}: not found among main.dol file descriptors; cannot keep its entry table in sync')
+
+
 def robo_roles(dat_path, entry, template, all_entries):
     """Robo joint roles (trailer blocks B/C, optionally A) for an edited robo; see docs/MODDING.md.
     With <name>.roles.json next to the .dat: B/C are rebuilt for the new skeleton. Without it, the skeleton
@@ -79,6 +107,8 @@ def main():
     shutil.rmtree(stage, ignore_errors=True)
     stage.mkdir(parents=True)
     changed = []
+    clean_dol = (DISC / 'sys' / 'main.dol').read_bytes()
+    dol = bytearray(clean_dol)  # written to the disc only if something changed it
 
     # 1. models -> archive entries -> repacked archives
     groups = {}
@@ -105,7 +135,10 @@ def main():
             changed.append(f'{arch} entry {idx:03d} <- {p.relative_to(mod)}')
         out = stage / 'files' / arch
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_bytes(sfd.build(entries))
+        new_archive = sfd.build(entries)
+        out.write_bytes(new_archive)
+        if sync_entry_table(dol, arch, (DISC / 'files' / arch).read_bytes(), new_archive):
+            changed.append(f'main.dol: entry table of {arch} updated (entry sizes changed)')
 
     # 2. disc files as-is
     if (mod / 'files').exists():
@@ -120,9 +153,8 @@ def main():
 
     # 3. code patches
     patches = sorted((mod / 'code').glob('*.txt')) if (mod / 'code').exists() else []
+    clean = clean_dol
     if patches:
-        dol = bytearray((DISC / 'sys' / 'main.dol').read_bytes())
-        clean = bytes(dol)
         for pf in patches:
             for ln, line in enumerate(pf.read_text(encoding='utf-8').splitlines(), 1):
                 if not line.strip() or line.strip().startswith(';'): continue
@@ -134,6 +166,7 @@ def main():
                     sys.exit(f'{pf.name}:{ln}: {addr:08X} holds {clean[off:off + len(new)].hex()}, not {m.group(3)}')
                 dol[off:off + len(new)] = new
                 changed.append(f'main.dol {addr:08X} ({len(new)} bytes, {pf.name}:{ln})')
+    if dol != clean_dol:
         (stage / 'sys').mkdir(parents=True, exist_ok=True)
         (stage / 'sys' / 'main.dol').write_bytes(dol)
 

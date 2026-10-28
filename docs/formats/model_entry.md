@@ -26,6 +26,10 @@ Function names stay `FUN_…` — no verified real names exist for game code.
 | `cr_CharaModel_OnLoaded` (0x800748A8) | story character ("abs") | same relocation, then loads the root joint and animation itself and walks its own joint paths. |
 | `FUN_80073cb8` | weapon ("rel" variant) | same relocation but table at **base + header[6]**; header[2] and header[4] += base; header[8] += base unless −1. Then for i < header[3]: loads the root joint of the i-th 0x10-byte JOBJDesc record at header[2], attaches its animation if present, and walks joint paths from header[8]. |
 
+## The game keeps its own copy of each archive's entry table
+
+Every packed archive (chara, weapon_*, *_effect, snr_chara, snr_obj, rpg_*_models: 13 in all) has a copy of its entry table (count, 0, then offset/size per entry) inside main.dol, pointed to by its file descriptor (`cr_g_FileDescs[i]->packed`). The game reads that copy, not the archive header. Verified: all 13 copies equal the disc headers. **A mod that changes any entry's size must update the copy** - `tools/make_mod.py` does it (`sync_entry_table`). Found Oct 27, 2026: a size-changing mod without it gave "The Game Disc could not be read" and invalid-read crashes. Loose files store size 0 there (the game asks the disc), so they are not affected.
+
 ## Header
 
 | Word | Robo / story character ("abs") | Weapon ("rel") | Source |

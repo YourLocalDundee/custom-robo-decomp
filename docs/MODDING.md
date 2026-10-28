@@ -70,7 +70,7 @@ Output:
 - `build\mods\my_mod\my_mod.iso` — play it in Dolphin (Open, or drag it in)
 - `mods\my_mod\my_mod.crpatch` — share this
 
-Checks on the way: each rebuilt model must parse like the game's own loader parses it; every replaced file
+If an archive changed (any model with a new size), `main.dol`'s own copy of that archive's entry table is updated too - the game reads that copy, not the archive header (docs/formats/model_entry.md). Checks on the way: each rebuilt model must parse like the game's own loader parses it; every replaced file
 must exist on the disc; the result is written from your clean ISO (SHA-1 checked).
 
 ## 4. Code changes (`code\*.txt`)
