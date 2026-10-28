@@ -221,11 +221,11 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8001D9E8	FUN_8001d9e8	18	5	0				
 8001DA70	FUN_8001da70	18	2	0				
 8001DAF8	FUN_8001daf8	35	4	0				
-8001DB5C	cr_Mtx_TranslateZX	31	6	0				
+8001DB5C	cr_Mtx_TranslateZX	25	6	0				
 8001DBF0	FUN_8001dbf0	25	2	0				
 8001DC84	FUN_8001dc84	13	2	0				
 8001DCD0	FUN_8001dcd0	13	1	0				
-8001DD1C	cr_Mtx_TranslateX	18	9	0				
+8001DD1C	cr_Mtx_TranslateX	12	9	0				
 8001DD68	FUN_8001dd68	25	4	0				
 8001DE38	FUN_8001de38	12	1	0				
 8001DE6C	FUN_8001de6c	37	3	0				
@@ -461,20 +461,20 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80051384	FUN_80051384	267	1	0				
 800527D4	FUN_800527d4	26	3	0				
 800528B8	FUN_800528b8	35	2	1				
-8005299C	FUN_8005299c	243	2	10				
+8005299C	FUN_8005299c	240	2	10				
 80053430	FUN_80053430	183	1	3				
 80053A20	FUN_80053a20	84	1	0				
 80053DA8	FUN_80053da8	119	1	3				
 80054238	FUN_80054238	901	1	7				
 80056104	FUN_80056104	326	7	5				
-80056C6C	FUN_80056c6c	275	1	9				
-80057F1C	FUN_80057f1c	250	1	11				
-80058AD0	FUN_80058ad0	238	2	11				
-80059790	cr_Robo_PoseLimbB	183	1	7				
-8005A09C	cr_Robo_PoseLimbA	134	1	6				
-8005A668	FUN_8005a668	102	1	5				
-8005AAA8	FUN_8005aaa8	104	1	6				
-8005AEE8	cr_Robo_PoseLimbs	263	5	13				
+80056C6C	FUN_80056c6c	272	1	9				
+80057F1C	FUN_80057f1c	244	1	11				
+80058AD0	FUN_80058ad0	234	2	11				
+80059790	cr_Robo_PoseLimbB	176	1	7				
+8005A09C	cr_Robo_PoseLimbA	126	1	6				
+8005A668	FUN_8005a668	101	1	5				
+8005AAA8	FUN_8005aaa8	103	1	6				
+8005AEE8	cr_Robo_PoseLimbs	259	5	13				
 8005BD7C	FUN_8005bd7c	44	3	0				
 8005BE70	FUN_8005be70	18	1	0				
 8005BEC8	FUN_8005bec8	44	5	0				
@@ -1056,7 +1056,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800B4710	FUN_800b4710	25	1	1	~camera,~math,~model			
 800B47F0	FUN_800b47f0	49	1	1	~math			
 800B497C	FUN_800b497c	24	1	2				
-800B4AA0	FUN_800b4aa0	274	1	11	math	jobj.h		s_jobj_804513c3,s_jobj_h_804513bc
+800B4AA0	FUN_800b4aa0	271	1	11	math	jobj.h		s_jobj_804513c3,s_jobj_h_804513bc
 800B5418	FUN_800b5418	23	1	1	~memory,~model			
 800B54E8	FUN_800b54e8	164	1	6	~memory,~model			
 800B5B5C	FUN_800b5b5c	77	1	1				
