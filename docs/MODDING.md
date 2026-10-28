@@ -72,8 +72,8 @@ python -I tools\robo_swap.py 0 7      # robo 0 (Ray 01) <-> robo 7
 
 It swaps the bodies **and** two per-robo values the game looks up by robo number: the **motion set**
 (`cr_g_RoboMotionSets`) and **height value** (`cr_g_RoboHeight`, added to the robo's Y position). Tested: swapping the
-motion set does **not** change battle movement: these two tables belong to the **story-mode scene robos** (overworld /
-cutscenes), not to the battle robo, which is a separate system still being decoded (plan.md step 39). The model's own animation travels with the model anyway.
+motion set does **not** change battle movement. Whether these tables only matter for story-mode scenes, and what picks
+battle movement, is still open (plan.md step 39). The model's own animation travels with the model anyway.
 
 | Option | Does |
 |---|---|
