@@ -127,7 +127,19 @@ gameTesting\
 
 27. **Naming rule: robo N = chara entries 5N..5N+4** (Oct 27, 2026; user correction). Earlier notes said "robo 5" for entry 005 - that is robo 1 variant 0; fixed in docs and tool output (`robo_joints.py table` shows robo/variant). Community test build: robo 0 <-> robo 4, all 5 variants each (entries 000-004 <-> 020-024, 55 <-> 53 joints).
 
-28. **Per-robo size and animations** (Oct 27, 2026; community test). Robo 0 <-> robo 7 body swap: robo 7's body ran with robo 0's animations and size, but its own charge. Cause: cr_Robo_BuildModel reads two tables by robo number - `cr_g_RoboScale` (0x8021B080, f32[56]) and `cr_g_RoboMotionSets` (0x8021B160, 56 pointers to 9 shared 17-ID `cr_MotionSet`s) - while the charge is the model's own joint animation. Only these two tables are indexed by robo+0x3F4 in the code. `tools/robo_swap.py` now swaps both (as checked main.dol patches); `--model-only` keeps the old behaviour. Open: which of the 17 IDs is which action; where motion IDs are loaded from (motion.DBN / snr_motion.bin).
+28. **Per-robo animations and height** (Oct 27, 2026; community test). Robo 0 <-> robo 7 body swap: robo 7's body ran with robo 0's animations (and looked robo 0's size - see step 29: the size table guess was wrong), but its own charge. Cause: cr_Robo_BuildModel reads two tables by robo number - `cr_g_RoboHeight` (0x8021B080, f32[56]; first misnamed RoboScale) and `cr_g_RoboMotionSets` (0x8021B160, 56 pointers to 9 shared 17-ID `cr_MotionSet`s) - while the charge is the model's own joint animation. Only these two tables are indexed by robo+0x3F4 in the code. `tools/robo_swap.py` now swaps both (as checked main.dol patches); `--model-only` keeps the old behaviour. Open: which of the 17 IDs is which action; where motion IDs are loaded from (motion.DBN / snr_motion.bin).
+
+29. **Community test log + corrections** (Oct 27, 2026, live test with community members). Tested in Dolphin 2609a (Project Hive):
+   | Build | Result |
+   |---|---|
+   | skel_swap v1 (entry 000 <- entry 005, no main.dol table sync) | "Game Disc could not be read" + invalid reads -> step 26 fix |
+   | swap robo 0 <-> robo 7, bodies only | battle runs; robo 7's body uses robo 0's animations; its own charge |
+   | swap robo 0 <-> robo 6 (55 <-> 54 bones) + motion sets | battle runs, robos animate; user: "charge animation was not linked" (details pending) |
+   | same + `cr_g_RoboHeight` x3 | robos **not** bigger -> the table is not size |
+   | same + root joint scale 3 (`--size 3`), A: motion swapped / B: motion kept | built, awaiting test (A vs B also isolates the charge) |
+   Corrections: (1) entry 005 is robo 1, not "robo 5" (step 27). (2) 0x8021B080 is not a size: robo+0xE14 is **added to the Y position** in FUN_8002fefc and used in FUN_80054238 -> renamed `cr_g_RoboHeight` (meaning still open). (3) The size factor the limb code uses (robo+0x3C0, read as DAT_8044f558+0x154) is set to 1.0 (FLOAT_80451284) for **every** robo in FUN_800ba488, and every robo model's root joint scale is 1.0: robo size lives in the vertices; `robo_swap.py --size X` sets the root joint scale (experimental).
+   Known issue (not caused by mods): a warning "Invalid read from 0x04efe5cb, PC = 0x801b5f38" in the THP decoder during the intro video, seen on the clean ISO too; click "Ignore for this session".
+   Open: what "charge not linked" is exactly; which of the 17 motion slots is which action; where motion data lives (motion.DBN / snr_motion.bin); robo+0xE14 meaning.
 
 ## Findings from the decompiled code
 

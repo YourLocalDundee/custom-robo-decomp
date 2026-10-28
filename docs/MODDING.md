@@ -70,9 +70,22 @@ Each robo has **5 entries** in `chara.BIN` (variants, probably colours - not ver
 python -I tools\robo_swap.py 0 7      # robo 0 (Ray 01) <-> robo 7
 ```
 
-It swaps the bodies **and** the two per-robo values the game looks up by robo number, so each body keeps its own:
-**size** (`cr_g_RoboScale`) and **animation set** (`cr_g_RoboMotionSets`, 17 animations per robo). The model's own animation (e.g. the charge) always travels with the model. `--model-only` swaps just the bodies.
-Found in the first community test (Oct 27, 2026): with bodies only, robo 7's body ran with robo 0's animations and size.
+It swaps the bodies **and** the two per-robo values the game looks up by robo number, so each body keeps its own
+**animation set** (`cr_g_RoboMotionSets`, 17 animations per robo) and **height value** (`cr_g_RoboHeight`, added to the
+robo's Y position). The model's own animation travels with the model anyway.
+
+| Option | Does |
+|---|---|
+| `--model-only` | swap just the bodies (animation set and height stay with the robo number) |
+| `--keep-motion` | swap bodies + height, keep the animation sets with the robo number |
+| `--size X` | draw the swapped bodies X times bigger (root joint scale; **experimental**, see below) |
+
+**Size.** The game has no per-robo size setting: the size factor the limb code uses is 1.0 for every robo and every
+model's root joint scale is 1.0, so a robo's size is in its vertices. `--size X` sets the root joint scale of the
+swapped models to X. Not yet confirmed in game; hitboxes, limb reach and camera may not follow.
+
+Community tests so far (Oct 27, 2026; plan.md step 29): bodies swap and fight fine (also with different skeletons);
+with bodies only, a body runs with the slot's animations; changing `cr_g_RoboHeight` does **not** change the size.
 
 ## 3. Build it
 

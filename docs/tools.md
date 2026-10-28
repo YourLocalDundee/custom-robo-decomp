@@ -17,6 +17,21 @@ All in `D:\emulators\gameTesting\tools`. Python tools run with the system Python
 | `rebuild_decomp.ps1` | Fresh Ghidra import + GameCube analyzer + names + strings + C export ([decomp](decomp.md)) | `pwsh tools\rebuild_decomp.ps1` |
 | `match_hsd_asserts.py` | Matches `__assert` (file, expression) calls against the Melee decomp to propose HSD function names | `python -I tools\match_hsd_asserts.py decompiled\main_dol.c "Custom Robo extracted\sys\main.dol" tools\melee\src\sysdolphin symbols\melee_matches.txt` |
 | `verify_symbols.py` | Checks every name in `symbols\symbols.txt` against Melee's verified symbols (existence + size) | `python -I tools\verify_symbols.py symbols\symbols.txt tools\dtk\proj\symbols.txt tools\melee\config\GALE01\symbols.txt > symbols\verify_report.txt` |
+| `from_scratch.ps1` | Everything from a fresh clone + your ISO, PASS/FAIL table, writes `BUILD_REPORT.md` ([REPRODUCE](REPRODUCE.md)) |
+| `setup.ps1` | Downloads every tool at the version in `pins.txt` (SHA-256 checked), extracts the disc |
+| `checksums.ps1` | SHA-256 of every output vs `docs\expected_checksums.txt` (`-Compare`, `-Write`) |
+| `batches\run_all.ps1` | Names (batch 1), Ghidra rebuild with types, type checks (5), dtk cross-check (2), game map (3), search index (4) |
+| `layout_match.py` | Library names by layout proof against Melee, TP, TWW, MKDD, Pikmin 2, TTYD |
+| `clean_headers.py` | Declarations-only copy of Melee's HSD/SDK headers for Ghidra's parser; Custom Robo overrides (`HSD_PObj`) |
+| `check_class_sizes.py` | Parsed HSD struct sizes vs the sizes Custom Robo registers for each class |
+| `lint_descriptive.py` | Checks `symbols\descriptive.txt` and `cr_globals.txt` (cr_ prefix, why note, no clashes) |
+| `crosscheck_dtk.py` / `game_map.py` / `build_index.py` | dtk cross-check / game-code map / SQLite search index |
+| `find.py` | Search the decompile: `text`, `func [--brief]`, `callers`, `callees`, `refs`, `str`, `hint` |
+| `robo_joints.py` | Robo joint roles (blocks B/C): `table`, `roles`, `path`, `selftest` (170/170 byte-identical) |
+| `make_mod.py` | Mod folder (models, files, code patches) -> playable ISO + `.crpatch`; syncs main.dol entry tables ([MODDING](MODDING.md)) |
+| `iso_patch.py` | `build` / `diff` / `apply` / `info`: modded ISO and data-free patches |
+| `robo_swap.py` | Swap two robos completely (`--model-only`, `--keep-motion`, `--size X`) |
+| `boot_check.ps1` | Boots an ISO in Dolphin, reports warning dialogs (`-Snapshot` saves a picture) |
 
 ## Ghidra scripts (`tools\scripts`)
 
@@ -26,6 +41,9 @@ All in `D:\emulators\gameTesting\tools`. Python tools run with the system Python
 | `ApplySymbols.java` | applies names from a dtk-style symbols file (skips generic `fn_`/`lbl_` names) |
 | `DefineStrings.java` | defines null-terminated ASCII strings (≥ 4 chars) in non-executable memory |
 | `ExportDecompiledC.java` | decompiles every function into one C file |
+| `CreateDtkFunctions.java` | creates functions at starts decomp-toolkit found and Ghidra missed |
+| `ExportXrefs.java` | functions / references / strings as TSV (for the search index) |
+| `ParseHeaders.java` | parses HSD/SDK headers + `symbols/cr_types.h`, checks sizes/offsets, applies prototypes and typed globals |
 
 ## Third-party tools (installed under `tools\`)
 

@@ -93,6 +93,10 @@ Source: joint positions of robo 0's bind pose (glTF export; joint numbers verifi
 - `from-dat`: rebuilds an entry from a .dat using the original entry as a template (header layout and trailer blocks). Trailer alignment: 0x20 if the original had padding before the trailer, otherwise 4. Entry end padded to 0x20 if the original was padded.
 - `roundtrip`: entry → .dat → entry for every entry; currently 484/484 byte-identical.
 
+## Robo size
+
+The game draws every robo at the same scale: the factor the limb code multiplies block A by (robo+0x3C0) is set to 1.0 for every robo (FUN_800ba488), and every robo model's root joint has scale (1, 1, 1). A robo's size is in its vertices. Setting the root joint scale (HSD_Joint +0x20) scales the drawn model (`tools/robo_swap.py --size`; in-game effect on hitboxes / limbs / camera not yet tested).
+
 ## Open questions
 
 - The meaning of each block A float; what the block B material is used for; header word 5.
