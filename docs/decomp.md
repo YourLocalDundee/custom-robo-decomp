@@ -90,7 +90,7 @@ Library structs and prototypes come from Melee's headers (`ParseHeaders.java`), 
 
 ## Robo objects (Oct 27, 2026)
 
-`cr_Robo` (0x19A8 bytes, 24 in `cr_g_Robos` at 0x803BFE88) is the robo in play; `cr_g_CurrentRobo` points at the one being processed. Known fields and their evidence are in `symbols/cr_types.h`; plan.md step 30.
+`cr_Chara` (0x19A8 bytes, 24 in `cr_g_Charas` at 0x803BFE88) is the robo in play; `cr_g_CurrentChara` points at the one being processed. Known fields and their evidence are in `symbols/cr_types.h`; plan.md step 30.
 
 ## Real-name evidence (Oct 27, 2026)
 

@@ -3,12 +3,12 @@
 usage: python -I tools/robo_swap.py <robo A> <robo B> [<clean.iso>] [--model-only] [--keep-motion] [--size X]
   robo N = chara entries 5N..5N+4 (the game loads entry robo*5). Writes the mod folder mods/swap_robo<A>_robo<B>/
   and builds it with tools/make_mod.py: build/mods/swap_robo<A>_robo<B>/swap_robo<A>_robo<B>.iso + .crpatch.
-  Also swaps the two per-robo tables cr_Robo_BuildModel reads by robo number (as main.dol patches in code/):
-    0x8021B080 f32[robo]   height value (robo+0xE14; added to the robo's Y position in FUN_8002fefc)
-    0x8021B160 u16*[robo]  motion set (17 animation IDs) - without it a body keeps the slot's animations
+  Also swaps the two per-robo tables cr_Chara_BuildModel reads by robo number (as main.dol patches in code/):
+    0x8021B080 f32[number] Y offset (cr_g_CharaYOffset -> chara+0xE14; added to the character's Y position in FUN_8002fefc)
+    0x8021B160 *[number]   motion set (cr_g_CharaMotionSets: 17 motions wait/walk/run/talk_*/battle_*; field characters)
   --model-only   leaves both tables with the robo number (first community test: robo 7's body ran with robo 0's
                  animations; only its own model animation, the charge, came along)
-  --keep-motion  swaps the height value but leaves the motion sets with the robo number
+  --keep-motion  swaps the Y offset but leaves the motion sets with the robo number
   --size X       draws the swapped bodies X times bigger: sets the model's root joint scale to X. The game has no
                  per-robo size of its own (robo+0x3C0 is 1.0 for every robo, FUN_800ba488; every root joint is 1.0),
                  so a robo's size is in its vertices; scaling the root joint scales the whole model. Experimental.
@@ -22,7 +22,7 @@ import make_mod, robo_joints  # noqa: E402
 
 G = Path(__file__).resolve().parent.parent
 VARIANTS = 5
-HEIGHT_TABLE, MOTION_TABLE = 0x8021B080, 0x8021B160  # cr_g_RoboHeight, cr_g_RoboMotionSets
+YOFFSET_TABLE, MOTION_TABLE = 0x8021B080, 0x8021B160  # cr_g_CharaYOffset, cr_g_CharaMotionSets (field characters, plan.md step 40)
 DAT_DATA = 0x20       # a standard .dat's data block starts at 0x20; the entry's at 0x40 (crmodel.to_dat)
 JOINT_SCALE = 0x20    # HSD_Joint: rotation +0x14, scale +0x20, translation +0x2C
 
@@ -68,14 +68,14 @@ def main():
     if '--model-only' not in sys.argv:
         dol = (G / 'Custom Robo extracted' / 'sys' / 'main.dol').read_bytes()
         word = lambda t, r: dol[make_mod.dol_offset(dol, t + 4 * r):][:4]
-        tables = [(HEIGHT_TABLE, 'height value')] + ([] if keep_motion else [(MOTION_TABLE, 'motion set pointer')])
-        lines = ['; per-robo tables read by robo number in cr_Robo_BuildModel (0x80074110), swapped with the bodies']
+        tables = [(YOFFSET_TABLE, 'Y offset')] + ([] if keep_motion else [(MOTION_TABLE, 'motion set pointer')])
+        lines = ['; per-robo tables read by robo number in cr_Chara_BuildModel (0x80074110), swapped with the bodies']
         for t, what in tables:
             for r, src in ((a, b), (b, a)):
                 lines.append(f'{t + 4 * r:08X}: {word(t, src).hex()} [was {word(t, r).hex()}] ; robo {r} {what} <- robo {src}')
         (mod / 'code').mkdir()
         (mod / 'code' / 'robo_tables.txt').write_text('\n'.join(lines) + '\n')
-        print('  + height value' + ('' if keep_motion else ' and motion set') + ' swapped (code/robo_tables.txt)')
+        print('  + Y offset' + ('' if keep_motion else ' and motion set') + ' swapped (code/robo_tables.txt)')
     args = [x for x in sys.argv[3:] if not x.startswith('--') and x != (sys.argv[sys.argv.index('--size') + 1] if '--size' in sys.argv else None)][:1]
     sys.exit(subprocess.call([sys.executable, '-I', str(G / 'tools' / 'make_mod.py'), str(mod)] + args))
 

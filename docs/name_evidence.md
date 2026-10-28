@@ -33,7 +33,7 @@ The game's own names, found in main.dol. Use these before inventing a `cr_` name
 | `scene_data` | FUN_8007571c |
 | `scene_data` | FUN_80077f38, FUN_80078000 |
 | `scene_data` | FUN_80082f84 |
-| `train_rst` | FUN_8009d620, cr_AreaTriggers_Update |
+| `train_rst` | FUN_8009d620, cr_AreaBoxes_Update |
 | `sysdolphin_base_library` | FUN_80186ac4 |
 | `hsd_dobj` | FUN_80186ac4 |
 | `sysdolphin_base_library` | FUN_80189be4 |

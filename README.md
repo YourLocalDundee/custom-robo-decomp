@@ -54,7 +54,7 @@ After `run_all.ps1` you have, on your machine only:
 ```powershell
 python -I tools\find.py text chara_bin              # search all code
 python -I tools\find.py func cr_Archive_OpenEntry --brief   # show one function, compact
-python -I tools\find.py callers cr_RoboModel_OnLoaded       # who uses it
+python -I tools\find.py callers cr_CharaEntry_OnLoaded       # who uses it
 python -I tools\find.py str snr_motion               # find a string and who uses it
 python -I tools\find.py hint model                   # game functions that touch 3D models
 ```

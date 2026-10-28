@@ -85,10 +85,10 @@ def scan(gaps, c):
     return acc, funcs
 
 
-# Globals that cr_Robo_SetCurrentPointers sets to "current robo + offset" (0x80050E74; named in symbols/cr_globals.txt)
-ALIASES = {'cr_Robo': {'cr_g_CurrentRobo_0678': 0x678, 'cr_g_CurrentRobo_154c': 0x154C, 'cr_g_CurrentRobo_11cc': 0x11CC,
-                       'cr_g_CurrentRobo_0e4c': 0xE4C, 'cr_g_CurrentRobo_026c': 0x26C, 'cr_g_CurrentRobo_09e8': 0x9E8,
-                       'cr_g_CurrentRobo_06dc': 0x6DC}}  # symbols/cr_globals.txt
+# Globals that cr_Chara_SetCurrentPointers sets to "current robo + offset" (0x80050E74; named in symbols/cr_globals.txt)
+ALIASES = {'cr_Chara': {'cr_g_CurrentChara_0678': 0x678, 'cr_g_CurrentChara_154c': 0x154C, 'cr_g_CurrentChara_11cc': 0x11CC,
+                       'cr_g_CurrentChara_0e4c': 0xE4C, 'cr_g_CurrentChara_026c': 0x26C, 'cr_g_CurrentChara_09e8': 0x9E8,
+                       'cr_g_CurrentChara_06dc': 0x6DC}}  # symbols/cr_globals.txt
 STRUCT = None
 
 

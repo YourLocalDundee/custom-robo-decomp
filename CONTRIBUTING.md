@@ -33,7 +33,7 @@ The game still contains many of its own names: enum names in pointer tables (`SE
 
 ### Naming style
 
-- Always start with `cr_`. Then `Subsystem_Action`, CamelCase: `cr_Archive_OpenEntry`, `cr_RoboModel_OnLoaded`.
+- Always start with `cr_`. Then `Subsystem_Action`, CamelCase: `cr_Archive_OpenEntry`, `cr_CharaEntry_OnLoaded`.
 - Reuse existing subsystem words: `FileSys`, `Archive`, `FileSlot`, `Heap`, `RoboModel`, `CharaModel`, `WeaponModel`…
 - Describe what the code **does**, not what you think the game uses it for, unless the `why:` proves it.
   `cr_Archive_OpenEntry` (provable) beats `cr_LoadRoboForBattle` (a guess).

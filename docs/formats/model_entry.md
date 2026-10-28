@@ -21,9 +21,9 @@ Function names stay `FUN_…` — no verified real names exist for game code.
 
 | Function | Loads | What it does |
 |---|---|---|
-| `cr_RoboModel_OnLoaded` (0x800747B0) | robo ("abs" variant) | base = entry + header[0]; for i < header[7]: `*(base + table[i]) += base` with table at **entry + header[6]**; header[2] += base; header[3], [4], [8] += entry. Then only stores the entry in `cr_g_RoboEntries[robo]` (loaded = 1). **Correction (Oct 27, 2026):** it does not build the skeleton; `cr_Robo_BuildModel` does. |
-| `cr_Robo_BuildModel` (0x80074110) | robo, when one is set up | loads the root joint `**header[2]` (`FUN_801988fc`), attaches its first joint animation (`FUN_80196e0c`), resolves blocks B, C (and D) to joints of the new tree and keeps block A; see "Trailer blocks". |
-| `cr_CharaModel_OnLoaded` (0x800748A8) | story character ("abs") | same relocation, then loads the root joint and animation itself and walks its own joint paths. |
+| `cr_CharaEntry_OnLoaded` (0x800747B0) | robo ("abs" variant) | base = entry + header[0]; for i < header[7]: `*(base + table[i]) += base` with table at **entry + header[6]**; header[2] += base; header[3], [4], [8] += entry. Then only stores the entry in `cr_g_CharaEntries[robo]` (loaded = 1). **Correction (Oct 27, 2026):** it does not build the skeleton; `cr_Chara_BuildModel` does. |
+| `cr_Chara_BuildModel` (0x80074110) | robo, when one is set up | loads the root joint `**header[2]` (`FUN_801988fc`), attaches its first joint animation (`FUN_80196e0c`), resolves blocks B, C (and D) to joints of the new tree and keeps block A; see "Trailer blocks". |
+| `cr_ModelEntry_LoadAndBuild` (0x800748A8) | story character ("abs") | same relocation, then loads the root joint and animation itself and walks its own joint paths. |
 | `FUN_80073cb8` | weapon ("rel" variant) | same relocation but table at **base + header[6]**; header[2] and header[4] += base; header[8] += base unless −1. Then for i < header[3]: loads the root joint of the i-th 0x10-byte JOBJDesc record at header[2], attaches its animation if present, and walks joint paths from header[8]. |
 
 ## The game keeps its own copy of each archive's entry table
@@ -63,10 +63,10 @@ Example (robo 0, `chara\000.bin`): 55 joints, 18 DObjs, 52 PObjs, 2 CMPR texture
 
 | Block | Where | What is known |
 |---|---|---|
-| A | header[3] | **Limb measurements**: 0x80 bytes = 0x20 floats. Kept at robo+0xB3C, copied to `cr_g_CurrentLimbParams` and read only by the procedural limb code (`FUN_8005aee8`, `FUN_80058ad0`, `FUN_8005299c`, `FUN_8003c4f0`): [0], [1], [0xE] are scaled by the robo scale and used as lengths; [2..7] and [8..13] feed the two symmetric calls of one limb pair, [0xF..0x14] and [0x15..0x1A] the other pair; [0x13] and [0x19] are compared with heights. Exact meaning of each float: open. |
-| B | header[4] | **One joint path ending in `FE`** (same 02/01 bytes as C). `cr_Robo_BuildModel` keeps that joint's material (`jobj->dobj->mobj`) at robo+0xBC0. Usually `02 fe` = joint 1. What the material is used for: open. |
-| C | header[8] | **19 joint roles** - `02` = child, `01` = next sibling, `ff` = end of one path (`ff` alone = no joint). `cr_Robo_BuildModel` stores the joints at robo+0xB44 + 4*role. Roles from robo 0's bind pose (table below). `tools/robo_joints.py` decodes and re-encodes them; re-encoding is byte-identical for all 170 robo entries. |
-| D | header[9] | 0 in every robo. When non-zero `cr_Robo_BuildModel` reads more joint paths from entry + header[9] + 0x60: 6 for robos 0 and 0xD, 2 x 6 for robo 2 (robo+0xB90...). In some `snr_chara` (read by their own loader). |
+| A | header[3] | **Limb measurements**: 0x80 bytes = 0x20 floats. Kept at robo+0xB3C, copied to `cr_g_CurrentCharaLimbParams` and read only by the procedural limb code (`FUN_8005aee8`, `FUN_80058ad0`, `FUN_8005299c`, `FUN_8003c4f0`): [0], [1], [0xE] are scaled by the robo scale and used as lengths; [2..7] and [8..13] feed the two symmetric calls of one limb pair, [0xF..0x14] and [0x15..0x1A] the other pair; [0x13] and [0x19] are compared with heights. Exact meaning of each float: open. |
+| B | header[4] | **One joint path ending in `FE`** (same 02/01 bytes as C). `cr_Chara_BuildModel` keeps that joint's material (`jobj->dobj->mobj`) at robo+0xBC0. Usually `02 fe` = joint 1. What the material is used for: open. |
+| C | header[8] | **19 joint roles** - `02` = child, `01` = next sibling, `ff` = end of one path (`ff` alone = no joint). `cr_Chara_BuildModel` stores the joints at robo+0xB44 + 4*role. Roles from robo 0's bind pose (table below). `tools/robo_joints.py` decodes and re-encodes them; re-encoding is byte-identical for all 170 robo entries. |
+| D | header[9] | 0 in every robo. When non-zero `cr_Chara_BuildModel` reads more joint paths from entry + header[9] + 0x60: 6 for robos 0 and 0xD, 2 x 6 for robo 2 (robo+0xB90...). In some `snr_chara` (read by their own loader). |
 
 When re-importing, `crmodel.py from-dat` copies A/B/C/D unchanged and shifts their header offsets - right as long as the skeleton is unchanged. For a **different skeleton** `tools/make_mod.py` rebuilds B and C from a roles file (`tools/robo_joints.py write_paths`) and can take block A from another robo; see docs/MODDING.md.
 

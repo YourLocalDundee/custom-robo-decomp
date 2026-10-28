@@ -15,21 +15,21 @@ cr_FileSlot_QueueRead = .text:0x80020E44; // type:function scope:global // why: 
 cr_Heap_AllocAligned = .text:0x80023888; // type:function scope:global // why: rounds size up to 32 bytes, finds a block in the list at DAT_8044f444 with room for size + 0x20 header, links it, subtracts from the free total DAT_8044f440, returns header + 0x20
 
 // ---- Model loading. The loaders are load-complete callbacks: they read the finished request from DAT_8044f40c (+8 data, +0x10 slot).
-cr_RoboModel_OnLoaded = .text:0x800747B0; // type:function scope:global // why: relocates a robo/story-character model entry (header words 2,3,4,8 + reloc table words 6,7) then loads the root joint and its first joint animation; address stored as a callback by 0x800A0E64
-cr_CharaModel_OnLoaded = .text:0x800748A8; // type:function scope:global // why: same relocation + root joint + joint animation as cr_RoboModel_OnLoaded, results stored per slot in a 0x58-byte table at 0x8024DFA0; called from 0x800A63C0
+cr_CharaEntry_OnLoaded = .text:0x800747B0; // type:function scope:global // why: relocates a chara model entry (header words 2,3,4,8 + reloc table words 6,7) then loads the root joint and its first joint animation; address stored as a callback by 0x800A0E64
+cr_ModelEntry_LoadAndBuild = .text:0x800748A8; // type:function scope:global // why: same relocation + root joint + joint animation as cr_CharaEntry_OnLoaded, results stored per slot in a 0x58-byte table at 0x8024DFA0; called from 0x800A63C0
 cr_WeaponModel_OnLoaded = .text:0x80073CB8; // type:function scope:global // why: relocates a weapon entry and loads header word 3 JObjDesc records (0x10 each) via the joint loader; see docs/formats/model_entry.md
 
 // ---- Robo model setup (plan.md step 25)
-cr_Robo_BuildModel = .text:0x80074110; // type:function scope:global // why: takes a robo number (falls back to 0 if not loaded); loads the root joint from the stored entry's header[2], walks the 0x13 block C joint paths into robo+0xB44, the block B path to a MObj at +0xBC0, block D paths at +0xB90; keeps block A at +0xB3C
-cr_Robo_SetCurrentPointers = .text:0x80050E74; // type:function scope:global // why: copies fixed offsets of the current robo object (DAT_8044f764) into a set of globals, incl. its block A pointer (+0xB3C) used by the limb code
-cr_Robo_UpdateAll = .text:0x80099EAC; // type:function scope:global // why: loops the 0x18 cr_g_Robos slots; for each with a non-zero update pointer sets cr_g_CurrentRobo / index, calls it, adds 1.0 to +0x6E8
+cr_Chara_BuildModel = .text:0x80074110; // type:function scope:global // why: takes a model number (falls back to 0 if not loaded); loads the root joint from the stored entry's header[2], walks the 0x13 block C joint paths into chara+0xB44, the block B path to a MObj at +0xBC0, block D paths at +0xB90; keeps block A at +0xB3C
+cr_Chara_SetCurrentPointers = .text:0x80050E74; // type:function scope:global // why: copies fixed offsets of the current character object (DAT_8044f764) into a set of globals, incl. its block A pointer (+0xB3C) used by the limb code
+cr_Chara_UpdateAll = .text:0x80099EAC; // type:function scope:global // why: loops the 0x18 cr_g_Charas slots; for each with a non-zero update pointer sets cr_g_CurrentChara / index, calls it, adds 1.0 to +0x6E8
 
 // ---- Math
 cr_Sin16 = .text:0x8001F4C0; // type:function scope:global // why: 16-bit binary angle (0x10000 = full turn); quadrant from bits 0x8000/0x4000, quarter-wave table at 0x801E6584; first quadrant returns table[angle] directly = sine
 cr_Cos16 = .text:0x8001F428; // type:function scope:global // why: same table, first quadrant returns table[0x3FFF - angle] = cosine
-cr_AreaTriggers_Update = .text:0x800B5D4C; // type:function scope:global // why: loops 0x1C records of 0x40 bytes at 0x803BAF28; for records with flag bits 1 and 0x20 tests whether cr_g_Robos[record.robo].pos (x, z) lies inside the min/max box
+cr_AreaBoxes_Update = .text:0x800B5D4C; // type:function scope:global // why: loops 0x1C records of 0x40 bytes at 0x803BAF28; for records with flag bits 1 and 0x20 tests whether cr_g_Charas[record.chara].pos (x, z) lies inside the min/max box
 
-// ---- Matrix stack (current matrix cr_g_CurrentMtx at 0x8031FE68, 3x4) - used to pose robo limbs
+// ---- Matrix stack (current matrix cr_g_CurrentMtx at 0x8031FE68, 3x4) - used to pose character limbs
 cr_Mtx_TranslateX = .text:0x8001DD1C; // type:function scope:global // why: current matrix translation += column 0 (local X axis) * d
 cr_Mtx_TranslateZX = .text:0x8001DB5C; // type:function scope:global // why: translation += column 2 * first arg + column 0 * second arg (local Z, then X)
 cr_Mtx_Mul = .text:0x8001E134; // type:function scope:global // why: current matrix = current * the 3x4 matrix given (rows combined element by element)
@@ -38,6 +38,6 @@ cr_Mtx_Push = .text:0x8001D814; // type:function scope:global // why: copies the
 cr_Mtx_Pop = .text:0x8001D694; // type:function scope:global // why: stack pointer -0x30, depth -1, current matrix reloaded from the stack
 cr_Sqrt = .text:0x80169424; // type:function scope:global // why: thin wrapper (calls FUN_80169168); used as the square root when normalising vectors (x*x + y*y, 1/result), 51 callers
 // ---- Robo limb posing (block A = limb measurements, see docs/formats/model_entry.md)
-cr_Robo_PoseLimbs = .text:0x8005AEE8; // type:function scope:global // why: poses all four limbs: two calls of cr_Robo_PoseLimbA (block A floats 2.. and 8..) and two of cr_Robo_PoseLimbB (0xF.. and 0x15..), with block A [0], [1], [0xE] as offsets between them
-cr_Robo_PoseLimbA = .text:0x8005A09C; // type:function scope:global // why: builds one limb on the matrix stack: translate by block A lengths x limb_scale, rotate to a direction vector and two cos/sin joint angles, stores bone matrices, returns the end position
-cr_Robo_PoseLimbB = .text:0x80059790; // type:function scope:global // why: the second limb kind, same pattern with block A floats 0xF.. / 0x15.. (called twice by cr_Robo_PoseLimbs)
+cr_Chara_PoseLimbs = .text:0x8005AEE8; // type:function scope:global // why: poses all four limbs: two calls of cr_Chara_PoseLimbA (block A floats 2.. and 8..) and two of cr_Chara_PoseLimbB (0xF.. and 0x15..), with block A [0], [1], [0xE] as offsets between them
+cr_Chara_PoseLimbA = .text:0x8005A09C; // type:function scope:global // why: builds one limb on the matrix stack: translate by block A lengths x limb_scale, rotate to a direction vector and two cos/sin joint angles, stores bone matrices, returns the end position
+cr_Chara_PoseLimbB = .text:0x80059790; // type:function scope:global // why: the second limb kind, same pattern with block A floats 0xF.. / 0x15.. (called twice by cr_Chara_PoseLimbs)

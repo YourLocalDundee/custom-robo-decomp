@@ -69,22 +69,22 @@ typedef struct cr_FileSlot {
 // ---- Robo models (docs/formats/model_entry.md) -------------------------------------------------------------
 
 // ASSERT_SIZE(cr_ModelDesc, 0x10)         JOBJDesc record (HSDLib HSD_JOBJDesc; 0x10 stride in the weapon loader)
-// ASSERT_SIZE(cr_RoboEntryHeader, 0x40)   header of a chara.BIN entry
+// ASSERT_SIZE(cr_CharaEntryHeader, 0x40)   header of a chara.BIN entry
 
 /// What header[2] leads to (via one more pointer): the root joint and its animations.
 typedef struct cr_ModelDesc {
-    /* +0 */ HSD_Joint* root;            // loaded by FUN_801988fc in cr_Robo_BuildModel
+    /* +0 */ HSD_Joint* root;            // loaded by FUN_801988fc in cr_Chara_BuildModel
     /* +4 */ void* joint_anims;          // if non-null, its first entry is attached by FUN_80196e0c
     /* +8 */ void* material_anims;
     /* +C */ void* shape_anims;
 } cr_ModelDesc;
-// ASSERT_SIZE(cr_RoboEntrySlot, 0x8)      8-byte stride in cr_RoboModel_OnLoaded / cr_Robo_BuildModel
+// ASSERT_SIZE(cr_CharaEntrySlot, 0x8)      8-byte stride in cr_CharaEntry_OnLoaded / cr_Chara_BuildModel
 
-/// Header of a robo model entry after cr_RoboModel_OnLoaded relocated it (pointers are then real addresses).
-typedef struct cr_RoboEntryHeader {
+/// Header of a chara.bin-style model entry after cr_CharaEntry_OnLoaded relocated it (pointers are then real addresses).
+typedef struct cr_CharaEntryHeader {
     /* +00 */ u32 data_base;          // always 0x40; added to every reloc slot
     /* +04 */ u32 trailer_end;        // file offset where blocks A/B/C end
-    /* +08 */ cr_ModelDesc** model_desc; // -> pointer -> cr_ModelDesc (cr_Robo_BuildModel dereferences 3 times)
+    /* +08 */ cr_ModelDesc** model_desc; // -> pointer -> cr_ModelDesc (cr_Chara_BuildModel dereferences 3 times)
     /* +0C */ f32* limb_params;       // block A: 0x20 floats for the procedural limb code (FUN_8005aee8 & co)
     /* +10 */ u8* material_path;      // block B: one joint path ending in 0xFE; that joint's MObj is kept
     /* +14 */ u32 unk_14;             // 1 in every robo
@@ -93,14 +93,14 @@ typedef struct cr_RoboEntryHeader {
     /* +20 */ u8* joint_paths;        // block C: 0x13 role paths (02 child, 01 next, FF end); see tools/robo_joints.py
     /* +24 */ u32 extra_paths;        // block D offset or 0 (0 in every robo)
     /* +28 */ u32 unk_28[6];          // 0 in every entry
-} cr_RoboEntryHeader;
+} cr_CharaEntryHeader;
 
-/// One loaded robo model (100 of them at 0x8024DC80, indexed by robo number).
-typedef struct cr_RoboEntrySlot {
-    /* +0 */ u16 users;               // +1 in cr_Robo_BuildModel
-    /* +2 */ u16 loaded;              // set to 1 by cr_RoboModel_OnLoaded; cr_Robo_BuildModel falls back to robo 0 if 0
-    /* +4 */ cr_RoboEntryHeader* entry;
-} cr_RoboEntrySlot;
+/// One loaded chara model entry (100 slots at 0x8024DC80, indexed by number).
+typedef struct cr_CharaEntrySlot {
+    /* +0 */ u16 users;               // +1 in cr_Chara_BuildModel
+    /* +2 */ u16 loaded;              // set to 1 by cr_CharaEntry_OnLoaded; cr_Chara_BuildModel falls back to entry 0 if 0
+    /* +4 */ cr_CharaEntryHeader* entry;
+} cr_CharaEntrySlot;
 
 // ASSERT_SIZE(cr_MotionSet, 0x22)      sets are 0x22 bytes apart (0x8021D364, 0x8021D386, ...)
 
@@ -129,15 +129,14 @@ typedef struct cr_MotionSet {
 
 // ---- Robo objects ------------------------------------------------------------------------------------------
 
-// ASSERT_SIZE(cr_Robo, 0x19A8)   0x66A-word stride in FUN_80099eac; 24 of them = 0x267C0 = dtk's object at 0x803BFE88
+// ASSERT_SIZE(cr_Chara, 0x19A8)   0x66A-word stride in FUN_80099eac; 24 of them = 0x267C0 = dtk's object at 0x803BFE88
 
-/// One robo object (24 slots at 0x803BFE88, cr_g_Robos). OPEN whether these are the battle robos, the story-mode scene
-/// actors, or both: script commands, area triggers and a story flag (robo 0 -> 0xD) use them, but ground snapping, a position
-/// trail and robos targeting each other also fit battle; motion sets / height / root scale changes had no visible effect in battle
-/// (plan.md steps 29, 39).
+/// A character object (24 slots at 0x803BFE88, cr_g_Charas). Its motions are the game's walk / run / talk_* / battle_in
+/// motions (cr_MotionSet, real names), scripts and area boxes drive it, its pos.y follows the ground: characters that walk
+/// and talk, not battle robos (plan.md steps 39-41). "Chara" is the game's own word (chara.bin, snr_chara, CHAR_SCRIPT).
 /// Fields named only where code shows them; unk_ = not known yet.
-typedef struct cr_Robo {
-    /* +0000 */ void (*update)(void);      // non-zero = slot in use; called every frame by cr_Robo_UpdateAll
+typedef struct cr_Chara {
+    /* +0000 */ void (*update)(void);      // non-zero = slot in use; called every frame by cr_Chara_UpdateAll
     /* +0004 */ s32 unk_0004;               // auto: 5 uses in 3 functions
     /* +0008 */ s32 unk_0008;               // auto: 11 uses in 2 functions
     /* +000C */ void* unk_000c;             // auto: 2 uses in 1 functions
@@ -180,14 +179,14 @@ typedef struct cr_Robo {
     /* +0364 */ f32 unk_0364;               // auto: 2 uses in 1 functions
     /* +0368 */ f32 unk_0368;               // auto: 2 uses in 1 functions
     /* +036C */ u8 unk_036c[0x54];
-    /* +03C0 */ f32 limb_scale;            // 1.0 for every robo (FUN_800ba488); multiplies limb_params in the limb code
+    /* +03C0 */ f32 limb_scale;            // 1.0 for every character (FUN_800ba488); multiplies limb_params in the limb code
     /* +03C4 */ u8 unk_03c4[0x10];
     /* +03D4 */ u32 flags;                 // bit 0x40000000 set by FUN_800cf5ec
     /* +03D8 */ u32 unk_03d8;               // auto: 1 uses in 1 functions
     /* +03DC */ u32 unk_03dc;               // auto: 1 uses in 1 functions
     /* +03E0 */ u32 unk_03e0;               // auto: 1 uses in 1 functions
     /* +03E4 */ u8 unk_03e4[0x10];
-    /* +03F4 */ u16 number;                // robo number (chara entries 5N..5N+4); cr_Robo_BuildModel
+    /* +03F4 */ u16 number;                // model number: index into cr_g_CharaEntries / cr_g_CharaYOffset / cr_g_CharaMotionSets; cr_Chara_BuildModel
     /* +03F6 */ u8 unk_03f6[0x5];
     /* +03FB */ u8 unk_03fb;                // auto: 1 uses in 1 functions
     /* +03FC */ u8 unk_03fc[0x1];
@@ -227,9 +226,9 @@ typedef struct cr_Robo {
     /* +06DC */ u32 unk_06dc;               // auto: 2 uses in 2 functions
     /* +06E0 */ s32 unk_06e0;               // auto: 1 uses in 1 functions
     /* +06E4 */ u32 unk_06e4;               // auto: 3 uses in 3 functions
-    /* +06E8 */ f32 frame_count;           // += 1.0 after every update (cr_Robo_UpdateAll)
+    /* +06E8 */ f32 frame_count;           // += 1.0 after every update (cr_Chara_UpdateAll)
     /* +06EC */ u8 unk_06ec[0x8];
-    /* +06F4 */ cr_MotionSet* motion_set;  // = cr_g_RoboMotionSets[number] (cr_Robo_BuildModel, FUN_800cf5ec)
+    /* +06F4 */ cr_MotionSet* motion_set;  // = cr_g_CharaMotionSets[number] (cr_Chara_BuildModel, FUN_800cf5ec)
     /* +06F8 */ f32 unk_06f8;               // auto: 15 uses in 2 functions
     /* +06FC */ f32 unk_06fc;               // auto: 15 uses in 2 functions
     /* +0700 */ f32 unk_0700;               // auto: 2 uses in 1 functions
@@ -385,19 +384,19 @@ typedef struct cr_Robo {
     /* +0A38 */ u8 unk_0a38[0x101];
     /* +0B39 */ u8 unk_0b39;                // auto: 4 uses in 2 functions
     /* +0B3A */ u8 unk_0b3a[0x2];
-    /* +0B3C */ f32* limb_params;          // model block A (cr_Robo_BuildModel)
-    /* +0B40 */ HSD_JObj* root_joint;      // loaded from the model (cr_Robo_BuildModel)
+    /* +0B3C */ f32* limb_params;          // model block A (cr_Chara_BuildModel)
+    /* +0B40 */ HSD_JObj* root_joint;      // loaded from the model (cr_Chara_BuildModel)
     /* +0B44 */ HSD_JObj* role_joints[19]; // model block C roles: head, arms, legs... (tools/robo_joints.py ROLE_NAMES)
-    /* +0B90 */ HSD_JObj* extra_joints[12];// model block D paths (robos 0, 2, 0xD only; 0 in every robo model)
+    /* +0B90 */ HSD_JObj* extra_joints[12];// model block D paths (numbers 0, 2, 0xD only; block D is 0 in every chara.bin robo model)
     /* +0BC0 */ HSD_MObj* material;        // material of the model block B joint
     /* +0BC4 */ u16 has_extra_paths;       // 1 if the model has block D
     /* +0BC6 */ u8 unk_0bc6;               // set to 0 with block D
-    /* +0BC7 */ u8 extra_paths_mode;       // 1 (robos 0, 0xD) or 2 (robo 2)
+    /* +0BC7 */ u8 extra_paths_mode;       // 1 (numbers 0, 0xD) or 2 (number 2)
     /* +0BC8 */ Vec3 vecs_0bc8[48];      // 0x240 bytes, read as rows of 6 Vec3 (stride 0x48 + 0xC): 101 float accesses; 6-per-row like extra_joints - meaning open
     /* +0E08 */ u32 unk_0e08;               // auto: 4 uses in 1 functions
     /* +0E0C */ u32 unk_0e0c;               // auto: 4 uses in 1 functions
     /* +0E10 */ u32 unk_0e10;               // auto: 4 uses in 1 functions
-    /* +0E14 */ f32 height;                // = cr_g_RoboHeight[number]; added to pos.y in FUN_8002fefc
+    /* +0E14 */ f32 y_offset;              // = cr_g_CharaYOffset[number]; added to pos.y in FUN_8002fefc (purpose open)
     /* +0E18 */ u8 unk_0e18[0x6B4];
     /* +14CC */ f32 unk_14cc;               // auto: 1 uses in 1 functions
     /* +14D0 */ f32 unk_14d0;               // auto: 1 uses in 1 functions
@@ -533,9 +532,9 @@ typedef struct cr_Robo {
     /* +1914 */ u8 unk_1914[0x20];
     /* +1934 */ u32 unk_1934;              // script value (FUN_800cf5ec)
     /* +1938 */ s32 unk_1938;               // auto: 6 uses in 2 functions
-    /* +193C */ s16 scene_id;            // this robo's ID in a scene: other robos' target_scene_id is compared with it; script value (FUN_800cf5ec)
-    /* +193E */ u16 build_number;        // robo number passed to cr_Robo_BuildModel; copied to +0x1940; compared with 2 and with DAT_8044eb00
-    /* +1940 */ u16 built_number;        // last number built: cr_Robo_BuildModel runs again when build_number != built_number, then they are synced
+    /* +193C */ s16 id;            // an ID other characters' target_id is compared with; script value (FUN_800cf5ec)
+    /* +193E */ u16 build_number;        // model number passed to cr_Chara_BuildModel; copied to +0x1940; compared with 2 and with DAT_8044eb00
+    /* +1940 */ u16 built_number;        // last number built: cr_Chara_BuildModel runs again when build_number != built_number, then they are synced
     /* +1942 */ u16 flags_1942;                              // bit flags only (tested & 1, 4, 8; set | 0x20; cleared & 0xfff7) - meaning of bits open
     /* +1944 */ u32 flags_1944;          // bit flags (| 1, | 2, | 4; & ~4) - meaning of bits open
     /* +1948 */ u32 flags2;                // bit 0x20 cleared by FUN_800cf5ec
@@ -558,8 +557,8 @@ typedef struct cr_Robo {
     /* +198F */ u8 unk_198f;
     /* +1990 */ s16 countdown_1990;      // tested == 0, decremented, loaded from script data
     /* +1992 */ u8 unk_1992[0x2];
-    /* +1994 */ u16 action;              // low byte selects behaviour in a switch, high byte tested separately; copied from script data
-    /* +1996 */ s16 target_scene_id;     // compared with other robos' scene_id (FUN_8009aec4)
+    /* +1994 */ u16 unk_1994;             // low byte selects a branch of a switch, high byte tested separately; copied from script data
+    /* +1996 */ s16 target_id;     // compared with other characters' id (FUN_8009aec4)
     /* +1998 */ u8 unk_1998[0x1];
     /* +1999 */ u8 unk_1999;                // auto: 1 uses in 1 functions
     /* +199A */ u8 unk_199a;                // auto: 1 uses in 1 functions
@@ -573,21 +572,21 @@ typedef struct cr_Robo {
     /* +19A2 */ u8 unk_19a2;                // auto: 3 uses in 1 functions
     /* +19A3 */ u8 unk_19a3;                // auto: 3 uses in 1 functions
     /* +19A4 */ u32 unk_19a4;               // auto: 5 uses in 3 functions
-} cr_Robo;
+} cr_Chara;
 
 // ---- Area triggers -------------------------------------------------------------------------------------------
 
-// ASSERT_SIZE(cr_AreaTrigger, 0x40)   0x10-word stride in cr_AreaTriggers_Update; 0x1C of them
+// ASSERT_SIZE(cr_AreaBox, 0x40)   0x10-word stride in cr_AreaBoxes_Update; 0x1C of them
 
-/// A box that reacts when a given robo is inside it (story mode areas, most likely). cr_g_AreaTriggers[28].
-typedef struct cr_AreaTrigger {
-    /* +00 */ u32 flags;                 // bit 1: in use; bit 0x20: test the robo position (cr_AreaTriggers_Update)
-    /* +04 */ Vec3 min;                  // robo pos.x / pos.z compared against min.x / min.z
+/// A box tested against one character's position (cr_AreaBoxes_Update). cr_g_AreaBoxes[28]. What happens when inside: open.
+typedef struct cr_AreaBox {
+    /* +00 */ u32 flags;                 // bit 1: in use; bit 0x20: test the character position (cr_AreaBoxes_Update)
+    /* +04 */ Vec3 min;                  // the character's pos.x / pos.z compared against min.x / min.z
     /* +10 */ Vec3 max;                  // ... and max.x / max.z
     /* +1C */ u8 unk_1c[0xE];
-    /* +2A */ u16 robo;                  // index into cr_g_Robos of the robo tested
+    /* +2A */ u16 chara;                 // index into cr_g_Charas of the character tested
     /* +2C */ u8 unk_2c[0x14];
-} cr_AreaTrigger;
+} cr_AreaBox;
 
 // ---- Prototypes of our descriptive functions (symbols/descriptive.txt) -----------------------------------
 
@@ -598,12 +597,12 @@ u32 cr_Archive_GetEntrySize(s32 archive, u16 entry);
 cr_FileSlot* cr_Archive_OpenEntry(s32 archive, u16 entry);
 void cr_FileSlot_QueueRead(cr_FileSlot* slot, void* buffer);
 void* cr_Heap_AllocAligned(u32 size);
-void cr_Robo_BuildModel(s32 robo);
-void cr_Robo_SetCurrentPointers(void);
-void cr_Robo_UpdateAll(void);
+void cr_Chara_BuildModel(s32 number);
+void cr_Chara_SetCurrentPointers(void);
+void cr_Chara_UpdateAll(void);
 f64 cr_Sin16(u32 angle);
 f64 cr_Cos16(u32 angle);
-void cr_AreaTriggers_Update(void);
+void cr_AreaBoxes_Update(void);
 void cr_Mtx_TranslateX(f64 d);
 void cr_Mtx_TranslateZX(f64 z, f64 x);
 void cr_Mtx_Mul(f32* m);

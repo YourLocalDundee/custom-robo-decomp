@@ -71,14 +71,15 @@ python -I tools\robo_swap.py 0 7      # robo 0 (Ray 01) <-> robo 7
 ```
 
 It swaps the bodies **and** two per-robo values the game looks up by robo number: the **motion set**
-(`cr_g_RoboMotionSets`) and **height value** (`cr_g_RoboHeight`, added to the robo's Y position). Tested: swapping the
+(`cr_g_CharaMotionSets`) and **Y offset** (`cr_g_CharaYOffset`, added to the character's Y position). Both belong to the
+story-mode **field characters** (their 17 motions are wait / walk / run / talk_* / battle_in..out, plan.md step 40). Tested: swapping the
 motion set does **not** change battle movement. Whether these tables only matter for story-mode scenes, and what picks
 battle movement, is still open (plan.md step 39). The model's own animation travels with the model anyway.
 
 | Option | Does |
 |---|---|
-| `--model-only` | swap just the bodies (animation set and height stay with the robo number) |
-| `--keep-motion` | swap bodies + height, keep the animation sets with the robo number |
+| `--model-only` | swap just the bodies (motion set and Y offset stay with the number) |
+| `--keep-motion` | swap bodies + Y offset, keep the animation sets with the robo number |
 | `--size X` | sets the root joint scale - **has no effect in game** (overridden at run time; plan.md step 29) |
 
 **Size.** The game has no per-robo size setting: the size factor the limb code uses is 1.0 for every robo and every
@@ -87,7 +88,7 @@ swapped models to X. **Tested: no effect** - the root scale is overridden at run
 Bigger robos need scaled vertices or another hook; open.
 
 Community tests so far (Oct 27, 2026; plan.md step 29): bodies swap and fight fine (also with different skeletons);
-with bodies only, a body runs with the slot's animations; changing `cr_g_RoboHeight` does **not** change the size.
+with bodies only, a body runs with the slot's animations; changing `cr_g_CharaYOffset` does **not** change the size.
 
 ## 3. Build it
 
