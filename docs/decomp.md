@@ -95,3 +95,7 @@ Library structs and prototypes come from Melee's headers (`ParseHeaders.java`), 
 ## Real-name evidence (Oct 27, 2026)
 
 `tools/name_evidence.py` lists every name the game itself still holds (enum name tables, identifier strings, debug formats, source files) with the code that uses them: `docs/name_evidence.md`, `docs/name_tables.tsv`. Rule: use these before any `cr_` name (CONTRIBUTING.md). First result: the motion name table (0x80206DB0) gives the 17 field-character motion slots their real names (plan.md step 40).
+
+## Game sequences (Oct 27, 2026)
+
+The game runs one sequence at a time (`cr_Seq`: SEQ_LOGO, SEQ_MOVIE, SEQ_TITLE, SEQ_FIELD, SEQ_BATTLE, ... - the game's own names). `cr_g_SeqCurrent` picks the handlers in five tables: `cr_g_SeqEnter` / `cr_g_SeqLeave` on a change, `cr_g_SeqFrameA/B/C` every frame. Handlers are named `cr_SEQ_BATTLE_Enter` etc. To find a mode's code, start at its handlers. plan.md step 42.

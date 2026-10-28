@@ -35,11 +35,11 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8000805C	FUN_8000805c	184	1	5				
 8000860C	FUN_8000860c	57	1	0				
 8000878C	FUN_8000878c	98	1	6	~file-io,~input,~memory,~render,~video			
-80008C00	FUN_80008c00	10	0	1				
-80008C20	FUN_80008c20	9	0	0				
-80008C24	FUN_80008c24	9	0	0				
-80008C28	FUN_80008c28	9	0	0				
-80008C2C	FUN_80008c2c	17	0	4	~camera,~math			
+80008C00	cr_SEQ_ILLUSTRATED_BOOK_Leave	10	0	1				
+80008C20	cr_SEQ_ILLUSTRATED_BOOK_Enter	9	0	0				
+80008C24	cr_SEQ_ILLUSTRATED_BOOK_FrameC	9	0	0				
+80008C28	cr_SEQ_ILLUSTRATED_BOOK_FrameB	9	0	0				
+80008C2C	cr_SEQ_ILLUSTRATED_BOOK_FrameA	17	0	4	~camera,~math			
 80008C90	FUN_80008c90	10	0	0				
 80008CB0	FUN_80008cb0	24	0	4	~render			
 80008DC0	FUN_80008dc0	16	0	2	~file-io			
@@ -54,21 +54,21 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800095E8	FUN_800095e8	10	1	0				
 800095F4	FUN_800095f4	91	1	8				
 80009A90	FUN_80009a90	462	1	12				
-8000A9B8	FUN_8000a9b8	9	0	0				
-8000A9BC	FUN_8000a9bc	9	0	0				
-8000A9C0	FUN_8000a9c0	9	0	0				
-8000A9C4	FUN_8000a9c4	9	0	0				
-8000A9C8	FUN_8000a9c8	15	0	2				
-8000AA20	FUN_8000aa20	10	0	1				
-8000AA44	FUN_8000aa44	9	0	0				
-8000AA48	FUN_8000aa48	9	0	0				
-8000AA4C	FUN_8000aa4c	9	0	0				
-8000AA50	FUN_8000aa50	22	0	6	~camera,~math			
-8000AAD8	FUN_8000aad8	9	0	0				
-8000AADC	FUN_8000aadc	9	0	0				
-8000AAE0	FUN_8000aae0	9	0	0				
-8000AAE4	FUN_8000aae4	9	0	0				
-8000AAE8	FUN_8000aae8	128	0	13				
+8000A9B8	cr_SEQ_ENDING_Leave	9	0	0				
+8000A9BC	cr_SEQ_ENDING_Enter	9	0	0				
+8000A9C0	cr_SEQ_ENDING_FrameC	9	0	0				
+8000A9C4	cr_SEQ_ENDING_FrameB	9	0	0				
+8000A9C8	cr_SEQ_ENDING_FrameA	15	0	2				
+8000AA20	cr_SEQ_MENU_Leave	10	0	1				
+8000AA44	cr_SEQ_MENU_Enter	9	0	0				
+8000AA48	cr_SEQ_MENU_FrameC	9	0	0				
+8000AA4C	cr_SEQ_MENU_FrameB	9	0	0				
+8000AA50	cr_SEQ_MENU_FrameA	22	0	6	~camera,~math			
+8000AAD8	cr_SEQ_NAME_ENTRY_Leave	9	0	0				
+8000AADC	cr_SEQ_NAME_ENTRY_Enter	9	0	0				
+8000AAE0	cr_SEQ_NAME_ENTRY_FrameC	9	0	0				
+8000AAE4	cr_SEQ_NAME_ENTRY_FrameB	9	0	0				
+8000AAE8	cr_SEQ_NAME_ENTRY_FrameA	128	0	13				
 8000AFBC	FUN_8000afbc	46	0	0				
 8000B100	FUN_8000b100	16	0	0				
 8000B144	FUN_8000b144	41	0	0				
@@ -82,11 +82,11 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8000CB64	FUN_8000cb64	105	1	3				
 8000CF80	FUN_8000cf80	10	0	1				
 8000CFAC	FUN_8000cfac	266	1	8				
-8000D908	FUN_8000d908	14	0	3				
-8000D944	FUN_8000d944	9	0	0				
-8000D948	FUN_8000d948	9	0	0				
-8000D94C	FUN_8000d94c	10	0	1	~render			
-8000D96C	FUN_8000d96c	29	0	8	~camera,~math			
+8000D908	cr_SEQ_MODE_SELECTOR_Leave	14	0	3				
+8000D944	cr_SEQ_MODE_SELECTOR_Enter	9	0	0				
+8000D948	cr_SEQ_MODE_SELECTOR_FrameC	9	0	0				
+8000D94C	cr_SEQ_MODE_SELECTOR_FrameB	10	0	1	~render			
+8000D96C	cr_SEQ_MODE_SELECTOR_FrameA	29	0	8	~camera,~math			
 8000DA5C	FUN_8000da5c	27	0	1				
 8000DB94	FUN_8000db94	27	0	1				
 8000DCCC	FUN_8000dccc	27	0	1				
@@ -99,62 +99,62 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8000E64C	FUN_8000e64c	258	0	1				
 8000F230	FUN_8000f230	186	0	1				
 8000F7A4	FUN_8000f7a4	35	0	1				
-8000F900	FUN_8000f900	34	0	3				
-8000FA54	FUN_8000fa54	24	0	0				
-8000FBC0	FUN_8000fbc0	35	0	8	math,render,~camera,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
-8000FCC8	FUN_8000fcc8	9	0	0				
-8000FCCC	FUN_8000fccc	43	0	7	~camera,~file-io,~math			
-8000FDEC	FUN_8000fdec	58	0	12				
-80010018	FUN_80010018	9	0	0				
-8001001C	FUN_8001001c	50	0	14	math,render,~camera,~debug-print,~light,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
-800101EC	FUN_800101ec	12	0	1	~math			
-80010220	FUN_80010220	513	0	50	~camera,~debug-print,~file-io,~math,~memcard,~memory,~model,~render,~video			
+8000F900	cr_SEQ_STAGE_SELECTOR_Leave	35	0	3				
+8000FA54	cr_SEQ_STAGE_SELECTOR_Enter	24	0	0				
+8000FBC0	cr_SEQ_STAGE_SELECTOR_FrameC	35	0	8	math,render,~camera,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
+8000FCC8	cr_SEQ_STAGE_SELECTOR_FrameB	9	0	0				
+8000FCCC	cr_SEQ_STAGE_SELECTOR_FrameA	43	0	7	~camera,~file-io,~math			
+8000FDEC	cr_SEQ_BATTLE_Leave	58	0	12				
+80010018	cr_SEQ_BATTLE_Enter	9	0	0				
+8001001C	cr_SEQ_BATTLE_FrameC	50	0	14	math,render,~camera,~debug-print,~light,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
+800101EC	cr_SEQ_BATTLE_FrameB	12	0	1	~math			
+80010220	cr_SEQ_BATTLE_FrameA	513	0	50	~camera,~debug-print,~file-io,~math,~memcard,~memory,~model,~render,~video			
 80011678	FUN_80011678	121	1	7				
 800119A0	FUN_800119a0	47	2	0				
 80011AC0	FUN_80011ac0	105	1	4				
 80011E08	FUN_80011e08	67	3	0				
-80011FB8	FUN_80011fb8	9	0	0				
-80011FBC	FUN_80011fbc	23	0	4	~memory			
-80012070	FUN_80012070	9	0	0				
-80012074	FUN_80012074	9	0	0				
-80012078	FUN_80012078	9	0	0				
-8001207C	FUN_8001207c	19	0	6				
-800120D8	FUN_800120d8	202	0	25	~anim,~camera,~math,~model,~video			
-800129F8	FUN_800129f8	600	0	24	math,render,~camera,~light,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
-80014A64	FUN_80014a64	239	0	12	math,~camera	jobj.h		s_jobj_80450393,s_jobj_h_8045038c
+80011FB8	cr_SEQ_MEMORY_CARD_Leave	9	0	0				
+80011FBC	cr_SEQ_MEMORY_CARD_Enter	23	0	4	~memory			
+80012070	cr_SEQ_MEMORY_CARD_FrameC	9	0	0				
+80012074	cr_SEQ_MEMORY_CARD_FrameB	9	0	0				
+80012078	cr_SEQ_MEMORY_CARD_FrameA	9	0	0				
+8001207C	cr_SEQ_SCENARIO_Leave	19	0	6				
+800120D8	cr_SEQ_SCENARIO_Enter	202	0	25	~anim,~camera,~math,~model,~video			
+800129F8	cr_SEQ_SCENARIO_FrameC	600	0	24	math,render,~camera,~light,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
+80014A64	cr_SEQ_SCENARIO_FrameB	239	0	12	math,~camera	jobj.h		s_jobj_80450393,s_jobj_h_8045038c
 80015388	FUN_80015388	101	1	8	camera,~math	jobj.h		s_jobj_80450393,s_jobj_h_8045038c
-8001566C	FUN_8001566c	18	0	1				
-800156DC	FUN_800156dc	38	0	6				
-800157F8	FUN_800157f8	11	0	2	~camera,~math,~model			
-8001581C	FUN_8001581c	39	0	6	math,render,~camera,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
-8001596C	FUN_8001596c	10	0	1	~math			
-8001598C	FUN_8001598c	75	0	7	~file-io			
-80015D3C	FUN_80015d3c	9	0	0				
-80015D40	FUN_80015d40	9	0	0				
-80015D44	FUN_80015d44	9	0	0				
-80015D48	FUN_80015d48	9	0	0				
-80015D4C	FUN_80015d4c	20	0	1				
+8001566C	cr_SEQ_SCENARIO_FrameA	18	0	1				
+800156DC	cr_SEQ_CUSTOMIZE_Leave	38	0	6				
+800157F8	cr_SEQ_CUSTOMIZE_Enter	11	0	2	~camera,~math,~model			
+8001581C	cr_SEQ_CUSTOMIZE_FrameC	39	0	6	math,render,~camera,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
+8001596C	cr_SEQ_CUSTOMIZE_FrameB	10	0	1	~math			
+8001598C	cr_SEQ_CUSTOMIZE_FrameA	75	0	7	~file-io			
+80015D3C	cr_SEQ_OPTION_Leave	9	0	0				
+80015D40	cr_SEQ_OPTION_Enter	9	0	0				
+80015D44	cr_SEQ_OPTION_FrameC	9	0	0				
+80015D48	cr_SEQ_OPTION_FrameB	9	0	0				
+80015D4C	cr_SEQ_OPTION_FrameA	20	0	1				
 80015E04	FUN_80015e04	10	1	0				
 80015E18	FUN_80015e18	10	3	0				
 80015E2C	FUN_80015e2c	67	0	2				
 80016064	FUN_80016064	10	0	0				
-80016074	FUN_80016074	9	0	0				
-80016078	FUN_80016078	9	0	0				
-8001607C	FUN_8001607c	9	0	0				
-80016080	FUN_80016080	9	0	0				
-80016084	FUN_80016084	9	0	0				
-80016088	FUN_80016088	40	0	2				
-800161B8	FUN_800161b8	21	0	4	~anim,~camera,~math,~model			
-80016244	FUN_80016244	26	0	7	math,render,~camera,~debug-print,~light,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
-80016304	FUN_80016304	9	0	0				
-80016308	FUN_80016308	71	0	8	~anim,~memcard,~memory,~model			
+80016074	cr_SEQ_FIELD_Leave	9	0	0				
+80016078	cr_SEQ_FIELD_Enter	9	0	0				
+8001607C	cr_SEQ_FIELD_FrameC	9	0	0				
+80016080	cr_SEQ_FIELD_FrameB	9	0	0				
+80016084	cr_SEQ_FIELD_FrameA	9	0	0				
+80016088	cr_SEQ_TITLE_Leave	40	0	2				
+800161B8	cr_SEQ_TITLE_Enter	21	0	4	~anim,~camera,~math,~model			
+80016244	cr_SEQ_TITLE_FrameC	26	0	7	math,render,~camera,~debug-print,~light,~model,~video	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
+80016304	cr_SEQ_TITLE_FrameB	9	0	0				
+80016308	cr_SEQ_TITLE_FrameA	73	0	8	~anim,~memcard,~memory,~model			
 800165D4	FUN_800165d4	10	0	1				
 80016600	FUN_80016600	65	2	10	~anim,~memory,~model			s_scene_data_801b69b4
-80016820	FUN_80016820	9	0	0				
-80016824	FUN_80016824	13	0	4	render			
-80016868	FUN_80016868	181	0	25	file-io,render,video,~math	seq_movie.c		s_Fail_to_decode_video_data_801b69cb,s_seq_movie_c_801b69bf
-80017100	FUN_80017100	14	0	0				
-80017128	FUN_80017128	121	0	19	file-io,memory,render,video	seq_movie.c	thpdemo_opening_a.thp	s_Can_t_allocate_the_memory_801b6a0e,s_THPSimpleOpen_fail_801b69fb,s_THPSimplePreLoad_fail_801b6a29,s_seq_movie_c_801b69bf,s_thpdemo_opening_a_thp_801b69e5
+80016820	cr_SEQ_MOVIE_Leave	9	0	0				
+80016824	cr_SEQ_MOVIE_Enter	13	0	4	render			
+80016868	cr_SEQ_MOVIE_FrameC	182	0	25	file-io,render,video,~math	seq_movie.c		s_Fail_to_decode_video_data_801b69cb,s_seq_movie_c_801b69bf
+80017100	cr_SEQ_MOVIE_FrameB	14	0	0				
+80017128	cr_SEQ_MOVIE_FrameA	121	0	19	file-io,memory,render,video	seq_movie.c	thpdemo_opening_a.thp	s_Can_t_allocate_the_memory_801b6a0e,s_THPSimpleOpen_fail_801b69fb,s_THPSimplePreLoad_fail_801b6a29,s_seq_movie_c_801b69bf,s_thpdemo_opening_a_thp_801b69e5
 80017668	FUN_80017668	44	0	7	~memory			
 800177F0	FUN_800177f0	142	1	3	memory			
 80017E10	FUN_80017e10	95	1	5	file-io			
@@ -164,16 +164,16 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80018C34	FUN_80018c34	161	1	32	math,render			
 800191E8	FUN_800191e8	33	1	3	video,~input,~memory			
 800192C4	FUN_800192c4	86	0	1				s_Progressive_scan_mode_801e1334
-80019568	FUN_80019568	94	0	12	render,video			
-80019824	FUN_80019824	9	0	0				
+80019568	cr_SEQ_LOGO_Leave	94	0	12	render,video			
+80019824	cr_SEQ_LOGO_Enter	9	0	0				
 80019828	FUN_80019828	46	1	1				
 800199AC	FUN_800199ac	17	0	0				
 800199F0	FUN_800199f0	28	0	0				
 80019AF0	FUN_80019af0	141	1	0				
 80019E84	FUN_80019e84	80	1	16	~anim,~debug-print,~file-io,~memory,~model			s_scene_data_801b69b4
-8001A240	FUN_8001a240	247	0	22	math,render			
-8001AA98	FUN_8001aa98	9	0	0				
-8001AA9C	FUN_8001aa9c	188	0	26	render,video,~anim,~file-io,~input,~memory,~model			s_Would_you_like_to_display_801e1274
+8001A240	cr_SEQ_LOGO_FrameC	247	0	22	math,render			
+8001AA98	cr_SEQ_LOGO_FrameB	9	0	0				
+8001AA9C	cr_SEQ_LOGO_FrameA	188	0	26	render,video,~anim,~file-io,~input,~memory,~model			s_Would_you_like_to_display_801e1274
 8001B1A0	FUN_8001b1a0	12	5	0				
 8001B1D4	FUN_8001b1d4	32	1	1				
 8001B29C	FUN_8001b29c	36	2	0				
@@ -364,15 +364,15 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8003491C	FUN_8003491c	72	0	2	~math			
 80034BF0	FUN_80034bf0	162	0	6	~math			
 800351D4	FUN_800351d4	54	0	4	math			
-800353B8	FUN_800353b8	76	0	1				
-8003577C	FUN_8003577c	86	0	2				
+800353B8	FUN_800353b8	77	0	1				
+8003577C	FUN_8003577c	87	0	2				
 80035BCC	FUN_80035bcc	82	0	3	~math			
 80035ED4	FUN_80035ed4	13	0	4	~math			
 80035F18	FUN_80035f18	9	0	0				
 80035F1C	FUN_80035f1c	59	0	11	camera,math			
 80036100	FUN_80036100	74	0	4	math,~camera			
 8003633C	FUN_8003633c	161	0	5	math,~camera			
-80036954	FUN_80036954	67	1	3				
+80036954	FUN_80036954	68	1	3				
 80036BCC	FUN_80036bcc	130	9	6	camera,~math			
 80036FB0	FUN_80036fb0	132	1	6	camera,~math			
 800373AC	FUN_800373ac	53	8	13	render			
@@ -627,7 +627,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8006FDD0	FUN_8006fdd0	14	1	0				
 8006FE38	FUN_8006fe38	62	6	2				
 80070130	FUN_80070130	10	0	0				
-80070170	FUN_80070170	643	0	17	math,~model	jobj.h		s_jobj_80450bd7,s_jobj_h_80450bd0
+80070170	FUN_80070170	644	0	17	math,~model	jobj.h		s_jobj_80450bd7,s_jobj_h_80450bd0
 80071960	FUN_80071960	10	0	0				
 80071974	FUN_80071974	189	3	17	model,render,~camera,~math			
 80072064	FUN_80072064	240	2	23	camera,model,render,~anim,~math,~memory	background.c,jobj.h,lobj.h,shadow.h		s_background_c_801c0b08,s_jobj_80450bd7,s_jobj_h_80450bd0,s_lobj_80450c13,s_lobj_h_80450c0c,s_scene_data_801c0b62,s_shadow_80450b78,s_shadow_h_801c0b4f
@@ -928,7 +928,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80099D50	FUN_80099d50	19	1	6	~math,~render			
 80099DE0	FUN_80099de0	33	1	0				
 80099EAC	cr_Chara_UpdateAll	486	1	34	~file-io,~math,~memory,~video			
-8009AEC4	FUN_8009aec4	919	1	22	~camera,~file-io,~math,~render,~video			
+8009AEC4	FUN_8009aec4	920	1	22	~camera,~file-io,~math,~render,~video			
 8009D620	FUN_8009d620	120	1	1				s_train_rst_801c3aa0
 8009DAD8	FUN_8009dad8	187	1	9	~camera,~math			
 8009E49C	FUN_8009e49c	55	1	4	~memcard,~memory			
@@ -1618,7 +1618,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80112D04	FUN_80112d04	10	0	1				
 80112D30	FUN_80112d30	195	1	19	~anim,~memory,~model	lobj.h		s_lobj_80451897,s_lobj_h_80451890
 80113680	FUN_80113680	51	1	2				
-80113934	FUN_80113934	146	1	8	~anim,~file-io,~model			
+80113934	FUN_80113934	147	1	8	~anim,~file-io,~model			
 8011413C	FUN_8011413c	11	9	0				
 80114160	FUN_80114160	24	0	2				
 80114214	FUN_80114214	19	0	2				

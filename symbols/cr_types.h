@@ -588,6 +588,30 @@ typedef struct cr_AreaBox {
     /* +2C */ u8 unk_2c[0x14];
 } cr_AreaBox;
 
+// ---- Game sequences ------------------------------------------------------------------------------------------
+
+/// The game's modes. Value names are the GAME'S OWN, in index order from its name table at 0x801DEAB4 (cr_g_SeqNames).
+typedef enum cr_Seq {
+    SEQ_LOGO,
+    SEQ_MOVIE,
+    SEQ_TITLE,
+    SEQ_FIELD,
+    SEQ_BATTLE,
+    SEQ_MODE_SELECTOR,
+    SEQ_CUSTOMIZE,
+    SEQ_STAGE_SELECTOR,
+    SEQ_SCENARIO,
+    SEQ_OPTION,
+    SEQ_NAME_ENTRY,
+    SEQ_MEMORY_CARD,
+    SEQ_MENU,
+    SEQ_ILLUSTRATED_BOOK,
+    SEQ_ENDING
+} cr_Seq;
+
+/// One entry of the per-sequence handler tables (cr_g_SeqEnter, cr_g_SeqLeave, cr_g_SeqFrameA/B/C).
+typedef void (*cr_SeqFunc)(void);
+
 // ---- Prototypes of our descriptive functions (symbols/descriptive.txt) -----------------------------------
 
 void cr_FileSys_Init(void);

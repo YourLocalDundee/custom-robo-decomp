@@ -35,3 +35,12 @@ cr_g_CurrentMtx = .bss:0x8031FE68; // type:object datatype:f32[12] // why: the 3
 cr_g_MtxStackMaxDepth = .sbss:0x8044F3D8; // type:object datatype:s32 // why: raised to the depth when cr_Mtx_Push goes deeper
 cr_g_MtxStackDepth = .sbss:0x8044F3DC; // type:object datatype:s32 // why: +1 in cr_Mtx_Push, -1 in cr_Mtx_Pop
 cr_g_MtxStackTop = .sbss:0x8044F3E0; // type:object datatype:f32* // why: where cr_Mtx_Push stores the next 0x30-byte matrix; cr_Mtx_Pop steps it back
+cr_g_SeqCurrent = .bss:0x80321D88; // type:object datatype:cr_Seq // why: indexes all five sequence tables and the SEQ_* name table; set from cr_g_SeqNext when the sequence changes (FUN_8000878c)
+cr_g_SeqPrevious = .bss:0x80321D8C; // type:object datatype:cr_Seq // why: = cr_g_SeqCurrent just before it changes (FUN_8000878c)
+cr_g_SeqNext = .bss:0x80321D90; // type:object datatype:cr_Seq // why: when it differs from cr_g_SeqCurrent the Leave handler of the current and the Enter handler of this one run (FUN_8000878c)
+cr_g_SeqNames = .data:0x801DEAB4; // type:object datatype:char*[15] // why: the game's own SEQ_LOGO ... SEQ_ENDING strings in sequence-number order (docs/name_tables.tsv)
+cr_g_SeqFrameA = .data:0x801DEA78; // type:object datatype:cr_SeqFunc[15] // why: per-sequence handlers, indexed by cr_g_SeqCurrent; called every frame, called at the end of FUN_8000878c
+cr_g_SeqFrameB = .data:0x801DEAF0; // type:object datatype:cr_SeqFunc[15] // why: per-sequence handlers, indexed by cr_g_SeqCurrent; called every frame, first call of FUN_800055e8 (before the video calls)
+cr_g_SeqFrameC = .data:0x801DEB2C; // type:object datatype:cr_SeqFunc[15] // why: per-sequence handlers, indexed by cr_g_SeqCurrent; called every frame, in FUN_800055e8 after the video calls
+cr_g_SeqEnter = .data:0x801DEB68; // type:object datatype:cr_SeqFunc[15] // why: per-sequence handlers, indexed by cr_g_SeqCurrent; called when the sequence starts (FUN_8000878c, after current = next)
+cr_g_SeqLeave = .data:0x801DEBA4; // type:object datatype:cr_SeqFunc[15] // why: per-sequence handlers, indexed by cr_g_SeqCurrent; called when the sequence ends (FUN_8000878c, before current = next)

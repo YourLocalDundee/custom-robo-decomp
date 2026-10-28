@@ -88,7 +88,7 @@ Details: [docs/decomp.md](docs/decomp.md), tools: [docs/tools.md](docs/tools.md)
 
 - Models: all 1,006 models extract and export (glTF); robo/weapon/story entries rebuild byte-identical.
 - Mods: model / file / code mods build into a playable ISO and a data-free `.crpatch`; robos can be swapped completely, including different skeletons (tested in battle with the community, Oct 27, 2026). Custom skeletons via joint roles.
-- Code: ~1,060 of ~3,565 functions named (all SDK/HSD library names verified), HSD types and 441 prototypes applied and checked against the game, first `cr_` structs/globals for the file system and robos.
+- Code: ~1,150 of ~3,565 functions named (incl. the game's own SEQ_* mode names and motion names) (all SDK/HSD library names verified), HSD types and 441 prototypes applied and checked against the game, first `cr_` structs/globals for the file system and robos.
 - Archives: all 22 `.bin` (SFD) archives unpack and repack byte-identical.
 - Open: what the 17 motion slots are and where animations live; per-robo charge; naming the game's own ~1,740 functions.
 

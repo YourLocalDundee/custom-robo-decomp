@@ -41,3 +41,81 @@ cr_Sqrt = .text:0x80169424; // type:function scope:global // why: thin wrapper (
 cr_Chara_PoseLimbs = .text:0x8005AEE8; // type:function scope:global // why: poses all four limbs: two calls of cr_Chara_PoseLimbA (block A floats 2.. and 8..) and two of cr_Chara_PoseLimbB (0xF.. and 0x15..), with block A [0], [1], [0xE] as offsets between them
 cr_Chara_PoseLimbA = .text:0x8005A09C; // type:function scope:global // why: builds one limb on the matrix stack: translate by block A lengths x limb_scale, rotate to a direction vector and two cos/sin joint angles, stores bone matrices, returns the end position
 cr_Chara_PoseLimbB = .text:0x80059790; // type:function scope:global // why: the second limb kind, same pattern with block A floats 0xF.. / 0x15.. (called twice by cr_Chara_PoseLimbs)
+
+// ---- Game sequences: SEQ_* names are the GAME'S OWN (name table 0x801DEAB4, index = sequence number); role from the dispatcher
+//      (FUN_8000878c / FUN_800055e8, plan.md step 42). Cross-check: SEQ_MOVIE's FrameA/FrameC are the two functions asserting seq_movie.c.
+cr_SEQ_LOGO_FrameA = .text:0x8001AA9C; // type:function scope:global // why: entry 0 (SEQ_LOGO) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_MOVIE_FrameA = .text:0x80017128; // type:function scope:global // why: entry 1 (SEQ_MOVIE) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_TITLE_FrameA = .text:0x80016308; // type:function scope:global // why: entry 2 (SEQ_TITLE) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_FIELD_FrameA = .text:0x80016084; // type:function scope:global // why: entry 3 (SEQ_FIELD) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_BATTLE_FrameA = .text:0x80010220; // type:function scope:global // why: entry 4 (SEQ_BATTLE) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_MODE_SELECTOR_FrameA = .text:0x8000D96C; // type:function scope:global // why: entry 5 (SEQ_MODE_SELECTOR) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_CUSTOMIZE_FrameA = .text:0x8001598C; // type:function scope:global // why: entry 6 (SEQ_CUSTOMIZE) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_STAGE_SELECTOR_FrameA = .text:0x8000FCCC; // type:function scope:global // why: entry 7 (SEQ_STAGE_SELECTOR) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_SCENARIO_FrameA = .text:0x8001566C; // type:function scope:global // why: entry 8 (SEQ_SCENARIO) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_OPTION_FrameA = .text:0x80015D4C; // type:function scope:global // why: entry 9 (SEQ_OPTION) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_NAME_ENTRY_FrameA = .text:0x8000AAE8; // type:function scope:global // why: entry 10 (SEQ_NAME_ENTRY) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_MEMORY_CARD_FrameA = .text:0x80012078; // type:function scope:global // why: entry 11 (SEQ_MEMORY_CARD) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_MENU_FrameA = .text:0x8000AA50; // type:function scope:global // why: entry 12 (SEQ_MENU) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_ILLUSTRATED_BOOK_FrameA = .text:0x80008C2C; // type:function scope:global // why: entry 13 (SEQ_ILLUSTRATED_BOOK) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_ENDING_FrameA = .text:0x8000A9C8; // type:function scope:global // why: entry 14 (SEQ_ENDING) of the sequence table 0x801DEA78, called every frame, called at the end of FUN_8000878c
+cr_SEQ_LOGO_FrameB = .text:0x8001AA98; // type:function scope:global // why: entry 0 (SEQ_LOGO) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_MOVIE_FrameB = .text:0x80017100; // type:function scope:global // why: entry 1 (SEQ_MOVIE) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_TITLE_FrameB = .text:0x80016304; // type:function scope:global // why: entry 2 (SEQ_TITLE) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_FIELD_FrameB = .text:0x80016080; // type:function scope:global // why: entry 3 (SEQ_FIELD) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_BATTLE_FrameB = .text:0x800101EC; // type:function scope:global // why: entry 4 (SEQ_BATTLE) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_MODE_SELECTOR_FrameB = .text:0x8000D94C; // type:function scope:global // why: entry 5 (SEQ_MODE_SELECTOR) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_CUSTOMIZE_FrameB = .text:0x8001596C; // type:function scope:global // why: entry 6 (SEQ_CUSTOMIZE) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_STAGE_SELECTOR_FrameB = .text:0x8000FCC8; // type:function scope:global // why: entry 7 (SEQ_STAGE_SELECTOR) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_SCENARIO_FrameB = .text:0x80014A64; // type:function scope:global // why: entry 8 (SEQ_SCENARIO) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_OPTION_FrameB = .text:0x80015D48; // type:function scope:global // why: entry 9 (SEQ_OPTION) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_NAME_ENTRY_FrameB = .text:0x8000AAE4; // type:function scope:global // why: entry 10 (SEQ_NAME_ENTRY) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_MEMORY_CARD_FrameB = .text:0x80012074; // type:function scope:global // why: entry 11 (SEQ_MEMORY_CARD) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_MENU_FrameB = .text:0x8000AA4C; // type:function scope:global // why: entry 12 (SEQ_MENU) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_ILLUSTRATED_BOOK_FrameB = .text:0x80008C28; // type:function scope:global // why: entry 13 (SEQ_ILLUSTRATED_BOOK) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_ENDING_FrameB = .text:0x8000A9C4; // type:function scope:global // why: entry 14 (SEQ_ENDING) of the sequence table 0x801DEAF0, called every frame, first call of FUN_800055e8 (before the video calls)
+cr_SEQ_LOGO_FrameC = .text:0x8001A240; // type:function scope:global // why: entry 0 (SEQ_LOGO) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_MOVIE_FrameC = .text:0x80016868; // type:function scope:global // why: entry 1 (SEQ_MOVIE) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_TITLE_FrameC = .text:0x80016244; // type:function scope:global // why: entry 2 (SEQ_TITLE) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_FIELD_FrameC = .text:0x8001607C; // type:function scope:global // why: entry 3 (SEQ_FIELD) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_BATTLE_FrameC = .text:0x8001001C; // type:function scope:global // why: entry 4 (SEQ_BATTLE) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_MODE_SELECTOR_FrameC = .text:0x8000D948; // type:function scope:global // why: entry 5 (SEQ_MODE_SELECTOR) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_CUSTOMIZE_FrameC = .text:0x8001581C; // type:function scope:global // why: entry 6 (SEQ_CUSTOMIZE) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_STAGE_SELECTOR_FrameC = .text:0x8000FBC0; // type:function scope:global // why: entry 7 (SEQ_STAGE_SELECTOR) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_SCENARIO_FrameC = .text:0x800129F8; // type:function scope:global // why: entry 8 (SEQ_SCENARIO) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_OPTION_FrameC = .text:0x80015D44; // type:function scope:global // why: entry 9 (SEQ_OPTION) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_NAME_ENTRY_FrameC = .text:0x8000AAE0; // type:function scope:global // why: entry 10 (SEQ_NAME_ENTRY) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_MEMORY_CARD_FrameC = .text:0x80012070; // type:function scope:global // why: entry 11 (SEQ_MEMORY_CARD) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_MENU_FrameC = .text:0x8000AA48; // type:function scope:global // why: entry 12 (SEQ_MENU) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_ILLUSTRATED_BOOK_FrameC = .text:0x80008C24; // type:function scope:global // why: entry 13 (SEQ_ILLUSTRATED_BOOK) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_ENDING_FrameC = .text:0x8000A9C0; // type:function scope:global // why: entry 14 (SEQ_ENDING) of the sequence table 0x801DEB2C, called every frame, in FUN_800055e8 after the video calls
+cr_SEQ_LOGO_Enter = .text:0x80019824; // type:function scope:global // why: entry 0 (SEQ_LOGO) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_MOVIE_Enter = .text:0x80016824; // type:function scope:global // why: entry 1 (SEQ_MOVIE) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_TITLE_Enter = .text:0x800161B8; // type:function scope:global // why: entry 2 (SEQ_TITLE) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_FIELD_Enter = .text:0x80016078; // type:function scope:global // why: entry 3 (SEQ_FIELD) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_BATTLE_Enter = .text:0x80010018; // type:function scope:global // why: entry 4 (SEQ_BATTLE) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_MODE_SELECTOR_Enter = .text:0x8000D944; // type:function scope:global // why: entry 5 (SEQ_MODE_SELECTOR) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_CUSTOMIZE_Enter = .text:0x800157F8; // type:function scope:global // why: entry 6 (SEQ_CUSTOMIZE) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_STAGE_SELECTOR_Enter = .text:0x8000FA54; // type:function scope:global // why: entry 7 (SEQ_STAGE_SELECTOR) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_SCENARIO_Enter = .text:0x800120D8; // type:function scope:global // why: entry 8 (SEQ_SCENARIO) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_OPTION_Enter = .text:0x80015D40; // type:function scope:global // why: entry 9 (SEQ_OPTION) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_NAME_ENTRY_Enter = .text:0x8000AADC; // type:function scope:global // why: entry 10 (SEQ_NAME_ENTRY) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_MEMORY_CARD_Enter = .text:0x80011FBC; // type:function scope:global // why: entry 11 (SEQ_MEMORY_CARD) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_MENU_Enter = .text:0x8000AA44; // type:function scope:global // why: entry 12 (SEQ_MENU) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_ILLUSTRATED_BOOK_Enter = .text:0x80008C20; // type:function scope:global // why: entry 13 (SEQ_ILLUSTRATED_BOOK) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_ENDING_Enter = .text:0x8000A9BC; // type:function scope:global // why: entry 14 (SEQ_ENDING) of the sequence table 0x801DEB68, called when the sequence starts (FUN_8000878c, after current = next)
+cr_SEQ_LOGO_Leave = .text:0x80019568; // type:function scope:global // why: entry 0 (SEQ_LOGO) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_MOVIE_Leave = .text:0x80016820; // type:function scope:global // why: entry 1 (SEQ_MOVIE) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_TITLE_Leave = .text:0x80016088; // type:function scope:global // why: entry 2 (SEQ_TITLE) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_FIELD_Leave = .text:0x80016074; // type:function scope:global // why: entry 3 (SEQ_FIELD) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_BATTLE_Leave = .text:0x8000FDEC; // type:function scope:global // why: entry 4 (SEQ_BATTLE) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_MODE_SELECTOR_Leave = .text:0x8000D908; // type:function scope:global // why: entry 5 (SEQ_MODE_SELECTOR) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_CUSTOMIZE_Leave = .text:0x800156DC; // type:function scope:global // why: entry 6 (SEQ_CUSTOMIZE) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_STAGE_SELECTOR_Leave = .text:0x8000F900; // type:function scope:global // why: entry 7 (SEQ_STAGE_SELECTOR) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_SCENARIO_Leave = .text:0x8001207C; // type:function scope:global // why: entry 8 (SEQ_SCENARIO) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_OPTION_Leave = .text:0x80015D3C; // type:function scope:global // why: entry 9 (SEQ_OPTION) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_NAME_ENTRY_Leave = .text:0x8000AAD8; // type:function scope:global // why: entry 10 (SEQ_NAME_ENTRY) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_MEMORY_CARD_Leave = .text:0x80011FB8; // type:function scope:global // why: entry 11 (SEQ_MEMORY_CARD) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_MENU_Leave = .text:0x8000AA20; // type:function scope:global // why: entry 12 (SEQ_MENU) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_ILLUSTRATED_BOOK_Leave = .text:0x80008C00; // type:function scope:global // why: entry 13 (SEQ_ILLUSTRATED_BOOK) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
+cr_SEQ_ENDING_Leave = .text:0x8000A9B8; // type:function scope:global // why: entry 14 (SEQ_ENDING) of the sequence table 0x801DEBA4, called when the sequence ends (FUN_8000878c, before current = next)
