@@ -31,6 +31,7 @@ All in `D:\emulators\gameTesting\tools`. Python tools run with the system Python
 | `make_mod.py` | Mod folder (models, files, code patches) -> playable ISO + `.crpatch`; syncs main.dol entry tables ([MODDING](MODDING.md)) |
 | `iso_patch.py` | `build` / `diff` / `apply` / `info`: modded ISO and data-free patches |
 | `robo_swap.py` | Swap two robos completely (`--model-only`, `--keep-motion`, `--size X`) |
+| `struct_fields.py` | Finds typed fields inside a `cr_` struct's unknown stretches from the C's accesses (`report` / `apply`) |
 | `boot_check.ps1` | Boots an ISO in Dolphin, reports warning dialogs (`-Snapshot` saves a picture) |
 
 ## Ghidra scripts (`tools\scripts`)

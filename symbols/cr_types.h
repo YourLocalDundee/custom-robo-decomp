@@ -117,25 +117,90 @@ typedef struct cr_MotionSet {
 /// One robo in play (24 slots at 0x803BFE88, cr_g_Robos). Fields named only where code shows them; unk_ = not known yet.
 typedef struct cr_Robo {
     /* +0000 */ void (*update)(void);      // non-zero = slot in use; called every frame by cr_Robo_UpdateAll
-    /* +0004 */ u8 unk_0004[0x30];
+    /* +0004 */ s32 unk_0004;               // auto: 5 uses in 3 functions
+    /* +0008 */ s32 unk_0008;               // auto: 11 uses in 2 functions
+    /* +000C */ void* unk_000c;             // auto: 2 uses in 1 functions
+    /* +0010 */ f32 unk_0010;               // auto: 11 uses in 7 functions
+    /* +0014 */ u8 unk_0014[0x4];
+    /* +0018 */ f32 unk_0018;               // auto: 12 uses in 8 functions
+    /* +001C */ s32 unk_001c;               // auto: 1 uses in 1 functions
+    /* +0020 */ f32 unk_0020;               // auto: 9 uses in 1 functions
+    /* +0024 */ u8 unk_0024[0x10];
     /* +0034 */ Vec3 pos_34;               // set to the same vector as pos by the script command FUN_800cf5ec
     /* +0040 */ u8 unk_0040[0x4];
     /* +0044 */ Vec3 pos;                  // position: FUN_8002fefc adds height to pos.y (+0x48)
     /* +0050 */ u8 unk_0050[0x8];
     /* +0058 */ s32 unk_0058;              // set from a script value (FUN_800cf5ec)
-    /* +005C */ u8 unk_005c[0x27A];
+    /* +005C */ u8 unk_005c[0x5E];
+    /* +00BA */ s16 unk_00ba;               // auto: 4 uses in 1 functions
+    /* +00BC */ u8 unk_00bc;                // auto: 6 uses in 1 functions
+    /* +00BD */ u8 unk_00bd[0x1A7];
+    /* +0264 */ s32 unk_0264;               // auto: 6 uses in 1 functions
+    /* +0268 */ u32 unk_0268;               // auto: 2 uses in 1 functions
+    /* +026C */ u8 unk_026c[0x6A];
     /* +02D6 */ u16 motion;                // motion ID to play (FUN_800cf5ec: from motion_set->motion[i] or a literal ID)
-    /* +02D8 */ u8 unk_02d8[0xE8];
+    /* +02D8 */ u8 unk_02d8[0x28];
+    /* +0300 */ f32 unk_0300;               // auto: 6 uses in 1 functions
+    /* +0304 */ f32 unk_0304;               // auto: 2 uses in 1 functions
+    /* +0308 */ f32 unk_0308;               // auto: 6 uses in 1 functions
+    /* +030C */ u8 unk_030c[0x29];
+    /* +0335 */ u8 unk_0335;                // auto: 1 uses in 1 functions
+    /* +0336 */ u8 unk_0336[0x8A];
     /* +03C0 */ f32 limb_scale;            // 1.0 for every robo (FUN_800ba488); multiplies limb_params in the limb code
     /* +03C4 */ u8 unk_03c4[0x10];
     /* +03D4 */ u32 flags;                 // bit 0x40000000 set by FUN_800cf5ec
-    /* +03D8 */ u8 unk_03d8[0x1C];
+    /* +03D8 */ u32 unk_03d8;               // auto: 1 uses in 1 functions
+    /* +03DC */ u32 unk_03dc;               // auto: 1 uses in 1 functions
+    /* +03E0 */ u32 unk_03e0;               // auto: 1 uses in 1 functions
+    /* +03E4 */ u8 unk_03e4[0x10];
     /* +03F4 */ u16 number;                // robo number (chara entries 5N..5N+4); cr_Robo_BuildModel
-    /* +03F6 */ u8 unk_03f6[0x2F2];
+    /* +03F6 */ u8 unk_03f6[0x5];
+    /* +03FB */ u8 unk_03fb;                // auto: 1 uses in 1 functions
+    /* +03FC */ u8 unk_03fc[0x1];
+    /* +03FD */ u8 unk_03fd;                // auto: 1 uses in 1 functions
+    /* +03FE */ u8 unk_03fe;                // auto: 2 uses in 1 functions
+    /* +03FF */ u8 unk_03ff;                // auto: 1 uses in 1 functions
+    /* +0400 */ u16 unk_0400;               // auto: 2 uses in 1 functions
+    /* +0402 */ u8 unk_0402[0x28E];
+    /* +0690 */ u16 unk_0690;               // auto: 16 uses in 2 functions
+    /* +0692 */ u8 unk_0692[0x56];
     /* +06E8 */ f32 frame_count;           // += 1.0 after every update (cr_Robo_UpdateAll)
     /* +06EC */ u8 unk_06ec[0x8];
     /* +06F4 */ cr_MotionSet* motion_set;  // = cr_g_RoboMotionSets[number] (cr_Robo_BuildModel, FUN_800cf5ec)
-    /* +06F8 */ u8 unk_06f8[0x444];
+    /* +06F8 */ u8 unk_06f8[0x2D1];
+    /* +09C9 */ u8 unk_09c9;                // auto: 2 uses in 1 functions
+    /* +09CA */ u16 unk_09ca;               // auto: 2 uses in 1 functions
+    /* +09CC */ u8 unk_09cc[0x4];
+    /* +09D0 */ f32 unk_09d0;               // auto: 2 uses in 1 functions
+    /* +09D4 */ f32 unk_09d4;               // auto: 3 uses in 2 functions
+    /* +09D8 */ u16 unk_09d8;               // auto: 4 uses in 1 functions
+    /* +09DA */ u8 unk_09da[0x2];
+    /* +09DC */ u32 unk_09dc;               // auto: 13 uses in 2 functions
+    /* +09E0 */ u32 unk_09e0;               // auto: 13 uses in 2 functions
+    /* +09E4 */ u32 unk_09e4;               // auto: 13 uses in 2 functions
+    /* +09E8 */ u8 unk_09e8[0x2];
+    /* +09EA */ u8 unk_09ea;                // auto: 4 uses in 3 functions
+    /* +09EB */ u8 unk_09eb;                // auto: 4 uses in 3 functions
+    /* +09EC */ u8 unk_09ec[0x5];
+    /* +09F1 */ u8 unk_09f1;                // auto: 4 uses in 3 functions
+    /* +09F2 */ u8 unk_09f2[0x6];
+    /* +09F8 */ u8 unk_09f8;                // auto: 13 uses in 5 functions
+    /* +09F9 */ u8 unk_09f9[0xF];
+    /* +0A08 */ f32 unk_0a08;               // auto: 6 uses in 2 functions
+    /* +0A0C */ u8 unk_0a0c[0x4];
+    /* +0A10 */ f32 unk_0a10;               // auto: 6 uses in 2 functions
+    /* +0A14 */ f32 unk_0a14;               // auto: 6 uses in 2 functions
+    /* +0A18 */ u8 unk_0a18[0x4];
+    /* +0A1C */ f32 unk_0a1c;               // auto: 6 uses in 2 functions
+    /* +0A20 */ f32 unk_0a20;               // auto: 6 uses in 2 functions
+    /* +0A24 */ u8 unk_0a24[0x4];
+    /* +0A28 */ f32 unk_0a28;               // auto: 6 uses in 2 functions
+    /* +0A2C */ f32 unk_0a2c;               // auto: 2 uses in 1 functions
+    /* +0A30 */ u8 unk_0a30[0x4];
+    /* +0A34 */ f32 unk_0a34;               // auto: 2 uses in 1 functions
+    /* +0A38 */ u8 unk_0a38[0x101];
+    /* +0B39 */ u8 unk_0b39;                // auto: 4 uses in 2 functions
+    /* +0B3A */ u8 unk_0b3a[0x2];
     /* +0B3C */ f32* limb_params;          // model block A (cr_Robo_BuildModel)
     /* +0B40 */ HSD_JObj* root_joint;      // loaded from the model (cr_Robo_BuildModel)
     /* +0B44 */ HSD_JObj* role_joints[19]; // model block C roles: head, arms, legs... (tools/robo_joints.py ROLE_NAMES)
@@ -144,19 +209,112 @@ typedef struct cr_Robo {
     /* +0BC4 */ u16 has_extra_paths;       // 1 if the model has block D
     /* +0BC6 */ u8 unk_0bc6;               // set to 0 with block D
     /* +0BC7 */ u8 extra_paths_mode;       // 1 (robos 0, 0xD) or 2 (robo 2)
-    /* +0BC8 */ u8 unk_0bc8[0x24C];
+    /* +0BC8 */ u8 unk_0bc8[0x240];
+    /* +0E08 */ u32 unk_0e08;               // auto: 4 uses in 1 functions
+    /* +0E0C */ u32 unk_0e0c;               // auto: 4 uses in 1 functions
+    /* +0E10 */ u32 unk_0e10;               // auto: 4 uses in 1 functions
     /* +0E14 */ f32 height;                // = cr_g_RoboHeight[number]; added to pos.y in FUN_8002fefc
-    /* +0E18 */ u8 unk_0e18[0xAF4];
+    /* +0E18 */ u8 unk_0e18[0x740];
+    /* +1558 */ u32 unk_1558;               // auto: 3 uses in 3 functions
+    /* +155C */ u8 unk_155c[0xC];
+    /* +1568 */ u32 unk_1568;               // auto: 3 uses in 3 functions
+    /* +156C */ u8 unk_156c[0xC];
+    /* +1578 */ u32 unk_1578;               // auto: 3 uses in 3 functions
+    /* +157C */ u8 unk_157c[0x4];
+    /* +1580 */ u32 unk_1580;               // auto: 3 uses in 1 functions
+    /* +1584 */ u8 unk_1584[0x4];
+    /* +1588 */ f32 unk_1588;               // auto: 5 uses in 4 functions
+    /* +158C */ u8 unk_158c[0x4];
+    /* +1590 */ u32 unk_1590;               // auto: 3 uses in 1 functions
+    /* +1594 */ u8 unk_1594[0x4];
+    /* +1598 */ f32 unk_1598;               // auto: 5 uses in 4 functions
+    /* +159C */ u8 unk_159c[0x4];
+    /* +15A0 */ u32 unk_15a0;               // auto: 3 uses in 1 functions
+    /* +15A4 */ u8 unk_15a4[0x4];
+    /* +15A8 */ f32 unk_15a8;               // auto: 5 uses in 4 functions
+    /* +15AC */ u8 unk_15ac[0xC];
+    /* +15B8 */ f32 unk_15b8;               // auto: 3 uses in 3 functions
+    /* +15BC */ u8 unk_15bc[0xC];
+    /* +15C8 */ f32 unk_15c8;               // auto: 3 uses in 3 functions
+    /* +15CC */ u8 unk_15cc[0xC];
+    /* +15D8 */ f32 unk_15d8;               // auto: 3 uses in 3 functions
+    /* +15DC */ u8 unk_15dc[0x9C];
+    /* +1678 */ u32 unk_1678;               // auto: 2 uses in 2 functions
+    /* +167C */ u8 unk_167c[0xC];
+    /* +1688 */ u32 unk_1688;               // auto: 2 uses in 2 functions
+    /* +168C */ u8 unk_168c[0xC];
+    /* +1698 */ u32 unk_1698;               // auto: 2 uses in 2 functions
+    /* +169C */ u8 unk_169c[0x9C];
+    /* +1738 */ u32 unk_1738;               // auto: 3 uses in 3 functions
+    /* +173C */ u8 unk_173c[0xC];
+    /* +1748 */ u32 unk_1748;               // auto: 3 uses in 3 functions
+    /* +174C */ u8 unk_174c[0xC];
+    /* +1758 */ u32 unk_1758;               // auto: 3 uses in 3 functions
+    /* +175C */ u8 unk_175c[0x9C];
+    /* +17F8 */ f32 unk_17f8;               // auto: 4 uses in 2 functions
+    /* +17FC */ u8 unk_17fc[0xC];
+    /* +1808 */ f32 unk_1808;               // auto: 4 uses in 2 functions
+    /* +180C */ u8 unk_180c[0xC];
+    /* +1818 */ f32 unk_1818;               // auto: 4 uses in 2 functions
+    /* +181C */ u8 unk_181c[0x9C];
+    /* +18B8 */ f32 unk_18b8;               // auto: 4 uses in 2 functions
+    /* +18BC */ u8 unk_18bc[0xC];
+    /* +18C8 */ f32 unk_18c8;               // auto: 4 uses in 2 functions
+    /* +18CC */ u8 unk_18cc[0xC];
+    /* +18D8 */ f32 unk_18d8;               // auto: 4 uses in 2 functions
+    /* +18DC */ u8 unk_18dc[0x30];
     /* +190C */ u32* unk_190c;             // script value; unk_1910 = *unk_190c (FUN_800cf5ec)
     /* +1910 */ u32 unk_1910;
     /* +1914 */ u8 unk_1914[0x20];
     /* +1934 */ u32 unk_1934;              // script value (FUN_800cf5ec)
-    /* +1938 */ u8 unk_1938[0x4];
+    /* +1938 */ s32 unk_1938;               // auto: 6 uses in 2 functions
     /* +193C */ s16 unk_193c;              // script value (FUN_800cf5ec)
     /* +193E */ u16 unk_193e;              // script value; copied by cr_Robo_SetCurrentPointers
-    /* +1940 */ u8 unk_1940[0x8];
+    /* +1940 */ u16 unk_1940;               // auto: 7 uses in 4 functions
+    /* +1942 */ u16 unk_1942;               // auto: 31 uses in 8 functions
+    /* +1944 */ u32 unk_1944;               // auto: 29 uses in 6 functions
     /* +1948 */ u32 flags2;                // bit 0x20 cleared by FUN_800cf5ec
-    /* +194C */ u8 unk_194c[0x5C];
+    /* +194C */ u32 unk_194c;               // auto: 4 uses in 4 functions
+    /* +1950 */ u32 unk_1950;               // auto: 19 uses in 7 functions
+    /* +1954 */ s32 unk_1954;               // auto: 5 uses in 4 functions
+    /* +1958 */ u8 unk_1958[0x1];
+    /* +1959 */ u8 unk_1959;                // auto: 4 uses in 2 functions
+    /* +195A */ u8 unk_195a;                // auto: 4 uses in 2 functions
+    /* +195B */ u8 unk_195b;                // auto: 4 uses in 2 functions
+    /* +195C */ u8 unk_195c[0x1];
+    /* +195D */ u8 unk_195d;                // auto: 2 uses in 2 functions
+    /* +195E */ u8 unk_195e[0x2];
+    /* +1960 */ f32 unk_1960;               // auto: 7 uses in 4 functions
+    /* +1964 */ u8 unk_1964[0x4];
+    /* +1968 */ f32 unk_1968;               // auto: 7 uses in 4 functions
+    /* +196C */ f32 unk_196c;               // auto: 6 uses in 4 functions
+    /* +1970 */ f32 unk_1970;               // auto: 6 uses in 4 functions
+    /* +1974 */ f32 unk_1974;               // auto: 6 uses in 4 functions
+    /* +1978 */ f32 unk_1978;               // auto: 6 uses in 4 functions
+    /* +197C */ f32 unk_197c;               // auto: 24 uses in 10 functions
+    /* +1980 */ u8 unk_1980[0x4];
+    /* +1984 */ f32 unk_1984;               // auto: 24 uses in 10 functions
+    /* +1988 */ u8 unk_1988[0x5];
+    /* +198D */ u8 unk_198d;                // auto: 4 uses in 2 functions
+    /* +198E */ u8 unk_198e[0x1];
+    /* +198F */ u8 unk_198f;                // auto: 5 uses in 3 functions
+    /* +1990 */ s16 unk_1990;               // auto: 4 uses in 2 functions
+    /* +1992 */ u8 unk_1992[0x2];
+    /* +1994 */ u16 unk_1994;               // auto: 4 uses in 2 functions
+    /* +1996 */ s16 unk_1996;               // auto: 4 uses in 2 functions
+    /* +1998 */ u8 unk_1998[0x1];
+    /* +1999 */ u8 unk_1999;                // auto: 1 uses in 1 functions
+    /* +199A */ u8 unk_199a;                // auto: 1 uses in 1 functions
+    /* +199B */ u8 unk_199b;                // auto: 1 uses in 1 functions
+    /* +199C */ u8 unk_199c[0x1];
+    /* +199D */ u8 unk_199d;                // auto: 1 uses in 1 functions
+    /* +199E */ u8 unk_199e;                // auto: 1 uses in 1 functions
+    /* +199F */ u8 unk_199f;                // auto: 1 uses in 1 functions
+    /* +19A0 */ u8 unk_19a0[0x1];
+    /* +19A1 */ u8 unk_19a1;                // auto: 3 uses in 1 functions
+    /* +19A2 */ u8 unk_19a2;                // auto: 3 uses in 1 functions
+    /* +19A3 */ u8 unk_19a3;                // auto: 3 uses in 1 functions
+    /* +19A4 */ u32 unk_19a4;               // auto: 5 uses in 3 functions
 } cr_Robo;
 
 // ---- Prototypes of our descriptive functions (symbols/descriptive.txt) -----------------------------------

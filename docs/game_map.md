@@ -103,19 +103,19 @@ Functions below 0x80131000: 1761 (1734 still `FUN_`). All functions in the expor
 | addr | lines | callers | hints |
 |---|---|---|---|
 | 800A63C0 | 1389 | 1 | ~file-io,~math,~memory,~model |
-| 800F21C8 | 1129 | 1 | ~file-io,~math,~render,~video |
+| 800F21C8 | 1128 | 1 | ~file-io,~math,~render,~video |
 | 800A0E64 | 1036 | 0 | video,~file-io,~math,~render |
 | 8010A5CC | 1004 | 1 | ~memory,~model |
 | 800ECA28 | 980 | 1 | memcard,~memory |
-| 800B81C4 | 971 | 0 | ~math |
 | 8004B0A0 | 970 | 1 | math,~model |
-| 8009AEC4 | 920 | 1 | ~camera,~file-io,~math,~render,~video |
+| 8009AEC4 | 937 | 1 | ~camera,~file-io,~math,~render,~video |
+| 800B81C4 | 927 | 0 | ~math |
 | 80054238 | 900 | 1 |  |
 | 800DBAD0 | 899 | 1 | math |
 | 80128F20 | 866 | 0 |  |
 | 800DF4C8 | 787 | 1 |  |
 | 8002745C | 697 | 1 | math |
-| 800129F8 | 684 | 0 | math,render,~camera,~light,~model,~video |
+| 800129F8 | 675 | 0 | math,render,~camera,~light,~model,~video |
 | 80049924 | 675 | 0 | ~math,~model |
 | 80070170 | 642 | 0 | math,~model |
 | 80042AB8 | 607 | 1 | ~math,~model |
@@ -123,9 +123,9 @@ Functions below 0x80131000: 1761 (1734 still `FUN_`). All functions in the expor
 | 8005ED28 | 572 | 3 |  |
 | 8003DD38 | 552 | 1 | math |
 | 80010220 | 513 | 0 | ~camera,~debug-print,~file-io,~math,~memcard,~memory,~model,~render,~video |
-| 800EF39C | 491 | 3 |  |
+| 800B5D4C | 503 | 1 | ~file-io,~math |
 | 8002B3C4 | 490 | 3 | math |
-| 800B5D4C | 486 | 1 | ~file-io,~math |
+| 800EF39C | 487 | 3 |  |
 | 80009A90 | 462 | 1 |  |
 | 800F96A4 | 461 | 1 |  |
 | 80041358 | 454 | 1 | ~math,~model |

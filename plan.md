@@ -145,6 +145,8 @@ gameTesting\
 
 30. **Robo object struct `cr_Robo`** (Oct 27, 2026). Robos in play live in a static array `cr_g_Robos` at 0x803BFE88: 24 slots x 0x19A8 bytes = 0x267C0, exactly the object size decomp-toolkit found there. `cr_Robo_UpdateAll` (0x80099EAC) calls each active slot's `update` every frame and adds 1.0 to `frame_count`. Fields named with evidence (symbols/cr_types.h): update, pos, motion, limb_scale, flags, number, frame_count, motion_set, limb_params, root_joint, role_joints[19], extra_joints[12], material, height, ...; unknown stretches stay unk_XXXX. Globals: cr_g_Robos, cr_g_CurrentRobo (now cr_Robo*), cr_g_FirstRobo, cr_g_CurrentRoboIndex. Result: 1,563 field accesses in 50 functions now read as `robo->field`; all type checks pass (22 sizes, 154 offsets). Next: name the most-used unknown stretches (unk_194c 122 uses, unk_0bc8 113, unk_06f8 62), and find what picks battle movement.
 
+31. **Typed fields in `cr_Robo`** (Oct 27, 2026). New `tools/struct_fields.py <struct> report|apply`: scans every access into a struct's unknown stretches (`*(float *)(robo->unk_194c + 0x10)`, `robo->unk_0bc8[3]`), and splits the stretches into typed fields where all accesses agree on one size and nothing overlaps; names stay `unk_XXXX` with "auto: N uses in M functions". cr_Robo: 105 + 1 typed fields; 11 offsets with conflicting access sizes stay unknown on purpose. Field offsets verified: 312 (was 154), size still 0x19A8. Report: docs/struct_cr_Robo.md. Next: real names for the most-used fields, from the functions that use them.
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.
