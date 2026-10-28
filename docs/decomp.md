@@ -99,3 +99,7 @@ Library structs and prototypes come from Melee's headers (`ParseHeaders.java`), 
 ## Game sequences (Oct 27, 2026)
 
 The game runs one sequence at a time (`cr_Seq`: SEQ_LOGO, SEQ_MOVIE, SEQ_TITLE, SEQ_FIELD, SEQ_BATTLE, ... - the game's own names). `cr_g_SeqCurrent` picks the handlers in five tables: `cr_g_SeqEnter` / `cr_g_SeqLeave` on a change, `cr_g_SeqFrameA/B/C` every frame. Handlers are named `cr_SEQ_BATTLE_Enter` etc. To find a mode's code, start at its handlers. plan.md step 42.
+
+## Script commands (Oct 28, 2026)
+
+The game's script interpreter dispatches through `cr_g_ScrCmdFuncs` (0x8021C3F4, 300 handlers), indexed by command number; the matching names (`SYS_SET_SCR`, ... ) are in `cr_g_ScrCmdNames` (0x8021BF44), directly before it. Handlers are named `cr_<COMMAND NAME>`. plan.md step 44.

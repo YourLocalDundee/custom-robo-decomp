@@ -44,3 +44,5 @@ cr_g_SeqFrameB = .data:0x801DEAF0; // type:object datatype:cr_SeqFunc[15] // why
 cr_g_SeqFrameC = .data:0x801DEB2C; // type:object datatype:cr_SeqFunc[15] // why: per-sequence handlers, indexed by cr_g_SeqCurrent; called every frame, in FUN_800055e8 after the video calls
 cr_g_SeqEnter = .data:0x801DEB68; // type:object datatype:cr_SeqFunc[15] // why: per-sequence handlers, indexed by cr_g_SeqCurrent; called when the sequence starts (FUN_8000878c, after current = next)
 cr_g_SeqLeave = .data:0x801DEBA4; // type:object datatype:cr_SeqFunc[15] // why: per-sequence handlers, indexed by cr_g_SeqCurrent; called when the sequence ends (FUN_8000878c, before current = next)
+cr_g_ScrCmdNames = .data:0x8021BF44; // type:object datatype:char*[300] // why: the game's own command names (SYS_SET_SCR, SYS_SCR_END, ...), directly followed by cr_g_ScrCmdFuncs of the same length
+cr_g_ScrCmdFuncs = .data:0x8021C3F4; // type:object datatype:cr_SeqFunc[300] // why: 300 distinct handlers, called as table[command] after command < 300 by the script dispatcher
