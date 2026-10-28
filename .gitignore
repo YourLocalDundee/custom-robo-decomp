@@ -37,3 +37,6 @@ BUILD_REPORT.md
 
 # Dolphin creates this when started from the repo folder
 User/
+
+# mod folders hold edited game models: keep them local
+mods/

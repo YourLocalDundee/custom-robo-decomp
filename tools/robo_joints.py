@@ -139,10 +139,12 @@ def main():
         return
     if len(sys.argv) >= 2 and sys.argv[1] == 'table':
         d = Path(sys.argv[2] if len(sys.argv) > 2 else 'unpacked/chara')
-        print('entry joints B  ' + ' '.join(f'C{r:02d}' for r in range(ROLES)))
+        # robo N = entries 5N..5N+4 (the game loads entry robo*5, FUN_800a63c0); variant = entry % 5
+        print('robo var entry joints B  ' + ' '.join(f'C{r:02d}' for r in range(ROLES)))
         for p in sorted(d.glob('[0-9][0-9][0-9].bin')):
             n, b, roles = decode(p.read_bytes())
-            print(f'{p.stem}   {n:4d}  {b!s:3} ' + ' '.join(f'{"-" if r is None else r:>3}' for r in roles))
+            e = int(p.stem)
+            print(f'{e // 5:4d} {e % 5:3d}  {p.stem}  {n:4d}  {b!s:3} ' + ' '.join(f'{"-" if r is None else r:>3}' for r in roles))
     elif len(sys.argv) == 4 and sys.argv[1] == 'path':
         print(path_to(Path(sys.argv[2]).read_bytes(), int(sys.argv[3])).hex(' '))
     else:
