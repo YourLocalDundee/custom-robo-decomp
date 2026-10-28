@@ -379,10 +379,10 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8003764C	FUN_8003764c	68	1	0				
 80037894	FUN_80037894	63	1	0				
 80037A34	FUN_80037a34	15	1	2				
-80037A80	FUN_80037a80	60	1	1				
-80037D14	FUN_80037d14	72	4	2				
+80037A80	FUN_80037a80	69	1	1				
+80037D14	FUN_80037d14	73	4	2				
 80037FBC	FUN_80037fbc	11	28	1				
-80037FF0	FUN_80037ff0	55	7	4				
+80037FF0	FUN_80037ff0	57	7	4				
 800381D0	FUN_800381d0	246	1	16	~math			
 800389C8	FUN_800389c8	56	1	6	~camera,~light,~math,~model,~render			
 80038BD8	FUN_80038bd8	45	1	2	~camera,~light,~math,~model,~render			
@@ -394,7 +394,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8003B1BC	FUN_8003b1bc	67	1	0				
 8003B37C	FUN_8003b37c	60	1	1				
 8003B528	FUN_8003b528	358	1	25	~math			
-8003C4F0	FUN_8003c4f0	374	1	6	~math			
+8003C4F0	FUN_8003c4f0	387	1	6	~math			
 8003D4C4	FUN_8003d4c4	13	7	2				
 8003D500	FUN_8003d500	80	1	6	math	jobj.h		s_jobj_80450677,s_jobj_h_80450670
 8003D7E0	FUN_8003d7e0	147	2	11	~math,~model			
@@ -445,7 +445,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800498FC	FUN_800498fc	9	0	0				
 80049904	FUN_80049904	11	0	0				
 80049924	FUN_80049924	675	0	15	~math,~model			
-8004B0A0	FUN_8004b0a0	972	1	31	math,~model			
+8004B0A0	FUN_8004b0a0	975	1	31	math,~model			
 8004D790	FUN_8004d790	141	1	0				
 8004DC78	FUN_8004dc78	253	1	4	~math			
 8004E8D4	FUN_8004e8d4	132	2	7	~math			
@@ -459,22 +459,22 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80050F08	FUN_80050f08	20	10	0				
 80050F90	FUN_80050f90	132	2	3				
 80051384	FUN_80051384	267	1	0				
-800527D4	FUN_800527d4	25	3	0				
-800528B8	FUN_800528b8	30	2	1				
-8005299C	FUN_8005299c	231	2	10				
-80053430	FUN_80053430	178	1	3				
+800527D4	FUN_800527d4	26	3	0				
+800528B8	FUN_800528b8	35	2	1				
+8005299C	FUN_8005299c	240	2	10				
+80053430	FUN_80053430	183	1	3				
 80053A20	FUN_80053a20	84	1	0				
 80053DA8	FUN_80053da8	119	1	3				
 80054238	FUN_80054238	901	1	7				
 80056104	FUN_80056104	326	7	5				
 80056C6C	FUN_80056c6c	268	1	9				
 80057F1C	FUN_80057f1c	238	1	11				
-80058AD0	FUN_80058ad0	224	2	11				
+80058AD0	FUN_80058ad0	229	2	11				
 80059790	FUN_80059790	176	1	7				
 8005A09C	FUN_8005a09c	125	1	6				
 8005A668	FUN_8005a668	98	1	5				
 8005AAA8	FUN_8005aaa8	100	1	6				
-8005AEE8	FUN_8005aee8	247	5	13				
+8005AEE8	FUN_8005aee8	251	5	13				
 8005BD7C	FUN_8005bd7c	38	3	0				
 8005BE70	FUN_8005be70	18	1	0				
 8005BEC8	FUN_8005bec8	38	5	0				
@@ -934,7 +934,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8009E49C	FUN_8009e49c	55	1	4	~memcard,~memory			
 8009E6F8	FUN_8009e6f8	230	1	10				
 8009EE8C	FUN_8009ee8c	242	1	2				
-8009F844	FUN_8009f844	102	1	5	~math			
+8009F844	FUN_8009f844	128	1	5	~math			
 8009FC40	FUN_8009fc40	135	4	14	video,~file-io,~math,~render			
 800A0204	FUN_800a0204	10	0	1				
 800A0228	FUN_800a0228	142	1	15	~anim,~camera,~memory,~model			
@@ -1068,7 +1068,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800B7B18	FUN_800b7b18	73	2	4	~math			
 800B7D8C	FUN_800b7d8c	94	1	3				
 800B818C	FUN_800b818c	13	0	0				
-800B81C4	FUN_800b81c4	911	0	15	~math			
+800B81C4	FUN_800b81c4	918	0	15	~math			
 800BA488	FUN_800ba488	73	0	10	~math			
 800BA6F0	FUN_800ba6f0	14	1	2	~file-io,~render,~video			
 800BA770	FUN_800ba770	13	1	0				
@@ -1477,7 +1477,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800F1860	FUN_800f1860	14	1	2				
 800F18B8	FUN_800f18b8	31	1	3				
 800F1954	FUN_800f1954	159	2	3				
-800F21C8	FUN_800f21c8	1137	1	24	~file-io,~math,~render,~video			s_fst_ret__02d_801c3d1d
+800F21C8	FUN_800f21c8	1143	1	24	~file-io,~math,~render,~video			s_fst_ret__02d_801c3d1d
 800F5448	FUN_800f5448	28	1	1				
 800F54C4	FUN_800f54c4	18	2	2				
 800F5574	FUN_800f5574	50	1	0				

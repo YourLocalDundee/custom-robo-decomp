@@ -4,7 +4,7 @@
 |---|---|---|---|
 | +0x03FA | u16/2 x2 | 1: FUN_800b81c4 | no (conflict/overlap) |
 | +0x03FC | u8/1 x4, u16/2 x1 | 1: FUN_800b81c4 | no (conflict/overlap) |
-| +0x09C8 | u16/2 x4 | 2: FUN_800b81c4, FUN_800f21c8 | no (conflict/overlap) |
+| +0x09C8 | u8/1 x4, s16/2 x1 | 3: FUN_80058ad0, FUN_800b81c4, FUN_800f21c8 | no (conflict/overlap) |
 | +0x195C | u8/1 x16, s16/2 x3 | 7: FUN_800b81c4, FUN_800be248, FUN_800be32c, FUN_800d2b44 ... | no (conflict/overlap) |
 | +0x1998 | ptr/4 x2, u32/4 x1, u8/1 x1 | 2: FUN_800d1280, FUN_800d1550 | no (conflict/overlap) |
 | +0x199C | ptr/4 x10, u8/1 x6, u32/4 x1 | 8: FUN_8009aec4, FUN_800a50ac, FUN_800a514c, FUN_800b4aa0 ... | no (conflict/overlap) |

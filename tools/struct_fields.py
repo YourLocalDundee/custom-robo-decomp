@@ -2,7 +2,8 @@
 the stretches into typed fields.
 
 Reads symbols/cr_types.h and decompiled/main_dol.c. An access like  *(float *)(robo->unk_194c + 0x10)  is a 4-byte
-float at struct offset 0x194C + 0x10;  robo->unk_0bc8[3]  is a byte at 0xBC8 + 3. A field is created at an offset only
+float at struct offset 0x194C + 0x10;  robo->unk_0bc8[3]  is a byte at 0xBC8 + 3. Accesses through globals that always point into the struct (ALIASES, e.g. DAT_8044f560 = robo + 0x6DC) count too.
+A field is created at an offset only
 when every access there agrees on one size and it does not overlap the next field; everything else stays u8 unk_.
 New fields keep unk_XXXX names (meaning unknown) with a "// auto: N uses in M functions" note - give them real names
 by hand when the code shows what they are.
@@ -71,7 +72,24 @@ def scan(gaps, c):
     for m in re.finditer(r'->(' + names + r')\[' + OFF + r'\]', c):          # byte index
         off = gaps[m.group(1)][0] + int(m.group(2), 0)
         acc[off][('u8', 1)] += 1; funcs[off].add(func_at(m.start()))
+    # accesses through globals that always hold "struct + fixed offset" (ALIASES), e.g. *(float *)(DAT_8044f560 + 0x168)
+    for glob, base in ALIASES.get(STRUCT, {}).items():
+        for rx, has_off in ((re.compile(r'\*\(([\w ]+?)\s*(\*+)\)\s*\(\s*' + glob + r'\s*\+\s*' + OFF + r'\s*\)'), True),
+                            (re.compile(r'\*\(([\w ]+?)\s*(\*+)\)\s*' + glob + r'\b(?!\s*\+)'), False)):
+            for m in rx.finditer(c):
+                kind, size = kind_of(m.group(1).strip(), len(m.group(2)))
+                if not kind: continue
+                off = base + (int(m.group(3), 0) if has_off else 0)
+                if any(s <= off < s + n for s, n in gaps.values()):
+                    acc[off][(kind, size)] += 1; funcs[off].add(func_at(m.start()))
     return acc, funcs
+
+
+# Globals that cr_Robo_SetCurrentPointers sets to "current robo + offset" (0x80050E74; named in symbols/cr_globals.txt)
+ALIASES = {'cr_Robo': {'cr_g_CurrentRobo_0678': 0x678, 'cr_g_CurrentRobo_154c': 0x154C, 'cr_g_CurrentRobo_11cc': 0x11CC,
+                       'cr_g_CurrentRobo_0e4c': 0xE4C, 'cr_g_CurrentRobo_026c': 0x26C, 'cr_g_CurrentRobo_09e8': 0x9E8,
+                       'cr_g_CurrentRobo_06dc': 0x6DC}}  # symbols/cr_globals.txt
+STRUCT = None
 
 
 def plan(gaps, acc):
@@ -100,6 +118,8 @@ C_TYPE = {'f32': 'f32', 'f64': 'f64', 'ptr': 'void*', 'u32': 'u32', 's32': 's32'
 def main():
     if len(sys.argv) != 3 or sys.argv[2] not in ('report', 'apply'): sys.exit(__doc__)
     name, mode = sys.argv[1], sys.argv[2]
+    global STRUCT
+    STRUCT = name
     tp = os.path.join(G, 'symbols', 'cr_types.h')
     text = open(tp, encoding='utf-8').read()
     m = struct_block(text, name)

@@ -157,6 +157,8 @@ gameTesting\
 
 36. **More cr_Robo fields** (Oct 27, 2026): `scene_id` (+0x193C) / `target_scene_id` (+0x1996) - one robo's target is compared with the others' ID; `built_number` (+0x1940, rebuild when build_number differs); `move_start_angle` (+0x1954); `countdown_1990`; `action` (+0x1994: low byte drives a switch, high byte tested; from script data). Open: the 4 floats +0x196C..0x1978 (written together, negated values), the conflicting byte/word offsets in docs/struct_cr_Robo.md, the big front of the struct (+0x5C..+0x2D6, +0x3F6..+0x6E8, +0x6F8..+0xB3C, +0xE18..).
 
+37. **cr_Robo through its shortcut globals** (Oct 27, 2026): cr_Robo_SetCurrentPointers keeps 7 globals = current robo + fixed offset (+0x26C, +0x678, +0x6DC, +0x9E8, +0xE4C, +0x11CC, +0x154C; 1,000+ accesses, 500 through +0x6DC alone - the limb code). tools/struct_fields.py now counts accesses through these aliases as robo offsets: +184 typed fields; **548 field offsets checked** (was 311); 7 conflicting offsets left unknown in the whole struct. The globals are named cr_g_CurrentRobo_XXXX (u8*). Next: meaning of the big blocks (+0x6DC and +0x154C are the limb / pose workspace used with block A).
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.
