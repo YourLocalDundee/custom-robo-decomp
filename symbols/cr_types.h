@@ -268,15 +268,15 @@ typedef struct cr_Robo {
     /* +1914 */ u8 unk_1914[0x20];
     /* +1934 */ u32 unk_1934;              // script value (FUN_800cf5ec)
     /* +1938 */ s32 unk_1938;               // auto: 6 uses in 2 functions
-    /* +193C */ s16 unk_193c;              // script value (FUN_800cf5ec)
+    /* +193C */ s16 scene_id;            // this robo's ID in a scene: other robos' target_scene_id is compared with it; script value (FUN_800cf5ec)
     /* +193E */ u16 build_number;        // robo number passed to cr_Robo_BuildModel; copied to +0x1940; compared with 2 and with DAT_8044eb00
-    /* +1940 */ u16 unk_1940;               // auto: 7 uses in 4 functions
+    /* +1940 */ u16 built_number;        // last number built: cr_Robo_BuildModel runs again when build_number != built_number, then they are synced
     /* +1942 */ u16 flags_1942;                              // bit flags only (tested & 1, 4, 8; set | 0x20; cleared & 0xfff7) - meaning of bits open
     /* +1944 */ u32 flags_1944;          // bit flags (| 1, | 2, | 4; & ~4) - meaning of bits open
     /* +1948 */ u32 flags2;                // bit 0x20 cleared by FUN_800cf5ec
     /* +194C */ u32 unk_194c;               // auto: 4 uses in 4 functions
     /* +1950 */ u32 target_angle;        // angle eases toward it, then angle = target_angle
-    /* +1954 */ s32 unk_1954;               // auto: 5 uses in 4 functions
+    /* +1954 */ s32 move_start_angle;    // = angle when a move starts (with move_start)
     /* +1958 */ s32 turn_speed;          // added to angle every update; set as degrees * 0x10000 / 360
     /* +195C */ u8 unk_195c[0x1];
     /* +195D */ u8 unk_195d;                // auto: 2 uses in 2 functions
@@ -291,10 +291,10 @@ typedef struct cr_Robo {
     /* +198C */ u16 countdown_198c;      // tested == 0, decremented, refilled from a table (DAT_803bfe7c[0xb])
     /* +198E */ u8 unk_198e;
     /* +198F */ u8 unk_198f;
-    /* +1990 */ s16 unk_1990;               // auto: 4 uses in 2 functions
+    /* +1990 */ s16 countdown_1990;      // tested == 0, decremented, loaded from script data
     /* +1992 */ u8 unk_1992[0x2];
-    /* +1994 */ u16 unk_1994;               // auto: 4 uses in 2 functions
-    /* +1996 */ s16 unk_1996;               // auto: 4 uses in 2 functions
+    /* +1994 */ u16 action;              // low byte selects behaviour in a switch, high byte tested separately; copied from script data
+    /* +1996 */ s16 target_scene_id;     // compared with other robos' scene_id (FUN_8009aec4)
     /* +1998 */ u8 unk_1998[0x1];
     /* +1999 */ u8 unk_1999;                // auto: 1 uses in 1 functions
     /* +199A */ u8 unk_199a;                // auto: 1 uses in 1 functions

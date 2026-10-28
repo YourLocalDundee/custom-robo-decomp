@@ -155,6 +155,8 @@ gameTesting\
 
 35. **Area triggers** (Oct 27, 2026): `cr_AreaTriggers_Update` (0x800B5D4C) loops `cr_g_AreaTriggers` (0x803BAF28, 28 x `cr_AreaTrigger` of 0x40 bytes = the 0x700-byte object decomp-toolkit found there): flags (bit 1 in use, 0x20 test), min/max Vec3 box, robo index at +0x2A; tests whether that robo's x/z is inside the box (story-mode areas, most likely). FUN_8009aec4 (called after the robo loop) is a big game-mode state machine on DAT_803bf941 - not named yet.
 
+36. **More cr_Robo fields** (Oct 27, 2026): `scene_id` (+0x193C) / `target_scene_id` (+0x1996) - one robo's target is compared with the others' ID; `built_number` (+0x1940, rebuild when build_number differs); `move_start_angle` (+0x1954); `countdown_1990`; `action` (+0x1994: low byte drives a switch, high byte tested; from script data). Open: the 4 floats +0x196C..0x1978 (written together, negated values), the conflicting byte/word offsets in docs/struct_cr_Robo.md, the big front of the struct (+0x5C..+0x2D6, +0x3F6..+0x6E8, +0x6F8..+0xB3C, +0xE18..).
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.
