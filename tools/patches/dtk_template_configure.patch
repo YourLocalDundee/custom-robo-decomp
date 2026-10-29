@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,324 @@ def MatchingFor(*versions):
+@@ -284,18 +307,315 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -184,6 +184,15 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/dvd/fstload.c",
 +    "dolphin/dsp/dsp_debug.c",
 +    "dolphin/card/CARDNet.c",
++    "dolphin/mtx/mtx.c",
++    "dolphin/card/CARDUnlock.c",
++    "dolphin/card/CARDBlock.c",
++    "dolphin/card/CARDDir.c",
++    "dolphin/card/CARDCheck.c",
++    "dolphin/card/CARDFormat.c",
++    "dolphin/card/CARDCreate.c",
++    "dolphin/card/CARDDelete.c",
++    "dolphin/card/CARDStat.c",
 +    "dolphin/gx/GXBump.c",
 +    "dolphin/gx/GXDisplayList.c",
 +    "dolphin/odenotstub/odenotstub.c",
@@ -297,30 +306,14 @@ diff --git a/configure.py b/configure.py
 +        "data: the C defines data that main.dol has in a dtk automatic object, so linking it changes main.dol",
 +    "dolphin/ax/AXVPB.c":
 +        "code: 4 of 22 functions differ (__AXSetPBDefault 89%, fn_80146ED8 0%, fn_801470D8 0%, fn_8014719C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
-+    "dolphin/card/CARDBlock.c":
-+        "code: 3 of 6 functions differ (fn_8014D714 0%, fn_8014D71C 0%, fn_8014D7F0 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
-+    "dolphin/card/CARDCheck.c":
-+        "code: 1 of 6 functions differ (fn_8014DD7C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
-+    "dolphin/card/CARDCreate.c":
-+        "link: calls / uses __CARDBlock, __CARDGetFatBlock, __CARDUpdateDir, which our symbols do not name yet (dtk default names)",
-+    "dolphin/card/CARDDelete.c":
-+        "link: calls / uses __CARDBlock, __CARDUpdateDir, which our symbols do not name yet (dtk default names)",
-+    "dolphin/card/CARDDir.c":
-+        "code: 3 of 4 functions differ (fn_8014DB20 0%, fn_8014DBF0 0%, fn_8014DCB8 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
-+    "dolphin/card/CARDFormat.c":
-+        "link: calls / uses __CARDBlock, __CARDCheckSum, which our symbols do not name yet (dtk default names)",
 +    "dolphin/card/CARDMount.c":
 +        "code: 1 of 7 functions differ (DoMount 93%): the reference is another revision",
 +    "dolphin/card/CARDOpen.c":
-+        "link: calls / uses __CARDDiskNone, which our symbols do not name yet (dtk default names)",
++        "link: uses __CARDPermMask, which CARDNet.c (linked from C) defines in its .sdata, but the data split left that piece (0x8044EE40-0x8044EE48: __CARDVendorID, __CARDPermMask) in a dtk automatic object, so naming it there would define it twice; give CARDNet.c that .sdata piece first",
 +    "dolphin/card/CARDRdwr.c":
 +        "code: 2 of 4 functions differ (BlockWriteCallback 78%, __CARDWrite 80%): the reference is another revision",
-+    "dolphin/card/CARDStat.c":
-+        "link: calls / uses __CARDSync, __CARDUpdateDir, which our symbols do not name yet (dtk default names)",
-+    "dolphin/card/CARDUnlock.c":
-+        "code: 1 of 6 functions differ (fn_8014C234 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
 +    "dolphin/dsp/dsp_task.c":
-+        "link: calls / uses DSPCheckMailToDSP, which our symbols do not name yet (dtk default names)",
++        "data: the C defines data that main.dol has in a dtk automatic object (.sbss 0x24), so linking it changes main.dol",
 +    "dolphin/exi/EXIBios.c":
 +        "code: 22 of 23 functions differ (SetExiInterruptMask 90%, EXIImm 44%, EXIImmEx 95%, EXIDma 68% (+18 more)): the reference is another revision",
 +    "dolphin/exi/EXIUart.c":
@@ -345,8 +338,6 @@ diff --git a/configure.py b/configure.py
 +        "data: the C defines data that main.dol has in a dtk automatic object (.data 0x318), so linking it changes main.dol",
 +    "dolphin/gx/GXTransform.c":
 +        "data: the C defines data that main.dol has in a dtk automatic object (.sdata2 0x14), so linking it changes main.dol",
-+    "dolphin/mtx/mtx.c":
-+        "link: calls / uses PSVECCrossProduct, which our symbols do not name yet (dtk default names)",
 +    "dolphin/os/OS.c":
 +        "code: 2 of 15 functions differ (ClearArena 78%, OSInit 73%): the reference is another revision",
 +    "dolphin/os/OSAlarm.c":
@@ -372,7 +363,7 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/vi/vi.c":
 +        "code: 4 of 22 functions differ (getTiming 95%, __VIInit 81%, VIConfigure 92%, VIGetTvFormat 100%): the reference is another revision",
 +    "sysdolphin/baselib/object.c":
-+        "link: calls / uses hsdClass, which our symbols do not name yet (dtk default names)",
++        "data: the C defines data that main.dol has in a dtk automatic object (.data 0x54), so linking it changes main.dol",
 +    "sysdolphin/baselib/util.c":
 +        "data: the C defines data that main.dol has in a dtk automatic object (.data 0x58), so linking it changes main.dol",
 +}

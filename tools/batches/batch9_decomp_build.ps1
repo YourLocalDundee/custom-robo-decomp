@@ -19,6 +19,9 @@
 #   5. SHA-1 of decomp/build/GXCE01/main.dol == retail, written to decomp/reports/build_report.txt.
 #   5b. tools/check_c_objects.py: every C object linked is 100% code and data in objdiff; every other C file is listed
 #      with its reason; per-library progress -> decomp/reports/progress_report.txt, provenance -> sources_report.txt.
+#   5c. tools/check_c_callsites.py: every name of symbols/symbols.txt tagged "c-callsite" (rule R7) is re-derived from the
+#      matched C: the relocation of a 100% function at that call site and main.elf's relocation there agree on the
+#      address; other names the matched C gives to dtk default names are listed -> decomp/reports/c_callsites_report.txt.
 #   6. tools/gen_dtk_relocs.py --check: the built main.elf has no missed pointer, no false one, and every relocated
 #      value equals its target (appended to relocs_report.txt).
 #   7. tools/shift_test.py: the static shift test (Milestone 2) on a scratch copy of the build (decomp/build/shift/):
@@ -83,6 +86,8 @@ $report[1..3]
 if (-not $ok) { throw "built main.dol SHA-1 $sha1 is not the retail $retail" }
 python -I "$g/tools/check_c_objects.py"
 if ($LASTEXITCODE) { throw 'a C object is not 100% in objdiff, or a C file is not accounted for (decomp/reports/progress_report.txt)' }
+python -I "$g/tools/check_c_callsites.py"
+if ($LASTEXITCODE) { throw 'a // c-callsite name of symbols/symbols.txt is not confirmed by the matched C call sites (decomp/reports/c_callsites_report.txt)' }
 python -I "$g/tools/gen_dtk_relocs.py" --check
 if ($LASTEXITCODE) { throw 'the built main.elf still has relocation misses / false positives (decomp/reports/relocs_report.txt)' }
 python -I "$g/tools/shift_test.py"

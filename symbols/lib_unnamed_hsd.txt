@@ -126,7 +126,7 @@
 0x8017F1AC size:0x18  no asserts; strings: none; 0 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8017F1C4 size:0x18  no asserts; strings: none; 0 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8017F1DC size:0x2DC  only header asserts (jobj.h); strings: none; 3 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
-0x8017F4B8 size:0x1270  assert match melee:hsd_8039DAD4 rejected (size/order/neighbour/conflict); strings: none; 9 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
+0x8017F4B8 size:0x1270  assert match melee:hsd_8039DAD4 rejected (size/order/neighbour/conflict); strings: none; 10 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x80180728 size:0x3A0  only header asserts (jobj.h); strings: none; 4 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x80180AC8 size:0xAC  only header asserts (object.h); strings: none; 0 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x80180B74 size:0x730  no asserts; strings: none; 1 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
@@ -236,7 +236,7 @@
 0x8019E60C size:0x308  no asserts; strings: none; 1 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8019EB5C size:0x430  no asserts; strings: none; 3 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8019EF8C size:0x320  no asserts; strings: none; 5 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
-0x8019F2AC size:0x338  no asserts; strings: none; 1 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
+0x8019F2AC size:0x338  no asserts; strings: none; 2 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8019FAD8 size:0x13C  no asserts; strings: none; 3 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8019FC14 size:0x2D8  no asserts; strings: none; 3 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x801A033C size:0x30  no asserts; strings: none; 0 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it

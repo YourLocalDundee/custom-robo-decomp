@@ -75,25 +75,25 @@ GetDates = .text:0x80138FA4; // type:function size:0x19C ref:ac-decomp/GAFE01_00
 OSTicksToCalendarTime = .text:0x80139140; // type:function size:0x204 ref:kar_wowjinxy/GKYE01 ref_size:0x204 anchors:0x80138FA4-0x80139344
 // evidence __DBExceptionDestinationAux 0x80139400: callees OSDumpContext,PPCHalt; caller __DBExceptionDestination
 __DBExceptionDestinationAux = .text:0x80139400; // type:function size:0x48 ref:ac-decomp/GAFE01_00 ref_size:0x48 anchors:0x801393D8-0x80139448
-PSMTXIdentity = .text:0x801394C4; // type:function size:0x2C ref:ac-decomp/GAFE01_00 ref_size:0x2C anchors:0x80139474-0x8013A2C0
+PSMTXIdentity = .text:0x801394C4; // type:function size:0x2C ref:ac-decomp/GAFE01_00 ref_size:0x2C anchors:0x80139474-0x8013A284
 // evidence PSMTXCopy 0x801394F0: caller SetupSharedVtxModelMtx; caller SetupEnvelopeModelMtx; caller JObjUpdateFunc; caller HSD_JObjDispDObj
-PSMTXCopy = .text:0x801394F0; // type:function size:0x34 ref:ac-decomp/GAFE01_00 ref_size:0x34 anchors:0x80139474-0x8013A2C0
+PSMTXCopy = .text:0x801394F0; // type:function size:0x34 ref:ac-decomp/GAFE01_00 ref_size:0x34 anchors:0x80139474-0x8013A284
 // evidence PSMTXConcat 0x80139524: caller MakeTextureMtx; caller TObjSetupMtx; caller SetupSharedVtxModelMtx; caller SetupEnvelopeModelMtx; caller mkRBillBoardMtx; caller HSD_JObjMakePositionMtx; caller _HSD_mkEnvelopeModelNodeMtx; caller HSD_MtxSRTQuat; caller makeMatrix
-PSMTXConcat = .text:0x80139524; // type:function size:0xCC ref:marioparty4/GMPE01_00 ref_size:0xCC anchors:0x801394F0-0x8013A2C0
-PSMTXTranspose = .text:0x801395F0; // type:function size:0x50 ref:marioparty4/GMPE01_00 ref_size:0x50 anchors:0x801394F0-0x8013A2C0
+PSMTXConcat = .text:0x80139524; // type:function size:0xCC ref:marioparty4/GMPE01_00 ref_size:0xCC anchors:0x801394F0-0x8013A284
+PSMTXTranspose = .text:0x801395F0; // type:function size:0x50 ref:marioparty4/GMPE01_00 ref_size:0x50 anchors:0x801394F0-0x8013A284
 // evidence PSMTXInverse 0x80139640: caller HSD_CObjGetInvViewingMtxPtrDirect; caller _HSD_mkEnvelopeModelNodeMtx
-PSMTXInverse = .text:0x80139640; // type:function size:0xF8 ref:marioparty4/GMPE01_00 ref_size:0xF8 anchors:0x801394F0-0x8013A2C0
+PSMTXInverse = .text:0x80139640; // type:function size:0xF8 ref:marioparty4/GMPE01_00 ref_size:0xF8 anchors:0x801394F0-0x8013A284
 PSMTXInvXpose = .text:0x80139738; // type:function size:0xC8 ref:marioparty4/GMPE01_00 ref_size:0xC8 anchors:0x80139640-0x80139800
 // evidence PSMTXRotRad 0x80139800: callees PSMTXRotTrig; caller mkRBillBoardMtx
-PSMTXRotRad = .text:0x80139800; // type:function size:0x70 ref:marioparty4/GMPE01_00 ref_size:0x70 anchors:0x801394F0-0x8013A2C0
+PSMTXRotRad = .text:0x80139800; // type:function size:0x70 ref:marioparty4/GMPE01_00 ref_size:0x70 anchors:0x801394F0-0x8013A284
 PSMTXRotTrig = .text:0x80139870; // type:function size:0xB0 ref:mkdd/MarioClub_us ref_size:0xB0 anchors:0x80139800-0x80139A74
 __PSMTXRotAxisRadInternal = .text:0x80139920; // type:function size:0xB0 ref:mkdd/MarioClub_us ref_size:0xB0 anchors:0x80139800-0x80139A74
 // evidence PSMTXRotAxisRad 0x801399D0: callees __PSMTXRotAxisRadInternal; caller roll2upvec; caller resolveIKJoint1; caller resolveIKJoint2
 PSMTXRotAxisRad = .text:0x801399D0; // type:function size:0x70 ref:mkdd/MarioClub_us ref_size:0x70 anchors:0x80139800-0x80139A74
 // evidence PSMTXScale 0x80139A74: caller MakeTextureMtx; caller mkRBillBoardMtx; caller HSD_MtxSRTQuat
-PSMTXScale = .text:0x80139A74; // type:function size:0x28 ref:marioparty4/GMPE01_00 ref_size:0x28 anchors:0x801394F0-0x8013A2C0
-PSMTXQuat = .text:0x80139A9C; // type:function size:0xA4 ref:marioparty4/GMPE01_00 ref_size:0xA4 anchors:0x801394F0-0x8013A2C0
-// evidence C_MTXLookAt 0x80139B40: callees PSVECNormalize; caller upvec2roll
+PSMTXScale = .text:0x80139A74; // type:function size:0x28 ref:marioparty4/GMPE01_00 ref_size:0x28 anchors:0x801394F0-0x8013A284
+PSMTXQuat = .text:0x80139A9C; // type:function size:0xA4 ref:marioparty4/GMPE01_00 ref_size:0xA4 anchors:0x801394F0-0x8013A284
+// evidence C_MTXLookAt 0x80139B40: callees PSVECCrossProduct,PSVECNormalize; caller upvec2roll
 C_MTXLookAt = .text:0x80139B40; // type:function size:0x18C ref:sms/GMSE01 ref_size:0x18C anchors:0x80139A9C-0x80139E2C
 C_MTXLightFrustum = .text:0x80139CCC; // type:function size:0x94 ref:sms/GMSE01 ref_size:0x94 anchors:0x80139A9C-0x80139E2C
 C_MTXLightPerspective = .text:0x80139D60; // type:function size:0xCC ref:sms/GMSE01 ref_size:0xCC anchors:0x80139A9C-0x80139E2C
@@ -104,20 +104,20 @@ PSMTXMultVec = .text:0x80139EB4; // type:function size:0x54 ref:mkdd/MarioClub_u
 PSMTXMultVecSR = .text:0x80139F08; // type:function size:0x54 ref:ttyd/G8MJ01 ref_size:0x54 anchors:0x80139EB4-0x80139FF8
 C_MTXFrustum = .text:0x80139F5C; // type:function size:0x9C ref:ttyd/G8MJ01 ref_size:0x9C anchors:0x80139EB4-0x80139FF8
 C_MTXPerspective = .text:0x80139FF8; // type:function size:0xD0 ref:mkdd/MarioClub_us ref_size:0xD0 anchors:0x80139A9C-0x8013A0C8
-C_MTXOrtho = .text:0x8013A0C8; // type:function size:0x98 ref:marioparty4/GMPE01_00 ref_size:0x98 anchors:0x801394F0-0x8013A2C0
+C_MTXOrtho = .text:0x8013A0C8; // type:function size:0x98 ref:marioparty4/GMPE01_00 ref_size:0x98 anchors:0x801394F0-0x8013A284
 // evidence PSVECAdd 0x8013A160: caller HSD_LObjSetupSpecularInit; caller resolveIKJoint1; caller resolveIKJoint2; caller HSD_JObjSetupMatrixSub (best alternative 3)
-PSVECAdd = .text:0x8013A160; // type:function size:0x24 ref:marioparty4/GMPE01_00 ref_size:0x24 anchors:0x801394F0-0x8013A2C0
+PSVECAdd = .text:0x8013A160; // type:function size:0x24 ref:marioparty4/GMPE01_00 ref_size:0x24 anchors:0x801394F0-0x8013A284
 // evidence PSVECSubtract 0x8013A184: caller HSD_LObjSetupSpecularInit; caller resolveIKJoint1; caller resolveIKJoint2; caller HSD_MtxGetScale; caller resolveCnsDirUp; caller HSD_ViewingRectInit
-PSVECSubtract = .text:0x8013A184; // type:function size:0x24 ref:marioparty4/GMPE01_00 ref_size:0x24 anchors:0x801394F0-0x8013A2C0
+PSVECSubtract = .text:0x8013A184; // type:function size:0x24 ref:marioparty4/GMPE01_00 ref_size:0x24 anchors:0x801394F0-0x8013A284
 // evidence PSVECScale 0x8013A1A8: caller resolveIKJoint1; caller resolveIKJoint2; caller HSD_JObjSetupMatrixSub; caller mkHBillBoardMtx; caller mkBillBoardMtx; caller HSD_MtxGetScale
-PSVECScale = .text:0x8013A1A8; // type:function size:0x1C ref:marioparty4/GMPE01_00 ref_size:0x1C anchors:0x801394F0-0x8013A2C0
+PSVECScale = .text:0x8013A1A8; // type:function size:0x1C ref:marioparty4/GMPE01_00 ref_size:0x1C anchors:0x801394F0-0x8013A284
 // evidence PSVECNormalize 0x8013A1C4: caller TObjSetupMtx; caller HSD_LObjSetupSpecularInit; caller roll2upvec; caller resolveIKJoint2; caller mkHBillBoardMtx; caller HSD_ViewingRectInit
-PSVECNormalize = .text:0x8013A1C4; // type:function size:0x44 ref:marioparty4/GMPE01_00 ref_size:0x44 anchors:0x801394F0-0x8013A2C0
+PSVECNormalize = .text:0x8013A1C4; // type:function size:0x44 ref:marioparty4/GMPE01_00 ref_size:0x44 anchors:0x801394F0-0x8013A284
 PSVECSquareMag = .text:0x8013A208; // type:function size:0x18 ref:tp/DZDE01 ref_size:0x18 anchors:0x8013A1C4-0x8013A264
 // evidence PSVECMag 0x8013A220: caller mkHBillBoardMtx; caller mkBillBoardMtx; caller HSD_MtxGetScale; caller HSD_ViewingRectInit
 PSVECMag = .text:0x8013A220; // type:function size:0x44 ref:tp/DZDE01 ref_size:0x44 anchors:0x8013A1C4-0x8013A264
 // evidence PSVECDotProduct 0x8013A264: caller upvec2roll; caller resolveIKJoint1; caller resolveIKJoint2; caller HSD_JObjSetupMatrixSub; caller HSD_MtxGetScale; caller resolveCnsDirUp
-PSVECDotProduct = .text:0x8013A264; // type:function size:0x20 ref:mkdd/MarioClub_us ref_size:0x20 anchors:0x8013A1C4-0x8013A2C0
+PSVECDotProduct = .text:0x8013A264; // type:function size:0x20 ref:mkdd/MarioClub_us ref_size:0x20 anchors:0x8013A1C4-0x8013A284
 Read = .text:0x8013A6D4; // type:function size:0x110 ref:ac-decomp/GAFE01_00 ref_size:0x110 anchors:0x8013A664-0x8013AB90
 SeekTwiceBeforeRead = .text:0x8013A7E4; // type:function size:0x80 ref:ac-decomp/GAFE01_00 ref_size:0x80 anchors:0x8013A664-0x8013AB90
 DVDLowRead = .text:0x8013A864; // type:function size:0x298 ref:ac-decomp/GAFE01_00 ref_size:0x298 anchors:0x8013A664-0x8013AB90
@@ -254,25 +254,25 @@ AIInitDMA = .text:0x80141FE8; // type:function size:0x88 ref:ac-decomp/GAFE01_00
 AIStartDMA = .text:0x80142070; // type:function size:0x18 ref:ttyd/G8MJ01 ref_size:0x18 anchors:0x80141FE8-0x801420A4
 // evidence AISetStreamPlayState 0x801420A4: callees AIGetStreamPlayState,AIGetStreamSampleRate,AIGetStreamVolLeft,AIGetStreamVolRight,AISetStreamVolLeft,AISetStreamVolRight,OSDisableInterrupts,OSRestoreInterrupts,__AI_SRC_INIT; caller __OSReboot; caller __AI_set_stream_sample_rate
 AISetStreamPlayState = .text:0x801420A4; // type:function size:0xD8 ref:marioparty4/GMPE01_00 ref_size:0xD8 anchors:0x80141FE8-0x8014217C
-AIGetStreamPlayState = .text:0x8014217C; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x80141F28-0x8018678C
+AIGetStreamPlayState = .text:0x8014217C; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x80141F28-0x8014C14C
 // evidence AISetDSPSampleRate 0x8014218C: callees AIGetDSPSampleRate,AIGetStreamSampleRate,AIGetStreamVolLeft,AIGetStreamVolRight,AISetStreamVolLeft,AISetStreamVolRight,OSDisableInterrupts,OSRestoreInterrupts
-AISetDSPSampleRate = .text:0x8014218C; // type:function size:0xE0 ref:melee/GALE01 ref_size:0xE0 anchors:0x80141F28-0x8018678C
-AIGetDSPSampleRate = .text:0x8014226C; // type:function size:0x14 ref:melee/GALE01 ref_size:0x14 anchors:0x80141F28-0x8018678C
-__AI_set_stream_sample_rate = .text:0x80142280; // type:function size:0xD4 ref:melee/GALE01 ref_size:0xD4 anchors:0x80141F28-0x8018678C
-AIGetStreamSampleRate = .text:0x80142354; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x80141F28-0x8018678C
-AISetStreamVolLeft = .text:0x80142364; // type:function size:0x1C ref:melee/GALE01 ref_size:0x1C anchors:0x80141F28-0x8018678C
-AIGetStreamVolLeft = .text:0x80142380; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x80141F28-0x8018678C
-AISetStreamVolRight = .text:0x80142390; // type:function size:0x1C ref:melee/GALE01 ref_size:0x1C anchors:0x80141F28-0x8018678C
-AIGetStreamVolRight = .text:0x801423AC; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x80141F28-0x8018678C
+AISetDSPSampleRate = .text:0x8014218C; // type:function size:0xE0 ref:melee/GALE01 ref_size:0xE0 anchors:0x80141F28-0x8014C14C
+AIGetDSPSampleRate = .text:0x8014226C; // type:function size:0x14 ref:melee/GALE01 ref_size:0x14 anchors:0x80141F28-0x8014C14C
+__AI_set_stream_sample_rate = .text:0x80142280; // type:function size:0xD4 ref:melee/GALE01 ref_size:0xD4 anchors:0x80141F28-0x8014C14C
+AIGetStreamSampleRate = .text:0x80142354; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x80141F28-0x8014C14C
+AISetStreamVolLeft = .text:0x80142364; // type:function size:0x1C ref:melee/GALE01 ref_size:0x1C anchors:0x80141F28-0x8014C14C
+AIGetStreamVolLeft = .text:0x80142380; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x80141F28-0x8014C14C
+AISetStreamVolRight = .text:0x80142390; // type:function size:0x1C ref:melee/GALE01 ref_size:0x1C anchors:0x80141F28-0x8014C14C
+AIGetStreamVolRight = .text:0x801423AC; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x80141F28-0x8014C14C
 // evidence AIInit 0x801423BC: callees OSRegisterVersion,__AI_set_stream_sample_rate,__OSSetInterruptHandler,__OSUnmaskInterrupts
-AIInit = .text:0x801423BC; // type:function size:0x16C ref:melee/GALE01 ref_size:0x164 anchors:0x80141F28-0x8018678C
+AIInit = .text:0x801423BC; // type:function size:0x16C ref:melee/GALE01 ref_size:0x164 anchors:0x80141F28-0x8014C14C
 // evidence __AISHandler 0x80142528: callees OSClearContext,OSSetCurrentContext
 __AISHandler = .text:0x80142528; // type:function size:0x7C ref:ac-decomp/GAFU01_00 ref_size:0x7C anchors:0x801423BC-0x801426A8
 // evidence __AIDHandler 0x801425A4: callees OSClearContext,OSSetCurrentContext,__AICallbackStackSwitch
 __AIDHandler = .text:0x801425A4; // type:function size:0xAC ref:ac-decomp/GAFU01_00 ref_size:0xAC anchors:0x801423BC-0x801426A8
 __AICallbackStackSwitch = .text:0x80142650; // type:function size:0x58 ref:ac-decomp/GAFU01_00 ref_size:0x58 anchors:0x801423BC-0x801426A8
 // evidence __AI_SRC_INIT 0x801426A8: callees OSGetTime; caller __AI_set_stream_sample_rate
-__AI_SRC_INIT = .text:0x801426A8; // type:function size:0x1E4 ref:melee/GALE01 ref_size:0x1E4 anchors:0x80141F28-0x8018678C
+__AI_SRC_INIT = .text:0x801426A8; // type:function size:0x1E4 ref:melee/GALE01 ref_size:0x1E4 anchors:0x80141F28-0x8014C14C
 // evidence ARRegisterDMACallback 0x8014288C: callees OSDisableInterrupts,OSRestoreInterrupts; caller ARQInit
 ARRegisterDMACallback = .text:0x8014288C; // type:function size:0x44 ref:ac-decomp/GAFU01_00 ref_size:0x44 anchors:0x801426A8-0x801429FC
 // evidence ARGetDMAStatus 0x801428D0: callees OSDisableInterrupts,OSRestoreInterrupts
@@ -280,82 +280,81 @@ ARGetDMAStatus = .text:0x801428D0; // type:function size:0x3C ref:ac-decomp/GAFU
 // evidence ARStartDMA 0x8014290C: callees OSDisableInterrupts,OSRestoreInterrupts; caller __ARQServiceQueueLo; caller __ARQInterruptServiceRoutine
 ARStartDMA = .text:0x8014290C; // type:function size:0xF0 ref:ac-decomp/GAFU01_00 ref_size:0xF0 anchors:0x801426A8-0x801429FC
 // evidence ARAlloc 0x801429FC: callees OSDisableInterrupts,OSRestoreInterrupts
-ARAlloc = .text:0x801429FC; // type:function size:0x68 ref:ac-decomp/GAFE01_00 ref_size:0x68 anchors:0x801426A8-0x8014AF54
+ARAlloc = .text:0x801429FC; // type:function size:0x68 ref:ac-decomp/GAFE01_00 ref_size:0x68 anchors:0x801426A8-0x8014A42C
 __ARClearInterrupt = .text:0x80142BA0; // type:function size:0x20 ref:ac-decomp/GAFU01_00 ref_size:0x20 anchors:0x801429FC-0x801444C4
 __ARGetInterruptStatus = .text:0x80142BC0; // type:function size:0x10 ref:ac-decomp/GAFU01_00 ref_size:0x10 anchors:0x801429FC-0x801444C4
 // evidence __ARChecksize 0x80142BD0: callees DCFlushRange,DCInvalidateRange,PPCSync
 __ARChecksize = .text:0x80142BD0; // type:function size:0x17F4 ref:ac-decomp/GAFU01_00 ref_size:0x17F4 anchors:0x801429FC-0x801444C4
 __ARQServiceQueueLo = .text:0x801443C4; // type:function size:0x100 ref:ac-decomp/GAFU01_00 ref_size:0x100 anchors:0x801429FC-0x801444C4
-__ARQCallbackHack = .text:0x801444C4; // type:function size:0x4 ref:ac-decomp/GAFE01_00 ref_size:0x4 anchors:0x801426A8-0x8014AF54
+__ARQCallbackHack = .text:0x801444C4; // type:function size:0x4 ref:ac-decomp/GAFE01_00 ref_size:0x4 anchors:0x801426A8-0x8014A42C
 // evidence __ARQInterruptServiceRoutine 0x801444C8: callees __ARQServiceQueueLo
-__ARQInterruptServiceRoutine = .text:0x801444C8; // type:function size:0xCC ref:ac-decomp/GAFE01_00 ref_size:0xCC anchors:0x801426A8-0x8014AF54
+__ARQInterruptServiceRoutine = .text:0x801444C8; // type:function size:0xCC ref:ac-decomp/GAFE01_00 ref_size:0xCC anchors:0x801426A8-0x8014A42C
 // evidence ARQInit 0x80144594: callees OSRegisterVersion
-ARQInit = .text:0x80144594; // type:function size:0x70 ref:ac-decomp/GAFE01_00 ref_size:0x68 anchors:0x801426A8-0x8014AF54
-DSPCheckMailFromDSP = .text:0x8014A43C; // type:function size:0x10 ref:ttyd/G8MJ01 ref_size:0x10 anchors:0x80144594-0x8014A6CC
-// evidence DSPReadMailFromDSP 0x8014A44C: caller __DSPHandler; caller __DSP_boot_task
-DSPReadMailFromDSP = .text:0x8014A44C; // type:function size:0x18 ref:ttyd/G8MJ01 ref_size:0x18 anchors:0x80144594-0x8014A6CC
-DSPSendMailToDSP = .text:0x8014A464; // type:function size:0x14 ref:ttyd/G8MJ01 ref_size:0x14 anchors:0x80144594-0x8014A6CC
-// evidence __DSPHandler 0x8014A6CC: callees DSPCheckMailFromDSP,DSPSendMailToDSP,OSClearContext,OSSetCurrentContext,__DSP_exec_task,__DSP_remove_task
-__DSPHandler = .text:0x8014A6CC; // type:function size:0x424 ref:marioparty4/GMPE01_00 ref_size:0x424 anchors:0x80144594-0x801517C4
-__DSP_exec_task = .text:0x8014AAF0; // type:function size:0x1A0 ref:marioparty4/GMPE01_00 ref_size:0x1A0 anchors:0x80144594-0x801517C4
-// evidence __DSP_boot_task 0x8014AC90: callees DSPCheckMailFromDSP,DSPSendMailToDSP
-__DSP_boot_task = .text:0x8014AC90; // type:function size:0x18C ref:marioparty4/GMPE01_00 ref_size:0x18C anchors:0x80144594-0x801517C4
+ARQInit = .text:0x80144594; // type:function size:0x70 ref:ac-decomp/GAFE01_00 ref_size:0x68 anchors:0x801426A8-0x8014A42C
+DSPCheckMailFromDSP = .text:0x8014A43C; // type:function size:0x10 ref:ac-decomp/GAFE01_00 ref_size:0x10 anchors:0x8014A42C-0x8014AF54
+DSPReadMailFromDSP = .text:0x8014A44C; // type:function size:0x18 ref:ac-decomp/GAFE01_00 ref_size:0x18 anchors:0x8014A42C-0x8014AF54
+// evidence DSPSendMailToDSP 0x8014A464: caller __DSP_exec_task; caller InitCallback
+DSPSendMailToDSP = .text:0x8014A464; // type:function size:0x14 ref:marioparty4/GMPE01_00 ref_size:0x14 anchors:0x8014A44C-0x801517C4
+// evidence __DSPHandler 0x8014A6CC: callees DSPCheckMailFromDSP,DSPCheckMailToDSP,DSPReadMailFromDSP,OSClearContext,OSSetCurrentContext,__DSP_exec_task,__DSP_remove_task
+__DSPHandler = .text:0x8014A6CC; // type:function size:0x424 ref:marioparty4/GMPE01_00 ref_size:0x424 anchors:0x8014A44C-0x801517C4
+__DSP_exec_task = .text:0x8014AAF0; // type:function size:0x1A0 ref:marioparty4/GMPE01_00 ref_size:0x1A0 anchors:0x8014A44C-0x801517C4
+// evidence __DSP_boot_task 0x8014AC90: callees DSPCheckMailFromDSP,DSPCheckMailToDSP,DSPReadMailFromDSP
+__DSP_boot_task = .text:0x8014AC90; // type:function size:0x18C ref:marioparty4/GMPE01_00 ref_size:0x18C anchors:0x8014A44C-0x801517C4
 __DSP_insert_task = .text:0x8014AE1C; // type:function size:0xA0 ref:mkdd/MarioClub_us ref_size:0xA0 anchors:0x8014AC90-0x8014AF54
 __DSP_remove_task = .text:0x8014AEBC; // type:function size:0x94 ref:mkdd/MarioClub_us ref_size:0x94 anchors:0x8014AC90-0x8014AF54
 __CARDDefaultApiCallback = .text:0x8014AF50; // type:function size:0x4 ref:mkdd/MarioClub_us ref_size:0x4 anchors:0x8014AC90-0x8014AF54
-__CARDSyncCallback = .text:0x8014AF54; // type:function size:0x34 ref:melee/GALE01 ref_size:0x34 anchors:0x80141F28-0x8018678C
-__CARDExtHandler = .text:0x8014AF88; // type:function size:0xD8 ref:melee/GALE01 ref_size:0xD8 anchors:0x80141F28-0x8018678C
+__CARDSyncCallback = .text:0x8014AF54; // type:function size:0x34 ref:melee/GALE01 ref_size:0x34 anchors:0x80141F28-0x8014C14C
+__CARDExtHandler = .text:0x8014AF88; // type:function size:0xD8 ref:melee/GALE01 ref_size:0xD8 anchors:0x80141F28-0x8014C14C
 // evidence __CARDExiHandler 0x8014B060: callees EXILock,EXIUnlock,__CARDReadStatus
-__CARDExiHandler = .text:0x8014B060; // type:function size:0x118 ref:melee/GALE01 ref_size:0x118 anchors:0x80141F28-0x8018678C
+__CARDExiHandler = .text:0x8014B060; // type:function size:0x118 ref:melee/GALE01 ref_size:0x118 anchors:0x80141F28-0x8014C14C
 // evidence __CARDTxHandler 0x8014B178: callees EXIDeselect,EXIUnlock
-__CARDTxHandler = .text:0x8014B178; // type:function size:0xA8 ref:melee/GALE01 ref_size:0xA8 anchors:0x80141F28-0x8018678C
-__CARDUnlockedHandler = .text:0x8014B220; // type:function size:0x84 ref:melee/GALE01 ref_size:0x84 anchors:0x80141F28-0x8018678C
-__CARDEnableInterrupt = .text:0x8014B2A4; // type:function size:0xC0 ref:melee/GALE01 ref_size:0xC0 anchors:0x80141F28-0x8018678C
-__CARDReadStatus = .text:0x8014B364; // type:function size:0xF0 ref:melee/GALE01 ref_size:0xF0 anchors:0x80141F28-0x8018678C
+__CARDTxHandler = .text:0x8014B178; // type:function size:0xA8 ref:melee/GALE01 ref_size:0xA8 anchors:0x80141F28-0x8014C14C
+__CARDUnlockedHandler = .text:0x8014B220; // type:function size:0x84 ref:melee/GALE01 ref_size:0x84 anchors:0x80141F28-0x8014C14C
+__CARDEnableInterrupt = .text:0x8014B2A4; // type:function size:0xC0 ref:melee/GALE01 ref_size:0xC0 anchors:0x80141F28-0x8014C14C
+__CARDReadStatus = .text:0x8014B364; // type:function size:0xF0 ref:melee/GALE01 ref_size:0xF0 anchors:0x80141F28-0x8014C14C
 // evidence __CARDClearStatus 0x8014B454: callees EXIDeselect,EXIImm,EXISelect,EXISync
-__CARDClearStatus = .text:0x8014B454; // type:function size:0xAC ref:melee/GALE01 ref_size:0xAC anchors:0x80141F28-0x8018678C
-TimeoutHandler = .text:0x8014B500; // type:function size:0xA4 ref:melee/GALE01 ref_size:0xA4 anchors:0x80141F28-0x8018678C
+__CARDClearStatus = .text:0x8014B454; // type:function size:0xAC ref:melee/GALE01 ref_size:0xAC anchors:0x80141F28-0x8014C14C
+TimeoutHandler = .text:0x8014B500; // type:function size:0xA4 ref:melee/GALE01 ref_size:0xA4 anchors:0x80141F28-0x8014C14C
 // evidence Retry 0x8014B5A4: callees EXIDeselect,EXIDma,EXISelect,EXIUnlock,OSSetAlarm,TimeoutHandler
-Retry = .text:0x8014B5A4; // type:function size:0x22C ref:melee/GALE01 ref_size:0x22C anchors:0x80141F28-0x8018678C
+Retry = .text:0x8014B5A4; // type:function size:0x22C ref:melee/GALE01 ref_size:0x22C anchors:0x80141F28-0x8014C14C
 // evidence UnlockedCallback 0x8014B7D0: callees EXILock,__CARDUnlockedHandler
-UnlockedCallback = .text:0x8014B7D0; // type:function size:0x110 ref:melee/GALE01 ref_size:0x110 anchors:0x80141F28-0x8018678C
+UnlockedCallback = .text:0x8014B7D0; // type:function size:0x110 ref:melee/GALE01 ref_size:0x110 anchors:0x80141F28-0x8014C14C
 // evidence __CARDStart 0x8014B8E0: callees EXILock,EXISelect,EXIUnlock,OSDisableInterrupts,OSRestoreInterrupts,OSSetAlarm,TimeoutHandler,__CARDUnlockedHandler
-__CARDStart = .text:0x8014B8E0; // type:function size:0x1B4 ref:melee/GALE01 ref_size:0x1B4 anchors:0x80141F28-0x8018678C
-__CARDReadSegment = .text:0x8014BA94; // type:function size:0x134 ref:melee/GALE01 ref_size:0x134 anchors:0x80141F28-0x8018678C
-// evidence __CARDEraseSector 0x8014BCE4: callees EXIDeselect,EXIUnlock,__CARDStart; caller __CARDUpdateFatBlock; caller FormatCallback; caller __CARDFormatRegionAsync
+__CARDStart = .text:0x8014B8E0; // type:function size:0x1B4 ref:melee/GALE01 ref_size:0x1B4 anchors:0x80141F28-0x8014C14C
+__CARDReadSegment = .text:0x8014BA94; // type:function size:0x134 ref:melee/GALE01 ref_size:0x134 anchors:0x80141F28-0x8014C14C
+// evidence __CARDEraseSector 0x8014BCE4: callees EXIDeselect,EXIUnlock,__CARDStart; caller __CARDUpdateFatBlock; caller __CARDUpdateDir; caller FormatCallback; caller __CARDFormatRegionAsync
 __CARDEraseSector = .text:0x8014BCE4; // type:function size:0xE0 ref:ac-decomp/GAFU01_00 ref_size:0xE0 anchors:0x8014BA94-0x8014BEB0
 // evidence CARDInit 0x8014BDC4: callees OSCreateAlarm,OSInitAlarm,OSInitThreadQueue,OSRegisterResetFunction,OSRegisterVersion,__CARDSetDiskID
 CARDInit = .text:0x8014BDC4; // type:function size:0xAC ref:ac-decomp/GAFU01_00 ref_size:0xAC anchors:0x8014BA94-0x8014BEB0
 // evidence __CARDGetFontEncode 0x8014BE70: caller VerifyID; caller CARDFormatAsync
 __CARDGetFontEncode = .text:0x8014BE70; // type:function size:0x8 ref:ac-decomp/GAFU01_00 ref_size:0x8 anchors:0x8014BA94-0x8014BEB0
 __CARDSetDiskID = .text:0x8014BE78; // type:function size:0x38 ref:ac-decomp/GAFU01_00 ref_size:0x38 anchors:0x8014BA94-0x8014BEB0
-// evidence __CARDGetControlBlock 0x8014BEB0: callees OSDisableInterrupts,OSRestoreInterrupts; caller CARDFreeBlocks; caller CARDUnmount; caller CARDOpen; caller CARDDeleteAsync; caller CARDGetSerialNo
-__CARDGetControlBlock = .text:0x8014BEB0; // type:function size:0xB8 ref:melee/GALE01 ref_size:0xB8 anchors:0x80141F28-0x8018678C
+// evidence __CARDGetControlBlock 0x8014BEB0: callees OSDisableInterrupts,OSRestoreInterrupts; caller CARDFreeBlocks; caller CARDUnmount; caller CARDOpen; caller CARDGetSerialNo
+__CARDGetControlBlock = .text:0x8014BEB0; // type:function size:0xB8 ref:melee/GALE01 ref_size:0xB8 anchors:0x80141F28-0x8014C14C
 // evidence __CARDPutControlBlock 0x8014BF68: callees OSDisableInterrupts,OSRestoreInterrupts; caller BlockReadCallback; caller FormatCallback; caller __CARDFormatRegionAsync; caller CARDOpen; caller CreateCallbackFat; caller CARDCreateAsync; caller __CARDSeek; caller ReadCallback; caller CARDDeleteAsync; caller CARDGetStatus; caller CARDGetSerialNo
-__CARDPutControlBlock = .text:0x8014BF68; // type:function size:0x64 ref:ac-decomp/GAFE01_00 ref_size:0x64 anchors:0x8014BEB0-0x8014D494
-CARDGetResultCode = .text:0x8014BFCC; // type:function size:0x30 ref:ac-decomp/GAFE01_00 ref_size:0x30 anchors:0x8014BEB0-0x8014D494
-CARDFreeBlocks = .text:0x8014BFFC; // type:function size:0x150 ref:kar_wowjinxy/GKYE01 ref_size:0x150 anchors:0x8014BFCC-0x8014D570
+__CARDPutControlBlock = .text:0x8014BF68; // type:function size:0x64 ref:ac-decomp/GAFE01_00 ref_size:0x64 anchors:0x8014BEB0-0x8014C14C
+CARDGetResultCode = .text:0x8014BFCC; // type:function size:0x30 ref:ac-decomp/GAFE01_00 ref_size:0x30 anchors:0x8014BEB0-0x8014C14C
+CARDFreeBlocks = .text:0x8014BFFC; // type:function size:0x150 ref:kar_wowjinxy/GKYE01 ref_size:0x150 anchors:0x8014BFCC-0x8014C14C
 // evidence ReadArrayUnlock 0x8014C3A0: callees EXIDeselect,EXIImmEx,EXISelect; caller __CARDUnlock; caller DoneCallback
-ReadArrayUnlock = .text:0x8014C3A0; // type:function size:0x144 ref:mkdd/MarioClub_us ref_size:0x144 anchors:0x8014BFFC-0x8014D100
+ReadArrayUnlock = .text:0x8014C3A0; // type:function size:0x144 ref:mkdd/MarioClub_us ref_size:0x144 anchors:0x8014C14C-0x8014D100
 // evidence DummyLen 0x8014C4E4: callees OSGetTick; caller __CARDUnlock; caller DoneCallback
-DummyLen = .text:0x8014C4E4; // type:function size:0xC4 ref:mkdd/MarioClub_us ref_size:0xC4 anchors:0x8014BFFC-0x8014D100
-__CARDUnlock = .text:0x8014C5A8; // type:function size:0xB58 ref:mkdd/MarioClub_us ref_size:0xB58 anchors:0x8014BFFC-0x8014D100
-// evidence InitCallback 0x8014D100: callees DSPSendMailToDSP
-InitCallback = .text:0x8014D100; // type:function size:0x70 ref:melee/GALE01 ref_size:0x70 anchors:0x80141F28-0x8018678C
+DummyLen = .text:0x8014C4E4; // type:function size:0xC4 ref:mkdd/MarioClub_us ref_size:0xC4 anchors:0x8014C14C-0x8014D100
+__CARDUnlock = .text:0x8014C5A8; // type:function size:0xB58 ref:mkdd/MarioClub_us ref_size:0xB58 anchors:0x8014C14C-0x8014D100
+// evidence InitCallback 0x8014D100: callees DSPCheckMailToDSP
+InitCallback = .text:0x8014D100; // type:function size:0x70 ref:melee/GALE01 ref_size:0x70 anchors:0x8014C14C-0x8014D714
 // evidence DoneCallback 0x8014D170: callees EXIUnlock,__CARDReadStatus
-DoneCallback = .text:0x8014D170; // type:function size:0x324 ref:melee/GALE01 ref_size:0x324 anchors:0x80141F28-0x8018678C
-BlockReadCallback = .text:0x8014D494; // type:function size:0xDC ref:melee/GALE01 ref_size:0xDC anchors:0x80141F28-0x8018678C
-__CARDRead = .text:0x8014D570; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x80141F28-0x8018678C
-__CARDFreeBlock = .text:0x8014D9D0; // type:function size:0x9C ref:melee/GALE01 ref_size:0x9C anchors:0x80141F28-0x8018678C
-__CARDUpdateFatBlock = .text:0x8014DA6C; // type:function size:0xAC ref:melee/GALE01 ref_size:0xAC anchors:0x80141F28-0x8018678C
-// evidence __CARDGetDirBlock 0x8014DB18: caller CARDFreeBlocks; caller CARDOpen; caller CARDDeleteAsync
-__CARDGetDirBlock = .text:0x8014DB18; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x80141F28-0x8018678C
+DoneCallback = .text:0x8014D170; // type:function size:0x324 ref:melee/GALE01 ref_size:0x324 anchors:0x8014C14C-0x8014D714
+BlockReadCallback = .text:0x8014D494; // type:function size:0xDC ref:melee/GALE01 ref_size:0xDC anchors:0x8014C14C-0x8014D714
+__CARDRead = .text:0x8014D570; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x8014C14C-0x8014D714
+__CARDFreeBlock = .text:0x8014D9D0; // type:function size:0x9C ref:melee/GALE01 ref_size:0x9C anchors:0x8014D714-0x8014DB18
+// evidence __CARDUpdateFatBlock 0x8014DA6C: callees __CARDCheckSum; caller __CARDFreeBlock
+__CARDUpdateFatBlock = .text:0x8014DA6C; // type:function size:0xAC ref:melee/GALE01 ref_size:0xAC anchors:0x8014D714-0x8014DB18
 // evidence VerifyID 0x8014DF2C: callees __OSLockSramEx,__OSUnlockSramEx
-VerifyID = .text:0x8014DF2C; // type:function size:0x284 ref:melee/GALE01 ref_size:0x284 anchors:0x80141F28-0x8018678C
-VerifyDir = .text:0x8014E1B0; // type:function size:0x240 ref:melee/GALE01 ref_size:0x240 anchors:0x80141F28-0x8018678C
-VerifyFAT = .text:0x8014E3F0; // type:function size:0x284 ref:melee/GALE01 ref_size:0x284 anchors:0x80141F28-0x8018678C
+VerifyID = .text:0x8014DF2C; // type:function size:0x284 ref:melee/GALE01 ref_size:0x284 anchors:0x8014DD7C-0x80150210
+VerifyDir = .text:0x8014E1B0; // type:function size:0x240 ref:melee/GALE01 ref_size:0x240 anchors:0x8014DD7C-0x80150210
+VerifyFAT = .text:0x8014E3F0; // type:function size:0x284 ref:melee/GALE01 ref_size:0x284 anchors:0x8014DD7C-0x80150210
 // evidence __CARDVerify 0x8014E674: callees VerifyDir,VerifyFAT
-__CARDVerify = .text:0x8014E674; // type:function size:0x8C ref:melee/GALE01 ref_size:0x8C anchors:0x80141F28-0x8018678C
+__CARDVerify = .text:0x8014E674; // type:function size:0x8C ref:melee/GALE01 ref_size:0x8C anchors:0x8014DD7C-0x80150210
 // evidence CARDProbeEx 0x8014ED5C: callees EXIGetID,EXIGetState,OSDisableInterrupts,OSRestoreInterrupts
 CARDProbeEx = .text:0x8014ED5C; // type:function size:0x17C ref:ac-decomp/GAFE01_00 ref_size:0x17C anchors:0x8014E674-0x8014F5C0
 // evidence DoMount 0x8014EED8: callees DCInvalidateRange,DoUnmount,EXIGetID,EXIUnlock,__CARDClearStatus,__CARDEnableInterrupt,__CARDExiHandler,__CARDRead,__CARDReadStatus,__CARDUnlock,__OSLockSramEx,__OSUnlockSramEx
@@ -365,35 +364,38 @@ __CARDMountCallback = .text:0x8014F2E8; // type:function size:0x138 ref:ac-decom
 // evidence CARDMountAsync 0x8014F420: callees DoMount,EXIAttach,EXIGetState,EXILock,EXISetExiCallback,OSCancelAlarm,OSDisableInterrupts,OSRestoreInterrupts,__CARDDefaultApiCallback,__CARDExtHandler,__CARDMountCallback,__CARDUnlockedHandler
 CARDMountAsync = .text:0x8014F420; // type:function size:0x1A0 ref:ttyd/G8MJ01 ref_size:0x1A0 anchors:0x8014F2E8-0x8014F5C0
 // evidence DoUnmount 0x8014F5C0: callees OSDisableInterrupts,OSRestoreInterrupts
-DoUnmount = .text:0x8014F5C0; // type:function size:0x9C ref:melee/GALE01 ref_size:0x9C anchors:0x80141F28-0x8018678C
-CARDUnmount = .text:0x8014F65C; // type:function size:0xAC ref:melee/GALE01 ref_size:0xAC anchors:0x80141F28-0x8018678C
-FormatCallback = .text:0x8014F708; // type:function size:0x144 ref:melee/GALE01 ref_size:0x144 anchors:0x80141F28-0x8018678C
-// evidence __CARDFormatRegionAsync 0x8014F84C: callees FormatCallback,OSGetTime,__CARDDefaultApiCallback,__OSLockSram,__OSLockSramEx,__OSUnlockSram,__OSUnlockSramEx; caller CARDFormatAsync (best alternative 1)
-__CARDFormatRegionAsync = .text:0x8014F84C; // type:function size:0x658 ref:melee/GALE01 ref_size:0x658 anchors:0x80141F28-0x8018678C
-CARDFormatAsync = .text:0x8014FEA4; // type:function size:0x48 ref:melee/GALE01 ref_size:0x48 anchors:0x80141F28-0x8018678C
-__CARDCompareFileName = .text:0x8014FEEC; // type:function size:0x68 ref:melee/GALE01 ref_size:0x68 anchors:0x80141F28-0x8018678C
-__CARDAccess = .text:0x8014FF54; // type:function size:0x94 ref:ac-decomp/GAFU01_00 ref_size:0x94 anchors:0x8014FEEC-0x801504D0
-__CARDIsWritable = .text:0x8014FFE8; // type:function size:0x134 ref:ac-decomp/GAFU01_00 ref_size:0x134 anchors:0x8014FEEC-0x801504D0
-__CARDIsReadable = .text:0x8015011C; // type:function size:0xF4 ref:ac-decomp/GAFU01_00 ref_size:0xF4 anchors:0x8014FEEC-0x801504D0
-CARDOpen = .text:0x80150360; // type:function size:0x11C ref:ttyd/G8MJ01 ref_size:0x11C anchors:0x8015011C-0x801504D0
+DoUnmount = .text:0x8014F5C0; // type:function size:0x9C ref:melee/GALE01 ref_size:0x9C anchors:0x8014DD7C-0x80150210
+CARDUnmount = .text:0x8014F65C; // type:function size:0xAC ref:melee/GALE01 ref_size:0xAC anchors:0x8014DD7C-0x80150210
+FormatCallback = .text:0x8014F708; // type:function size:0x144 ref:melee/GALE01 ref_size:0x144 anchors:0x8014DD7C-0x80150210
+// evidence __CARDFormatRegionAsync 0x8014F84C: callees FormatCallback,OSGetTime,__CARDCheckSum,__CARDDefaultApiCallback,__OSLockSram,__OSLockSramEx,__OSUnlockSram,__OSUnlockSramEx; caller CARDFormatAsync (best alternative 1)
+__CARDFormatRegionAsync = .text:0x8014F84C; // type:function size:0x658 ref:melee/GALE01 ref_size:0x658 anchors:0x8014DD7C-0x80150210
+CARDFormatAsync = .text:0x8014FEA4; // type:function size:0x48 ref:melee/GALE01 ref_size:0x48 anchors:0x8014DD7C-0x80150210
+__CARDCompareFileName = .text:0x8014FEEC; // type:function size:0x68 ref:melee/GALE01 ref_size:0x68 anchors:0x8014DD7C-0x80150210
+__CARDAccess = .text:0x8014FF54; // type:function size:0x94 ref:ac-decomp/GAFU01_00 ref_size:0x94 anchors:0x8014FEEC-0x80150210
+__CARDIsWritable = .text:0x8014FFE8; // type:function size:0x134 ref:ac-decomp/GAFU01_00 ref_size:0x134 anchors:0x8014FEEC-0x80150210
+__CARDIsReadable = .text:0x8015011C; // type:function size:0xF4 ref:ac-decomp/GAFU01_00 ref_size:0xF4 anchors:0x8014FEEC-0x80150210
+CARDOpen = .text:0x80150360; // type:function size:0x11C ref:ttyd/G8MJ01 ref_size:0x11C anchors:0x80150210-0x801504D0
 // evidence CARDClose 0x8015047C: callees __CARDGetControlBlock,__CARDPutControlBlock
-CARDClose = .text:0x8015047C; // type:function size:0x54 ref:ttyd/G8MJ01 ref_size:0x54 anchors:0x8015011C-0x801504D0
-__CARDIsOpened = .text:0x801504D0; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x80141F28-0x8018678C
-// evidence CreateCallbackFat 0x801504D8: callees OSGetTime
-CreateCallbackFat = .text:0x801504D8; // type:function size:0x130 ref:melee/GALE01 ref_size:0x130 anchors:0x80141F28-0x8018678C
-// evidence CARDCreateAsync 0x80150608: callees __CARDCompareFileName,__CARDDefaultApiCallback,strlen,strncpy
-CARDCreateAsync = .text:0x80150608; // type:function size:0x220 ref:melee/GALE01 ref_size:0x220 anchors:0x80141F28-0x8018678C
-__CARDSeek = .text:0x80150828; // type:function size:0x1B8 ref:melee/GALE01 ref_size:0x1B8 anchors:0x80141F28-0x8018678C
-ReadCallback = .text:0x801509E0; // type:function size:0x130 ref:melee/GALE01 ref_size:0x130 anchors:0x80141F28-0x8018678C
+CARDClose = .text:0x8015047C; // type:function size:0x54 ref:ttyd/G8MJ01 ref_size:0x54 anchors:0x80150210-0x801504D0
+__CARDIsOpened = .text:0x801504D0; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x80150210-0x8018678C
+// evidence CreateCallbackFat 0x801504D8: callees OSGetTime,__CARDGetDirBlock,__CARDUpdateDir
+CreateCallbackFat = .text:0x801504D8; // type:function size:0x130 ref:melee/GALE01 ref_size:0x130 anchors:0x80150210-0x8018678C
+// evidence CARDCreateAsync 0x80150608: callees __CARDCompareFileName,__CARDDefaultApiCallback,__CARDGetDirBlock,__CARDGetFatBlock,strlen,strncpy
+CARDCreateAsync = .text:0x80150608; // type:function size:0x220 ref:melee/GALE01 ref_size:0x220 anchors:0x80150210-0x8018678C
+// evidence __CARDSeek 0x80150828: callees __CARDGetDirBlock,__CARDGetFatBlock
+__CARDSeek = .text:0x80150828; // type:function size:0x1B8 ref:melee/GALE01 ref_size:0x1B8 anchors:0x80150210-0x8018678C
+// evidence ReadCallback 0x801509E0: callees __CARDGetFatBlock
+ReadCallback = .text:0x801509E0; // type:function size:0x130 ref:melee/GALE01 ref_size:0x130 anchors:0x80150210-0x8018678C
 // evidence DeleteCallback 0x80150F88: callees __CARDFreeBlock,__CARDPutControlBlock
 DeleteCallback = .text:0x80150F88; // type:function size:0xA4 ref:ttyd/G8MJ01 ref_size:0xA4 anchors:0x801509E0-0x8015102C
-CARDDeleteAsync = .text:0x8015102C; // type:function size:0x110 ref:melee/GALE01 ref_size:0x110 anchors:0x80141F28-0x8018678C
-UpdateIconOffsets = .text:0x8015113C; // type:function size:0x1F8 ref:melee/GALE01 ref_size:0x1F8 anchors:0x80141F28-0x8018678C
-// evidence CARDGetStatus 0x80151334: callees UpdateIconOffsets,__CARDIsReadable
-CARDGetStatus = .text:0x80151334; // type:function size:0x114 ref:melee/GALE01 ref_size:0x12C anchors:0x80141F28-0x8018678C
-// evidence CARDSetStatusAsync 0x80151448: callees OSGetTime,UpdateIconOffsets,__CARDGetControlBlock,__CARDGetDirBlock,__CARDIsWritable
+// evidence CARDDeleteAsync 0x8015102C: callees __CARDDefaultApiCallback,__CARDGetDirBlock,__CARDGetFileNo,__CARDIsOpened,__CARDUpdateDir
+CARDDeleteAsync = .text:0x8015102C; // type:function size:0x110 ref:melee/GALE01 ref_size:0x110 anchors:0x80150210-0x8018678C
+UpdateIconOffsets = .text:0x8015113C; // type:function size:0x1F8 ref:melee/GALE01 ref_size:0x1F8 anchors:0x80150210-0x8018678C
+// evidence CARDGetStatus 0x80151334: callees UpdateIconOffsets,__CARDGetDirBlock,__CARDIsReadable
+CARDGetStatus = .text:0x80151334; // type:function size:0x114 ref:melee/GALE01 ref_size:0x12C anchors:0x80150210-0x8018678C
+// evidence CARDSetStatusAsync 0x80151448: callees OSGetTime,UpdateIconOffsets,__CARDGetControlBlock,__CARDGetDirBlock,__CARDIsWritable,__CARDUpdateDir
 CARDSetStatusAsync = .text:0x80151448; // type:function size:0x174 ref:ac-decomp/GAFE01_00 ref_size:0x174 anchors:0x80151334-0x80151978
-// evidence CARDSetStatus 0x801515BC: callees CARDSetStatusAsync,__CARDSyncCallback
+// evidence CARDSetStatus 0x801515BC: callees CARDSetStatusAsync,__CARDSync,__CARDSyncCallback
 CARDSetStatus = .text:0x801515BC; // type:function size:0x48 ref:tp/GZ2E01 ref_size:0x48 anchors:0x80151448-0x801517C4
 CARDGetSerialNo = .text:0x80151604; // type:function size:0xC4 ref:tp/GZ2E01 ref_size:0xC4 anchors:0x80151448-0x801517C4
 // evidence __GXDefaultTexRegionCallback 0x801516C8: callees GXGetTexObjFmt,GXGetTexObjMipMap
@@ -680,7 +682,7 @@ fclose = .text:0x80162C2C; // type:function size:0x1BC ref:xd/GXXE01 ref_size:0x
 // evidence _fseek 0x80162E54: callees __flush_buffer; caller fseek
 _fseek = .text:0x80162E54; // type:function size:0x270 ref:xd/GXXE01 ref_size:0x270 anchors:0x80162DE8-0x801631A8
 ftell = .text:0x801630C4; // type:function size:0xE4 ref:xd/GXXE01 ref_size:0xE4 anchors:0x80162DE8-0x801631A8
-// evidence memcmp 0x801632C0: caller stateCheckID; caller __CARDAccess; caller __CARDIsWritable; caller CARDCreateAsync
+// evidence memcmp 0x801632C0: caller stateCheckID; caller __CARDAccess; caller __CARDIsWritable; caller __CARDGetFileNo; caller CARDCreateAsync
 memcmp = .text:0x801632C0; // type:function size:0x4C ref:xd/GXXE01 ref_size:0x4C anchors:0x801631A8-0x8016330C
 __copy_longs_rev_unaligned = .text:0x80163430; // type:function size:0xAC ref:xd/GXXE01 ref_size:0xAC anchors:0x80163364-0x80163700
 __copy_longs_unaligned = .text:0x801634DC; // type:function size:0xC0 ref:xd/GXXE01 ref_size:0xC0 anchors:0x80163364-0x80163700
@@ -787,9 +789,9 @@ SIEnablePolling = .text:0x8016C8F4; // type:function size:0x9C ref:pikmin2/GPVE0
 SIDisablePolling = .text:0x8016C990; // type:function size:0x6C ref:pikmin2/GPVE01 ref_size:0x6C anchors:0x8016C888-0x8016CC20
 // evidence SIGetResponseRaw 0x8016C9FC: callees OSDisableInterrupts,OSRestoreInterrupts; caller SIInterruptHandler
 SIGetResponseRaw = .text:0x8016C9FC; // type:function size:0xD4 ref:pikmin2/GPVE01 ref_size:0xD4 anchors:0x8016C888-0x8016CC20
-HSD_DObjGetFlags = .text:0x80186498; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x80141F28-0x8018678C
-HSD_DObjSetFlags = .text:0x801864B0; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x80141F28-0x8018678C
-HSD_DObjReqAnimAllByFlags = .text:0x80186590; // type:function size:0x80 ref:melee/GALE01 ref_size:0x80 anchors:0x80141F28-0x8018678C
+HSD_DObjGetFlags = .text:0x80186498; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x80150210-0x8018678C
+HSD_DObjSetFlags = .text:0x801864B0; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x80150210-0x8018678C
+HSD_DObjReqAnimAllByFlags = .text:0x80186590; // type:function size:0x80 ref:melee/GALE01 ref_size:0x80 anchors:0x80150210-0x8018678C
 // evidence HSD_DObjAnimAll 0x80186610: callees HSD_MObjAnim,HSD_PObjAnimAll
 HSD_DObjAnimAll = .text:0x80186610; // type:function size:0x6C ref:kar_wowjinxy/GKYE01 ref_size:0x6C anchors:0x80186590-0x8018678C
 HSD_DObjRemoveAll = .text:0x80186824; // type:function size:0x74 ref:melee/GALE01 ref_size:0x74 anchors:0x8018678C-0x80186898
@@ -1020,7 +1022,7 @@ HSD_JObjClearFlags = .text:0x80199530; // type:function size:0x9C ref:kar_wowjin
 HSD_JObjSetCurrent = .text:0x80199904; // type:function size:0x190 ref:melee/GALE01 ref_size:0x1AC anchors:0x801998A8-0x8019A28C
 // evidence HSD_JObjGetCurrent 0x80199A94: caller SetupSharedVtxModelMtx; caller SetupEnvelopeModelMtx
 HSD_JObjGetCurrent = .text:0x80199A94; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x801998A8-0x8019A28C
-// evidence resolveIKJoint1 0x80199A9C: callees HSD_RObjUpdateAll; caller HSD_JObjSetupMatrixSub
+// evidence resolveIKJoint1 0x80199A9C: callees HSD_RObjUpdateAll,PSVECCrossProduct; caller HSD_JObjSetupMatrixSub
 resolveIKJoint1 = .text:0x80199A9C; // type:function size:0x7F0 ref:melee/GALE01 ref_size:0x7EC anchors:0x801998A8-0x8019A28C
 HSD_JObjSetupMatrixSub = .text:0x8019A7E8; // type:function size:0x278 ref:kar_wowjinxy/GKYE01 ref_size:0x278 anchors:0x8019A28C-0x8019B374
 HSD_JObjSetMtxDirtySub = .text:0x8019AA60; // type:function size:0x334 ref:kar_wowjinxy/GKYE01 ref_size:0x334 anchors:0x8019A28C-0x8019B374
@@ -1034,7 +1036,7 @@ JObjRelease = .text:0x8019B2DC; // type:function size:0x98 ref:kar_wowjinxy/GKYE
 JObjAmnesia = .text:0x8019B374; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x8019A28C-0x8019D3EC
 // evidence JObjInfoInit 0x8019B3D8: callees JObjAmnesia,JObjInit,JObjUpdateFunc; string "hsd_jobj"; string "sysdolphin_base_library"
 JObjInfoInit = .text:0x8019B3D8; // type:function size:0xBC ref:melee/GALE01 ref_size:0xAC anchors:0x8019A28C-0x8019D3EC
-// evidence mkHBillBoardMtx 0x8019B7A0: callees PSMTXCopy
+// evidence mkHBillBoardMtx 0x8019B7A0: callees PSMTXCopy,PSVECCrossProduct
 mkHBillBoardMtx = .text:0x8019B7A0; // type:function size:0x344 ref:kar_wowjinxy/GKYE01 ref_size:0x358 anchors:0x8019B3D8-0x8019C340
 mkBillBoardMtx = .text:0x8019BAE4; // type:function size:0x398 ref:kar_wowjinxy/GKYE01 ref_size:0x3B4 anchors:0x8019B3D8-0x8019C340
 mkRBillBoardMtx = .text:0x8019BE7C; // type:function size:0x1E8 ref:kar_wowjinxy/GKYE01 ref_size:0x1E8 anchors:0x8019B3D8-0x8019C340
@@ -1064,11 +1066,12 @@ HSD_VISetBlack = .text:0x8019DEDC; // type:function size:0x18 ref:kar_wowjinxy/G
 splArcLengthGetParameter = .text:0x8019E914; // type:function size:0x200 ref:kar_wowjinxy/GKYE01 ref_size:0x200 anchors:0x8019D868-0x801A023C
 // evidence HSD_MtxGetTranslate 0x8019F5E4: caller JObjUpdateFunc; caller resolveIKJoint1
 HSD_MtxGetTranslate = .text:0x8019F5E4; // type:function size:0x1C ref:kar_wowjinxy/GKYE01 ref_size:0x1C anchors:0x8019D868-0x801A023C
-// evidence HSD_MtxGetScale 0x8019F600: callees PSVECSquareMag; caller JObjUpdateFunc; caller expEvaluate
+// evidence HSD_MtxGetScale 0x8019F600: callees PSVECCrossProduct,PSVECSquareMag; caller JObjUpdateFunc; caller expEvaluate
 HSD_MtxGetScale = .text:0x8019F600; // type:function size:0x4D8 ref:kar_wowjinxy/GKYE01 ref_size:0x4D8 anchors:0x8019D868-0x801A023C
 // evidence HSD_MtxSRTQuat 0x8019FEEC: callees PSMTXQuat
 HSD_MtxSRTQuat = .text:0x8019FEEC; // type:function size:0x1AC ref:kar_wowjinxy/GKYE01 ref_size:0x1C4 anchors:0x8019D868-0x801A023C
 HSD_MtxScaledAdd = .text:0x801A0098; // type:function size:0xC4 ref:kar_wowjinxy/GKYE01 ref_size:0xC4 anchors:0x8019D868-0x801A023C
+// evidence HSD_VecGetOrthogonal 0x801A015C: callees PSVECCrossProduct
 HSD_VecGetOrthogonal = .text:0x801A015C; // type:function size:0xE0 ref:kar_wowjinxy/GKYE01 ref_size:0xE0 anchors:0x8019D868-0x801A023C
 HSD_VecFree = .text:0x801A0288; // type:function size:0x34 ref:melee/GALE01 ref_size:0x30 anchors:0x801A023C-0x801A02BC
 HSD_MulColor = .text:0x801A039C; // type:function size:0x6C ref:melee/GALE01 ref_size:0x6C anchors:0x801A02BC-0x801A04C8
@@ -1129,7 +1132,7 @@ HSD_ShadowDeleteObject = .text:0x801A4D30; // type:function size:0x94 ref:kar_wo
 makeMatrix = .text:0x801A4DC4; // type:function size:0x13C ref:kar_wowjinxy/GKYE01 ref_size:0x140 anchors:0x801A4388-0x801A55FC
 // evidence HSD_ShadowSetViewingRect 0x801A4F00: callees HSD_CObjGetNear,HSD_CObjGetProjectionType,HSD_CObjSetFrustum,HSD_CObjSetOrtho
 HSD_ShadowSetViewingRect = .text:0x801A4F00; // type:function size:0x1C0 ref:kar_wowjinxy/GKYE01 ref_size:0x1CC anchors:0x801A4388-0x801A55FC
-// evidence HSD_ViewingRectInit 0x801A50C0: callees HSD_VecGetOrthogonal
+// evidence HSD_ViewingRectInit 0x801A50C0: callees PSVECCrossProduct
 HSD_ViewingRectInit = .text:0x801A50C0; // type:function size:0x20C ref:kar_wowjinxy/GKYE01 ref_size:0x214 anchors:0x801A4388-0x801A55FC
 HSD_ViewingRectCheck = .text:0x801A52CC; // type:function size:0x7C ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A4388-0x801A55FC
 HSD_ArchiveGetExtern = .text:0x801A55FC; // type:function size:0x38 ref:melee/GALE01 ref_size:0x38 anchors:0x801A3F08-0x801A5F10

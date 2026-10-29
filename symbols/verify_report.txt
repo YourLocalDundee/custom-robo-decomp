@@ -219,6 +219,7 @@ VERIFIED  8013A1C4 PSVECNormalize                           ours=0x44 ref=0x44 m
 VERIFIED  8013A208 PSVECSquareMag                           ours=0x18 ref=0x18 kar_wowjinxy
 VERIFIED  8013A220 PSVECMag                                 ours=0x44 ref=0x44 kar_wowjinxy
 VERIFIED  8013A264 PSVECDotProduct                          ours=0x20 ref=0x20 melee
+VERIFIED  8013A284 PSVECCrossProduct                        ours=0x3c ref=0x3c melee
 VERIFIED  8013A2C0 __DVDInitWA                              ours=0x40 ref=0x40 melee
 VERIFIED  8013A300 __DVDInterruptHandler                    ours=0x2e0 ref=0x2e0 ac-decomp
 VERIFIED  8013A664 AlarmHandlerForTimeout                   ours=0x70 ref=0x70 melee
@@ -420,6 +421,7 @@ VERIFIED  80147808 AXSetVoiceAdpcm                          ours=0xa4 ref=0xa4 m
 VERIFIED  801478AC AXSetVoiceSrc                            ours=0x98 ref=0x98 melee
 VERIFIED  80147944 AXSetVoiceSrcRatio                       ours=0x98 ref=0x98 melee
 VERIFIED  801479DC AXSetVoiceAdpcmLoop                      ours=0x6c ref=0x6c melee
+VERIFIED  8014A42C DSPCheckMailToDSP                        ours=0x10 ref=0x10 melee
 VERIFIED  8014A43C DSPCheckMailFromDSP                      ours=0x10 ref=0x10 melee
 VERIFIED  8014A44C DSPReadMailFromDSP                       ours=0x18 ref=0x18 melee
 VERIFIED  8014A464 DSPSendMailToDSP                         ours=0x14 ref=0x14 melee
@@ -456,6 +458,7 @@ VERIFIED  8014BEB0 __CARDGetControlBlock                    ours=0xb8 ref=0xb8 m
 VERIFIED  8014BF68 __CARDPutControlBlock                    ours=0x64 ref=0x64 melee
 VERIFIED  8014BFCC CARDGetResultCode                        ours=0x30 ref=0x30 ac-decomp
 VERIFIED  8014BFFC CARDFreeBlocks                           ours=0x150 ref=0x150 melee
+VERIFIED  8014C14C __CARDSync                               ours=0x98 ref=0x98 melee
 VERIFIED  8014C3A0 ReadArrayUnlock                          ours=0x144 ref=0x144 melee
 VERIFIED  8014C4E4 DummyLen                                 ours=0xc4 ref=0xc4 bfbb
 VERIFIED  8014C5A8 __CARDUnlock                             ours=0xb58 ref=0xb58 bfbb
@@ -465,10 +468,13 @@ VERIFIED  8014D494 BlockReadCallback                        ours=0xdc ref=0xdc m
 VERIFIED  8014D570 __CARDRead                               ours=0x64 ref=0x64 melee
 VERIFIED  8014D5D4 BlockWriteCallback                       ours=0xdc ref=0xdc melee
 VERIFIED  8014D6B0 __CARDWrite                              ours=0x64 ref=0x64 melee
+VERIFIED  8014D714 __CARDGetFatBlock                        ours=0x8 ref=0x8 melee
 VERIFIED  8014D8B8 __CARDAllocBlock                         ours=0x118 ref=0x118 melee
 VERIFIED  8014D9D0 __CARDFreeBlock                          ours=0x9c ref=0x9c melee
 VERIFIED  8014DA6C __CARDUpdateFatBlock                     ours=0xac ref=0xac melee
 VERIFIED  8014DB18 __CARDGetDirBlock                        ours=0x8 ref=0x8 melee
+VERIFIED  8014DCB8 __CARDUpdateDir                          ours=0xc4 ref=0xc4 melee
+VERIFIED  8014DD7C __CARDCheckSum                           ours=0x1b0 ref=0x1b0 melee
 VERIFIED  8014DF2C VerifyID                                 ours=0x284 ref=0x284 melee
 VERIFIED  8014E1B0 VerifyDir                                ours=0x240 ref=0x240 melee
 VERIFIED  8014E3F0 VerifyFAT                                ours=0x284 ref=0x284 melee
@@ -1392,4 +1398,4 @@ VERIFIED  801AE728 HSD_TExpSimplify                         ours=0x90 ref=0x90 k
 VERIFIED  801AE7B8 HSD_TExpSimplify2                        ours=0x1fc ref=0x1fc kar_wowjinxy
 VERIFIED  801AEA4C __assert                                 ours=0x5c ref=0x5c kar_wowjinxy
 VERIFIED  801AEAA8 HSD_Panic                                ours=0x98 ref=0x98 kar_wowjinxy
-{'VERIFIED': 1362, 'MISMATCH': 1, 'CLOSE': 28, 'EVIDENCE': 3}
+{'VERIFIED': 1368, 'MISMATCH': 1, 'CLOSE': 28, 'EVIDENCE': 3}

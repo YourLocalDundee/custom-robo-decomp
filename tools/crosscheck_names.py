@@ -19,7 +19,8 @@ Library names (symbols/symbols.txt, symbols/candidates_{hsd,sdk,rt}.txt):
   unique   our side: one name at two addresses, or two names at one address (FAIL); reference side: a name defined
            twice in every reference map that has it is reported AMBIG and its size / definitions count as no support
   Producing evidence (not counted again): dtk -> size; Melee-assert -> asserts+size; layout-proof / R3 / hand-identified
-  -> size; R4 -> asserts; R5 -> callees+callers; R6 -> strings.
+  -> size; R4 -> asserts; R5 -> callees+callers; R6 -> strings; C-callsite (R7, matched C's call sites, checked by
+  tools/check_c_callsites.py) -> callers.
   Verdict: FAIL = any contradiction; OK = at least one independent supporting kind; WEAK = only the producing evidence.
   Merged name set used for callees / callers: symbols.txt, overridden per address by candidates_*.txt (a candidate
   "replaces:" the shifted layout-proof name there), plus descriptive.txt (game code). Objects / labels: size + unique.
@@ -88,7 +89,8 @@ SRC_EXT = ('.c', '.cpp', '.cp', '.h', '.hpp', '.inc')
 
 # producing evidence per tag (kinds: size callees callers asserts strings)
 PRODUCER = {'dtk': {'size'}, 'Melee-assert': {'asserts', 'size'}, 'hand': {'size'}, 'layout-proof': {'size'},
-            'R3': {'size'}, 'R4': {'asserts'}, 'R5': {'callees', 'callers'}, 'R6': {'strings'}}
+            'R3': {'size'}, 'R4': {'asserts'}, 'R5': {'callees', 'callers'}, 'R6': {'strings'},
+            'C-callsite': {'callers'}}
 
 
 def norm(s): return re.sub(r'\s+', '', s)
@@ -142,6 +144,7 @@ def parse_tag(rest, section_hdr):
     if m: return m.group(1), m.group(2)
     m = re.search(r'// layout-proof ref:(\S+)', rest)
     if m: return 'layout-proof', m.group(1)
+    if '// c-callsite ' in rest: return 'C-callsite', ''
     if 'melee-assert-match' in rest: return 'Melee-assert', 'melee/GALE01'
     if section_hdr == 'hand': return 'hand', 'melee/GALE01'
     return 'dtk', ''

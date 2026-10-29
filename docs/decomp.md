@@ -125,6 +125,12 @@ How to add a C file (one object of `decomp/config/GXCE01/splits.txt`):
    `CR_MATCHING`.
 3. If functions differ, adapt the source (objdiff GUI on `decomp/`, or `objdiff-cli diff -p decomp -u main/<object>`).
    A `fn_...` at 0% usually exists in the C under its real name (the link test shows it).
+   If the link fails on an undefined name (the C calls / uses something our symbols leave as `fn_` / `lbl_`):
+   `decomp/reports/c_callsites_report.txt` (`tools/check_c_callsites.py`, batch 9) lists every name the matched C's
+   call sites give to a dtk default name, with its address (`UNNAMED` lines). Add it to `symbols/symbols.txt` in the
+   "Matched-C call sites" block, tagged `// c-callsite obj:<C file> at:<function>+0x<offset>`, with `ref_size:` and a
+   `why:` (reference size, place in the reference file); batch 9 re-derives it every run and stops if it disagrees.
+   Not when another C object linked from C defines that name (it would be defined twice): that is a data split.
 4. In `CR_MATCHING`: `python -I tools\make_configure_patch.py`, then batch 9. `tools/gen_c_symbols.py` gives the object
    the C's own symbols (objdiff pairs data by name), `tools/check_c_objects.py` must report 100% code + data, main.dol
    must stay retail. Then the full `run_all.ps1`, and `checksums.ps1 -Write` for the intended changes.

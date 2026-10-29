@@ -40,6 +40,7 @@ $files = @(
     'decomp\reports\progress_report.txt'    # Milestone 4: objects built from C, bytes per library (tools\check_c_objects.py)
     'decomp\reports\sources_report.txt'     # provenance of every file in decomp\src + decomp\include
     'decomp\reports\c_symbols_report.txt'   # the C objects' own symbols put into symbols.txt (tools\gen_c_symbols.py)
+    'decomp\reports\c_callsites_report.txt' # names from the matched C's call sites, rule R7 (tools\check_c_callsites.py)
 )
 $now = foreach ($f in $files) {
     $p = Join-Path $g ($f -replace '\\', '/')   # names in the list use backslashes

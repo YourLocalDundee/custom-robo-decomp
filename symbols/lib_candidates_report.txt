@@ -1,4 +1,4 @@
-lib candidates: 184 accepted (R3:95, R4:17, R5:64, R6:8), 0 rejected, 8 layout-proof names replaced, 3 round(s)
+lib candidates: 183 accepted (R3:94, R4:17, R5:64, R6:8), 0 rejected, 8 layout-proof names replaced, 3 round(s)
 REPLACED layout-proof acos at 0x80169088
 REPLACED layout-proof asin at 0x801690A8
 REPLACED layout-proof atan2 at 0x801690C8
@@ -40,7 +40,6 @@ ACCEPT __AXSetPBDefault 0x80146E98 R3 bfbb/GQPE78
 ACCEPT __AXSPBInit 0x80146400 R3 melee/GALE01
 ACCEPT __AXSyncPBs 0x80146C14 R3 bfbb/GQPE78
 ACCEPT __CARDAllocBlock 0x8014D8B8 R5 ac-decomp/cardblock.c
-ACCEPT __CARDGetFileNo 0x80150210 R3 ttyd/G8MJ01
 ACCEPT __CARDWrite 0x8014D6B0 R3 ac-decomp/GAFE01_00
 ACCEPT __CARDWritePage 0x8014BBC8 R3 ac-decomp/GAFE01_00
 ACCEPT __cvt_dbl_usll 0x8015FEB0 R3 melee/GALE01

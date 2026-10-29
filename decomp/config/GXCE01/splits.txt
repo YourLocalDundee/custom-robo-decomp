@@ -175,12 +175,22 @@ dolphin/ax/AXVPB.c:
 	.sbss       start:0x8044FC08 end:0x8044FC18
 	.sdata2     start:0x80451D10 end:0x80451D18
 
+dolphin/dsp/dsp.c:
+	.text       start:0x8014A42C end:0x8014A67C
+	.data       start:0x80248BD0 end:0x80248C50
+	.sdata      start:0x8044EE28 end:0x8044EE30
+
 dolphin/dsp/dsp_debug.c:
 	.text       start:0x8014A67C end:0x8014A6CC
 
 dolphin/dsp/dsp_task.c:
 	.text       start:0x8014A6CC end:0x8014AF50
 	.data       start:0x80248C50 end:0x80248D90
+
+dolphin/card/CARDBios.c:
+	.text       start:0x8014AF50 end:0x8014C234
+	.sdata      start:0x8044EE30 end:0x8044EE38
+	.sbss       start:0x8044FC48 end:0x8044FC50
 
 dolphin/card/CARDUnlock.c:
 	.text       start:0x8014C234 end:0x8014D494

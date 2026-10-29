@@ -1967,7 +1967,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80139A40	PSMTXTrans	32	6	0				
 80139A74	PSMTXScale	32	12	0				
 80139A9C	PSMTXQuat	59	1	0				
-80139B40	C_MTXLookAt	34	11	2	math			
+80139B40	C_MTXLookAt	32	11	2	math			
 80139CCC	C_MTXLightFrustum	33	1	0				
 80139D60	C_MTXLightPerspective	31	1	1				
 80139E2C	C_MTXLightOrtho	35	1	0				
@@ -1983,7 +1983,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8013A208	PSVECSquareMag	11	1	0				
 8013A220	PSVECMag	19	8	0				
 8013A264	PSVECDotProduct	14	8	0				
-8013A284	FUN_8013a284	30	12	0				
+8013A284	PSVECCrossProduct	30	12	0				
 8013A2C0	__DVDInitWA	13	1	2				
 8013A300	__DVDInterruptHandler	143	0	6	file-io			
 8013A5E0	FUN_8013a5e0	29	0	2	file-io			
@@ -2178,7 +2178,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80145160	__AXNextFrame	163	2	13				
 80145810	FUN_80145810	13	1	0				
 80145834	FUN_80145834	13	1	0				
-80145848	__AXOutNewFrame	67	2	12				
+80145848	__AXOutNewFrame	68	2	12				
 80145A00	__AXOutAiCallback	29	0	4				
 80145ABC	__AXDSPInitCallback	10	0	0				
 80145AC8	__AXDSPResumeCallback	19	0	2				
@@ -2239,7 +2239,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8014A3D0	FUN_8014a3d0	10	0	1	memory			
 8014A3F8	FUN_8014a3f8	10	0	1				
 8014A420	FUN_8014a420	11	1	0				
-8014A42C	FUN_8014a42c	12	5	0				
+8014A42C	DSPCheckMailToDSP	12	5	0				
 8014A43C	DSPCheckMailFromDSP	12	2	0				
 8014A44C	DSPReadMailFromDSP	14	2	0				
 8014A464	DSPSendMailToDSP	11	5	0				
@@ -2248,9 +2248,9 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8014A544	DSPAddTask	19	2	4				
 8014A5B4	DSPAssertTask	34	1	2				
 8014A67C	__DSP_debug_printf	9	2	0				
-8014A6CC	__DSPHandler	158	0	8				
+8014A6CC	__DSPHandler	157	0	8				
 8014AAF0	__DSP_exec_task	87	1	2				
-8014AC90	__DSP_boot_task	62	1	5				s_DSP_is_booting_task__0x_08X_80248c50,s___DSP_boot_task_____DRAM_MMEM_AD_80248d00,s___DSP_boot_task_____IRAM_DSP_ADD_80248ca0,s___DSP_boot_task_____IRAM_LENGTH___80248cd0,s___DSP_boot_task_____IRAM_MMEM_AD_80248c70,s___DSP_boot_task_____Start_Vector_80248d30
+8014AC90	__DSP_boot_task	61	1	5				s_DSP_is_booting_task__0x_08X_80248c50,s___DSP_boot_task_____DRAM_MMEM_AD_80248d00,s___DSP_boot_task_____IRAM_DSP_ADD_80248ca0,s___DSP_boot_task_____IRAM_LENGTH___80248cd0,s___DSP_boot_task_____IRAM_MMEM_AD_80248c70,s___DSP_boot_task_____Start_Vector_80248d30
 8014AE1C	__DSP_insert_task	47	1	0				
 8014AEBC	__DSP_remove_task	31	1	0				
 8014AF50	__CARDDefaultApiCallback	9	0	0				
@@ -2276,7 +2276,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8014BF68	__CARDPutControlBlock	21	26	2				
 8014BFCC	CARDGetResultCode	12	1	0				
 8014BFFC	CARDFreeBlocks	59	1	5				
-8014C14C	FUN_8014c14c	24	1	3				
+8014C14C	__CARDSync	24	1	3				
 8014C1E4	FUN_8014c1e4	19	0	1	memcard			
 8014C234	FUN_8014c234	74	1	0				
 8014C3A0	ReadArrayUnlock	55	2	4	memory			
@@ -2288,7 +2288,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8014D570	__CARDRead	24	3	1				
 8014D5D4	BlockWriteCallback	32	0	2				
 8014D6B0	__CARDWrite	24	4	1				
-8014D714	FUN_8014d714	9	5	0				
+8014D714	__CARDGetFatBlock	9	5	0				
 8014D71C	FUN_8014d71c	35	0	2	memory			
 8014D7F0	FUN_8014d7f0	27	0	2				
 8014D8B8	__CARDAllocBlock	60	1	1				
@@ -2297,8 +2297,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8014DB18	__CARDGetDirBlock	9	12	0				
 8014DB20	FUN_8014db20	35	0	2	memory			
 8014DBF0	FUN_8014dbf0	27	0	2				
-8014DCB8	FUN_8014dcb8	27	5	3				
-8014DD7C	FUN_8014dd7c	60	3	0				
+8014DCB8	__CARDUpdateDir	27	5	3				
+8014DD7C	__CARDCheckSum	60	3	0				
 8014DF2C	VerifyID	92	2	4				
 8014E1B0	VerifyDir	78	2	1	memory			
 8014E3F0	VerifyFAT	91	2	1	memory			
@@ -2330,7 +2330,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80150C54	FUN_80150c54	61	0	7				
 80150DC4	FUN_80150dc4	23	0	2				
 80150E74	FUN_80150e74	40	1	6				
-80150F88	DeleteCallback	21	0	2				
+80150F88	DeleteCallback	20	0	2				
 8015102C	CARDDeleteAsync	44	1	7	memory			
 8015113C	UpdateIconOffsets	109	2	0				
 80151334	CARDGetStatus	39	1	6	memory			
@@ -3005,7 +3005,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8017F1AC	FUN_8017f1ac	12	1	0				
 8017F1C4	FUN_8017f1c4	12	1	0				
 8017F1DC	FUN_8017f1dc	106	1	3	math,model			
-8017F4B8	FUN_8017f4b8	644	1	13	camera,math	generator.c		s_generator_c_8024b348,s_psCamera_8024b354
+8017F4B8	FUN_8017f4b8	642	1	13	camera,math	generator.c		s_generator_c_8024b348,s_psCamera_8024b354
 80180728	FUN_80180728	139	3	10	model,~camera,~math			
 80180AC8	FUN_80180ac8	29	0	2	~math,~memory	object.h		s_HSD_OBJ_o__,s_object_h_8024b3a4
 80180B74	FUN_80180b74	262	3	7	math,memory			
@@ -3050,7 +3050,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80186960	HSD_DObjDisp	30	0	3	model			
 80186A20	DObjRelease	16	0	3	anim,model			
 80186A7C	DObjAmnesia	13	0	0				
-80186AC4	DObjInfoInit	19	0	1				s_hsd_dobj_8024b60c,s_sysdolphin_base_library_8024b5f4
+80186AC4	DObjInfoInit	18	0	1				s_hsd_dobj_8024b60c,s_sysdolphin_base_library_8024b5f4
 80186B44	HSD_TObjAddAnim	69	1	8	anim			
 80186C98	HSD_TObjReqAnimAllByFlags	23	1	1	~anim			
 80186D0C	TObjUpdateFunc	195	0	1		tobj.c		s_tobj_,s_tobj_c_8044efa0
@@ -3155,7 +3155,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8018CA2C	HSD_MObjDeleteShadowTexture	35	2	0				
 8018CA90	MObjRelease	25	0	5	anim,model			
 8018CB2C	MObjAmnesia	17	0	0				
-8018CB90	MObjInfoInit	23	0	1				s_hsd_mobj_8024bfd8,s_sysdolphin_base_library_8024bfc0
+8018CB90	MObjInfoInit	22	0	1				s_hsd_mobj_8024bfd8,s_sysdolphin_base_library_8024bfc0
 8018CC40	FUN_8018cc40	10	1	1	~memory			
 8018CC70	FUN_8018cc70	11	1	0				
 8018CC80	FUN_8018cc80	16	1	0				
@@ -3279,7 +3279,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80195EE4	HSD_PObjDisp	97	0	8	render	pobj.c		s_pobj_,s_pobj_c_8044f080
 801961CC	PObjRelease	52	0	5	anim,model			
 801962F8	PObjAmnesia	29	0	1				
-801963A4	PObjInfoInit	21	0	1				s_hsd_pobj_8024c658,s_sysdolphin_base_library_8024c640
+801963A4	PObjInfoInit	20	0	1				s_hsd_pobj_8024c658,s_sysdolphin_base_library_8024c640
 8019643C	HSD_JObjCheckDepend	45	1	1		jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
 80196568	FUN_80196568	18	4	1		jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
 801965C0	HSD_JObjSetMtxDirty	26	2	2	model	jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
@@ -3318,7 +3318,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80199904	HSD_JObjSetCurrent	59	1	1		object.h		s_HSD_OBJ_o__,s_object_h_8024c848
 80199A94	HSD_JObjGetCurrent	12	3	0				
 80199A9C	resolveIKJoint1	244	1	12	math	jobj.c,jobj.h		s_jobj_8044f0b0,s_jobj_c_8044f0b8,s_jobj_h_8044f0a8,s_robj_8044f0d0
-8019A28C	resolveIKJoint2	190	1	13	math	jobj.c		s_jobj_c_8044f0b8,s_robj_8044f0d0
+8019A28C	resolveIKJoint2	188	1	13	math	jobj.c		s_jobj_c_8044f0b8,s_robj_8044f0d0
 8019A7E8	HSD_JObjSetupMatrixSub	95	33	8	math	jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
 8019AA60	HSD_JObjSetMtxDirtySub	150	27	4		jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
 8019AD94	HSD_JObjSetDPtclCallback	13	1	0				
@@ -3329,7 +3329,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8019B374	JObjAmnesia	17	0	0				
 8019B3D8	JObjInfoInit	24	0	1				s_hsd_jobj_8024ca1c,s_sysdolphin_base_library_8024ca04
 8019B494	FUN_8019b494	10	1	1	~memory			
-8019B4C4	mkVBillBoardMtx	96	1	4	math			
+8019B4C4	mkVBillBoardMtx	94	1	4	math			
 8019B7A0	mkHBillBoardMtx	110	1	5	math			
 8019BAE4	mkBillBoardMtx	100	1	3	math			
 8019BE7C	mkRBillBoardMtx	50	1	3	math			
@@ -3386,7 +3386,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8019FC14	FUN_8019fc14	128	5	4	math			
 8019FEEC	HSD_MtxSRTQuat	57	1	3	math			
 801A0098	HSD_MtxScaledAdd	35	1	0				
-801A015C	HSD_VecGetOrthogonal	39	1	1				
+801A015C	HSD_VecGetOrthogonal	37	1	1	math			
 801A023C	HSD_VecAlloc	15	1	2	memory	mtx.c		s_mtx_c_8044f128
 801A0288	HSD_VecFree	12	2	1				
 801A02BC	HSD_MtxAlloc	15	3	2	memory	mtx.c		s_mtx_c_8044f128
@@ -3459,7 +3459,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A3E98	HSD_SListAppendList	20	1	1		list.c		s_list_c_8044f1e8,s_next_8044f1f8
 801A3F08	HSD_SListPrependList	13	1	1		list.c		s_list_c_8044f1e8,s_prev_8044f200
 801A3F58	HSD_SListRemove	18	8	1				
-801A3FA8	ObjInfoInit	12	0	1				s_hsd_obj_8044f208,s_sysdolphin_base_library_8024d08c
+801A3FA8	ObjInfoInit	11	0	1				s_hsd_obj_8044f208,s_sysdolphin_base_library_8024d08c
 801A3FEC	FUN_801a3fec	17	1	1		memory.c		s_memory_c_8024d0a8,s_size____sizeof___mem_cb__8024d0b4
 801A4060	FUN_801a4060	10	3	0				
 801A408C	FUN_801a408c	10	1	0				
