@@ -344,6 +344,7 @@ VERIFIED  80141F28 __PADDisableRecalibration                ours=0x7c ref=0x7c m
 VERIFIED  80141FA4 AIRegisterDMACallback                    ours=0x44 ref=0x44 melee
 VERIFIED  80141FE8 AIInitDMA                                ours=0x88 ref=0x88 melee
 VERIFIED  80142070 AIStartDMA                               ours=0x18 ref=0x18 melee
+VERIFIED  80142088 AIGetDMAStartAddr                        ours=0x1c ref=0x1c marioparty4
 VERIFIED  801420A4 AISetStreamPlayState                     ours=0xd8 ref=0xd8 melee
 VERIFIED  8014217C AIGetStreamPlayState                     ours=0x10 ref=0x10 melee
 VERIFIED  8014218C AISetDSPSampleRate                       ours=0xe0 ref=0xe0 melee
@@ -372,6 +373,7 @@ VERIFIED  801444C4 __ARQCallbackHack                        ours=0x4 ref=0x4 mel
 VERIFIED  801444C8 __ARQInterruptServiceRoutine             ours=0xcc ref=0xcc melee
 VERIFIED  80144594 ARQInit                                  ours=0x70 ref=0x70 ac-decomp
 VERIFIED  80144604 ARQPostRequest                           ours=0x15c ref=0x15c melee
+VERIFIED  801447D0 __AXGetStackHead                         ours=0x18 ref=0x18 melee
 VERIFIED  801447E8 __AXServiceCallbackStack                 ours=0x74 ref=0x74 bfbb
 VERIFIED  8014485C __AXAllocInit                            ours=0xb4 ref=0xb4 melee
 VERIFIED  80144910 __AXPushFreeStack                        ours=0x20 ref=0x20 melee
@@ -381,6 +383,7 @@ VERIFIED  8014495C __AXRemoveFromStack                      ours=0x94 ref=0x94 m
 VERIFIED  801449F0 AXFreeVoice                              ours=0x80 ref=0x80 melee
 VERIFIED  80144A70 AXAcquireVoice                           ours=0x174 ref=0x174 melee
 VERIFIED  80144BE4 AXSetVoicePriority                       ours=0xa8 ref=0xa8 melee
+VERIFIED  80144C8C __AXAuxInit                              ours=0xe4 ref=0xe4 bfbb
 VERIFIED  80144DA4 __AXGetAuxAInputDpl2                     ours=0x20 ref=0x20 bfbb
 VERIFIED  80144DC4 __AXGetAuxAOutput                        ours=0x1c ref=0x1c melee
 VERIFIED  80144DE0 __AXGetAuxAOutputDpl2R                   ours=0x20 ref=0x20 bfbb
@@ -390,6 +393,8 @@ VERIFIED  80144E40 __AXGetAuxBInput                         ours=0x34 ref=0x34 m
 VERIFIED  80144E74 __AXGetAuxBOutput                        ours=0x1c ref=0x1c melee
 VERIFIED  80144E90 __AXGetAuxBForDPL2                       ours=0x1c ref=0x1c bfbb
 VERIFIED  80144EAC __AXGetAuxBOutputDPL2                    ours=0x1c ref=0x1c bfbb
+VERIFIED  80145110 AXRegisterAuxBCallback                   ours=0xc ref=0xc melee
+VERIFIED  8014511C __AXGetCommandListCycles                 ours=0x8 ref=0x8 melee
 VERIFIED  80145124 __AXGetCommandListAddress                ours=0x3c ref=0x3c melee
 VERIFIED  80145160 __AXNextFrame                            ours=0x6b0 ref=0x6b0 bfbb
 VERIFIED  80145848 __AXOutNewFrame                          ours=0x1b8 ref=0x1b8 bfbb
@@ -521,6 +526,7 @@ VERIFIED  80152BE8 GXInitFifoPtrs                           ours=0x70 ref=0x70 m
 VERIFIED  80152C58 GXInitFifoLimits                         ours=0xc ref=0xc melee
 VERIFIED  80152C64 GXSetCPUFifo                             ours=0x128 ref=0x128 ac-decomp
 VERIFIED  80152D8C GXSetGPFifo                              ours=0x178 ref=0x178 melee
+VERIFIED  80152F04 GXSetBreakPtCallback                     ours=0x44 ref=0x44 ac-decomp
 VERIFIED  80152F48 __GXFifoInit                             ours=0x4c ref=0x4c melee
 VERIFIED  80152F94 __GXFifoReadEnable                       ours=0x24 ref=0x24 ac-decomp
 VERIFIED  80152FB8 __GXFifoReadDisable                      ours=0x24 ref=0x24 melee
@@ -545,6 +551,8 @@ VERIFIED  801542D0 GXSetTexCoordGen2                        ours=0x280 ref=0x280
 VERIFIED  80154550 GXSetNumTexGens                          ours=0x3c ref=0x3c ac-decomp
 VERIFIED  8015458C GXSetMisc                                ours=0x94 ref=0x94 ac-decomp
 VERIFIED  80154620 GXFlush                                  ours=0x5c ref=0x5c ac-decomp
+VERIFIED  8015467C __GXAbort                                ours=0x16c ref=0x16c ac-decomp
+VERIFIED  801547E8 GXWaitDrawDone                           ours=0x4c ref=0x4c melee
 VERIFIED  80154834 GXDrawDone                               ours=0x80 ref=0x80 ac-decomp
 VERIFIED  801548B4 GXPixModeSync                            ours=0x24 ref=0x24 melee
 VERIFIED  801548D8 GXPokeAlphaMode                          ours=0x14 ref=0x14 melee
@@ -574,6 +582,8 @@ VERIFIED  80154FB8 GXSetTexCopySrc                          ours=0x7c ref=0x7c a
 VERIFIED  80155034 GXSetDispCopyDst                         ours=0x34 ref=0x34 ac-decomp
 VERIFIED  80155068 GXSetTexCopyDst                          ours=0x130 ref=0x130 ac-decomp
 VERIFIED  80155198 GXSetDispCopyFrame2Field                 ours=0x24 ref=0x24 ac-decomp
+VERIFIED  801551BC GXSetCopyClamp                           ours=0x58 ref=0x58 ac-decomp
+VERIFIED  80155214 GXSetDispCopyYScale                      ours=0xcc ref=0xcc ac-decomp
 VERIFIED  801552E0 GXSetCopyClear                           ours=0x78 ref=0x78 ac-decomp
 VERIFIED  80155358 GXSetCopyFilter                          ours=0x208 ref=0x208 ac-decomp
 VERIFIED  80155560 GXSetDispCopyGamma                       ours=0x14 ref=0x14 ac-decomp
@@ -645,6 +655,7 @@ VERIFIED  80157E70 GXSetPixelFmt                            ours=0xd4 ref=0xd4 a
 VERIFIED  80157F44 GXSetDither                              ours=0x2c ref=0x2c ac-decomp
 VERIFIED  80157F70 GXSetDstAlpha                            ours=0x3c ref=0x3c ac-decomp
 VERIFIED  80157FAC GXSetFieldMask                           ours=0x38 ref=0x38 melee
+VERIFIED  80157FE4 GXSetFieldMode                           ours=0x78 ref=0x78 ac-decomp
 VERIFIED  80158274 GXDrawCube                               ours=0x250 ref=0x250 mkdd
 VERIFIED  801584C4 GXCallDisplayList                        ours=0x70 ref=0x70 melee
 VERIFIED  80158534 GXSetProjection                          ours=0xa4 ref=0xa4 ac-decomp
@@ -663,6 +674,7 @@ VERIFIED  80158A00 GXSetScissorBoxOffset                    ours=0x40 ref=0x40 a
 VERIFIED  80158A40 GXSetClipMode                            ours=0x28 ref=0x28 melee
 VERIFIED  80158A68 __GXSetMatrixIndex                       ours=0x84 ref=0x84 melee
 VERIFIED  80158AEC GXSetGPMetric                            ours=0x848 ref=0x848 ac-decomp
+VERIFIED  80159334 GXClearGPMetric                          ours=0x10 ref=0x10 melee
 VERIFIED  80159530 TRKNubMainLoop                           ours=0xf8 ref=0xf8 ac-decomp
 VERIFIED  80159628 TRKDestructEvent                         ours=0x24 ref=0x24 melee
 VERIFIED  8015964C TRKConstructEvent                        ours=0x18 ref=0x18 melee
@@ -992,6 +1004,7 @@ VERIFIED  8016CD8C GetTypeCallback                          ours=0x298 ref=0x298
 VERIFIED  8016D024 SIGetType                                ours=0x1c4 ref=0x1c4 melee
 VERIFIED  8016D1E8 SIGetTypeAsync                           ours=0x13c ref=0x13c melee
 VERIFIED  8016D324 SISetSamplingRate                        ours=0xe4 ref=0xe4 ac-decomp
+VERIFIED  8016D408 SIRefreshSamplingRate                    ours=0x24 ref=0x24 melee
 CLOSE     8016D42C AXDriverAlloc                            ours=0x60 ref=0x64 melee
 EVIDENCE  8016EEFC HSD_AudioSFXStartParam                   ours=0x398 ref=0x2c0 melee
 CLOSE     8016FC38 AXDriverSetupAux                         ours=0x30c ref=0x304 melee
@@ -1398,4 +1411,4 @@ VERIFIED  801AE728 HSD_TExpSimplify                         ours=0x90 ref=0x90 k
 VERIFIED  801AE7B8 HSD_TExpSimplify2                        ours=0x1fc ref=0x1fc kar_wowjinxy
 VERIFIED  801AEA4C __assert                                 ours=0x5c ref=0x5c kar_wowjinxy
 VERIFIED  801AEAA8 HSD_Panic                                ours=0x98 ref=0x98 kar_wowjinxy
-{'VERIFIED': 1368, 'MISMATCH': 1, 'CLOSE': 28, 'EVIDENCE': 3}
+{'VERIFIED': 1381, 'MISMATCH': 1, 'CLOSE': 28, 'EVIDENCE': 3}

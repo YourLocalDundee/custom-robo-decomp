@@ -1,7 +1,6 @@
 # functions 0x8016D408..end of .text still unnamed after tools/match_lib_hsd.py (R3/R4/R5/R6 fixpoint,
 # references: Melee src+map, KAR asm+map; XD not used, see script header)
 # also checked for each: game strings naming a function ("Name: ..."), docs/name_evidence.md, docs/name_tables.tsv
-0x8016D408 size:0x24  no asserts; strings: none; 2 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8016D48C size:0x4  no asserts; strings: none; 0 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8016D490 size:0x14C  assert set (axdriver.c) matches no reference function; strings: none; 0 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8016D5DC size:0x4C4  assert set (axdriver.c) matches no reference function; strings: none; 0 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
@@ -228,7 +227,7 @@
 0x8019D38C size:0xC  no asserts; strings: none; 0 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8019D398 size:0x10  no asserts; strings: none; 2 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8019D3A8 size:0x44  no asserts; strings: none; 1 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
-0x8019DB14 size:0x17C  no asserts; strings: none; 4 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
+0x8019DB14 size:0x17C  no asserts; strings: none; 5 specific verified neighbours; call graph: no reference match; layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8019DC90 size:0x1C4  assert set (video.c) matches no reference function; strings: none; 0 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8019DE54 size:0x88  no asserts; strings: none; 0 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it
 0x8019E11C size:0x60  no asserts; strings: none; 1 specific verified neighbours (<2); layout: no 1:1 gap with sizes within 10% in Melee/KAR/XD; game strings/name tables checked: none name it

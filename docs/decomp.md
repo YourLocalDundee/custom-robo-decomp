@@ -131,6 +131,11 @@ How to add a C file (one object of `decomp/config/GXCE01/splits.txt`):
    "Matched-C call sites" block, tagged `// c-callsite obj:<C file> at:<function>+0x<offset>`, with `ref_size:` and a
    `why:` (reference size, place in the reference file); batch 9 re-derives it every run and stops if it disagrees.
    Not when another C object linked from C defines that name (it would be defined twice): that is a data split.
+   A global of the C file itself that another object uses but no matched function calls by name (rule R8): when
+   the file matches its whole object, `decomp/reports/splits_report.txt` lists where it defines it (`DEF` lines);
+   add it in the "Matched-C definitions" block, tagged `// c-define obj:<C file> ref_size:`, with a `why:`.
+   The object's data pieces come from the C itself (`tools/gen_dtk_splits.py`, step 56): a C file that matches
+   every function of its object proves where its data is, so nothing is placed by hand.
 4. In `CR_MATCHING`: `python -I tools\make_configure_patch.py`, then batch 9. `tools/gen_c_symbols.py` gives the object
    the C's own symbols (objdiff pairs data by name), `tools/check_c_objects.py` must report 100% code + data, main.dol
    must stay retail. Then the full `run_all.ps1`, and `checksums.ps1 -Write` for the intended changes.

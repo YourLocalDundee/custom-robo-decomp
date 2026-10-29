@@ -148,7 +148,7 @@ Details: [docs/decomp.md](docs/decomp.md), tools: [docs/tools.md](docs/tools.md)
 - Mods: model / file / code mods build into a playable ISO and a data-free `.crpatch`; robos can be swapped completely, including different skeletons (tested in battle with the community, Oct 27, 2026). Custom skeletons via joint roles.
 - Code: 1,862 of 3,565 functions named (incl. the game's own SEQ_* mode names, script command names (regenerated every run from the game's tables by batch 7), CAMMODE_* camera modes and motion names) (all SDK/HSD library names verified), HSD types and 441 prototypes applied and checked against the game, first `cr_` structs/globals for the file system and robos.
 - Archives: all 22 `.bin` (SFD) archives unpack and repack byte-identical.
-- Rebuild (Phase 4): `main.dol` builds from dtk's split objects plus 75 library objects compiled from matching C (3.03% of the code), with the retail SHA-1; a shifted build boots to the title screen. Progress: `decomp/reports/progress_report.txt`.
+- Rebuild (Phase 4): `main.dol` builds from dtk's split objects plus 92 library objects compiled from matching C (4.88% of the code; their data placed by the C itself), with the retail SHA-1; a shifted build boots to the title screen. Progress: `decomp/reports/progress_report.txt`.
 - Open: what the 17 motion slots are and where animations live; per-robo charge; naming the game's own ~1,740 functions.
 
 ## What is in this repo

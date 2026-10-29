@@ -67,6 +67,7 @@ OSGetCurrentThread = .text:0x80138188; // type:function size:0xC ref:melee/GALE0
 __OSGetEffectivePriority = .text:0x8013827C; // type:function size:0x3C ref:melee/GALE01 ref_size:0x3C anchors:0x801381D4-0x80138478
 OSResumeThread = .text:0x8013888C; // type:function size:0x288 ref:melee/GALE01 ref_size:0x288 anchors:0x801386D0-0x80138F20
 OSSuspendThread = .text:0x80138B14; // type:function size:0x170 ref:melee/GALE01 ref_size:0x170 anchors:0x801386D0-0x80138F20
+// evidence OSSleepThread 0x80138C84: caller __CARDSync; caller GXWaitDrawDone
 OSSleepThread = .text:0x80138C84; // type:function size:0xEC ref:melee/GALE01 ref_size:0xEC anchors:0x801386D0-0x80138F20
 // evidence OSWakeupThread 0x80138D70: caller OSCancelThread; caller cbForReadSync; caller cbForCancelSync; caller __VIRetraceHandler; caller __CARDSyncCallback; caller GXFinishInterruptHandler
 OSWakeupThread = .text:0x80138D70; // type:function size:0x104 ref:ttyd/G8MJ01 ref_size:0x104 anchors:0x80138C84-0x80138E74
@@ -251,9 +252,9 @@ PADReset = .text:0x801414DC; // type:function size:0x110 ref:ac-decomp/GAFE01_00
 // evidence AIRegisterDMACallback 0x80141FA4: callees OSDisableInterrupts,OSRestoreInterrupts
 AIRegisterDMACallback = .text:0x80141FA4; // type:function size:0x44 ref:ac-decomp/GAFE01_00 ref_size:0x44 anchors:0x80141F28-0x8014217C
 AIInitDMA = .text:0x80141FE8; // type:function size:0x88 ref:ac-decomp/GAFE01_00 ref_size:0x88 anchors:0x80141F28-0x8014217C
-AIStartDMA = .text:0x80142070; // type:function size:0x18 ref:ttyd/G8MJ01 ref_size:0x18 anchors:0x80141FE8-0x801420A4
+AIStartDMA = .text:0x80142070; // type:function size:0x18 ref:ttyd/G8MJ01 ref_size:0x18 anchors:0x80141FE8-0x80142088
 // evidence AISetStreamPlayState 0x801420A4: callees AIGetStreamPlayState,AIGetStreamSampleRate,AIGetStreamVolLeft,AIGetStreamVolRight,AISetStreamVolLeft,AISetStreamVolRight,OSDisableInterrupts,OSRestoreInterrupts,__AI_SRC_INIT; caller __OSReboot; caller __AI_set_stream_sample_rate
-AISetStreamPlayState = .text:0x801420A4; // type:function size:0xD8 ref:marioparty4/GMPE01_00 ref_size:0xD8 anchors:0x80141FE8-0x8014217C
+AISetStreamPlayState = .text:0x801420A4; // type:function size:0xD8 ref:marioparty4/GMPE01_00 ref_size:0xD8 anchors:0x80142088-0x8014217C
 AIGetStreamPlayState = .text:0x8014217C; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x80141F28-0x8014C14C
 // evidence AISetDSPSampleRate 0x8014218C: callees AIGetDSPSampleRate,AIGetStreamSampleRate,AIGetStreamVolLeft,AIGetStreamVolRight,AISetStreamVolLeft,AISetStreamVolRight,OSDisableInterrupts,OSRestoreInterrupts
 AISetDSPSampleRate = .text:0x8014218C; // type:function size:0xE0 ref:melee/GALE01 ref_size:0xE0 anchors:0x80141F28-0x8014C14C
@@ -401,7 +402,7 @@ CARDGetSerialNo = .text:0x80151604; // type:function size:0xC4 ref:tp/GZ2E01 ref
 // evidence __GXDefaultTexRegionCallback 0x801516C8: callees GXGetTexObjFmt,GXGetTexObjMipMap
 __GXDefaultTexRegionCallback = .text:0x801516C8; // type:function size:0xFC ref:tp/GZ2E01 ref_size:0xFC anchors:0x80151448-0x801517C4
 __GXDefaultTlutRegionCallback = .text:0x801517C4; // type:function size:0x24 ref:ac-decomp/GAFU01_00 ref_size:0x24 anchors:0x80151448-0x80151978
-// evidence __GXShutdown 0x801517E8: callees GXSetDrawDoneCallback,OSGetTime,PPCSync
+// evidence __GXShutdown 0x801517E8: callees GXSetBreakPtCallback,GXSetDrawDoneCallback,OSGetTime,PPCSync,__GXAbort
 __GXShutdown = .text:0x801517E8; // type:function size:0x190 ref:ac-decomp/GAFU01_00 ref_size:0x190 anchors:0x80151448-0x80151978
 // evidence GXCPInterruptHandler 0x80152A48: callees OSClearContext,OSResumeThread,OSSetCurrentContext,OSSuspendThread,__GXWriteFifoIntEnable
 GXCPInterruptHandler = .text:0x80152A48; // type:function size:0x134 ref:ac-decomp/GAFE01_00 ref_size:0x13C anchors:0x80152110-0x80152B7C
@@ -428,12 +429,13 @@ GXGetVtxAttrFmtv = .text:0x801541C0; // type:function size:0x74 ref:mkdd/MarioCl
 // evidence GXSetArray 0x80154234: caller __GXInitGX; caller HSD_PObjDisp
 GXSetArray = .text:0x80154234; // type:function size:0x8C ref:mkdd/MarioClub_us ref_size:0x8C anchors:0x80153C24-0x801542C0
 GXInvalidateVtxCache = .text:0x801542C0; // type:function size:0x10 ref:ac-decomp/GAFU01_00 ref_size:0x10 anchors:0x80152F94-0x8015458C
+// evidence GXSetTexCoordGen2 0x801542D0: callees __GXSetMatrixIndex; caller __GXInitGX
 GXSetTexCoordGen2 = .text:0x801542D0; // type:function size:0x280 ref:ac-decomp/GAFU01_00 ref_size:0x280 anchors:0x80152F94-0x8015458C
 // evidence GXSetNumTexGens 0x80154550: caller __GXInitGX; caller HSD_StateSetNumTexGens
 GXSetNumTexGens = .text:0x80154550; // type:function size:0x3C ref:ac-decomp/GAFU01_00 ref_size:0x3C anchors:0x80152F94-0x8015458C
 // evidence GXFlush 0x80154620: callees PPCSync
-GXFlush = .text:0x80154620; // type:function size:0x5C ref:ac-decomp/GAFU01_00 ref_size:0x5C anchors:0x8015458C-0x801548B4
-GXDrawDone = .text:0x80154834; // type:function size:0x80 ref:marioparty4/GMPE01_00 ref_size:0x80 anchors:0x80154620-0x801548B4
+GXFlush = .text:0x80154620; // type:function size:0x5C ref:ac-decomp/GAFU01_00 ref_size:0x5C anchors:0x8015458C-0x8015467C
+GXDrawDone = .text:0x80154834; // type:function size:0x80 ref:marioparty4/GMPE01_00 ref_size:0x80 anchors:0x801547E8-0x801548B4
 GXPixModeSync = .text:0x801548B4; // type:function size:0x24 ref:ac-decomp/GAFE01_00 ref_size:0x24 anchors:0x8015458C-0x80154B8C
 GXPokeAlphaMode = .text:0x801548D8; // type:function size:0x14 ref:ac-decomp/GAFU01_00 ref_size:0x14 anchors:0x801548B4-0x80154AC8
 GXPokeAlphaRead = .text:0x801548EC; // type:function size:0x20 ref:ac-decomp/GAFU01_00 ref_size:0x20 anchors:0x801548B4-0x80154AC8
@@ -450,27 +452,27 @@ GXTokenInterruptHandler = .text:0x80154A40; // type:function size:0x88 ref:ac-de
 GXSetDrawDoneCallback = .text:0x80154AC8; // type:function size:0x44 ref:ac-decomp/GAFE01_00 ref_size:0x44 anchors:0x8015458C-0x80154B8C
 GXFinishInterruptHandler = .text:0x80154B0C; // type:function size:0x80 ref:ac-decomp/GAFE01_00 ref_size:0x84 anchors:0x8015458C-0x80154B8C
 // evidence __GXSetDirtyState 0x80154C00: callees __GXCalculateVLim,__GXSetGenMode,__GXSetVAT,__GXSetVCD,__GXUpdateBPMask
-__GXSetDirtyState = .text:0x80154C00; // type:function size:0x80 ref:ac-decomp/GAFU01_00 ref_size:0x80 anchors:0x80154B8C-0x801556DC
-GXBegin = .text:0x80154C80; // type:function size:0xD0 ref:ac-decomp/GAFU01_00 ref_size:0xD0 anchors:0x80154B8C-0x801556DC
-__GXSendFlushPrim = .text:0x80154D50; // type:function size:0x88 ref:ac-decomp/GAFU01_00 ref_size:0x88 anchors:0x80154B8C-0x801556DC
-GXSetLineWidth = .text:0x80154DD8; // type:function size:0x40 ref:ac-decomp/GAFU01_00 ref_size:0x40 anchors:0x80154B8C-0x801556DC
-GXSetPointSize = .text:0x80154E18; // type:function size:0x40 ref:ac-decomp/GAFU01_00 ref_size:0x40 anchors:0x80154B8C-0x801556DC
-GXEnableTexOffsets = .text:0x80154E58; // type:function size:0x48 ref:ac-decomp/GAFU01_00 ref_size:0x48 anchors:0x80154B8C-0x801556DC
-GXSetCullMode = .text:0x80154EA0; // type:function size:0x44 ref:ac-decomp/GAFU01_00 ref_size:0x44 anchors:0x80154B8C-0x801556DC
-GXSetCoPlanar = .text:0x80154EE4; // type:function size:0x34 ref:ac-decomp/GAFU01_00 ref_size:0x34 anchors:0x80154B8C-0x801556DC
-__GXSetGenMode = .text:0x80154F18; // type:function size:0x24 ref:ac-decomp/GAFU01_00 ref_size:0x24 anchors:0x80154B8C-0x801556DC
-GXSetDispCopySrc = .text:0x80154F3C; // type:function size:0x7C ref:ac-decomp/GAFU01_00 ref_size:0x7C anchors:0x80154B8C-0x801556DC
-GXSetTexCopySrc = .text:0x80154FB8; // type:function size:0x7C ref:ac-decomp/GAFU01_00 ref_size:0x7C anchors:0x80154B8C-0x801556DC
-GXSetDispCopyDst = .text:0x80155034; // type:function size:0x34 ref:ac-decomp/GAFU01_00 ref_size:0x34 anchors:0x80154B8C-0x801556DC
+__GXSetDirtyState = .text:0x80154C00; // type:function size:0x80 ref:ac-decomp/GAFU01_00 ref_size:0x80 anchors:0x80154B8C-0x801551BC
+GXBegin = .text:0x80154C80; // type:function size:0xD0 ref:ac-decomp/GAFU01_00 ref_size:0xD0 anchors:0x80154B8C-0x801551BC
+__GXSendFlushPrim = .text:0x80154D50; // type:function size:0x88 ref:ac-decomp/GAFU01_00 ref_size:0x88 anchors:0x80154B8C-0x801551BC
+GXSetLineWidth = .text:0x80154DD8; // type:function size:0x40 ref:ac-decomp/GAFU01_00 ref_size:0x40 anchors:0x80154B8C-0x801551BC
+GXSetPointSize = .text:0x80154E18; // type:function size:0x40 ref:ac-decomp/GAFU01_00 ref_size:0x40 anchors:0x80154B8C-0x801551BC
+GXEnableTexOffsets = .text:0x80154E58; // type:function size:0x48 ref:ac-decomp/GAFU01_00 ref_size:0x48 anchors:0x80154B8C-0x801551BC
+GXSetCullMode = .text:0x80154EA0; // type:function size:0x44 ref:ac-decomp/GAFU01_00 ref_size:0x44 anchors:0x80154B8C-0x801551BC
+GXSetCoPlanar = .text:0x80154EE4; // type:function size:0x34 ref:ac-decomp/GAFU01_00 ref_size:0x34 anchors:0x80154B8C-0x801551BC
+__GXSetGenMode = .text:0x80154F18; // type:function size:0x24 ref:ac-decomp/GAFU01_00 ref_size:0x24 anchors:0x80154B8C-0x801551BC
+GXSetDispCopySrc = .text:0x80154F3C; // type:function size:0x7C ref:ac-decomp/GAFU01_00 ref_size:0x7C anchors:0x80154B8C-0x801551BC
+GXSetTexCopySrc = .text:0x80154FB8; // type:function size:0x7C ref:ac-decomp/GAFU01_00 ref_size:0x7C anchors:0x80154B8C-0x801551BC
+GXSetDispCopyDst = .text:0x80155034; // type:function size:0x34 ref:ac-decomp/GAFU01_00 ref_size:0x34 anchors:0x80154B8C-0x801551BC
 // evidence GXSetTexCopyDst 0x80155068: callees __GetImageTileCount; caller HSD_ShadowInit
-GXSetTexCopyDst = .text:0x80155068; // type:function size:0x130 ref:ac-decomp/GAFU01_00 ref_size:0x130 anchors:0x80154B8C-0x801556DC
-GXSetDispCopyFrame2Field = .text:0x80155198; // type:function size:0x24 ref:ac-decomp/GAFU01_00 ref_size:0x24 anchors:0x80154B8C-0x801556DC
-GXSetCopyClear = .text:0x801552E0; // type:function size:0x78 ref:ac-decomp/GAFU01_00 ref_size:0x78 anchors:0x80154B8C-0x801556DC
-GXSetCopyFilter = .text:0x80155358; // type:function size:0x208 ref:ac-decomp/GAFU01_00 ref_size:0x208 anchors:0x80154B8C-0x801556DC
-GXSetDispCopyGamma = .text:0x80155560; // type:function size:0x14 ref:ac-decomp/GAFU01_00 ref_size:0x14 anchors:0x80154B8C-0x801556DC
-GXCopyDisp = .text:0x80155574; // type:function size:0x168 ref:ac-decomp/GAFU01_00 ref_size:0x168 anchors:0x80154B8C-0x801556DC
-GXCopyTex = .text:0x801556DC; // type:function size:0x18C ref:ac-decomp/GAFE01_00 ref_size:0x190 anchors:0x80154B8C-0x80156780
-GXClearBoundingBox = .text:0x80155868; // type:function size:0x38 ref:ac-decomp/GAFE01_00 ref_size:0x38 anchors:0x80154B8C-0x80156780
+GXSetTexCopyDst = .text:0x80155068; // type:function size:0x130 ref:ac-decomp/GAFU01_00 ref_size:0x130 anchors:0x80154B8C-0x801551BC
+GXSetDispCopyFrame2Field = .text:0x80155198; // type:function size:0x24 ref:ac-decomp/GAFU01_00 ref_size:0x24 anchors:0x80154B8C-0x801551BC
+GXSetCopyClear = .text:0x801552E0; // type:function size:0x78 ref:ac-decomp/GAFU01_00 ref_size:0x78 anchors:0x80155214-0x801556DC
+GXSetCopyFilter = .text:0x80155358; // type:function size:0x208 ref:ac-decomp/GAFU01_00 ref_size:0x208 anchors:0x80155214-0x801556DC
+GXSetDispCopyGamma = .text:0x80155560; // type:function size:0x14 ref:ac-decomp/GAFU01_00 ref_size:0x14 anchors:0x80155214-0x801556DC
+GXCopyDisp = .text:0x80155574; // type:function size:0x168 ref:ac-decomp/GAFU01_00 ref_size:0x168 anchors:0x80155214-0x801556DC
+GXCopyTex = .text:0x801556DC; // type:function size:0x18C ref:ac-decomp/GAFE01_00 ref_size:0x190 anchors:0x80155214-0x80156780
+GXClearBoundingBox = .text:0x80155868; // type:function size:0x38 ref:ac-decomp/GAFE01_00 ref_size:0x38 anchors:0x80155214-0x80156780
 GXInitLightAttn = .text:0x801558A0; // type:function size:0x1C ref:pikmin2/GPVE01 ref_size:0x1C anchors:0x80155868-0x80155A4C
 GXInitLightSpot = .text:0x801558BC; // type:function size:0x190 ref:pikmin2/GPVE01 ref_size:0x190 anchors:0x80155868-0x80155A4C
 GXInitLightDistAttn = .text:0x80155A4C; // type:function size:0xD0 ref:bfbb/GQPE78 ref_size:0xD0 anchors:0x80155868-0x80155B2C
@@ -485,7 +487,7 @@ GXSetChanCtrl = .text:0x80155DEC; // type:function size:0xB8 ref:bfbb/GQPE78 ref
 GXGetTexBufferSize = .text:0x80155EA4; // type:function size:0x15C ref:bfbb/GQPE78 ref_size:0x15C anchors:0x80155DB0-0x801560C8
 __GetImageTileCount = .text:0x80156000; // type:function size:0xC8 ref:bfbb/GQPE78 ref_size:0xC8 anchors:0x80155DB0-0x801560C8
 // evidence GXInitTexObj 0x801560C8: caller __GXInitGX; caller HSD_TObjSetup
-GXInitTexObj = .text:0x801560C8; // type:function size:0x24C ref:ac-decomp/GAFE01_00 ref_size:0x274 anchors:0x80154B8C-0x80156780
+GXInitTexObj = .text:0x801560C8; // type:function size:0x24C ref:ac-decomp/GAFE01_00 ref_size:0x274 anchors:0x80155214-0x80156780
 // evidence GXInitTexObjCI 0x80156314: callees GXInitTexObj; caller HSD_TObjSetup
 GXInitTexObjCI = .text:0x80156314; // type:function size:0x48 ref:ac-decomp/GAFU01_00 ref_size:0x48 anchors:0x801560C8-0x80156780
 GXInitTexObjLOD = .text:0x8015635C; // type:function size:0x164 ref:ac-decomp/GAFU01_00 ref_size:0x164 anchors:0x801560C8-0x80156780
@@ -510,60 +512,59 @@ GXSetNumIndStages = .text:0x8015703C; // type:function size:0x24 ref:xd/GXXE01 r
 // evidence GXSetTevDirect 0x80157060: callees GXSetTevIndirect; caller __GXInitGX
 GXSetTevDirect = .text:0x80157060; // type:function size:0x48 ref:ac-decomp/GAFU01_00 ref_size:0x48 anchors:0x80156B38-0x801570AC
 __GXUpdateBPMask = .text:0x801570A8; // type:function size:0x4 ref:ac-decomp/GAFU01_00 ref_size:0x4 anchors:0x80156B38-0x801570AC
-GXSetTevOp = .text:0x80157100; // type:function size:0x8C ref:ac-decomp/GAFU01_00 ref_size:0x8C anchors:0x801570DC-0x80159530
-GXSetTevColorIn = .text:0x8015718C; // type:function size:0x44 ref:ac-decomp/GAFU01_00 ref_size:0x44 anchors:0x801570DC-0x80159530
-GXSetTevAlphaIn = .text:0x801571D0; // type:function size:0x44 ref:ac-decomp/GAFU01_00 ref_size:0x44 anchors:0x801570DC-0x80159530
-GXSetTevColorOp = .text:0x80157214; // type:function size:0x68 ref:ac-decomp/GAFU01_00 ref_size:0x68 anchors:0x801570DC-0x80159530
-GXSetTevAlphaOp = .text:0x8015727C; // type:function size:0x68 ref:ac-decomp/GAFU01_00 ref_size:0x68 anchors:0x801570DC-0x80159530
+GXSetTevOp = .text:0x80157100; // type:function size:0x8C ref:ac-decomp/GAFU01_00 ref_size:0x8C anchors:0x801570DC-0x80157FE4
+GXSetTevColorIn = .text:0x8015718C; // type:function size:0x44 ref:ac-decomp/GAFU01_00 ref_size:0x44 anchors:0x801570DC-0x80157FE4
+GXSetTevAlphaIn = .text:0x801571D0; // type:function size:0x44 ref:ac-decomp/GAFU01_00 ref_size:0x44 anchors:0x801570DC-0x80157FE4
+GXSetTevColorOp = .text:0x80157214; // type:function size:0x68 ref:ac-decomp/GAFU01_00 ref_size:0x68 anchors:0x801570DC-0x80157FE4
+GXSetTevAlphaOp = .text:0x8015727C; // type:function size:0x68 ref:ac-decomp/GAFU01_00 ref_size:0x68 anchors:0x801570DC-0x80157FE4
 GXSetTevColor = .text:0x801572E4; // type:function size:0x7C ref:bfbb/GQPE78 ref_size:0x7C anchors:0x8015727C-0x801574AC
 GXSetTevColorS10 = .text:0x80157360; // type:function size:0x7C ref:bfbb/GQPE78 ref_size:0x7C anchors:0x8015727C-0x801574AC
 GXSetTevKColor = .text:0x801573DC; // type:function size:0x74 ref:bfbb/GQPE78 ref_size:0x74 anchors:0x8015727C-0x801574AC
 GXSetTevKColorSel = .text:0x80157450; // type:function size:0x5C ref:bfbb/GQPE78 ref_size:0x5C anchors:0x8015727C-0x801574AC
-GXSetTevKAlphaSel = .text:0x801574AC; // type:function size:0x5C ref:ac-decomp/GAFU01_00 ref_size:0x5C anchors:0x801570DC-0x80159530
-GXSetTevSwapMode = .text:0x80157508; // type:function size:0x48 ref:ac-decomp/GAFU01_00 ref_size:0x48 anchors:0x801570DC-0x80159530
-GXSetTevSwapModeTable = .text:0x80157550; // type:function size:0x80 ref:ac-decomp/GAFU01_00 ref_size:0x80 anchors:0x801570DC-0x80159530
-GXSetAlphaCompare = .text:0x801575D0; // type:function size:0x44 ref:ac-decomp/GAFU01_00 ref_size:0x44 anchors:0x801570DC-0x80159530
-GXSetZTexture = .text:0x80157614; // type:function size:0x8C ref:ac-decomp/GAFU01_00 ref_size:0x8C anchors:0x801570DC-0x80159530
-GXSetTevOrder = .text:0x801576A0; // type:function size:0x19C ref:ac-decomp/GAFU01_00 ref_size:0x19C anchors:0x801570DC-0x80159530
+GXSetTevKAlphaSel = .text:0x801574AC; // type:function size:0x5C ref:ac-decomp/GAFU01_00 ref_size:0x5C anchors:0x801570DC-0x80157FE4
+GXSetTevSwapMode = .text:0x80157508; // type:function size:0x48 ref:ac-decomp/GAFU01_00 ref_size:0x48 anchors:0x801570DC-0x80157FE4
+GXSetTevSwapModeTable = .text:0x80157550; // type:function size:0x80 ref:ac-decomp/GAFU01_00 ref_size:0x80 anchors:0x801570DC-0x80157FE4
+GXSetAlphaCompare = .text:0x801575D0; // type:function size:0x44 ref:ac-decomp/GAFU01_00 ref_size:0x44 anchors:0x801570DC-0x80157FE4
+GXSetZTexture = .text:0x80157614; // type:function size:0x8C ref:ac-decomp/GAFU01_00 ref_size:0x8C anchors:0x801570DC-0x80157FE4
+GXSetTevOrder = .text:0x801576A0; // type:function size:0x19C ref:ac-decomp/GAFU01_00 ref_size:0x19C anchors:0x801570DC-0x80157FE4
 // evidence GXSetNumTevStages 0x8015783C: caller __GXInitGX; caller HSD_StateSetNumTevStages
-GXSetNumTevStages = .text:0x8015783C; // type:function size:0x28 ref:ac-decomp/GAFU01_00 ref_size:0x28 anchors:0x801570DC-0x80159530
+GXSetNumTevStages = .text:0x8015783C; // type:function size:0x28 ref:ac-decomp/GAFU01_00 ref_size:0x28 anchors:0x801570DC-0x80157FE4
 GXSetFog = .text:0x80157864; // type:function size:0x224 ref:pikmin2/GPVE01 ref_size:0x224 anchors:0x8015783C-0x80157D5C
 GXInitFogAdjTable = .text:0x80157A88; // type:function size:0x1B0 ref:pikmin2/GPVE01 ref_size:0x1B0 anchors:0x8015783C-0x80157D5C
 GXSetFogRangeAdj = .text:0x80157C38; // type:function size:0x124 ref:pikmin2/GPVE01 ref_size:0x124 anchors:0x8015783C-0x80157D5C
-GXSetBlendMode = .text:0x80157D5C; // type:function size:0x54 ref:ac-decomp/GAFU01_00 ref_size:0x54 anchors:0x801570DC-0x80159530
-GXSetColorUpdate = .text:0x80157DB0; // type:function size:0x2C ref:ac-decomp/GAFU01_00 ref_size:0x2C anchors:0x801570DC-0x80159530
-GXSetAlphaUpdate = .text:0x80157DDC; // type:function size:0x2C ref:ac-decomp/GAFU01_00 ref_size:0x2C anchors:0x801570DC-0x80159530
-GXSetZMode = .text:0x80157E08; // type:function size:0x34 ref:ac-decomp/GAFU01_00 ref_size:0x34 anchors:0x801570DC-0x80159530
-GXSetZCompLoc = .text:0x80157E3C; // type:function size:0x34 ref:ac-decomp/GAFU01_00 ref_size:0x34 anchors:0x801570DC-0x80159530
-GXSetPixelFmt = .text:0x80157E70; // type:function size:0xD4 ref:ac-decomp/GAFU01_00 ref_size:0xD4 anchors:0x801570DC-0x80159530
-GXSetDither = .text:0x80157F44; // type:function size:0x2C ref:ac-decomp/GAFU01_00 ref_size:0x2C anchors:0x801570DC-0x80159530
-GXSetDstAlpha = .text:0x80157F70; // type:function size:0x3C ref:ac-decomp/GAFU01_00 ref_size:0x3C anchors:0x801570DC-0x80159530
-GXSetFieldMask = .text:0x80157FAC; // type:function size:0x38 ref:ac-decomp/GAFU01_00 ref_size:0x38 anchors:0x801570DC-0x80159530
-GXDrawCube = .text:0x80158274; // type:function size:0x250 ref:mkdd/MarioClub_us ref_size:0x250 anchors:0x80157FAC-0x80158534
+GXSetBlendMode = .text:0x80157D5C; // type:function size:0x54 ref:ac-decomp/GAFU01_00 ref_size:0x54 anchors:0x801570DC-0x80157FE4
+GXSetColorUpdate = .text:0x80157DB0; // type:function size:0x2C ref:ac-decomp/GAFU01_00 ref_size:0x2C anchors:0x801570DC-0x80157FE4
+GXSetAlphaUpdate = .text:0x80157DDC; // type:function size:0x2C ref:ac-decomp/GAFU01_00 ref_size:0x2C anchors:0x801570DC-0x80157FE4
+GXSetZMode = .text:0x80157E08; // type:function size:0x34 ref:ac-decomp/GAFU01_00 ref_size:0x34 anchors:0x801570DC-0x80157FE4
+GXSetZCompLoc = .text:0x80157E3C; // type:function size:0x34 ref:ac-decomp/GAFU01_00 ref_size:0x34 anchors:0x801570DC-0x80157FE4
+GXSetPixelFmt = .text:0x80157E70; // type:function size:0xD4 ref:ac-decomp/GAFU01_00 ref_size:0xD4 anchors:0x801570DC-0x80157FE4
+GXSetDither = .text:0x80157F44; // type:function size:0x2C ref:ac-decomp/GAFU01_00 ref_size:0x2C anchors:0x801570DC-0x80157FE4
+GXSetDstAlpha = .text:0x80157F70; // type:function size:0x3C ref:ac-decomp/GAFU01_00 ref_size:0x3C anchors:0x801570DC-0x80157FE4
+GXSetFieldMask = .text:0x80157FAC; // type:function size:0x38 ref:ac-decomp/GAFU01_00 ref_size:0x38 anchors:0x801570DC-0x80157FE4
+GXDrawCube = .text:0x80158274; // type:function size:0x250 ref:mkdd/MarioClub_us ref_size:0x250 anchors:0x80157FE4-0x80158534
 // evidence GXCallDisplayList 0x801584C4: callees __GXSendFlushPrim,__GXSetDirtyState; caller HSD_PObjDisp
-GXCallDisplayList = .text:0x801584C4; // type:function size:0x70 ref:mkdd/MarioClub_us ref_size:0x70 anchors:0x80157FAC-0x80158534
-GXSetProjection = .text:0x80158534; // type:function size:0xA4 ref:ac-decomp/GAFU01_00 ref_size:0xA4 anchors:0x801570DC-0x80159530
-GXSetProjectionv = .text:0x801585D8; // type:function size:0x8C ref:ac-decomp/GAFU01_00 ref_size:0x8C anchors:0x801570DC-0x80159530
+GXCallDisplayList = .text:0x801584C4; // type:function size:0x70 ref:mkdd/MarioClub_us ref_size:0x70 anchors:0x80157FE4-0x80158534
+GXSetProjection = .text:0x80158534; // type:function size:0xA4 ref:ac-decomp/GAFU01_00 ref_size:0xA4 anchors:0x80157FE4-0x80158A40
+GXSetProjectionv = .text:0x801585D8; // type:function size:0x8C ref:ac-decomp/GAFU01_00 ref_size:0x8C anchors:0x80157FE4-0x80158A40
 GXGetProjectionv = .text:0x80158664; // type:function size:0x48 ref:bfbb/GQPE78 ref_size:0x48 anchors:0x801585D8-0x80158780
 GXLoadPosMtxImm = .text:0x801586AC; // type:function size:0x50 ref:bfbb/GQPE78 ref_size:0x50 anchors:0x801585D8-0x80158780
 GXLoadNrmMtxImm = .text:0x801586FC; // type:function size:0x50 ref:bfbb/GQPE78 ref_size:0x50 anchors:0x801585D8-0x80158780
-// evidence GXSetCurrentMtx 0x8015874C: caller __GXInitGX; caller SetupSharedVtxModelMtx
+// evidence GXSetCurrentMtx 0x8015874C: callees __GXSetMatrixIndex; caller __GXInitGX; caller SetupSharedVtxModelMtx
 GXSetCurrentMtx = .text:0x8015874C; // type:function size:0x34 ref:bfbb/GQPE78 ref_size:0x34 anchors:0x801585D8-0x80158780
 // evidence GXLoadTexMtxImm 0x80158780: caller __GXInitGX; caller TObjSetupMtx; caller SetupSharedVtxModelMtx; caller SetupEnvelopeModelMtx
-GXLoadTexMtxImm = .text:0x80158780; // type:function size:0xB4 ref:ac-decomp/GAFU01_00 ref_size:0xB4 anchors:0x801570DC-0x80159530
-__GXSetViewport = .text:0x80158834; // type:function size:0x90 ref:ttyd/G8MJ01 ref_size:0x90 anchors:0x80158780-0x80158964
+GXLoadTexMtxImm = .text:0x80158780; // type:function size:0xB4 ref:ac-decomp/GAFU01_00 ref_size:0xB4 anchors:0x80157FE4-0x80158A40
+__GXSetViewport = .text:0x80158834; // type:function size:0x90 ref:bfbb/GQPE78 ref_size:0x90 anchors:0x80158780-0x80158A00
 // evidence GXSetViewportJitter 0x801588C4: callees __GXSetViewport
-GXSetViewportJitter = .text:0x801588C4; // type:function size:0x58 ref:ttyd/G8MJ01 ref_size:0x58 anchors:0x80158780-0x80158964
+GXSetViewportJitter = .text:0x801588C4; // type:function size:0x58 ref:bfbb/GQPE78 ref_size:0x58 anchors:0x80158780-0x80158A00
 // evidence GXSetViewport 0x8015891C: caller __GXInitGX; caller HSD_ShadowStartRender
-GXSetViewport = .text:0x8015891C; // type:function size:0x48 ref:ttyd/G8MJ01 ref_size:0x48 anchors:0x80158780-0x80158964
-GXGetViewportv = .text:0x80158964; // type:function size:0x24 ref:tp/GZ2E01 ref_size:0x24 anchors:0x80158780-0x80158A40
+GXSetViewport = .text:0x8015891C; // type:function size:0x48 ref:ttyd/G8MJ01 ref_size:0x48 anchors:0x801588C4-0x80158964
+GXGetViewportv = .text:0x80158964; // type:function size:0x24 ref:tp/GZ2E01 ref_size:0x24 anchors:0x80158834-0x80158A00
 // evidence GXSetScissor 0x80158988: caller __GXInitGX; caller HSD_ShadowStartRender
-GXSetScissor = .text:0x80158988; // type:function size:0x78 ref:xd/GXXE01 ref_size:0x78 anchors:0x80158964-0x80158A40
-GXSetScissorBoxOffset = .text:0x80158A00; // type:function size:0x40 ref:xd/GXXE01 ref_size:0x40 anchors:0x80158964-0x80158A40
-GXSetClipMode = .text:0x80158A40; // type:function size:0x28 ref:pikmin2/GPVE01 ref_size:0x28 anchors:0x80158780-0x80169474
-// evidence __GXSetMatrixIndex 0x80158A68: caller GXSetTexCoordGen2; caller GXSetCurrentMtx
-__GXSetMatrixIndex = .text:0x80158A68; // type:function size:0x84 ref:pikmin2/GPVE01 ref_size:0x84 anchors:0x80158780-0x80169474
-GXSetGPMetric = .text:0x80158AEC; // type:function size:0x848 ref:pikmin2/GPVE01 ref_size:0x848 anchors:0x80158780-0x80169474
+GXSetScissor = .text:0x80158988; // type:function size:0x78 ref:xd/GXXE01 ref_size:0x78 anchors:0x80158964-0x80158A00
+GXSetScissorBoxOffset = .text:0x80158A00; // type:function size:0x40 ref:ac-decomp/GAFU01_00 ref_size:0x40 anchors:0x80157FE4-0x80158A40
+GXSetClipMode = .text:0x80158A40; // type:function size:0x28 ref:ac-decomp/GAFE01_00 ref_size:0x28 anchors:0x80157FE4-0x80159334
+__GXSetMatrixIndex = .text:0x80158A68; // type:function size:0x84 ref:ac-decomp/GAFE01_00 ref_size:0x84 anchors:0x80157FE4-0x80159334
+GXSetGPMetric = .text:0x80158AEC; // type:function size:0x848 ref:ac-decomp/GAFE01_00 ref_size:0x898 anchors:0x80157FE4-0x80159334
 // evidence TRKConstructEvent 0x8015964C: caller TRKProcessInput; caller TRKDoDisconnect; caller TRKTargetSupportRequest; caller TRKPostInterruptEvent
 TRKConstructEvent = .text:0x8015964C; // type:function size:0x18 ref:ac-decomp/GAFE01_00 ref_size:0x18 anchors:0x80159628-0x80159744
 // evidence TRKPostEvent 0x80159664: caller TRKProcessInput; caller TRKDoDisconnect; caller TRKTargetSupportRequest; caller TRKPostInterruptEvent

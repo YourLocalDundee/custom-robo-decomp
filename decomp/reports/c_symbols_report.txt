@@ -1,12 +1,26 @@
 symbols from the objects built from C (tools/gen_c_symbols.py): main.elf's symbols inside each object's
 ranges replace those of decomp/config/GXCE01/symbols.txt there (same bytes; the C's names, sizes, scopes).
-objects: 75; symbols written: 487
+objects: 92; symbols written: 779
 functions and globals the C names differently from symbols.txt before it (a dtk default name: the matched C
 is the proof of the real name; one of our own names: the two disagree):
   .bss     0x80439BF8  lbl_80439BF8 -> gTRKEventQueue
+  .sbss    0x8044FD38  lbl_8044FD38 -> __PADFixBits
+  .sdata   0x8044EDF8  lbl_8044EDF8 -> __AIVersion
+  .sdata   0x8044EE00  lbl_8044EE00 -> __ARVersion
+  .sdata   0x8044EE08  lbl_8044EE08 -> __ARQVersion
+  .sdata   0x8044EE60  lbl_8044EE60 -> GXTexMode0Ids
+  .sdata   0x8044EE68  lbl_8044EE68 -> GXTexMode1Ids
+  .sdata   0x8044EE70  lbl_8044EE70 -> GXTexImage0Ids
+  .sdata   0x8044EE78  lbl_8044EE78 -> GXTexImage1Ids
+  .sdata   0x8044EE80  lbl_8044EE80 -> GXTexImage2Ids
+  .sdata   0x8044EE88  lbl_8044EE88 -> GXTexImage3Ids
+  .sdata   0x8044EE90  lbl_8044EE90 -> GXTexTlutIds
+  .text    0x80132EC4  fn_80132EC4 -> OnReset
   .text    0x8013A5E0  fn_8013A5E0 -> AlarmHandler
+  .text    0x80142B28  fn_80142B28 -> __ARHandler
   .text    0x8014C234  fn_8014C234 -> bitrev
   .text    0x8014D71C  fn_8014D71C -> WriteCallback
   .text    0x8014D7F0  fn_8014D7F0 -> EraseCallback
   .text    0x8014DB20  fn_8014DB20 -> WriteCallback
   .text    0x8014DBF0  fn_8014DBF0 -> EraseCallback
+  .text    0x8016CB94  fn_8016CB94 -> AlarmHandler

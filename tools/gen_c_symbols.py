@@ -8,7 +8,8 @@ names come from the matched C, here generated instead of typed:
 Run by batch 9 after the first ninja (which linked main.elf WITH the configure.py CR_MATCHING objects from C and had to
 give the retail SHA-1, so every address is the retail one):
   1. For every CR_MATCHING object, the symbols main.elf has inside that object's ranges of splits.txt (mwld keeps
-     every local symbol of the C object: @NN literals, statics, functions), with their size, type and binding.
+     every local symbol of the C object: @NN literals, statics, functions), with their size, type and binding; only
+     names the C object defines itself (not the linker's own, e.g. _dtors at the start of .dtors).
   2. In decomp/config/GXCE01/symbols.txt every symbol inside those ranges is replaced by them (nothing outside the
      ranges changes). The bytes are the same, so the next split gives the same main.dol; batch 9 then splits again
      and checks the SHA-1, objdiff 100% and the fixpoint (a second split changes nothing).
@@ -19,6 +20,7 @@ Usage: python -I tools/gen_c_symbols.py
 import os
 import re
 import sys
+from pathlib import Path
 
 G = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(G, 'tools'))
@@ -52,9 +54,16 @@ def main():
     elf = ra.Elf(ELF)
     secname = {s[0]: s[1] for s in elf.sections}
     new = {}   # section -> [(addr, order, line)]
+    from gen_dtk_splits import read_obj
+    defined = {}   # the names each C object defines itself (not the linker's own, e.g. _dtors at the start of .dtors)
+    for obj in sorted({r[3] for r in rs}):
+        o = os.path.join(D, 'build', 'GXCE01', 'src', os.path.splitext(obj)[0] + '.o')
+        defined[obj] = {s[0] for s in read_obj(Path(o))[1] if s[5]} if os.path.exists(o) else None
     for sec, lo, hi, obj in rs:
         for n, v, sz, t, b, shn in elf.syms:
             if secname.get(shn) != sec or not (lo <= v < hi) or t not in STT or not n or n.startswith('...'):
+                continue
+            if defined[obj] is not None and n not in defined[obj]:
                 continue
             if t == 0 and sz == 0:
                 kind = 'type:label'

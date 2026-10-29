@@ -3,13 +3,13 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           70     35   0x009224/0x020880  28.08%   0x000A00/0x003830  17.80%    203/  611
-MSL                               48     27   0x002DC4/0x00937C  31.03%   0x000510/0x000B20  45.51%     35/   84
-Runtime                            5      3   0x0008DC/0x0009DC  89.86%   0x000018/0x000090  16.67%     17/   19
+dolphin                           75     47   0x010F98/0x022354  49.62%   0x00208C/0x015594   9.53%    339/  646
+MSL                               48     29   0x002F00/0x00937C  31.87%   0x000718/0x000D20  54.05%     37/   84
+Runtime                            5      4   0x000924/0x0009DC  92.71%   0x000024/0x00009C  23.08%     18/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
-sysdolphin                         9      0   0x000000/0x00B064   0.00%   0x000000/0x000630   0.00%      0/  126
-automatic objects (unsplit)       85      0   0x000000/0x177BD0   0.00%   0x000000/0x294550   0.00%      0/ 2531
-main.dol (all units)             246     75   0x00D304/0x1B342C   3.03%   0x000F58/0x29C458   0.14%    277/ 3533
+sysdolphin                         9      2   0x000210/0x00B064   1.17%   0x0000C0/0x0006D8  10.96%      4/  126
+automatic objects (unsplit)       82      0   0x000000/0x1760FC   0.00%   0x000000/0x282538   0.00%      0/ 2496
+main.dol (all units)             248     92   0x01540C/0x1B342C   4.88%   0x0028B8/0x29C458   0.38%    420/ 3533
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
 MSL/FILE_POS.c                                code 0x0/0x3C0  data 0x0/0x0  functions 0/3  not linked: code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision
@@ -18,7 +18,7 @@ MSL/alloc.c                                   code 0x444/0x4B4  data 0x18/0x58  
 MSL/ansi_files.c                              code 0x70/0x118  data 0x0/0x0  functions 1/2  not linked: code: 1 of 2 functions differ (__close_all 90%): the reference is another revision  (C has data the split object lacks: .bss 0x300, .data 0x140)
 MSL/ansi_fp.c                                 code 0x41C/0x1F54  data 0x8/0xE8  functions 2/4  not linked: code: 2 of 4 functions differ (__two_exp 93%, __num2dec_internal 96%): the reference is another revision  (C has data the split object lacks: .data 0x124)
 MSL/buffer_io.c                               code 0xF8/0xF8  data 0x0/0x0  functions 2/2  linked from C
-MSL/ctype.c                                   code 0x24/0x24  data 0x0/0x0  functions 1/1  not linked: data: the C defines data that main.dol has in a dtk automatic object (.data 0x300), so linking it changes main.dol  (C has data the split object lacks: .data 0x300)
+MSL/ctype.c                                   code 0x24/0x24  data 0x200/0x200  functions 1/1  linked from C
 MSL/direct_io.c                               code 0x30C/0x388  data 0x0/0x0  functions 1/2  not linked: code: 1 of 2 functions differ (fwrite 26%): the reference is another revision
 MSL/e_acos.c                                  code 0x0/0x23C  data 0x0/0x88  functions 0/1  not linked: code: 1 of 1 functions differ (__ieee754_acos 38%): the reference is another revision
 MSL/e_asin.c                                  code 0x0/0x238  data 0x0/0x88  functions 0/1  not linked: code: 1 of 1 functions differ (__ieee754_asin 59%): the reference is another revision
@@ -31,7 +31,7 @@ MSL/k_cos.c                                   code 0xF4/0xF4  data 0x48/0x48  fu
 MSL/k_rem_pio2.c                              code 0xE54/0xE54  data 0x90/0x90  functions 1/1  linked from C
 MSL/k_sin.c                                   code 0xA0/0xA0  data 0x38/0x38  functions 1/1  linked from C
 MSL/k_tan.c                                   code 0x214/0x214  data 0xA0/0xA0  functions 1/1  linked from C
-MSL/mbstring.c                                code 0x118/0x118  data 0x8/0x8  functions 1/1  not linked: data: the C defines data that main.dol has in a dtk automatic object, so linking it changes main.dol
+MSL/mbstring.c                                code 0x118/0x118  data 0x8/0x8  functions 1/1  linked from C
 MSL/mem.c                                     code 0x170/0x170  data 0x0/0x0  functions 4/4  linked from C
 MSL/mem_funcs.c                               code 0x2D0/0x2D0  data 0x0/0x0  functions 4/4  linked from C
 MSL/misc_io.c                                 code 0x10/0x10  data 0x0/0x0  functions 1/1  linked from C
@@ -77,12 +77,12 @@ MetroTRK/usr_put.c                            code 0x8C/0x8C  data 0x0/0x0  func
 Runtime/GCN_mem_alloc.c                       code 0x0/0xB8  data 0x0/0x78  functions 0/1  not linked: code: 1 of 1 functions differ (__sys_free 98%): the reference is another revision
 Runtime/__mem.c                               code 0x138/0x138  data 0x0/0x0  functions 3/3  linked from C
 Runtime/__va_arg.c                            code 0xC8/0xC8  data 0x0/0x0  functions 1/1  linked from C
-Runtime/global_destructor_chain.c             code 0x48/0x48  data 0x0/0x0  functions 1/1  not linked: data: '__global_destructor_chain' in global_destructor_chain.o is defined again by a dtk automatic object (the data split did not give this object that piece)  (C has data the split object lacks: .dtors 0x4, .sbss 0x4)
+Runtime/global_destructor_chain.c             code 0x48/0x48  data 0xC/0xC  functions 1/1  linked from C
 Runtime/runtime.c                             code 0x6DC/0x6DC  data 0x18/0x18  functions 13/13  linked from C
-dolphin/ai/ai.c                               code 0x8CC/0x8E8  data 0x0/0x40  functions 18/19  not linked: code: 1 of 19 functions differ (fn_80142088 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)  (C has data the split object lacks: .bss 0x30, .data 0x44, .sdata 0x4)
-dolphin/ar/ar.c                               code 0x1AC0/0x1B38  data 0x20/0x28  functions 8/9  not linked: code: 1 of 9 functions differ (fn_80142B28 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)  (C has data the split object lacks: .data 0x44, .sdata2 0x20)
-dolphin/ar/arq.c                              code 0x39C/0x39C  data 0x0/0x78  functions 5/5  not linked: data: the C defines data that main.dol has in a dtk automatic object, so linking it changes main.dol
-dolphin/ax/AXVPB.c                            code 0x1228/0x1588  data 0x0/0x18  functions 18/22  not linked: code: 4 of 22 functions differ (__AXSetPBDefault 89%, fn_80146ED8 0%, fn_801470D8 0%, fn_8014719C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)  (C has data the split object lacks: .bss 0x11800, .data 0xD4)
+dolphin/ai/ai.c                               code 0x8E8/0x8E8  data 0x90/0x90  functions 19/19  linked from C
+dolphin/ar/ar.c                               code 0x1B38/0x1B38  data 0x70/0x70  functions 9/9  linked from C
+dolphin/ar/arq.c                              code 0x39C/0x39C  data 0x78/0x78  functions 5/5  linked from C
+dolphin/ax/AXVPB.c                            code 0x1228/0x1588  data 0x0/0x11818  functions 18/22  not linked: code: 4 of 22 functions differ (__AXSetPBDefault 89%, fn_80146ED8 0%, fn_801470D8 0%, fn_8014719C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)  (C has data the split object lacks: .data 0xD4)
 dolphin/base/PPCArch.c                        code 0x114/0x114  data 0x0/0x0  functions 22/22  linked from C
 dolphin/card/CARDBlock.c                      code 0x404/0x404  data 0x0/0x0  functions 6/6  linked from C
 dolphin/card/CARDCheck.c                      code 0xF14/0xF14  data 0x0/0x0  functions 6/6  linked from C
@@ -91,14 +91,14 @@ dolphin/card/CARDDelete.c                     code 0x1B4/0x1B4  data 0x0/0x0  fu
 dolphin/card/CARDDir.c                        code 0x264/0x264  data 0x0/0x0  functions 4/4  linked from C
 dolphin/card/CARDFormat.c                     code 0x7E4/0x7E4  data 0x0/0x0  functions 3/3  linked from C
 dolphin/card/CARDMount.c                      code 0x668/0xA78  data 0x40/0x40  functions 6/7  not linked: code: 1 of 7 functions differ (DoMount 93%): the reference is another revision
-dolphin/card/CARDNet.c                        code 0xC4/0xC4  data 0x0/0x0  functions 1/1  linked from C
-dolphin/card/CARDOpen.c                       code 0x5EC/0x5EC  data 0x0/0x0  functions 8/8  not linked: link: uses __CARDPermMask, which CARDNet.c (linked from C) defines in its .sdata, but the data split left that piece (0x8044EE40-0x8044EE48: __CARDVendorID, __CARDPermMask) in a dtk automatic object, so naming it there would define it twice; give CARDNet.c that .sdata piece first
+dolphin/card/CARDNet.c                        code 0xC4/0xC4  data 0x8/0x8  functions 1/1  linked from C
+dolphin/card/CARDOpen.c                       code 0x5EC/0x5EC  data 0x0/0x0  functions 8/8  linked from C
 dolphin/card/CARDRdwr.c                       code 0x140/0x280  data 0x0/0x0  functions 2/4  not linked: code: 2 of 4 functions differ (BlockWriteCallback 78%, __CARDWrite 80%): the reference is another revision
 dolphin/card/CARDStat.c                       code 0x4C8/0x4C8  data 0x0/0x0  functions 4/4  linked from C
 dolphin/card/CARDUnlock.c                     code 0x1260/0x1260  data 0x168/0x168  functions 6/6  linked from C
 dolphin/db/db.c                               code 0xEC/0xEC  data 0x20/0x20  functions 5/5  linked from C
 dolphin/dsp/dsp_debug.c                       code 0x50/0x50  data 0x0/0x0  functions 1/1  linked from C
-dolphin/dsp/dsp_task.c                        code 0x884/0x884  data 0x0/0x140  functions 5/5  not linked: data: the C defines data that main.dol has in a dtk automatic object (.sbss 0x24), so linking it changes main.dol  (C has data the split object lacks: .sbss 0x24)
+dolphin/dsp/dsp_task.c                        code 0x884/0x884  data 0x158/0x158  functions 5/5  linked from C
 dolphin/dvd/dvdFatal.c                        code 0x30/0x30  data 0x8/0x8  functions 1/1  linked from C
 dolphin/dvd/dvderror.c                        code 0x198/0x198  data 0x48/0x48  functions 2/2  linked from C
 dolphin/dvd/dvdidutils.c                      code 0xF8/0xF8  data 0x0/0x0  functions 1/1  linked from C
@@ -110,27 +110,27 @@ dolphin/exi/EXIUart.c                         code 0x3B8/0x5D4  data 0x10/0x10  
 dolphin/gx/GXAttr.c                           code 0x13EC/0x1514  data 0x0/0x10  functions 14/16  not linked: code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision  (C has data the split object lacks: .data 0x274)
 dolphin/gx/GXBump.c                           code 0x274/0x274  data 0x0/0x0  functions 7/7  linked from C
 dolphin/gx/GXDisplayList.c                    code 0x70/0x70  data 0x0/0x0  functions 1/1  linked from C
-dolphin/gx/GXFifo.c                           code 0x5E4/0x628  data 0x0/0x20  functions 12/13  not linked: code: 1 of 13 functions differ (fn_80152F04 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)
-dolphin/gx/GXFrameBuf.c                       code 0x840/0x964  data 0x0/0x8  functions 11/13  not linked: code: 2 of 13 functions differ (fn_801551BC 0%, fn_80155214 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)  (C has data the split object lacks: .data 0x780)
+dolphin/gx/GXFifo.c                           code 0x628/0x628  data 0x0/0x20  functions 13/13  not linked: link: 100% code (every function its own by bytes), but GXGetGPFifo (0x80153070) is the C's too and outside the proven code range (it ends at 0x80153070): that function stays in an automatic object and uses GPFifo, which the C defines
+dolphin/gx/GXFrameBuf.c                       code 0x964/0x964  data 0x0/0x8  functions 13/13  not linked: data: 100% code, but its .data (the GX render modes) is not proven: the C's symbols at +0x348 are not where they follow from +0xF0 (another revision's table), so the render modes stay in an automatic object and linking defines them twice  (C has data the split object lacks: .data 0x780)
 dolphin/gx/GXGeometry.c                       code 0x2F8/0x33C  data 0x0/0x0  functions 8/9  not linked: code: 1 of 9 functions differ (GXSetCullMode 35%): the reference is another revision
 dolphin/gx/GXInit.c                           code 0xBE8/0x1380  data 0x0/0x58  functions 4/5  not linked: code: 1 of 5 functions differ (GXInit 79%): the reference is another revision  (C has data the split object lacks: .bss 0x630, .data 0x23C)
 dolphin/gx/GXLight.c                          code 0x36C/0x604  data 0x20/0x50  functions 8/11  not linked: code: 3 of 11 functions differ (GXSetChanAmbColor 92%, GXSetChanMatColor 92%, GXSetChanCtrl 81%): the reference is another revision
-dolphin/gx/GXMisc.c                           code 0x4BC/0x674  data 0x0/0x18  functions 17/19  not linked: code: 2 of 19 functions differ (fn_8015467C 0%, fn_801547E8 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)  (C has data the split object lacks: .data 0x53)
+dolphin/gx/GXMisc.c                           code 0x674/0x674  data 0x0/0x18  functions 19/19  not linked: link: 100% code, but __GXAbort calls GXGetGPFifo (0x80153070, c_callsites_report.txt), which is GXFifo.c's and lies outside GXFifo.c's proven code range (it ends at 0x80153070): naming it moves that edge; prove GXFifo.c's end first  (C has data the split object lacks: .data 0x53)
 dolphin/gx/GXTev.c                            code 0x5F8/0x764  data 0x0/0x78  functions 13/16  not linked: code: 3 of 16 functions differ (GXSetTevColor 29%, GXSetTevColorS10 49%, GXSetTevKColor 22%): the reference is another revision
-dolphin/gx/GXTexture.c                        code 0xFE8/0xFE8  data 0x0/0x68  functions 19/19  not linked: data: the C defines data that main.dol has in a dtk automatic object (.data 0x318), so linking it changes main.dol  (C has data the split object lacks: .data 0x318)
-dolphin/gx/GXTransform.c                      code 0x5B8/0x5B8  data 0x0/0x0  functions 15/15  not linked: data: the C defines data that main.dol has in a dtk automatic object (.sdata2 0x14), so linking it changes main.dol  (C has data the split object lacks: .sdata2 0x14)
+dolphin/gx/GXTexture.c                        code 0xFE8/0xFE8  data 0x290/0x290  functions 19/19  linked from C
+dolphin/gx/GXTransform.c                      code 0x5B8/0x5B8  data 0x10/0x10  functions 15/15  linked from C
 dolphin/mtx/mtx.c                             code 0x9F0/0x9F0  data 0x28/0x28  functions 17/17  linked from C
 dolphin/mtx/mtx44.c                           code 0x204/0x204  data 0x18/0x18  functions 3/3  linked from C
 dolphin/mtx/mtxvec.c                          code 0xA8/0xA8  data 0x0/0x0  functions 2/2  linked from C
 dolphin/odenotstub/odenotstub.c               code 0x8/0x8  data 0x0/0x0  functions 1/1  linked from C
 dolphin/os/OS.c                               code 0x5EC/0xAEC  data 0x50/0x248  functions 13/15  not linked: code: 2 of 15 functions differ (ClearArena 78%, OSInit 73%): the reference is another revision  (C has data the split object lacks: .sbss 0x38, .sdata 0x10)
-dolphin/os/OSAlarm.c                          code 0x6BC/0x75C  data 0x0/0x10  functions 7/8  not linked: code: 1 of 8 functions differ (fn_80132EC4 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)  (C has data the split object lacks: .sbss 0x8)
-dolphin/os/OSAlloc.c                          code 0x310/0x684  data 0x10/0x3A8  functions 6/8  not linked: code: 2 of 8 functions differ (OSDestroyHeap 7%, OSCheckHeap 100%): the reference is another revision  (C has data the split object lacks: .sdata 0x4)
-dolphin/os/OSArena.c                          code 0x4C/0x4C  data 0x8/0x8  functions 5/5  not linked: data: the C defines data that main.dol has in a dtk automatic object (.sdata 0x4), so linking it changes main.dol  (C has data the split object lacks: .sdata 0x4)
+dolphin/os/OSAlarm.c                          code 0x75C/0x75C  data 0x18/0x18  functions 8/8  linked from C
+dolphin/os/OSAlloc.c                          code 0x684/0x684  data 0x3B0/0x3B0  functions 8/8  linked from C
+dolphin/os/OSArena.c                          code 0x4C/0x4C  data 0x10/0x10  functions 5/5  linked from C
 dolphin/os/OSAudioSystem.c                    code 0x294/0x294  data 0x80/0x80  functions 2/2  linked from C
 dolphin/os/OSCache.c                          code 0x64C/0x64C  data 0x230/0x230  functions 18/18  linked from C
 dolphin/os/OSContext.c                        code 0x8E0/0x8E0  data 0x1D8/0x1D8  functions 13/13  linked from C
-dolphin/os/OSError.c                          code 0x6AC/0x6AC  data 0x328/0x328  functions 4/4  not linked: data: '__OSErrorTable' in OSError.o is defined again by a dtk automatic object (the data split did not give this object that piece)  (C has data the split object lacks: .bss 0x44)
+dolphin/os/OSError.c                          code 0x6AC/0x6AC  data 0x378/0x378  functions 4/4  not linked: data: 100% code and data, its data proven by the C (step 56), but linked from C main.dol differs by one relocation: its .bss (__OSErrorTable 0x8041EBD0-0x8041EC14) is followed by 0xC bytes of padding up to the next object at 0x8041EC20, which the asm piece brings and the C object does not (the next object is then placed at 0x8041EC18)
 dolphin/os/OSFont.c                           code 0x200/0xD60  data 0x18/0xB30  functions 2/8  not linked: code: 6 of 8 functions differ (GetFontCode 86%, OSGetFontEncode 86%, OSLoadFont 13%, ExpandFontSheet 94% (+2 more)): the reference is another revision
 dolphin/os/OSInterrupt.c                      code 0x86C/0x86C  data 0x48/0x48  functions 11/11  linked from C
 dolphin/os/OSLink.c                           code 0x18/0x18  data 0x0/0x0  functions 1/1  linked from C
@@ -140,11 +140,11 @@ dolphin/os/OSReset.c                          code 0x13C/0x424  data 0x10/0x10  
 dolphin/os/OSResetSW.c                        code 0x38C/0x38C  data 0x20/0x20  functions 2/2  linked from C
 dolphin/os/OSRtc.c                            code 0xCB4/0xCB4  data 0x58/0x58  functions 18/18  linked from C
 dolphin/os/OSSync.c                           code 0x84/0x84  data 0x0/0x0  functions 2/2  linked from C
-dolphin/os/OSThread.c                         code 0xF04/0xF04  data 0xA00/0xA00  functions 17/17  not linked: data: the C defines data that main.dol has in a dtk automatic object (.data 0x80D, .sbss 0xC), so linking it changes main.dol  (C has data the split object lacks: .data 0x80D, .sbss 0xC)
+dolphin/os/OSThread.c                         code 0xF04/0xF04  data 0xA10/0xA10  functions 17/17  linked from C
 dolphin/os/OSTime.c                           code 0x424/0x424  data 0x60/0x60  functions 5/5  linked from C
 dolphin/os/init/__ppc_eabi_init.c             code 0xEC/0xEC  data 0x0/0x0  functions 5/5  linked from C
-dolphin/os/init/__start.c                     code 0x300/0x300  data 0x0/0x0  functions 6/6  not linked: data: the C defines data that main.dol has in a dtk automatic object (.sbss 0x1), so linking it changes main.dol  (C has data the split object lacks: .sbss 0x1)
-dolphin/si/SIBios.c                           code 0x13EC/0x1478  data 0x0/0x328  functions 17/18  not linked: code: 1 of 18 functions differ (fn_8016CB94 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)  (C has data the split object lacks: .sdata 0x14)
+dolphin/os/init/__start.c                     code 0x300/0x300  data 0x8/0x8  functions 6/6  not linked: code: the C also defines InitMetroTRK_BBA (a 4-byte stub in .text); our main.dol has dolphin_trk.c's 0x94 InitMetroTRK_BBA there, so linked from C the stub replaces it (.text 0x90 shorter): the reference is another revision
+dolphin/si/SIBios.c                           code 0x1478/0x1478  data 0x32C/0x32C  functions 18/18  linked from C
 dolphin/vi/vi.c                               code 0x1324/0x1E54  data 0x10/0x588  functions 18/22  not linked: code: 4 of 22 functions differ (getTiming 95%, __VIInit 81%, VIConfigure 92%, VIGetTvFormat 100%): the reference is another revision
-sysdolphin/baselib/object.c                   code 0x44/0x44  data 0x8/0x8  functions 1/1  not linked: data: the C defines data that main.dol has in a dtk automatic object (.data 0x54), so linking it changes main.dol  (C has data the split object lacks: .data 0x54)
-sysdolphin/baselib/util.c                     code 0x1CC/0x1CC  data 0x10/0x10  functions 3/3  not linked: data: the C defines data that main.dol has in a dtk automatic object (.data 0x58), so linking it changes main.dol  (C has data the split object lacks: .data 0x58)
+sysdolphin/baselib/object.c                   code 0x44/0x44  data 0x5C/0x5C  functions 1/1  linked from C
+sysdolphin/baselib/util.c                     code 0x1CC/0x1CC  data 0x64/0x64  functions 3/3  linked from C

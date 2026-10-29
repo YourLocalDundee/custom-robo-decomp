@@ -1,4 +1,4 @@
-Parsed 72 headers; ASSERT_SIZE ok 25, wrong 0, not parsed 0; field offsets ok 612, wrong 0 (structs not found: 0); prototypes applied 665, failed 0; globals typed 53, failed 0
+Parsed 72 headers; ASSERT_SIZE ok 25, wrong 0, not parsed 0; field offsets ok 612, wrong 0 (structs not found: 0); prototypes applied 672, failed 0; globals typed 53, failed 0
 STRUCTSIZE HSD_AObj 0x1c
 STRUCTSIZE HSD_AObjDesc 0x10
 STRUCTSIZE HSD_AnimJoint 0x14

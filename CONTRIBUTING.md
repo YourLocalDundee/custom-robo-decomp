@@ -64,7 +64,9 @@ type the globals that hold it in `symbols/cr_globals.txt`.
 3. Build (`cd decomp; python configure.py; ..\tools\ninja\ninja.exe`), compare with objdiff, adapt the C until every
    function matches, and check that `python -I tools/check_c_objects.py --link-each` says `retail` for it.
    A link that fails on a name our symbols leave as `fn_` / `lbl_`: `decomp/reports/c_callsites_report.txt` lists it
-   with its address; add it to `symbols/symbols.txt` as a `// c-callsite` line (docs/decomp.md, step 3).
+   with its address; add it to `symbols/symbols.txt` as a `// c-callsite` line (docs/decomp.md, step 3). A global
+   of the file itself that other objects use: a `// c-define` line, from the `DEF` lines of
+   `decomp/reports/splits_report.txt` (rule R8). The object's data pieces come from the C (gen_dtk_splits.py).
 4. Move it to `CR_MATCHING`, run `python -I tools/make_configure_patch.py`, then `pwsh tools/batches/batch9_decomp_build.ps1`:
    the object must be at 100% code and data and main.dol retail. Then the full `run_all.ps1`.
 5. A file that cannot reach 100% stays in `CR_NOT_MATCHING` with its reason; it is never linked.

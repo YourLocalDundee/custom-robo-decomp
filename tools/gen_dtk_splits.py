@@ -8,7 +8,8 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
        one function in our decomp/config/GXCE01/symbols.txt (our names are the cross-checked ones, gen_dtk_symbols.py);
     2. first <= last in our address order, in the same section;
     3. every NAMED function of ours from first to last is one of R's functions of O (unnamed fn_ ones may be in
-       between: they are enclosed by O's own functions, so they belong to O);
+       between: they are enclosed by O's own functions, so they belong to O), or one the pinned library sources
+       define in O's very file (another revision of the file has it);
     4. both ends are proven. An end is proven by the section edge, or when the named function next to it is NOT one
        of O's functions in R but another object's (else the object would extend further), or when it is unnamed
        and our end function is R's own first / last function of O. Unnamed functions right next to the range whose
@@ -69,6 +70,33 @@ DATA (.ctors .dtors .rodata .data .bss .sdata .sbss .sdata2 .sbss2), per proven 
   Accepted pieces must be in code order in every section (checked; dtk checks it again). .ctors / .dtors /
   .sbss2 follow the same rule. Everything not proven stays in dtk's automatic objects (listed in the report).
 
+DATA FROM THE MATCHED C (Phase 4 Milestone 4, step 56): a C file that matches its object proves that object's data.
+  The code objects are written to splits.txt and decomp/configure.py + `ninja all_source` compile every decomp/src
+  file (a C compile depends on its source only). For every C object:
+    1. its functions are found in main.dol: by our name inside the object's code range, else at the one function start
+       of ours (no other real name, same size) where its bytes fit; a function counts when its bytes equal main.dol's
+       with every relocated field masked, main.elf (the scratch link above) relocates every such site with the same
+       type, and its calls to named functions / our names go where those are. Every address is taken once.
+    2. only an object whose every retail function is one of these (a whole match; another revision can have data the
+       C lacks) proves data. Its data symbols that a verified function uses get their address from main.elf's
+       relocation at that site (the C's offset taken off); its globals also from other C files' verified uses by
+       name; a pointer in a placed symbol gives the address of what it points to; a run with no use is placed where
+       its bytes and pointers fit, once in the section. mwld strips unused data: a symbol is there when a verified
+       function or placed data uses it (a use of a section's -str pool keeps the whole pool; .ctors / .dtors are
+       kept whole); runs with nothing stripped between keep the .o distances; a global (another file may use it) next
+       to the placed ones is there only with its own bytes exactly there, else it must be shown absent (its bytes are
+       not next to the piece, or the neighbour is another object's piece); between two runs exactly as far apart as
+       in the .o, a global main.elf uses is at its offset.
+    3. every placed symbol's bytes equal main.dol's, every pointer in it is main.elf's relocation to its target; the
+       piece starts aligned and on no dtk symbol's inside, and ends with its last symbol (to the end of a dtk symbol
+       that runs on over the padding). The zeros after it go with it up to another object's piece (as dtk splits);
+       when an automatic object follows, it starts that object from the next word on (from C, the object brings no
+       padding). A C piece replaces the relocation users' piece of the same object; another object's piece it
+       overlaps is dropped.
+  Report: the whole matches (with the functions our names call otherwise), the pieces, the global symbols our names
+  call otherwise (an object linked from C needs every name another object uses), and every C definition ("DEF"
+  lines: rule R8, the // c-define lines of symbols/symbols.txt are checked against them by check_c_callsites.py).
+
 GAME code: no reference exists. tools/match_game_names.py's G3 module notes (assert .c names) say which file a
   function is in, but not where a file starts or ends; a game object is split only where both ends are proven: its
   first and last function have a G3 note for it, and the functions right outside have G3 notes for OTHER files.
@@ -76,7 +104,7 @@ GAME code: no reference exists. tools/match_game_names.py's G3 module notes (ass
 
 Output is byte-identical on every run (LF, as dtk writes it; the batch checks dtk leaves it unchanged).
 Report: decomp/reports/splits_report.txt (every object with its proof, every rejected candidate, unproven ranges).
-Usage: python -I tools/gen_dtk_splits.py [--no-data]   (--no-data: code only, no scratch link)
+Usage: python -I tools/gen_dtk_splits.py [--no-data] [--no-c]   (--no-data: code only, no scratch link; --no-c: no data from C)
 """
 import bisect
 import json
@@ -295,6 +323,7 @@ def kar_objects(wow_syms):
 
 # ---------------------------------------------------------------------------------------------------- code
 def code_splits(ours, rejected, notes, audit=None):
+    defs = source_definers()   # which pinned library source file defines each name
     funcs = sorted([s for s in ours if s[4] and s[1] in CODE], key=lambda s: s[2])
     cby_f, cby_c = pool_refs(audit, funcs) if audit else ({}, {})
     pos = {}  # name -> index, only for names on exactly one function
@@ -361,7 +390,10 @@ def code_splits(ours, rejected, notes, audit=None):
                     rejected.append(f"{tag}: none of its functions is (uniquely) named in ours")
                     continue
                 i, j = hit[0], hit[-1]
-                bad = [funcs[k][0] for k in range(i, j + 1) if not DEFAULT.match(funcs[k][0]) and funcs[k][0] not in names]
+                # (a named function R's file lacks is still allowed when the pinned library sources define it in this
+                # very file: another revision of the file has it)
+                bad = [funcs[k][0] for k in range(i, j + 1) if not DEFAULT.match(funcs[k][0]) and funcs[k][0] not in names
+                       and verdict(defs, funcs[k][0], family(path)) != Path(name).stem.lower()]
                 if bad:
                     rejected.append(f"{tag}: our range {funcs[i][0]} .. {funcs[j][0]} contains other functions: {', '.join(bad[:4])}")
                     continue
@@ -531,7 +563,6 @@ def code_splits(ours, rejected, notes, audit=None):
                                                 osizes=[funcs[k][3] for k in range(i, j + 1)], F=F))
 
     kar = kar_objects(wow_syms)
-    defs = source_definers()
     chosen = {}  # key -> (path, {sec: (start, end)}, [candidates])
     for key, lst in sorted(cands.items(), key=lambda kv: str(kv[0])):
         path = melee_paths.get(key) or canonical(lst[0]["path"])
@@ -987,6 +1018,532 @@ def data_splits(objs, chosen_by_path, refinfo, rejected, notes, audit):
     return out, lines, gaps
 
 
+# ---------------------------------------------------------------------------------------------------- data from C
+CSRC = G / "decomp/src"
+COBJ = G / "decomp/build/GXCE01/src"
+# instruction bits a relocation leaves alone (the rest is the field the linker writes)
+R_KEEP = {10: 0xFC000003, 11: 0xFFFF0003, 4: 0xFFFF0000, 5: 0xFFFF0000, 6: 0xFFFF0000, 109: 0xFFE00000}
+R_ADDR32 = 1
+C_PAD = 0x20  # at most this much alignment padding between two pieces of one object section / after its last symbol
+
+
+def compile_c(objs, data):
+    """the code objects (and the pieces proven so far) to splits.txt, then decomp/configure.py and ninja all_source:
+    every decomp/src file compiled (a C compile depends on its source only, not on the split)"""
+    import subprocess
+    OUT.write_bytes(splits_text(objs, data).encode("utf-8"))
+    ninja = G / "tools/ninja" / ("ninja.exe" if os.name == "nt" else "ninja")
+    for cmd in ([sys.executable, "configure.py"], [str(ninja), "all_source"]):
+        r = subprocess.run(cmd, cwd=G / "decomp", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        if r.returncode:
+            raise SystemExit(f"{' '.join(cmd)} failed in decomp/:\n{r.stdout[-3000:]}")
+
+
+def read_obj(path):
+    """a compiled .o -> (sections [(name, type, size, align, bytes or None)], symbols [(name, value, size, type, bind,
+    shndx)], relocations {section index: [(offset, type, symbol index, addend)]})"""
+    import struct
+    d = path.read_bytes()
+    shoff, = struct.unpack_from(">I", d, 0x20)
+    shentsize, shnum, shstr = struct.unpack_from(">HHH", d, 0x2E)
+    sh = [struct.unpack_from(">10I", d, shoff + i * shentsize) for i in range(shnum)]
+
+    def nm(t, o):
+        o += sh[t][4]
+        return d[o:d.index(b"\0", o)].decode("latin-1")
+    secs = [(nm(shstr, s[0]), s[1], s[5], s[8], d[s[4]:s[4] + s[5]] if s[1] == 1 else None) for s in sh]
+    symsec = next(s for s in sh if s[1] == 2)
+    syms = []
+    for o in range(symsec[4], symsec[4] + symsec[5], 16):
+        n, v, sz, info, _, shn = struct.unpack_from(">IIIBBH", d, o)
+        syms.append((nm(symsec[6], n), v, sz, info & 15, info >> 4, shn))
+    rels = defaultdict(list)
+    for s in sh:
+        if s[1] == 4:
+            for o in range(s[4], s[4] + s[5], 12):
+                off, info, add = struct.unpack_from(">IIi", d, o)
+                rels[s[7]].append((off, info & 255, info >> 8, add))
+    return secs, syms, rels
+
+
+C_DEFS = []   # (address, name, C file, section, size, binding): what a C file that matches its whole object defines where
+
+
+def c_data(elf, ours, objs, data, rejected):
+    """DATA FROM THE MATCHED C (method: the docstring, "a matched C file proves its own data") ->
+    ({path: {sec: (a, b)}} pieces, report lines, {address: C name} of the global symbols other units use)"""
+    import struct
+    import reloc_audit as ra
+    dobjs = ra.Objects(elf)
+    rtargets = {r[1] for r in elf.relocs.values()}
+    starts = [a for a in dobjs.starts if not dobjs.info[a][0].startswith("gap_")]   # dtk's gap_ = padding
+    secr = {s[1]: (s[3], s[3] + s[4]) for s in elf.alloc}
+    name_addr = defaultdict(set)
+    for n, sec, a, sz, isf in ours:
+        name_addr[n].add(a)
+    code_rng = {p: secs for p, secs in objs}
+
+    def rbytes(a, n):
+        for s in elf.alloc:
+            if s[2] == 1 and s[3] <= a and a + n <= s[3] + s[4]:
+                return elf.d[s[5] + a - s[3]: s[5] + a - s[3] + n]
+        return None
+
+    def rel_at(site, typ):
+        r = elf.relocs.get(site)
+        if r is None and typ == 109:
+            r = elf.relocs.get(site & ~3)   # mwld puts a linked SDA21 relocation on the instruction, not its field
+        return r if r and r[0] == typ else None
+
+    def fits(addr, sec_bytes, fo, sz, rl):
+        """the function's bytes at addr, every relocated field masked, and main.elf relocates every such site alike"""
+        b = rbytes(addr, sz)
+        if b is None:
+            return False
+        for i in range(0, sz, 4):
+            keep = 0xFFFFFFFF
+            for off, typ, si, add in rl:
+                if fo + i <= off < fo + i + 4:
+                    keep &= R_KEEP.get(typ, 0)
+            if (struct.unpack_from(">I", b, i)[0] ^ struct.unpack_from(">I", sec_bytes, fo + i)[0]) & keep:
+                return False
+        return all(rel_at(addr + off - fo, typ) for off, typ, si, add in rl)
+
+    # 1. every function of every C object: its retail address (our name inside the object's code range, else the one
+    #    place in that range where its bytes fit), verified byte for byte with main.elf's relocations at every site
+    objinfo = {}
+    fstart = {}
+    for n, sec, a, sz, isf in ours:
+        if isf and sec in CODE:
+            fstart.setdefault(a, (n, sz))
+    for path in sorted(code_rng):
+        o = COBJ / (path[:-2] + ".o")
+        if path.startswith("game/") or not (CSRC / path).exists() or not o.exists():
+            continue
+        secs, syms, rels = read_obj(o)
+        fmap, dead = {}, []
+        cf = [(si, s) for si, s in enumerate(syms)
+              if s[3] == 2 and s[2] and s[5] and s[5] < 0xFF00 and secs[s[5]][0] in CODE]
+
+        def callee_ok(si, v, sz, shn, addr):
+            """the function's calls / uses of names agree with ours: an undefined name ours has once is main.elf's
+            target there; a call to a function of this file goes where that function is mapped"""
+            for off, typ, ti, add in rels.get(shn, []):
+                if not v <= off < v + sz:
+                    continue
+                r = rel_at(addr + off - v, typ)
+                tn, tv, tsz, tt, tb, tshn = syms[ti]
+                want = None
+                if tshn == 0 and len(name_addr.get(tn, ())) == 1:
+                    want = next(iter(name_addr[tn])) + add
+                elif tshn and tt == 2 and ti in fmap:
+                    want = fmap[ti] + add
+                if want is not None and (not r or r[1] != want & 0xFFFFFFFF):
+                    return False
+            return True
+        # by name first (our name inside the object's range), then the remaining ones by their bytes, only at a
+        # function start of ours with no other real name and the same size; every address taken once
+        for by_name in (True, False):
+            for si, (n, v, sz, t, b, shn) in cf:
+                if si in fmap:
+                    continue
+                rng = code_rng[path].get(secs[shn][0])
+                if not rng:
+                    continue
+                rl = [r for r in rels.get(shn, []) if v <= r[0] < v + sz]
+                taken = set(fmap.values())
+                if by_name:
+                    hits = [a for a in name_addr.get(n, ()) if rng[0] <= a < rng[1]]
+                else:
+                    hits = [a for a, (fn, fsz) in fstart.items() if rng[0] <= a < rng[1] and a not in taken
+                            and fsz == sz and (DEFAULT.match(fn) or fn == n)]
+                hits = [a for a in hits if fits(a, secs[shn][4], v, sz, rl)]
+                if len(hits) == 1 and hits[0] not in taken:
+                    fmap[si] = hits[0]
+        for si, (n, v, sz, t, b, shn) in cf:   # a call that goes elsewhere: not this function after all
+            if si in fmap and not callee_ok(si, v, sz, shn, fmap[si]):
+                del fmap[si]
+        dead = [s[0] for si, s in cf if si not in fmap]
+        objinfo[path] = (secs, syms, rels, fmap, dead)
+
+    def func_of(info, shn, off):
+        secs, syms, rels, fmap, dead = info
+        for fi, a in fmap.items():
+            f = syms[fi]
+            if f[5] == shn and f[1] <= off < f[1] + f[2]:
+                return fi, a + off - f[1]
+        return None, None
+
+    # 2. the names the verified functions use from OTHER files (undefined symbols): name -> retail addresses
+    ext = defaultdict(set)
+    for path, info in objinfo.items():
+        secs, syms, rels = info[:3]
+        for shn, lst in rels.items():
+            if secs[shn][0] not in CODE:
+                continue
+            for off, typ, si, add in lst:
+                if syms[si][5] == 0 and syms[si][0]:
+                    fi, site = func_of(info, shn, off)
+                    r = rel_at(site, typ) if fi is not None else None
+                    if r:
+                        ext[syms[si][0]].add((r[1] - add) & 0xFFFFFFFF)
+
+    out, lines, need, whole = defaultdict(dict), [], {}, []
+    for path, info in sorted(objinfo.items()):
+        secs, syms, rels, fmap, dead = info
+        dsecs = [i for i, s in enumerate(secs) if s[0] in DATA and s[1] in (1, 8) and s[2]]
+        dsyms = {i: sorted((v, sz, si) for si, (n, v, sz, t, b, shn) in enumerate(syms)
+                           if shn == i and t in (0, 1) and n and sz) for i in dsecs}
+
+        def container(shn, off):
+            for v, sz, si in dsyms.get(shn, []):
+                if v <= off < v + sz:
+                    return si
+            return None
+        known = defaultdict(set)    # data symbol index -> retail addresses (with their evidence kind)
+        how = defaultdict(set)
+        live, pooled = set(), set()
+        # own code: a verified function's relocation to this file's data, main.elf's target at that site
+        for shn, lst in rels.items():
+            if secs[shn][0] not in CODE:
+                continue
+            for off, typ, si, add in lst:
+                ts = syms[si][5]
+                if ts not in dsyms:
+                    continue
+                t = (syms[si][1] if syms[si][3] != 3 else 0) + add
+                c = container(ts, t)
+                fi, site = func_of(info, shn, off)
+                if c is None or fi is None:
+                    continue
+                r = rel_at(site, typ)
+                live.add(c)
+                if syms[si][3] == 3 or syms[si][0].startswith("..."):
+                    pooled.add(ts)   # a use of the section's pool symbol (...data.0: the -str pool) keeps it whole
+                if r:
+                    known[c].add((r[1] - (t - syms[c][1])) & 0xFFFFFFFF)
+                    how[c].add("code")
+        # other C files: a verified function of another object uses this file's global by name
+        for c, (n, v, sz, t, b, shn) in enumerate(syms):
+            if shn in dsyms and b == 1 and n in ext and sz:
+                live.add(c)
+                known[c] |= ext[n]
+                how[c].add("C call site")
+        # data -> data (a pointer table keeps the strings it points to); .ctors / .dtors are never stripped
+        for i in dsecs:
+            if secs[i][0] in (".ctors", ".dtors") or i in pooled:
+                live.update(si for v, sz, si in dsyms[i])
+        for _ in range(8):
+            for shn in dsecs:
+                for off, typ, si, add in rels.get(shn, []):
+                    src = container(shn, off)
+                    ts = syms[si][5]
+                    if src in live and ts in dsyms:
+                        if syms[si][3] == 3 or syms[si][0].startswith("..."):
+                            live.update(x for v, sz, x in dsyms[ts])
+                        c = container(ts, (syms[si][1] if syms[si][3] != 3 else 0) + add)
+                        if c is not None:
+                            live.add(c)
+
+        # only a C file that matches the whole object proves its data: every retail function of the object is one of
+        # the verified C functions (another revision can have data the C does not, used by code the C does not have)
+        retail_f = {a for n, sec, a, sz, isf in ours if isf and any(lo <= a < hi for lo, hi in code_rng[path].values())}
+        if not retail_f <= set(fmap.values()):
+            if dsecs:
+                rejected.append(f"data from C {path}: {len(retail_f - set(fmap.values()))} of {len(retail_f)} functions "
+                                "of the object are not verified C functions (another revision): its data is not proven")
+            continue
+        at_ = defaultdict(list)
+        for n, sec, a, sz, isf in ours:
+            if isf:
+                at_[a].append(n)
+        other = [f"{'/'.join(at_[a])} = {syms[fi][0]}" for fi, a in sorted(fmap.items(), key=lambda x: x[1])
+                 if syms[fi][0] not in at_[a]]
+        for fi, a in fmap.items():
+            C_DEFS.append((a, syms[fi][0], path, secs[syms[fi][5]][0], syms[fi][2], syms[fi][4]))
+        whole.append(f"{path:<48} {len(retail_f):>3} functions" + (" (named otherwise in ours: " + ", ".join(other) + ")"
+                                                                    if other else ""))
+        # MAYBE there (not live, not proven stripped): a global (another file can use it)
+        maybe = {si for si, (n, v, sz, t, b, shn) in enumerate(syms) if shn in dsyms and b == 1 and sz} - live
+
+        def owner(a):
+            """the other object whose proven piece holds address a (None: unproven)"""
+            return next((p for p, s in data.items() if p != path and any(x <= a < y for x, y in s.values())), None)
+
+        def expect(si, add):
+            """the retail address a data relocation (symbol si + add) of this file must point at, None = unknown"""
+            n, v, sz, t, b, shn = syms[si]
+            if shn == 0:
+                a = ext.get(n) or name_addr.get(n)
+                return next(iter(a)) if a and len(a) == 1 else None
+            if secs[shn][0] in CODE:
+                fi, a = func_of(info, shn, (v if t != 3 else 0) + add)
+                return a
+            return None
+        pos = {}    # placed data symbol index -> retail address (every section of this file)
+
+        def toff(ti, add):
+            return (syms[ti][1] if syms[ti][3] != 3 else 0) + add
+
+        def target_of(ti, add):
+            """the retail address a relocation (symbol ti + add) of this file must point at, None = unknown"""
+            ts = syms[ti][5]
+            if ts in dsyms:
+                c = container(ts, toff(ti, add))
+                return pos[c] + toff(ti, add) - syms[c][1] if c in pos else None
+            return expect(ti, add)
+
+        def sym_ok(shn, si, a):
+            """symbol si at a: its bytes are main.dol's, every pointer in it is main.elf's relocation to its target"""
+            sbytes = secs[shn][4]
+            v, sz = syms[si][1], syms[si][2]
+            mask = set()
+            for off, typ, ti, add in rels.get(shn, []):
+                if v <= off < v + sz:
+                    mask.update(range(off - v, off - v + 4))
+                    r = elf.relocs.get(a + off - v)
+                    e = target_of(ti, add)
+                    if typ != R_ADDR32 or not r or r[0] != R_ADDR32 or (e is not None and r[1] != e & 0xFFFFFFFF):
+                        return (f"{syms[si][0]} 0x{a:08X}+0x{off - v:X}: main.elf has "
+                                + ("no such relocation" if not r else f"type {r[0]} to 0x{r[1]:08X}")
+                                + (f", the C points at 0x{e:08X}" if e is not None else ""))
+            if sbytes is None:
+                return None
+            rb = rbytes(a, sz)
+            if rb is None or any(rb[k] != sbytes[v + k] for k in range(sz) if k not in mask):
+                return f"{syms[si][0]} at 0x{a:08X}: its bytes are not main.dol's"
+            return None
+
+        def place_section(shn, final):
+            """-> None (placed), 'wait' (an address may still come from another section of the file), or why not"""
+            sname, styp, ssz, salign, sbytes = secs[shn]
+            lo_s, hi_s = secr.get(sname, (0, 0))
+            # runs of live symbols with no stripped symbol between: fixed distances inside a run
+            runs, cur = [], []
+            for x in dsyms[shn]:
+                if x[2] in live:
+                    cur.append(x)
+                elif cur:
+                    runs.append(cur)
+                    cur = []
+            if cur:
+                runs.append(cur)
+            place = []
+            for run in runs:
+                bases = {a - (v - run[0][0]) for v, sz, si in run for a in known.get(si, ())}
+                if not bases and sbytes is not None and final:
+                    # no address used by code: the one place in the section where the run's bytes are, every pointer
+                    # in it going to its (known) target; at least one such pointer
+                    ptrs = [(off - run[0][0], ti, add) for off, typ, ti, add in rels.get(shn, [])
+                            if run[0][0] <= off < run[-1][0] + run[-1][1]]
+                    if ptrs and all(target_of(ti, add) is not None for o_, ti, add in ptrs):
+                        bases = {p for p in range(lo_s, hi_s, 4)
+                                 if all((elf.relocs.get(p + o_) or (0, None))[1] == target_of(ti, add) & 0xFFFFFFFF
+                                        for o_, ti, add in ptrs)
+                                 and all(sym_ok(shn, si, p + v - run[0][0]) is None for v, sz, si in run)}
+                        for v, sz, si in run:
+                            how[si].add("pointer content")
+                if len(bases) != 1:
+                    if not bases and not final:
+                        return "wait"
+                    return (f"{len(bases)} addresses for the symbols at +0x{run[0][0]:X}..+0x{run[-1][0] + run[-1][1]:X}"
+                            + (" (" + ", ".join(f"0x{b:08X}" for b in sorted(bases)[:3]) + ")" if bases else
+                               " (no verified use)"))
+                place.append((next(iter(bases)), run))
+            # the edges: a symbol of the C that MAYBE is in main.dol, next to the first / after the last placed one.
+            # Right next to it (no other symbol of the C between) with its own bytes exactly there (not only zeros):
+            # it is there, the run grows. Else it must be shown absent: its bytes are nowhere next to the piece, or
+            # the neighbour is another object's proven piece, or the section edge.
+            order_ = dsyms[shn]
+            idx = {x[2]: k for k, x in enumerate(order_)}
+
+            def sym_at(p, v, sz):
+                rb = rbytes(p, sz)
+                rl = {k for off, typ, tsi, add in rels.get(shn, []) if v <= off < v + sz for k in range(off - v, off - v + 4)}
+                return rb is not None and all(rb[k] == sbytes[v + k] for k in range(sz) if k not in rl)
+            for side in ("before", "after"):
+                step = -1 if side == "before" else 1
+                k = idx[place[0][1][0][2]] - 1 if side == "before" else idx[place[-1][1][-1][2]] + 1
+                adjacent = True
+                while 0 <= k < len(order_):
+                    v, sz, si = order_[k]
+                    k += step
+                    if si not in maybe:
+                        adjacent = False
+                        continue
+                    a0, run = place[0] if side == "before" else place[-1]
+                    p = a0 + v - run[0][0]
+                    if adjacent and sbytes is not None and any(sbytes[v:v + sz]) and lo_s <= p and p + sz <= hi_s \
+                            and sym_at(p, v, sz):
+                        if side == "before":
+                            place[0] = (p, [(v, sz, si)] + run)
+                        else:
+                            place[-1] = (a0, run + [(v, sz, si)])
+                        continue
+                    adjacent = False
+                    if side == "before":
+                        nb, ps = place[0][0] - 1, range(place[0][0] - sz - C_PAD, place[0][0] - sz + 1)
+                    else:
+                        e = place[-1][0] + place[-1][1][-1][0] + place[-1][1][-1][1] - place[-1][1][0][0]
+                        nb, ps = e, range(e, e + C_PAD)
+                    if not (lo_s <= nb < hi_s) or owner(nb):
+                        continue
+                    if sbytes is None:
+                        return f"{syms[si][0]} (+0x{v:X}) may be {side} the piece (no bytes to tell, the neighbour is unproven)"
+                    if not any(sbytes[v:v + sz]):
+                        return f"{syms[si][0]} (+0x{v:X}) may be {side} the piece (zeros only: its bytes cannot tell)"
+                    p = next((p for p in ps if sym_at(p, v, sz)), None)
+                    if p is not None:
+                        return f"{syms[si][0]} (+0x{v:X}) may be {side} the piece (its bytes are at 0x{p:08X})"
+            # in .o order, each run after the last, separated by alignment padding only (zero bytes)
+            for (a0, r0), (a1, r1) in zip(place, place[1:]):
+                e0 = a0 + r0[-1][0] + r0[-1][1] - r0[0][0]
+                if not (e0 <= a1 < e0 + C_PAD) or (sbytes is not None and rbytes(e0, a1 - e0) != bytes(a1 - e0)):
+                    return f"the symbols at +0x{r1[0][0]:X} (0x{a1:08X}) do not follow +0x{r0[-1][0]:X} (ends 0x{e0:08X})"
+            start = place[0][0]
+            if start % min(salign or 1, 8):
+                return f"starts at 0x{start:08X}, not {salign}-aligned"
+            mine = {}
+            for a0, run in place:
+                for v, sz, si in run:
+                    mine[si] = a0 + v - run[0][0]
+            # a global between two runs that are exactly as far apart as in the .o (nothing stripped between) is at
+            # its own offset; it is placed when main.dol uses that address
+            for (a0, r0), (a1, r1) in zip(place, place[1:]):
+                if a1 - a0 == r1[0][0] - r0[0][0]:
+                    for v, sz, si in order_:
+                        if r0[-1][0] < v < r1[0][0] and si in maybe and a0 + v - r0[0][0] in rtargets:
+                            mine[si] = a0 + v - r0[0][0]
+                            how[si].add("used at its offset")
+            pos.update(mine)
+            for si, a in mine.items():
+                why = sym_ok(shn, si, a)
+                if why:
+                    for x in mine:
+                        pos.pop(x)
+                    return why
+            last = place[-1]
+            end = last[0] + last[1][-1][0] + last[1][-1][1] - last[1][0][0]
+            # the alignment padding after the last symbol goes with the object, as in the code split and as dtk
+            # splits (it makes the zeros up to the next symbol one gap_ symbol, which a split may not cut): up to the
+            # next symbol / another object's piece / the section end when that is near and only zeros lie between
+            # (merge_c_data then gives it the padding after it, when another object's piece follows)
+            for n_, s_, a_, z_, f_ in ours:
+                if s_ == sname and a_ < start < a_ + z_:
+                    for x in mine:
+                        pos.pop(x)
+                    return f"starts at 0x{start:08X}, inside dtk's symbol {n_} (0x{a_:08X}+0x{z_:X})"
+                if s_ == sname and a_ < end < a_ + z_:
+                    if a_ + z_ - end < C_PAD and (sbytes is None or rbytes(end, a_ + z_ - end) == bytes(a_ + z_ - end)):
+                        end = a_ + z_
+                    else:
+                        for x in mine:
+                            pos.pop(x)
+                        return f"ends at 0x{end:08X}, inside dtk's symbol {n_} (0x{a_:08X}+0x{z_:X})"
+            out[path][sname] = (start, end)
+            # a pointer in it gives the address of what it points to in another section of the file
+            for si, a in mine.items():
+                v, sz = syms[si][1], syms[si][2]
+                for off, typ, ti, add in rels.get(shn, []):
+                    if v <= off < v + sz and syms[ti][5] in dsyms and syms[ti][5] != shn:
+                        c = container(syms[ti][5], toff(ti, add))
+                        r = elf.relocs.get(a + off - v)
+                        if c is not None and r:
+                            known[c].add((r[1] - (toff(ti, add) - syms[c][1])) & 0xFFFFFFFF)
+                            how[c].add("pointer")
+            nk = sum(1 for si in mine if known.get(si))
+            lines.append(f"{path:<48} {sname:<7} 0x{start:08X}-0x{end:08X} {len(mine):>3} sym  of {len(dsyms[shn])} in the C"
+                         f" ({len(dsyms[shn]) - len(mine)} stripped), {nk} at a verified use ("
+                         + ", ".join(sorted({h for si in mine for h in how.get(si, ())})) + ")"
+                         + (", bytes = main.dol" if sbytes is not None else ""))
+            for si, a in mine.items():
+                if syms[si][4] == 1:
+                    need[a] = syms[si][0]
+                C_DEFS.append((a, syms[si][0], path, sname, syms[si][2], syms[si][4]))
+            return None
+        pending = [shn for shn in dsecs if any(x[2] in live for x in dsyms[shn])]
+        for final in (False, True):
+            while pending:
+                left = []
+                for shn in pending:
+                    why = place_section(shn, final)
+                    if why == "wait":
+                        left.append(shn)
+                    elif why:
+                        rejected.append(f"data from C {path} {secs[shn][0]}: {why}")
+                if len(left) == len(pending):
+                    break
+                pending = left
+    return out, lines, need, whole
+
+
+def merge_c_data(objs, data, cdata, dlines, clines, rejected, elf):
+    """the C's pieces into data (they replace a piece from the relocation users of the same object; another object's
+    piece overlapping one is dropped, as the C proves its bytes); code order checked again -> unproven data ranges"""
+    for path, secs in sorted(cdata.items()):
+        for sec, (a, b) in sorted(secs.items()):
+            old = data.get(path, {}).get(sec)
+            if old and (old[0] != a or b > old[1] or old[1] - b >= C_PAD):   # (not: only the padding after it)
+                clines.append(f"{path:<48} {sec:<7} (the relocation users gave 0x{old[0]:08X}-0x{old[1]:08X}: replaced)")
+            for p2, s2 in sorted(data.items()):
+                if p2 != path and sec in s2 and s2[sec][0] < b and a < s2[sec][1]:
+                    if sec in cdata.get(p2, {}):
+                        raise SystemExit(f"data from C: {path} and {p2} both prove {sec} 0x{a:08X}..0x{b:08X}")
+                    rejected.append(f"data {p2} {sec}: 0x{s2[sec][0]:08X}-0x{s2[sec][1]:08X} overlaps {path}'s piece "
+                                    f"proven by its C (0x{a:08X}-0x{b:08X}), dropped")
+                    dlines[:] = [ln for ln in dlines if not (ln.startswith(p2 + " ") and f" {sec} " in ln)]
+                    s2.pop(sec)
+            data.setdefault(path, {})[sec] = (a, b)
+    # the zeros after a C piece (alignment padding): up to another object's piece or the section end when that is
+    # near, as dtk splits (it makes them one gap_ symbol, which a split may not cut). When an automatic object
+    # follows, the padding starts it (linked from C, this object brings no padding; the automatic object must, as
+    # the next one's alignment need not give it), from the next word on (dtk splits at 4-byte boundaries only).
+    # .ctors / .dtors: zeros there are the end marker, not padding.
+    import reloc_audit as ra
+    dobjs = ra.Objects(elf)
+    starts = [x for x in dobjs.starts if not dobjs.info[x][0].startswith("gap_")]
+    secr = {s[1]: (s[3], s[3] + s[4]) for s in elf.alloc}
+
+    def zeros(a, n):
+        for s in elf.alloc:
+            if s[3] <= a and a + n <= s[3] + s[4]:
+                return s[2] != 1 or elf.d[s[5] + a - s[3]: s[5] + a - s[3] + n] == bytes(n)
+        return False
+    for path, secs in sorted(cdata.items()):
+        for sec, (a, b) in sorted(secs.items()):
+            if sec in (".ctors", ".dtors"):
+                continue
+            hi = secr[sec][1]
+            pieces = [s[sec][0] for p, s in data.items() if p != path and sec in s and s[sec][0] >= b]
+            k = bisect.bisect_left(starts, b)
+            nxt = min([hi] + pieces + ([starts[k]] if k < len(starts) else []))
+            if nxt not in pieces and nxt != hi:
+                nxt = (b + 3) & ~3
+            if b < nxt and nxt - b < C_PAD and zeros(b, nxt - b):
+                data[path][sec] = cdata[path][sec] = (a, nxt)
+    # link order = .text order (an object with .init code only, __start.c, is linked where its data says: dtk checks)
+    order = {p: secs[".text"][0] for p, secs in objs if ".text" in secs}
+    for sec in DATA:
+        got = sorted((v[sec][0], v[sec][1], p) for p, v in data.items() if sec in v)
+        for x, y in zip(got, got[1:]):
+            if y[0] < x[1] or order.get(x[2], 0) > order.get(y[2], 0xFFFFFFFF):
+                raise SystemExit(f"data {sec}: {x[2]} 0x{x[0]:08X} and {y[2]} 0x{y[0]:08X} are not in code order")
+    secr = {s[1]: (s[3], s[3] + s[4]) for s in elf.alloc}
+    gaps = []
+    for sec in DATA:
+        if sec not in secr:
+            continue
+        lo, hi = secr[sec]
+        cur = lo
+        for a, b in sorted(v[sec] for v in data.values() if sec in v):
+            if a > cur:
+                gaps.append((sec, cur, a))
+            cur = b
+        if cur < hi:
+            gaps.append((sec, cur, hi))
+    return gaps
+
+
 # ---------------------------------------------------------------------------------------------------- game
 def read_g3():
     """tools/match_game_names.py's G3 module notes: {function address: the .c file name its assert / panic passes}"""
@@ -1053,8 +1610,18 @@ def main(argv) -> int:
     objs.sort(key=lambda o: min(a for a, _ in o[1].values()))
     by_path = {v[0]: v for v in chosen.values()}
     data, dlines, dgaps = ({}, [], [])
+    clines, cnames, cwhole = [], [], []
     if "--no-data" not in argv:
         data, dlines, dgaps = data_splits(objs, by_path, refinfo, rejected, notes, audit)
+        if "--no-c" not in argv:
+            compile_c(objs, data)
+            cdata, clines, need, cwhole = c_data(audit[0], ours, objs, data, rejected)
+            dgaps = merge_c_data(objs, data, cdata, dlines, clines, rejected, audit[0])
+            at = defaultdict(list)
+            for n, sec, a, sz, isf in ours:
+                at[a].append(n)
+            cnames = [f"0x{a:08X} {n} (ours: {', '.join(at.get(a, [])) or 'no symbol'})"
+                      for a, n in sorted(need.items()) if n not in at.get(a, [])]
     OUT.write_bytes(splits_text(objs, data).encode("utf-8"))
 
     # unproven code ranges: the parts of .init / .text not inside an object
@@ -1111,6 +1678,14 @@ def main(argv) -> int:
                  "the revision whose function sizes equal ours)"] + notes
     head += ["", "== data pieces (path, section, range, data symbols, evidence: core symbols used only by the object, "
                  "unattributed symbols before/after it, the references whose piece has this size)"] + dlines
+    head += ["", "== objects whose every function is a function of their C file (bytes and relocations = main.dol's; the C proves their data)"] + cwhole
+    head += ["", "== C definitions (the C file matches its whole object: each of its functions and placed data symbols is at this "
+                 "address; tools/check_c_callsites.py checks the // c-define lines of symbols/symbols.txt against them)"]
+    head += [f"DEF 0x{a:08X} {n} {p} {s} size:0x{z:X} {'global' if b == 1 else 'local'}" for a, n, p, s, z, b in sorted(set(C_DEFS))]
+    head += ["", "== data pieces proven by the matched C (path, section, range, the C's symbols there, how their address "
+                 "is known)"] + clines
+    head += ["", "== global symbols of those pieces that our symbols name otherwise (an object linked from C needs every "
+                 "name another object uses)"] + cnames
     head += ["", "== unproven code ranges (one dtk automatic object each)"]
     for s, a, b in gaps:
         head.append(f"{s:<6} 0x{a:08X}-0x{b:08X} {nf(a, b):>4} functions")

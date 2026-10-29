@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line.
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 418
+files: 508
 
 src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
 src/MSL/abort_exit.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/abort_exit.c  identical
@@ -22,7 +22,7 @@ src/MSL/k_cos.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.
 src/MSL/k_rem_pio2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/k_rem_pio2.c  identical
 src/MSL/k_sin.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/k_sin.c  identical
 src/MSL/k_tan.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/k_tan.c  identical
-src/MSL/mbstring.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/mbstring.c  identical
+src/MSL/mbstring.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/mbstring.c  changed (2 lines added / removed)
 src/MSL/mem.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/mem.c  identical
 src/MSL/mem_funcs.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/mem_funcs.c  identical
 src/MSL/misc_io.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/misc_io.c  identical
@@ -72,10 +72,10 @@ src/Runtime/__va_arg.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/Runtime.PPCE
 src/Runtime/global_destructor_chain.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/Runtime.PPCEABI.H/global_destructor_chain.c  identical
 src/Runtime/platform.h  doldecomp/melee @ 24e685d57535 src/Runtime/platform.h  identical
 src/Runtime/runtime.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/Runtime.PPCEABI.H/runtime.c  identical
-src/dolphin/ai/ai.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ai/ai.c  identical
+src/dolphin/ai/ai.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ai/ai.c  changed (2 lines added / removed)
 src/dolphin/ar/__ar.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/__ar.h  identical
-src/dolphin/ar/ar.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/ar.c  identical
-src/dolphin/ar/arq.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/arq.c  identical
+src/dolphin/ar/ar.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/ar.c  changed (2 lines added / removed)
+src/dolphin/ar/arq.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/arq.c  changed (2 lines added / removed)
 src/dolphin/ax/AXVPB.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ax/AXVPB.c  identical
 src/dolphin/ax/__ax.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/ax/__ax.h  identical
 src/dolphin/base/PPCArch.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/base/PPCArch.c  identical
@@ -124,7 +124,7 @@ src/dolphin/mtx/mtxvec.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/mtx/mtxvec.c  
 src/dolphin/odenotstub/odenotstub.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/odenotstub/odenotstub.c  identical
 src/dolphin/os/OS.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OS.c  identical
 src/dolphin/os/OSAlarm.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSAlarm.c  identical
-src/dolphin/os/OSAlloc.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSAlloc.c  identical
+src/dolphin/os/OSAlloc.c  doldecomp/dolsdk2001 @ eb1234c45e6d src/os/OSAlloc.c  identical
 src/dolphin/os/OSArena.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSArena.c  identical
 src/dolphin/os/OSAudioSystem.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSAudioSystem.c  identical
 src/dolphin/os/OSCache.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSCache.c  identical
@@ -144,7 +144,7 @@ src/dolphin/os/OSTime.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSTime.c  id
 src/dolphin/os/__os.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__os.h  identical
 src/dolphin/os/init/__ppc_eabi_init.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__ppc_eabi_init.c  identical
 src/dolphin/os/init/__start.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__start.c  identical
-src/dolphin/si/SIBios.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/si/SIBios.c  identical
+src/dolphin/si/SIBios.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/si/SIBios.c  changed (2 lines added / removed)
 src/dolphin/vi/__vi.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/vi/__vi.h  identical
 src/dolphin/vi/vi.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/vi/vi.c  identical
 src/sysdolphin/baselib/class.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/class.h  identical
@@ -156,6 +156,96 @@ src/sysdolphin/baselib/object.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/b
 src/sysdolphin/baselib/object.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/object.h  identical
 src/sysdolphin/baselib/util.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/util.c  identical
 src/sysdolphin/baselib/util.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/util.h  identical
+include/dolsdk2001/cmath.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/cmath.h  identical
+include/dolsdk2001/dolphin.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin.h  identical
+include/dolsdk2001/macros.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/macros.h  identical
+include/dolsdk2001/dolphin/ai.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/ai.h  identical
+include/dolsdk2001/dolphin/ar.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/ar.h  identical
+include/dolsdk2001/dolphin/card.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card.h  identical
+include/dolsdk2001/dolphin/db.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/db.h  identical
+include/dolsdk2001/dolphin/demo.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/demo.h  identical
+include/dolsdk2001/dolphin/dsp.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/dsp.h  identical
+include/dolsdk2001/dolphin/dtk.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/dtk.h  identical
+include/dolsdk2001/dolphin/dvd.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/dvd.h  identical
+include/dolsdk2001/dolphin/gx.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx.h  identical
+include/dolsdk2001/dolphin/hio.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/hio.h  identical
+include/dolsdk2001/dolphin/hw_regs.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/hw_regs.h  identical
+include/dolsdk2001/dolphin/mtx.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/mtx.h  identical
+include/dolsdk2001/dolphin/os.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os.h  identical
+include/dolsdk2001/dolphin/pad.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/pad.h  identical
+include/dolsdk2001/dolphin/perf.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/perf.h  identical
+include/dolsdk2001/dolphin/types.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/types.h  identical
+include/dolsdk2001/dolphin/vi.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/vi.h  identical
+include/dolsdk2001/dolphin/base/PPCArch.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/base/PPCArch.h  identical
+include/dolsdk2001/dolphin/card/CARDBios.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDBios.h  identical
+include/dolsdk2001/dolphin/card/CARDCheck.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDCheck.h  identical
+include/dolsdk2001/dolphin/card/CARDCreate.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDCreate.h  identical
+include/dolsdk2001/dolphin/card/CARDDelete.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDDelete.h  identical
+include/dolsdk2001/dolphin/card/CARDDir.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDDir.h  identical
+include/dolsdk2001/dolphin/card/CARDFormat.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDFormat.h  identical
+include/dolsdk2001/dolphin/card/CARDMount.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDMount.h  identical
+include/dolsdk2001/dolphin/card/CARDOpen.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDOpen.h  identical
+include/dolsdk2001/dolphin/card/CARDRdwr.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDRdwr.h  identical
+include/dolsdk2001/dolphin/card/CARDRead.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDRead.h  identical
+include/dolsdk2001/dolphin/card/CARDRename.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDRename.h  identical
+include/dolsdk2001/dolphin/card/CARDStat.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDStat.h  identical
+include/dolsdk2001/dolphin/card/CARDWrite.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/card/CARDWrite.h  identical
+include/dolsdk2001/dolphin/db/DBInterface.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/db/DBInterface.h  identical
+include/dolsdk2001/dolphin/demo/DEMOInit.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/demo/DEMOInit.h  identical
+include/dolsdk2001/dolphin/demo/DEMOPad.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/demo/DEMOPad.h  identical
+include/dolsdk2001/dolphin/demo/DEMOPuts.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/demo/DEMOPuts.h  identical
+include/dolsdk2001/dolphin/demo/DEMOStats.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/demo/DEMOStats.h  identical
+include/dolsdk2001/dolphin/demo/DEMOWin.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/demo/DEMOWin.h  identical
+include/dolsdk2001/dolphin/gx/GXBump.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXBump.h  identical
+include/dolsdk2001/dolphin/gx/GXCommandList.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXCommandList.h  identical
+include/dolsdk2001/dolphin/gx/GXCpu2Efb.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXCpu2Efb.h  identical
+include/dolsdk2001/dolphin/gx/GXCull.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXCull.h  identical
+include/dolsdk2001/dolphin/gx/GXDispList.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXDispList.h  identical
+include/dolsdk2001/dolphin/gx/GXDraw.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXDraw.h  identical
+include/dolsdk2001/dolphin/gx/GXEnum.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXEnum.h  identical
+include/dolsdk2001/dolphin/gx/GXFifo.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXFifo.h  identical
+include/dolsdk2001/dolphin/gx/GXFrameBuffer.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXFrameBuffer.h  identical
+include/dolsdk2001/dolphin/gx/GXGeometry.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXGeometry.h  identical
+include/dolsdk2001/dolphin/gx/GXGet.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXGet.h  identical
+include/dolsdk2001/dolphin/gx/GXLighting.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXLighting.h  identical
+include/dolsdk2001/dolphin/gx/GXManage.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXManage.h  identical
+include/dolsdk2001/dolphin/gx/GXPerf.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXPerf.h  identical
+include/dolsdk2001/dolphin/gx/GXPixel.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXPixel.h  identical
+include/dolsdk2001/dolphin/gx/GXStruct.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXStruct.h  identical
+include/dolsdk2001/dolphin/gx/GXTev.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXTev.h  identical
+include/dolsdk2001/dolphin/gx/GXTexture.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXTexture.h  identical
+include/dolsdk2001/dolphin/gx/GXTransform.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXTransform.h  identical
+include/dolsdk2001/dolphin/gx/GXVerify.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXVerify.h  identical
+include/dolsdk2001/dolphin/gx/GXVert.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/gx/GXVert.h  identical
+include/dolsdk2001/dolphin/os/OSAlarm.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSAlarm.h  identical
+include/dolsdk2001/dolphin/os/OSAlloc.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSAlloc.h  identical
+include/dolsdk2001/dolphin/os/OSCache.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSCache.h  identical
+include/dolsdk2001/dolphin/os/OSContext.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSContext.h  identical
+include/dolsdk2001/dolphin/os/OSDC.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSDC.h  identical
+include/dolsdk2001/dolphin/os/OSError.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSError.h  identical
+include/dolsdk2001/dolphin/os/OSException.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSException.h  identical
+include/dolsdk2001/dolphin/os/OSFont.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSFont.h  identical
+include/dolsdk2001/dolphin/os/OSIC.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSIC.h  identical
+include/dolsdk2001/dolphin/os/OSInterrupt.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSInterrupt.h  identical
+include/dolsdk2001/dolphin/os/OSL2.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSL2.h  identical
+include/dolsdk2001/dolphin/os/OSLC.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSLC.h  identical
+include/dolsdk2001/dolphin/os/OSMessage.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSMessage.h  identical
+include/dolsdk2001/dolphin/os/OSModule.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSModule.h  identical
+include/dolsdk2001/dolphin/os/OSMutex.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSMutex.h  identical
+include/dolsdk2001/dolphin/os/OSReset.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSReset.h  identical
+include/dolsdk2001/dolphin/os/OSResetSW.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSResetSW.h  identical
+include/dolsdk2001/dolphin/os/OSRtc.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSRtc.h  identical
+include/dolsdk2001/dolphin/os/OSSerial.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSSerial.h  identical
+include/dolsdk2001/dolphin/os/OSStopwatch.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSStopwatch.h  identical
+include/dolsdk2001/dolphin/os/OSThread.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSThread.h  identical
+include/dolsdk2001/dolphin/os/OSTime.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/os/OSTime.h  identical
+include/dolsdk2001/dolphin/vi/vifuncs.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/vi/vifuncs.h  identical
+include/dolsdk2001/dolphin/vi/vitypes.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin/vi/vitypes.h  identical
+include/dolsdk2001/libc/ctype.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/libc/ctype.h  identical
+include/dolsdk2001/libc/stdarg.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/libc/stdarg.h  identical
+include/dolsdk2001/libc/stddef.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/libc/stddef.h  identical
+include/dolsdk2001/libc/stdio.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/libc/stdio.h  identical
+include/dolsdk2001/libc/string.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/libc/string.h  identical
 include/dolsdk2004/cmath.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/cmath.h  identical
 include/dolsdk2004/dolphin.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/dolphin.h  identical
 include/dolsdk2004/fake_tgmath.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/fake_tgmath.h  identical

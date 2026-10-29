@@ -173,7 +173,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80019E84	FUN_80019e84	85	1	16	model,~file-io			s_scene_data_801b69b4
 8001A240	cr_SEQ_LOGO_FrameC	243	0	22	math,render			
 8001AA98	cr_SEQ_LOGO_FrameB	9	0	0				
-8001AA9C	cr_SEQ_LOGO_FrameA	188	0	26	render,video,~file-io,~input,~memory,~model			s_Would_you_like_to_display_801e1274
+8001AA9C	cr_SEQ_LOGO_FrameA	190	0	26	render,video,~file-io,~input,~memory,~model			s_Would_you_like_to_display_801e1274
 8001B1A0	FUN_8001b1a0	12	5	0				
 8001B1D4	FUN_8001b1d4	32	1	1				
 8001B29C	FUN_8001b29c	36	2	0				
@@ -2117,7 +2117,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80141FA4	AIRegisterDMACallback	16	3	2				
 80141FE8	AIInitDMA	20	5	2				
 80142070	AIStartDMA	13	2	0				
-80142088	FUN_80142088	14	1	0				
+80142088	AIGetDMAStartAddr	14	1	0				
 801420A4	AISetStreamPlayState	38	2	9				
 8014217C	AIGetStreamPlayState	12	1	0				
 8014218C	AISetDSPSampleRate	39	2	9				
@@ -2149,7 +2149,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80144604	ARQPostRequest	75	2	4				
 80144760	FUN_80144760	10	1	1				
 80144784	FUN_80144784	16	1	7				
-801447D0	FUN_801447d0	9	1	0				
+801447D0	__AXGetStackHead	9	1	0				
 801447E8	__AXServiceCallbackStack	22	1	3				
 8014485C	__AXAllocInit	54	1	0				
 80144910	__AXPushFreeStack	12	2	0				
@@ -2159,7 +2159,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801449F0	AXFreeVoice	21	3	4				
 80144A70	AXAcquireVoice	76	3	3				
 80144BE4	AXSetVoicePriority	27	3	3				
-80144C8C	FUN_80144c8c	62	1	0				
+80144C8C	__AXAuxInit	62	1	0				
 80144D70	FUN_80144d70	14	1	0				
 80144DA4	__AXGetAuxAInputDpl2	10	1	0				
 80144DC4	__AXGetAuxAOutput	10	1	0				
@@ -2172,8 +2172,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80144EAC	__AXGetAuxBOutputDPL2	10	1	0				
 80144EC8	FUN_80144ec8	60	1	2				
 80145104	FUN_80145104	11	1	0				
-80145110	FUN_80145110	11	1	0				
-8014511C	FUN_8014511c	9	1	0				
+80145110	AXRegisterAuxBCallback	11	1	0				
+8014511C	__AXGetCommandListCycles	9	1	0				
 80145124	__AXGetCommandListAddress	14	1	0				
 80145160	__AXNextFrame	163	2	13				
 80145810	FUN_80145810	13	1	0				
@@ -2304,7 +2304,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8014E3F0	VerifyFAT	91	2	1	memory			
 8014E674	__CARDVerify	27	1	3				
 8014E700	CARDCheckExAsync	191	1	11	memory			
-8014EC90	IsCard	47	2	0				
+8014EC90	IsCard	48	2	0				
 8014ED5C	CARDProbeEx	71	1	6				
 8014EED8	DoMount	147	2	15				
 8014F2E8	__CARDMountCallback	48	1	5				
@@ -2341,14 +2341,14 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801517C4	__GXDefaultTlutRegionCallback	17	0	0				
 801517E8	__GXShutdown	71	0	6	render			
 80151978	GXInit	254	1	17	render			
-80152110	__GXInitGX	256	1	73	render,video			
+80152110	__GXInitGX	259	1	73	render,video			
 80152A48	GXCPInterruptHandler	39	0	6				
 80152B7C	GXInitFifoBase	18	1	2	render			
 80152BE8	GXInitFifoPtrs	19	1	2				
 80152C58	GXInitFifoLimits	11	1	0				
 80152C64	GXSetCPUFifo	34	1	6				
 80152D8C	GXSetGPFifo	43	1	8				
-80152F04	FUN_80152f04	16	1	2				
+80152F04	GXSetBreakPtCallback	16	1	2				
 80152F48	__GXFifoInit	15	1	3				
 80152F94	__GXFifoReadEnable	14	1	0				
 80152FB8	__GXFifoReadDisable	14	1	0				
@@ -2374,8 +2374,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80154550	GXSetNumTexGens	17	21	0				
 8015458C	GXSetMisc	38	1	0				
 80154620	GXFlush	21	1	2				
-8015467C	FUN_8015467c	60	1	2				
-801547E8	FUN_801547e8	16	1	3				
+8015467C	__GXAbort	60	1	2				
+801547E8	GXWaitDrawDone	16	1	3				
 80154834	GXDrawDone	22	1	4	render			
 801548B4	GXPixModeSync	12	3	0				
 801548D8	GXPokeAlphaMode	10	1	0				
@@ -2405,8 +2405,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80155034	GXSetDispCopyDst	16	3	0				
 80155068	GXSetTexCopyDst	42	1	1				
 80155198	GXSetDispCopyFrame2Field	15	1	0				
-801551BC	FUN_801551bc	20	2	0				
-80155214	FUN_80155214	39	3	1				
+801551BC	GXSetCopyClamp	20	2	0				
+80155214	GXSetDispCopyYScale	41	3	1				
 801552E0	GXSetCopyClear	16	2	0				
 80155358	GXSetCopyFilter	65	2	0				
 80155560	GXSetDispCopyGamma	11	5	0				
@@ -2478,7 +2478,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80157F44	GXSetDither	18	2	0				
 80157F70	GXSetDstAlpha	18	2	0				
 80157FAC	GXSetFieldMask	12	1	0				
-80157FE4	FUN_80157fe4	19	2	1				
+80157FE4	GXSetFieldMode	20	2	1				
 8015805C	FUN_8015805c	84	1	0				
 80158274	GXDrawCube	54	1	10	render			
 801584C4	GXCallDisplayList	18	1	2				
@@ -2498,7 +2498,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80158A40	GXSetClipMode	13	1	0				
 80158A68	__GXSetMatrixIndex	26	2	0				
 80158AEC	GXSetGPMetric	312	1	0				
-80159334	FUN_80159334	10	1	0				
+80159334	GXClearGPMetric	10	1	0				
 80159344	FUN_80159344	9	2	0				
 80159354	FUN_80159354	28	4	2	render			
 80159428	FUN_80159428	34	4	3	render			
@@ -2863,7 +2863,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8016D024	SIGetType	54	5	4				
 8016D1E8	SIGetTypeAsync	44	6	3				
 8016D324	SISetSamplingRate	47	2	5	debug-print,video			s_SISetSamplingRate__unknown_TV_fo_8024a3b8
-8016D408	FUN_8016d408	10	1	1				
+8016D408	SIRefreshSamplingRate	10	1	1				
 8016D42C	AXDriverAlloc	18	0	1		axdriver.c		s_axdriver_c_8024a3f0,s_axfxallocsize_
 8016D48C	FUN_8016d48c	9	0	0				
 8016D490	FUN_8016d490	52	1	4	~audio,~debug-print	axdriver.c		s__v_,s_axdriver_c_8024a3f0
@@ -2882,7 +2882,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8016F9AC	FUN_8016f9ac	30	1	3				
 8016FA5C	FUN_8016fa5c	69	1	0				
 8016FBC8	FUN_8016fbc8	21	1	0				
-8016FC38	AXDriverSetupAux	122	2	14	memory	axdriver.c		s_0_,s_axdriver_c_8024a3f0,s_channel____0____channel____1_8024a57c,s_type____0____param____NULL_8024a5b4
+8016FC38	AXDriverSetupAux	122	2	14	audio,memory	axdriver.c		s_0_,s_axdriver_c_8024a3f0,s_channel____0____channel____1_8024a57c,s_type____0____param____NULL_8024a5b4
 8016FF44	FUN_8016ff44	31	2	0				
 8017004C	FUN_8017004c	25	2	1	audio			
 801700BC	FUN_801700bc	60	2	0				
@@ -3089,7 +3089,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80189A70	FUN_80189a70	16	0	0				
 80189AC8	TObjRelease	35	0	3	anim			
 80189B84	TObjAmnesia	16	0	0				
-80189BE4	TObjInfoInit	19	0	1				s_hsd_tobj_8024bad8,s_sysdolphin_base_library_8024bac0
+80189BE4	TObjInfoInit	18	0	1				s_hsd_tobj_8024bad8,s_sysdolphin_base_library_8024bac0
 80189C88	HSD_SetupChannelMode	103	1	13	light,render			
 80189EC4	HSD_SetupPEMode	43	1	8	render			
 8018A038	HSD_SetupRenderModeWithCustomPE	58	1	15	render			
@@ -3197,7 +3197,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8018F214	HSD_LObjLoadDesc	43	7	3		lobj.c		s_lobj_c_8044f028
 8018F304	FUN_8018f304	58	0	1	anim			
 8018F468	LObjAmnesia	16	0	0				
-8018F4C8	LObjInfoInit	16	0	1				s_hsd_lobj_8024c17c,s_sysdolphin_base_library_8024c164
+8018F4C8	LObjInfoInit	15	0	1				s_hsd_lobj_8024c17c,s_sysdolphin_base_library_8024c164
 8018F548	FUN_8018f548	71	1	5	camera			
 8018F6EC	CObjUpdateFunc	59	0	8	camera,~debug-print,~math			
 8018F830	FUN_8018f830	132	1	9	render			
@@ -3245,7 +3245,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80191908	CObjInit	26	0	1				
 8019197C	CObjRelease	57	0	3	anim	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 80191B00	CObjAmnesia	16	0	0				
-80191B60	CObjInfoInit	17	0	1				s_hsd_cobj_8024c2d4,s_sysdolphin_base_library_8024c2bc
+80191B60	CObjInfoInit	16	0	1				s_hsd_cobj_8024c2d4,s_sysdolphin_base_library_8024c2bc
 80191BEC	FUN_80191bec	10	1	1	~memory			
 80191C1C	HSD_FObjRemove	12	1	1				
 80191C44	HSD_FObjRemoveAll	73	2	4	anim			
@@ -3327,7 +3327,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8019AE08	JObjReleaseChild	188	0	5	anim,model	jobj.c,object.h		s_HSD_OBJ_o__,s_can_not_find_specified_jobj__may_8024c93c,s_jobj_c_8044f0b8,s_object_h_8024c848,s_prev_8044f0c4
 8019B2DC	JObjRelease	23	0	4				
 8019B374	JObjAmnesia	17	0	0				
-8019B3D8	JObjInfoInit	24	0	1				s_hsd_jobj_8024ca1c,s_sysdolphin_base_library_8024ca04
+8019B3D8	JObjInfoInit	23	0	1				s_hsd_jobj_8024ca1c,s_sysdolphin_base_library_8024ca04
 8019B494	FUN_8019b494	10	1	1	~memory			
 8019B4C4	mkVBillBoardMtx	94	1	4	math			
 8019B7A0	mkHBillBoardMtx	110	1	5	math			
@@ -3366,7 +3366,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8019D65C	HSD_VIPostRetraceCB	80	0	1				
 8019D868	HSD_VIGXDrawDoneCB	13	0	0				
 8019D8AC	HSD_VIGetDrawDoneWaitingFlag	9	1	0				
-8019D8BC	HSD_VICopyEFB2XFBPtr	64	3	13	render	video.c		s_unexpected_type_of_render_pass__8024cb7c,s_video_c_8044f120
+8019D8BC	HSD_VICopyEFB2XFBPtr	69	3	13	render	video.c		s_unexpected_type_of_render_pass__8024cb7c,s_video_c_8044f120
 8019DB14	FUN_8019db14	61	10	7	render,video			
 8019DC90	FUN_8019dc90	82	10	5		video.c		s__p_,s_idx_____1_8024cb70,s_video_c_8044f120
 8019DE54	FUN_8019de54	27	3	0				
@@ -3439,7 +3439,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A326C	HSD_WObjAlloc	23	3	2		wobj.c		s_wobj_8044f19c,s_wobj_c_8044f190
 801A32C8	WObjRelease	15	0	2	anim,~model			
 801A331C	WObjAmnesia	13	0	0				
-801A3364	WObjInfoInit	16	0	1				s_had_wobj_8024ce9c,s_sysdolphin_base_library_8024ce84
+801A3364	WObjInfoInit	15	0	1				s_had_wobj_8024ce9c,s_sysdolphin_base_library_8024ce84
 801A33E4	HSD_FogSet	153	1	11	camera,memory,render	fog.c		s_You_must_specify_CObj_first__8024cf24,s_fog_c_8044f1b8
 801A36A0	HSD_FogLoadDesc	25	1	4	render	fog.c		s_fog_c_8044f1b8
 801A3730	HSD_FogInit	34	1	1	render			
@@ -3449,8 +3449,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A38E0	FUN_801a38e0	12	1	0				
 801A38F8	FogUpdateFunc	95	0	0				
 801A3B28	FogRelease	33	0	1	anim			
-801A3BF4	FogInfoInit	14	0	1				s_hsd_fog_8044f1cc,s_sysdolphin_base_library_8024cf9c
-801A3C58	FogAdjInfoInit	12	0	1				s_hsd_fogadj_8024cfb4,s_sysdolphin_base_library_8024cf9c
+801A3BF4	FogInfoInit	13	0	1				s_hsd_fog_8044f1cc,s_sysdolphin_base_library_8024cf9c
+801A3C58	FogAdjInfoInit	11	0	1				s_hsd_fogadj_8024cfb4,s_sysdolphin_base_library_8024cf9c
 801A3C9C	FUN_801a3c9c	13	1	1		perf.c		s_n_,s_perf_c_8044f1d8
 801A3CF8	FUN_801a3cf8	11	1	1	~memory			
 801A3D3C	FUN_801a3d3c	16	1	3	memory	list.c		s_list_8044f1f0,s_list_c_8044f1e8

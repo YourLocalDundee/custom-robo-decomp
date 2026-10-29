@@ -1,19 +1,23 @@
-"""Names from the matched C's call sites (plan.md Naming policy, rule R7; Phase 4 Milestone 4).
+"""Names from the matched C's call sites and definitions (plan.md Naming policy, rules R7 / R8; Phase 4 Milestone 4).
 
 A C file whose function is 100% in objdiff (same instructions as main.dol) calls / uses other functions and data BY
-NAME: each such reference is a relocation of the compiled object against an undefined symbol. main.dol's own
+NAME: each such reference is a relocation of the compiled object against an undefined symbol (or against one of the
+file's own globals, step 56). main.dol's own
 relocation at the same instruction (the built main.elf keeps every relocation, absolute addresses) points at the
 retail address of that name. So the matched C names what it calls, the way every GC decomp names its symbols.
 
 Run by batch 9 after the build (ninja has compiled every decomp/src file, objdiff written build/GXCE01/report.json,
 and main.elf is the retail-SHA-1 link):
   1. For every C object (decomp/build/GXCE01/src/<object>.o), every function objdiff reports at 100% (fuzzy match),
-     and every relocation of it against an undefined symbol NAME at function offset d: main.elf's relocation at
+     and every relocation of it against an undefined symbol NAME (or a global the C file defines) at function offset d: main.elf's relocation at
      <the function's retail address> + d must be of the same type; its target minus the C relocation's addend is
      NAME's address.
   2. Every `// c-callsite` line of symbols/symbols.txt is checked: its name must be derived, at exactly its address
      (every call site of every matched function agrees), and the call site it cites (obj:<C file> at:<function>+0xD)
      must be one of them. Any other result: FAIL, exit 1.
+  2b. Every `// c-define obj:<C file>` line (rule R8): tools/gen_dtk_splits.py's decomp/reports/splits_report.txt must
+     list that C file defining exactly that name at that address, in that section, with that size (`DEF` lines: the C
+     file matches its whole object by bytes and relocations, its data placed by its own uses). Else FAIL.
   3. decomp/reports/c_callsites_report.txt (CRLF, deterministic): the checked lines, then every derived name whose
      address still has a dtk default name (fn_ / lbl_ ...: a name the next step can add) and every derived name that
      differs from the name main.elf has there (a disagreement to look at; not counted as a failure, because a name
@@ -35,7 +39,10 @@ D = os.path.join(G, 'decomp')
 B = os.path.join(D, 'build', 'GXCE01')
 SYMBOLS = os.path.join(G, 'symbols', 'symbols.txt')
 REPORT = os.path.join(D, 'reports', 'c_callsites_report.txt')
+SPLITS_REPORT = os.path.join(D, 'reports', 'splits_report.txt')
 LINE = re.compile(r'^(\S+) = \.(\w+):0x([0-9A-Fa-f]{8}); // .*// c-callsite obj:(\S+) at:(\S+)\+0x([0-9A-Fa-f]+)')
+DLINE = re.compile(r'^(\S+) = (\.\w+):0x([0-9A-Fa-f]{8}); // .*size:0x([0-9A-Fa-f]+).*// c-define obj:(\S+) ')
+DEF = re.compile(r'^DEF 0x([0-9A-F]{8}) (\S+) (\S+) (\S+) size:0x([0-9A-F]+) ')
 DEFAULT = re.compile(r'^(fn|lbl|jumptable|gap|switch|float|double|string|wstring)_[0-9A-Fa-f_]+$|^@')
 RTYPE = {1: 'ADDR32', 4: 'ADDR16_LO', 5: 'ADDR16_HI', 6: 'ADDR16_HA', 10: 'REL24', 11: 'REL14', 109: 'EMB_SDA21'}
 
@@ -52,8 +59,8 @@ def obj_relocs(path):
     for o in range(symsec[4], symsec[4] + symsec[5], 16):
         n, v, sz, info, _, shn = struct.unpack_from('>IIIBBH', d, o)
         s = strt[4] + n
-        syms.append((d[s:d.index(b'\0', s)].decode('latin-1'), v, sz, info & 15, shn))
-    funcs = {n: (shn, v, sz) for n, v, sz, t, shn in syms if t == 2 and shn and n}
+        syms.append((d[s:d.index(b'\0', s)].decode('latin-1'), v, sz, info & 15, shn, info >> 4))
+    funcs = {n: (shn, v, sz) for n, v, sz, t, shn, b in syms if t == 2 and shn and n}
     rels = []
     for s in sh:
         if s[1] != 4:
@@ -61,7 +68,7 @@ def obj_relocs(path):
         for o in range(s[4], s[4] + s[5], 12):
             off, info, add = struct.unpack_from('>IIi', d, o)
             sy = syms[info >> 8]
-            if sy[4] == 0 and sy[0]:
+            if sy[0] and (sy[4] == 0 or (sy[5] == 1 and sy[4] < 0xFF00)):   # undefined, or this file's own global
                 rels.append((s[7], off, info & 255, sy[0], add))
     return funcs, rels
 
@@ -73,7 +80,7 @@ def main():
     elf = ra.Elf(os.path.join(B, 'main.elf'))
     names_at = defaultdict(list)
     for n, v, sz, t, b, shn in elf.syms:
-        if n and shn and t in (1, 2) and not n.startswith('...'):
+        if n and t not in (3, 4) and not n.startswith('...'):   # any name main.elf has there: labels, linker symbols too
             names_at[v].append(n)
     derived = defaultdict(lambda: defaultdict(list))   # name -> address -> [site text]
     bad_sites = []
@@ -115,6 +122,27 @@ def main():
             errors.append(f'FAIL {name} 0x{addr:08X}: the cited call site {m[4]} {m[5]}+0x{int(m[6], 16):X} is not one of the derived ones')
         else:
             rows.append(f'OK   {name} 0x{addr:08X}: {len(got[addr])} call site(s), all agree; e.g. {got[addr][0]}')
+    # c-define (rule R8): the C file matches its whole object (tools/gen_dtk_splits.py: every function's bytes and
+    # relocations are main.dol's, its data placed by its own uses) and defines NAME at that address
+    defs = defaultdict(set)
+    for ln in open(SPLITS_REPORT, encoding='utf-8').read().splitlines():
+        d = DEF.match(ln)
+        if d:
+            defs[d[2]].add((int(d[1], 16), d[3], d[4], int(d[5], 16)))
+    dlines = [ln for ln in open(SYMBOLS, encoding='utf-8').read().splitlines() if '// c-define ' in ln]
+    for ln in dlines:
+        m = DLINE.match(ln)
+        if not m:
+            errors.append(f'FAIL unparsed c-define line: {ln}')
+            continue
+        name, sec, addr, size, obj = m[1], m[2], int(m[3], 16), int(m[4], 16), m[5]
+        got = {(a, s, z) for a, o, s, z in defs.get(name, ()) if o == obj}
+        if got != {(addr, sec, size)}:
+            errors.append(f'FAIL {name} 0x{addr:08X}: {obj} defines it at ' +
+                          (', '.join(f'{s}:0x{a:08X} size 0x{z:X}' for a, s, z in sorted(got)) or 'no place (splits_report.txt)'))
+        else:
+            rows.append(f'OK   {name} 0x{addr:08X}: defined there by {obj} ({sec}, size 0x{size:X})')
+    lines += dlines
     proposed, differ = [], []
     for name in sorted(derived):
         for a in sorted(derived[name]):

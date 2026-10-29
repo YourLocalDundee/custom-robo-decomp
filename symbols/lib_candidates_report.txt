@@ -1,4 +1,4 @@
-lib candidates: 183 accepted (R3:94, R4:17, R5:64, R6:8), 0 rejected, 8 layout-proof names replaced, 3 round(s)
+lib candidates: 185 accepted (R3:97, R4:17, R5:63, R6:8), 0 rejected, 8 layout-proof names replaced, 3 round(s)
 REPLACED layout-proof acos at 0x80169088
 REPLACED layout-proof asin at 0x801690A8
 REPLACED layout-proof atan2 at 0x801690C8
@@ -7,7 +7,8 @@ REPLACED layout-proof fmod at 0x80169108
 REPLACED layout-proof log at 0x80169128
 REPLACED layout-proof ReadROM at 0x80135208
 REPLACED layout-proof stateCheckID2a at 0x8013C704
-ACCEPT __AXAllocInit 0x8014485C R3 kar_wowjinxy/GKYE01
+ACCEPT __AXAllocInit 0x8014485C R3 melee/GALE01
+ACCEPT __AXAuxInit 0x80144C8C R3 melee/GALE01
 ACCEPT __AXDepopVoice 0x8014642C R3 melee/GALE01
 ACCEPT __AXDSPDoneCallback 0x80145B20 R3 bfbb/GQPE78
 ACCEPT __AXDSPInitCallback 0x80145ABC R3 bfbb/GQPE78
@@ -29,12 +30,12 @@ ACCEPT __AXOutAiCallback 0x80145A00 R3 bfbb/GQPE78
 ACCEPT __AXOutInit 0x80145C18 R5 bfbb/axout.c
 ACCEPT __AXOutInitDSP 0x80145B4C R3 bfbb/GQPE78
 ACCEPT __AXOutNewFrame 0x80145848 R5 bfbb/axout.c
-ACCEPT __AXPopCallbackStack 0x80144940 R3 bfbb/GQPE78
+ACCEPT __AXPopCallbackStack 0x80144940 R3 melee/GALE01
 ACCEPT __AXPrintStudio 0x80146008 R3 bfbb/GQPE78
-ACCEPT __AXPushCallbackStack 0x80144930 R3 bfbb/GQPE78
-ACCEPT __AXPushFreeStack 0x80144910 R3 kar_wowjinxy/GKYE01
-ACCEPT __AXRemoveFromStack 0x8014495C R3 bfbb/GQPE78
-ACCEPT __AXServiceCallbackStack 0x801447E8 R3 bfbb/GQPE78
+ACCEPT __AXPushCallbackStack 0x80144930 R3 melee/GALE01
+ACCEPT __AXPushFreeStack 0x80144910 R3 melee/GALE01
+ACCEPT __AXRemoveFromStack 0x8014495C R3 melee/GALE01
+ACCEPT __AXServiceCallbackStack 0x801447E8 R3 melee/GALE01
 ACCEPT __AXServiceVPB 0x801464C8 R3 bfbb/GQPE78
 ACCEPT __AXSetPBDefault 0x80146E98 R3 bfbb/GQPE78
 ACCEPT __AXSPBInit 0x80146400 R3 melee/GALE01
@@ -68,7 +69,8 @@ ACCEPT atan2 0x801690C8 R5 ac-decomp/GAFE01_00
 ACCEPT AXAcquireVoice 0x80144A70 R3 melee/GALE01
 ACCEPT AXDriverAlloc 0x8016D42C R4 melee/GALE01
 ACCEPT AXDriverSetupAux 0x8016FC38 R4 melee/GALE01
-ACCEPT AXFreeVoice 0x801449F0 R3 bfbb/GQPE78
+ACCEPT AXFreeVoice 0x801449F0 R3 melee/GALE01
+ACCEPT AXRegisterAuxBCallback 0x80145110 R3 melee/GALE01
 ACCEPT AXSetVoiceAddr 0x801475B0 R3 bfbb/GQPE78
 ACCEPT AXSetVoiceAdpcm 0x80147808 R3 bfbb/GQPE78
 ACCEPT AXSetVoiceAdpcmLoop 0x801479DC R3 bfbb/GQPE78
@@ -79,7 +81,7 @@ ACCEPT AXSetVoiceItdTarget 0x801474B0 R3 melee/GALE01
 ACCEPT AXSetVoiceLoop 0x801476C0 R3 bfbb/GQPE78
 ACCEPT AXSetVoiceLoopAddr 0x8014770C R3 bfbb/GQPE78
 ACCEPT AXSetVoiceMix 0x801471F8 R3 melee/GALE01
-ACCEPT AXSetVoicePriority 0x80144BE4 R5 dolsdk2001/axalloc.c
+ACCEPT AXSetVoicePriority 0x80144BE4 R3 melee/GALE01
 ACCEPT AXSetVoiceSrc 0x801478AC R3 bfbb/GQPE78
 ACCEPT AXSetVoiceSrcRatio 0x80147944 R3 bfbb/GQPE78
 ACCEPT AXSetVoiceVe 0x8014750C R3 melee/GALE01
