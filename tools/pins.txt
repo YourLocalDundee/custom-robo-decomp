@@ -27,3 +27,24 @@ git      sms       https://github.com/doldecomp/sms.git             542eb480fb04
 git      marioparty4 https://github.com/mariopartyrd/marioparty4.git 5b01c79b4910525e3fc5aa312eddd6d014e7f337
 git      pikmin    https://github.com/projectPiki/pikmin.git        9a2163626a269ae7c699fc195cf91a5ca791044d
 git      bfbb      https://github.com/bfbbdecomp/bfbb.git           d8e8eac38dd617ee72161f4cb2da4498bc89aad6
+# Phase 4 build (decomp/, tools/setup_decomp.ps1): encounter/dtk-template + the tools its configure.py names, at the
+# template's own versions (dtk itself: the v1.8.4 pin above, the template asks for v1.8.3). sha256 = GitHub release digest
+# (the compilers zip from files.decomp.dev: hashed on download).
+git      dtk-template https://github.com/encounter/dtk-template.git d366876408b754891a0392badbc63bff3490469f
+file     ninja-win.zip https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-win.zip   07fc8261b42b20e71d1720b39068c2e14ffcee6396b76fb7a795fb460b78dc65
+file     ninja-linux.zip https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-linux.zip   5749cbc4e668273514150a80e387a957f933c6ed3f5f11e03fb30955e2bbead6
+file     ninja-linux-aarch64.zip https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-linux-aarch64.zip   fd2cacc8050a7f12a16a2e48f9e06fca5c14fc4c2bee2babb67b58be17a607fc
+file     ninja-mac.zip https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-mac.zip   c99048673aa765960a99cf10c6ddb9f1fad506099ff0a0e137ad8960a88f321b
+file     objdiff-cli-windows-x86_64.exe https://github.com/encounter/objdiff/releases/download/v3.6.1/objdiff-cli-windows-x86_64.exe   c1e418ebbedb1f6392ed1098c14423c48fab70f0b0f4094299b05a03d36773ae
+file     objdiff-cli-linux-x86_64 https://github.com/encounter/objdiff/releases/download/v3.6.1/objdiff-cli-linux-x86_64   72688707d5a7f30daebf5a4f65f74c6dab17ee6e09a230a187e327900345eecf
+file     objdiff-cli-linux-aarch64 https://github.com/encounter/objdiff/releases/download/v3.6.1/objdiff-cli-linux-aarch64   bcb10a52f35f5639aa96600e75dbd9bbe99de9dbfdd5443d70b21b4f744979f9
+file     objdiff-cli-macos-x86_64 https://github.com/encounter/objdiff/releases/download/v3.6.1/objdiff-cli-macos-x86_64   59a4ee9d2fa0369c9cb76d579564aec8c9bfcce16d51acccdb872a80d4b14de8
+file     objdiff-cli-macos-arm64 https://github.com/encounter/objdiff/releases/download/v3.6.1/objdiff-cli-macos-arm64   4ef0896ba8986f1adea6202d6e52a471deb1d126b071d23e88e8c00c250da7fd
+file     binutils-windows-x86_64.zip https://github.com/encounter/gc-wii-binutils/releases/download/2.42-2/windows-x86_64.zip   bd95bd57607efb45c437e97b77ec199073e242869027eb72196b0720611bb1c1
+file     binutils-linux-x86_64.zip https://github.com/encounter/gc-wii-binutils/releases/download/2.42-2/linux-x86_64.zip   64e4bf7aee5c06075d8fa818ebd2a0a3a72e0eeef3896bdec2f198b0e950fe63
+file     binutils-linux-aarch64.zip https://github.com/encounter/gc-wii-binutils/releases/download/2.42-2/linux-aarch64.zip   41e70c39adf0dc588d5909691f9b9f1c0372002be485191eda581bf498866723
+file     binutils-macos-universal.zip https://github.com/encounter/gc-wii-binutils/releases/download/2.42-2/macos-universal.zip   c40bad23fd7d9eb22d4533875922fc19785ed067978b605804e345bc6e62449d
+file     sjiswrap.exe https://github.com/encounter/sjiswrap/releases/download/v1.2.2/sjiswrap-windows-x86.exe   01d50fa1148cfc3c3b16658c6c9b1c0d9f5324cde79ed6c09ef8353af9d63adf
+file     wibo-x86_64 https://github.com/decompals/wibo/releases/download/1.0.3/wibo-x86_64   7fdf620b151744296b9bb93318d8c4009d3d3e98e23718a6eda9fbec4cefbb2a
+file     wibo-macos https://github.com/decompals/wibo/releases/download/1.0.3/wibo-macos   bfb53e13706506fef31c331a1b4312af84a5c71af451f0cafe42c5511b2acbe4
+file     compilers_20251118.zip https://files.decomp.dev/compilers_20251118.zip   69b0d4980a2eccea4ae6e70b486714b5190cb6c75e3bc7b8fb5878a8854d0d1c

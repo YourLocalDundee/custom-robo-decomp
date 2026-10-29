@@ -40,3 +40,17 @@ User/
 
 # mod folders hold edited game models: keep them local
 mods/
+
+# Phase 4 build (decomp/): only decomp/config/ is ours. The template files, your DOL, the split asm / objects and
+# the linked main.dol are local (tools/setup_decomp.ps1 and the build make them).
+decomp/build/
+decomp/orig/
+decomp/tools/
+decomp/configure.py
+decomp/build.ninja
+decomp/.ninja_*
+decomp/objdiff.json
+decomp/compile_commands.json
+decomp/report.json
+decomp/ctx.*
+tools/ninja/

@@ -41,6 +41,7 @@ Downloads are kept in `tools\downloads\` and **every one is SHA-256 checked agai
 | 5 | decomp-toolkit `dtk.exe` downloaded and **its SHA-256 checked** against `tools\pins.txt`; `dtk dol split config.yml out` analyses your `main.dol` (function boundaries, SDK signature names) | GitHub | `tools\dtk\` |
 | 6 | Python venv with the exact versions in `tools\requirements-preview.txt` (only used to render preview PNGs) | PyPI | `tools\pyenv\` |
 | 7 | Ghidra 12.1.4 (SHA-256 = the one Ghidra publishes on its release page) and the GameCube loader 1.3.1 (hash-checked), unzipped into `Ghidra\Extensions`; the loader's `version=` line is set to 12.1.4 because the zip is built for 12.1 | GitHub | `tools\ghidra_12.1.4_PUBLIC\` |
+| 8 | `tools\setup_decomp.ps1` (Phase 4 build, see section 2b): `encounter/dtk-template` cloned at the pinned commit into `tools\refs\dtk-template\` (no line-ending conversion); its `configure.py` and `tools\*.py` copied into `decomp\` and our patch `tools\patches\dtk_template_configure.patch` applied (read it: version GXCE01, pinned tool paths, object list from `splits.txt`); ninja 1.13.2, objdiff-cli 3.6.1, gc-wii-binutils 2.42-2, sjiswrap 1.2.2 (wibo 1.0.3 on Linux / macOS) and the CodeWarrior compilers zip `compilers_20251118` downloaded and SHA-256 checked; your `main.dol` (SHA-1 checked) copied to `decomp\orig\GXCE01\sys\` | GitHub, files.decomp.dev | `tools\ninja\`, `decomp\build\{tools,binutils,compilers}\`, `decomp\orig\`, `decomp\configure.py`, `decomp\tools\` |
 
 Nothing in setup sends anything anywhere; downloads are the only network use.
 
@@ -63,7 +64,7 @@ Everything below runs locally, with no network access. The name batches and the 
    `game_real.txt`, `game_unnamed_real.txt`). It stops when a rebuild
    leaves every name unchanged, so the decompiled C is exactly the C of the final names, and fails after 5 rebuilds
    (`-MaxPasses`). The summary prints how many rebuilds it took.
-4. Batches 5, 2, 3, 4 and 8 on the final export.
+4. Batches 5, 2, 3, 4 and 8 on the final export, then batch 9 (the Phase 4 build, section 2b; it reads only the final name files).
 
 The name matchers take **our names only from the symbol files** and the Ghidra export **only for structure**: function
 starts, calls, string references and computed jumps, all by address (`tools\export_struct.py`; never a name or type Ghidra
@@ -95,6 +96,27 @@ names, never the export, so its output is the same from the very first pass.
 | Batch 3 | `tools\game_map.py` | callers / callees / strings / subsystem hints per function | → `symbols\game_map.tsv`, `docs\game_map.md` |
 | Batch 4 | `tools\build_index.py` | SQLite search index + one file per function | → `decompiled\index.db`, `decompiled\funcs\` |
 | Batch 8 | `tools\crosscheck_names.py` | independent cross-check of every name against all references (game-real names: the string still at the cited address, the table indexes still matching, the tables still adjacent and of the same length); **stops** on any FAIL | `decompiled\index.db`, name files → `symbols\names_crosscheck.txt`, `docs\names_crosscheck.md` |
+| Batch 9 | `tools\batches\batch9_decomp_build.ps1` | the Phase 4 build, section 2b; **stops** unless the built `main.dol` is the retail one | name files, dtk analysis, reference layouts → `decomp\config\GXCE01\{symbols,splits}.txt`, `decomp\reports\` |
+
+## 2b. Build main.dol from asm — `tools\batches\batch9_decomp_build.ps1` (Phase 4, Milestone 1)
+
+```powershell
+pwsh tools\batches\batch9_decomp_build.ps1          # run_all.ps1 runs it last; it needs setup step 8
+# or by hand, after the batch has generated the config once:
+cd decomp; python configure.py; ..\tools\ninja\ninja.exe
+```
+
+`decomp\` is a [decomp-toolkit](https://github.com/encounter/decomp-toolkit) project made from `encounter/dtk-template`.
+Only `decomp\config\GXCE01\` (config.yml, symbols.txt, splits.txt, build.sha1) and `decomp\reports\` are in git; the
+template files, your DOL, the split objects and the linked DOL are local and gitignored. No network use (setup step 8 did
+the downloads; `configure.py` stops instead of downloading anything unpinned).
+
+| Step | What it does | Reads → Writes |
+|---|---|---|
+| `tools\gen_dtk_symbols.py` | dtk's analysis with our cross-checked names applied (`symbols\symbols.txt`, `descriptive.txt`, `cr_globals.txt`). Only the name of an existing dtk symbol changes (same address and kind); never added, removed, moved or resized. A name that is invalid for the linker, given twice, held by another dtk symbol, or has no dtk symbol of its kind at its address keeps dtk's default name and is listed. At one address labels are written after the function / object (mwld hangs otherwise) | `tools\dtk\proj\symbols.txt`, name files → `decomp\config\GXCE01\symbols.txt`, `decomp\reports\symbols_report.txt` |
+| `tools\gen_dtk_splits.py` | object (`.c` file) boundaries, only where proven: library objects from the 13 pinned reference decomps' `splits.txt` / `symbols.txt` (both ends of the object anchored by our verified names and their neighbours, all references that prove an object agree; method in its docstring); game code only where G3 assert notes prove both ends (none so far). Code sections only; everything else stays in dtk's automatic objects | `decomp\config\GXCE01\symbols.txt`, reference configs, `symbols\game_real.txt` → `decomp\config\GXCE01\splits.txt`, `decomp\reports\splits_report.txt` |
+| `configure.py` + `ninja` | `dtk dol split` writes one object per split straight from your `main.dol` (dtk validates every split here) and normalises both config files once (its re-analysis: `align:` / `data:` attributes, a few sizes, link order; names and ranges unchanged); every object is NonMatching, so `mwldeppc` (GC/1.3.2) links dtk's objects into `build\GXCE01\main.elf` → `main.dol`, and the template checks `build.sha1` | → `decomp\build\GXCE01\` |
+| fixpoint + SHA-1 | a second, forced split must leave both config files byte-identical; the built `main.dol` must have the retail SHA-1 `6a73cd111ef349b20be294511b8c51a8addfb50b` | → `decomp\reports\build_report.txt` |
 
 ## 3. Check you got the same result — `tools\checksums.ps1`
 
@@ -112,6 +134,8 @@ for all of them. **All OK = you have exactly what we have**, produced only by th
 - dtk files differ → a different dtk build (check its SHA-256).
 - `symbols\*` differ but dtk matches → the reference commits differ from `tools\pins.txt`, or files were edited.
 - only `decompiled\*` differs → a different Ghidra or GameCube-loader version, or a different Java.
+- only `decomp\*` differs → the name files differ (then symbols.txt does too), or a different dtk / template commit
+  than `tools\pins.txt`. `build_report.txt` says whether your built `main.dol` matched the retail one.
 
 ## 4. Models — same tools we used, in order (`from_scratch.ps1` runs the unpack, verify and round-trip lines)
 

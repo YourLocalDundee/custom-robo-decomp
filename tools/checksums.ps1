@@ -29,6 +29,11 @@ $files = @(
     'decompiled\xrefs\functions.tsv'
     'decompiled\xrefs\refs.tsv'
     'decompiled\xrefs\strings.tsv'
+    'decomp\config\GXCE01\symbols.txt'     # Phase 4 build config (batch 9): dtk analysis + our names, dtk-normalised
+    'decomp\config\GXCE01\splits.txt'      # proven object boundaries (tools\gen_dtk_splits.py)
+    'decomp\reports\symbols_report.txt'
+    'decomp\reports\splits_report.txt'
+    'decomp\reports\build_report.txt'       # built main.dol SHA-1 == retail
 )
 $now = foreach ($f in $files) {
     $p = Join-Path $g ($f -replace '\\', '/')   # names in the list use backslashes

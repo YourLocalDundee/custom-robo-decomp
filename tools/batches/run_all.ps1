@@ -1,6 +1,6 @@
 #Requires -Version 7
 # Run every batch in order: names -> Ghidra rebuild with types (~3 min) -> names again, to a fixpoint -> type checks
-# -> cross-check -> game map -> search index -> name cross-check, then a summary.
+# -> cross-check -> game map -> search index -> name cross-check -> decomp build (batch 9), then a summary.
 # Usage:  pwsh D:\emulators\gameTesting\tools\batches\run_all.ps1 [-SkipRebuild] [-MaxPasses 5]
 #
 # Reproducible from any starting point. The name batches (1 = layout proof, then 6 = lib candidates, which builds on
@@ -65,6 +65,9 @@ if (-not $SkipRebuild) {
 & "$PSScriptRoot/batch3_game_map.ps1"
 & "$PSScriptRoot/batch4_index.ps1"
 & "$PSScriptRoot/batch8_crosscheck.ps1"   # needs the fresh index.db from batch 4
+# Phase 4 build: outside the name fixpoint (reads the final name files, never Ghidra). Stops the run unless the built
+# main.dol is the retail one.
+& "$PSScriptRoot/batch9_decomp_build.ps1"
 
 $c = "$g/decompiled/main_dol.c"
 $funcs = (Select-String -LiteralPath $c -Pattern '^// [0-9a-f]{8}  ').Count
@@ -73,4 +76,5 @@ $generic = (Select-String -LiteralPath $c -Pattern '^// [0-9a-f]{8}  FUN_').Coun
 "fixpoint: names unchanged after $passes Ghidra rebuild(s)"
 "functions in C: $funcs, still FUN_: $generic, named: $($funcs - $generic)"
 "reports: symbols\verify_report.txt, symbols\crosscheck_report.txt, docs\game_map.md"
+"decomp build: main.dol == retail SHA-1 (decomp\reports\build_report.txt, splits_report.txt, symbols_report.txt)"
 "search: python -I tools\find.py text|func|callers|callees|refs|str|hint <arg>   (index: decompiled\index.db)"

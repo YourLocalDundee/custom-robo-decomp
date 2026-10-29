@@ -20,6 +20,8 @@ manager, or from the pinned, SHA-256-checked downloads in [tools/pins.txt](../to
 | decomp-toolkit (dtk) 1.8.4 | pinned, one binary per OS | function boundaries / SDK names | `setup.ps1` (pinned) |
 | HSDLib / HSDRawViewer | pinned commit | model export, built from source | `setup.ps1` (Windows) |
 | Python packages (numpy, trimesh, ...) | pinned in `tools/requirements-preview.txt` | preview renders | `setup.ps1` (venv) |
+| ninja, objdiff-cli, binutils, CodeWarrior compilers, wibo | pinned (see "Phase 4 build tools") | builds main.dol in `decomp/` | `setup.ps1` (pinned) |
+| wine | any recent | runs CodeWarrior on Linux aarch64 only (x86_64 / macOS use the pinned wibo) | you (Linux aarch64) |
 
 `pwsh tools/setup.ps1 -Iso ...` starts by printing each tool's version and stops with one list of what is missing.
 
@@ -94,6 +96,33 @@ export PATH="$(brew --prefix python@3.12)/libexec/bin:$PATH"
 
 Install: git, Python 3.11+ (as `python`), PowerShell 7, a JDK 21+, unzip, and Dolphin (for `dolphin-tool`; or pass
 `-Dolphin /path/to/dolphin-tool`). On Windows also the .NET SDK 8+.
+
+## Phase 4 build tools (decomp/, batch 9)
+
+Nothing to install by hand: `setup.ps1` step 8 (`tools/setup_decomp.ps1`) downloads every build tool at the version
+pinned in `tools/pins.txt` and checks its SHA-256. The versions are the ones the pinned `encounter/dtk-template` asks for.
+
+| Tool | Version | Why | Where it goes |
+|---|---|---|---|
+| ninja | 1.13.2 (GitHub release zip: Windows x64, Linux x86_64 / aarch64, macOS) | runs the build | `tools/ninja/` |
+| decomp-toolkit | 1.8.4 (the same pin as above; the template asks for 1.8.3) | splits main.dol into objects | `tools/dtk/` |
+| objdiff-cli | 3.6.1 | progress report (`report.json`), later: per-object diffs | `decomp/build/tools/` |
+| gc-wii-binutils | 2.42-2 | assembler for asm objects (`--non-matching`, Milestone 2) | `decomp/build/binutils/` |
+| CodeWarrior compilers | `compilers_20251118.zip` (files.decomp.dev; GC 1.0 .. 3.0a5.2, Wii, ProDG) | `mwldeppc` links main.dol now; `mwcceppc` compiles C later | `decomp/build/compilers/` |
+| sjiswrap | 1.2.2 | Shift-JIS wrapper the template puts around mwcc | `decomp/build/tools/` |
+| wibo | 1.0.3 (Linux x86_64, macOS) | runs the Windows-only `mwldeppc` / `mwcceppc` on Linux / macOS | `decomp/build/tools/` |
+
+- **Windows**: nothing else. (`winget install --id Ninja-build.Ninja -e` gives a ninja on `PATH` if you want one; the
+  scripts use the pinned one.)
+- **Linux x86_64 / macOS**: the CodeWarrior tools are Windows programs and run through the pinned **wibo**; nothing to
+  install.
+- **Linux aarch64** (no wibo build is pinned): install **wine**, which the template uses when there is no wibo:
+  Debian / Ubuntu `sudo apt install -y wine`, Arch `sudo pacman -S --needed wine`, Fedora `sudo dnf install -y wine`.
+- A ninja from your package manager also works (`sudo apt install ninja-build`, `sudo pacman -S ninja`,
+  `sudo dnf install ninja-build`, `brew install ninja`) if you pass `--ninja $(command -v ninja)` to `configure.py`;
+  batch 9 always uses the pinned one.
+- Tested on Windows only (Oct 28, 2026). The Linux / macOS paths follow the template's own wibo / wine handling and are
+  not yet run (plan: minime + Arch/yay, after the Phase 4 plan is done).
 
 ## Dolphin on Linux
 

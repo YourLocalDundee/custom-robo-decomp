@@ -1,0 +1,123 @@
+diff --git a/configure.py b/configure.py
+index b529a6d..a147e21 100644
+--- a/configure.py
++++ b/configure.py
+@@ -9,6 +9,11 @@
+ #   python3 configure.py
+ #   ninja
+ #
++# Custom Robo (GXCE01): this file is encounter/dtk-template's configure.py at the commit pinned in ../tools/pins.txt,
++# plus ../tools/patches/dtk_template_configure.patch, applied by ../tools/setup_decomp.ps1 (do not edit it here:
++# edit the patch). Changes: version GXCE01; every tool from the pinned downloads in build/ and ../tools/ (never an
++# unpinned download); the object list is read from config/GXCE01/splits.txt (every object NonMatching for now).
++#
+ # Append --help to see available options.
+ ###
+ 
+@@ -29,7 +34,7 @@ from tools.project import (
+ # Game versions
+ DEFAULT_VERSION = 0
+ VERSIONS = [
+-    "GAMEID",  # 0
++    "GXCE01",  # 0: Custom Robo (USA) v1.0
+ ]
+ 
+ parser = argparse.ArgumentParser()
+@@ -138,19 +143,35 @@ config = ProjectConfig()
+ config.version = str(args.version)
+ version_num = VERSIONS.index(config.version)
+ 
++
++
++# Custom Robo: the tools ../tools/setup_decomp.ps1 downloaded and SHA-256 checked (versions: ../tools/pins.txt).
++# A missing one stops here instead of letting the template download an unpinned copy.
++def pinned(given, path: str, what: str) -> Path:
++    if given is not None:
++        return given
++    p = Path(path)
++    if not p.exists():
++        sys.exit(f"{what} missing at {p}: run  pwsh ../tools/setup_decomp.ps1  first")
++    return p
++
++
++_exe = ".exe" if is_windows() else ""
+ # Apply arguments
+ config.build_dir = args.build_dir
+-config.dtk_path = args.dtk
+-config.objdiff_path = args.objdiff
+-config.binutils_path = args.binutils
+-config.compilers_path = args.compilers
++config.dtk_path = pinned(args.dtk, f"../tools/dtk/dtk{_exe}", "decomp-toolkit")
++config.objdiff_path = pinned(args.objdiff, f"build/tools/objdiff-cli{_exe}", "objdiff-cli")
++config.binutils_path = pinned(args.binutils, "build/binutils", "binutils")
++config.compilers_path = pinned(args.compilers, "build/compilers", "compilers")
+ config.generate_map = args.map
+ config.non_matching = args.non_matching
+-config.sjiswrap_path = args.sjiswrap
+-config.ninja_path = args.ninja
++config.sjiswrap_path = pinned(args.sjiswrap, "build/tools/sjiswrap.exe", "sjiswrap")
++config.ninja_path = pinned(args.ninja, f"../tools/ninja/ninja{_exe}", "ninja")
+ config.progress = args.progress
+ if not is_windows():
+     config.wrapper = args.wrapper
++    if config.wrapper is None and Path("build/tools/wibo").exists():
++        config.wrapper = Path("build/tools/wibo")
+ # Don't build asm unless we're --non-matching
+ if not config.non_matching:
+     config.asm_dir = None
+@@ -158,7 +179,7 @@ if not config.non_matching:
+ # Tool versions
+ config.binutils_tag = "2.42-2"
+ config.compilers_tag = "20251118"
+-config.dtk_tag = "v1.8.3"
++config.dtk_tag = "v1.8.4"
+ config.objdiff_tag = "v3.6.1"
+ config.sjiswrap_tag = "v1.2.2"
+ config.wibo_tag = "1.0.3"
+@@ -284,18 +305,34 @@ def MatchingFor(*versions):
+ 
+ config.warn_missing_config = True
+ config.warn_missing_source = False
+-config.libs = [
+-    {
+-        "lib": "Runtime.PPCEABI.H",
+-        "mw_version": config.linker_version,
+-        "cflags": cflags_runtime,
+-        "progress_category": "sdk",  # str | List[str]
+-        "objects": [
+-            Object(NonMatching, "Runtime.PPCEABI.H/global_destructor_chain.c"),
+-            Object(NonMatching, "Runtime.PPCEABI.H/__init_cpp_exceptions.cpp"),
+-        ],
+-    },
+-]
++
++
++# Custom Robo: one lib per top-level folder of the objects in splits.txt, in splits.txt order. Every object is
++# NonMatching (the build links dtk's split objects, which gives the retail main.dol); objects move to Matching here
++# when their C matches (Milestone 4 / 5). Library folders count as "sdk" progress, game/ as "game".
++GAME_DIRS = ("game",)
++
++
++def libs_from_splits(path: Path) -> List[Dict[str, Any]]:
++    libs: Dict[str, Dict[str, Any]] = {}
++    for line in path.read_text(encoding="utf-8").splitlines():
++        if not line or line[0].isspace() or line.startswith("Sections:") or line.startswith("//"):
++            continue
++        name = line.split(":")[0].strip()
++        top = name.split("/")[0]
++        lib = libs.setdefault(top, {
++            "lib": top,
++            "mw_version": config.linker_version,
++            "cflags": cflags_base if top in GAME_DIRS else cflags_runtime,
++            "progress_category": "game" if top in GAME_DIRS else "sdk",
++            "objects": [],
++        })
++        lib["objects"].append(Object(NonMatching, name))
++    return list(libs.values())
++
++
++config.libs = libs_from_splits(Path("config") / config.version / "splits.txt")
++config.reconfig_deps.append(Path("config") / config.version / "splits.txt")
+ 
+ 
+ # Optional callback to adjust link order. This can be used to add, remove, or reorder objects.

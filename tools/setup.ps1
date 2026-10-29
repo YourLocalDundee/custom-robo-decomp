@@ -177,4 +177,6 @@ if (-not (Test-Path -LiteralPath "$ext/GameCubeLoader")) {
     $props = "$ext/GameCubeLoader/extension.properties"
     (Get-Content -LiteralPath $props) -replace '^version=.*', 'version=12.1.4' | Set-Content -LiteralPath $props
 }
+# 8. Phase 4 build (decomp/): dtk-template, ninja, objdiff, binutils, the CodeWarrior compilers, your main.dol.
+& "$t/setup_decomp.ps1"
 "setup done. Next:  pwsh tools\batches\run_all.ps1   then   pwsh tools\checksums.ps1 -Compare"
