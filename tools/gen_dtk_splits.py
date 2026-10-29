@@ -1,6 +1,6 @@
 """Generate decomp/config/GXCE01/splits.txt: object (.c file) boundaries in main.dol, only where they are proven.
 
-Method (library code: Dolphin SDK, MSL / Runtime, MetroTRK, HSD sysdolphin):
+CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD sysdolphin):
   Every pinned reference decomp with a dtk config (tools/melee, tools/refs/*/config/*/{splits,symbols}.txt) gives, per
   object, the functions it contains in its own address order. For an object O of a reference R let F = R's functions
   in O. O's .text range in OUR main.dol is proven when:
@@ -9,38 +9,94 @@ Method (library code: Dolphin SDK, MSL / Runtime, MetroTRK, HSD sysdolphin):
     2. first <= last in our address order, in the same section;
     3. every NAMED function of ours from first to last is one of R's functions of O (unnamed fn_ ones may be in
        between: they are enclosed by O's own functions, so they belong to O);
-    4. the named function right before first and right after last (if any, same section) is NOT one of O's
-       functions in R (else the object would extend further: the reference's first / last is not ours);
+    4. both ends are proven. An end is proven by the section edge, or when the named function next to it is NOT one
+       of O's functions in R but another object's (else the object would extend further), or when it is unnamed
+       and our end function is R's own first / last function of O. Unnamed functions right next to the range whose
+       assert passes O's file name (tools/match_game_names.py's G3 notes) are O's and extend it; an unnamed
+       neighbour whose assert names ANOTHER file proves the end. When unnamed functions sit between our end
+       function and the next named function P (in another object of R), the end is still proven
+         - by a size run: R has exactly as many functions between the two, with our sizes one to one (the same
+           code), so they are R's functions and belong to R's objects;
+         - by the per-file pools: every source file has its own .sdata2 constant pool and string literals (dtk's
+           data:string symbols) and those pools are laid out in link (= code) order, so an unnamed function using a
+           pool entry at or below the highest of P's side, or at or above the lowest of O's own range, in the same
+           section, is in that file (entries used outside this stretch of code are not counted); proven when they
+           read P's side first, then O, with no unattributed function at the boundary (method: pool_edge);
     5. our function count from first to last is within max(2, 25%) of R's count for O (catches a wrong anchor).
   The range is [first's address, start of the next function / symbol after last) - alignment padding after an
   object's last function belongs to that object, as the linker puts it there.
-  Several references can prove the same object; their ranges must agree, or the object is dropped (reported).
-  Proven ranges that overlap each other are all dropped (reported). The object's path is Melee's path for a file of
-  the same name (lower-case match), else the first reference's file name in Melee's folder layout (dolphin/<lib>/,
-  MSL/, Runtime/, MetroTRK/, sysdolphin/baselib/).
-Game code: no reference exists. tools/match_game_names.py's G3 module notes (assert .c names) say which file a
+  Agreement: several references can prove the same object. When their ranges differ (different SDK / MSL / TRK
+  revisions, or a decomp's own guess), each section is settled
+    1. BY SOURCE: our named functions inside some of the candidate ranges but not all are looked up in the pinned
+       library sources (dolsdk2001, dolsdk2004, Melee's MSL / Runtime / MetroTRK / sysdolphin, Mario Party 4's SDK /
+       MSL / Runtime / TRK): which file DEFINES each one (a body, not a prototype; the object's own library first,
+       else any). The one range whose membership matches for every such function (inside iff defined in this file)
+       wins;
+    2. else BY REVISION: only the references whose function sizes for O equal ours one to one count;
+  else the object is dropped (reported with every reference's sizes). Overlapping proven ranges: when only one of
+  the two has a reference with our function sizes (for the object, or for the functions both ranges hold), the
+  other one's section is dropped; else both are dropped (reported).
+  Two files with the generic name main.c (MetroTRK's ddh/ and gdev/ drivers) are told apart by that folder.
+  The wowjinxy KAR map (refs/kar_wowjinxy, a map-derived config: bare HSD file names such as jobj.c, and whole SDK
+  libraries as one file, dolphin/os.c) counts only when another reference agrees: a range it alone proves is kept
+  only if doldecomp/kar (refs/kar: asm/sysdolphin/<file>.s + src/sysdolphin/<file>.c, the same GKYE01 DOL) has that
+  file with the same first and last function address and the same names on both anchor functions (the naming rule:
+  a wowjinxy name counts only when another reference agrees). Reference file names that are addresses (Melee's
+  hsd_3910.c, ..._8004a648.c) are placeholders, never used.
+  The object's path is Melee's path for a file of the same name (lower-case match), else the first reference's file
+  name in Melee's folder layout (dolphin/<lib>/, MSL/, Runtime/, MetroTRK/, sysdolphin/baselib/).
+
+DATA (.ctors .dtors .rodata .data .bss .sdata .sbss .sdata2 .sbss2), per proven library object:
+  main.dol is split with sections only and linked once in a scratch directory (decomp/build/splitdata/: dtk dol
+  split + the project's mwld, SHA-1 must be retail; dtk relocates by address, so the relocations do not depend on
+  the splits; the code rule above uses the same link) and tools/reloc_audit.py reads every relocation of that main.elf (absolute addresses)
+  plus the constant-offset accesses (CROSS: CodeWarrior addresses a file's statics from one base). Each data symbol
+  (dtk's sized objects) gets its USERS: the code units (split objects, and every unsplit code range as one unit)
+  holding an access to it; a symbol only other data points to inherits the users of those data symbols. The linker
+  lays out every section in link order (= code order), one contiguous piece per object, so O's piece of a section is
+  proven when ALL of this holds:
+    1. core: at least one symbol whose only user is O; from the first to the last core symbol no symbol has users
+       without O (a foreign symbol inside = not contiguous, or a global of another file: dropped);
+    2. link order: the nearest symbol before the piece that has users is used only by units before O, the nearest
+       after it only by units after O (or the section edge);
+    3. the symbols between those neighbours and the core (unreferenced, or also used by others) are the only
+       uncertainty: every start / end on a symbol boundary there is a candidate, and no candidate boundary may cut a
+       constant-offset span (an anchor and the address made from it on different sides);
+    4. the references agree: the references that proved O's code give O's piece of that section a size (its
+       splits.txt range); those whose O has the same .text size as ours (the same revision) decide, else all of them;
+       a same-revision reference with NO piece in that section rejects it; exactly one candidate range must have one
+       of these sizes.
+  Accepted pieces must be in code order in every section (checked; dtk checks it again). .ctors / .dtors /
+  .sbss2 follow the same rule. Everything not proven stays in dtk's automatic objects (listed in the report).
+
+GAME code: no reference exists. tools/match_game_names.py's G3 module notes (assert .c names) say which file a
   function is in, but not where a file starts or ends; a game object is split only where both ends are proven: its
   first and last function have a G3 note for it, and the functions right outside have G3 notes for OTHER files.
-  (On the current data this proves none; everything else stays in dtk's automatic objects, listed in the report.)
-Data sections (.data/.rodata/.bss/.sdata/.sdata2/.sbss, .ctors/.dtors) are not split yet: dtk puts them in its
-  automatic per-gap objects, which keeps the link byte-exact. Splitting them needs the per-object data order
-  (Milestone 1, next step).
+  (On the current data this proves none; the game code stays one dtk automatic object, listed in the report.)
 
 Output is byte-identical on every run (LF, as dtk writes it; the batch checks dtk leaves it unchanged).
 Report: decomp/reports/splits_report.txt (every object with its proof, every rejected candidate, unproven ranges).
-Usage: python -I tools/gen_dtk_splits.py
+Usage: python -I tools/gen_dtk_splits.py [--no-data]   (--no-data: code only, no scratch link)
 """
+import bisect
+import json
+import os
 import re
+import shutil
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 G = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(G / "tools"))
 OURS = G / "decomp/config/GXCE01/symbols.txt"
 BASE = G / "tools/dtk/proj/splits.txt"  # the Sections: header (dtk's)
 OUT = G / "decomp/config/GXCE01/splits.txt"
 REPORT = G / "decomp/reports/splits_report.txt"
 GAME_REAL = G / "symbols/game_real.txt"
+KAR = G / "tools/refs/kar"
+SCRATCH = G / "decomp/build/splitdata"
+WOW = "GKYE01"
 # reference configs, in path-preference order after Melee
 REFS = [
     "melee/config/GALE01",
@@ -56,7 +112,9 @@ LIB_DIRS = ("dolphin", "sysdolphin", "MSL", "Runtime", "MetroTRK", "TRK_MINNOW_D
 SYM = re.compile(r"^\s*([^\s=]+)\s*=\s*(\.[\w.]+):0x([0-9A-Fa-f]+);\s*//(.*)$")
 DEFAULT = re.compile(r"^(fn|lbl|func|FUN|zz|jumptable|gap|switch)_[0-9A-Fa-f_]+|^@|^\.L|^\$")
 CODE = (".init", ".text")
+DATA = (".ctors", ".dtors", ".rodata", ".data", ".bss", ".sdata", ".sbss", ".sdata2", ".sbss2")
 ADDRNAME = re.compile(r"_[0-9A-Fa-f]{8}$|^hsd_[0-9A-Fa-f]{8}")  # a reference's address-based placeholder names
+PLACEHOLDER_FILE = re.compile(r"^hsd_[0-9A-Fa-f]{3,8}$|_[0-9A-Fa-f]{8}$|^text_|^data$|^auto_", re.I)
 
 
 def family(path: str) -> str:
@@ -70,9 +128,18 @@ def family(path: str) -> str:
     return "sdk"
 
 
+def trk_driver(path: str):
+    """MetroTRK's two main.c files: the ddh / gdev driver folder they are in"""
+    p = path.lower()
+    return "ddh" if "ddh" in p else "gdev" if "gdev" in p else None
+
+
 def objkey(path: str):
     # the same file in different references: same library family and file name (.c / .cpp / .s alike)
-    return (family(path), Path(path).stem.lower())
+    stem = Path(path).stem.lower()
+    if stem == "main" and family(path) == "trk":
+        return ("trk", "main", trk_driver(path))
+    return (family(path), stem)
 
 
 SDK_LIBS = {"ai", "amcstubs", "ar", "ax", "axfx", "base", "card", "db", "dsp", "dvd", "exi", "gx", "hio", "mcc", "mtx",
@@ -87,7 +154,8 @@ def canonical(path: str) -> str:
     if fam == "hsd":
         return "sysdolphin/baselib/" + f
     if fam == "trk":
-        return "MetroTRK/" + f
+        d = trk_driver(path) if Path(f).stem.lower() == "main" else None
+        return f"MetroTRK/{d}/{f}" if d else "MetroTRK/" + f
     if fam == "msl":
         return ("Runtime/" if "runtime" in path.lower() else "MSL/") + f
     lib = next((x for x in reversed(parts[:-1]) if x.lower() in SDK_LIBS), None)
@@ -127,9 +195,108 @@ def read_splits(path: Path):
     return objs
 
 
-def main() -> int:
-    ours = read_syms(OURS)
+def hsd_stems():
+    """HSD (sysdolphin) file names known from a reference that names its folder: Melee's splits + doldecomp/kar"""
+    st = set()
+    for name, _ in read_splits(G / "tools/melee/config/GALE01/splits.txt"):
+        if name.startswith("sysdolphin/"):
+            st.add(Path(name).stem.lower())
+    for sub in ("asm/sysdolphin", "src/sysdolphin"):
+        d = KAR / sub
+        if d.exists():
+            st.update(p.stem.lower() for p in d.iterdir() if p.suffix in (".s", ".c"))
+    return {s for s in st if not PLACEHOLDER_FILE.search(s)}
+
+
+def lib_path(ref: str, name: str, hsd: set):
+    """the reference's object name if it is a library file we can use, else None"""
+    stem = Path(name).stem
+    if PLACEHOLDER_FILE.search(stem) or not re.search(r"\.(c|cpp|cp|s)$", name):
+        return None
+    if "/" not in name:
+        # the wowjinxy KAR map writes HSD files without a folder (jobj.c); only names another reference has
+        return "sysdolphin/baselib/" + name if ref == WOW and stem.lower() in hsd else None
+    if name.split("/")[0] not in LIB_DIRS:
+        return None
+    if ref == WOW and name.startswith("dolphin/") and name.count("/") == 1 and stem.lower() in SDK_LIBS:
+        return None  # wowjinxy's dolphin/os.c etc.: a whole SDK library as one file, not a source file
+    return name
+
+
+def kar_objects(wow_syms):
+    """doldecomp/kar HSD files -> {stem: (first function address, end of last function, {address: name})}.
+    asm/sysdolphin/<f>.s: function labels and instruction addresses; src/sysdolphin/<f>.c: the function names its C
+    defines, placed by their func_<address> name or by the same name in the wowjinxy symbols (the same GKYE01 DOL)."""
+    wf = defaultdict(list)
+    for s in wow_syms:
+        if s[4]:
+            wf[s[0]].append(s)
+    out = {}
+    pieces = defaultdict(list)  # stem -> [(start, end, {addr: name})]
+    d = KAR / "asm/sysdolphin"
+    if d.exists():
+        for p in sorted(d.glob("*.s")):
+            names, first, last, sec, pend = {}, None, None, None, []
+            for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
+                if line.startswith(".section"):
+                    sec = line.split()[1].rstrip(",")
+                    continue
+                if sec != ".text":
+                    continue
+                m = re.match(r"^([A-Za-z_][\w$@.]*):\s*$", line)
+                if m and not m.group(1).startswith(("lbl_", "@", ".L")):
+                    pend.append(m.group(1))
+                    continue
+                m = re.match(r"^/\* ([0-9A-F]{8}) [0-9A-F]{8}\s", line)
+                if m:
+                    a = int(m.group(1), 16)
+                    for n in pend:
+                        names[a] = n
+                    pend = []
+                    first = a if first is None else first
+                    last = a + 4
+            if first is not None:
+                pieces[p.stem.lower()].append((first, last, names))
+    d = KAR / "src/sysdolphin"
+    if d.exists():
+        for p in sorted(d.glob("*.c")):
+            names = {}
+            for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
+                m = re.match(r"^(?!static\s+inline|inline|typedef|extern|#|//)[A-Za-z_][\w\s\*]*?\b([A-Za-z_]\w*)\s*\([^;]*\)\s*\{?\s*$", line)
+                if not m or m.group(1) in ("if", "while", "for", "switch", "return", "sizeof"):
+                    continue
+                n = m.group(1)
+                a = re.match(r"^func_([0-9A-Fa-f]{8})$", n)
+                if a:
+                    hit = [s for s in wf.get(n, [])] or [("", ".text", int(a.group(1), 16), 0, True)]
+                else:
+                    hit = wf.get(n, [])
+                if len(hit) == 1:
+                    names[hit[0][2]] = n
+            if names:
+                ends = []
+                for a in names:
+                    sz = next((s[3] for s in wf.get(names[a], []) if s[2] == a), 0)
+                    if not sz:
+                        sz = next((s[3] for lst in wf.values() for s in lst if s[2] == a), 0)
+                    ends.append(a + sz)
+                pieces[p.stem.lower()].append((min(names), max(ends), names))
+    allp = sorted((a, b, st) for st, lst in pieces.items() for a, b, _ in lst)
+    for st, lst in pieces.items():
+        a, b = min(x[0] for x in lst), max(x[1] for x in lst)
+        if any(x[2] != st and x[0] < b and x[1] > a for x in allp):
+            continue  # another file's piece inside: not one contiguous file
+        nm = {}
+        for x in lst:
+            nm.update(x[2])
+        out[st] = (a, b, nm)
+    return out
+
+
+# ---------------------------------------------------------------------------------------------------- code
+def code_splits(ours, rejected, notes, audit=None):
     funcs = sorted([s for s in ours if s[4] and s[1] in CODE], key=lambda s: s[2])
+    cby_f, cby_c = pool_refs(audit, funcs) if audit else ({}, {})
     pos = {}  # name -> index, only for names on exactly one function
     seen = defaultdict(int)
     for s in funcs:
@@ -137,7 +304,6 @@ def main() -> int:
     for i, s in enumerate(funcs):
         if seen[s[0]] == 1 and not DEFAULT.match(s[0]):
             pos[s[0]] = i
-    # next symbol start after an address, per section (any symbol, for the end of an object's range)
     starts = defaultdict(list)
     for s in ours:
         starts[s[1]].append(s[2])
@@ -145,23 +311,28 @@ def main() -> int:
         starts[k] = sorted(set(starts[k]))
 
     def next_start(sec, addr):
-        import bisect
         lst = starts[sec]
         j = bisect.bisect_right(lst, addr)
         return lst[j] if j < len(lst) else None
 
+    hsd = hsd_stems()
+    g3 = {a: Path(f).stem.lower() for a, f in read_g3().items()}  # function -> the .c file its assert names
     melee_paths = {}
-    cands = defaultdict(list)  # object path key (lower basename) -> [(ref, path, sec, start, end, nfun_ours, nref)]
-    rejected = []
+    refinfo = {}  # ref tag -> (symbols, {object name: [(sec, start, end)]})
+    cands = defaultdict(list)
+    wow_syms = []
     for ref in REFS:
         d = G / "tools" / ref
+        tagr = ref.split('/')[-1]
         if not (d / "splits.txt").exists() or not (d / "symbols.txt").exists():
             rejected.append(f"reference {ref}: no config (not fetched?)")
             continue
         rsyms = read_syms(d / "symbols.txt")
+        if tagr == WOW:
+            wow_syms = rsyms
         rf = sorted([s for s in rsyms if s[4]], key=lambda s: s[2])
-        robjs = [(name, secs) for name, secs in read_splits(d / "splits.txt")]
-        # which object each reference function name is in; a name in several objects tells nothing
+        robjs = read_splits(d / "splits.txt")
+        refinfo[tagr] = (rsyms, {name: secs for name, secs in robjs})
         where = defaultdict(set)
         members = {}
         for name, secs in robjs:
@@ -172,8 +343,8 @@ def main() -> int:
                     for s in F:
                         where[s[0]].add(name)
         for name, secs in robjs:
-            top = name.split("/")[0]
-            if top not in LIB_DIRS:
+            path = lib_path(tagr, name, hsd)
+            if path is None:
                 continue
             if ref.startswith("melee/"):
                 melee_paths[objkey(name)] = name
@@ -183,7 +354,7 @@ def main() -> int:
                 F = members[(name, sec)]
                 if not F:
                     continue
-                tag = f"{ref.split('/')[-1]}:{name} {sec}"
+                tag = f"{tagr}:{name} {sec}"
                 names = {s[0] for s in F if not DEFAULT.match(s[0]) and not ADDRNAME.search(s[0]) and len(where[s[0]]) == 1}
                 hit = sorted(pos[n] for n in names if n in pos and funcs[pos[n]][1] == sec)
                 if not hit:
@@ -195,18 +366,154 @@ def main() -> int:
                     rejected.append(f"{tag}: our range {funcs[i][0]} .. {funcs[j][0]} contains other functions: {', '.join(bad[:4])}")
                     continue
 
+                # unnamed functions next to the range that assert with this file's name (G3 notes) are this file's
+                stem = Path(name).stem.lower()
+                ext = 0
+                while i > 0 and funcs[i - 1][1] == sec and DEFAULT.match(funcs[i - 1][0]) and g3.get(funcs[i - 1][2]) == stem:
+                    i -= 1
+                    ext += 1
+                while j + 1 < len(funcs) and funcs[j + 1][1] == sec and DEFAULT.match(funcs[j + 1][0]) and g3.get(funcs[j + 1][2]) == stem:
+                    j += 1
+                    ext += 1
+                rf_sec = [s for s in rf if s[1] == sec]
+                rcount = defaultdict(int)
+                for s in rf_sec:
+                    rcount[s[0]] += 1
+                ridx = {s[0]: t for t, s in enumerate(rf_sec) if rcount[s[0]] == 1 and not DEFAULT.match(s[0])}
+                Fset = {s[2] for s in F}
+
+                def size_run(i, j, back):
+                    """an edge on our unnamed functions: between our end function A and the next named function P
+                    the reference has exactly as many functions, with our sizes one to one (the same code), and P is
+                    in another of its objects -> those functions are the reference's, in its objects"""
+                    a = i if back else j
+                    k, run = a, []
+                    while True:
+                        k += -1 if back else 1
+                        if not (0 <= k < len(funcs)) or funcs[k][1] != sec or not DEFAULT.match(funcs[k][0]):
+                            break
+                        run.append(k)
+                    if not run or not (0 <= k < len(funcs)) or funcs[k][1] != sec:
+                        return None
+                    P = funcs[k][0]
+                    if not where.get(P) or name in where[P] or P not in ridx or funcs[a][0] not in ridx:
+                        return None
+                    ip, ia = ridx[P], ridx[funcs[a][0]]
+                    seq = rf_sec[ip + 1:ia] if back else rf_sec[ia + 1:ip]
+                    run.sort()
+                    if len(seq) != len(run) or any(seq[t][3] != funcs[run[t]][3] for t in range(len(seq))):
+                        return None
+                    mem = [t for t in range(len(seq)) if seq[t][2] in Fset]
+                    if back:
+                        if mem and mem != list(range(len(seq) - len(mem), len(seq))):
+                            return None
+                        new = run[mem[0]] if mem else a
+                    else:
+                        if mem and mem != list(range(len(mem))):
+                            return None
+                        new = run[mem[-1]] if mem else a
+                    return new, (f"size run to {P}: our {len(run)} unnamed functions have the reference's sizes one to one, "
+                                 f"{len(mem)} of them in this object")
+
+                def pool_edge(i, j, back):
+                    """an edge on our unnamed functions by the per-file pools (.sdata2 constants, string literals): each
+                    source file has its own pool in every such section and the pools are laid out in link (= code)
+                    order. Between our end function and the next named function P (in another object X of the
+                    reference) every unnamed function u is attributed: a pool entry of u at or below the highest entry
+                    of X's side (P and X's other named functions next to it, with what they enclose), or at or above
+                    the lowest of this object's (its range from the first to the last anchor), in the same section,
+                    puts u in that file (u lies between the two in code order, so its pool lies between theirs). Only
+                    entries used by functions inside this stretch of code count (an entry used elsewhere would be a
+                    global). The edge is proven when, read from P towards this object, the attributed functions are X
+                    first and this object after, with no unattributed function between the last X and the first one
+                    of this object."""
+                    a = i if back else j
+                    k, run = a, []
+                    while True:
+                        k += -1 if back else 1
+                        if not (0 <= k < len(funcs)) or funcs[k][1] != sec or not DEFAULT.match(funcs[k][0]):
+                            break
+                        run.append(k)
+                    if not run or not (0 <= k < len(funcs)) or funcs[k][1] != sec:
+                        return None
+                    P = funcs[k][0]
+                    if not where.get(P) or name in where[P] or len(where[P]) != 1:
+                        return None
+                    X = next(iter(where[P]))
+                    # X's block in ours: from P away from this object while the named functions are X's
+                    xk, t = k, k
+                    while True:
+                        t += -1 if back else 1
+                        if not (0 <= t < len(funcs)) or funcs[t][1] != sec:
+                            break
+                        if DEFAULT.match(funcs[t][0]):
+                            continue
+                        if where.get(funcs[t][0]) != {X}:
+                            break
+                        xk = t
+                    xs = range(xk, k + 1) if back else range(k, xk + 1)
+                    lo_k, hi_k = (xk, j) if back else (i, xk)
+
+                    def local(f):
+                        return {c for c in cby_f.get(f, ()) if all(lo_k <= g <= hi_k for g in cby_c[c])}
+                    mine, theirs = defaultdict(list), defaultdict(list)
+                    for f in range(i, j + 1):
+                        for sc, c in local(f):
+                            mine[sc].append(c)
+                    for f in xs:
+                        for sc, c in local(f):
+                            theirs[sc].append(c)
+                    for sc in set(mine) & set(theirs):
+                        if (back and max(theirs[sc]) >= min(mine[sc])) or (not back and max(mine[sc]) >= min(theirs[sc])):
+                            return None
+                    run.sort()
+                    lab = []
+                    for f in run:
+                        o = x = False
+                        for sc, c in local(f):
+                            if back:
+                                x |= bool(theirs[sc]) and c <= max(theirs[sc])
+                                o |= bool(mine[sc]) and c >= min(mine[sc])
+                            else:
+                                o |= bool(mine[sc]) and c <= max(mine[sc])
+                                x |= bool(theirs[sc]) and c >= min(theirs[sc])
+                        if x and o:
+                            return None
+                        lab.append("O" if o else "X" if x else "?")
+                    seq = "".join(lab) if back else "".join(reversed(lab))   # read from P towards this object
+                    m = re.fullmatch(r"([X?]*X|)(O[O?]*|)", seq)
+                    if not m or ("X" not in seq and "O" not in seq):
+                        return None
+                    nx, no = len(m.group(1)), len(m.group(2))
+                    if not no and seq and seq[-1] != "X" or no and nx == 0 and seq[0] != "O":
+                        return None   # an unattributed function next to this object / next to P: the edge is open
+                    if back:
+                        new = run[len(run) - no] if no else a
+                    else:
+                        new = run[no - 1] if no else a
+                    return new, (f"pools to {P}: of our {len(run)} unnamed functions {no} use this object's pools, "
+                                 f"{nx} {X}'s side's")
+
                 def edge(k, ref_end):
-                    # proven when the neighbour is the section edge, or a named function the reference puts in
-                    # another object, or unnamed while our end function is the reference's own first / last
                     if k < 0 or k >= len(funcs) or funcs[k][1] != sec:
                         return "section edge"
                     nb = funcs[k][0]
+                    if DEFAULT.match(nb) and g3.get(funcs[k][2]) not in (None, stem):
+                        return f"{nb} asserts with {g3[funcs[k][2]]}.c"
                     if DEFAULT.match(nb):
                         return f"reference's own {'first' if ref_end is F[0] else 'last'} function" if funcs[i if ref_end is F[0] else j][0] == ref_end[0] else None
                     if where.get(nb) and name not in where[nb]:
                         return f"{nb} is in {sorted(where[nb])[0]}"
                     return None
                 e1, e2 = edge(i - 1, F[0]), edge(j + 1, F[-1])
+                if not e1:
+                    r = size_run(i, j, True) or pool_edge(i, j, True)
+                    if r:
+                        i, e1 = r
+                if not e2:
+                    r = size_run(i, j, False) or pool_edge(i, j, False)
+                    if r:
+                        j, e2 = r
                 if not e1 or not e2:
                     rejected.append(f"{tag}: {'start' if not e1 else 'end'} not proven ({funcs[i][0]} .. {funcs[j][0]}; "
                                     f"neighbour {funcs[i - 1][0] if not e1 else funcs[j + 1][0]})")
@@ -217,34 +524,54 @@ def main() -> int:
                     continue
                 start = funcs[i][2]
                 end = next_start(funcs[j][1], funcs[j][2]) or (funcs[j][2] + funcs[j][3])
-                cands[objkey(name)].append((ref.split('/')[-1], name, sec, start, end, n, len(F),
-                                                       funcs[i][0], funcs[j][0], e1, e2))
+                exact = [s[3] for s in F] == [funcs[k][3] for k in range(i, j + 1)]
+                cands[objkey(path)].append(dict(ref=tagr, name=name, path=path, sec=sec, start=start, end=end, n=n,
+                                                nref=len(F), first=funcs[i][0], last=funcs[j][0], e1=e1, e2=e2,
+                                                exact=exact, rsizes=[s[3] for s in F],
+                                                osizes=[funcs[k][3] for k in range(i, j + 1)], F=F))
 
-    # agree per object (per section), then drop overlaps
-    chosen = {}  # key -> (path, {sec: (start, end)}, proofs)
-    for key, lst in sorted(cands.items()):
-        path = melee_paths.get(key) or canonical(lst[0][1])
-        per_sec = defaultdict(set)
-        for c in lst:
-            per_sec[c[2]].add((c[3], c[4]))
-        if any(len(v) > 1 for v in per_sec.values()):
-            rejected.append(f"{path}: references disagree on the range: " +
-                            "; ".join(f"{c[0]} {c[2]} 0x{c[3]:08X}-0x{c[4]:08X}" for c in lst))
+    kar = kar_objects(wow_syms)
+    defs = source_definers()
+    chosen = {}  # key -> (path, {sec: (start, end)}, [candidates])
+    for key, lst in sorted(cands.items(), key=lambda kv: str(kv[0])):
+        path = melee_paths.get(key) or canonical(lst[0]["path"])
+        # the wowjinxy map counts only where another reference gives the same range
+        others = {(c["sec"], c["start"], c["end"]) for c in lst if c["ref"] != WOW}
+        if others:
+            wl = [c for c in lst if c["ref"] == WOW and (c["sec"], c["start"], c["end"]) not in others]
+            for c in wl:
+                rejected.append(f"{path}: the wowjinxy KAR map's {c['name']} {c['sec']} 0x{c['start']:08X}-0x{c['end']:08X} "
+                                f"is not given by any other reference: not used")
+            lst = [c for c in lst if c not in wl]
+        use = settle(path, key, lst, funcs, defs, rejected, notes)
+        if use is None:
             continue
-        chosen[key] = (path, {s: next(iter(v)) for s, v in per_sec.items()}, lst)
+        refs_used = {c["ref"] for c in use}
+        if refs_used == {WOW}:
+            ok, why = wow_agrees(use, kar)
+            if not ok:
+                rejected.append(f"{path}: only the wowjinxy KAR map proves it, and doldecomp/kar does not agree ({why})")
+                continue
+            for c in use:
+                c["kar"] = why
+        secs = {}
+        for c in use:
+            secs[c["sec"]] = (c["start"], c["end"])
+        chosen[key] = (path, secs, use)
     same = defaultdict(list)
     for k, (_, secs, lst) in chosen.items():
         same[tuple(sorted(secs.items()))].append(k)
     for r, ks in same.items():
         if len(ks) > 1:
-            ks.sort(key=lambda k: (-len({c[0] for c in chosen[k][2]}), k not in melee_paths, chosen[k][0]))
+            ks.sort(key=lambda k: (-len({c["ref"] for c in chosen[k][2]}), k not in melee_paths, chosen[k][0]))
             rejected.append(f"same range under other names, kept {chosen[ks[0]][0]}: " + ", ".join(chosen[k][0] for k in ks[1:]))
             for k in ks[1:]:
                 chosen.pop(k)
     ranges = sorted(((s, a, b, k) for k, (_, secs, _) in chosen.items() for s, (a, b) in secs.items()), key=lambda r: r[1])
-    drop = set()
+    drop, drop_sec = set(), set()
+
     def weight(k):
-        return (len({c[0] for c in chosen[k][2]}), k in melee_paths)
+        return (len({c["ref"] for c in chosen[k][2]}), k in melee_paths)
     for x, y in zip(ranges, ranges[1:]):
         if x[0] == y[0] and y[1] < x[2]:
             if (x[1], x[2]) == (y[1], y[2]) and weight(x[3]) != weight(y[3]):
@@ -253,8 +580,32 @@ def main() -> int:
                 rejected.append(f"same {x[0]} range 0x{x[1]:08X}-0x{x[2]:08X} under another name, kept {chosen[hi][0]} "
                                 f"(more references): {chosen[lo][0]}")
                 continue
+            ex = [any(c["exact"] for c in chosen[r[3]][2] if c["sec"] == r[0]) for r in (x, y)]
+            if ex[0] == ex[1]:
+                # else: the functions in both ranges - which side's references give them our sizes?
+                both = [f for f in funcs if f[1] == x[0] and max(x[1], y[1]) <= f[2] < min(x[2], y[2])]
+
+                def fits(r):
+                    return any(all(any(g[0] == f[0] and g[3] == f[3] for g in c["F"]) for f in both)
+                               for c in chosen[r[3]][2] if c["sec"] == r[0])
+                ex = [fits(x), fits(y)]
+            if ex[0] != ex[1]:
+                # one of them has a reference with our exact function sizes, the other none: the other one loses
+                lose, win = (x, y) if ex[1] else (y, x)
+                drop_sec.add((lose[3], lose[0]))
+                rejected.append(f"overlap: {chosen[lose[3]][0]} {lose[0]} 0x{lose[1]:08X}-0x{lose[2]:08X} and {chosen[win[3]][0]} "
+                                f"0x{win[1]:08X}-0x{win[2]:08X}: only the second one's references have our function sizes "
+                                f"(for the object, or for the functions both ranges hold): the first one's section dropped")
+                continue
             drop.update((x[3], y[3]))
             rejected.append(f"overlap: {chosen[x[3]][0]} 0x{x[1]:08X}-0x{x[2]:08X} and {chosen[y[3]][0]} 0x{y[1]:08X}-0x{y[2]:08X}")
+    for k, sec in sorted(drop_sec, key=str):
+        if k in chosen and k not in drop:
+            path, secs, lst = chosen[k]
+            secs.pop(sec, None)
+            chosen[k] = (path, secs, [c for c in lst if c["sec"] != sec])
+            if not secs:
+                drop.add(k)
     for k in drop:
         chosen.pop(k, None)
     paths = defaultdict(list)
@@ -265,46 +616,446 @@ def main() -> int:
             rejected.append(f"path clash {p}: {ks}")
             for k in ks:
                 chosen.pop(k)
+    return funcs, chosen, refinfo
 
-    # game code: G3 notes (file per function), split only when both ends are proven by neighbours
+
+LIB_SRC = [  # reference C sources of the libraries (pinned): which file DEFINES a function
+    "refs/dolsdk2001/src", "refs/dolsdk2004/src", "melee/src/MSL", "melee/src/Runtime", "melee/src/MetroTRK",
+    "melee/src/sysdolphin", "refs/marioparty4/src/dolphin", "refs/marioparty4/src/MSL_C.PPCEABI.bare.H",
+    "refs/marioparty4/src/Runtime.PPCEABI.H", "refs/marioparty4/src/TRK_MINNOW_DOLPHIN",
+    "refs/marioparty4/src/OdemuExi2", "refs/marioparty4/src/amcstubs", "refs/marioparty4/src/odenotstub",
+]
+DEFN = re.compile(r"^(?!#|typedef\b|extern\b|return\b|else\b)[A-Za-z_][\w\s\*]*?\b([A-Za-z_]\w*)\s*\(([^;]*)$")
+
+
+def source_definers():
+    """{function name: {(library family, file stem)}} for every function DEFINED (with a body, not a prototype) in
+    the pinned library sources"""
+    out = defaultdict(set)
+    for root in LIB_SRC:
+        r = G / "tools" / root
+        if not r.exists():
+            continue
+        top = Path(root).name
+        for p in sorted(r.rglob("*")):
+            if p.suffix not in (".c", ".cpp", ".cp"):
+                continue
+            rel = p.relative_to(r).as_posix()
+            fam = family(rel) if "dolsdk" in root else family(top + "/" + rel)
+            lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+            for k, line in enumerate(lines):
+                m = DEFN.match(line)
+                if not m or m.group(1) in ("if", "while", "for", "switch", "sizeof", "defined"):
+                    continue
+                text = " ".join(lines[k:k + 12])[m.end(1):]
+                i1, i2 = text.find("{"), text.find(";")
+                if i1 >= 0 and (i2 < 0 or i1 < i2):
+                    out[m.group(1)].add((fam, p.stem.lower()))
+    return out
+
+
+def verdict(defs, name, fam):
+    """the one file stem that defines name in the library family's sources (else in any library's), or None"""
+    d = defs.get(name, set())
+    st = {s for f, s in d if f == fam} or {s for f, s in d}
+    return next(iter(st)) if len(st) == 1 else None
+
+
+def settle(path, key, lst, funcs, defs, rejected, notes):
+    """candidates of one object -> the ones to use, or None (rejected). Agreeing ranges are kept as they are; when the
+    references disagree (SDK / MSL / TRK revisions, or a decomp's guess), each section is settled
+      1. by source: our named functions inside some candidate range but not all are looked up in the pinned library
+         sources (which file defines each); the one range whose membership matches the defining file for every such
+         function (in the range iff defined in this file) wins;
+      2. else by revision: only the references whose function sizes for the object equal ours one to one count."""
+    per_sec = defaultdict(set)
+    for c in lst:
+        per_sec[c["sec"]].add((c["start"], c["end"]))
+    if all(len(v) == 1 for v in per_sec.values()):
+        return lst
+    desc = "; ".join(f"{c['ref']} {c['sec']} 0x{c['start']:08X}-0x{c['end']:08X} "
+                     f"{'sizes = ours' if c['exact'] else 'sizes ' + fmt_sizes(c['rsizes']) + ' vs ours ' + fmt_sizes(c['osizes'])}"
+                     for c in lst)
+    stem = key[1]
+    keep, how = [], []
+    for sec, rs in sorted(per_sec.items()):
+        cs = [c for c in lst if c["sec"] == sec]
+        if len(rs) == 1:
+            keep += cs
+            continue
+        lo, hi = min(a for a, b in rs), max(b for a, b in rs)
+        diff = [f for f in funcs if f[1] == sec and lo <= f[2] < hi and not DEFAULT.match(f[0])
+                and not all(a <= f[2] < b for a, b in rs)]
+        vd = {f[0]: verdict(defs, f[0], key[0]) for f in diff}
+        known = {n: v for n, v in vd.items() if v}
+        ok = []
+        if known:
+            for a, b in sorted(rs):
+                if all((a <= f[2] < b) == (known[f[0]] == stem) for f in diff if f[0] in known):
+                    ok.append((a, b))
+        if len(ok) == 1:
+            keep += [c for c in cs if (c["start"], c["end"]) == ok[0]]
+            how.append(f"{sec} 0x{ok[0][0]:08X}-0x{ok[0][1]:08X} by source ("
+                       + ", ".join(f"{n} defined in {v}.c" for n, v in sorted(known.items())) + ")")
+            continue
+        ex = {(c["start"], c["end"]) for c in cs if c["exact"]}
+        if len(ex) == 1:
+            r = next(iter(ex))
+            keep += [c for c in cs if c["exact"]]
+            how.append(f"{sec} 0x{r[0]:08X}-0x{r[1]:08X} by revision (function sizes equal ours: "
+                       + ", ".join(sorted({c['ref'] for c in cs if c['exact']})) + ")")
+            continue
+        src = ", ".join(f"{n}: {', '.join(sorted(s for _, s in defs.get(n, ()))) or 'no source'}" for n in sorted(vd))
+        rejected.append(f"{path}: references disagree on the {sec} range; neither the sources ({src or 'no named function differs'}) "
+                        f"nor one revision's function sizes settle it: {desc}")
+        return None
+    notes.append(f"{path}: settled: " + "; ".join(how) + f"; kept {', '.join(sorted({c['ref'] for c in keep}))}. "
+                 f"All candidates: {desc}")
+    return keep
+
+
+def fmt_sizes(lst):
+    s = ",".join(f"{x:X}" for x in lst[:12])
+    return f"[{s}{',..' if len(lst) > 12 else ''}]"
+
+
+def wow_agrees(use, kar):
+    """a wowjinxy-only HSD object: doldecomp/kar must have the file with the same first / last function and names"""
+    for c in use:
+        if not c["path"].startswith("sysdolphin/"):
+            return False, "not an HSD file"
+        st = Path(c["path"]).stem.lower()
+        k = kar.get(st)
+        if not k:
+            return False, f"no {st}.s / {st}.c in doldecomp/kar (or not contiguous)"
+        F = c["F"]
+        fa, fl = F[0][2], F[-1][2]
+        la = fl + F[-1][3]
+        if (k[0], k[1]) != (fa, la):
+            return False, f"doldecomp/kar {st}: 0x{k[0]:08X}-0x{k[1]:08X}, wowjinxy 0x{fa:08X}-0x{la:08X}"
+        for nm in (c["first"], c["last"]):
+            a = next((s[2] for s in F if s[0] == nm), None)
+            if a is None or k[2].get(a) != nm:
+                return False, f"doldecomp/kar does not name 0x{a or 0:08X} {nm}"
+    return True, f"doldecomp/kar {st} agrees (0x{k[0]:08X}-0x{k[1]:08X}, anchors named alike)"
+
+
+# ---------------------------------------------------------------------------------------------------- data
+def scratch_link(objs):
+    """split + link objs (here: none, sections only) in decomp/build/splitdata/ -> main.elf path (SHA-1 must be retail)"""
+    import gen_dtk_relocs as gr
+    if SCRATCH.exists():
+        shutil.rmtree(SCRATCH)
+    SCRATCH.mkdir(parents=True)
+    rel = os.path.relpath(SCRATCH, gr.D).replace("\\", "/")
+    shutil.copyfile(OURS, SCRATCH / "symbols.txt")
+    (SCRATCH / "splits.txt").write_bytes(splits_text(objs).encode("utf-8"))
+    y = gr.strip_block(open(os.path.join(gr.CFG, "config.yml"), "rb").read().decode())
+    y = re.sub(r"(?m)^symbols: .*$", f"symbols: {rel}/symbols.txt", y)
+    y = re.sub(r"(?m)^splits: .*$", f"splits: {rel}/splits.txt", y)
+    (SCRATCH / "config.yml").write_bytes(y.encode())
+    gr.run([gr.DTK, "dol", "split", f"{rel}/config.yml", f"{rel}/out"])
+    units = json.load(open(SCRATCH / "out/config.json"))["units"]
+    sha = gr.link([u["object"] for u in units], f"{rel}/out/ldscript.lcf", f"{rel}/main.elf", f"{rel}/main.dol")
+    if sha != gr.RETAIL:
+        raise SystemExit(f"code-only scratch link SHA-1 {sha} is not retail")
+    return str(SCRATCH / "main.elf")
+
+
+def link_facts():
+    """the sections-only scratch link, audited: relocations do not depend on the splits (dtk relocates by address)"""
+    import reloc_audit as ra
+    return ra.audit(scratch_link([]))
+
+
+def pool_refs(audit, funcs):
+    """{our function index: {(section, symbol start)}} and {(section, symbol start): {function index}} for the
+    per-file pools: the compiler's .sdata2 constants (float / double literals) and the string literals (dtk's
+    data:string symbols in .rodata / .data / .sdata / .sdata2). Each source file has its own pools."""
+    import reloc_audit as ra
+    elf, dobjs = audit[0], audit[1]
+    strings = set()
+    for line in OURS.read_text(encoding="utf-8").splitlines():
+        if "data:string" in line:
+            m = SYM.match(line)
+            if m:
+                strings.add(int(m.group(3), 16))
+    secs = {x[1]: (x[3], x[3] + x[4]) for x in elf.alloc if x[1] in (".sdata2", ".rodata", ".data", ".sdata")}
+    fst = [f[2] for f in funcs]
+    by_f, by_c = defaultdict(set), defaultdict(set)
+    for site, r in elf.relocs.items():
+        if r[0] in (ra.R_REL24, ra.R_REL14):
+            continue
+        sec = next((n for n, (lo, hi) in secs.items() if lo <= r[1] < hi), None)
+        if sec is None:
+            continue
+        k = bisect.bisect_right(fst, site) - 1
+        if k < 0 or site >= funcs[k][2] + max(funcs[k][3], 4):
+            continue
+        c = dobjs.containing(r[1])
+        if c and (sec == ".sdata2" or c[0] in strings):
+            by_f[k].add((sec, c[0]))
+            by_c[(sec, c[0])].add(k)
+    return by_f, by_c
+
+
+def data_splits(objs, chosen_by_path, refinfo, rejected, notes, audit):
+    """objs: [(path, {sec: (a, b)})] code objects -> {path: {sec: (a, b)}} proven data pieces, report lines"""
+    import reloc_audit as ra
+    elf, dobjs, rng, events, raw, rels = audit
+    secr = {s[1]: (s[3], s[3] + s[4]) for s in elf.alloc}
+
+    def sec_of(a):
+        for n, (lo, hi) in secr.items():
+            if lo <= a < hi:
+                return n
+        return None
+    # code units: split objects and the unsplit ranges, in address (= link) order
+    units = []
+    for sec in CODE:
+        if sec not in secr:
+            continue
+        lo, hi = secr[sec]
+        mine = sorted((r[0], r[1], p) for p, secs in objs for s, r in secs.items() if s == sec)
+        cur = lo
+        for a, b, p in mine:
+            if a > cur:
+                units.append((cur, a, None))
+            units.append((a, b, p))
+            cur = b
+        if cur < hi:
+            units.append((cur, hi, None))
+    ustart = [u[0] for u in units]
+
+    def unit(a):
+        i = bisect.bisect_right(ustart, a) - 1
+        return i if i >= 0 and a < units[i][1] else None
+
+    def uname(i):
+        u = units[i]
+        return u[2] or f"unsplit code 0x{u[0]:08X}-0x{u[1]:08X}"
+    ds = {}  # section -> sorted data symbol starts
+    for sec in DATA:
+        if sec in secr:
+            lo, hi = secr[sec]
+            ds[sec] = [v for v in dobjs.starts if lo <= v < hi]
+
+    def dsym(a):
+        c = dobjs.containing(a)
+        return c[0] if c else None
+    users = defaultdict(set)
+    d2d = defaultdict(set)
+    acc = [(a, r[1]) for a, r in elf.relocs.items() if r[0] not in (ra.R_REL24, ra.R_REL14)]
+    acc += [(a, v) for k, a, v, d in events if k == "CROSS"]
+    for site, tg in acc:
+        ts = sec_of(tg)
+        if ts not in ds:
+            continue
+        t = dsym(tg)
+        if t is None:
+            continue
+        ss = sec_of(site)
+        if ss in CODE:
+            u = unit(site)
+            if u is not None:
+                users[t].add(u)
+        elif ss in ds:
+            s = dsym(site)
+            if s is not None and s != t:
+                d2d[t].add(s)
+    for _ in range(8):  # data only other data points to: the users of those data (a string in a pointer table)
+        ch = False
+        for t, srcs in sorted(d2d.items()):
+            if users.get(t):
+                continue
+            u = set()
+            for s in srcs:
+                u |= users.get(s, set())
+            if u:
+                users[t] = u
+                ch = True
+        if not ch:
+            break
+    # constant-offset spans: a boundary strictly inside one cuts an anchor from the address made from it
+    spans = sorted({(min(d["anchor"], v), max(d["anchor"], v)) for k, a, v, d in events if k == "CROSS"})
+
+    def cuts(x):
+        return any(g0 < x <= g1 for g0, g1 in spans)
+
+    out = defaultdict(dict)
+    lines = []
+    uidx = {u[2]: i for i, u in enumerate(units) if u[2]}
+    for path, secs in objs:
+        if path.startswith("game/") or path not in uidx:
+            continue
+        ui = uidx[path]
+        cands = chosen_by_path[path][2]
+        tsize = sum(b - a for a, b in secs.values())
+        # the references that proved the code, with their own object's pieces
+        rpieces = []
+        seen = set()
+        for c in cands:
+            if (c["ref"], c["name"]) in seen or c["ref"] == WOW:
+                continue  # (the wowjinxy map's data ranges have no second source: not used as data evidence)
+            seen.add((c["ref"], c["name"]))
+            rs, ro = refinfo[c["ref"]]
+            rsecs = {s: (a, b) for s, a, b in ro.get(c["name"], [])}
+            rt = sum(b - a for s, (a, b) in rsecs.items() if s in CODE)
+            rpieces.append((c["ref"], rsecs, rt == tsize))
+        for sec in DATA:
+            if sec not in ds:
+                continue
+            lst = ds[sec]
+            hi_sec = secr[sec][1]
+            core = [i for i, v in enumerate(lst) if users.get(v) == {ui}]
+            rsz = [(r, rsecs[sec][1] - rsecs[sec][0], same) for r, rsecs, same in rpieces if sec in rsecs]
+            tag = f"{path} {sec}"
+            if not core:
+                if rsz:
+                    rejected.append(f"data {tag}: no symbol used only by this object (references: "
+                                    + ", ".join(f"{r} 0x{z:X}" for r, z, s in rsz) + ")")
+                continue
+            i, j = core[0], core[-1]
+            inside = [lst[k] for k in range(i, j + 1) if users.get(lst[k]) and ui not in users[lst[k]]]
+            if inside:
+                rejected.append(f"data {tag}: 0x{lst[i]:08X}..0x{lst[j]:08X} has {len(inside)} symbol(s) of other units "
+                                f"inside (first 0x{inside[0]:08X}, used by {uname(min(users[inside[0]]))})")
+                continue
+            k0 = i - 1
+            while k0 >= 0 and (not users.get(lst[k0]) or ui in users[lst[k0]]):
+                k0 -= 1
+            k1 = j + 1
+            while k1 < len(lst) and (not users.get(lst[k1]) or ui in users[lst[k1]]):
+                k1 += 1
+            if k0 >= 0 and max(users[lst[k0]]) >= ui:
+                rejected.append(f"data {tag}: the symbol before, 0x{lst[k0]:08X}, is used by {uname(max(users[lst[k0]]))} "
+                                f"(not before this object in link order)")
+                continue
+            if k1 < len(lst) and min(users[lst[k1]]) <= ui:
+                rejected.append(f"data {tag}: the symbol after, 0x{lst[k1]:08X}, is used by {uname(min(users[lst[k1]]))} "
+                                f"(not after this object in link order)")
+                continue
+            starts_c = [lst[k] for k in range(k0 + 1, i + 1) if not cuts(lst[k])]
+            ends_c = [(lst[k + 1] if k + 1 < len(lst) else hi_sec) for k in range(j, k1)]
+            ends_c = [e for e in ends_c if e == hi_sec or not cuts(e)]
+            same = [z for r, z, s in rsz if s]
+            no_piece_same = [r for r, rsecs, s in rpieces if s and sec not in rsecs]
+            if no_piece_same:
+                rejected.append(f"data {tag}: a reference of the same code size has no {sec} piece ({', '.join(no_piece_same)})")
+                continue
+            Z = set(same) if same else {z for r, z, s in rsz}
+            if not Z:
+                rejected.append(f"data {tag}: 0x{lst[i]:08X}.. is used only by this object, but no proving reference has a {sec} piece")
+                continue
+            m = [(a, b) for a in starts_c for b in ends_c if b - a in Z]
+            amb = f"{i - k0 - 1}/{k1 - j - 1}"
+            if len(m) != 1:
+                cs = sorted({b - a for a in starts_c for b in ends_c})
+                rejected.append(f"data {tag}: {'no' if not m else len(m)} candidate range(s) with a reference size "
+                                f"(candidate sizes {fmt_sizes(cs)}, references {', '.join(f'{r} 0x{z:X}' + ('=' if s else '') for r, z, s in rsz)})")
+                continue
+            a, b = m[0]
+            nsym = sum(1 for v in lst if a <= v < b)
+            out[path][sec] = (a, b)
+            lines.append(f"{path:<48} {sec:<7} 0x{a:08X}-0x{b:08X} {nsym:>3} sym  core {j - i + 1}, edge zone {amb}, size 0x{b - a:X} = "
+                         + ", ".join(f"{r}{'(same code)' if s else ''}" for r, z, s in rsz if z == b - a))
+    # code order in every section
+    order = {p: k for k, (p, _) in enumerate(sorted(objs, key=lambda o: min(a for a, _ in o[1].values())))}
+    for sec in DATA:
+        got = sorted((v[sec][0], v[sec][1], p) for p, v in out.items() if sec in v)
+        bad = set()
+        for x, y in zip(got, got[1:]):
+            if order[x[2]] > order[y[2]] or y[0] < x[1]:
+                bad.update((x[2], y[2]))
+        for p in sorted(bad):
+            rejected.append(f"data {p} {sec}: not in code order with its neighbours, dropped")
+            out[p].pop(sec)
+            lines = [l for l in lines if not (l.startswith(p + " ") and f" {sec} " in l)]
+    # unproven data: the parts of every data section outside a proven piece
+    gaps = []
+    for sec in DATA:
+        if sec not in secr:
+            continue
+        lo, hi = secr[sec]
+        cur = lo
+        for a, b in sorted(v[sec] for v in out.values() if sec in v):
+            if a > cur:
+                gaps.append((sec, cur, a))
+            cur = b
+        if cur < hi:
+            gaps.append((sec, cur, hi))
+    return out, lines, gaps
+
+
+# ---------------------------------------------------------------------------------------------------- game
+def read_g3():
+    """tools/match_game_names.py's G3 module notes: {function address: the .c file name its assert / panic passes}"""
     g3 = {}
     if GAME_REAL.exists():
         for line in GAME_REAL.read_text(encoding="utf-8").splitlines():
             m = re.match(r"// G3 0x([0-9A-Fa-f]{8}) (\S+\.c) ", line)
             if m:
                 g3[int(m.group(1), 16)] = m.group(2)
+    return g3
+
+
+def game_splits(funcs, chosen, rejected):
+    g3 = read_g3()
     idx_of = {s[2]: i for i, s in enumerate(funcs)}
     game_objs = []
     by_file = defaultdict(list)
     for a, f in g3.items():
         if a in idx_of:
             by_file[f].append(idx_of[a])
-    lib_ranges = [(s, a, b) for (s, a, b, k) in ranges if k in chosen]
+    lib_ranges = [r for _, secs, _ in chosen.values() for r in secs.values()]
+    # the game code: .text up to the first library object (the libraries are linked after the game)
+    game_end = min(a for _, secs, _ in chosen.values() for s, (a, b) in secs.items() if s == ".text")
     for f, idx in sorted(by_file.items()):
         i, j = min(idx), max(idx)
-        if any(a <= funcs[i][2] < b for _, a, b in lib_ranges):
+        if any(a <= funcs[i][2] < b for a, b in lib_ranges) or funcs[i][2] >= game_end:
             continue  # a library file (axdriver.c, dvd.c, ...): handled above
         others = [k for k in range(i, j + 1) if funcs[k][2] in g3 and g3[funcs[k][2]] != f]
         before = funcs[i - 1][2] if i > 0 else None
         after = funcs[j + 1][2] if j + 1 < len(funcs) else None
         if not others and before in g3 and g3[before] != f and after in g3 and g3[after] != f:
-            game_objs.append((f, funcs[i][1], funcs[i][2], funcs[j + 1][2]))
+            game_objs.append((f"game/{f}", {funcs[i][1]: (funcs[i][2], funcs[j + 1][2])}))
         else:
             why = "another file's note inside" if others else "ends not next to another file's function"
-            rejected.append(f"game {f}: G3 functions 0x{funcs[i][2]:08X}..0x{funcs[j][2]:08X} ({len(idx)}), {why}")
+            rejected.append(f"game {f}: G3 functions 0x{funcs[i][2]:08X}..0x{funcs[j][2]:08X} ({len(idx)} of {j - i + 1} "
+                            f"functions in between), {why}: the functions before 0x{funcs[i][2]:08X} and after "
+                            f"0x{funcs[j][2]:08X} carry no file note")
+    return game_objs
 
-    # write: objects in address order of their first range
-    objs = [(v[0], v[1]) for v in chosen.values()] + [(f"game/{f}", {s: (a, b)}) for f, s, a, b in game_objs]
-    objs.sort(key=lambda o: min(a for a, _ in o[1].values()))
-    order = {".init": 0, ".text": 1}
+
+SEC_ORDER = {s: i for i, s in enumerate(CODE + DATA)}
+
+
+def splits_text(objs, data=None):
     lines = BASE.read_text(encoding="utf-8").replace("\r\n", "\n").rstrip("\n").split("\n")
     for path, secs in objs:
+        allsec = dict(secs)
+        allsec.update((data or {}).get(path, {}))
         lines.append("")
         lines.append(f"{path}:")
-        for s in sorted(secs, key=lambda s: order[s]):
-            a, b = secs[s]
+        for s in sorted(allsec, key=lambda s: SEC_ORDER[s]):
+            a, b = allsec[s]
             lines.append(f"\t{s:<11} start:0x{a:08X} end:0x{b:08X}")
-    OUT.write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
+    return "\n".join(lines) + "\n"
+
+
+def main(argv) -> int:
+    ours = read_syms(OURS)
+    rejected, notes = [], []
+    audit = None if "--no-data" in argv else link_facts()
+    funcs, chosen, refinfo = code_splits(ours, rejected, notes, audit)
+    game_objs = game_splits(funcs, chosen, rejected)
+    objs = [(v[0], v[1]) for v in chosen.values()] + game_objs
+    objs.sort(key=lambda o: min(a for a, _ in o[1].values()))
+    by_path = {v[0]: v for v in chosen.values()}
+    data, dlines, dgaps = ({}, [], [])
+    if "--no-data" not in argv:
+        data, dlines, dgaps = data_splits(objs, by_path, refinfo, rejected, notes, audit)
+    OUT.write_bytes(splits_text(objs, data).encode("utf-8"))
 
     # unproven code ranges: the parts of .init / .text not inside an object
     covered = sorted((a, b) for _, secs in objs for (a, b) in secs.values())
@@ -328,28 +1079,50 @@ def main() -> int:
         return sum(1 for s in funcs if a <= s[2] < b)
 
     lib = [o for o in objs if not o[0].startswith("game/")]
+    fam = defaultdict(int)
+    for p, _ in lib:
+        fam[p.split("/")[0]] += 1
+    dfam = defaultdict(int)
+    dsec = defaultdict(int)
+    for p, v in data.items():
+        if v:
+            dfam[p.split("/")[0]] += 1
+        for s in v:
+            dsec[s] += 1
     head = [
         "decomp/config/GXCE01/splits.txt: generated by tools/gen_dtk_splits.py (method: its docstring).",
-        f"objects split: {len(objs)} ({len(lib)} library, {len(objs) - len(lib)} game); code only, data in dtk's automatic objects",
+        f"objects split: {len(objs)} ({len(lib)} library, {len(objs) - len(lib)} game); code: "
+        + ", ".join(f"{k} {v}" for k, v in sorted(fam.items())),
         f"functions inside split objects: {sum(nf(a, b) for _, secs in objs for (a, b) in secs.values())} of {len(funcs)}",
         f"unproven code ranges (dtk automatic objects): {len(gaps)}, {sum(nf(a, b) for _, a, b in gaps)} functions",
+        f"data pieces proven: {sum(dsec.values())} in {sum(1 for v in data.values() if v)} objects ("
+        + ", ".join(f"{k} {v}" for k, v in sorted(dfam.items())) + "); per section: "
+        + ", ".join(f"{s} {dsec[s]}" for s in DATA if dsec[s]),
         "",
         "== objects (path, range, functions, proving references: ref first..last ours/ref count)",
     ]
     for path, secs in objs:
         for s, (a, b) in secs.items():
-            proofs = [c for v in chosen.values() if v[0] == path for c in v[2] if c[2] == s]
-            pr = "; ".join(f"{c[0]} {c[7]}..{c[8]} {c[5]}/{c[6]} [{c[9]} | {c[10]}]" for c in proofs) or "G3 neighbours"
+            proofs = [c for c in by_path[path][2] if c["sec"] == s] if path in by_path else []
+            pr = "; ".join(f"{c['ref']} {c['first']}..{c['last']} {c['n']}/{c['nref']} [{c['e1']} | {c['e2']}]"
+                           + (f" [{c['kar']}]" if c.get("kar") else "") for c in proofs) or "G3 neighbours"
             head.append(f"{path:<48} {s:<6} 0x{a:08X}-0x{b:08X} {nf(a, b):>3} fn  {pr}")
+    head += ["", "== settled disagreements (references gave different ranges: settled by the defining source file, else by "
+                 "the revision whose function sizes equal ours)"] + notes
+    head += ["", "== data pieces (path, section, range, data symbols, evidence: core symbols used only by the object, "
+                 "unattributed symbols before/after it, the references whose piece has this size)"] + dlines
     head += ["", "== unproven code ranges (one dtk automatic object each)"]
     for s, a, b in gaps:
         head.append(f"{s:<6} 0x{a:08X}-0x{b:08X} {nf(a, b):>4} functions")
+    head += ["", "== unproven data ranges (dtk automatic objects)"]
+    for s, a, b in dgaps:
+        head.append(f"{s:<7} 0x{a:08X}-0x{b:08X} size 0x{b - a:X}")
     head += ["", f"== rejected candidates ({len(rejected)})"] + rejected
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_bytes(("\r\n".join(head) + "\r\n").encode("utf-8"))
-    print("\n".join(head[:4]))
+    print("\n".join(head[:5]))
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv))

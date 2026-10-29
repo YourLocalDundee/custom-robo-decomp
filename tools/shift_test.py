@@ -5,6 +5,9 @@ On a scratch copy of batch 9's build (decomp/build/shift/; the real build is nev
        - the start of each section .text .rodata .data .bss .sdata .sbss .sdata2 (inside the first object there);
        - inside the game code: the first function at or after the middle of the game-code object;
        - between library objects: the start of the first split (non-automatic) .text object after the game code;
+       - inside every data section (.rodata .data .bss .sdata .sbss .sdata2): the start of the first, the middle
+         and the last data piece of a split (non-automatic) object, i.e. the per-object data boundaries that
+         tools/gen_dtk_splits.py proved (a wrong boundary shows up as a relocation target moved by the wrong amount);
        - inside .rodata / .data / .bss: the first glue-span start at or after the middle of the section. A glue span
          (tools/reloc_audit.py) begins where the code builds other objects' addresses from one base plus constant
          offsets, which is how CodeWarrior addresses a file's statics (from the start of that file's section): so it
@@ -23,7 +26,9 @@ On a scratch copy of batch 9's build (decomp/build/shift/; the real build is nev
        - no unrelocated word or lis pair in the shifted build still holds an address that moved, except the
          numbers that tools/gen_dtk_relocs.py blocked on purpose (they must keep their old value).
   Writes decomp/reports/shift_report.txt (CRLF, deterministic) and decomp/build/shift/main.dol (for the boot test).
-Usage: python -I tools/shift_test.py [--pad 0x100]   |   --expect (after a run: the values batch 11 checks, JSON)
+Usage: python -I tools/shift_test.py [--pad 0x100] [--all-data]   |   --expect (after a run: the values batch 11 checks)
+  --all-data: padding at every data-object boundary instead of 3 per section (by hand; report in decomp/build/shift/;
+  rerun without it afterwards, batch 11 boots the batch's shifted build)
 """
 import bisect
 import hashlib
@@ -43,28 +48,36 @@ B = os.path.join(D, 'build/GXCE01')
 S = os.path.join(D, 'build/shift')
 REPORT = os.path.join(D, 'reports/shift_report.txt')
 SECTIONS = ('.text', '.rodata', '.data', '.bss', '.sdata', '.sbss', '.sdata2')
+DATA_SPLIT = ('.rodata', '.data', '.bss', '.sdata', '.sbss', '.sdata2')
 AS_FLAGS = ['-mgekko', '--strip-local-absolute', '-I', 'include', '-I', 'build/GXCE01/include',
             '--defsym', 'BUILD_VERSION=0']
 
 
 def unit_sections(elf):
-    """{object basename: {section: start}} from the linked ELF's FILE / SECTION symbols (link order)"""
-    out, cur = {}, None
+    """[(object basename, {section: start})] from the linked ELF's FILE / SECTION symbols, in link order"""
+    out, cur = [], None
     names = {s[0]: s[1] for s in elf.sections}
     for n, v, sz, t, b, shn in elf.syms:
-        if t == 4: cur = out.setdefault(n, {})
+        if t == 4:
+            cur = {}
+            out.append((n, cur))
         elif t == 3 and cur is not None and shn in names: cur.setdefault(names[shn], v)
     return out
+
+
+ALL_DATA = False   # --all-data: pad at EVERY data-object boundary (a by-hand check; the batch uses 3 per section)
 
 
 def points(elf, objs, c, units, pad):
     """-> sorted [(address, section, unit name, why)]"""
     us = unit_sections(elf)
     secs = {s[1]: (s[3], s[3] + s[4]) for s in elf.alloc}
-    if len(us) != len(units): raise SystemExit('object names in main.elf are not unique: cannot map them')
+    # main.elf's FILE symbols are in the units' link order (two units may share a basename: MetroTRK ddh/gdev main.c)
+    if len(us) != len(units) or any(n != os.path.basename(u['name']) for (n, _), u in zip(us, units)):
+        raise SystemExit('the FILE symbols of main.elf are not the units of config.json in link order: cannot map them')
     where = []    # (start, section, unit name)
-    for u in units:
-        for sec, a in us[os.path.basename(u['name'])].items():
+    for u, (n, ss) in zip(units, us):
+        for sec, a in ss.items():
             where.append((a, sec, u['name']))
     where.sort()
 
@@ -91,11 +104,23 @@ def points(elf, objs, c, units, pad):
         if cand:
             pts.append((cand[0], sec, unit_at(sec, cand[0])[1],
                         f'inside {sec}: the start of the glue span 0x{cand[0]:08X}.. (a file\'s statics base)'))
+    # inside every data section, at the boundaries of the split (non-automatic) objects' data pieces
+    # (tools/gen_dtk_splits.py proved them): the first, the middle and the last one after the section start
+    for sec in DATA_SPLIT:
+        lo, hi = secs[sec]
+        b = sorted({a for a, s, n in where if s == sec and lo < a < hi and not n.startswith('auto_')})
+        pick = b if ALL_DATA else (sorted({b[0], b[len(b) // 2], b[-1]}) if b else [])
+        for a in pick:
+            pts.append((a, sec, unit_at(sec, a)[1],
+                        f'inside {sec}: the data piece of {unit_at(sec, a)[1]} (a proven object boundary)'))
     for a, sec, n, why in pts:
         for g0, g1 in c['glue']:
             if g0 < a <= g1: raise SystemExit(f'insertion point 0x{a:08X} is inside the glue span 0x{g0:08X}..0x{g1:08X}')
         if not objs.is_start(a): raise SystemExit(f'insertion point 0x{a:08X} is not a symbol start')
-    return sorted(pts)
+    seen, out = set(), []
+    for x in pts:   # one point per address (a glue-span start may also be an object boundary)
+        if x[0] not in seen: seen.add(x[0]); out.append(x)
+    return sorted(out)
 
 
 def insert(lines, a, sec, pad, at_section_start):
@@ -249,6 +274,10 @@ def expect():
 
 def main(argv):
     if '--expect' in argv: return expect()
+    global ALL_DATA, REPORT
+    if '--all-data' in argv:
+        ALL_DATA = True
+        REPORT = os.path.join(S, 'shift_report_all_data.txt')   # scratch only: the committed report is the batch's
     pad = int(argv[argv.index('--pad') + 1], 0) if '--pad' in argv else 0x100
     if pad % 0x100: raise SystemExit('--pad must be a multiple of 0x100 (keeps every alignment)')
     elf0_path = os.path.join(B, 'main.elf')

@@ -37,7 +37,7 @@ All in `D:\emulators\gameTesting\tools`. Python tools run with the system Python
 | `boot_check.ps1` | Boots an ISO (or a folder's `sys\main.dol`) in Dolphin, reports warning dialogs (`-Snapshot` saves a picture of one, `-Screenshot` the game window, `-Log` Dolphin's log of that run) |
 | `reloc_audit.py` | Library: checks dtk's relocations in a linked `main.elf` against main.dol's bytes (missed pointers, numbers relocated as pointers, glue spans); used by the two below |
 | `gen_dtk_relocs.py` | Batch 9: writes the generated relocation fixes into `decomp\config\GXCE01\config.yml`, `--check` checks the build (`decomp\reports\relocs_report.txt`) |
-| `shift_test.py` | Batch 9: pads code and data at 12 points in a scratch copy of the build, relinks, checks every relocation (`decomp\reports\shift_report.txt`); batch 11 boots the result |
+| `shift_test.py` | Batch 9: pads code and data at 30 points (incl. the proven data-object boundaries; `--all-data`: all of them) in a scratch copy of the build, relinks, checks every relocation (`decomp\reports\shift_report.txt`); batch 11 boots the result |
 
 ## Ghidra scripts (`tools\scripts`)
 

@@ -1,43 +1,61 @@
 shift test (tools/shift_test.py, method: its docstring): padding inserted into a scratch copy of batch 9's
 build, relinked, and checked against the unshifted build.
-padding per point: 0x100 bytes; points: 12
+padding per point: 0x100 bytes; points: 30
    1. 0x800055E0 .text    start of .text -> everything from here moves by +0x100
    2. 0x8009D620 .text    inside the game code (auto_01_800055E0_text), the first function after its middle -> everything from here moves by +0x200
    3. 0x80131C08 .text    between library objects: the start of dolphin/base/PPCArch.c -> everything from here moves by +0x300
    4. 0x801B6620 .rodata  start of .rodata -> everything from here moves by +0x400
    5. 0x801C09F8 .rodata  inside .rodata: the start of the glue span 0x801C09F8.. (a file's statics base) -> everything from here moves by +0x500
-   6. 0x801C4F80 .data    start of .data -> everything from here moves by +0x600
-   7. 0x8020B0C0 .data    inside .data: the start of the glue span 0x8020B0C0.. (a file's statics base) -> everything from here moves by +0x700
-   8. 0x8024DB20 .bss     start of .bss -> everything from here moves by +0x800
-   9. 0x80377E60 .bss     inside .bss: the start of the glue span 0x80377E60.. (a file's statics base) -> everything from here moves by +0x900
-  10. 0x8044C3C0 .sdata   start of .sdata -> everything from here moves by +0xA00
-  11. 0x8044F2A0 .sbss    start of .sbss -> everything from here moves by +0xB00
-  12. 0x804501A0 .sdata2  start of .sdata2 -> everything from here moves by +0xC00
+   6. 0x801C40E8 .rodata  inside .rodata: the data piece of MetroTRK/nubinit.c (a proven object boundary) -> everything from here moves by +0x600
+   7. 0x801C4948 .rodata  inside .rodata: the data piece of Runtime/GCN_mem_alloc.c (a proven object boundary) -> everything from here moves by +0x700
+   8. 0x801C4D90 .rodata  inside .rodata: the data piece of MSL/s_atan.c (a proven object boundary) -> everything from here moves by +0x800
+   9. 0x801C4F80 .data    start of .data -> everything from here moves by +0x900
+  10. 0x8020B0C0 .data    inside .data: the start of the glue span 0x8020B0C0.. (a file's statics base) -> everything from here moves by +0xA00
+  11. 0x802427F0 .data    inside .data: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0xB00
+  12. 0x80244938 .data    inside .data: the data piece of dolphin/ar/arq.c (a proven object boundary) -> everything from here moves by +0xC00
+  13. 0x8024D680 .data    inside .data: the data piece of sysdolphin/baselib/texp.c (a proven object boundary) -> everything from here moves by +0xD00
+  14. 0x8024DB20 .bss     start of .bss -> everything from here moves by +0xE00
+  15. 0x80377E60 .bss     inside .bss: the start of the glue span 0x80377E60.. (a file's statics base) -> everything from here moves by +0xF00
+  16. 0x8041EB80 .bss     inside .bss: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0x1000
+  17. 0x8043B5F8 .bss     inside .bss: the data piece of MetroTRK/targimpl.c (a proven object boundary) -> everything from here moves by +0x1100
+  18. 0x80449D18 .bss     inside .bss: the data piece of sysdolphin/baselib/state.c (a proven object boundary) -> everything from here moves by +0x1200
+  19. 0x8044C3C0 .sdata   start of .sdata -> everything from here moves by +0x1300
+  20. 0x8044ED70 .sdata   inside .sdata: the data piece of dolphin/os/OSError.c (a proven object boundary) -> everything from here moves by +0x1400
+  21. 0x8044EE50 .sdata   inside .sdata: the data piece of dolphin/gx/GXAttr.c (a proven object boundary) -> everything from here moves by +0x1500
+  22. 0x8044F258 .sdata   inside .sdata: the data piece of sysdolphin/baselib/texp.c (a proven object boundary) -> everything from here moves by +0x1600
+  23. 0x8044F2A0 .sbss    start of .sbss -> everything from here moves by +0x1700
+  24. 0x8044F8E0 .sbss    inside .sbss: the data piece of dolphin/os/OSAlloc.c (a proven object boundary) -> everything from here moves by +0x1800
+  25. 0x8044FB28 .sbss    inside .sbss: the data piece of dolphin/ar/arq.c (a proven object boundary) -> everything from here moves by +0x1900
+  26. 0x8044FF68 .sbss    inside .sbss: the data piece of sysdolphin/baselib/mobj.c (a proven object boundary) -> everything from here moves by +0x1A00
+  27. 0x804501A0 .sdata2  start of .sdata2 -> everything from here moves by +0x1B00
+  28. 0x80451CA8 .sdata2  inside .sdata2: the data piece of dolphin/os/OSFont.c (a proven object boundary) -> everything from here moves by +0x1C00
+  29. 0x80452230 .sdata2  inside .sdata2: the data piece of MSL/e_rem_pio2.c (a proven object boundary) -> everything from here moves by +0x1D00
+  30. 0x804529E8 .sdata2  inside .sdata2: the data piece of sysdolphin/baselib/texp.c (a proven object boundary) -> everything from here moves by +0x1E00
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
-shifted main.dol: SHA-1 05d34010a0499544d41ff8e603026f7625f345df (2427776 bytes, retail 2425472)
+shifted main.dol: SHA-1 0a7bbb8cec623bceedf72b7ac1ac91ecd5ab4587 (2430848 bytes, retail 2425472)
 sections, unshifted -> shifted:
   .init    0x80003100 size 0x0024D0 -> 0x80003100 size 0x0024D0
   .text    0x800055E0 size 0x1B0FF8 -> 0x800055E0 size 0x1B12F8
   .ctors   0x801B65E0 size 0x000004 -> 0x801B68E0 size 0x000004
   .dtors   0x801B6600 size 0x000008 -> 0x801B6900 size 0x000008
-  .rodata  0x801B6620 size 0x00E950 -> 0x801B6920 size 0x00EB50
-  .data    0x801C4F80 size 0x088B8C -> 0x801C5480 size 0x088D8C
-  .bss     0x8024DB20 size 0x1FE890 -> 0x8024E220 size 0x1FEA90
-  .sdata   0x8044C3C0 size 0x002EDC -> 0x8044CCC0 size 0x002FDC
-  .sbss    0x8044F2A0 size 0x000EF8 -> 0x8044FCA0 size 0x000FF8
-  .sdata2  0x804501A0 size 0x002874 -> 0x80450CA0 size 0x002974
-  .sbss2   0x80452A20 size 0x0000A0 -> 0x80453620 size 0x0000A0
-  _SDA_BASE_   0x804543C0 -> 0x80454CC0
-  _SDA2_BASE_  0x804581A0 -> 0x80458CA0
-  _stack_addr  0x80462AC0 -> 0x804636C0
-  __ArenaLo    0x80464AC0 -> 0x804656C0
+  .rodata  0x801B6620 size 0x00E950 -> 0x801B6920 size 0x00EE50
+  .data    0x801C4F80 size 0x088B8C -> 0x801C5780 size 0x08908C
+  .bss     0x8024DB20 size 0x1FE890 -> 0x8024E820 size 0x1FED90
+  .sdata   0x8044C3C0 size 0x002EDC -> 0x8044D5C0 size 0x0032DC
+  .sbss    0x8044F2A0 size 0x000EF8 -> 0x804508A0 size 0x0012F8
+  .sdata2  0x804501A0 size 0x002874 -> 0x80451BA0 size 0x002C74
+  .sbss2   0x80452A20 size 0x0000A0 -> 0x80454820 size 0x0000A0
+  _SDA_BASE_   0x804543C0 -> 0x804555C0
+  _SDA2_BASE_  0x804581A0 -> 0x80459BA0
+  _stack_addr  0x80462AC0 -> 0x804648C0
+  __ArenaLo    0x80464AC0 -> 0x804668C0
 static check:
   symbols compared (unique names): 15593
   symbols moved by the wrong amount: 0
-  relocations of the unshifted build: 92827
+  relocations of the unshifted build: 92825
   relocations missing after the shift: 0
   relocation targets moved by the wrong amount: 0
-  relocations in the shifted build: 92827
+  relocations in the shifted build: 92825
   relocated values (data words, lis pairs, small-data, loads) different from their target: 0
   relocated branches that miss their target: 0
   numbers relocated as addresses (audit false positives) in the shifted build: 0

@@ -4,7 +4,9 @@
 # (every object NonMatching), and checks the built main.dol is the retail one (SHA-1 6a73cd11...fb50b).
 #   1. tools/setup_decomp.ps1: template files, pinned build tools, your main.dol (skips what is done)
 #   2. tools/gen_dtk_symbols.py -> config symbols.txt (+ decomp/reports/symbols_report.txt)
-#   3. tools/gen_dtk_splits.py  -> config splits.txt  (+ decomp/reports/splits_report.txt)
+#   3. tools/gen_dtk_splits.py  -> config splits.txt  (+ decomp/reports/splits_report.txt): code objects from the
+#      reference layouts + library sources, data pieces per object from a sections-only scratch link's relocations
+#      (decomp/build/splitdata/, SHA-1 retail) checked against the references' piece sizes
 #   3b. tools/gen_dtk_relocs.py -> the generated relocation-fix block of config.yml (+ decomp/reports/relocs_report.txt):
 #      dtk's own relocations (an unfixed split + link in decomp/build/relocs/) audited from main.dol's bytes; the
 #      pointers dtk missed become add_relocations, the non-pointers it relocated block_relocations (Milestone 2)
@@ -16,7 +18,7 @@
 #   6. tools/gen_dtk_relocs.py --check: the built main.elf has no missed pointer, no false one, and every relocated
 #      value equals its target (appended to relocs_report.txt).
 #   7. tools/shift_test.py: the static shift test (Milestone 2) on a scratch copy of the build (decomp/build/shift/):
-#      padding at 12 points, relinked, every relocation / symbol / address checked -> decomp/reports/shift_report.txt.
+#      padding at 30 points (incl. data-object boundaries), relinked, every relocation / symbol / address checked -> decomp/reports/shift_report.txt.
 #      Booting the shifted main.dol in Dolphin is batch 11 (tools/batches/batch11_shift_test.ps1, by hand).
 # Outside the name fixpoint of run_all.ps1: reads the committed name files only, never Ghidra.
 # Usage:  pwsh tools/batches/batch9_decomp_build.ps1

@@ -2,8 +2,8 @@
 # Batch 11: boot the SHIFTED build in Dolphin (plan.md Phase 4 Milestone 2). run_all.ps1 runs it after batch 10 (or run it
 # alone). It starts Dolphin twice (about 1 minute) and needs a desktop session; don't type while it runs.
 #   1. tools/shift_test.py (static shift test, also the last step of batch 9) -> decomp/build/shift/main.dol, a main.dol
-#      with 0x100 bytes of padding at 12 points (code, game code, library objects, .rodata .data .bss .sdata .sbss
-#      .sdata2), relinked from dtk's split objects, every relocation checked (decomp/reports/shift_report.txt).
+#      with 0x100 bytes of padding at 30 points (code, game code, library objects, .rodata .data .bss .sdata .sbss
+#      .sdata2, and inside each data section at proven data-object boundaries), relinked from dtk's split objects, every relocation checked (decomp/reports/shift_report.txt).
 #   2. decomp/build/shift/disc/: a scratch copy of "Custom Robo extracted" (hard links, so no disk space and no copy
 #      time; the folder itself is never written) with the shifted sys/main.dol in it (a real file, not a link).
 #   3. tools/boot_check.ps1 boots the unmodified extracted folder (the control) and then the scratch copy, each for

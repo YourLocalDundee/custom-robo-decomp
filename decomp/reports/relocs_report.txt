@@ -72,8 +72,8 @@ fixes written: add_relocations 48, block_relocations 5
 jump tables dtk did not name (verified):
   0x8022AF44 lbl_8022AF44: 9 cases in fn_800A0E64
   0x8022B110 lbl_8022B110: 8 cases in fn_800A63C0
-  0x802434F4 @87_802434F4: 16 cases in __OSUnhandledException
-  0x8024488C @724_8024488C: 7 cases in VIGetTvFormat
+  0x802434F4 @87: 16 cases in __OSUnhandledException
+  0x8024488C @724: 7 cases in VIGetTvFormat
   0x80249F00 @1248_80249F00: 33 cases in longlong2str_80164C40
 
 named pointer tables (symbols/cr_globals.txt), words in their extent:
@@ -103,7 +103,7 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x801C0BF0..0x801C0C64 .rodata lbl_801C0BF0 .. lbl_801C0BFE
   0x801C1678..0x801C3C5C .rodata lbl_801C1678 .. lbl_801C3AA0
   0x801C4330..0x801C44E0 .rodata lbl_801C4330 .. lbl_801C43B0
-  0x801C4668..0x801C4744 .rodata EndofProgramInstruction$162_801C4668 .. lbl_801C466C
+  0x801C4668..0x801C4744 .rodata EndofProgramInstruction$162 .. lbl_801C466C
   0x801C50D0..0x801D9590 .data lbl_801C50D0 .. lbl_801D9590
   0x801DEA78..0x801E62E0 .data cr_g_SeqFrameA .. lbl_801E628C
   0x801F5D68..0x801F8E54 .data lbl_801F5D68 .. lbl_801F8E54
@@ -119,11 +119,11 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x8023CF28..0x80240898 .data lbl_8023CF28 .. lbl_80240828
   0x802409E8..0x80242698 .data lbl_802409E8 .. lbl_80242644
   0x802427F0..0x802429CC .data @1_802427F0 .. lbl_80242834
-  0x80242E10..0x8024300C .data @69_80242E10 .. lbl_80242E39
-  0x80243218..0x802432E0 .data @13_80243218 .. lbl_8024322E
-  0x80244468..0x802444C4 .data @36_80244468 .. lbl_80244482
+  0x80242E10..0x8024300C .data @69 .. lbl_80242E39
+  0x80243218..0x802432E0 .data @13 .. lbl_8024322E
+  0x80244468..0x802444C4 .data @36 .. lbl_80244482
   0x802444D8..0x80244840 .data lbl_802444D8 .. lbl_80244738
-  0x8024A240..0x8024A294 .data lbl_8024A240 .. Si_8024A284
+  0x8024A240..0x8024A294 .data lbl_8024A240 .. Si
   0x8024A358..0x8024A3B8 .data XYNTSC_8024A358 .. lbl_8024A388
   0x8024A3F0..0x8024A5B4 .data lbl_8024A3F0 .. lbl_8024A550
   0x8024A760..0x8024B044 .data lbl_8024A760 .. lbl_8024ADB0
@@ -159,15 +159,15 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x80419958..0x8041A30E .bss lbl_80419958 .. lbl_8041A244
   0x8041A598..0x8041CBFC .bss lbl_8041A598 .. lbl_8041CBFB
   0x8041CC10..0x8041E930 .bss lbl_8041CC10 .. lbl_8041CDE4
-  0x8041EB80..0x8041EBA0 .bss DriveInfo_8041EB80 .. gap_06_8041EBA0_bss
-  0x8041EC98..0x8041F3C8 .bss RunQueue_8041EC98 .. gap_06_8041ED98_bss
-  0x8041F690..0x8041F75C .bss CommandList_8041F690 .. lbl_8041F720
+  0x8041EB80..0x8041EBA0 .bss DriveInfo .. gap_06_8041EBA0_bss
+  0x8041EC98..0x8041F3C8 .bss RunQueue .. gap_06_8041ED98_bss
+  0x8041F690..0x8041F75C .bss CommandList .. lbl_8041F720
   0x8041F760..0x8041F7D0 .bss BB2_8041F760 .. lbl_8041F7D0
   0x8041F888..0x8041F9CC .bss lbl_8041F888 .. lbl_8041F978
   0x8041FA20..0x8041FAA4 .bss lbl_8041FA20 .. lbl_8041FAA0
   0x80422E20..0x804278A0 .bss lbl_80422E20 .. lbl_80427820
   0x80439100..0x80439320 .bss lbl_80439100 .. lbl_80439320
-  0x8043CDD0..0x8043CFBC .bss Packet_8043CDD0 .. lbl_8043CF30
+  0x8043CDD0..0x8043CFBC .bss Packet .. lbl_8043CF30
   0x8043CFD0..0x8043D8F0 .bss lbl_8043CFD0 .. lbl_8043D0D0
   0x8043D9C0..0x8043DA20 .bss lbl_8043D9C0 .. lbl_8043D9E0
   0x80445AE0..0x804494B8 .bss lbl_80445AE0 .. lbl_80448EB8
