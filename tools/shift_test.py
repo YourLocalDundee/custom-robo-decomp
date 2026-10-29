@@ -15,7 +15,8 @@ On a scratch copy of batch 9's build (decomp/build/shift/; the real build is nev
      Each point gets PAD bytes (.skip, a multiple of every alignment), so everything after it moves by a different
      multiple of PAD: a hard-coded address would point at the wrong thing and the check below sees it.
   2. The objects holding a point are reassembled from dtk's asm (powerpc-eabi-as, the project's flags, dtk elf
-     fixup) and everything is relinked with the project's mwld and ldscript, then dtk elf2dol. A control link of the
+     fixup) and everything is relinked with the project's mwld and ldscript, then dtk elf2dol. Every other object
+     is linked as batch 9 links it: the objects built from C (Milestone 4) as compiled, so they move too. A control link of the
      same objects reassembled WITHOUT padding must give the retail SHA-1 (so the asm route itself changes nothing).
   3. Static check, shifted against unshifted (both main.elf keep every relocation):
        - every symbol moved by exactly the padding inserted before it;
@@ -147,15 +148,27 @@ def assemble(src, obj):
     gr.run([gr.DTK, 'elf', 'fixup', obj, obj])
 
 
+def c_objects():
+    """{split object path: compiled object path} of the objects batch 9 links from C (objdiff.json 'complete')"""
+    od = json.load(open(os.path.join(D, 'objdiff.json')))
+    return {u['target_path']: u['base_path'] for u in od['units'] if u.get('metadata', {}).get('complete') and 'base_path' in u}
+
+
 def build(units, pts, pad, tag):
-    """reassemble the objects holding a point (with padding if pad) and relink -> (elf path, dol path, sha1)"""
+    """reassemble the objects holding a point (with padding if pad) and relink -> (elf path, dol path, sha1)
+    Every other object is linked as batch 9 links it: from C when it is a C object (configure.py CR_MATCHING), else
+    dtk's split object. A C object holding a point is reassembled from dtk's asm of the same object (its bytes equal
+    the C's: batch 9 proved the SHA-1), since padding cannot go inside a compiled object."""
     od = os.path.join(S, tag)
     os.makedirs(od, exist_ok=True)
     by_unit = {}
     for a, sec, n, why in pts: by_unit.setdefault(n, []).append((a, sec, why))
     objects = []
+    cobj = c_objects()
     for u in units:
         o = u['object']
+        if u['name'] not in by_unit and o in cobj:
+            o = cobj[o]
         if u['name'] in by_unit:
             rel = os.path.relpath(o, os.path.relpath(os.path.join(B, 'obj'), D))[:-2].replace(os.sep, '/')
             lines = open(os.path.join(B, 'asm', rel + '.s'), 'rb').read().decode().split('\n')
@@ -305,7 +318,15 @@ def main(argv):
     ]
     for i, (a, sec, n, why) in enumerate(pts):
         lines.append(f'  {i + 1:2}. 0x{a:08X} {sec:8} {why} -> everything from here moves by +0x{pad * (i + 1):X}')
+    cobj = c_objects()
+    held = {n for a, sec, n, why in pts}
+    us0, us1 = unit_sections(e0), unit_sections(e1)
+    cl = [i for i, u in enumerate(units) if u['object'] in cobj and u['name'] not in held]
+    moved = [i for i in cl if us0[i][1] != us1[i][1]]
     lines += [
+        f'objects linked from C (batch 9, configure.py CR_MATCHING): {len(cl)} in both links, {len(moved)} of them moved '
+        f'by the padding; {len([u for u in units if u["object"] in cobj and u["name"] in held])} holding a point, '
+        f'reassembled from asm',
         f'control (same objects reassembled without padding): SHA-1 {sha0} = retail',
         f'shifted main.dol: SHA-1 {sha1} ({os.path.getsize(d1p)} bytes, retail {os.path.getsize(d0p)})',
         'sections, unshifted -> shifted:',

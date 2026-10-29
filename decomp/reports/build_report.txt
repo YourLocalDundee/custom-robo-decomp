@@ -1,4 +1,4 @@
-decomp build (tools/batches/batch9_decomp_build.ps1): main.dol linked from dtk's split objects, every object NonMatching
+decomp build (tools/batches/batch9_decomp_build.ps1): main.dol linked from dtk's split objects and the objects built from C (decomp/reports/progress_report.txt)
 built  decomp/build/GXCE01/main.dol SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b
 retail main.dol (GXCE01 v1.0)       SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b
 result: MATCH

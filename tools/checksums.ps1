@@ -37,6 +37,9 @@ $files = @(
     'decomp\config\GXCE01\config.yml'      # + the generated relocation fixes (tools\gen_dtk_relocs.py, Milestone 2)
     'decomp\reports\relocs_report.txt'      # relocation audit: what dtk missed / invented + the check of the build
     'decomp\reports\shift_report.txt'       # static shift test (tools\shift_test.py): padded relink, all checked
+    'decomp\reports\progress_report.txt'    # Milestone 4: objects built from C, bytes per library (tools\check_c_objects.py)
+    'decomp\reports\sources_report.txt'     # provenance of every file in decomp\src + decomp\include
+    'decomp\reports\c_symbols_report.txt'   # the C objects' own symbols put into symbols.txt (tools\gen_c_symbols.py)
 )
 $now = foreach ($f in $files) {
     $p = Join-Path $g ($f -replace '\\', '/')   # names in the list use backslashes

@@ -105,3 +105,26 @@ The game runs one sequence at a time (`cr_Seq`: SEQ_LOGO, SEQ_MOVIE, SEQ_TITLE, 
 ## Script commands (Oct 28, 2026)
 
 The game's script interpreter dispatches through `cr_g_ScrCmdFuncs` (0x8021C3F4, 300 handlers), indexed by command number; the matching names (`SYS_SET_SCR`, ... ) are in `cr_g_ScrCmdNames` (0x8021BF44), directly before it. Handlers are named `cr_<COMMAND NAME>`. plan.md step 44.
+
+## Building library objects from C (Phase 4 Milestone 4, Oct 29, 2026)
+
+Not the Ghidra C above (that is never copied anywhere): the community's own matching C from the pinned reference
+decomps, compiled by the Phase 4 build (`decomp/`). Status: `decomp/reports/progress_report.txt`; provenance of every
+file: `decomp/reports/sources_report.txt`.
+
+How to add a C file (one object of `decomp/config/GXCE01/splits.txt`):
+1. Copy it with its headers, never by hand:
+   `python -I tools/import_ref_source.py <ref> <path in ref> src/<object path> --inc <ref include dir>=include/<ref> ...`
+   - SDK: `dolsdk2004 src/os/OSCache.c src/dolphin/os/OSCache.c --inc include=include/dolsdk2004 --inc include/libc=include/dolsdk2004/libc`
+   - MSL / Runtime / TRK: `marioparty4 src/MSL_C.PPCEABI.bare.H/mem.c src/MSL/mem.c --inc include=include/marioparty4`
+   - HSD: `melee src/sysdolphin/baselib/util.c src/sysdolphin/baselib/util.c --inc src=src --inc libs/doldecomp/include=include/melee/doldecomp --inc src/MSL=include/melee/MSL --inc libs/dolphin/include=include/melee/dolphin`
+   The provenance comment goes on line 1 (same line), so line numbers stay the reference's.
+2. `cd decomp; python configure.py; ..\tools\ninja\ninja.exe` compiles it (for objdiff only); then
+   `python -I tools\check_c_objects.py --link-each` links the build with it taken from C: `retail` = it can be linked.
+   The check stops until the file is listed: in `CR_NOT_MATCHING` (decomp/configure.py) with its reason, or in
+   `CR_MATCHING`.
+3. If functions differ, adapt the source (objdiff GUI on `decomp/`, or `objdiff-cli diff -p decomp -u main/<object>`).
+   A `fn_...` at 0% usually exists in the C under its real name (the link test shows it).
+4. In `CR_MATCHING`: `python -I tools\make_configure_patch.py`, then batch 9. `tools/gen_c_symbols.py` gives the object
+   the C's own symbols (objdiff pairs data by name), `tools/check_c_objects.py` must report 100% code + data, main.dol
+   must stay retail. Then the full `run_all.ps1`, and `checksums.ps1 -Write` for the intended changes.

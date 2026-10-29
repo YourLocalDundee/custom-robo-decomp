@@ -1,0 +1,7 @@
+symbols from the objects built from C (tools/gen_c_symbols.py): main.elf's symbols inside each object's
+ranges replace those of decomp/config/GXCE01/symbols.txt there (same bytes; the C's names, sizes, scopes).
+objects: 66; symbols written: 427
+functions and globals the C names differently from symbols.txt before it (a dtk default name: the matched C
+is the proof of the real name; one of our own names: the two disagree):
+  .bss     0x80439BF8  lbl_80439BF8 -> gTRKEventQueue
+  .text    0x8013A5E0  fn_8013A5E0 -> AlarmHandler

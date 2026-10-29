@@ -1,0 +1,22 @@
+/* Custom Robo: from mariopartyrd/marioparty4 @ 5b01c79b4910525e3fc5aa312eddd6d014e7f337, src/MSL_C.PPCEABI.bare.H/wchar_io.c */ #include "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/wchar_io.h"
+
+int fwide(FILE* file, int mode)
+{
+	if (!file || file->file_mode.file_kind == __closed_file) {
+		return 0;
+	}
+
+	switch (file->file_mode.file_orientation) {
+	case UNORIENTED:
+		if (mode > 0) {
+			file->file_mode.file_orientation = WIDE_ORIENTED;
+		} else if (mode < 0) {
+			file->file_mode.file_orientation = CHAR_ORIENTED;
+		}
+		return mode;
+	case WIDE_ORIENTED:
+		return 1;
+	case CHAR_ORIENTED:
+		return -1;
+	}
+}

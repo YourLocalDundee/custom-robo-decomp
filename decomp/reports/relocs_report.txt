@@ -186,5 +186,5 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x8044F87C..0x8044F87D .sbss lbl_8044F87C .. gap_08_8044F87D_sbss
 
 check of the built decomp/build/GXCE01/main.elf (batch 9, with the fixes):
-  relocations 92827; code misses 0, unrelocated in-range data words 0, data false positives 0, code false positives 0, relocated values different from their target 0; left unrelocated on purpose (blocked): 3 code, 1 data
+  relocations 92825; code misses 0, unrelocated in-range data words 0, data false positives 0, code false positives 0, relocated values different from their target 0; left unrelocated on purpose (blocked): 3 code, 1 data
   result: OK

@@ -1,20 +1,29 @@
 diff --git a/configure.py b/configure.py
-index b529a6d..a147e21 100644
 --- a/configure.py
 +++ b/configure.py
-@@ -9,6 +9,11 @@
+@@ -9,13 +9,20 @@
  #   python3 configure.py
  #   ninja
  #
 +# Custom Robo (GXCE01): this file is encounter/dtk-template's configure.py at the commit pinned in ../tools/pins.txt,
 +# plus ../tools/patches/dtk_template_configure.patch, applied by ../tools/setup_decomp.ps1 (do not edit it here:
-+# edit the patch). Changes: version GXCE01; every tool from the pinned downloads in build/ and ../tools/ (never an
-+# unpinned download); the object list is read from config/GXCE01/splits.txt (every object NonMatching for now).
++# edit the patch: ../tools/make_configure_patch.py rewrites it from this file). Changes: version GXCE01; every tool
++# from the pinned downloads in build/ and ../tools/ (never an unpinned download); the object list is read from
++# config/GXCE01/splits.txt; compilers and flags per library (../docs/compiler.md); CR_MATCHING = the objects built
++# from C.
 +#
  # Append --help to see available options.
  ###
  
-@@ -29,7 +34,7 @@ from tools.project import (
+ import argparse
+ import sys
+ from pathlib import Path
+-from typing import Any, Dict, List
++from typing import Any, Dict, List, Tuple
+ 
+ from tools.project import (
+     Object,
+@@ -29,7 +36,7 @@ from tools.project import (
  # Game versions
  DEFAULT_VERSION = 0
  VERSIONS = [
@@ -23,7 +32,7 @@ index b529a6d..a147e21 100644
  ]
  
  parser = argparse.ArgumentParser()
-@@ -138,19 +143,35 @@ config = ProjectConfig()
+@@ -138,19 +145,35 @@ config = ProjectConfig()
  config.version = str(args.version)
  version_num = VERSIONS.index(config.version)
  
@@ -65,7 +74,7 @@ index b529a6d..a147e21 100644
  # Don't build asm unless we're --non-matching
  if not config.non_matching:
      config.asm_dir = None
-@@ -158,7 +179,7 @@ if not config.non_matching:
+@@ -158,7 +181,7 @@ if not config.non_matching:
  # Tool versions
  config.binutils_tag = "2.42-2"
  config.compilers_tag = "20251118"
@@ -74,7 +83,7 @@ index b529a6d..a147e21 100644
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +305,34 @@ def MatchingFor(*versions):
+@@ -284,18 +307,324 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -89,30 +98,319 @@ index b529a6d..a147e21 100644
 -            Object(NonMatching, "Runtime.PPCEABI.H/__init_cpp_exceptions.cpp"),
 -        ],
 -    },
--]
 +
 +
-+# Custom Robo: one lib per top-level folder of the objects in splits.txt, in splits.txt order. Every object is
-+# NonMatching (the build links dtk's split objects, which gives the retail main.dol); objects move to Matching here
-+# when their C matches (Milestone 4 / 5). Library folders count as "sdk" progress, game/ as "game".
++# Custom Robo: one lib per top-level folder of the objects in splits.txt, in splits.txt order. An object is linked
++# from dtk's split object (NonMatching, built from main.dol's own bytes) unless it is in CR_MATCHING below: then it
++# is compiled from decomp/src/<name> and that object is linked. An object moves to CR_MATCHING only when objdiff
++# reports 100% code AND data for it and the linked main.dol keeps the retail SHA-1 (tools/check_c_objects.py, batch 9
++# checks both). A NonMatching object with a source file is still compiled, for objdiff only (never linked).
++# Library folders count as "sdk" progress, game/ as "game".
 +GAME_DIRS = ("game",)
++
++# Compiler and flags per library (docs/compiler.md, Phase 4 Milestone 3). Every flag set starts from these.
++cflags_cr = [
++    "-nodefaults",
++    "-proc gekko",
++    "-align powerpc",
++    "-enum int",
++    "-fp hardware",
++    "-Cpp_exceptions off",
++    '-pragma "cats off"',
++    '-pragma "warn_notinlined off"',
++    "-maxerrors 1",
++    "-nosyspath",
++    "-cwd source",
++    "-multibyte",
++    "-W off",
++    f"-DBUILD_VERSION={version_num}",
++    f"-DVERSION_{config.version}",
++    "-DNDEBUG=1",
++]
++# Header roots (decomp/include/<reference>/, copied from that pinned reference: decomp/reports/sources_report.txt).
++inc_sdk = ["-i include/dolsdk2004", "-i include/dolsdk2004/libc", "-ir src/dolphin", "-D__GEKKO__", "-DSDK_REVISION=0", "-DRELEASE"]
++inc_mp4 = ["-i include/marioparty4", "-i include/marioparty4/dolphin"]
++CR_LIBS: Dict[str, Tuple[str, List[str]]] = {
++    # top folder of splits.txt: (mw_version, cflags)
++    "dolphin": ("GC/1.2.5n", [*cflags_cr, "-O4,p", "-inline auto", "-fp_contract off", "-char unsigned", *inc_sdk]),
++    "sysdolphin": ("GC/1.3.2", [*cflags_cr, "-O4,p", "-inline auto", "-fp_contract on", "-str reuse",
++                                "-i src", "-i include/melee/doldecomp", "-i include/melee/MSL",
++                                "-i include/melee/dolphin", "-DMUST_MATCH"]),
++    "MSL": ("GC/2.6", [*cflags_cr, "-O4,p", "-inline auto,deferred", "-use_lmw_stmw on", "-str pool,readonly",
++                       "-common off", "-fp_contract on", "-char signed", *inc_mp4]),
++    "Runtime": ("GC/2.6", [*cflags_cr, "-O4,p", "-inline auto", "-use_lmw_stmw on", "-str reuse,pool,readonly",
++                           "-common off", "-fp_contract on", *inc_mp4]),
++    "MetroTRK": ("GC/2.6", [*cflags_cr, "-O4,p", "-inline auto,deferred", "-use_lmw_stmw on", "-str reuse,readonly",
++                            "-common off", "-sdata 0", "-sdata2 0", "-fp_contract on", *inc_mp4]),
++    "game": ("GC/2.6", [*cflags_cr, "-opt level=0,peephole,schedule,speed", "-fp_contract on"]),
++}
++# Per-object additions (appended, so they override: mwcc takes the last setting). dolsdk2004's Makefile: EXIBios.c
++# -O3,p; dvd, mtx, CARDOpen.c, CARDRename.c -char signed.
++CR_OBJECT_CFLAGS: Dict[str, List[str]] = {
++    "dolphin/exi/EXIBios.c": ["-O3,p"],
++    "dolphin/card/CARDOpen.c": ["-char signed"],
++    "dolphin/card/CARDRename.c": ["-char signed"],
++}
++# Per-object header roots, replacing the library's -i ones (an object taken from another reference than its library).
++CR_OBJECT_INCLUDES: Dict[str, List[str]] = {
++    # from Melee: Mario Party 4's __mem.c has the three functions in another order than ours
++    "Runtime/__mem.c": ["-i include/melee/MSL", "-i include/melee/dolphin"],
++}
++CR_DIR_CFLAGS: Dict[str, List[str]] = {
++    "dolphin/dvd/": ["-char signed"],
++    "dolphin/mtx/": ["-char signed"],
++}
++
++# Objects linked from C (100% code and data in objdiff, retail SHA-1 with them linked). Sources: decomp/src/<name>.
++CR_MATCHING = [
++    "dolphin/base/PPCArch.c",
++    "dolphin/os/OSAudioSystem.c",
++    "dolphin/os/OSCache.c",
++    "dolphin/os/OSInterrupt.c",
++    "dolphin/os/OSLink.c",
++    "dolphin/os/OSMutex.c",
++    "dolphin/os/OSResetSW.c",
++    "dolphin/os/OSRtc.c",
++    "dolphin/os/OSSync.c",
++    "dolphin/os/OSTime.c",
++    "dolphin/os/init/__ppc_eabi_init.c",
++    "dolphin/db/db.c",
++    "dolphin/mtx/mtxvec.c",
++    "dolphin/mtx/mtx44.c",
++    "dolphin/dvd/dvdqueue.c",
++    "dolphin/dvd/dvderror.c",
++    "dolphin/dvd/dvdidutils.c",
++    "dolphin/dvd/dvdFatal.c",
++    "dolphin/dvd/fstload.c",
++    "dolphin/dsp/dsp_debug.c",
++    "dolphin/card/CARDNet.c",
++    "dolphin/gx/GXBump.c",
++    "dolphin/gx/GXDisplayList.c",
++    "dolphin/odenotstub/odenotstub.c",
++    "dolphin/os/OSContext.c",
++    "MetroTRK/mainloop.c",
++    "MetroTRK/nubevent.c",
++    "MetroTRK/usr_put.c",
++    "MetroTRK/mutex_TRK.c",
++    "MetroTRK/flush_cache.c",
++    "MetroTRK/mem_TRK.c",
++    "MetroTRK/mpc_7xx_603e.c",
++    "MetroTRK/targcont.c",
++    "MetroTRK/target_options.c",
++    "MetroTRK/mslsupp.c",
++    "Runtime/__va_arg.c",
++    "Runtime/runtime.c",
++    "MSL/buffer_io.c",
++    "MSL/file_io.c",
++    "MSL/mem.c",
++    "MSL/mem_funcs.c",
++    "MSL/misc_io.c",
++    "MSL/wchar_io.c",
++    "MSL/e_atan2.c",
++    "MSL/e_fmod.c",
++    "MSL/e_rem_pio2.c",
++    "MSL/k_cos.c",
++    "MSL/k_rem_pio2.c",
++    "MSL/k_sin.c",
++    "MSL/k_tan.c",
++    "MSL/s_atan.c",
++    "MSL/s_copysign.c",
++    "MSL/s_cos.c",
++    "MSL/s_floor.c",
++    "MSL/s_frexp.c",
++    "MSL/s_ldexp.c",
++    "MSL/s_modf.c",
++    "MSL/s_sin.c",
++    "MSL/s_tan.c",
++    "MSL/w_acos.c",
++    "MSL/w_asin.c",
++    "MSL/w_atan2.c",
++    "MSL/w_fmod.c",
++    "MSL/w_pow.c",
++    "dolphin/dvd/dvdlow.c",
++    "Runtime/__mem.c",
+ ]
++# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
++# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
++# "data": the C defines data main.dol keeps in a dtk automatic object (the data split must give this object that
++# piece first); "link": the C calls functions / uses data our symbols do not name yet.
++CR_NOT_MATCHING = {
++    "MSL/FILE_POS.c":
++        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision",
++    "MSL/abort_exit.c":
++        "code: 1 of 1 functions differ (exit 85%): the reference is another revision",
++    "MSL/alloc.c":
++        "code: 1 of 4 functions differ (free 86%): the reference is another revision",
++    "MSL/ansi_files.c":
++        "code: 1 of 2 functions differ (__close_all 90%): the reference is another revision",
++    "MSL/ansi_fp.c":
++        "code: 2 of 4 functions differ (__two_exp 93%, __num2dec_internal 96%): the reference is another revision",
++    "MSL/ctype.c":
++        "data: the C defines data that main.dol has in a dtk automatic object (.data 0x300), so linking it changes main.dol",
++    "MSL/direct_io.c":
++        "code: 1 of 2 functions differ (fwrite 26%): the reference is another revision",
++    "MSL/e_acos.c":
++        "code: 1 of 1 functions differ (__ieee754_acos 38%): the reference is another revision",
++    "MSL/e_asin.c":
++        "code: 1 of 1 functions differ (__ieee754_asin 59%): the reference is another revision",
++    "MSL/e_pow.c":
++        "code: 1 of 1 functions differ (__ieee754_pow 94%): the reference is another revision",
++    "MSL/mbstring.c":
++        "data: the C defines data that main.dol has in a dtk automatic object, so linking it changes main.dol",
++    "MSL/printf.c":
++        "code: 4 of 11 functions differ (parse_format_801651AC 0%, long2str_80164F54 0%, longlong2str_80164C40 0%, vprintf 82%): the reference is another revision",
++    "MSL/string.c":
++        "code: 1 of 7 functions differ (strcat 14%): the reference is another revision",
++    "MetroTRK/dispatch.c":
++        "code: 2 of 2 functions differ (TRKInitializeDispatcher 0%, TRKDispatchMessage 24%): the reference is another revision",
++    "MetroTRK/dolphin_trk.c":
++        "code: 5 of 8 functions differ (TRKTargetTranslate 73%, __TRK_copy_vectors 85%, fn_8015E288 0%, fn_8015E09C 0% (+1 more)): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "MetroTRK/dolphin_trk_glue.c":
++        "code: 10 of 13 functions differ (InitMetroTRKCommTable 37%, TRKInitializeIntDrivenUART 75%, EnableEXI2Interrupts 67%, TRKPollUART 0% (+6 more)): the reference is another revision",
++    "MetroTRK/main_TRK.c":
++        "code: 1 of 1 functions differ (TRK_main 77%): the reference is another revision",
++    "MetroTRK/msg.c":
++        "code: 1 of 1 functions differ (TRKMessageSend 0%): the reference is another revision",
++    "MetroTRK/msgbuf.c":
++        "code: 3 of 14 functions differ (TRKResetBuffer 92%, TRKAppendBuffer1_ui64 53%, TRKAppendBuffer_ui32 65%): the reference is another revision",
++    "MetroTRK/msghndlr.c":
++        "code: 15 of 17 functions differ (OutputData 0%, TRKDoConnect 0%, TRKDoDisconnect 0%, TRKDoReset 0% (+11 more)): the reference is another revision",
++    "MetroTRK/notify.c":
++        "code: 1 of 1 functions differ (TRKDoNotifyStopped 61%): the reference is another revision",
++    "MetroTRK/nubinit.c":
++        "code: 1 of 3 functions differ (TRKInitializeNub 73%): the reference is another revision",
++    "MetroTRK/serpoll.c":
++        "code: 3 of 5 functions differ (TRKTestForPacket 0%, TRKGetInput 38%, TRKInitializeSerialHandler 16%): the reference is another revision",
++    "MetroTRK/support.c":
++        "code: 5 of 5 functions differ (TRKSuppAccessFile 39%, TRKRequestSend 77%, HandleOpenFileSupportRequest 24%, HandleCloseFileSupportRequest 51% (+1 more)): the reference is another revision",
++    "MetroTRK/targimpl.c":
++        "code: 12 of 29 functions differ (TRKValidMemory32 40%, TRKTargetAccessFP 23%, TRKPostInterruptEvent 86%, TRKTargetInterrupt 81% (+8 more)): the reference is another revision",
++    "Runtime/GCN_mem_alloc.c":
++        "code: 1 of 1 functions differ (__sys_free 98%): the reference is another revision",
++    "Runtime/global_destructor_chain.c":
++        "data: '__global_destructor_chain' in global_destructor_chain.o is defined again by a dtk automatic object (the data split did not give this object that piece)",
++    "dolphin/ai/ai.c":
++        "code: 1 of 19 functions differ (fn_80142088 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/ar/ar.c":
++        "code: 1 of 9 functions differ (fn_80142B28 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/ar/arq.c":
++        "data: the C defines data that main.dol has in a dtk automatic object, so linking it changes main.dol",
++    "dolphin/ax/AXVPB.c":
++        "code: 4 of 22 functions differ (__AXSetPBDefault 89%, fn_80146ED8 0%, fn_801470D8 0%, fn_8014719C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/card/CARDBlock.c":
++        "code: 3 of 6 functions differ (fn_8014D714 0%, fn_8014D71C 0%, fn_8014D7F0 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/card/CARDCheck.c":
++        "code: 1 of 6 functions differ (fn_8014DD7C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/card/CARDCreate.c":
++        "link: calls / uses __CARDBlock, __CARDGetFatBlock, __CARDUpdateDir, which our symbols do not name yet (dtk default names)",
++    "dolphin/card/CARDDelete.c":
++        "link: calls / uses __CARDBlock, __CARDUpdateDir, which our symbols do not name yet (dtk default names)",
++    "dolphin/card/CARDDir.c":
++        "code: 3 of 4 functions differ (fn_8014DB20 0%, fn_8014DBF0 0%, fn_8014DCB8 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/card/CARDFormat.c":
++        "link: calls / uses __CARDBlock, __CARDCheckSum, which our symbols do not name yet (dtk default names)",
++    "dolphin/card/CARDMount.c":
++        "code: 1 of 7 functions differ (DoMount 93%): the reference is another revision",
++    "dolphin/card/CARDOpen.c":
++        "link: calls / uses __CARDDiskNone, which our symbols do not name yet (dtk default names)",
++    "dolphin/card/CARDRdwr.c":
++        "code: 2 of 4 functions differ (BlockWriteCallback 78%, __CARDWrite 80%): the reference is another revision",
++    "dolphin/card/CARDStat.c":
++        "link: calls / uses __CARDSync, __CARDUpdateDir, which our symbols do not name yet (dtk default names)",
++    "dolphin/card/CARDUnlock.c":
++        "code: 1 of 6 functions differ (fn_8014C234 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/dsp/dsp_task.c":
++        "link: calls / uses DSPCheckMailToDSP, which our symbols do not name yet (dtk default names)",
++    "dolphin/exi/EXIBios.c":
++        "code: 22 of 23 functions differ (SetExiInterruptMask 90%, EXIImm 44%, EXIImmEx 95%, EXIDma 68% (+18 more)): the reference is another revision",
++    "dolphin/exi/EXIUart.c":
++        "code: 1 of 4 functions differ (WriteUARTN 93%): the reference is another revision",
++    "dolphin/gx/GXAttr.c":
++        "code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision",
++    "dolphin/gx/GXFifo.c":
++        "code: 1 of 13 functions differ (fn_80152F04 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/gx/GXFrameBuf.c":
++        "code: 2 of 13 functions differ (fn_801551BC 0%, fn_80155214 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/gx/GXGeometry.c":
++        "code: 1 of 9 functions differ (GXSetCullMode 35%): the reference is another revision",
++    "dolphin/gx/GXInit.c":
++        "code: 1 of 5 functions differ (GXInit 79%): the reference is another revision",
++    "dolphin/gx/GXLight.c":
++        "code: 3 of 11 functions differ (GXSetChanAmbColor 92%, GXSetChanMatColor 92%, GXSetChanCtrl 81%): the reference is another revision",
++    "dolphin/gx/GXMisc.c":
++        "code: 2 of 19 functions differ (fn_8015467C 0%, fn_801547E8 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/gx/GXTev.c":
++        "code: 3 of 16 functions differ (GXSetTevColor 29%, GXSetTevColorS10 49%, GXSetTevKColor 22%): the reference is another revision",
++    "dolphin/gx/GXTexture.c":
++        "data: the C defines data that main.dol has in a dtk automatic object (.data 0x318), so linking it changes main.dol",
++    "dolphin/gx/GXTransform.c":
++        "data: the C defines data that main.dol has in a dtk automatic object (.sdata2 0x14), so linking it changes main.dol",
++    "dolphin/mtx/mtx.c":
++        "link: calls / uses PSVECCrossProduct, which our symbols do not name yet (dtk default names)",
++    "dolphin/os/OS.c":
++        "code: 2 of 15 functions differ (ClearArena 78%, OSInit 73%): the reference is another revision",
++    "dolphin/os/OSAlarm.c":
++        "code: 1 of 8 functions differ (fn_80132EC4 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/os/OSAlloc.c":
++        "code: 2 of 8 functions differ (OSDestroyHeap 7%, OSCheckHeap 100%): the reference is another revision",
++    "dolphin/os/OSArena.c":
++        "data: the C defines data that main.dol has in a dtk automatic object (.sdata 0x4), so linking it changes main.dol",
++    "dolphin/os/OSError.c":
++        "data: '__OSErrorTable' in OSError.o is defined again by a dtk automatic object (the data split did not give this object that piece)",
++    "dolphin/os/OSFont.c":
++        "code: 6 of 8 functions differ (GetFontCode 86%, OSGetFontEncode 86%, OSLoadFont 13%, ExpandFontSheet 94% (+2 more)): the reference is another revision",
++    "dolphin/os/OSReboot.c":
++        "code: 3 of 3 functions differ (fn_801367D8 0%, fn_801367E8 0%, __OSReboot 12%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/os/OSReset.c":
++        "code: 2 of 5 functions differ (OSResetSystem 26%, OSGetResetCode 68%): the reference is another revision",
++    "dolphin/os/OSThread.c":
++        "data: the C defines data that main.dol has in a dtk automatic object (.data 0x80D, .sbss 0xC), so linking it changes main.dol",
++    "dolphin/os/init/__start.c":
++        "data: the C defines data that main.dol has in a dtk automatic object (.sbss 0x1), so linking it changes main.dol",
++    "dolphin/si/SIBios.c":
++        "code: 1 of 18 functions differ (fn_8016CB94 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++    "dolphin/vi/vi.c":
++        "code: 4 of 22 functions differ (getTiming 95%, __VIInit 81%, VIConfigure 92%, VIGetTvFormat 100%): the reference is another revision",
++    "sysdolphin/baselib/object.c":
++        "link: calls / uses hsdClass, which our symbols do not name yet (dtk default names)",
++    "sysdolphin/baselib/util.c":
++        "data: the C defines data that main.dol has in a dtk automatic object (.data 0x58), so linking it changes main.dol",
++}
++
++
++def cr_object(name: str) -> Object:
++    extra = list(CR_OBJECT_CFLAGS.get(name, []))
++    for d, f in CR_DIR_CFLAGS.items():
++        if name.startswith(d):
++            extra += f
++    opts: Dict[str, Any] = {"extra_cflags": extra}
++    if name in CR_OBJECT_INCLUDES:
++        _, lib_cflags = CR_LIBS[name.split("/")[0]]
++        opts["cflags"] = [f for f in lib_cflags if not f.startswith("-i ")] + CR_OBJECT_INCLUDES[name]
++    return Object(Matching if name in CR_MATCHING else NonMatching, name, **opts)
 +
 +
 +def libs_from_splits(path: Path) -> List[Dict[str, Any]]:
 +    libs: Dict[str, Dict[str, Any]] = {}
++    names = set()
 +    for line in path.read_text(encoding="utf-8").splitlines():
 +        if not line or line[0].isspace() or line.startswith("Sections:") or line.startswith("//"):
 +            continue
 +        name = line.split(":")[0].strip()
++        names.add(name)
 +        top = name.split("/")[0]
++        mw_version, cflags = CR_LIBS.get(top, (config.linker_version, cflags_runtime))
 +        lib = libs.setdefault(top, {
 +            "lib": top,
-+            "mw_version": config.linker_version,
-+            "cflags": cflags_base if top in GAME_DIRS else cflags_runtime,
++            "mw_version": mw_version,
++            "cflags": cflags,
 +            "progress_category": "game" if top in GAME_DIRS else "sdk",
 +            "objects": [],
 +        })
-+        lib["objects"].append(Object(NonMatching, name))
++        lib["objects"].append(cr_object(name))
++    unknown = sorted(set(CR_MATCHING) - names)
++    if unknown:
++        sys.exit(f"CR_MATCHING names objects that are not in splits.txt: {unknown}")
 +    return list(libs.values())
 +
 +

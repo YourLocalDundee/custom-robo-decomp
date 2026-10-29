@@ -1,7 +1,7 @@
 #Requires -Version 7
 # Batch 9: the Phase 4 build (plan.md Phase 4 Milestones 1 + 2). Regenerates decomp/config/GXCE01/{symbols,splits}.txt from
 # dtk's analysis + our verified names + the reference layouts, configures and builds main.dol from dtk's split objects
-# (every object NonMatching), and checks the built main.dol is the retail one (SHA-1 6a73cd11...fb50b).
+# (the configure.py CR_MATCHING objects compiled from decomp/src, every other one from asm), and checks the built main.dol is the retail one (SHA-1 6a73cd11...fb50b).
 #   1. tools/setup_decomp.ps1: template files, pinned build tools, your main.dol (skips what is done)
 #   2. tools/gen_dtk_symbols.py -> config symbols.txt (+ decomp/reports/symbols_report.txt)
 #   3. tools/gen_dtk_splits.py  -> config splits.txt  (+ decomp/reports/splits_report.txt): code objects from the
@@ -14,7 +14,11 @@
 #      back, align: / data: attributes and a few sizes, names never change; splits.txt: objects in dtk's resolved link
 #      order, ranges unchanged); a second, forced split must then leave both byte-identical (a fixpoint). The
 #      committed files are these normalised ones.
+#   4b. tools/gen_c_symbols.py: the objects linked from C (configure.py CR_MATCHING, Milestone 4) put their own symbols
+#      (main.elf's, at the retail addresses) into symbols.txt; ninja again (a fresh split), so objdiff pairs by name.
 #   5. SHA-1 of decomp/build/GXCE01/main.dol == retail, written to decomp/reports/build_report.txt.
+#   5b. tools/check_c_objects.py: every C object linked is 100% code and data in objdiff; every other C file is listed
+#      with its reason; per-library progress -> decomp/reports/progress_report.txt, provenance -> sources_report.txt.
 #   6. tools/gen_dtk_relocs.py --check: the built main.elf has no missed pointer, no false one, and every relocated
 #      value equals its target (appended to relocs_report.txt).
 #   7. tools/shift_test.py: the static shift test (Milestone 2) on a scratch copy of the build (decomp/build/shift/):
@@ -47,6 +51,12 @@ try {
     if ($LASTEXITCODE) { throw 'configure.py failed' }
     & $ninja
     if ($LASTEXITCODE) { throw 'ninja failed (see above; dtk rejects a bad split here)' }
+    # the objects linked from C (configure.py CR_MATCHING) give their own symbols to symbols.txt (main.elf has them at
+    # the retail addresses): then split again, so objdiff pairs their data by name
+    python -I "$g/tools/gen_c_symbols.py"
+    if ($LASTEXITCODE) { throw 'gen_c_symbols.py failed' }
+    & $ninja
+    if ($LASTEXITCODE) { throw 'ninja (after gen_c_symbols.py) failed' }
     $first = Hashes
     # force a second split from the normalised files: nothing may change any more
     (Get-Item -LiteralPath "$cfg/symbols.txt").LastWriteTime = Get-Date
@@ -61,7 +71,7 @@ $sy = Get-Content -LiteralPath "$d/reports/symbols_report.txt" -TotalCount 4
 $rl = Get-Content -LiteralPath "$d/reports/relocs_report.txt" | Select-String -Pattern '^fixes written' | ForEach-Object { "relocation $($_.Line)" }
 $ok = $sha1 -eq $retail
 $report = @(
-    'decomp build (tools/batches/batch9_decomp_build.ps1): main.dol linked from dtk''s split objects, every object NonMatching'
+    'decomp build (tools/batches/batch9_decomp_build.ps1): main.dol linked from dtk''s split objects and the objects built from C (decomp/reports/progress_report.txt)'
     "built  decomp/build/GXCE01/main.dol SHA-1 $sha1"
     "retail main.dol (GXCE01 v1.0)       SHA-1 $retail"
     "result: $(if ($ok) { 'MATCH' } else { 'DIFFERENT' })"
@@ -71,6 +81,8 @@ $report = @(
 [IO.File]::WriteAllText("$d/reports/build_report.txt", (($report -join "`r`n") + "`r`n"))
 $report[1..3]
 if (-not $ok) { throw "built main.dol SHA-1 $sha1 is not the retail $retail" }
+python -I "$g/tools/check_c_objects.py"
+if ($LASTEXITCODE) { throw 'a C object is not 100% in objdiff, or a C file is not accounted for (decomp/reports/progress_report.txt)' }
 python -I "$g/tools/gen_dtk_relocs.py" --check
 if ($LASTEXITCODE) { throw 'the built main.elf still has relocation misses / false positives (decomp/reports/relocs_report.txt)' }
 python -I "$g/tools/shift_test.py"

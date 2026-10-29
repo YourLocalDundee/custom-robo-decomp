@@ -55,6 +55,18 @@ To add a struct: write it in `symbols/cr_types.h` with `/* +XX */` on every fiel
 offset doesn't match. Then give a function a prototype there (parameter names become the C's names) and
 type the globals that hold it in `symbols/cr_globals.txt`.
 
+## Matching a library file (Phase 4)
+
+1. Pick a file from `CR_NOT_MATCHING` in `decomp/configure.py` (its reason says what blocks it), or an object of
+   `decomp/config/GXCE01/splits.txt` that has no C file yet.
+2. Copy it from a pinned reference with `tools/import_ref_source.py` (it adds the provenance line). Never copy by hand,
+   never use Ghidra's or any decompiler's output. Commands: docs/decomp.md "Building library objects from C".
+3. Build (`cd decomp; python configure.py; ..\tools\ninja\ninja.exe`), compare with objdiff, adapt the C until every
+   function matches, and check that `python -I tools/check_c_objects.py --link-each` says `retail` for it.
+4. Move it to `CR_MATCHING`, run `python -I tools/make_configure_patch.py`, then `pwsh tools/batches/batch9_decomp_build.ps1`:
+   the object must be at 100% code and data and main.dol retail. Then the full `run_all.ps1`.
+5. A file that cannot reach 100% stays in `CR_NOT_MATCHING` with its reason; it is never linked.
+
 ## Rules for everything
 
 - **Commit all project work**: scripts, batches, symbols, types, reports, docs and findings, plus what is needed to

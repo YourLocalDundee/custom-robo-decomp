@@ -101,11 +101,33 @@ leaf functions, constants are not folded (`li r0,2; clrlwi r0,r0,24`), and the s
 - The 1.2.5n compiler is a community-patched 1.2.5 (epilogue scheduling); Nintendo's real build is a 1.2.5-era
   release that behaves like it. Same caveat as in every SDK decomp.
 
-## Ready-to-use flags for decomp/configure.py
+## Flags as applied in decomp/configure.py (Phase 4 Milestone 4, step 54)
 
-Not applied yet: every object is still NonMatching and nothing is compiled, so the flags change nothing today. When the
-first C object goes in (Milestone 4), these replace the per-folder `mw_version` / `cflags` in
-`libs_from_splits` (`tools/patches/dtk_template_configure.patch`):
+Edit `decomp/configure.py`, then `python -I tools/make_configure_patch.py` rewrites
+`tools/patches/dtk_template_configure.patch` (applied to the pinned template by `tools/setup_decomp.ps1`). An object
+is compiled with these flags whenever `decomp/src/<object>` exists; it is LINKED from C only when it is in `CR_MATCHING`.
+
+| Top folder of splits.txt | Compiler | Flags (after the common ones) | Header roots |
+|---|---|---|---|
+| dolphin | GC/1.2.5n | `-O4,p -inline auto -fp_contract off -char unsigned -D__GEKKO__ -DSDK_REVISION=0 -DRELEASE` | `include/dolsdk2004`, `include/dolsdk2004/libc`, `-ir src/dolphin` (private `__os.h`-style headers) |
+| sysdolphin | GC/1.3.2 | `-O4,p -inline auto -fp_contract on -str reuse -DMUST_MATCH` | `src`, `include/melee/doldecomp`, `include/melee/MSL`, `include/melee/dolphin` |
+| MSL | GC/2.6 | `-O4,p -inline auto,deferred -use_lmw_stmw on -str pool,readonly -common off -fp_contract on -char signed` | `include/marioparty4`, `include/marioparty4/dolphin` |
+| Runtime | GC/2.6 | `-O4,p -inline auto -use_lmw_stmw on -str reuse,pool,readonly -common off -fp_contract on` | as MSL |
+| MetroTRK | GC/2.6 | `-O4,p -inline auto,deferred -use_lmw_stmw on -str reuse,readonly -common off -sdata 0 -sdata2 0 -fp_contract on` | as MSL |
+| game | GC/2.6 | `-opt level=0,peephole,schedule,speed -fp_contract on` | (none yet) |
+
+Common to all (`cflags_cr`): `-nodefaults -proc gekko -align powerpc -enum int -fp hardware -Cpp_exceptions off
+-pragma "cats off" -pragma "warn_notinlined off" -maxerrors 1 -nosyspath -cwd source -multibyte -W off
+-DBUILD_VERSION=0 -DVERSION_GXCE01 -DNDEBUG=1` (+ the template's `-lang=c`). Per object (`CR_OBJECT_CFLAGS`, appended,
+so they win): `dolphin/exi/EXIBios.c` `-O3,p`; `dolphin/card/CARDOpen.c`, `CARDRename.c` `-char signed`; per folder
+(`CR_DIR_CFLAGS`): `dolphin/dvd/`, `dolphin/mtx/` `-char signed`. `CR_OBJECT_INCLUDES` replaces a library's header
+roots for a file taken from another reference (`Runtime/__mem.c`: Melee's). The linker stays GC/1.3.2.
+Confirmed by the 66 objects matched in step 54 (dolphin, MSL, Runtime and MetroTRK all have objects at 100% with these
+flags; sysdolphin's two tried files, util.c and object.c, are 100% code too).
+
+## Ready-to-use flags (Milestone 3 proposal; applied above)
+
+The original proposal, kept for reference (the table above is what the build uses):
 
 ```python
 cflags_common = ["-nodefaults", "-proc gekko", "-align powerpc", "-enum int", "-fp hard", "-Cpp_exceptions off",

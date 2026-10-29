@@ -1,0 +1,24 @@
+/* Custom Robo: from mariopartyrd/marioparty4 @ 5b01c79b4910525e3fc5aa312eddd6d014e7f337, src/Runtime.PPCEABI.H/global_destructor_chain.c */ #include "Runtime.PPCEABI.H/NMWException.h"
+
+DestructorChain* __global_destructor_chain;
+
+void* __register_global_object(void* object, void* destructor, void* regmem) {
+    ((DestructorChain*)regmem)->next = __global_destructor_chain;
+    ((DestructorChain*)regmem)->destructor = destructor;
+    ((DestructorChain*)regmem)->object = object;
+    __global_destructor_chain = (DestructorChain*)regmem;
+    return object;
+}
+
+void __destroy_global_chain(void) {
+    DestructorChain* iter;
+    while ((iter = __global_destructor_chain) != 0) {
+        __global_destructor_chain = iter->next;
+        DTORCALL(iter->destructor, iter->object);
+    }
+}
+
+/* clang-format off */
+__declspec(section ".dtors")
+static void* const __destroy_global_chain_reference = __destroy_global_chain;
+/* clang-format on */
