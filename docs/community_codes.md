@@ -1,5 +1,7 @@
 # Community codes, texture mods and Gecko tooling (research notes)
 
+> **Correction (Oct 29, 2026):** the code-size limit below (Dolphin cheat area, ~6 KB) is not the real limit. Project Hive loads a ~140 KB GXCE01.GCT through Riivolution and already adds new parts and robo classes by code. The Discord code channel is analysed in [community/discord_codes.md](community/discord_codes.md): 33 hooks mapped to our functions, the robo stats table at 0x801C6C44 (0x134 per robo), and the 4-robo array at 0x8024E120 + n x 0x33520.
+
 Research date: Oct 28, 2026. Target: Custom Robo, US GXCE01 v1.0 (JP GXCJ01 noted where relevant).
 Machine-readable list: `docs/community/codes_gxce01.tsv` (one row per code: raw lines, decrypted lines, Gecko form, addresses, decomp hit).
 
