@@ -17,6 +17,9 @@ $files = @(
     'symbols\candidates_rt.txt'
     'symbols\candidates_hsd.txt'
     'symbols\lib_candidates_report.txt'
+    'symbols\descriptive.txt'                 # game names: hand lines + the "// game-real" lines of batch 7
+    'symbols\game_real.txt'                   # batch 7 (tools\match_game_names.py): G1 / G2 names, G3 module notes
+    'symbols\game_unnamed_real.txt'           # batch 7 leftovers
     'symbols\names_crosscheck.txt'            # name cross-check (batch 8)
     'symbols\verify_report.txt'
     'symbols\types_report.txt'                # header types, prototypes, globals (ParseHeaders.java)

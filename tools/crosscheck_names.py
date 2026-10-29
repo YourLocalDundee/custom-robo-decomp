@@ -36,6 +36,13 @@ checked mechanically against main.dol (tools/dtk/proj/main.dol) and the index:
                                                     it, that function references it)
   every 0x8xxxxxxx address / FUN_ / cr_ name mentioned -> exists (function start, named function or mapped section)
   cr_globals datatype T*[N] / T[N]                -> for code-pointer and char* tables: all N words are code / strings
+  `// game-real G1 names:0xT[i]@0xS funcs:0xF[i] "STR"` (lines merged by batch 7, tools/match_game_names.py)
+                                                 -> the name table word T+4i still points at S, S is still the string
+                                                    STR, the function table word F+4i is still this function, the name
+                                                    is exactly cr_STR, and T / F are adjacent runs of pointers
+  `// game-real G2 string:0xS "STR"`             -> S is still STR, this function references S, the name is cr_<the
+                                                    identifier STR starts with>
+  (the tag is checked on its own; the rest of the why: by the rules above)
 Verdict: FAIL = a checked claim is false; OK = >= 1 substantive claim checked true, none false; UNCHECKABLE = prose only.
 
 Outputs symbols/names_crosscheck.txt (summary line, then one row per name, FAILs first) and docs/names_crosscheck.md.
@@ -697,10 +704,57 @@ FUNREF = re.compile(r'\bFUN_([0-9a-fA-F]{8})\b')
 CRREF = re.compile(r'\b(cr_[A-Za-z0-9_]+)')
 
 
+def check_game_real(tag, name, addr, dol, ours):
+    """the `// game-real` tag of a batch-7 line -> (ok, bad)"""
+    ok, bad = [], []
+    m = re.fullmatch(r'G1 names:0x([0-9A-F]{8})\[(\d+)\]@0x([0-9A-F]{8}) funcs:0x([0-9A-F]{8})\[(\d+)\] "(.*)"', tag)
+    if m:
+        t, i, sa, f, j, word = int(m.group(1), 16), int(m.group(2)), int(m.group(3), 16), int(m.group(4), 16), int(m.group(5)), m.group(6)
+        if i != j: bad.append(f'game-real: name index {i} != function index {j}')
+        w = dol.word(t + 4 * i)
+        (ok if w == sa else bad).append(f'game-real: 0x{t:08X}[{i}] = ' + (f'{w:08X}' if w is not None else 'unreadable') + ('' if w == sa else f' not {sa:08X}'))
+        sv = dol.cstr(sa)
+        (ok if sv == word else bad).append(f'game-real: string 0x{sa:08X} = "{sv}"' + ('' if sv == word else f' not "{word}"'))
+        (ok if name == 'cr_' + word else bad).append(f'game-real: name {name} ' + ('= cr_ + the string' if name == 'cr_' + word else f'is not cr_{word}'))
+        w = dol.word(f + 4 * j)
+        (ok if w == addr else bad).append(f'game-real: 0x{f:08X}[{j}] = ' + (f'{w:08X}' if w is not None else 'unreadable') + ('' if w == addr else f' not {addr:08X}'))
+        # adjacency: the word right after the name table run / before it is the function table (or the reverse)
+        def run_end(base, step, pred):
+            a = base
+            while pred(dol.word(a + step)): a += step
+            return a
+        is_str = lambda x: x is not None and dol.cstr(x) is not None
+        is_fn = lambda x: x is not None and dol.is_text(x)
+        s_lo, s_hi = run_end(t, -4, is_str), run_end(t, 4, is_str)
+        f_lo, f_hi = run_end(f, -4, is_fn), run_end(f, 4, is_fn)
+        adj = s_hi + 4 == f_lo or f_hi + 4 == s_lo
+        same = (s_hi - s_lo) == (f_hi - f_lo) and s_lo == t and f_lo == f
+        (ok if adj and same else bad).append(f'game-real: tables 0x{t:08X} ({(s_hi - s_lo) // 4 + 1}) and 0x{f:08X} ({(f_hi - f_lo) // 4 + 1}) '
+                                             + ('adjacent, same length' if adj and same else 'not adjacent runs of the same length'))
+        return ok, bad
+    m = re.fullmatch(r'G2 string:0x([0-9A-F]{8}) "(.*)"', tag)
+    if m:
+        sa, text = int(m.group(1), 16), m.group(2)
+        sv = dol.cstr(sa)
+        shown = sv.replace('\n', '\\n').replace('\t', '\\t').replace('\r', '\\r') if sv else None
+        (ok if shown and shown.startswith(text) else bad).append(f'game-real: string 0x{sa:08X} ' + ('matches' if shown and shown.startswith(text) else f'= "{shown}"'))
+        (ok if sa in ours.reft.get(addr, ()) else bad).append(f'game-real: {addr:08X} ' + ('references' if sa in ours.reft.get(addr, ()) else 'does not reference') + f' 0x{sa:08X}')
+        ident = re.match(r'(?:Warning: |Error: )?([A-Za-z_]\w*)\(\)', text)
+        (ok if ident and name == 'cr_' + ident.group(1) else bad).append(f'game-real: name {name} vs string ' + (ident.group(1) if ident else '(no identifier)'))
+        return ok, bad
+    return ok, [f'game-real: unreadable tag "{tag[:60]}"']
+
+
 def check_game(r, ours, dol, all_names, glob_addr, names_at):
     why, name, addr = r['why'], r['name'], r['addr']
     ok, bad, notes = [], [], []
     isfunc = r['kind'] == 'function'
+    gr = None
+    if '// game-real ' in why:
+        why, gr = why.split('// game-real ', 1)
+        why = why.rstrip()
+        o, b = check_game_real(gr.strip(), name, addr, dol, ours)
+        ok += o; bad += b
 
     def resolve(tok):
         """FUN_x / 0x8... / cr_name / lib name -> address"""

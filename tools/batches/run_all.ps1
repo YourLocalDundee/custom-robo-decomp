@@ -4,13 +4,14 @@
 # Usage:  pwsh D:\emulators\gameTesting\tools\batches\run_all.ps1 [-SkipRebuild] [-MaxPasses 5]
 #
 # Reproducible from any starting point. The name batches (1 = layout proof, then 6 = lib candidates, which builds on
-# batch 1) take our names only from the committed symbol files and the Ghidra export only for structure (function
-# starts, calls, strings, assert calls, by address: tools\export_struct.py), and that structure does not depend on
-# the names applied. So the run
+# batch 1, then 7 = the game's own names, from main.dol only) take our names only from the committed symbol files
+# and the Ghidra export only for structure (function starts, calls, strings, assert calls, by address:
+# tools\export_struct.py), and that structure does not depend on the names applied. So the run
 #   1. starts from the committed names: strips every layout-proof / lib-candidate line from symbols\symbols.txt and
 #      empties symbols\candidates_{sdk,rt,hsd}.txt (candidates_audit.txt is an input and stays);
-#   2. runs batches 1 + 6 against whatever export exists (none on a fresh setup: forced layout pairs only);
-#   3. rebuilds Ghidra and reruns batches 1 + 6 against the fresh export; if any name file changed, rebuilds again.
+#   2. runs batches 1 + 6 + 7 against whatever export exists (none on a fresh setup: forced layout pairs only;
+#      batch 7 needs no export) - batch 7 replaces its own "// game-real" lines in symbols\descriptive.txt;
+#   3. rebuilds Ghidra and reruns batches 1 + 6 + 7 against the fresh export; if any name file changed, rebuilds again.
 # It stops when a rebuild leaves every name unchanged (the decompiled C is then exactly the C of the final names):
 # 1 rebuild when the previous export exists, 2 on a fresh setup. Fails after -MaxPasses rebuilds.
 # -SkipRebuild: step 2 only, no Ghidra.
@@ -19,9 +20,11 @@ $ErrorActionPreference = 'Stop'
 $g = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $t0 = Get-Date
 $sym = "$g/symbols/symbols.txt"
-# everything batches 1 + 6 write that the next pass or the rebuild reads (ParseHeaders.java reads verify_report.txt)
+# everything batches 1 + 6 + 7 write that the next pass or the rebuild reads (ParseHeaders.java reads verify_report.txt,
+# ApplySymbols.java descriptive.txt)
 $nameFiles = 'symbols.txt', 'layout_candidates.txt', 'candidates_sdk.txt', 'candidates_rt.txt', 'candidates_hsd.txt',
-    'verify_report.txt', 'lib_candidates_report.txt' | ForEach-Object { "$g/symbols/$_" }
+    'verify_report.txt', 'lib_candidates_report.txt', 'descriptive.txt', 'game_real.txt', 'game_unnamed_real.txt' |
+    ForEach-Object { "$g/symbols/$_" }
 
 function Snapshot {
     ($nameFiles | ForEach-Object { if (Test-Path -LiteralPath $_) { (Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash } else { 'missing' } }) -join ' '
@@ -30,6 +33,7 @@ function Names($label) {
     "== names ($label)"
     & "$PSScriptRoot/batch1_names.ps1"
     & "$PSScriptRoot/batch6_lib_candidates.ps1"
+    & "$PSScriptRoot/batch7_game_names.ps1"
     python -I "$g/tools/lint_descriptive.py"
     if ($LASTEXITCODE) { throw 'symbols\descriptive.txt has problems (see above)' }
 }

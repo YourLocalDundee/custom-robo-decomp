@@ -1,0 +1,47 @@
+// real-name leads in main.dol not used by tools/match_game_names.py (not proven), with the reason
+G1 name table 0x801C3A4C (4 strings: 'TEAM 1', 'TEAM 2', 'TEAM 3' ...): no function table directly before or after it; referenced by 0x800A0E64
+G1 name table 0x801DEAB4 (15 strings: 'SEQ_LOGO', 'SEQ_MOVIE', 'SEQ_TITLE' ...): adjacent function table 0x801DEA6C has 18 entries, not 15 (counts differ: not paired)
+G1 name table 0x801DEAB4 (15 strings: 'SEQ_LOGO', 'SEQ_MOVIE', 'SEQ_TITLE' ...): adjacent function table 0x801DEAF0 has 60 entries, not 15 (counts differ: not paired)
+G1 name table 0x801F88A4 (18 strings: 'CAMMODE_DEBUG', 'CAMMODE_NOMOVE', 'CAMMODE_MIDDLE' ...): no function table directly before or after it; no code reference
+G1 name table 0x80206DB0 (3285 strings: 'null', 'unknown', '2001/**/**' ...): no function table directly before or after it; referenced by 0x800A0E64
+G1 name table 0x8021AA10 (128 strings: 'sound/ALWAYS.ssm', 'sound/CUSTOM.ssm', 'sound/JINGLE.ssm' ...): no function table directly before or after it; referenced by 0x800968B4, 0x80098F8C, 0x80099124
+G1 name table 0x8021AFA0 (56 strings: 'SNRM_001_BIN', 'SNRM_002_BIN', 'SNRM_003_BIN' ...): no function table directly before or after it; referenced by 0x800A0E64
+G1 name table 0x8021B240 (47 strings: 'RPG_WRD01_BIN', 'RPG_WRD02_BIN', 'RPG_OFC_BIN' ...): no function table directly before or after it; referenced by 0x800A0E64
+G1 name table 0x8021B3B8 (238 strings: 'OBJ_BATTLE_SET_BIN', 'OBJ_BATTLE_AURA_SET_BIN', 'OBJ_PGR_BIN' ...): no function table directly before or after it; no code reference
+G1 name table 0x8021C8A4 (4 strings: 'MAIN_SCRIPT  ', 'CHAR_SCRIPT  ', 'OBJ_SCRIPT   ' ...): adjacent function table 0x8021C3F4 has 300 entries, not 4 (counts differ: not paired)
+G1 name table 0x80236248 (2 strings: '(', '-'): no function table directly before or after it; no code reference
+G2 0x801A5708 string 0x8024D268 "HSD_ArchiveParse: byte-order mismatch! Please check data for": weak form "HSD_ArchiveParse:" (gives shortened names), not used for naming
+G2 check (weak form) differs: 0x80131FD0 string 0x802428FC "Arena : 0x%x - 0x%x\n" vs our name OSInit
+G2 check (strong form) differs: 0x8013B9A0 string 0x80244200 "DVDReadAsync(): specified area is out of the file  " vs our name DVDReadAsyncPrio
+G2 check (strong form) differs: 0x8013BA90 string 0x80244234 "DVDRead(): specified area is out of the file  " vs our name DVDReadPrio
+G2 check (strong form) differs: 0x8013BE00 string 0x802442F4 "DVDChangeDisk(): FST in the new disc is too big.   " vs our name stateReadingFST
+G2 check (strong form) differs: 0x8013C8F8 string 0x802442F4 "DVDChangeDisk(): FST in the new disc is too big.   " vs our name cbForStateCheckID2
+G2 check (weak form) differs: 0x801599E8 string 0x801C4118 "MessageSend : cc_write returned %ld\n" vs our name TRKMessageSend
+G2 check (weak form) differs: 0x8015A3E4 string 0x801C4230 "TestForPacket : FreeBuffer is  %ld\n" vs our name TRKTestForPacket
+G2 check (weak form) differs: 0x8015A3E4 string 0x801C4270 "TestForPacket : Invalid size of packet hdr.size\n" vs our name TRKTestForPacket
+G2 check (weak form) differs: 0x8015A3E4 string 0x801C42A4 "TestForPacket : Invalid size of packet\n" vs our name TRKTestForPacket
+G2 check (weak form) differs: 0x8015AB44 string 0x801C4390 "SendACK : Calling MessageSend\n" vs our name TRKDoWriteRegisters
+G2 check (weak form) differs: 0x8015ADD4 string 0x801C4390 "SendACK : Calling MessageSend\n" vs our name TRKDoReadRegisters
+G2 check (weak form) differs: 0x8015ADD4 string 0x801C43C8 "DoReadRegisters : Buffer length 0x%08x\n" vs our name TRKDoReadRegisters
+G2 check (weak form) differs: 0x8015ADD4 string 0x801C43F0 "DoReadRegisters : Error reading  default regs 0x%08x\n" vs our name TRKDoReadRegisters
+G2 check (weak form) differs: 0x8015ADD4 string 0x801C4428 "DoReadRegisters : Error FP regs 0x%08x\n" vs our name TRKDoReadRegisters
+G2 check (weak form) differs: 0x8015ADD4 string 0x801C4450 "DoReadRegisters : Error extended1 regs 0x%08x\n" vs our name TRKDoReadRegisters
+G2 check (weak form) differs: 0x8015ADD4 string 0x801C4480 "DoReadRegisters : Error extended2 regs 0x%08x\n" vs our name TRKDoReadRegisters
+G2 check (weak form) differs: 0x8015B0B4 string 0x801C4390 "SendACK : Calling MessageSend\n" vs our name TRKDoWriteMemory
+G2 check (weak form) differs: 0x8015B2F0 string 0x801C4390 "SendACK : Calling MessageSend\n" vs our name TRKDoReadMemory
+G2 check (weak form) differs: 0x8015BAA8 string 0x801C4530 "msg_command : 0x%02x hdr->cmdID 0x%02x\n" vs our name TRKRequestSend
+G2 check (weak form) differs: 0x8015BAA8 string 0x801C4558 "msg_error : 0x%02x\n" vs our name TRKRequestSend
+G2 check (weak form) differs: 0x8015BAA8 string 0x801C456C "RequestSend : Bad ack or non ack received msg_command : 0x%0" vs our name TRKRequestSend
+G2 check (weak form) differs: 0x8015E8B8 string 0x801C4688 "MetroTRK : Set to BBA\n" vs our name InitMetroTRKCommTable
+G2 check (weak form) differs: 0x8015E8B8 string 0x801C46A0 "MetroTRK : Set to GDEV hardware\n" vs our name InitMetroTRKCommTable
+G2 check (weak form) differs: 0x8015E8B8 string 0x801C46C4 "MetroTRK : Set to AMC DDH hardware\n" vs our name InitMetroTRKCommTable
+G2 check (weak form) differs: 0x8015E8B8 string 0x801C46E8 "MetroTRK : Set to UNKNOWN hardware. (%ld)\n" vs our name InitMetroTRKCommTable
+G2 check (weak form) differs: 0x8015E8B8 string 0x801C4714 "MetroTRK : Invalid hardware ID passed from OS\n" vs our name InitMetroTRKCommTable
+G2 check (weak form) differs: 0x8015E8B8 string 0x801C4744 "MetroTRK : Defaulting to GDEV Hardware\n" vs our name InitMetroTRKCommTable
+G2 check (weak form) differs: 0x8015EECC string 0x801C4784 "cc_write : Output data 0x%08x %ld bytes\n" vs our name ddh_cc_write
+G2 check (weak form) differs: 0x8015EF8C string 0x801C47F4 "cc_read : error reading bytes from EXI2 %ld\n" vs our name ddh_cc_read
+G2 check (weak form) differs: 0x8015F478 string 0x801C4864 "cc_write : Output data 0x%08x %ld bytes\n" vs our name gdev_cc_write
+G2 check (weak form) differs: 0x8015F538 string 0x801C48D4 "cc_read : error reading bytes from EXI2 %ld\n" vs our name gdev_cc_read
+G2 check (weak form) differs: 0x80179F88 string 0x8024B0A4 "psInitDataBanks: unknown version\n" vs our name psInitDataBankLoad
+G2: strong form disagreed with an existing name - no G2 names emitted this run
+G1 note: sequence handlers (name table 0x801DEAB4, five 15-entry tables indexed by FUN_8000878c / FUN_800055e8) and camera-mode handlers (0x801F88A4 18 names vs 0x801F7FF0 21 [start, frame] pairs) are named by hand in symbols/descriptive.txt (plan.md steps 42 and 45): the role suffix (_Enter, _FrameA, _Start, ...) is ours, so they are not regenerated here; tools/crosscheck_names.py checks their table entries every run

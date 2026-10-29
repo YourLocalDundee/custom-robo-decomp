@@ -54,11 +54,13 @@ Everything below runs locally, with no network access. The name batches and the 
 (about 4 minutes per rebuild + name pass; 1 rebuild when a previous export exists, 2 on a fresh setup):
 
 1. **Start from the committed names**: every `// layout-proof` / `// lib-candidate` line is stripped from `symbols\symbols.txt`
-   and `symbols\candidates_{sdk,rt,hsd}.txt` are emptied, so the result never depends on an earlier run.
-2. **Names, pass 0**: batch 1, batch 6 and the lint, against the Ghidra export of the previous run if there is one
+   and `symbols\candidates_{sdk,rt,hsd}.txt` are emptied, so the result never depends on an earlier run (batch 7 replaces
+   its own `// game-real` lines in `symbols\descriptive.txt` itself).
+2. **Names, pass 0**: batch 1, batch 6, batch 7 and the lint, against the Ghidra export of the previous run if there is one
    (a fresh setup has none: only forced layout pairs, no lib candidates).
 3. **Rebuild, then names again** against the fresh export; repeat while any name file changed (`symbols.txt`,
-   `layout_candidates.txt`, `candidates_*.txt`, `verify_report.txt`, `lib_candidates_report.txt`). It stops when a rebuild
+   `layout_candidates.txt`, `candidates_*.txt`, `verify_report.txt`, `lib_candidates_report.txt`, `descriptive.txt`,
+   `game_real.txt`, `game_unnamed_real.txt`). It stops when a rebuild
    leaves every name unchanged, so the decompiled C is exactly the C of the final names, and fails after 5 rebuilds
    (`-MaxPasses`). The summary prints how many rebuilds it took.
 4. Batches 5, 2, 3, 4 and 8 on the final export.
@@ -69,12 +71,15 @@ applied, never `decompiled\index.db`, never the decompiled C). Assert calls (fil
 `main.dol`'s instruction bytes (`tools\dol_asserts.py`). `tools\rebuild_decomp.ps1` deletes the old export first and stops
 unless Ghidra finished both exports completely, so a half-written export can never be read. That structure is the same whatever names were applied, so a fresh setup and a
 rerun reach the same names, byte for byte. Batch 1 reads only the committed names (never batch 6's output or its own
-earlier output), and batch 6 builds on batch 1, so one name pass on a given export is already final.
+earlier output), and batch 6 builds on batch 1, so one name pass on a given export is already final. Batch 7 reads only
+`main.dol` (code references by constant propagation over the instruction bytes), the dtk analysis and the committed hand
+names, never the export, so its output is the same from the very first pass.
 
 | Step | Script(s) | What it does | Reads → Writes |
 |---|---|---|---|
 | Batch 1 | `tools\layout_match.py`, `tools\verify_symbols.py` | Proposes real library names by **layout proof**: between two already-known functions, in the same order as in a reference decomp, size within 10%, both neighbours matching. Repeats until nothing new. Every name is re-checked; the batch **stops** if any fails | `tools\dtk\proj\symbols.txt`, reference `symbols.txt` files → `symbols\layout_candidates.txt`, `symbols\symbols.txt`, `symbols\verify_report.txt` |
 | Batch 6 | `tools\match_lib_sdk.py`, `match_lib_rt.py`, `match_lib_hsd.py`, `tools\merge_lib_candidates.py`, `tools\verify_symbols.py` | Names the remaining SDK / runtime / HSD library functions by layout, asserts, call graph and unique strings and merges them tagged `lib-candidate`, repeating until nothing new; the batch **stops** if any merged name fails verification | Ghidra export (structure only), reference decomps → `symbols\candidates_*.txt`, `symbols\lib_candidates_report.txt`, `symbols\symbols.txt` |
+| Batch 7 | `tools\match_game_names.py` | Game code, stage 1: the game's **own** names, nothing invented. G1: a name table (string pointers) directly next to a function table of the same length, indexed together (one function references both, or the dispatcher bounds the index by that length) -> `cr_` + the string as written; G2: messages of the form `Name(): ...` inside the function (checked against already-named functions first; emits nothing while that check disagrees); G3: `.c` source-file names from asserts, as module notes only. Merged into `symbols\descriptive.txt` tagged `game-real`; **stops** if a name would replace a different existing one | `main.dol`, dtk analysis, committed names → `symbols\game_real.txt`, `symbols\game_unnamed_real.txt` (leftovers), `symbols\descriptive.txt` |
 | Lint | `tools\lint_descriptive.py` | Checks our own descriptive names: `cr_` prefix, a `why:` note, never on an address with a real name | `symbols\descriptive.txt` |
 | Rebuild | `tools\rebuild_decomp.ps1` → Ghidra headless with the scripts in `tools\scripts\` (all plain Java, under 100 lines each): | | `main.dol` → `ghidra_project\`, `decompiled\` |
 | | `EnableGCAnalyzer.java` | turns on the GameCube loader's own small-data (r2/r13) analyzer, which is off by default due to a name check bug in the loader | |
@@ -84,12 +89,12 @@ earlier output), and batch 6 builds on batch 1, so one name pass on a given expo
 | | `ParseHeaders.java` | parses the HAL library headers from the Melee decomp (a declarations-only copy made by `tools\clean_headers.py`) and our `symbols\cr_types.h`; checks every `ASSERT_SIZE` and `/* +XX */` offset; applies prototypes to verified library functions and our `cr_` functions; types the globals in `symbols\cr_globals.txt` | → `symbols\types_report.txt` |
 | | `ExportXrefs.java` | writes functions / references / strings as TSV | → `decompiled\xrefs\` |
 | | `ExportDecompiledC.java` | writes the C of every function | → `decompiled\main_dol.c` |
-| Fixpoint | `tools\batches\run_all.ps1` | batch 1, batch 6 and the lint again on the fresh export; if any name file changed, back to Rebuild | export → name files |
+| Fixpoint | `tools\batches\run_all.ps1` | batch 1, batch 6, batch 7 and the lint again on the fresh export; if any name file changed, back to Rebuild | export → name files |
 | Batch 5 | `tools\batches\batch5_types.ps1`, `tools\check_class_sizes.py` | stops if any header size/offset, prototype or global failed, or if a parsed HSD struct size differs from the size Custom Robo itself registers for that class | `symbols\types_report.txt` |
 | Batch 2 | `tools\crosscheck_dtk.py` | compares Ghidra with dtk (function starts, names, small-data) | → `symbols\crosscheck_report.txt` |
 | Batch 3 | `tools\game_map.py` | callers / callees / strings / subsystem hints per function | → `symbols\game_map.tsv`, `docs\game_map.md` |
 | Batch 4 | `tools\build_index.py` | SQLite search index + one file per function | → `decompiled\index.db`, `decompiled\funcs\` |
-| Batch 8 | `tools\crosscheck_names.py` | independent cross-check of every name against all references; **stops** on any FAIL | `decompiled\index.db`, name files → `symbols\names_crosscheck.txt`, `docs\names_crosscheck.md` |
+| Batch 8 | `tools\crosscheck_names.py` | independent cross-check of every name against all references (game-real names: the string still at the cited address, the table indexes still matching, the tables still adjacent and of the same length); **stops** on any FAIL | `decompiled\index.db`, name files → `symbols\names_crosscheck.txt`, `docs\names_crosscheck.md` |
 
 ## 3. Check you got the same result — `tools\checksums.ps1`
 

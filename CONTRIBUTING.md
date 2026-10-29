@@ -17,7 +17,7 @@ Thanks for helping! The most useful thing anyone can do is **name a function**. 
 
 ## Real names first
 
-The game still contains many of its own names: enum names in pointer tables (`SEQ_BATTLE`, `CAMMODE_RESULT`, motion names like `m_walk_fa`), debug and format strings, assert file names. **Before inventing a `cr_` name, look for the real one:** run `python -I tools\name_evidence.py` and read `docs/name_evidence.md` (and `docs/name_tables.tsv`). Use the game's own word wherever it exists, and quote it as the evidence. Descriptive `cr_` names are only for things the game gives no name to.
+The game still contains many of its own names: enum names in pointer tables (`SEQ_BATTLE`, `CAMMODE_RESULT`, motion names like `m_walk_fa`), debug and format strings, assert file names. **Before inventing a `cr_` name, look for the real one:** run `python -I tools\name_evidence.py` and read `docs/name_evidence.md` (and `docs/name_tables.tsv`). Use the game's own word wherever it exists, and quote it as the evidence. Names the game proves mechanically (a name table next to a function table of the same length, ...) are applied by `tools/match_game_names.py` (batch 7, lines tagged `// game-real` in `symbols/descriptive.txt`: don't edit those by hand); the leads it could not prove are listed with the reason in `symbols/game_unnamed_real.txt`. Descriptive `cr_` names are only for things the game gives no name to.
 
 ## Adding a descriptive name (step by step)
 

@@ -33,6 +33,7 @@ All in `D:\emulators\gameTesting\tools`. Python tools run with the system Python
 | `robo_swap.py` | Swap two robos completely (`--model-only`, `--keep-motion`, `--size X`) |
 | `struct_fields.py` | Finds typed fields inside a `cr_` struct's unknown stretches from the C's accesses (`report` / `apply`) |
 | `name_evidence.py` | Harvests the game's own names (pointer tables to strings, identifier / format / source-file strings + their users) -> `docs/name_evidence.md` |
+| `match_game_names.py` | Batch 7: applies the game's own names where proven (G1 parallel name/function tables, G2 self-naming messages, G3 source-file module notes), from `main.dol` bytes only -> `symbols/game_real.txt`, leftovers `symbols/game_unnamed_real.txt` |
 | `boot_check.ps1` | Boots an ISO in Dolphin, reports warning dialogs (`-Snapshot` saves a picture) |
 
 ## Ghidra scripts (`tools\scripts`)

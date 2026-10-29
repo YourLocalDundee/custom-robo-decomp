@@ -179,6 +179,8 @@ gameTesting\
 
 47. **Library naming round: 767 -> 391 unnamed library functions, 0 wrong names** (Oct 28, 2026). Named functions 1,481 -> 1,856 of 3,565. Ten more pinned references (tools/pins.txt, fetched by setup.ps1): Kirby Air Ride (doldecomp/kar incl. asm, wowjinxy/KAR map), Pokemon XD, dolsdk2001/2004, Animal Crossing, Super Mario Sunshine, Mario Party 4, Pikmin 1, Battle for Bikini Bottom. New matchers, all rerun by `tools/batches/batch6_lib_candidates.ps1` in rounds until nothing new (names found by one become neighbours for the others): `tools/match_lib_hsd.py` (HSD + hsd audio; R4/R5/R6 against Melee C and Kirby Air Ride asm/C), `tools/match_lib_sdk.py` (Dolphin SDK; R3/R5), `tools/match_lib_rt.py` (MSL / runtime); merged and conflict-checked by `tools/merge_lib_candidates.py` (report `symbols/lib_candidates_report.txt`). Leftovers with the sources checked: `symbols/lib_unnamed_{hsd,sdk,rt}.txt`. **Wrong names found and fixed** (in symbols.txt since Oct 25-27, all layout-proof): the 0x20 math wrappers were shifted by one (asin/atan2/exp/fmod/log10 at 0x80169088.. are really acos/asin/atan2/exp/fmod - each calls the matching __ieee754_*), the 0x24 float wrappers likewise (now powf/tanf/sinf/cosf at 0x80169394..), PackArgs -> GetFontCode, OSSetFontEncode -> ReadROM, VDevice_Shutdown -> stateCheckID2a, GXSetTevKColor -> GXSetTevKAlphaSel (writes the TEV ksel alpha fields), __AXGetAuxBOutput -> GXInitLightAttn (stores the 6 attenuation floats). Cause: layout alignment cannot tell equal-size neighbours apart; `tools/audit_layout.py` audited all 669 old layout names (323 confirmed, 282 unique position, 8 wrong, 14 unproven, 42 doubtful - mostly TRK; `symbols/layout_audit.txt`) and layout_match.py now needs a unique alignment or call-graph/string confirmation. New every-run cross-check `tools/crosscheck_names.py` (batch8, after the Ghidra export) found the float-wrapper shift on its first run and stops the pipeline on any FAIL. Dropped on purpose (correct-looking but not proven by these rules): 7 names whose evidence only came from each other (UnsetRun, SetEffectivePriority, __CARDWritePage, BlockWriteCallback, __CARDWrite, DVDOpenDir, expLoadDesc), and 0x801A3D98 (was Melee's HSD_SListAllocAndAppend; ours inlines HSD_SListAlloc so the call graph no longer matches; the wowjinxy map calls it HSD_SListAppend). **Same result every run, fresh or not** (Oct 28): the first version read names from the previous run's Ghidra export, so reruns drifted (181 -> 182 candidates) and a fixpoint attempt cycled. Now the matchers take our names only from the committed symbol files and the export only for address-level structure (`tools/export_struct.py`), assert strings come from main.dol's instruction bytes (`tools/dol_asserts.py`: 443 asserts, the 411 the C showed + 32 its regex missed), and `run_all.ps1` starts from the committed names and repeats names + rebuild until nothing changes (1 rebuild with an export present, 2 fresh; fails after `-MaxPasses` 5). `rebuild_decomp.ps1` refuses to start on a Ghidra lock, deletes the old export first, and throws unless both exports are complete; all scripts now carry `#Requires -Version 7` (under Windows PowerShell 5.1 the Ghidra call returned early and the name batches read a half-written export, which looked like a 2-cycle: 184 <-> 179 candidates with the 17 R4 names lost). Proof: a run from no export converged in 2 rebuilds and matched the previous run in all 18 checksums (`tools/checksums.ps1`, now also covering the candidate files, lib_candidates_report and names_crosscheck). Final: 184 lib candidates (R3 95, R4 17, R5 64, R6 8), 391 library functions unnamed (hsd 295, sdk 92, rt 4). Next: the 391 library leftovers (most have no asserts/strings and unnamed callers - lead: build dolsdk2001/2004 objects and match code hashes with objdiff), then the game's own code (step 48).
 
+48. **Game-code naming, stage 1: the game's own names, harvested by script** (Oct 28, 2026; user rule: no incorrect names, invent nothing, reproducible). New `tools/match_game_names.py`, run by new `tools/batches/batch7_game_names.ps1` (in `run_all.ps1`'s name pass after batch 6, so inside the names <-> rebuild fixpoint). It reads only `main.dol`, the dtk analysis and our committed hand names - never the Ghidra export, index.db or the C: code references come from constant propagation over the instruction bytes (dol_asserts' PowerPC model; switch-case blocks start from the entry state) - so the output is the same from the first pass, fresh or not. Evidence kinds: **G1** parallel tables - a name table (maximal run of string pointers, all distinct) directly adjacent to a function table of exactly the same length, proven indexed together (one function references both bases, or the name table has no code reference and a function referencing the function table compares the index with that length); name = `cr_` + the string as written (step 44's convention), only for handlers that occur once in the table; {string, function} struct arrays were also scanned (none exist). **G2** self-naming messages `Name(): ...`: checked first against already-named functions - 10 of 14 agree, 4 do not (`DVDReadAsync():` inside DVDReadAsyncPrio, `DVDRead():` inside DVDReadPrio, `DVDChangeDisk():` inside stateReadingFST and cbForStateCheckID2: the message names the public API, not the function printing it), so G2 emits nothing while any disagreement exists; the weak form `Name: ...` is only reported (it gives shortened names: `DoReadRegisters :` in TRKDoReadRegisters). **G3** `.c` file names passed to __assert / HSD_Panic / OSPanic: 219 module notes (8 in game code: seq_movie.c 2 = the SEQ_MOVIE handlers, background.c 2, sprite.c 4), never used as names; 104 header (`.h`) strings are library inlines, counted only. Result: **G1 300 names** - exactly the script commands of step 44 (0x8021BF44 names + 0x8021C3F4 handlers, 300 each, adjacent; 118 dispatchers compare the command with 300, e.g. `cmpwi r0, 300` at 0x8009D740 next to `lis r3, 0x8022; addi r0, r3, -0x3C0C`), now regenerated by the script: the 300 hand lines were taken over (same names, same addresses, tagged `// game-real G1 names:0xT[i]@0xS funcs:0xF[i] "STR"`, block after a marker line in `symbols/descriptive.txt`); G2 0, conflicts 0, no new function names (1,856 of 3,565). No other name table in main.dol has an adjacent function table of the same length. Why descriptive.txt and not a new file: these are cr_ game names, ApplySymbols / lint / ParseHeaders / the cross-check already read it, and the tagged regenerated lines follow batch 6's `lib-candidate` pattern; cr_globals.txt untouched (the game names no tables). The batch stops, writing nothing, if a name would replace a different existing name or reuse a name at another address (tested). `tools/crosscheck_names.py` (batch 8) now checks every game-real tag against main.dol (string still at the cited address, both table words at the index, name = cr_ + string, tables still adjacent runs of the same length; a corrupted index was tested to FAIL). Leftovers with reasons: `symbols/game_unnamed_real.txt` (46: SEQ_* 15 names next to 18 / 60 code pointers, CAMMODE_* no adjacent table, MAIN_SCRIPT.. 4 names after the 300 handlers, the file-ID / sound / motion tables have no function tables, the G2 disagreements, weak-form `HSD_ArchiveParse:` at unnamed 0x801A5708 - a library lead). The SEQ / CAMMODE handler names (steps 42, 45) stay hand lines: their role suffixes are ours. Outputs added to `tools/checksums.ps1` (descriptive.txt, game_real.txt, game_unnamed_real.txt). Proof: two consecutive full runs identical in all 21 checksums; cross-check 2,083 names, FAIL 0. Next: stage 2 (descriptive `cr_` names for game code, only where the game gives none), starting from the G3 modules and the script-command handlers' callees.
+
 ## Findings from the decompiled code
 
 - **File table**: pointer list at `0x801f1200` → 16-byte entries `{char* name, ?, ?, extra}` at `0x801f21e0+`.
@@ -223,7 +225,7 @@ Sanity for R4-R6: size within 0.5..2.0 of the reference, name unique in the refe
 Before rejecting a name as "not in Melee", search all of Melee (config + src): it may be `static`/`inline` and folded into its caller (found for `FObjLoadWait` and `IDEntryAlloc`; the caller `HSD_IDInsertToTable` was verified and applied instead).
 Everything else (descriptive guesses) lives in `symbols\unverified.txt` and is never applied. Earlier invented names (`File_ReadEntry`, `Viewer_LoadModel`, `Game_Panic`, …) were removed; `Game_Panic` turned out to be `OSPanic`.
 
-Current state (Oct 28, 2026, step 47): 1,393 library function names applied from symbols.txt (dtk signatures, 46 Melee-assert, 862 layout-proof, 184 R3-R6 lib candidates merged by batch6) + 432 in descriptive.txt; 1,856 of 3,565 functions named; cross-check: 2,083 names, 0 FAIL, 1,631 OK, 436 WEAK (no contradiction, only the producing evidence), 16 UNCHECKABLE (prose `why:`). Historic count (Oct 25): 348 names.
+Current state (Oct 28, 2026, step 48): 1,393 library function names applied from symbols.txt (dtk signatures, 46 Melee-assert, 862 layout-proof, 184 R3-R6 lib candidates merged by batch6) + 432 in descriptive.txt (300 of them generated by batch7 from the game's own tables, tagged game-real G1); 1,856 of 3,565 functions named; cross-check: 2,083 names, 0 FAIL, 1,631 OK, 436 WEAK (no contradiction, only the producing evidence), 16 UNCHECKABLE (prose `why:`). Historic count (Oct 25): 348 names.
 Ghidra applies 347; `__save_fpr` / `__restore_fpr` / `__save_gpr` / `__restore_gpr` are runtime code fragments that Ghidra folds into neighbouring functions, and `OSDefaultExceptionHandler` did not get its own function header (not yet investigated).
 
 ## How to view models now
@@ -344,6 +346,40 @@ Each phase has a goal, the ideas for reaching it, and a finish line. Within a ph
 **Done when**
 - Every file type on the disc has a documented format and a read and write tool.
 
+### Phase 2b. New content: new robos, robo types, animations, sound (user request, Oct 28, 2026)
+
+**Goal.** A full new robo, made from new assets, playable in battle: first by replacing an existing robo, then in a new slot of its own, and finally as a new robo type with its own behaviour.
+
+**Two routes, used together**
+- **Files** (`make_mod.py` -> `.crpatch`): models, skeletons, textures, text, sound banks, anything that is a disc file.
+- **Code** (Gecko / Action Replay, and permanent DOL patches): table changes, new code, behaviour. The Custom Robo Discord says codes can add textures and other things but not models; research confirms it (`docs/community_codes.md`). The whole Dolphin code list gets about 6 KB (0x80001800-0x80003000); one robo entry is 186-233 KB and models live in the heap.
+
+**Path, in dependency order**
+1. **Models** (Phase 1): replacing works offline (484/484 byte-identical round trip; boots). [ ] Confirm in battle. [ ] Limits: file size, memory, vertex / bone counts.
+2. **Skeletons**: a new bone tree works through the 19 role bones (`*.roles.json`, docs/MODDING.md). [ ] Confirm in battle. [ ] Robo size (lives in the vertices; root scale is overridden at run time, step 29).
+3. **Animations**: 1,095 motion IDs and the 34 battle motion sets x 38 slots are named (step 46). [ ] Map the motion data format (`snr_motion.bin`, `motion.DBN`). [ ] Exporter + importer like crmodel.py. [ ] Blender retarget workflow for new skeletons. [ ] What "charge not linked" is (step 28).
+4. **Sound effects and music**: `.ssm` banks and `.hps` streams, the same HAL formats as Melee (check Melee's tools first). HSD audio code is named (step 47). [ ] Read/write tools. [ ] Map SFX IDs -> bank, robo and action.
+5. **Text, icons, stats**: `.bmg` names/descriptions, `.tpl` icons/portraits (590 of 915 disc files are `.tpl`), part and robo stat tables (Phase 2).
+6. **New robo slot** (instead of replacing one): every table indexed by robo number has to grow. Known: 5 entries per robo in `chara.BIN` + main.dol's copy of the entry table, `cr_g_CharaMotionSets`, `cr_g_CharaYOffset`, `cr_g_BattleMotionSets`, stats, text, icons, unlock flags, robo-count limits. [ ] Find them all (game-code naming, stage 2). [ ] Move grown tables into new space (below).
+7. **New robo type** (new behaviour: movement, air dash, charge, ...): needs the behaviour code understood (stage 2) and new code (below).
+
+**Codes (community request, Oct 28, 2026).** Public lists: 15 AR codes (cheathappens, decrypted: HP x4, 1-hit x4, parts owned x5, unlock flags) + Dolphin's 16:9 Gecko code. All 13 addresses map into our decomp (docs/community_codes.md, docs/community/codes_gxce01.tsv). Use them as naming evidence leads, not names.
+- [ ] `tools/ardecrypt.py`: AR (encrypted or plain) -> Gecko lines, so community codes can be dropped into a mod (own implementation; Dolphin's ARDecrypt.cpp is GPL).
+- [ ] `make_mod.py`: `code/*.gecko` -> Dolphin `GXCE01.ini` + `.gct`. Writes that land inside main.dol become static patches with `[was]` checks; bss/heap targets stay Gecko-only.
+- [ ] `make_mod.py`: `code/*.s` -> C2 code (devkitPPC `powerpc-eabi-as`, pinned; see JLaferri's `gecko`, Melee Code Manager) and, permanently, a body in free space + a `b` hook.
+- [ ] Free space for new code / data: a new DOL text section at 0x80001800-0x80003000 first (main.dol uses 2 of 7 text and 6 of 11 data sections); then dead code (MetroTRK, proven with `find.py callers`); check how `OSInit` sets ArenaLo before a section after bss.
+- [ ] Name leads from the codes: player battle record (x4, stride 0x33520, HP float `DAT_8024e194`) used by `FUN_8004ede4`; parts-owned bitsets `803BFB9C..` (5 x 4 x 64 bits) set up by `FUN_800a3c0c`; bitset helpers `FUN_80023228` (set, checked) / `FUN_800231ec` (clear); unlock flags `DAT_80321d44`; camera aspect `FLOAT_8044c438` (1.26); 2D ortho setup `FUN_80091518`.
+- [ ] Ask the Discord for its code lists (more evidence and ready-made table addresses; the open questions are in docs/community_codes.md).
+
+**Textures.** A Dolphin hash pack exists (AI-upscaled HD pack, Dec 2024, unfinished). Our route is file replacement (model TObjs via make_mod.py, `.tpl` via `files/`).
+- [ ] Map Dolphin texture hashes to our TObjs, so a texture pack can become a disc mod and back.
+- [ ] `.tpl` read/write tool (Phase 2).
+
+**Models: codes can't do it**; file replacement is the path. Cross-check Zoeyism's Model Swapper (CC0): it overwrites `rpg_t/f_models.BIN` with a strictly smaller model and leaves the entry table alone.
+
+**Done when**
+- A new robo, with its own model, skeleton, animations, sounds, name, icon and stats, is picked in its own slot and fights in battle, built from a mod folder by one command.
+
 ### Phase 3. Community release
 
 **Goal.** Anyone with their own copy of the game can mod it.
@@ -352,6 +388,7 @@ Each phase has a goal, the ideas for reaching it, and a finish line. Within a ph
 - Tools, format docs, and the symbols file.
 - Mods as patches applied to the user's own clean retail ISO, with a hash check against GXCE01 before applying.
 - A public repo with a contributor guide.
+- A `GXCE01.ini` / `.gct` export next to every `.crpatch`, so code-only mods work without rebuilding the ISO (Dolphin cheats, Nintendont).
 - **"Install the tools" section in README.md** (user request, Oct 28, 2026), like other git repos have: per OS, the package-manager commands to copy and paste in order, then clone -> setup -> run. No prebuilt .exe or binaries shipped; everything comes from package managers or the pinned downloads in `tools/pins.txt`.
   - Windows: `winget install` lines (Git, Python 3, PowerShell 7, .NET 8 SDK, a JDK for Ghidra, 7-Zip).
   - Debian / Ubuntu: `sudo apt update` then `sudo apt install git python3 python3-venv openjdk-21-jdk dotnet-sdk-8.0 p7zip-full` (check exact package names per release).
@@ -369,6 +406,53 @@ Each phase has a goal, the ideas for reaching it, and a finish line. Within a ph
 
 **Done when**
 - Someone outside the project can take a clean ISO, run the tools, and play a custom model.
+
+### Phase 4. Rebuild the game from source (super goal, user, Oct 28, 2026)
+
+**Goal.** Custom Robo builds from C source into a main.dol that matches the retail one byte for byte (SHA-1 `6a73cd11…fb50b`, in tools/dtk/proj/Config.yml). New robos, robo types and systems are then added in source and rebuilt, not patched.
+
+**What we start with (Oct 28, 2026)**
+- The game is plain C: no C++ mangled names, no extab / ctors-heavy code. The toolchain is Metrowerks CodeWarrior (the "Metrowerks CW runtime" and MetroTRK strings are in main.dol).
+- 3,565 functions: about 1,800 library (1,393 named; HSD, Dolphin SDK Apr 17 2003, MSL / runtime, TRK) and about 1,760 game code.
+- dtk already analyses the DOL (`tools/dtk/proj`: symbols.txt, sections, `out/` asm + ldscript), but `splits.txt` has sections only, no objects yet.
+- Matching sources to reuse: HSD from the Melee decomp (a different revision: e.g. our HSD_PObj is 0x1C, Melee's 0x18), Kirby Air Ride's decomp (a second HAL), and the SDK / MSL from dolsdk2001 / dolsdk2004 and the other pinned GC decomps.
+- The names, types (cr_types.h, ParseHeaders) and module notes (G3 `.c` files) all carry over.
+
+**Milestone 1. A build that matches from asm (weeks)**
+- [ ] New `decomp/` project from `encounter/dtk-template` (configure.py + ninja + objdiff), pinned like everything else. The build needs the user's own ISO (dtk extracts main.dol); no game data in git.
+- [ ] Every object "NonMatching": the build assembles dtk's asm and links it -> retail SHA-1. This proves the toolchain, linker script and section layout.
+- [ ] Splits: object boundaries in `splits.txt`, from the library layouts (Melee / SDK object lists in their configure.py), the G3 `.c` module notes, alignment padding, and the rodata / data / bss order per object. dtk validates each split.
+
+**Milestone 2. A shiftable build (the modding unlock, before anything matches)**
+- [ ] Every pointer in code and data becomes a symbol (dtk relocation analysis; check jump tables, pointer tables and the script / motion / camera tables), so code and data can move.
+- [ ] Test: insert a dummy function and a padded table, relink, boot, play a battle.
+- Once this works, a new robo slot (grown tables) and new code are ordinary source edits, with no Gecko or free-space hacks. Phase 2b steps 6-7 can then use this instead of patches.
+
+**Milestone 3. Compiler and flags (days to weeks)**
+- [ ] Find the CodeWarrior version and flags: compile small known SDK / HSD functions with each GC mwcc (1.0 .. 1.3.2, 2.x via decomp.me's pinned compilers; wibo / wine on Linux) until the bytes match. Expect different flags per library (SDK, HSD, MSL, game).
+- [ ] Pin the compilers in tools/pins.txt and add them to setup.ps1.
+
+**Milestone 4. Libraries to matching C (months)**
+- [ ] Bring in the SDK, MSL and TRK sources from the pinned decomps; adapt them to our SDK revision; objdiff each object.
+- [ ] HSD from Melee / KAR, adapted to Custom Robo's revision (struct sizes from check_class_sizes.py, the differing functions from the R2/R4 size checks).
+- [ ] HSD audio (axdriver.c, synth.c, devcom.c, dvdsche.c) and particle code.
+- Progress = matched bytes per library, reported by objdiff and published in the README.
+
+**Milestone 5. Game code to matching C (the long part: about 1,760 functions)**
+- [ ] Order by system, the way naming reaches them (Phase 0 stage 2): file system / archives -> model loading -> script commands -> camera -> motion -> battle -> menus -> story.
+- [ ] Per function: m2c from the asm for a first draft, then match on decomp.me / objdiff, using decomp-permuter for register allocation. Real names and our types make the drafts readable.
+- [ ] Data: tables, strings and the per-file statics, defined in C in the right order.
+- [ ] Batch scripts like the naming ones: progress report, regressions, one command from fresh.
+- Scale: Melee took a large community years; with the libraries mostly already done elsewhere, about half of that work remains here. Plan for a long project, tracked by matched %.
+
+**Milestone 6. Done**
+- [ ] 100% matching: main.dol from source == retail SHA-1.
+- [ ] Mods as source: a new robo (assets via the Phase 1 / 2 tools, tables and code in C) built by one command. Linux builds checked (minime + Arch/yay per the testing plan).
+
+**Risks / open**
+- Unknown compiler version or per-file flags (Milestone 3 decides it).
+- Hand-written asm or a non-matching library revision: keep those as asm objects.
+- Splits mistakes show up late; validate early with the asm build.
 
 ## References
 
