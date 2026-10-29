@@ -76,6 +76,7 @@ if (-not $SkipRebuild) {
 "== batch 11: Dolphin opens twice for about a minute - do not type or click (a key mapped to Start skews the check)"
 & "$PSScriptRoot/batch11_shift_test.ps1"
 if ($LASTEXITCODE) { throw 'batch 11 (shifted build boot) failed: decomp/build/shift/boot/boot_result.txt' }
+& "$PSScriptRoot/batch12_drafts.ps1"   # m2c drafts of the game code, compiled and compared (decomp/drafts/ stays local)
 & "$g/tools/checksums.ps1" -Compare
 if ($LASTEXITCODE) { throw "checksums differ from docs/expected_checksums.txt (docs/REPRODUCE.md, 'If a checksum differs')" }
 

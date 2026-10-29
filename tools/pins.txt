@@ -48,3 +48,5 @@ file     sjiswrap.exe https://github.com/encounter/sjiswrap/releases/download/v1
 file     wibo-x86_64 https://github.com/decompals/wibo/releases/download/1.0.3/wibo-x86_64   7fdf620b151744296b9bb93318d8c4009d3d3e98e23718a6eda9fbec4cefbb2a
 file     wibo-macos https://github.com/decompals/wibo/releases/download/1.0.3/wibo-macos   bfb53e13706506fef31c331a1b4312af84a5c71af451f0cafe42c5511b2acbe4
 file     compilers_20251118.zip https://files.decomp.dev/compilers_20251118.zip   69b0d4980a2eccea4ae6e70b486714b5190cb6c75e3bc7b8fb5878a8854d0d1c
+# Game-code drafts (tools/draft_batch.py, batch 12): m2c, run from tools/m2c; pure Python (pycparser is bundled)
+git      m2c       https://github.com/matt-kempster/m2c.git        c632946b8cfbe8fce442b522dba92dfa72f1f317

@@ -66,7 +66,7 @@ Everything below runs locally, with no network access. The name batches and the 
    (`-MaxPasses`). The summary prints how many rebuilds it took.
 4. Batches 5, 2, 3, 4 and 8 on the final export, then batch 9 (the Phase 4 build, section 2b; it reads only the final name files),
    batch 10 (compiler probe, about 5 minutes), batch 11 (the shifted build booted in Dolphin, section 2c, about 1 minute; don't
-   type while Dolphin is open), and finally `tools\checksums.ps1 -Compare` (section 3). **This one script runs every batch in
+   type while Dolphin is open), batch 12 (m2c drafts of the game code, compiled and compared, about 2 minutes; `docs\drafts.md`), and finally `tools\checksums.ps1 -Compare` (section 3). **This one script runs every batch in
    order** and stops at the first failure. `tools\from_scratch.ps1` runs setup, then this script, then the archive / model / mod steps.
 
 The name matchers take **our names only from the symbol files** and the Ghidra export **only for structure**: function
@@ -101,6 +101,7 @@ names, never the export, so its output is the same from the very first pass.
 | Batch 8 | `tools\crosscheck_names.py` | independent cross-check of every name against all references (game-real names: the string still at the cited address, the table indexes still matching, the tables still adjacent and of the same length); **stops** on any FAIL | `decompiled\index.db`, name files → `symbols\names_crosscheck.txt`, `docs\names_crosscheck.md` |
 | Batch 9 | `tools\batches\batch9_decomp_build.ps1` | the Phase 4 build, section 2b; **stops** unless the built `main.dol` is the retail one | name files, dtk analysis, reference layouts → `decomp\config\GXCE01\{symbols,splits}.txt`, `decomp\reports\` |
 | Batch 10 | `tools\batches\batch10_compiler_probe.ps1` → `tools\compiler_probe\probe.py` | Phase 4 Milestone 3: compiles reference C (dolsdk2004, Melee sysdolphin / MSL / Runtime / MetroTRK, Mario Party 4 MSL / Runtime / TRK) and our hand-written C for small game functions (`tools\compiler_probe\game\`) with all 19 pinned GC compilers × 40+ flag sets per library and compares each function with `main.dol` (relocated fields masked); about 5 minutes. Conclusions in `docs\compiler.md`; `probe.py --show FUNCTION --version V --flags "..."` diffs one function | `main.dol`, `decomp\config\GXCE01\symbols.txt`, compilers, references → `tools\compiler_probe\out\{summary.txt,results.tsv}` (gitignored) |
+| Batch 12 | `tools\batches\batch12_drafts.ps1` → `tools\draft_batch.py` | Phase 4 Milestone 5 prep: for each of the 1,751 game functions m2c (`tools\m2c`, pinned) writes a C draft (our names, our types as context), the draft is compiled with the game compiler and flags (GC\2.6, `CR_LIBS["game"]`) and compared with the original (relocated fields masked); parallel, about 2 minutes. Method, how to read the report, determinism: `docs\drafts.md` | `decomp\build\GXCE01\{asm,obj}`, compilers, `tools\m2c`, Melee headers, `symbols\cr_types.h`, `cr_globals.txt` → `decomp\drafts\` (gitignored: drafts, objects, logs, `draft_report.txt`), `decomp\reports\draft_summary.txt` (counts only) |
 
 ## 2b. Build main.dol from asm — `tools\batches\batch9_decomp_build.ps1` (Phase 4, Milestones 1 + 2)
 

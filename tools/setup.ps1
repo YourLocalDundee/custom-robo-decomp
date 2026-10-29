@@ -139,6 +139,9 @@ if (-not $IsWindows) {
     if ($LASTEXITCODE) { throw 'HSDRawViewer build failed' }
 }
 
+# 4b. m2c (matt-kempster/m2c) at the pinned commit: C drafts of the game code (tools/draft_batch.py, batch 12). Plain Python, no install.
+PinnedClone m2c "$t/m2c" $null
+
 # 5. decomp-toolkit, hash-checked; its own analysis of main.dol (function boundaries, SDK signature names).
 # the pin for this OS: dtk.exe (Windows x64), dtk-linux-x86_64 / dtk-linux-aarch64, dtk-macos-x86_64 / dtk-macos-arm64
 $cpu = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()

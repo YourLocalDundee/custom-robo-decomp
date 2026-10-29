@@ -19,6 +19,7 @@ tools/ghidra_*/
 tools/pyenv/
 tools/HSDLib/
 tools/melee/
+tools/m2c/
 tools/refs/
 tools/dtk/dtk.exe
 tools/downloads/
@@ -57,3 +58,6 @@ tools/ninja/
 
 # tools/compiler_probe (batch 10): compiled objects and results are local
 tools/compiler_probe/out/
+
+# tools/draft_batch.py (batch 12): m2c drafts, their objects and logs are decompiled output, never committed
+decomp/drafts/

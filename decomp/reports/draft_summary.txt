@@ -1,0 +1,46 @@
+draft and check of the game code (tools/draft_batch.py, tools/batches/batch12_drafts.ps1; docs/drafts.md)
+m2c drafts of every game function (decomp/drafts/, gitignored), compiled with the game compiler (GC/2.6) and compared with the original
+counts only; the drafts themselves are decompiled output and are never committed
+
+functions 1751
+m2c ok 1749
+m2c failed 2
+compile failed 858
+compiled 891
+100% MATCH 153
+
+match % histogram of the 891 compiled drafts (100% = every word equal, relocation fields masked):
+    0- 9%  541
+   10-19%  100
+   20-29%  39
+   30-39%  13
+   40-49%  11
+   50-59%  12
+   60-69%  8
+   70-79%  5
+   80-89%  5
+   90-99%  4
+  100%     153
+
+most common failures:
+    309  compile: illegal type
+    213  compile: illegal implicit conversion from '*' to
+    105  compile: undefined identifier '*'
+     99  compile: pointer/array required
+     46  compile: function call '*' does not match
+     31  compile: call of non-function
+     24  compile: illegal explicit conversion from '*' to
+     10  compile: illegal operand
+      3  compile: function call '*' does
+      3  compile: function call '*' does not
+      3  compile: illegal implicit conversion from 'void (long, unsigned long, void *,
+      3  compile: type mismatch
+      2  compile: function call 'fn_8001F350(long, float *, float *, float, float, float,
+      2  m2c: */
+      1  compile: function call '*'
+      1  compile: function call 'fn_80019AF0(void *, unsigned char *, unsigned char,
+      1  compile: function call 'fn_8001CA84(float *, float *, float *, float *, float,
+      1  compile: function call 'fn_8001E3B8(float *, float *, float *, float *, float,
+      1  compile: function call 'fn_8001F060(void (*)(...), void (*)(...), long, long, long,
+      1  compile: function call 'fn_80098104(long, long, long *, long *, long *, long *,
+      1  compile: illegal implicit conversion from 'void (long, long, long, struct HSD_JObj

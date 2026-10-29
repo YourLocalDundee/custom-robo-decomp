@@ -10,6 +10,7 @@ Reference docs for `D:\emulators\gameTesting`. The running project log and roadm
 | [formats/model_entry.md](formats/model_entry.md) | Robo / weapon / story-character model entries (header decoded from the game's loaders) |
 | [formats/containers.md](formats/containers.md) | Every archive on the disc: what is inside, what is decoded, what is not |
 | [decomp.md](decomp.md) | Decompile pipeline, naming policy and verification, code findings with addresses |
+| [drafts.md](drafts.md) | Batch 12: m2c C draft of every game function, compiled with the game compiler and compared with the original |
 | [REPRODUCE.md](REPRODUCE.md) | Fresh ISO to named, searchable decompile: every step, what it runs, checksums to compare |
 | [game_map.md](game_map.md) | Generated map of the game's own code: subsystems, hub functions, file-name users |
 
