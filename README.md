@@ -16,19 +16,77 @@ read the game's code, pull out its 3D models, and put modified models back in.
 | Read the game's code as C, search it | [Reading the code](#reading-the-code) below |
 | Help name functions | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Understand a file format | [docs/formats/](docs/formats/) |
+| Install the tools (Windows, Linux, macOS) | [Install the tools](#install-the-tools) |
 | Rebuild everything myself and check nothing is hidden | [docs/REPRODUCE.md](docs/REPRODUCE.md) |
 
-## Quick start (Windows)
+## Install the tools
 
-You need: **git**, **Python 3.11+**, **PowerShell 7** (`pwsh`), **Java 21+** and the **.NET SDK 8 or newer**,
-and your own *Custom Robo (USA)* disc image. Everything else (Ghidra, Dolphin's disc tool, decomp-toolkit, …)
-is downloaded at a pinned version and hash-checked.
+Nothing prebuilt is shipped: everything comes from your package manager, or from the pinned, hash-checked downloads in
+[tools/pins.txt](tools/pins.txt) that the setup script fetches. You need **git, Python 3.11+, PowerShell 7 (`pwsh`), a Java 21+ JDK**,
+Dolphin (for its disc tool), on Windows the **.NET SDK 8+**, and your own *Custom Robo (USA)* disc image. Copy the block for your
+system, in order (details, versions and notes: [docs/INSTALL.md](docs/INSTALL.md)):
+
+**Windows 10/11 (winget)**
+
+```powershell
+winget install --id Git.Git -e
+winget install --id Python.Python.3.12 -e
+winget install --id Microsoft.PowerShell -e
+winget install --id Microsoft.DotNet.SDK.8 -e
+winget install --id EclipseAdoptium.Temurin.21.JDK -e
+```
+
+**Debian / Ubuntu (apt)**
+
+```bash
+sudo apt update
+sudo apt install -y git curl unzip python3 python3-venv python-is-python3 openjdk-21-jdk dolphin-emu
+# PowerShell comes from Microsoft's repo (Ubuntu: use ubuntu/24.04 instead of debian/12)
+curl -fsSLO https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
+sudo apt update && sudo apt install -y powershell
+```
+
+**Arch (pacman, then yay for AUR-only packages)**
+
+```bash
+sudo pacman -S --needed git unzip python jdk21-openjdk dolphin-emu
+yay -S --needed powershell-bin
+```
+
+**Fedora (dnf)**
+
+```bash
+sudo dnf install -y git unzip python3 python-unversioned-command java-21-openjdk-devel dolphin-emu dolphin-emu-tool
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+curl -fsSL https://packages.microsoft.com/config/rhel/9/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
+sudo dnf install -y powershell
+```
+
+**macOS (Homebrew, best effort)**
+
+```bash
+brew install git python@3.12 openjdk@21 unzip
+brew install --cask powershell dolphin
+```
+
+**Anything else:** install the tools in the list above with your package manager.
+
+> Windows is the tested system. On Linux / macOS everything runs except the glTF model export (HSDRawViewer is a Windows
+> program); that part is skipped. The Linux / macOS packages and scripts are not tested end to end yet, see
+> [docs/INSTALL.md](docs/INSTALL.md#limits-and-status).
+
+## Quick start
+
+Clone, set up, run. The first thing the setup does is print each tool's version and stop with a list if one is missing.
 
 ```powershell
 git clone https://github.com/YourLocalDundee/custom-robo-decomp.git
 cd custom-robo-decomp
-pwsh tools\from_scratch.ps1 -Iso "D:\Games\Custom Robo (USA).iso"
+pwsh tools/from_scratch.ps1 -Iso "D:\Games\Custom Robo (USA).iso"
 ```
+
+(Linux / macOS: the same, with a path like `"$HOME/Games/Custom Robo (USA).iso"`.)
 
 That one command checks your ISO is the clean retail dump (SHA-1 `fff6e745…0bcb16`), downloads the tools,
 extracts the disc, decompiles and names everything, checks your result is **byte-identical to ours**, and
@@ -88,9 +146,15 @@ Details: [docs/decomp.md](docs/decomp.md), tools: [docs/tools.md](docs/tools.md)
 
 - Models: all 1,006 models extract and export (glTF); robo/weapon/story entries rebuild byte-identical.
 - Mods: model / file / code mods build into a playable ISO and a data-free `.crpatch`; robos can be swapped completely, including different skeletons (tested in battle with the community, Oct 27, 2026). Custom skeletons via joint roles.
-- Code: ~1,480 of ~3,565 functions named (incl. the game's own SEQ_* mode names, script command names, CAMMODE_* camera modes and motion names) (all SDK/HSD library names verified), HSD types and 441 prototypes applied and checked against the game, first `cr_` structs/globals for the file system and robos.
+- Code: ~1,860 of ~3,565 functions named (incl. the game's own SEQ_* mode names, script command names, CAMMODE_* camera modes and motion names) (all SDK/HSD library names verified), HSD types and 441 prototypes applied and checked against the game, first `cr_` structs/globals for the file system and robos.
 - Archives: all 22 `.bin` (SFD) archives unpack and repack byte-identical.
 - Open: what the 17 motion slots are and where animations live; per-robo charge; naming the game's own ~1,740 functions.
+
+## What is in this repo
+
+All of the project's own work: tools, batch scripts, symbol names with their evidence, type headers, reports, docs and
+findings, plus everything needed to reproduce the whole result from your own disc (pinned tools and references,
+[docs/REPRODUCE.md](docs/REPRODUCE.md), expected checksums).
 
 ## What is not in this repo (and never will be)
 

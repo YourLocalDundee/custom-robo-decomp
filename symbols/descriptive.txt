@@ -426,7 +426,7 @@ cr_C_ACT_CHK_BIT = .text:0x800BD7F0; // type:function scope:global // why: entry
 // ---- Camera modes: CAMMODE_* names are the GAME'S OWN (name table 0x801F88A4, index = cam[0]); roles from the dispatcher
 //      table[mode*2 + cam[0x13CC]] at 0x801F7FF0 (plan.md step 45). Start = slot 0 (runs once after cr_Cam_SetMode, sets 0x13CC=1, calls Frame); Frame = slot 1.
 cr_Cam_SetMode = .text:0x80024830; // type:function scope:global // why: cr_g_CurrentCam[0] = arg, [0x13CC] = 0; called with CAMMODE values (cr_SEQ_LOGO_FrameA 1, cr_SEQ_BATTLE_FrameA 3/2/6/10, cr_SEQ_STAGE_SELECTOR_FrameA 15/16, cr_CM_PLAYER 11, cr_CM_MOVE 12, cr_CM_ROTATE 13, cr_CM_WATCH_MAN_KEEP 14)
-cr_CamMode_DefaultStart = .text:0x800247D0; // type:function scope:global // why: slot 0 of 11 modes in cr_g_CamModeFuncs; sets cam[0x13CC] = 1 and calls the mode's slot-1 handler
+cr_CamMode_DefaultStart = .text:0x800247D0; // type:function scope:global // why: slot 0 of 10 modes in cr_g_CamModeFuncs (0, 1, 2, 5, 8, 9, 10, 12, 13, 14); sets cam[0x13CC] = 1 and calls the mode's slot-1 handler
 cr_Cam_Init = .text:0x80036BCC; // type:function scope:global // why: clears cr_g_Cams (0x4F40) and the 4 x 0x30 matrices at 0x8032338C, sets cr_g_CurrentCam = &cr_g_Cams[0] and cr_g_CamPtrs[0..3], default floats per camera
 cr_CAMMODE_DEBUG_Frame = .text:0x80035ED4; // type:function scope:global // why: entry 0 slot 1 of cr_g_CamModeFuncs (CAMMODE_DEBUG)
 cr_CAMMODE_NOMOVE_Frame = .text:0x80035F18; // type:function scope:global // why: entry 1 slot 1 of cr_g_CamModeFuncs (CAMMODE_NOMOVE); empty function; also slot 1 of modes 19 and 20, and the default per-frame driver in FUN_80036954

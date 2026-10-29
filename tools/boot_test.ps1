@@ -1,3 +1,4 @@
+#Requires -Version 7
 # Boot a game folder in the Project Hive Dolphin build, take a screenshot after a delay, then close Dolphin.
 # Usage: pwsh boot_test.ps1 <build_dir> <out.png> [seconds]
 param([string]$Build, [string]$Out, [int]$Seconds = 40)

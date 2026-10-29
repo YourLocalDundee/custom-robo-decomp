@@ -57,6 +57,8 @@ type the globals that hold it in `symbols/cr_globals.txt`.
 
 ## Rules for everything
 
+- **Commit all project work**: scripts, batches, symbols, types, reports, docs and findings, plus what is needed to
+  rebuild them from a clean ISO (pins, expected checksums).
 - **Never commit game data**: no ISO, extracted files, models, textures, audio, or decompiled C.
   `.gitignore` blocks the usual paths; double-check `git status` before you commit.
 - Tools should be rerunnable and keep working from a fresh `tools\setup.ps1`.

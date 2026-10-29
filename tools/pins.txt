@@ -9,6 +9,21 @@ git      ttyd      https://github.com/doldecomp/ttyd.git            62131fc31866
 git      tww       https://github.com/zeldaret/tww.git              81ebe0dfd449166e00de31ce9be2d7449e31536c
 git      HSDLib    https://github.com/Ploaj/HSDLib.git               85567e40797de3c820a55476eca54c704921a848
 file     dtk.exe   https://github.com/encounter/decomp-toolkit/releases/download/v1.8.4/dtk-windows-x86_64.exe   6a693e95aa4d30acccc673343302a4abdfa3146bd0fb15cb1a2bce924cbc782a
+# decomp-toolkit v1.8.4 for Linux / macOS (sha256 = digest GitHub shows on the release; unverified by an actual run)
+file     dtk-linux-x86_64 https://github.com/encounter/decomp-toolkit/releases/download/v1.8.4/dtk-linux-x86_64   7c86b1994401bde0cad1d308e6c04cccb65e85453ccc5062ac12baab3b03d320
+file     dtk-linux-aarch64 https://github.com/encounter/decomp-toolkit/releases/download/v1.8.4/dtk-linux-aarch64   889a551d57916772f21a29c997579e0508f268c96bcbc946a0a66bff029cf97c
+file     dtk-macos-x86_64 https://github.com/encounter/decomp-toolkit/releases/download/v1.8.4/dtk-macos-x86_64   84bcab745a070bb970cf4bc0d69ddce9f6a58d5de257999ccc8adfa1567d17c9
+file     dtk-macos-arm64 https://github.com/encounter/decomp-toolkit/releases/download/v1.8.4/dtk-macos-arm64   5ba1fd76adf937847277a1ebe2238b698df0020c3dbbde23ecb126f00fb10353
 file     ghidra.zip    https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip   ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db
 file     gcloader.zip  https://github.com/Cuyler36/Ghidra-GameCube-Loader/releases/download/1.3.1/GameCubeLoader-1.3.0-921504c-Ghidra_12.1.zip   9892f28fc1e7f19bb3fcec7cfb4ad2ab7504503b571d93de8b142a6f7bec8ed0
 file     dolphin.7z    https://dl.dolphin-emu.org/releases/2609a/dolphin-2609a-x64.7z   bbfd13bf9e6d2a4164a15c392b1f32a9b18150e5136746b388704608fbb60f76
+git      kar_wowjinxy https://github.com/wowjinxy/KAR.git          cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57
+git      kar       https://github.com/doldecomp/kar.git             3ed51a1a008a05c33225cc286c046b8f90fb3d0e
+git      xd        https://github.com/TeamOrre/xd-decomp.git        4989794e6c6430684e033bc56f4bb97c9a921e73
+git      dolsdk2001 https://github.com/doldecomp/dolsdk2001.git     eb1234c45e6df75757c652c835507ca89674f9a8
+git      dolsdk2004 https://github.com/doldecomp/dolsdk2004.git     2328b4164b1a98422a2255d83ce9a5a7548990cc
+git      ac-decomp https://github.com/ACreTeam/ac-decomp.git        09ca8e8b5b24e6ab44047ee980cf0088ad7ecb4c
+git      sms       https://github.com/doldecomp/sms.git             542eb480fb0495a797cf5f56c996c6f8aedad8fe
+git      marioparty4 https://github.com/mariopartyrd/marioparty4.git 5b01c79b4910525e3fc5aa312eddd6d014e7f337
+git      pikmin    https://github.com/projectPiki/pikmin.git        9a2163626a269ae7c699fc195cf91a5ca791044d
+git      bfbb      https://github.com/bfbbdecomp/bfbb.git           d8e8eac38dd617ee72161f4cb2da4498bc89aad6

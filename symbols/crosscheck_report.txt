@@ -86,7 +86,7 @@ __restore_gpr 8015F9E0 _restgpr_14
 8012093C FUN_8012093c
 80132E74 DecrementerExceptionHandler
 801341D0 OSSaveContext
-8013503C FUN_8013503c
+8013503C Decode
 8013641C ExternalInterruptHandler
 8013B174 DVDConvertPathToEntrynum
 801569BC __GXSetSUTexRegs
@@ -118,11 +118,11 @@ __restore_gpr 8015F9E0 _restgpr_14
 8018144C FUN_8018144c
 80187EC8 MakeColorGenTExp
 8018F830 FUN_8018f830
-8018FE2C FUN_8018fe2c
-80194EFC FUN_80194efc
+8018FE2C HSD_CObjSetCurrent
+80194EFC drawShapeAnim
 801A5F10 HSD_ByteCodeEval
 801A8AF4 HSD_TExpColorInSub
-801ACCAC FUN_801accac
+801ACCAC SimplifyByMerge
 801AE9B4 FUN_801ae9b4
 
 ## small-data labels unseen in C

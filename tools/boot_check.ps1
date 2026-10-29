@@ -1,3 +1,4 @@
+#Requires -Version 7
 # Boot an ISO in the Project Hive Dolphin for N seconds and report whether Dolphin raised a warning dialog
 # (e.g. "Invalid read from ..."), which means the game would have crashed. Closes Dolphin afterwards.
 # Usage: pwsh tools\boot_check.ps1 <game.iso> [seconds]      exit 1 if a warning appeared or Dolphin died

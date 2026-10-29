@@ -1,0 +1,891 @@
+layout audit: 888 layout-proof names, 396 ambiguous; CONFIRMED=455 WRONG=0 UNPROVEN=4 DOUBT=59 OK=370; references replayed: ac-decomp,bfbb,kar_wowjinxy,marioparty4,melee,mkdd,pikmin2,sms,tp,ttyd,xd; not reproduced by the replay: 7; pending candidates_*.txt names trusted as evidence: 327
+// verdict addr name size ref context | right name (WRONG) | evidence | alternatives compared
+// WRONG outside the runtime range 0x8015F000-0x8016D408 with a right name -> symbols/candidates_audit.txt
+UNPROVEN  0x80135294 OSLoadFont size:0x334 ref:sms/GMSE01 ambiguous | - | tie: OSLoadFont (caller OSInitFont) vs  | alts:ReadFont,__OSUnhandledException
+UNPROVEN  0x801549FC GXSetDrawSyncCallback size:0x44 ref:ac-decomp/GAFU01_00 ambiguous | - | tie: GXSetDrawSyncCallback (callees OSDisableInterrupts,OSRestoreInterrupts; caller __GXShutdown) vs GXSetDrawDoneCallback | alts:GXSetDrawDoneCallback
+UNPROVEN  0x801558A0 GXInitLightAttn size:0x1C ref:pikmin2/GPVE01 forced,incoherent-neighbours | - | tie: GXInitLightAttn (caller HSD_LObjSetup) vs  | alts:GXInitLightDir,GXSetDispCopyGamma,__AXGetAuxAOutput,__AXGetAuxBForDPL2,__AXGetAuxBOutput,__AXGetAuxBOutputDPL2
+UNPROVEN  0x8015EB90 GetUseSerialIO size:0x10 ref:ac-decomp/GAFE01_00 ambiguous | - | tie: GetUseSerialIO (caller __TRK_write_console) vs  | alts:TRKTargetSetInputPendingPtr
+DOUBT     0x80003488 TRK_memcpy size:0x24 ref:xd/GXXE01 forced | - | caller TRKReadBuffer; caller TRKAppendBuffer; caller InitializeProgramEndTrap; AGAINST caller TRKReadBuffer_ui32 does not use it; AGAINST caller TRKReadBuffer_ui8 does not use it; AGAINST caller TRKAppendBuffer_ui32 does not use it | alts:__as__8_GXColorFRC8_GXColor,__check_pad3,__init_hardware,main
+DOUBT     0x80137C2C OSGetProgressiveMode size:0x70 ref:melee/GALE01 forced | - | AGAINST no definition uses all of OSDisableInterrupts,OSRestoreInterrupts,UnlockSram | alts:OSGetEuRgb60Mode,OSGetGbsMode,OSGetLanguage,OSGetSoundMode,OSGetWirelessID,OSSetWirelessID
+DOUBT     0x80139738 PSMTXInvXpose size:0xC8 ref:marioparty4/GMPE01_00 forced | - | AGAINST caller SetupSharedVtxModelMtx does not use it; AGAINST caller SetupEnvelopeModelMtx does not use it; AGAINST caller PObjSetupMtx does not use it | alts:PSMTXConcat
+DOUBT     0x801404B8 GetCurrentDisplayPosition size:0x3C ref:mkdd/MarioClub_us forced | - | AGAINST caller VIGetNextField does not use it | alts:-
+DOUBT     0x8014055C VIGetNextField size:0x9C ref:kar_wowjinxy/GKYE01 forced | - | caller HSD_CObjSetCurrent; AGAINST no definition uses all of GetCurrentDisplayPosition,OSDisableInterrupts,OSRestoreInterrupts | alts:VIGetCurrentLine,VIGetTvFormat,VISetBlack
+DOUBT     0x80159A2C TRKReadBuffer_ui32 size:0xF0 ref:ac-decomp/GAFU01_00 forced | - | caller TRKTargetAccessExtended1; caller TRKTargetAccessDefault; AGAINST no definition uses all of TRK_memcpy | alts:TRKAppendBuffer_ui32,TRKDoDisconnect,TRKReadBuffer1_ui64
+DOUBT     0x80159B1C TRKReadBuffer_ui8 size:0x98 ref:ac-decomp/GAFE01_00 forced | - | caller TRKSuppAccessFile; AGAINST no definition uses all of TRK_memcpy | alts:TRKAppendBuffer_ui32,TRKDoDisconnect,TRKGetInput,TRKReadBuffer1_ui32
+DOUBT     0x80159C9C TRKAppendBuffer_ui32 size:0xFC ref:ac-decomp/GAFU01_00 forced | - | caller TRKTargetAccessExtended1; caller TRKTargetAccessDefault; AGAINST no definition uses all of TRK_memcpy | alts:TRKAppendBuffer1_ui64,TRKReadBuffer1_ui64,TRKReadBuffer_ui32
+DOUBT     0x80159D98 TRKAppendBuffer_ui8 size:0x68 ref:ac-decomp/GAFU01_00 forced | - | caller HandleOpenFileSupportRequest; caller TRKSuppAccessFile; AGAINST caller TRKTestForPacket does not use it; AGAINST caller TRKDoReadRegisters does not use it; AGAINST caller HandlePositionFileSupportRequest does not use it; AGAINST caller HandleCloseFileSupportRequest does not use it; AGAINST caller TRKTargetAddExceptionInfo does not use it; AGAINST caller TRKTargetAddStopInfo does not use it | alts:TRKAppendBuffer1_ui32
+DOUBT     0x80159F88 TRKAppendBuffer size:0xA4 ref:ac-decomp/GAFU01_00 forced | - | callees TRK_memcpy; caller TRKDoReadMemory; AGAINST caller TRKDoWriteRegisters does not use it | alts:TRKAppendBuffer_ui32
+DOUBT     0x8015A02C TRKSetBufferPosition size:0x30 ref:ac-decomp/GAFE01_00 forced | - | caller TRKDispatchMessage; caller TRKDoStep; caller TRKDoWriteRegisters; caller TRKDoWriteMemory; caller TRKRequestSend; caller TRKSuppAccessFile; AGAINST caller TRKTestForPacket does not use it | alts:TRKGetBuffer
+DOUBT     0x8015A3E4 TRKTestForPacket size:0x13C ref:ac-decomp/GAFU01_00 forced | - | caller TRKGetInput; caller TRKRequestSend; AGAINST no definition uses all of TRKAppendBuffer_ui8,TRKGetFreeBuffer,TRKPollUART,TRKReadUARTN,TRKReleaseBuffer,TRKSetBufferPosition | alts:TRKDispatchMessage
+DOUBT     0x8015A524 usr_puts_serial size:0x88 ref:ac-decomp/GAFE01_00 forced | - | callees GetTRKConnected,SetTRKConnected; caller TRKGetFreeBuffer; AGAINST caller TRKDoSetOption does not use it | alts:TRKDispatchMessage,TRKDoStop,TRKGetInput
+DOUBT     0x8015A724 TRKDoSetOption size:0xA8 ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of SetUseSerialIO,TRKWriteUARTN,usr_puts_serial; AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoContinue,TRKDoStop,__read_file,__write_file
+DOUBT     0x8015A7CC TRKDoStop size:0xA8 ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of TRKTargetStop,TRKWriteUARTN; AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoContinue,TRKDoSetOption,__read_file
+DOUBT     0x8015A874 TRKDoStep size:0x220 ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of TRKSetBufferPosition,TRKTargetGetPC,TRKTargetSingleStep,TRKTargetStepOutOfRange,TRKTargetStopped,TRKWriteUARTN; AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoReadRegisters,TRKDoWriteMemory,TRKDoWriteRegisters,TRKSuppAccessFile
+DOUBT     0x8015AA94 TRKDoContinue size:0xB0 ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of TRKTargetContinue,TRKTargetStopped,TRKWriteUARTN; AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoSetOption,TRKDoStop,__read_console
+DOUBT     0x8015AB44 TRKDoWriteRegisters size:0x290 ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of TRKAppendBuffer,TRKMessageSend,TRKResetBuffer,TRKSetBufferPosition,TRKTargetAccessDefault,TRKTargetAccessExtended1,TRKTargetAccessExtended2,TRKTargetAccessFP,TRKWriteUARTN; AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoStep
+DOUBT     0x8015ADD4 TRKDoReadRegisters size:0x2E0 ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of TRKAppendBuffer_ui8,TRKMessageSend,TRKResetBuffer,TRKTargetAccessDefault,TRKTargetAccessExtended1,TRKTargetAccessExtended2,TRKTargetAccessFP,TRKWriteUARTN; AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoFlushCache,TRKDoStep,TRKDoVersions,TRKDoWriteRegisters
+DOUBT     0x8015B0B4 TRKDoWriteMemory size:0x23C ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of TRKAppendBuffer,TRKMessageSend,TRKReadBuffer,TRKResetBuffer,TRKSetBufferPosition,TRKTargetAccessARAM,TRKTargetAccessMemory,TRKWriteUARTN; AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoCPUType,TRKDoReadMemory,TRKDoReadRegisters,TRKDoStep,TRKDoSupportMask,TRKDoWriteRegisters
+DOUBT     0x8015B2F0 TRKDoReadMemory size:0x244 ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of TRKAppendBuffer,TRKMessageSend,TRKResetBuffer,TRKTargetAccessARAM,TRKTargetAccessMemory,TRKWriteUARTN; AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoCPUType,TRKDoReadRegisters,TRKDoSupportMask,TRKDoWriteMemory
+DOUBT     0x8015B534 TRKDoSupportMask size:0x8 ref:ac-decomp/GAFU01_00 forced | - | AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoVersions
+DOUBT     0x8015B53C TRKDoVersions size:0x8 ref:ac-decomp/GAFU01_00 forced | - | AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoSupportMask
+DOUBT     0x8015B59C TRKDoReset size:0x58 ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of TRKWriteUARTN,gTRKInterruptVectorTableEnd; AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoDisconnect,TRKDoOverride
+DOUBT     0x8015B5F4 TRKDoDisconnect size:0x78 ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of TRKConstructEvent,TRKPostEvent,TRKWriteUARTN; AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoOverride,TRKDoReset,TRKReadBuffer_ui32,TRKReadBuffer_ui8,TRK_DoConnect
+DOUBT     0x8015B66C TRKDoConnect size:0x64 ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of TRKWriteUARTN; AGAINST caller TRKDispatchMessage does not use it | alts:TRKDoOverride,TRKDoReset
+DOUBT     0x8015B6DC GetTRKConnected size:0x10 ref:ac-decomp/GAFU01_00 forced | - | caller usr_puts_serial; AGAINST caller __close_console does not use it; AGAINST caller __TRK_write_console does not use it | alts:-
+DOUBT     0x8015B794 HandlePositionFileSupportRequest size:0x110 ref:ac-decomp/GAFU01_00 forced | - | caller TRKTargetSupportRequest; AGAINST no definition uses all of TRKAppendBuffer_ui8,TRKGetBuffer,TRKGetFreeBuffer,TRKReleaseBuffer,TRKRequestSend | alts:HandleCloseFileSupportRequest,HandleOpenFileSupportRequest,TRK_RequestSend
+DOUBT     0x8015B8A4 HandleCloseFileSupportRequest size:0xE8 ref:ac-decomp/GAFU01_00 forced | - | caller TRKTargetSupportRequest; AGAINST no definition uses all of TRKAppendBuffer_ui8,TRKGetBuffer,TRKGetFreeBuffer,TRKReleaseBuffer,TRKRequestSend | alts:-
+DOUBT     0x8015BAA8 TRKRequestSend size:0x1E0 ref:ac-decomp/GAFU01_00 forced | - | caller HandlePositionFileSupportRequest; caller HandleCloseFileSupportRequest; caller HandleOpenFileSupportRequest; caller TRKSuppAccessFile; caller TRKDoNotifyStopped; AGAINST no definition uses all of OutputData,TRKGetBuffer,TRKMessageSend,TRKProcessInput,TRKReleaseBuffer,TRKSetBufferPosition,TRKTestForPacket | alts:TRKDoStep
+DOUBT     0x8015BF58 TRK_flush_cache size:0x38 ref:ac-decomp/GAFU01_00 forced | - | caller TRKTargetSupportRequest; caller TRKTargetAccessMemory; AGAINST caller TRKTargetAccessExtended2 does not use it; AGAINST caller TRKTargetAccessFP does not use it | alts:TRK_main,TRK_ppc_memcpy
+DOUBT     0x8015C8A4 TRKTargetAddExceptionInfo size:0x84 ref:ac-decomp/GAFU01_00 forced | - | caller TRKDoNotifyStopped; AGAINST no definition uses all of TRKAppendBuffer_ui8,TRKTargetReadInstruction | alts:TRKTargetAddStopInfo,TRKTargetSingleStep,TRKTargetStepDone,TRKTargetStepOutOfRange
+DOUBT     0x8015C928 TRKTargetAddStopInfo size:0x8C ref:ac-decomp/GAFU01_00 forced | - | caller TRKDoNotifyStopped; AGAINST no definition uses all of TRKAppendBuffer_ui8,TRKTargetReadInstruction | alts:TRKTargetAddExceptionInfo,TRKTargetSingleStep,TRKTargetStepDone
+DOUBT     0x8015CBF0 TRKTargetAccessExtended2 size:0x438 ref:ac-decomp/GAFU01_00 forced | - | caller TRKDoWriteRegisters; caller TRKDoReadRegisters; AGAINST no definition uses all of TRKAppendBuffer1_ui64,TRKReadBuffer1_ui64,TRK_flush_cache | alts:-
+DOUBT     0x8015D198 TRKTargetAccessFP size:0x50C ref:ac-decomp/GAFU01_00 forced | - | caller TRKDoWriteRegisters; caller TRKDoReadRegisters; AGAINST no definition uses all of ReadFPSCR,TRKAppendBuffer1_ui64,TRKReadBuffer1_ui64,TRK_flush_cache,WriteFPSCR,__TRK_get_MSR,__TRK_set_MSR | alts:-
+DOUBT     0x8015E778 TRKWriteUARTN size:0x3C ref:ac-decomp/GAFU01_00 forced | - | caller TRKMessageSend; AGAINST caller TRKDoSetOption does not use it; AGAINST caller TRKDoStop does not use it; AGAINST caller TRKDoStep does not use it; AGAINST caller TRKDoContinue does not use it; AGAINST caller TRKDoWriteRegisters does not use it; AGAINST caller TRKDoReadRegisters does not use it; AGAINST caller TRKDoWriteMemory does not use it; AGAINST caller TRKDoReadMemory does not use it; AGAINST caller TRKDoReset does not use it; AGAINST caller TRKDoDisconnect does not use it; AGAINST caller TRKDoConnect does not use it | alts:TRKInitializeIntDrivenUART,TRKReadUARTN
+DOUBT     0x8015EBAC __close_console size:0x84 ref:xd/GXXE01 forced | - | AGAINST no definition uses all of GetTRKConnected,TRKCloseFile | alts:__close_file,abort,frexp,fwide,stricmp
+DOUBT     0x8015EC30 __TRK_write_console size:0xBC ref:xd/GXXE01 forced | - | caller __write_console; AGAINST no definition uses all of GetTRKConnected,GetUseSerialIO,TRKAccessFile | alts:DBWrite,EXI2_Init,TRKDoSetOption,TRKDoStop,__access_file,__read_console,__read_file,__write_file
+DOUBT     0x8015ECEC __read_console size:0xBC ref:ac-decomp/GAFU01_00 forced | - | AGAINST no definition uses all of GetTRKConnected,GetUseSerialIO,TRKAccessFile | alts:DBWrite,EXI2_Init,TRKDoContinue,TRKDoSetOption,TRKDoStop,__TRK_write_console,__access_file,__read_file,__write_console,__write_file,fwide,strtoul
+DOUBT     0x801630C4 ftell size:0xE4 ref:xd/GXXE01 forced | - | caller fflush; AGAINST no definition uses all of __begin_critical_region,__end_critical_region | alts:is_utf8_complete,unicode_to_UTF8
+DOUBT     0x8018758C _HSD_TObjGetCurrentByType size:0x3C ref:melee/GALE01 forced | - | AGAINST caller PObjSetupMtx does not use it | alts:-
+DOUBT     0x8018A634 _HSD_StateInvalidatePrimitive size:0x1C ref:kar_wowjinxy/GKYE01 forced | - | AGAINST caller HSD_StateInvalidate does not use it | alts:-
+DOUBT     0x8018A6C8 HSD_StateInvalidate size:0x60 ref:melee/GALE01 forced | - | caller HSD_EraseRect; caller HSD_TExpSetReg; AGAINST no definition uses all of _HSD_StateInvalidatePrimitive | alts:HSD_RenderInitAllocData,_HSD_StateInvalidateRenderMode,splGetHelmite
+DOUBT     0x80190688 upvec2roll size:0x1E8 ref:kar_wowjinxy/GKYE01 forced | - | AGAINST no definition uses all of C_MTXLookAt,HSD_WObjGetPosition,PSMTXMultVecSR,PSVECDotProduct,PSVECNormalize,PSVECSubtract,atan2 | alts:-
+DOUBT     0x80190870 roll2upvec size:0x2E4 ref:kar_wowjinxy/GKYE01 forced | - | caller HSD_CObjGetUpVector; AGAINST no definition uses all of HSD_WObjGetPosition,PSMTXMultVecSR,PSMTXRotAxisRad,PSVECNormalize,PSVECSubtract | alts:HSD_CObjSetUpVector
+DOUBT     0x80191844 HSD_CObjLoadDesc size:0xC4 ref:kar_wowjinxy/GKYE01 forced | - | callees hsdNew,hsdSearchClassInfo; AGAINST caller main does not use it | alts:-
+DOUBT     0x80191E0C HSD_FObjStopAnimAll size:0x98 ref:kar_wowjinxy/GKYE01 forced | - | AGAINST no definition uses all of HSD_FObjInterpretAnim | alts:HSD_FObjRemoveAll,HSD_FObjReqAnimAll
+DOUBT     0x80192F74 HSD_FObjInterpretAnim size:0x6D4 ref:kar_wowjinxy/GKYE01 forced | - | callees FObjLoadData; caller HSD_FObjInterpretAnimAll; AGAINST caller HSD_FObjStopAnimAll does not use it | alts:-
+DOUBT     0x80195650 SetupSharedVtxModelMtx size:0x280 ref:kar_wowjinxy/GKYE01 forced | - | caller PObjSetupMtx; AGAINST no definition uses all of GXLoadNrmMtxImm,GXLoadPosMtxImm,GXLoadTexMtxImm,GXSetCurrentMtx,HSD_JObjGetCurrent,HSD_JObjSetupMatrixSub,PSMTXConcat,PSMTXCopy,PSMTXInvXpose,_HSD_TObjGetCurrentByType | alts:PObjSetupMtx
+DOUBT     0x80195C50 PObjSetupMtx size:0x294 ref:kar_wowjinxy/GKYE01 forced | - | AGAINST no definition uses all of GXLoadNrmMtxImm,GXLoadPosMtxImm,GXLoadTexMtxImm,GXSetCurrentMtx,HSD_JObjGetCurrent,PSMTXCopy,PSMTXInvXpose,SetupEnvelopeModelMtx,SetupSharedVtxModelMtx,_HSD_TObjGetCurrentByType | alts:SetupSharedVtxModelMtx
+DOUBT     0x80198144 HSD_JObjDispAll size:0x544 ref:kar_wowjinxy/GKYE01 forced | - | caller HSD_ShadowStartRender; AGAINST no definition uses all of HSD_CObjGetCurrent,HSD_CObjGetViewingMtxPtrDirect,HSD_JObjDisp,HSD_JObjSetupMatrixSub,PSMTXConcat,PSMTXInverse,setupInstanceMtx | alts:-
+DOUBT     0x80198A9C HSD_JObjResolveRefsAll size:0x2D4 ref:kar_wowjinxy/GKYE01 forced | - | caller HSD_JObjLoadJoint; AGAINST no definition uses all of HSD_DObjResolveRefsAll,HSD_IDGetData,HSD_JObjRef,HSD_JObjResolveRefs,HSD_JObjUnref,HSD_RObjResolveRefsAll,ref_INC | alts:JObjLoad
+DOUBT     0x80198DC4 HSD_IDGetData size:0x2C ref:kar_wowjinxy/GKYE01 forced | - | AGAINST caller HSD_JObjResolveRefsAll does not use it | alts:iref_DEC
+DOUBT     0x8019A7E8 HSD_JObjSetupMatrixSub size:0x278 ref:kar_wowjinxy/GKYE01 forced | - | callees HSD_RObjGetByType,HSD_RObjUpdateAll,PSVECAdd,PSVECDotProduct,PSVECScale,resolveIKJoint1,resolveIKJoint2; caller HSD_JObjDispDObj; AGAINST caller resolveCnsDirUp does not use it; AGAINST caller HSD_RObjUpdateAll does not use it | alts:JObjReleaseChild
+DOUBT     0x801A07D4 HSD_ObjAlloc size:0x150 ref:melee/GALE01 forced | - | callees HSD_ObjAllocAddFree; caller HSD_AObjAlloc; caller HSD_FObjAlloc; caller HSD_JObjDispDObj; caller HSD_VecAlloc; caller HSD_MtxAlloc; caller HSD_RObjAlloc; caller HSD_SListAlloc; caller HSD_ShadowAlloc; AGAINST caller bcexpLoadDesc does not use it | alts:-
+DOUBT     0x801A0E80 resolveCnsDirUp size:0x5E8 ref:kar_wowjinxy/GKYE01 forced | - | caller HSD_RObjUpdateAll; AGAINST no definition uses all of HSD_JObjSetupMatrixSub,PSVECDotProduct,PSVECScale,PSVECSubtract | alts:HSD_RObjLoadDesc,resolveCnsOrientation
+DOUBT     0x801A1670 HSD_RObjUpdateAll size:0x484 ref:kar_wowjinxy/GKYE01 forced | - | caller resolveIKJoint1; caller HSD_JObjSetupMatrixSub; AGAINST no definition uses all of HSD_JObjSetupMatrixSub,PSMTXCopy,PSVECMag,expEvaluate,resolveCnsDirUp,resolveLimits | alts:HSD_RObjLoadDesc
+DOUBT     0x801A27A8 bcexpLoadDesc size:0xF8 ref:melee/GALE01 forced | - | caller HSD_RObjLoadDesc; AGAINST no definition uses all of HSD_ObjAlloc | alts:HSD_RvalueResolveRefsAll,expLoadDesc
+DOUBT     0x801A3184 HSD_WObjGetPosition size:0xE8 ref:melee/GALE01 forced | - | caller HSD_CObjGetInterest; caller HSD_CObjGetEyePosition; AGAINST caller upvec2roll does not use it; AGAINST caller roll2upvec does not use it | alts:HSD_WObjSetPositionX,HSD_WObjSetPositionY,HSD_WObjSetPositionZ
+CONFIRMED 0x80003458 TRK_memset size:0x30 ref:xd/GXXE01 ambiguous | - | callees TRK_fill_mem; caller TRKResetBuffer | alts:__TRK_reset,__flush_cache,memset
+CONFIRMED 0x80131C40 PPCSync size:0x8 ref:melee/GALE01 forced | - | caller __ARChecksize; caller __GXShutdown; caller GXSetCPUFifo; caller GXSetGPFifo; caller GXFlush | alts:PPCMfhid0,PPCMfhid2,PPCMfl2cr,PPCMfpmc1,PPCMtdec,PPCMthid0,PPCMthid2,PPCMtl2cr,PPCMtmmcr0,PPCMtmmcr1,PPCMtpmc1,PPCMtwpar
+CONFIRMED 0x80131E44 OSGetConsoleType size:0x28 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __write_console; caller EXISync; caller InitializeUART | alts:PPCDisableSpeculation,PSMTXScale,PSVECSquareDistance,__OSGetHollywoodRev
+CONFIRMED 0x80132B28 OSCancelAlarm size:0x11C ref:ac-decomp/GAFE01_00 ambiguous | - | caller __DVDInterruptHandler; caller __CARDExtHandler; caller __CARDExiHandler; caller Retry; caller __CARDStart; caller CARDMountAsync; caller DoUnmount; caller SIInterruptHandler | alts:OSSetAlarm,OnReset
+CONFIRMED 0x8013310C OSFreeToHeap size:0x7C ref:melee/GALE01 ambiguous | - | callees DLInsert; caller __sys_free; caller _HSD_MemFreeDefaultCB | alts:-
+CONFIRMED 0x80133608 OSAllocFromArenaLo size:0x2C ref:tp/GZ2E01 ambiguous | - | caller HSD_AllocateXFB; caller HSD_AllocateFIFO | alts:DCInvalidateRange,OSSetArenaHi,OSSetArenaLo
+CONFIRMED 0x80133938 DCStoreRange size:0x30 ref:melee/GALE01 forced | - | caller ExpandFontSheet; caller __CARDUpdateFatBlock; caller __CARDFormatRegionAsync | alts:DCFlushRange,DCFlushRangeNoSync,DCInvalidateRange,DCStoreRangeNoSync,DCTouchRange,DCZeroRange,ICInvalidateRange
+CONFIRMED 0x80133AE4 LCEnable size:0x38 ref:melee/GALE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts,__LCEnable | alts:ICInvalidateRange
+CONFIRMED 0x80133B68 LCStoreData size:0xAC ref:tp/DZDE01 ambiguous | - | callees LCStoreBlocks | alts:-
+CONFIRMED 0x80134EA0 GetFontCode size:0x19C ref:sms/GMSE01 ambiguous | - | callees OSGetFontEncode; caller OSLoadFont; caller OSGetFontTexture | alts:Decode,Halt,OSPanic,PackArgs,__OSBootDol
+CONFIRMED 0x801351B0 OSGetFontEncode size:0x58 ref:sms/GMSE01 ambiguous | - | caller GetFontCode; caller OSLoadFont; caller CARDInit | alts:IsSjisTrailByte,OSPanic
+CONFIRMED 0x80135208 ReadROM size:0x8C ref:sms/GMSE01 ambiguous | - | callees __OSReadROM | alts:OSSetFontEncode
+CONFIRMED 0x801355C8 ExpandFontSheet size:0x3B0 ref:sms/GMSE01 ambiguous | - | callees DCStoreRange; caller OSInitFont | alts:-
+CONFIRMED 0x80135978 OSInitFont size:0xE0 ref:sms/GMSE01 ambiguous | - | callees ExpandFontSheet,OSLoadFont | alts:ParseStringS
+CONFIRMED 0x80135A58 OSGetFontTexture size:0x1A8 ref:kar_wowjinxy/GKYE01 forced | - | callees GetFontCode | alts:-
+CONFIRMED 0x80135CF0 SetInterruptMask size:0x2D8 ref:melee/GALE01 ambiguous | - | caller __OSMaskInterrupts; caller __OSUnmaskInterrupts | alts:__OSDispatchInterrupt
+CONFIRMED 0x801360D8 __OSDispatchInterrupt size:0x344 ref:melee/GALE01 ambiguous | - | callees OSDisableScheduler,OSEnableScheduler,OSGetTime,OSLoadContext,__OSReschedule; caller ExternalInterruptHandler | alts:Relocate
+CONFIRMED 0x80136C28 __OSDoHotReset size:0x48 ref:melee/GALE01 ambiguous | - | callees ICFlashInvalidate,OSDisableInterrupts,Reset; caller __OSReboot | alts:OSGetResetCode
+CONFIRMED 0x8013704C OSGetResetButtonState size:0x298 ref:marioparty4/GMPE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts,__OSGetSystemTime | alts:OSResetSystem
+CONFIRMED 0x801372E4 WriteSramCallback size:0x60 ref:marioparty4/GMPE01_00 ambiguous | - | callees WriteSram | alts:OSGetResetButtonState,__OSHotResetForError,__OSLockSram,__OSLockSramEx
+CONFIRMED 0x80137344 WriteSram size:0x118 ref:melee/GALE01 forced | - | callees EXIDeselect,EXIImm,EXIImmEx,EXILock,EXISelect,EXISync,EXIUnlock,WriteSramCallback; caller WriteSramCallback | alts:ReadSram,WriteSramCallback,__OSInitSram
+CONFIRMED 0x80137650 UnlockSram size:0x33C ref:melee/GALE01 ambiguous | - | caller __OSUnlockSram; caller __OSUnlockSramEx; caller OSGetSoundMode; caller OSSetSoundMode; caller OSGetWirelessID; caller OSSetWirelessID; caller OSSetGbsMode | alts:-
+CONFIRMED 0x801379E4 __OSReadROM size:0x124 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees DCInvalidateRange,EXIDeselect,EXIDma,EXIImm,EXILock,EXISelect,EXISync,EXIUnlock; caller ReadROM | alts:WriteSramCallback,__OSClearRTCFlags,__OSGetRTCFlags,__OSInitSram
+CONFIRMED 0x80138C84 OSSleepThread size:0xEC ref:melee/GALE01 forced | - | caller DVDReadPrio; caller DVDCancel; caller VIWaitForRetrace | alts:OSDetachThread,OSExitThread,OSSetThreadPriority,OSWakeupThread
+CONFIRMED 0x80138D70 OSWakeupThread size:0x104 ref:ttyd/G8MJ01 ambiguous | - | caller __OSUnlockAllMutex; caller OSCancelThread; caller cbForReadSync; caller cbForCancelSync; caller __VIRetraceHandler; caller __AXDSPDoneCallback; caller __CARDSyncCallback; caller GXFinishInterruptHandler | alts:OSDetachThread,OSSleepThread
+CONFIRMED 0x80139140 OSTicksToCalendarTime size:0x204 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GetDates | alts:WriteUARTN
+CONFIRMED 0x80139400 __DBExceptionDestinationAux size:0x48 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDumpContext,PPCHalt; caller __DBExceptionDestination | alts:CARDRename,CARDSetAttributes,CARDSetStatus,DBPrintf,__init_cpp
+CONFIRMED 0x801394F0 PSMTXCopy size:0x34 ref:ac-decomp/GAFE01_00 ambiguous | - | caller HSD_CObjGetViewingMtx; caller SetupSharedVtxModelMtx; caller SetupEnvelopeModelMtx; caller JObjUpdateFunc; caller mkVBillBoardMtx; caller mkHBillBoardMtx; caller HSD_JObjDispDObj; caller makeMatrix | alts:GXGetViewportv,GXSetCurrentMtx,PSMTXTrans
+CONFIRMED 0x80139524 PSMTXConcat size:0xCC ref:marioparty4/GMPE01_00 ambiguous | - | caller MakeTextureMtx; caller TObjSetupMtx; caller SetupSharedVtxModelMtx; caller SetupEnvelopeModelMtx; caller setupInstanceMtx; caller HSD_JObjDispAll; caller mkRBillBoardMtx; caller HSD_JObjMakePositionMtx; caller _HSD_mkEnvelopeModelNodeMtx; caller HSD_MtxSRTQuat; caller makeMatrix | alts:C_MTXRotRad,GXReadXfRasMetric,GXSetClipMode,PSMTXInvXpose
+CONFIRMED 0x80139640 PSMTXInverse size:0xF8 ref:marioparty4/GMPE01_00 ambiguous | - | caller HSD_CObjGetInvViewingMtxPtrDirect; caller setupInstanceMtx; caller HSD_JObjDispAll; caller _HSD_mkEnvelopeModelNodeMtx | alts:C_MTXLightPerspective,C_MTXPerspective,PSMTXRotAxisRad
+CONFIRMED 0x80139800 PSMTXRotRad size:0x70 ref:marioparty4/GMPE01_00 ambiguous | - | callees PSMTXRotTrig,cosf,sinf; caller mkRBillBoardMtx | alts:PSMTXRotAxisRad
+CONFIRMED 0x801399D0 PSMTXRotAxisRad size:0x70 ref:mkdd/MarioClub_us ambiguous | - | callees __PSMTXRotAxisRadInternal,cosf,sinf; caller roll2upvec; caller resolveIKJoint1; caller resolveIKJoint2 | alts:MTXRotRad,PSMTXRotRad
+CONFIRMED 0x80139A74 PSMTXScale size:0x28 ref:marioparty4/GMPE01_00 ambiguous | - | caller MakeTextureMtx; caller mkRBillBoardMtx; caller HSD_MtxSRTQuat | alts:OSGetConsoleType,PSMTXIdentity
+CONFIRMED 0x80139B40 C_MTXLookAt size:0x18C ref:sms/GMSE01 ambiguous | - | callees PSVECNormalize; caller upvec2roll | alts:C_MTXMultVec,C_MTXScaleApply
+CONFIRMED 0x80139D60 C_MTXLightPerspective size:0xCC ref:sms/GMSE01 ambiguous | - | callees tanf; caller makeMatrix | alts:C_MTXPerspective,C_MTXScale
+CONFIRMED 0x80139EB4 PSMTXMultVec size:0x54 ref:mkdd/MarioClub_us ambiguous | - | caller resolveIKJoint1; caller resolveIKJoint2; caller HSD_WObjSetPositionX; caller HSD_WObjSetPositionY; caller HSD_WObjSetPositionZ; caller HSD_WObjGetPosition | alts:PSMTXMultVecSR
+CONFIRMED 0x80139F08 PSMTXMultVecSR size:0x54 ref:ttyd/G8MJ01 ambiguous | - | caller TObjSetupMtx; caller upvec2roll; caller roll2upvec | alts:PSMTXMultVec
+CONFIRMED 0x80139FF8 C_MTXPerspective size:0xD0 ref:mkdd/MarioClub_us ambiguous | - | callees tanf | alts:C_MTXLightPerspective
+CONFIRMED 0x8013A160 PSVECAdd size:0x24 ref:marioparty4/GMPE01_00 ambiguous | - | caller HSD_LObjSetupSpecularInit; caller resolveIKJoint1; caller resolveIKJoint2; caller HSD_JObjSetupMatrixSub (best alternative 3) | alts:PSVECSubtract
+CONFIRMED 0x8013A184 PSVECSubtract size:0x24 ref:marioparty4/GMPE01_00 ambiguous | - | caller HSD_LObjGetLightVector; caller HSD_LObjSetupSpecularInit; caller HSD_CObjGetEyeDistance; caller resolveIKJoint1; caller resolveIKJoint2; caller HSD_MtxGetScale; caller resolveCnsDirUp; caller HSD_ViewingRectInit; caller HSD_ViewingRectAddRect | alts:PSVECAdd
+CONFIRMED 0x8013A1A8 PSVECScale size:0x1C ref:marioparty4/GMPE01_00 ambiguous | - | caller resolveIKJoint1; caller resolveIKJoint2; caller HSD_JObjSetupMatrixSub; caller mkVBillBoardMtx; caller mkHBillBoardMtx; caller mkBillBoardMtx; caller HSD_MtxGetScale; caller HSD_ViewingRectAddRect | alts:PSVECSquareMag
+CONFIRMED 0x8013A1C4 PSVECNormalize size:0x44 ref:marioparty4/GMPE01_00 ambiguous | - | caller C_MTXLookAt; caller TObjSetupMtx; caller HSD_LObjGetLightVector; caller HSD_LObjSetupSpecularInit; caller roll2upvec; caller resolveIKJoint2; caller mkHBillBoardMtx; caller HSD_ViewingRectInit | alts:PSMTX44Copy,PSVECMag,__DVDInitWA
+CONFIRMED 0x8013A220 PSVECMag size:0x44 ref:tp/DZDE01 ambiguous | - | caller HSD_CObjGetEyeDistance; caller mkVBillBoardMtx; caller mkHBillBoardMtx; caller mkBillBoardMtx; caller HSD_MtxGetScale; caller HSD_ViewingRectInit | alts:PSMTX44Copy,PSVECNormalize,__DVDInitWA
+CONFIRMED 0x8013A264 PSVECDotProduct size:0x20 ref:mkdd/MarioClub_us ambiguous | - | caller upvec2roll; caller resolveIKJoint1; caller resolveIKJoint2; caller HSD_JObjSetupMatrixSub; caller HSD_MtxGetScale; caller resolveCnsDirUp; caller HSD_ViewingRectAddRect | alts:-
+CONFIRMED 0x8013A7E4 SeekTwiceBeforeRead size:0x80 ref:ac-decomp/GAFE01_00 forced | - | callees DVDLowSeek; caller DVDLowRead | alts:-
+CONFIRMED 0x8013A864 DVDLowRead size:0x298 ref:ac-decomp/GAFE01_00 forced | - | caller stateReadingFST; caller stateCheckID2; caller stateBusy | alts:__DVDInterruptHandler
+CONFIRMED 0x8013AAFC DVDLowSeek size:0x94 ref:ac-decomp/GAFE01_00 ambiguous | - | caller __DVDInterruptHandler; caller SeekTwiceBeforeRead; caller cbForStateGettingError; caller stateBusy | alts:DVDLowAudioBufferConfig,DVDLowReadDiskID,DVDLowRequestError,DVDLowStopMotor
+CONFIRMED 0x8013ABBC DVDLowReadDiskID size:0xA4 ref:ac-decomp/GAFE01_00 forced | - | caller stateCoverClosed_CMD; caller stateBusy | alts:DVDLowAudioStream,DVDLowInquiry
+CONFIRMED 0x8013ACEC DVDLowRequestError size:0x8C ref:ac-decomp/GAFE01_00 ambiguous | - | caller stateGettingError; caller cbForUnrecoveredError; caller cbForStateCheckID2a | alts:DVDLowAudioStream,DVDLowRequestAudioStatus,DVDLowSeek,DVDLowStopMotor
+CONFIRMED 0x8013AE14 DVDLowAudioStream size:0x98 ref:ac-decomp/GAFE01_00 ambiguous | - | caller stateBusy; caller cbForStateBusy | alts:DVDLowAudioBufferConfig,DVDLowInquiry,DVDLowReadDiskID,DVDLowRequestAudioStatus,DVDLowRequestError,DVDLowStopMotor
+CONFIRMED 0x8013AF38 DVDLowAudioBufferConfig size:0x9C ref:ac-decomp/GAFE01_00 ambiguous | - | caller stateCheckID3; caller stateCheckID2a; caller stateBusy | alts:DVDLowAudioStream,DVDLowInquiry,DVDLowSeek
+CONFIRMED 0x8013B174 DVDConvertPathToEntrynum size:0x2F4 ref:ac-decomp/GAFE01_00 forced | - | caller DVDOpen; caller DVDChangeDir; caller HSD_SynthSFXLoad | alts:-
+CONFIRMED 0x8013B4DC DVDOpen size:0xC8 ref:ac-decomp/GAFE01_00 ambiguous | - | callees DVDConvertPathToEntrynum,DVDGetCurrentDir | alts:DVDGetCurrentDir,DVDReadAsyncPrio,GXReadXfRasMetric
+CONFIRMED 0x8013B5A4 DVDClose size:0x24 ref:ac-decomp/GAFE01_00 forced | - | callees DVDCancel | alts:cbForReadSync
+CONFIRMED 0x8013B728 DVDConvertEntrynumToPath size:0x154 ref:pikmin2/GPVE01 ambiguous | - | callees entryToPath | alts:DVDChangeDir,entryToPath
+CONFIRMED 0x8013B940 DVDChangeDir size:0x60 ref:pikmin2/GPVE01 ambiguous | - | callees DVDConvertPathToEntrynum | alts:DVDFastOpen
+CONFIRMED 0x8013B9A0 DVDReadAsyncPrio size:0xC0 ref:pikmin2/GPVE01 ambiguous | - | callees DVDReadAbsAsyncPrio,cbForReadAsync; caller HSD_DevComDVDWakeUp; string "DVDReadAsync(): specified area is out of" | alts:DVDGetCurrentDir,DVDInit,DVDOpen,DVDOpenDir
+CONFIRMED 0x8013BA90 DVDReadPrio size:0x118 ref:ac-decomp/GAFE01_00 ambiguous | - | callees DVDReadAbsAsyncPrio,OSDisableInterrupts,OSRestoreInterrupts,OSSleepThread,cbForReadSync; string "DVDRead(): specified area is out of the " | alts:DVDOpen,DVDOpenDir,cbForStateError,entryToPath
+CONFIRMED 0x8013BBA8 cbForReadSync size:0x24 ref:pikmin2/GPVE01 forced | - | callees OSWakeupThread | alts:DVDClose
+CONFIRMED 0x8013BE00 stateReadingFST size:0x94 ref:ac-decomp/GAFU01_00 ambiguous | - | callees DVDLowRead,cbForStateReadingFST; string "DVDChangeDisk(): FST in the new disc is " | alts:DVDReadDir,DVDSeekAsyncPrio,cbForReadAsync,cbForStateReadingFST,stateTimeout
+CONFIRMED 0x8013BE94 cbForStateReadingFST size:0x8C ref:ac-decomp/GAFU01_00 ambiguous | - | callees __DVDFSInit,stateGettingError,stateReady,stateTimeout | alts:stateReadingFST
+CONFIRMED 0x8013BFCC stateTimeout size:0x34 ref:ac-decomp/GAFU01_00 ambiguous | - | callees DVDReset,__DVDStoreErrorCode,cbForStateError; caller cbForStateReadingFST; caller cbForStateError | alts:cbForStoreErrorCode1,stateError,stateGettingError,stateSecurityError
+CONFIRMED 0x8013C000 stateGettingError size:0x28 ref:ac-decomp/GAFU01_00 ambiguous | - | callees DVDLowRequestError,cbForStateGettingError; caller cbForStateReadingFST | alts:-
+CONFIRMED 0x8013C3D8 cbForUnrecoveredErrorRetry size:0x98 ref:ac-decomp/GAFE01_00 ambiguous | - | callees DVDLowStopMotor,DVDReset,__DVDStoreErrorCode,cbForStateError | alts:-
+CONFIRMED 0x8013C470 stateGoToRetry size:0x28 ref:ac-decomp/GAFE01_00 ambiguous | - | callees DVDLowStopMotor,cbForStateGoToRetry; caller cbForStateGettingError; caller cbForUnrecoveredError | alts:-
+CONFIRMED 0x8013C5F0 stateCheckID size:0xE0 ref:ac-decomp/GAFE01_00 ambiguous | - | callees DCInvalidateRange,DVDCompareDiskID,DVDLowStopMotor,cbForStateCheckID1,memcmp,stateCheckID2a,stateCheckID3; caller cbForStateCoverClosed | alts:cbForStateCheckID1,cbForStateCheckID2,cbForUnrecoveredErrorRetry
+CONFIRMED 0x8013C704 stateCheckID2a size:0x34 ref:ac-decomp/GAFU01_00 ambiguous | - | callees DVDLowAudioBufferConfig,cbForStateCheckID2a; caller stateCheckID | alts:stateCheckID2,stateCheckID3
+CONFIRMED 0x8013C7AC stateCheckID2 size:0x38 ref:ac-decomp/GAFU01_00 ambiguous | - | callees DVDLowRead,cbForStateCheckID2; caller cbForStateCheckID2a | alts:stateCheckID2a,stateCheckID3
+CONFIRMED 0x8013CBE8 stateCoverClosed_CMD size:0x30 ref:ac-decomp/GAFE01_00 ambiguous | - | callees DVDLowReadDiskID,cbForStateCoverClosed; caller AlarmHandler | alts:-
+CONFIRMED 0x8013CC88 stateMotorStopped size:0x28 ref:ac-decomp/GAFE01_00 ambiguous | - | callees DVDLowWaitCoverClose,cbForStateMotorStopped; caller cbForStateGettingError; caller cbForStateGoToRetry; caller cbForStateCheckID1 | alts:-
+CONFIRMED 0x8013D91C DVDReadAbsAsyncPrio size:0xDC ref:marioparty4/GMPE01_00 ambiguous | - | callees DCInvalidateRange,OSDisableInterrupts,OSRestoreInterrupts,__DVDPushWaitingQueue,stateReady; caller __OSReboot; caller DVDReadAsyncPrio; caller DVDReadPrio | alts:DVDGetCommandBlockStatus,DVDInquiryAsync,DVDReadAbsAsyncForBS,DVDReadDiskID,DVDSeekAbsAsyncPrio,cbForStateMotorStopped
+CONFIRMED 0x8013D9F8 DVDReadAbsAsyncForBS size:0xD0 ref:ac-decomp/GAFE01_00 ambiguous | - | callees DCInvalidateRange,OSDisableInterrupts,OSRestoreInterrupts,__DVDPushWaitingQueue,stateReady; caller cb | alts:DVDGetCommandBlockStatus,DVDInquiryAsync,DVDPrepareStreamAbsAsync,DVDReadAbsAsyncPrio,DVDReadDiskID,DVDSeekAbsAsyncPrio
+CONFIRMED 0x8013DB9C DVDCancelStreamAsync size:0xBC ref:bfbb/GQPE78 ambiguous | - | callees DCInvalidateRange,OSDisableInterrupts,OSRestoreInterrupts,__DVDPushWaitingQueue,stateReady; caller __OSReboot (best alternative 1) | alts:DVDGetCommandBlockStatus,DVDGetDriveStatus,DVDGetStreamPlayAddrAsync,DVDInquiryAsync,DVDPrepareStreamAbsAsync,DVDReadAbsAsyncForBS,DVDSeekAbsAsyncPrio,DVDStopStreamAtEndAsync,issueCommand
+CONFIRMED 0x8013DE74 DVDResume size:0x50 ref:ac-decomp/GAFU01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts,stateReady; caller __OSReboot | alts:DVDGetCommandBlockStatus,DVDPause
+CONFIRMED 0x8013DEC4 DVDCancelAsync size:0x27C ref:ac-decomp/GAFU01_00 ambiguous | - | callees DVDLowBreak,DVDLowClearCallback,OSDisableInterrupts,OSRestoreInterrupts,__DVDDequeueWaitingQueue,stateReady; caller DVDCancel; caller __DVDPrepareResetAsync | alts:-
+CONFIRMED 0x8013E140 DVDCancel size:0xAC ref:ac-decomp/GAFE01_00 ambiguous | - | callees DVDCancelAsync,OSDisableInterrupts,OSRestoreInterrupts,OSSleepThread,cbForCancelSync; caller DVDClose | alts:DVDCancelAllAsync,DVDGetDriveStatus
+CONFIRMED 0x8013E1EC cbForCancelSync size:0x24 ref:ac-decomp/GAFE01_00 forced | - | callees OSWakeupThread | alts:DVDGetCurrentDiskID
+CONFIRMED 0x8013E218 DVDCheckDisk size:0xF8 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller __OSReboot (best alternative 1) | alts:DVDCancel,DVDCancelAllAsync
+CONFIRMED 0x8013E310 __DVDPrepareResetAsync size:0x11C ref:ac-decomp/GAFU01_00 ambiguous | - | callees DVDCancelAsync,OSDisableInterrupts,OSRestoreInterrupts,__DVDClearWaitingQueue,__DVDPopWaitingQueue,stateReady; caller __OSReboot | alts:DVDCancelAll,__DVDPrepareReset
+CONFIRMED 0x8013E42C __DVDTestAlarm size:0x38 ref:ac-decomp/GAFU01_00 ambiguous | - | callees __DVDLowTestAlarm | alts:__DVDClearWaitingQueue
+CONFIRMED 0x8013E5FC __DVDDequeueWaitingQueue size:0x60 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller DVDCancelAsync | alts:__DVDCheckWaitingQueue,__DVDClearWaitingQueue,__DVDGetNextWaitingQueue,__DVDPushWaitingQueue,__DVDStoreErrorCode,cbForNandClose,cbForNandWrite
+CONFIRMED 0x8013E7F4 DVDCompareDiskID size:0xF8 ref:ac-decomp/GAFU01_00 ambiguous | - | callees strncmp; caller stateCheckID | alts:SetExiInterruptMask,__GXDefaultTexRegionCallback,cbForNandOpen,doTransactionCallback
+CONFIRMED 0x8013EDD0 VISetPreRetraceCallback size:0x44 ref:ac-decomp/GAFU01_00 forced | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller HSD_VIInit | alts:PADSetSamplingCallback,VISetPostRetraceCallback
+CONFIRMED 0x8013EE14 VISetPostRetraceCallback size:0x44 ref:ac-decomp/GAFU01_00 forced | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller HSD_VIInit | alts:PADSetSamplingCallback,VISetPreRetraceCallback
+CONFIRMED 0x8013EE58 getTiming size:0xA0 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __VIInit; caller VIInit; caller VIConfigure | alts:__PADDisableRecalibration
+CONFIRMED 0x8013EEF8 __VIInit size:0x200 ref:ac-decomp/GAFU01_00 ambiguous | - | callees getTiming; caller VIInit | alts:__VIRetraceHandler
+CONFIRMED 0x8013F5A8 VIWaitForRetrace size:0x54 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts,OSSleepThread; caller HSD_InitComponent | alts:VISetPostRetraceCallback
+CONFIRMED 0x8013F5FC setFbbRegs size:0x2D4 ref:ac-decomp/GAFE01_00 forced | - | caller VIConfigure; caller VISetNextFrameBuffer | alts:VIConfigurePan
+CONFIRMED 0x8013F8D0 setVerticalRegs size:0x1A0 ref:ac-decomp/GAFE01_00 forced | - | caller VIConfigure; caller VISetBlack | alts:-
+CONFIRMED 0x8013FA70 VIConfigure size:0x828 ref:marioparty4/GMPP01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts,getTiming,setFbbRegs,setVerticalRegs; caller HSD_VIPreRetraceCB; caller HSD_VIInit | alts:-
+CONFIRMED 0x80140298 VIFlush size:0x130 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller HSD_VIPreRetraceCB; caller HSD_VIInit | alts:-
+CONFIRMED 0x801403C8 VISetNextFrameBuffer size:0x6C ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts,setFbbRegs; caller HSD_VIPreRetraceCB | alts:VIGetCurrentLine,VIGetTvFormat,VISetBlack,getCurrentFieldEvenOdd
+CONFIRMED 0x80140434 VISetBlack size:0x7C ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts,setVerticalRegs; caller HSD_VIPreRetraceCB; caller HSD_VIInit | alts:VIGetTvFormat
+CONFIRMED 0x801405F8 VIGetCurrentLine size:0x98 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller SIInterruptHandler | alts:VIGetNextField,VISetBlack,exit
+CONFIRMED 0x801406F8 VIGetDTVStatus size:0x3C ref:mkdd/MarioClub_us ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts | alts:-
+CONFIRMED 0x80140C64 UpdateOrigin size:0x1A4 ref:ac-decomp/GAFE01_00 ambiguous | - | callees SIGetType; caller PADOriginCallback; caller PADOriginUpdateCallback | alts:ClampCircle,ClampStick
+CONFIRMED 0x80141FA4 AIRegisterDMACallback size:0x44 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller __AXOutInit | alts:PADSetSamplingCallback,__VIGetCurrentPosition,getCurrentFieldEvenOdd
+CONFIRMED 0x80141FE8 AIInitDMA size:0x88 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller __AXOutNewFrame; caller __AXOutAiCallback; caller __AXOutInit | alts:AISetDSPSampleRate,VIGetCurrentLine,VIGetTvFormat,__PADDisableRecalibration
+CONFIRMED 0x801420A4 AISetStreamPlayState size:0xD8 ref:marioparty4/GMPE01_00 ambiguous | - | callees AIGetStreamPlayState,AIGetStreamSampleRate,AIGetStreamVolLeft,AIGetStreamVolRight,AISetStreamVolLeft,AISetStreamVolRight,OSDisableInterrupts,OSRestoreInterrupts,__AI_SRC_INIT; caller __OSReboot; caller __AI_set_stream_sample_rate | alts:AIInitDMA,AISetDSPSampleRate,__AI_set_stream_sample_rate
+CONFIRMED 0x8014218C AISetDSPSampleRate size:0xE0 ref:melee/GALE01 ambiguous | - | callees AIGetDSPSampleRate,AIGetStreamSampleRate,AIGetStreamVolLeft,AIGetStreamVolRight,AISetStreamVolLeft,AISetStreamVolRight,OSDisableInterrupts,OSRestoreInterrupts,__AI_SRC_INIT; caller AIInit | alts:AIInitDMA,AISetStreamPlayState,__AI_set_stream_sample_rate
+CONFIRMED 0x80142280 __AI_set_stream_sample_rate size:0xD4 ref:melee/GALE01 ambiguous | - | callees AIGetStreamSampleRate,AIGetStreamVolLeft,AIGetStreamVolRight,AISetStreamPlayState,AISetStreamVolLeft,AISetStreamVolRight,OSDisableInterrupts,OSRestoreInterrupts,__AI_SRC_INIT; caller AIInit | alts:AISetDSPSampleRate,AISetStreamPlayState
+CONFIRMED 0x80142354 AIGetStreamSampleRate size:0x10 ref:melee/GALE01 forced | - | caller AISetStreamPlayState; caller AISetDSPSampleRate; caller __AI_set_stream_sample_rate | alts:AIGetStreamPlayState,AIGetStreamVolLeft,AIGetStreamVolRight
+CONFIRMED 0x80142364 AISetStreamVolLeft size:0x1C ref:melee/GALE01 forced | - | caller __OSReboot; caller AISetStreamPlayState; caller AISetDSPSampleRate; caller __AI_set_stream_sample_rate | alts:AISetStreamVolRight
+CONFIRMED 0x80142380 AIGetStreamVolLeft size:0x10 ref:melee/GALE01 forced | - | caller AISetStreamPlayState; caller AISetDSPSampleRate; caller __AI_set_stream_sample_rate | alts:AIGetStreamSampleRate,AIGetStreamVolRight
+CONFIRMED 0x80142390 AISetStreamVolRight size:0x1C ref:melee/GALE01 forced | - | caller __OSReboot; caller AISetStreamPlayState; caller AISetDSPSampleRate; caller __AI_set_stream_sample_rate | alts:AISetStreamVolLeft
+CONFIRMED 0x801423AC AIGetStreamVolRight size:0x10 ref:melee/GALE01 forced | - | caller AISetStreamPlayState; caller AISetDSPSampleRate; caller __AI_set_stream_sample_rate | alts:AIGetStreamSampleRate,AIGetStreamVolLeft
+CONFIRMED 0x801423BC AIInit size:0x16C ref:melee/GALE01 ambiguous | - | callees AISetDSPSampleRate,OSRegisterVersion,__AIDHandler,__AISHandler,__AI_set_stream_sample_rate,__OSSetInterruptHandler,__OSUnmaskInterrupts | alts:-
+CONFIRMED 0x80142528 __AISHandler size:0x7C ref:ac-decomp/GAFU01_00 ambiguous | - | callees OSClearContext,OSSetCurrentContext | alts:-
+CONFIRMED 0x801425A4 __AIDHandler size:0xAC ref:ac-decomp/GAFU01_00 ambiguous | - | callees OSClearContext,OSSetCurrentContext,__AICallbackStackSwitch | alts:EXI2_Init
+CONFIRMED 0x801426A8 __AI_SRC_INIT size:0x1E4 ref:melee/GALE01 ambiguous | - | callees OSGetTime; caller AISetStreamPlayState; caller AISetDSPSampleRate; caller __AI_set_stream_sample_rate | alts:__THPReadFrameHeader
+CONFIRMED 0x8014288C ARRegisterDMACallback size:0x44 ref:ac-decomp/GAFU01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller ARQInit | alts:-
+CONFIRMED 0x801428D0 ARGetDMAStatus size:0x3C ref:ac-decomp/GAFU01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts | alts:-
+CONFIRMED 0x8014290C ARStartDMA size:0xF0 ref:ac-decomp/GAFU01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller __ARQServiceQueueLo; caller __ARQInterruptServiceRoutine; caller ARQPostRequest | alts:ARInit,__ct__Q25JMath18TSinCosTable<13,f>Fv
+CONFIRMED 0x801429FC ARAlloc size:0x68 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts | alts:__AICallbackStackSwitch,__ARQPopTaskQueueHi
+CONFIRMED 0x80142BD0 __ARChecksize size:0x17F4 ref:ac-decomp/GAFU01_00 ambiguous | - | callees DCFlushRange,DCInvalidateRange,PPCSync; caller ARInit | alts:-
+CONFIRMED 0x801443C4 __ARQServiceQueueLo size:0x100 ref:ac-decomp/GAFU01_00 ambiguous | - | callees ARStartDMA; caller __ARQInterruptServiceRoutine; caller ARQPostRequest | alts:ARInit
+CONFIRMED 0x801444C8 __ARQInterruptServiceRoutine size:0xCC ref:ac-decomp/GAFE01_00 forced | - | callees ARStartDMA,__ARQServiceQueueLo | alts:ARInit
+CONFIRMED 0x80144594 ARQInit size:0x70 ref:ac-decomp/GAFE01_00 ambiguous | - | callees ARRegisterDMACallback,OSRegisterVersion,__ARQInterruptServiceRoutine | alts:__ARQInterruptServiceRoutine,__ARQPopTaskQueueHi
+CONFIRMED 0x8014A44C DSPReadMailFromDSP size:0x18 ref:ttyd/G8MJ01 ambiguous | - | caller __DSPHandler; caller __DSP_boot_task | alts:__CARDSyncCallback,__DBIsExceptionMarked
+CONFIRMED 0x8014A6CC __DSPHandler size:0x424 ref:marioparty4/GMPE01_00 ambiguous | - | callees DSPCheckMailFromDSP,DSPReadMailFromDSP,DSPSendMailToDSP,OSClearContext,OSSetCurrentContext,__DSP_exec_task,__DSP_remove_task | alts:-
+CONFIRMED 0x8014AAF0 __DSP_exec_task size:0x1A0 ref:marioparty4/GMPE01_00 forced | - | callees DSPSendMailToDSP; caller __DSPHandler | alts:__DSP_boot_task,nandCreate
+CONFIRMED 0x8014AC90 __DSP_boot_task size:0x18C ref:marioparty4/GMPE01_00 ambiguous | - | callees DSPCheckMailFromDSP,DSPReadMailFromDSP,DSPSendMailToDSP,__DSP_debug_printf; caller DSPAddTask | alts:__DSP_exec_task,nandCreate
+CONFIRMED 0x8014AF54 __CARDSyncCallback size:0x34 ref:melee/GALE01 forced | - | callees OSWakeupThread | alts:-
+CONFIRMED 0x8014AF88 __CARDExtHandler size:0xD8 ref:melee/GALE01 forced | - | callees EXISetExiCallback,OSCancelAlarm | alts:-
+CONFIRMED 0x8014B060 __CARDExiHandler size:0x118 ref:melee/GALE01 ambiguous | - | callees EXILock,EXIUnlock,OSCancelAlarm,Retry,__CARDClearStatus,__CARDReadStatus | alts:__CARDReadNintendoID,__DSP_remove_task
+CONFIRMED 0x8014B178 __CARDTxHandler size:0xA8 ref:melee/GALE01 ambiguous | - | callees EXIDeselect,EXIProbe,EXIUnlock | alts:__CARDClearStatus
+CONFIRMED 0x8014B220 __CARDUnlockedHandler size:0x84 ref:melee/GALE01 forced | - | callees EXIProbe | alts:-
+CONFIRMED 0x8014B364 __CARDReadStatus size:0xF0 ref:melee/GALE01 forced | - | callees EXIDeselect,EXIImm,EXISelect,EXISync; caller __CARDExiHandler; caller DoneCallback; caller DoMount | alts:UnlockedCallback,__CARDReadVendorID
+CONFIRMED 0x8014B454 __CARDClearStatus size:0xAC ref:melee/GALE01 ambiguous | - | callees EXIDeselect,EXIImm,EXISelect,EXISync; caller __CARDExiHandler; caller DoMount | alts:TimeoutHandler,__CARDTxHandler
+CONFIRMED 0x8014B500 TimeoutHandler size:0xA4 ref:melee/GALE01 forced | - | callees EXISetExiCallback | alts:__CARDClearStatus
+CONFIRMED 0x8014B5A4 Retry size:0x22C ref:melee/GALE01 ambiguous | - | callees EXIDeselect,EXIDma,EXIImmEx,EXISelect,EXIUnlock,OSCancelAlarm,OSSetAlarm,TimeoutHandler,__CARDTxHandler; caller __CARDExiHandler; caller UnlockedCallback | alts:__CARDStart
+CONFIRMED 0x8014B7D0 UnlockedCallback size:0x110 ref:melee/GALE01 ambiguous | - | callees EXILock,Retry,__CARDUnlockedHandler | alts:__CARDEraseSector,__CARDWritePage
+CONFIRMED 0x8014B8E0 __CARDStart size:0x1B4 ref:melee/GALE01 ambiguous | - | callees EXILock,EXISelect,EXIUnlock,OSCancelAlarm,OSDisableInterrupts,OSRestoreInterrupts,OSSetAlarm,TimeoutHandler,UnlockedCallback,__CARDUnlockedHandler; caller __CARDReadSegment; caller __CARDEraseSector | alts:-
+CONFIRMED 0x8014BA94 __CARDReadSegment size:0x134 ref:melee/GALE01 ambiguous | - | callees EXIDeselect,EXIDma,EXIImmEx,EXIUnlock,__CARDStart,__CARDTxHandler; caller BlockReadCallback; caller __CARDRead | alts:__CARDWritePage
+CONFIRMED 0x8014BCE4 __CARDEraseSector size:0xE0 ref:ac-decomp/GAFU01_00 ambiguous | - | callees EXIDeselect,EXIImmEx,EXIUnlock,__CARDStart; caller __CARDUpdateFatBlock; caller FormatCallback; caller __CARDFormatRegionAsync | alts:-
+CONFIRMED 0x8014BDC4 CARDInit size:0xAC ref:ac-decomp/GAFU01_00 ambiguous | - | callees DSPInit,OSCreateAlarm,OSGetFontEncode,OSInitAlarm,OSInitThreadQueue,OSRegisterResetFunction,OSRegisterVersion,__CARDSetDiskID | alts:__CARDGetControlBlock
+CONFIRMED 0x8014BE70 __CARDGetFontEncode size:0x8 ref:ac-decomp/GAFU01_00 ambiguous | - | caller VerifyID; caller CARDFormatAsync | alts:-
+CONFIRMED 0x8014BEB0 __CARDGetControlBlock size:0xB8 ref:melee/GALE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller CARDFreeBlocks; caller CARDCheckExAsync; caller CARDUnmount; caller __CARDFormatRegionAsync; caller CARDOpen; caller CARDClose; caller CARDCreateAsync; caller __CARDSeek; caller CARDDeleteAsync; caller CARDGetStatus; caller CARDSetStatusAsync; caller CARDGetSerialNo | alts:CARDInit,bitrev
+CONFIRMED 0x8014BF68 __CARDPutControlBlock size:0x64 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller BlockReadCallback; caller CARDCheckExAsync; caller DoMount; caller __CARDMountCallback; caller FormatCallback; caller __CARDFormatRegionAsync; caller CARDOpen; caller CARDClose; caller CreateCallbackFat; caller CARDCreateAsync; caller __CARDSeek; caller ReadCallback; caller CARDReadAsync; caller DeleteCallback; caller CARDDeleteAsync; caller CARDGetStatus; caller CARDSetStatusAsync; caller CARDGetSerialNo | alts:CARDGetSectorSize
+CONFIRMED 0x8014C3A0 ReadArrayUnlock size:0x144 ref:mkdd/MarioClub_us ambiguous | - | callees EXIDeselect,EXIImmEx,EXISelect; caller __CARDUnlock; caller DoneCallback | alts:CARDFreeBlocks
+CONFIRMED 0x8014C4E4 DummyLen size:0xC4 ref:mkdd/MarioClub_us ambiguous | - | callees OSGetTick; caller __CARDUnlock; caller DoneCallback | alts:bitrev
+CONFIRMED 0x8014D100 InitCallback size:0x70 ref:melee/GALE01 ambiguous | - | callees DSPSendMailToDSP | alts:-
+CONFIRMED 0x8014D170 DoneCallback size:0x324 ref:melee/GALE01 ambiguous | - | callees DummyLen,EXIProbe,EXIUnlock,ReadArrayUnlock,__CARDMountCallback,__CARDReadStatus | alts:-
+CONFIRMED 0x8014D494 BlockReadCallback size:0xDC ref:melee/GALE01 ambiguous | - | callees __CARDPutControlBlock,__CARDReadSegment | alts:BlockWriteCallback
+CONFIRMED 0x8014D570 __CARDRead size:0x64 ref:melee/GALE01 ambiguous | - | callees BlockReadCallback,__CARDReadSegment; caller DoMount; caller ReadCallback; caller CARDReadAsync | alts:CARDGetSectorSize,__CARDWrite
+CONFIRMED 0x8014D9D0 __CARDFreeBlock size:0x9C ref:melee/GALE01 forced | - | callees __CARDUpdateFatBlock; caller DeleteCallback | alts:__CARDUpdateFatBlock
+CONFIRMED 0x8014DA6C __CARDUpdateFatBlock size:0xAC ref:melee/GALE01 ambiguous | - | callees DCStoreRange,__CARDEraseSector; caller __CARDAllocBlock; caller __CARDFreeBlock; caller CARDCheckExAsync | alts:-
+CONFIRMED 0x8014DB18 __CARDGetDirBlock size:0x8 ref:melee/GALE01 ambiguous | - | caller CARDFreeBlocks; caller __CARDGetFileNo; caller CARDOpen; caller CreateCallbackFat; caller CARDCreateAsync; caller __CARDSeek; caller CARDReadAsync; caller CARDDeleteAsync; caller CARDGetStatus; caller CARDSetStatusAsync | alts:__CARDGetFatBlock
+CONFIRMED 0x8014DF2C VerifyID size:0x284 ref:melee/GALE01 ambiguous | - | callees __CARDGetFontEncode,__OSLockSramEx,__OSUnlockSramEx; caller __CARDVerify; caller CARDCheckExAsync | alts:VerifyDir,VerifyFAT
+CONFIRMED 0x8014E1B0 VerifyDir size:0x240 ref:melee/GALE01 forced | - | caller __CARDVerify; caller CARDCheckExAsync | alts:-
+CONFIRMED 0x8014E674 __CARDVerify size:0x8C ref:melee/GALE01 ambiguous | - | callees VerifyDir,VerifyFAT,VerifyID; caller __CARDMountCallback | alts:-
+CONFIRMED 0x8014ED5C CARDProbeEx size:0x17C ref:ac-decomp/GAFE01_00 ambiguous | - | callees EXIGetID,EXIGetState,EXIProbeEx,IsCard,OSDisableInterrupts,OSRestoreInterrupts | alts:CARDMountAsync,__CARDMountCallback
+CONFIRMED 0x8014EED8 DoMount size:0x410 ref:ac-decomp/GAFE01_00 ambiguous | - | callees DCInvalidateRange,DoUnmount,EXIGetID,EXIProbe,EXISetExiCallback,EXIUnlock,IsCard,__CARDClearStatus,__CARDEnableInterrupt,__CARDExiHandler,__CARDMountCallback,__CARDPutControlBlock,__CARDRead,__CARDReadStatus,__CARDUnlock,__OSLockSramEx,__OSUnlockSramEx; caller __CARDMountCallback; caller CARDMountAsync | alts:-
+CONFIRMED 0x8014F2E8 __CARDMountCallback size:0x138 ref:ac-decomp/GAFE01_00 ambiguous | - | callees DoMount,DoUnmount,EXILock,__CARDPutControlBlock,__CARDUnlockedHandler,__CARDVerify; caller DoneCallback | alts:FormatCallback
+CONFIRMED 0x8014F420 CARDMountAsync size:0x1A0 ref:ttyd/G8MJ01 ambiguous | - | callees DoMount,EXIAttach,EXIGetState,EXILock,EXISetExiCallback,OSCancelAlarm,OSDisableInterrupts,OSRestoreInterrupts,__CARDDefaultApiCallback,__CARDExtHandler,__CARDMountCallback,__CARDUnlockedHandler | alts:CARDProbeEx
+CONFIRMED 0x8014F5C0 DoUnmount size:0x9C ref:melee/GALE01 ambiguous | - | callees EXIDetach,EXISetExiCallback,OSCancelAlarm,OSDisableInterrupts,OSRestoreInterrupts; caller DoMount; caller __CARDMountCallback | alts:CARDUnmount
+CONFIRMED 0x8014F708 FormatCallback size:0x144 ref:melee/GALE01 forced | - | callees __CARDEraseSector,__CARDPutControlBlock | alts:__CARDIsWritable,__CARDMountCallback
+CONFIRMED 0x8014F84C __CARDFormatRegionAsync size:0x658 ref:melee/GALE01 ambiguous | - | callees DCStoreRange,FormatCallback,OSGetTime,__CARDDefaultApiCallback,__CARDEraseSector,__CARDGetControlBlock,__CARDPutControlBlock,__OSLockSram,__OSLockSramEx,__OSUnlockSram,__OSUnlockSramEx; caller CARDFormatAsync | alts:CARDFormatAsync
+CONFIRMED 0x8014FEEC __CARDCompareFileName size:0x68 ref:melee/GALE01 forced | - | caller CARDOpen; caller CARDCreateAsync | alts:-
+CONFIRMED 0x8014FF54 __CARDAccess size:0x94 ref:ac-decomp/GAFU01_00 ambiguous | - | callees memcmp | alts:-
+CONFIRMED 0x8014FFE8 __CARDIsWritable size:0x134 ref:ac-decomp/GAFU01_00 ambiguous | - | callees memcmp; caller CARDSetStatusAsync | alts:CARDOpen,CreateCallbackFat,FormatCallback,__CARDGetFileNo,__CARDIsReadable
+CONFIRMED 0x8015011C __CARDIsReadable size:0xF4 ref:ac-decomp/GAFU01_00 ambiguous | - | caller CARDReadAsync; caller CARDGetStatus | alts:CARDFastOpen
+CONFIRMED 0x8015047C CARDClose size:0x54 ref:ttyd/G8MJ01 ambiguous | - | callees __CARDGetControlBlock,__CARDPutControlBlock | alts:-
+CONFIRMED 0x801504D8 CreateCallbackFat size:0x130 ref:melee/GALE01 ambiguous | - | callees OSGetTime,__CARDGetDirBlock,__CARDPutControlBlock | alts:CARDOpen,CARDReadAsync,ReadCallback,__CARDGetFileNo,__CARDIsReadable,__CARDIsWritable
+CONFIRMED 0x80150608 CARDCreateAsync size:0x220 ref:melee/GALE01 ambiguous | - | callees CreateCallbackFat,__CARDAllocBlock,__CARDCompareFileName,__CARDDefaultApiCallback,__CARDGetControlBlock,__CARDGetDirBlock,__CARDPutControlBlock,memcmp,strlen,strncpy | alts:-
+CONFIRMED 0x80150828 __CARDSeek size:0x1B8 ref:melee/GALE01 forced | - | callees __CARDGetControlBlock,__CARDGetDirBlock,__CARDPutControlBlock; caller CARDReadAsync | alts:-
+CONFIRMED 0x801509E0 ReadCallback size:0x130 ref:melee/GALE01 ambiguous | - | callees __CARDPutControlBlock,__CARDRead | alts:CARDReadAsync,CARDWriteAsync,CreateCallbackFat
+CONFIRMED 0x80150F88 DeleteCallback size:0xA4 ref:ttyd/G8MJ01 ambiguous | - | callees __CARDFreeBlock,__CARDPutControlBlock | alts:EraseCallback
+CONFIRMED 0x8015102C CARDDeleteAsync size:0x110 ref:melee/GALE01 ambiguous | - | callees DeleteCallback,__CARDDefaultApiCallback,__CARDGetControlBlock,__CARDGetDirBlock,__CARDGetFileNo,__CARDIsOpened,__CARDPutControlBlock | alts:CARDFastDeleteAsync,CARDGetStatus,CARDWriteAsync
+CONFIRMED 0x8015113C UpdateIconOffsets size:0x1F8 ref:melee/GALE01 forced | - | caller CARDGetStatus; caller CARDSetStatusAsync | alts:CARDRenameAsync
+CONFIRMED 0x80151334 CARDGetStatus size:0x114 ref:melee/GALE01 ambiguous | - | callees UpdateIconOffsets,__CARDGetControlBlock,__CARDGetDirBlock,__CARDIsReadable,__CARDPutControlBlock | alts:CARDDeleteAsync,CARDFastDeleteAsync,CARDWriteAsync,SetExiInterruptMask,__GXDefaultTexRegionCallback,nandCreate
+CONFIRMED 0x80151448 CARDSetStatusAsync size:0x174 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSGetTime,UpdateIconOffsets,__CARDGetControlBlock,__CARDGetDirBlock,__CARDIsWritable,__CARDPutControlBlock; caller CARDSetStatus | alts:UpdateIconOffsets,__GXShutdown,nandCreate
+CONFIRMED 0x801515BC CARDSetStatus size:0x48 ref:tp/GZ2E01 ambiguous | - | callees CARDSetStatusAsync,__CARDSyncCallback | alts:CARDDelete,CARDFastDelete,CARDRename,CARDSetAttributes,CARDWrite,SIIsChanBusy,__DBExceptionDestinationAux
+CONFIRMED 0x801516C8 __GXDefaultTexRegionCallback size:0xFC ref:tp/GZ2E01 ambiguous | - | callees GXGetTexObjFmt,GXGetTexObjMipMap | alts:CARDGetStatus,DVDCompareDiskID,GXCPInterruptHandler,HIOWriteMailbox,__DSP_remove_task
+CONFIRMED 0x801517E8 __GXShutdown size:0x190 ref:ac-decomp/GAFU01_00 ambiguous | - | callees GXSetDrawDoneCallback,OSGetTime,PPCSync | alts:CARDSetStatusAsync,C_QUATSlerp,GXInitFifoBase,HIOWrite,__GXInitRevisionBits
+CONFIRMED 0x80152A48 GXCPInterruptHandler size:0x134 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSClearContext,OSResumeThread,OSSetCurrentContext,OSSuspendThread,__GXWriteFifoIntEnable,__GXWriteFifoIntReset | alts:GXInitFifoLimits,GXSetCPUFifo,HIOWrite,__GXInitRevisionBits
+CONFIRMED 0x80152BE8 GXInitFifoPtrs size:0x70 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller GXInitFifoBase | alts:GXInitFifoBase,__GXFifoInit
+CONFIRMED 0x80153010 __GXWriteFifoIntEnable size:0x30 ref:ac-decomp/GAFU01_00 ambiguous | - | caller GXCPInterruptHandler; caller GXSetCPUFifo; caller GXSetGPFifo | alts:__GXFifoLink,__GXFifoReadDisable,__GXFifoReadEnable,__GXWriteFifoIntReset
+CONFIRMED 0x80153078 GXSetVtxDesc size:0x26C ref:tp/DZDE01 ambiguous | - | caller GXDrawCube; caller HSD_PObjDisp; caller HSD_EraseRect; caller HSD_ShadowStartRender | alts:GXSetGPFifo,GXSetVtxAttrFmt,GXSetVtxDescv,__GXCleanGPFifo
+CONFIRMED 0x80153990 GXClearVtxDesc size:0x38 ref:mkdd/MarioClub_us ambiguous | - | caller __GXInitGX; caller HSD_ClearVtxDesc; caller HSD_PObjDisp; caller HSD_EraseRect | alts:__GXWriteFifoIntReset
+CONFIRMED 0x801541C0 GXGetVtxAttrFmtv size:0x74 ref:mkdd/MarioClub_us ambiguous | - | callees GXGetVtxAttrFmt | alts:GXInvalidateVtxCache,__GXSetVAT
+CONFIRMED 0x80154234 GXSetArray size:0x8C ref:mkdd/MarioClub_us ambiguous | - | caller __GXInitGX; caller HSD_PObjDisp | alts:GXSetDrawDone,GXSetMisc,GXWaitDrawDone,__GXFifoInit,__GXSetVAT
+CONFIRMED 0x801542C0 GXInvalidateVtxCache size:0x10 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StartRender | alts:-
+CONFIRMED 0x801542D0 GXSetTexCoordGen2 size:0x280 ref:ac-decomp/GAFU01_00 ambiguous | - | callees __GXSetMatrixIndex; caller __GXInitGX; caller HSD_EraseRect | alts:GXGetVtxAttrFmt,GXSetVtxAttrFmt,GXSetVtxAttrFmtv
+CONFIRMED 0x80154550 GXSetNumTexGens size:0x3C ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetNumTexGens; caller HSD_EraseRect | alts:GXSetArray
+CONFIRMED 0x80154620 GXFlush size:0x5C ref:ac-decomp/GAFU01_00 ambiguous | - | callees PPCSync,__GXSetDirtyState | alts:__GXAbortWaitPECopyDone
+CONFIRMED 0x801548B4 GXPixModeSync size:0x24 ref:ac-decomp/GAFE01_00 ambiguous | - | caller HSD_VICopyEFB2XFBPtr; caller HSD_TExpSetReg | alts:GXSetNumTexGens,GXTexModeSync
+CONFIRMED 0x80154A40 GXTokenInterruptHandler size:0x88 ref:ac-decomp/GAFU01_00 ambiguous | - | callees OSClearContext,OSSetCurrentContext | alts:GXFinishInterruptHandler,GXPokeBlendMode,__GXPEInit,__GXSetDirtyState
+CONFIRMED 0x80154AC8 GXSetDrawDoneCallback size:0x44 ref:ac-decomp/GAFE01_00 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller __GXShutdown; caller HSD_VIInit | alts:GXSetDispCopyDst,GXSetDispCopySrc,GXSetDrawSyncCallback
+CONFIRMED 0x80154B0C GXFinishInterruptHandler size:0x80 ref:ac-decomp/GAFE01_00 forced | - | callees OSClearContext,OSSetCurrentContext,OSWakeupThread | alts:GXPokeBlendMode,GXTokenInterruptHandler,__GXPEInit,__GXSendFlushPrim,__GXSetDirtyState
+CONFIRMED 0x80154C00 __GXSetDirtyState size:0x80 ref:ac-decomp/GAFU01_00 ambiguous | - | callees __GXCalculateVLim,__GXSetGenMode,__GXSetSUTexRegs,__GXSetVAT,__GXSetVCD,__GXUpdateBPMask; caller GXFlush; caller GXCallDisplayList | alts:GXFinishInterruptHandler,GXTokenInterruptHandler,__GXPEInit,__GXSendFlushPrim
+CONFIRMED 0x80154C80 GXBegin size:0xD0 ref:ac-decomp/GAFU01_00 ambiguous | - | caller GXDrawCube; caller interpretShapeAnimDisplayList; caller HSD_EraseRect; caller HSD_ShadowStartRender | alts:GXSetDispCopySrc,GXSetDispCopyYScale,__GXSendFlushPrim
+CONFIRMED 0x80154EA0 GXSetCullMode size:0x44 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetCullMode; caller HSD_EraseRect | alts:GXEnableTexOffsets,GXGetCullMode,GXSetCoPlanar,GXSetDispCopyDst,GXSetDispCopySrc,GXSetLineWidth,GXSetPointSize,GXSetTexCopySrc
+CONFIRMED 0x80155034 GXSetDispCopyDst size:0x34 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_VICopyEFB2XFBPtr | alts:GXSetCoPlanar
+CONFIRMED 0x80155068 GXSetTexCopyDst size:0x130 ref:ac-decomp/GAFU01_00 ambiguous | - | callees __GetImageTileCount; caller HSD_ShadowInit | alts:GXAdjustForOverscan,GXSetCoPlanar,GXSetDispCopyDst
+CONFIRMED 0x80155560 GXSetDispCopyGamma size:0x14 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_VICopyEFB2XFBPtr | alts:-
+CONFIRMED 0x801558BC GXInitLightSpot size:0x190 ref:pikmin2/GPVE01 ambiguous | - | callees cosf | alts:GXCopyDisp,GXCopyTex
+CONFIRMED 0x80155BD0 GXSetChanAmbColor size:0xF0 ref:ac-decomp/GAFU01_00 forced | - | caller __GXInitGX; caller HSD_SetupChannel | alts:GXInitLightAttn,GXInitSpecularDir,GXSetChanMatColor,GXSetNumChans,__GXGetTexTileShift,__GetImageTileCount
+CONFIRMED 0x80155CC0 GXSetChanMatColor size:0xF0 ref:ac-decomp/GAFU01_00 forced | - | caller __GXInitGX; caller HSD_SetupChannel | alts:GXInitSpecularDir,GXSetChanAmbColor,GXSetNumChans,__GXGetTexTileShift,__GetImageTileCount
+CONFIRMED 0x80155DB0 GXSetNumChans size:0x3C ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetNumChans; caller HSD_EraseRect | alts:-
+CONFIRMED 0x80155DEC GXSetChanCtrl size:0xB8 ref:bfbb/GQPE78 ambiguous | - | caller __GXInitGX; caller HSD_SetupChannel; caller HSD_DisableChannelLighting; caller HSD_EraseRect | alts:ConvLightID2Num,__GetImageTileCount
+CONFIRMED 0x801560C8 GXInitTexObj size:0x24C ref:ac-decomp/GAFE01_00 ambiguous | - | caller __GXInitGX; caller GXInitTexObjCI; caller HSD_TObjSetup; caller HSD_EraseRect | alts:GXInitTlutObj
+CONFIRMED 0x80156314 GXInitTexObjCI size:0x48 ref:ac-decomp/GAFU01_00 ambiguous | - | callees GXInitTexObj; caller HSD_TObjSetup | alts:GXInitTlutObj,GXSetNumChans
+CONFIRMED 0x8015665C GXLoadTexObj size:0x54 ref:ac-decomp/GAFU01_00 ambiguous | - | callees GXLoadTexObjPreLoaded; caller __GXInitGX; caller HSD_TObjSetup; caller HSD_EraseRect | alts:-
+CONFIRMED 0x801566E8 GXLoadTlut size:0x98 ref:ac-decomp/GAFU01_00 ambiguous | - | callees __GXFlushTextureState; caller HSD_TObjSetup | alts:GXGetTexObjMipMap,GXInitTexCacheRegion
+CONFIRMED 0x801568AC GXInvalidateTexAll size:0x48 ref:ac-decomp/GAFE01_00 ambiguous | - | callees __GXFlushTextureState; caller __GXInitGX; caller HSD_StartRender | alts:GXInitTlutObj,GXInitTlutRegion
+CONFIRMED 0x801569BC __GXSetSUTexRegs size:0x17C ref:ac-decomp/GAFU01_00 ambiguous | - | callees __SetSURegs; caller __GXSetDirtyState | alts:GXSetIndTexCoordScale,GXSetIndTexMtx
+CONFIRMED 0x80157060 GXSetTevDirect size:0x48 ref:ac-decomp/GAFU01_00 ambiguous | - | callees GXSetTevIndirect; caller __GXInitGX | alts:GXSetTevColorIn
+CONFIRMED 0x80157100 GXSetTevOp size:0x8C ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_EraseRect | alts:GXSetTevAlphaIn,GXSetTevColorIn
+CONFIRMED 0x801575D0 GXSetAlphaCompare size:0x44 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetAlphaCompare; caller HSD_EraseRect | alts:GXSetTevSwapMode
+CONFIRMED 0x80157614 GXSetZTexture size:0x8C ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_EraseRect | alts:GXSetTevSwapModeTable
+CONFIRMED 0x801576A0 GXSetTevOrder size:0x19C ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_EraseRect | alts:GXInitFogAdjTable,GXSetFog
+CONFIRMED 0x8015783C GXSetNumTevStages size:0x28 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetNumTevStages; caller HSD_EraseRect | alts:GXSetColorUpdate
+CONFIRMED 0x80157864 GXSetFog size:0x224 ref:pikmin2/GPVE01 ambiguous | - | caller __GXInitGX; caller HSD_FogSet | alts:GXInitTlutRegion,GXSetAlphaCompare,GXSetZTexture,__GXSetTmemConfig
+CONFIRMED 0x80157C38 GXSetFogRangeAdj size:0x124 ref:pikmin2/GPVE01 ambiguous | - | caller __GXInitGX; caller HSD_FogSet | alts:GXSetNumTevStages
+CONFIRMED 0x80157D5C GXSetBlendMode size:0x54 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetBlendMode; caller HSD_EraseRect | alts:-
+CONFIRMED 0x80157DB0 GXSetColorUpdate size:0x2C ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetColorUpdate; caller HSD_EraseRect | alts:GXSetAlphaUpdate,GXSetNumTevStages,GXSetZCompLoc
+CONFIRMED 0x80157DDC GXSetAlphaUpdate size:0x2C ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetAlphaUpdate; caller HSD_EraseRect | alts:GXSetColorUpdate,GXSetDither,GXSetZCompLoc
+CONFIRMED 0x80157E08 GXSetZMode size:0x34 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetZMode; caller HSD_EraseRect | alts:GXSetDither,GXSetDstAlpha,GXSetZCompLoc
+CONFIRMED 0x80157E3C GXSetZCompLoc size:0x34 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetZCompLoc; caller HSD_EraseRect | alts:GXSetDither,GXSetDstAlpha,GXSetFieldMask,GXSetZMode
+CONFIRMED 0x80157E70 GXSetPixelFmt size:0xD4 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StartRender | alts:-
+CONFIRMED 0x80157F44 GXSetDither size:0x2C ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetDither | alts:GXSetAlphaUpdate,GXSetDstAlpha,GXSetZCompLoc
+CONFIRMED 0x80157F70 GXSetDstAlpha size:0x3C ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller HSD_StateSetDstAlpha | alts:GXSetDither,GXSetFieldMask,GXSetZCompLoc,RestoreVertState
+CONFIRMED 0x801584C4 GXCallDisplayList size:0x70 ref:mkdd/MarioClub_us ambiguous | - | callees __GXSendFlushPrim,__GXSetDirtyState; caller HSD_PObjDisp | alts:GXGetProjectionv,GXSetFieldMode
+CONFIRMED 0x80158534 GXSetProjection size:0xA4 ref:ac-decomp/GAFU01_00 ambiguous | - | caller HSD_CObjSetCurrent; caller HSD_ShadowStartRender | alts:-
+CONFIRMED 0x801586AC GXLoadPosMtxImm size:0x50 ref:bfbb/GQPE78 ambiguous | - | caller __GXInitGX; caller SetupSharedVtxModelMtx; caller SetupEnvelopeModelMtx; caller HSD_EraseRect; caller HSD_ShadowStartRender | alts:GXGetViewportv,GXLoadNrmMtxImm,GXSetProjectionv,GXSetViewportJitter
+CONFIRMED 0x8015874C GXSetCurrentMtx size:0x34 ref:bfbb/GQPE78 ambiguous | - | callees __GXSetMatrixIndex; caller __GXInitGX; caller SetupSharedVtxModelMtx; caller HSD_EraseRect; caller HSD_ShadowStartRender | alts:GXGetViewportv,GXLoadNrmMtxIndx3x3,GXLoadPosMtxIndx,PSMTXCopy,WriteMTXPS3x3from3x4
+CONFIRMED 0x80158780 GXLoadTexMtxImm size:0xB4 ref:ac-decomp/GAFU01_00 ambiguous | - | caller __GXInitGX; caller TObjSetupMtx; caller SetupSharedVtxModelMtx; caller SetupEnvelopeModelMtx | alts:GXGetViewportv,GXSetCurrentMtx,GXSetProjectionv,GXSetScissor
+CONFIRMED 0x801588C4 GXSetViewportJitter size:0x58 ref:ttyd/G8MJ01 ambiguous | - | callees __GXSetViewport; caller HSD_CObjSetCurrent | alts:GXLoadNrmMtxImm,GXLoadPosMtxImm,GXSetViewport
+CONFIRMED 0x8015891C GXSetViewport size:0x48 ref:ttyd/G8MJ01 ambiguous | - | caller __GXInitGX; caller HSD_CObjSetCurrent; caller HSD_ShadowStartRender | alts:GXGetScissor,GXGetViewportv,GXLoadNrmMtxImm,GXSetScissorBoxOffset
+CONFIRMED 0x80158964 GXGetViewportv size:0x24 ref:tp/GZ2E01 ambiguous | - | caller HSD_FogSet; caller HSD_FogInit | alts:GXSetClipMode,GXSetViewport
+CONFIRMED 0x80158988 GXSetScissor size:0x78 ref:xd/GXXE01 ambiguous | - | caller __GXInitGX; caller HSD_CObjSetCurrent; caller HSD_ShadowStartRender | alts:GXLoadTexMtxImm,PSMTXIdentity,__GXSetMatrixIndex
+CONFIRMED 0x80158A68 __GXSetMatrixIndex size:0x84 ref:pikmin2/GPVE01 ambiguous | - | caller GXSetTexCoordGen2; caller GXSetCurrentMtx | alts:GXReadPixMetric,GXSetScissor,PSMTXIdentity
+CONFIRMED 0x8015964C TRKConstructEvent size:0x18 ref:ac-decomp/GAFE01_00 ambiguous | - | caller TRKProcessInput; caller TRKDoDisconnect; caller TRKTargetSupportRequest; caller TRKPostInterruptEvent | alts:-
+CONFIRMED 0x80159664 TRKPostEvent size:0xE0 ref:ac-decomp/GAFE01_00 ambiguous | - | caller TRKProcessInput; caller TRKDoDisconnect; caller TRKTargetSupportRequest; caller TRKPostInterruptEvent | alts:TRKDoNotifyStopped,TRKInitializeNub,TRKNubMainLoop
+CONFIRMED 0x801599E8 TRKMessageSend size:0x44 ref:ac-decomp/GAFU01_00 ambiguous | - | callees TRKWriteUARTN; caller TRKRequestSend; caller TRKSuppAccessFile | alts:-
+CONFIRMED 0x80159BB4 TRKReadBuffer1_ui64 size:0xE8 ref:ac-decomp/GAFU01_00 forced | - | caller TRKTargetAccessExtended2; caller TRKTargetAccessFP | alts:TRKAppendBuffer1_ui32,TRKAppendBuffer1_ui64,TRKAppendBuffer_ui32,TRKInitializeNub,TRKReadBuffer_ui32
+CONFIRMED 0x80159E00 TRKAppendBuffer1_ui64 size:0xFC ref:ac-decomp/GAFU01_00 forced | - | caller TRKTargetAccessExtended2; caller TRKTargetAccessFP | alts:TRKAppendBuffer_ui32,TRKReadBuffer1_ui64
+CONFIRMED 0x80159EFC TRKReadBuffer size:0x8C ref:ac-decomp/GAFU01_00 ambiguous | - | callees TRK_memcpy; caller TRKDoWriteMemory | alts:TRKAppendBuffer1_ui64
+CONFIRMED 0x8015A05C TRKResetBuffer size:0x40 ref:ac-decomp/GAFE01_00 forced | - | callees TRK_memset | alts:-
+CONFIRMED 0x8015A09C TRKReleaseBuffer size:0x64 ref:ac-decomp/GAFE01_00 ambiguous | - | callees TRKAcquireMutex,TRKReleaseMutex; caller TRKDestructEvent; caller TRKTestForPacket; caller HandlePositionFileSupportRequest; caller HandleCloseFileSupportRequest; caller HandleOpenFileSupportRequest; caller TRKRequestSend; caller TRKSuppAccessFile; caller TRKDoNotifyStopped | alts:-
+CONFIRMED 0x8015A12C TRKGetFreeBuffer size:0xC8 ref:ac-decomp/GAFE01_00 ambiguous | - | callees TRKAcquireMutex,TRKReleaseMutex,usr_puts_serial; caller TRKTestForPacket; caller HandlePositionFileSupportRequest; caller HandleCloseFileSupportRequest; caller HandleOpenFileSupportRequest; caller TRKSuppAccessFile; caller TRKDoNotifyStopped | alts:TRKInitializeSerialHandler
+CONFIRMED 0x8015A334 TRKProcessInput size:0x50 ref:ac-decomp/GAFE01_00 forced | - | callees TRKConstructEvent,TRKPostEvent; caller TRKRequestSend | alts:-
+CONFIRMED 0x8015B98C HandleOpenFileSupportRequest size:0x11C ref:ac-decomp/GAFU01_00 ambiguous | - | callees TRKAppendBuffer_ui8,TRKGetBuffer,TRKGetFreeBuffer,TRKReleaseBuffer,TRKRequestSend,strlen; caller TRKTargetSupportRequest | alts:HandleCloseFileSupportRequest,HandlePositionFileSupportRequest,TRK_RequestSend
+CONFIRMED 0x8015BC88 TRKSuppAccessFile size:0x220 ref:ac-decomp/GAFU01_00 ambiguous | - | callees TRKAppendBuffer_ui8,TRKGetBuffer,TRKGetFreeBuffer,TRKMessageSend,TRKReadBuffer_ui8,TRKReleaseBuffer,TRKRequestSend,TRKSetBufferPosition; caller TRKTargetSupportRequest | alts:TRKDoStep
+CONFIRMED 0x8015BEA8 TRKReleaseMutex size:0x8 ref:ac-decomp/GAFU01_00 ambiguous | - | caller TRKPostEvent; caller TRKGetNextEvent; caller TRKInitializeEventQueue; caller TRKReleaseBuffer; caller TRKGetFreeBuffer; caller TRKInitializeMessageBuffers | alts:TRKAcquireMutex,TRKInitializeMutex,__TRK_get_MSR
+CONFIRMED 0x8015BEC0 TRKDoNotifyStopped size:0x98 ref:ac-decomp/GAFU01_00 ambiguous | - | callees TRKGetFreeBuffer,TRKReleaseBuffer,TRKRequestSend,TRKTargetAddExceptionInfo,TRKTargetAddStopInfo; caller TRKTargetInterrupt | alts:TRKGetNextEvent
+CONFIRMED 0x8015C048 __TRK_get_MSR size:0x8 ref:ac-decomp/GAFE01_00 ambiguous | - | caller TRKTargetAccessFP; caller TRKTargetAccessMemory; caller TRKInitializeTarget | alts:TRKInitializeMutex,TRKReleaseMutex,__TRK_set_MSR,__read_file,__write_file
+CONFIRMED 0x8015D028 TRKTargetAccessExtended1 size:0x170 ref:ac-decomp/GAFU01_00 ambiguous | - | callees TRKAppendBuffer_ui32,TRKReadBuffer_ui32; caller TRKDoWriteRegisters; caller TRKDoReadRegisters | alts:TRKTargetAccessExtended2,TRKTargetAccessMemory,TRKTargetInterrupt,TRK_InterruptHandler
+CONFIRMED 0x8015D6A4 TRKTargetAccessDefault size:0xF4 ref:ac-decomp/GAFU01_00 ambiguous | - | callees TRKAppendBuffer_ui32,TRKReadBuffer_ui32; caller TRKDoWriteRegisters; caller TRKDoReadRegisters | alts:TRKValidMemory32
+CONFIRMED 0x8015D798 TRKTargetReadInstruction size:0x4C ref:ac-decomp/GAFU01_00 ambiguous | - | callees TRKTargetAccessMemory; caller TRKTargetAddExceptionInfo; caller TRKTargetAddStopInfo; caller TRKPostInterruptEvent | alts:TRKInitializeTarget
+CONFIRMED 0x8015D7E4 TRKTargetAccessMemory size:0x14C ref:ac-decomp/GAFU01_00 ambiguous | - | callees TRKTargetTranslate,TRKValidMemory32,TRK_flush_cache,TRK_ppc_memcpy,__TRK_get_MSR; caller TRKDoWriteMemory; caller TRKDoReadMemory; caller TRKTargetReadInstruction | alts:TRKRestoreExtended1Block,TRKTargetAccessExtended1,TRKTargetAccessExtended2,TRKTargetAccessFP,TRKValidMemory32
+CONFIRMED 0x80160124 free size:0x70 ref:xd/GXXE01 ambiguous | - | callees __begin_critical_region,__end_critical_region,__pool_free; caller __close_all; caller fclose | alts:__flush_all
+CONFIRMED 0x80160194 __pool_free size:0x58 ref:xd/GXXE01 ambiguous | - | callees deallocate_from_fixed_pools,deallocate_from_var_pools; caller free | alts:__pool_alloc
+CONFIRMED 0x801601EC deallocate_from_fixed_pools size:0x158 ref:xd/GXXE01 forced | - | callees deallocate_from_var_pools; caller __pool_free | alts:Block_link
+CONFIRMED 0x80160344 deallocate_from_var_pools size:0x294 ref:xd/GXXE01 ambiguous | - | callees __sys_free; caller __pool_free; caller deallocate_from_fixed_pools | alts:__dec2num,allocate_from_fixed_pools
+CONFIRMED 0x801605D8 __flush_all size:0x70 ref:xd/GXXE01 forced | - | callees fflush; caller fflush | alts:free
+CONFIRMED 0x80162AF4 fflush size:0x138 ref:xd/GXXE01 ambiguous | - | callees __flush_all,__flush_buffer,ftell; caller __flush_all | alts:-
+CONFIRMED 0x80162E54 _fseek size:0x270 ref:xd/GXXE01 ambiguous | - | callees __flush_buffer; caller fseek | alts:__utf8_to_unicode,fopen
+CONFIRMED 0x801632C0 memcmp size:0x4C ref:xd/GXXE01 ambiguous | - | caller stateCheckID; caller __CARDAccess; caller __CARDIsWritable; caller __CARDGetFileNo; caller CARDCreateAsync | alts:ftell,mbtowc
+CONFIRMED 0x80165874 strncpy size:0x44 ref:xd/GXXE01 forced | - | caller CARDCreateAsync; caller wcstombs | alts:strcat,strncmp,strrchr
+CONFIRMED 0x801658B8 strcpy size:0xB8 ref:xd/GXXE01 ambiguous | - | caller float2str; caller double2hex | alts:__StringRead,__write_console,atoi,fwide,raise,sin,snprintf,sprintf,sscanf,strtoul
+CONFIRMED 0x80165F58 __ieee754_atan2 size:0x290 ref:xd/GXXE01 ambiguous | - | callees atan; caller atan2 | alts:__ieee754_acos,__ieee754_asin,__ieee754_log
+CONFIRMED 0x801669C4 __ieee754_pow size:0x830 ref:xd/GXXE01 forced | - | callees ldexp; caller pow | alts:-
+CONFIRMED 0x801671F4 __ieee754_rem_pio2 size:0x3A0 ref:xd/GXXE01 ambiguous | - | callees __kernel_rem_pio2; caller cos; caller sin; caller tan | alts:__ieee754_fmod
+CONFIRMED 0x80167594 __kernel_cos size:0xF4 ref:xd/GXXE01 ambiguous | - | caller cos; caller sin | alts:-
+CONFIRMED 0x80167688 __kernel_rem_pio2 size:0xE54 ref:xd/GXXE01 ambiguous | - | callees floor,ldexp; caller __ieee754_rem_pio2 | alts:-
+CONFIRMED 0x801684DC __kernel_sin size:0xA0 ref:xd/GXXE01 ambiguous | - | caller cos; caller sin | alts:-
+CONFIRMED 0x801689D0 cos size:0xD4 ref:xd/GXXE01 ambiguous | - | callees __ieee754_rem_pio2,__kernel_cos,__kernel_sin; caller cosf | alts:sin
+CONFIRMED 0x80168C78 ldexp size:0x1C4 ref:xd/GXXE01 ambiguous | - | callees copysign; caller __num2dec_internal; caller __ieee754_pow; caller __kernel_rem_pio2 | alts:atanf
+CONFIRMED 0x80168F38 sin size:0xD8 ref:xd/GXXE01 ambiguous | - | callees __ieee754_rem_pio2,__kernel_cos,__kernel_sin; caller sinf | alts:cos,strcpy
+CONFIRMED 0x80169010 tan size:0x78 ref:xd/GXXE01 ambiguous | - | callees __ieee754_rem_pio2,__kernel_tan; caller tanf; caller HSD_ByteCodeEval | alts:fwide
+CONFIRMED 0x80169088 acos size:0x20 ref:xd/GXXE01 ambiguous | - | callees __ieee754_acos | alts:asin,atan2,exp,fmod,hypot,pow
+CONFIRMED 0x801690A8 asin size:0x20 ref:xd/GXXE01 ambiguous | - | callees __ieee754_asin | alts:acos,atan2,exp,fmod,hypot,log,log10,pow
+CONFIRMED 0x801690C8 atan2 size:0x20 ref:xd/GXXE01 ambiguous | - | callees __ieee754_atan2 | alts:acos,asin,exp,fmod,hypot,log,log10,pow,sqrt
+CONFIRMED 0x801690E8 exp size:0x20 ref:xd/GXXE01 ambiguous | - | callees __ieee754_exp | alts:acos,asin,atan2,fmod,log,log10,pow,sqrt
+CONFIRMED 0x80169108 fmod size:0x20 ref:xd/GXXE01 ambiguous | - | callees __ieee754_fmod | alts:acos,asin,atan2,exp,hypot,log,log10,pow,sqrt
+CONFIRMED 0x80169128 log size:0x20 ref:xd/GXXE01 ambiguous | - | callees __ieee754_log | alts:asin,atan2,exp,fmod,hypot,log10,pow
+CONFIRMED 0x80169148 pow size:0x20 ref:xd/GXXE01 ambiguous | - | callees __ieee754_pow; caller powf | alts:acos,asin,atan2,exp,fmod,hypot,log,log10,sqrt,strnicmp
+CONFIRMED 0x8016944C EXI2_Poll size:0x8 ref:xd/GXXE01 ambiguous | - | caller ddh_cc_peek; caller ddh_cc_read | alts:EXI2_ReadN,EXI2_WriteN
+CONFIRMED 0x80169454 EXI2_ReadN size:0x8 ref:marioparty4/GMPE01_00 ambiguous | - | caller ddh_cc_peek; caller ddh_cc_read | alts:AMC_IsStub,EXI2_Poll,EXI2_WriteN
+CONFIRMED 0x80169484 DBWrite size:0x260 ref:xd/GXXE01 ambiguous | - | callees DBGEXIImm,DBGWrite,OSDisableInterrupts,OSRestoreInterrupts; caller gdev_cc_write | alts:OSGetConsoleType
+CONFIRMED 0x801696E4 DBRead size:0x8C ref:xd/GXXE01 ambiguous | - | callees DBGRead,OSDisableInterrupts,OSRestoreInterrupts; caller gdev_cc_peek; caller gdev_cc_read | alts:stricmp
+CONFIRMED 0x80169770 DBQueryData size:0x9C ref:xd/GXXE01 ambiguous | - | callees DBGReadMailbox,DBGReadStatus,OSDisableInterrupts,OSRestoreInterrupts; caller gdev_cc_peek; caller gdev_cc_read | alts:-
+CONFIRMED 0x8016980C DBInitInterrupts size:0x54 ref:xd/GXXE01 ambiguous | - | callees DBGHandler,MWCallback,__OSMaskInterrupts,__OSSetInterruptHandler,__OSUnmaskInterrupts; caller gdev_cc_initinterrupts | alts:DBInitComm,DBQueryData,__DBIntrHandler
+CONFIRMED 0x80169860 DBInitComm size:0x78 ref:xd/GXXE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts,__OSMaskInterrupts; caller gdev_cc_initialize | alts:DBRead,__DBCheckMailBox
+CONFIRMED 0x80169954 DBGReadStatus size:0xAC ref:xd/GXXE01 ambiguous | - | callees DBGEXIImm; caller DBQueryData | alts:DBGReadMailbox
+CONFIRMED 0x80169A00 DBGWrite size:0xDC ref:xd/GXXE01 ambiguous | - | callees DBGEXIImm; caller DBWrite | alts:DBGRead,SetExiInterruptMask
+CONFIRMED 0x80169ADC DBGRead size:0xDC ref:xd/GXXE01 ambiguous,incoherent-neighbours | - | callees DBGEXIImm; caller DBRead | alts:DBGWrite,SIRegisterPollingHandler,SITransferNext,SIUnregisterPollingHandler,SetExiInterruptMask
+CONFIRMED 0x80169BB8 DBGReadMailbox size:0xAC ref:xd/GXXE01 ambiguous | - | callees DBGEXIImm; caller DBQueryData | alts:DBGReadStatus,EXI2_Init,EXIImmEx
+CONFIRMED 0x80169C64 DBGEXIImm size:0x298 ref:xd/GXXE01 ambiguous | - | caller DBWrite; caller DBGReadStatus; caller DBGWrite; caller DBGRead; caller DBGReadMailbox | alts:EXI2_ReadN,EXIDma,EXIImm,__VIRetraceHandler,sndAuxCallbackChorus
+CONFIRMED 0x8016A24C EXIImmEx size:0xA0 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees EXIImm,EXISync; caller WriteSram; caller Retry; caller __CARDReadSegment; caller __CARDEraseSector; caller ReadArrayUnlock | alts:CARDGetSerialNo,DBGReadMailbox,GXReadXfRasMetric,exit
+CONFIRMED 0x8016A66C EXISetExiCallback size:0x7C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts,SetExiInterruptMask; caller __CARDExtHandler; caller TimeoutHandler; caller DoMount; caller CARDMountAsync; caller DoUnmount | alts:EXIProbe
+CONFIRMED 0x8016A85C EXIProbe size:0x80 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees EXIGetID,__EXIProbe; caller __CARDTxHandler; caller __CARDUnlockedHandler; caller DoneCallback; caller DoMount | alts:EXISetExiCallback
+CONFIRMED 0x8016A8DC EXIProbeEx size:0xB4 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees EXIGetID,__EXIProbe; caller CARDProbeEx | alts:EXIDetach
+CONFIRMED 0x8016A990 EXIAttach size:0x10C ref:kar_wowjinxy/GKYE01 forced | - | caller CARDMountAsync; caller ProbeBarnacle | alts:EXIClearInterrupts,EXIDeselect,EXIDetach,EXIDma,EXIIntrruptHandler,__EXIAttach
+CONFIRMED 0x8016AA9C EXIDetach size:0xBC ref:kar_wowjinxy/GKYE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts,__OSMaskInterrupts; caller DoUnmount; caller ProbeBarnacle | alts:EXIIntrruptHandler,EXIProbeEx
+CONFIRMED 0x8016B4E8 EXIGetState size:0x18 ref:kar_wowjinxy/GKYE01 forced | - | caller CARDProbeEx; caller CARDMountAsync | alts:-
+CONFIRMED 0x8016B8D8 ProbeBarnacle size:0x18C ref:xd/GXXE01 ambiguous | - | callees EXIAttach,EXIDeselect,EXIDetach,EXIImm,EXILock,EXISelect,EXISync,EXIUnlock; caller __OSEnableBarnacle | alts:EXIWriteReg
+CONFIRMED 0x8016BC20 InitializeUART size:0x70 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees OSGetConsoleType; caller __write_console | alts:KPADiRestoreDPD,__AXServiceCallbackStack,__GXDefaultTexRegionCallback,__OSGetSystemTime,__OSTimeToSystemTime
+CONFIRMED 0x8016BC90 WriteUARTN size:0x21C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees EXIDeselect,EXIImm,EXILock,EXISelect,EXISync,EXIUnlock,OSDisableInterrupts,OSRestoreInterrupts; caller __write_console | alts:CompleteTransfer,OSTicksToCalendarTime,THPVideoDecode,__THPReadFrameHeader
+CONFIRMED 0x8016BEE8 CompleteTransfer size:0x2FC ref:ttyd/G8MJ01 ambiguous | - | callees __OSGetSystemTime; caller SIInterruptHandler | alts:SIInterruptHandler,__SITransfer
+CONFIRMED 0x8016C5DC __SITransfer size:0x20C ref:pikmin2/GPVE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller SIInterruptHandler; caller SITransfer | alts:CompleteTransfer
+CONFIRMED 0x8016C7E8 SIGetStatus size:0x7C ref:pikmin2/GPVE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller SIGetResponse | alts:SIEnablePolling,SIEnablePollingInterrupt,SIInit
+CONFIRMED 0x8016C8F4 SIEnablePolling size:0x9C ref:pikmin2/GPVE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts | alts:SIGetStatus
+CONFIRMED 0x8016C990 SIDisablePolling size:0x6C ref:pikmin2/GPVE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller PADReset | alts:SISetXY,__OSInitSystemCall
+CONFIRMED 0x8016C9FC SIGetResponseRaw size:0xD4 ref:pikmin2/GPVE01 ambiguous | - | callees OSDisableInterrupts,OSRestoreInterrupts; caller SIInterruptHandler | alts:SIDisablePolling,SIGetResponse
+CONFIRMED 0x80186610 HSD_DObjAnimAll size:0x6C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_MObjAnim,HSD_PObjAnimAll; caller HSD_JObjAnim | alts:HSD_DObjRemoveAll,HSD_DObjReqAnimAll,HSD_DObjResolveRefsAll
+CONFIRMED 0x80186960 HSD_DObjDisp size:0xC0 ref:melee/GALE01 ambiguous | - | callees HSD_MObjSetCurrent | alts:HSD_DObjLoadDesc
+CONFIRMED 0x80186A20 DObjRelease size:0x5C ref:melee/GALE01 ambiguous | - | callees HSD_AObjRemove,HSD_MObjRemove,HSD_PObjRemoveAll | alts:HSD_DObjAlloc,HSD_TObjAddAnimAll,HSD_TObjRemoveAnimAll
+CONFIRMED 0x80187334 TObjLoad size:0x128 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_TObjLoadDesc,HSD_TObjTevLoadDesc,HSD_TlutLoadDesc | alts:-
+CONFIRMED 0x801874F4 HSD_TlutLoadDesc size:0x4C ref:melee/GALE01 ambiguous | - | callees HSD_TlutAlloc; caller HSD_TObjAddAnim; caller TObjLoad | alts:HSD_TObjTevLoadDesc
+CONFIRMED 0x80187540 HSD_TObjTevLoadDesc size:0x4C ref:melee/GALE01 ambiguous | - | callees HSD_TObjTevAlloc; caller TObjLoad | alts:HSD_TlutLoadDesc
+CONFIRMED 0x801875C8 HSD_TexMapID2PTTexMtx size:0x94 ref:melee/GALE01 ambiguous | - | string "tobj.c" | alts:HSD_TObjLoadDesc
+CONFIRMED 0x8018765C MakeTextureMtx size:0x1D4 ref:melee/GALE01 ambiguous | - | callees PSMTXConcat,PSMTXScale,PSMTXTrans | alts:-
+CONFIRMED 0x80188DF8 HSD_TObjAssignResources size:0x260 ref:melee/GALE01 ambiguous | - | callees HSD_Index2TexCoord,HSD_Index2TexMap; caller HSD_TObjSetup; caller HSD_MObjCompileTev | alts:HSD_TObjSetupTextureCoordGen
+CONFIRMED 0x801894E0 HSD_Index2TexCoord size:0x90 ref:melee/GALE01 forced | - | caller HSD_TObjAssignResources; caller HSD_TObjSetup | alts:HSD_Index2TexMap,HSD_TGTex2Index,HSD_TexCoord2Index,HSD_TexCoordID2TexGenSrc,HSD_TexMap2Index
+CONFIRMED 0x80189620 HSD_Index2TexMtx size:0xBC ref:melee/GALE01 ambiguous | - | caller SetupEnvelopeModelMtx; string "tobj.c" | alts:HSD_TexMtx2Index
+CONFIRMED 0x80189970 HSD_TlutRemove size:0x2C ref:melee/GALE01 forced | - | callees hsdFreeMemPiece; caller HSD_TObjAddAnim | alts:-
+CONFIRMED 0x80189AC8 TObjRelease size:0xBC ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_AObjRemove,hsdFreeMemPiece | alts:HSD_ImageDescCopyFromEFB
+CONFIRMED 0x80189BE4 TObjInfoInit size:0xA4 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees MakeTextureMtx,TObjAmnesia,TObjLoad,TObjMakeTExp,TObjRelease,TObjUpdateFunc,hsdInitClassInfo; string "hsd_tobj"; string "sysdolphin_base_library" | alts:HSD_ImageDescCopyFromEFB
+CONFIRMED 0x80189C88 HSD_SetupChannelMode size:0x23C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_DisableChannelLighting,HSD_LObjGetActiveByID,HSD_LObjGetActiveByIndex,HSD_LObjGetLightMaskAlpha,HSD_LObjGetLightMaskDiffuse,HSD_LObjGetLightMaskSpecular,HSD_LObjGetNbActive,HSD_LObjSetup,HSD_MulColor,HSD_SetupChannel,HSD_StateSetNumChans; caller HSD_SetupRenderModeWithCustomPE | alts:_HSD_StateInvalidateTevStage
+CONFIRMED 0x80189EC4 HSD_SetupPEMode size:0x174 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_StateSetAlphaCompare,HSD_StateSetAlphaUpdate,HSD_StateSetBlendMode,HSD_StateSetColorUpdate,HSD_StateSetDither,HSD_StateSetDstAlpha,HSD_StateSetZCompLoc,HSD_StateSetZMode; caller HSD_ShadowStartRender | alts:-
+CONFIRMED 0x8018A2C8 HSD_StateSetBlendMode size:0xA0 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXSetBlendMode; caller HSD_SetupPEMode | alts:HSD_StateSetAlphaCompare,HSD_StateSetZMode
+CONFIRMED 0x8018A4A8 HSD_StateSetColorUpdate size:0x48 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXSetColorUpdate; caller HSD_SetupPEMode; caller HSD_VICopyEFB2XFBPtr | alts:HSD_StateSetAlphaUpdate,HSD_StateSetDither,HSD_StateSetZCompLoc
+CONFIRMED 0x8018A4F0 HSD_StateSetAlphaUpdate size:0x48 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXSetAlphaUpdate; caller HSD_SetupPEMode; caller HSD_VICopyEFB2XFBPtr | alts:HSD_StateSetColorUpdate,HSD_StateSetDither,HSD_StateSetZCompLoc
+CONFIRMED 0x8018A538 HSD_StateSetDstAlpha size:0x6C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXSetDstAlpha; caller HSD_SetupPEMode | alts:HSD_StateSetPointSize
+CONFIRMED 0x8018A5A4 HSD_StateSetZCompLoc size:0x48 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXSetZCompLoc; caller HSD_SetupPEMode | alts:HSD_StateSetAlphaUpdate,HSD_StateSetColorUpdate,HSD_StateSetDither
+CONFIRMED 0x8018A5EC HSD_StateSetDither size:0x48 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXSetDither; caller HSD_SetupPEMode | alts:HSD_StateSetAlphaUpdate,HSD_StateSetColorUpdate,HSD_StateSetZCompLoc
+CONFIRMED 0x8018A650 _HSD_StateInvalidateVtxAttr size:0x20 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_ClearVtxDesc | alts:-
+CONFIRMED 0x8018AB28 HSD_DisableChannelLighting size:0xF8 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXSetChanCtrl; caller HSD_SetupChannelMode | alts:HSD_SetupChannelAll
+CONFIRMED 0x8018AC20 HSD_StateSetNumChans size:0x40 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXSetNumChans; caller HSD_SetupChannelMode | alts:-
+CONFIRMED 0x8018ACDC HSD_StateRegisterTexGen size:0x30 ref:melee/GALE01 ambiguous | - | callees HSD_TexCoordID2Num; caller HSD_TObjSetup | alts:HSD_StateAssignTev,HSD_StateAssignTexGen,HSD_StateSetNumChans,HSD_StateSetNumTexGens
+CONFIRMED 0x8018AD0C HSD_StateSetNumTexGens size:0x30 ref:melee/GALE01 ambiguous | - | callees GXSetNumTexGens; caller HSD_SetupRenderModeWithCustomPE; caller HSD_ShadowStartRender | alts:HSD_StateAssignTev,HSD_StateAssignTexGen,HSD_StateRegisterTexGen,HSD_StateSetNumChans,HSD_StateSetNumTevStages
+CONFIRMED 0x8018AD3C HSD_StateInitTev size:0xC ref:melee/GALE01 forced | - | caller HSD_MObjSetup; caller HSD_ShadowStartRender | alts:-
+CONFIRMED 0x8018AD50 HSD_StateAssignTev size:0x2C ref:melee/GALE01 ambiguous | - | callees HSD_Index2TevStage; caller HSD_SetupRenderModeWithCustomPE; caller HSD_TExpSetupTev | alts:HSD_StateRegisterTexGen,HSD_StateSetNumTevStages,HSD_StateSetNumTexGens
+CONFIRMED 0x8018AD7C HSD_StateSetNumTevStages size:0x30 ref:melee/GALE01 forced | - | callees GXSetNumTevStages; caller HSD_SetupRenderModeWithCustomPE | alts:HSD_StateAssignTev,HSD_StateSetNumTexGens
+CONFIRMED 0x8018B230 HSD_SetTevRegAll size:0xC0 ref:melee/GALE01 ambiguous | - | callees GXSetTevColorS10; caller HSD_SetupRenderModeWithCustomPE | alts:HSD_Channel2Num,HSD_Index2TevStage,HSD_TevStage2Index,HSD_TevStage2Num,HSD_TexCoordID2Num
+CONFIRMED 0x8018BA48 MObjLoad size:0xA0 ref:melee/GALE01 ambiguous | - | callees HSD_MaterialAlloc,HSD_TObjLoadDesc,hsdAllocMemPiece | alts:HSD_MObjLoadDesc
+CONFIRMED 0x8018BB88 MObjMakeTExp size:0x9CC ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_TExpAlphaIn,HSD_TExpAlphaOp,HSD_TExpCnst,HSD_TExpColorIn,HSD_TExpColorOp,HSD_TExpGetType,HSD_TExpOrder,HSD_TExpTev | alts:-
+CONFIRMED 0x8018C554 HSD_MObjCompileTev size:0x120 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_TExpCompile,HSD_TExpFreeList,HSD_TExpFreeTevDesc,HSD_TObjAssignResources; caller HSD_MObjLoadDesc | alts:-
+CONFIRMED 0x8018C674 MObjSetupTev size:0x78 ref:melee/GALE01 ambiguous | - | callees HSD_TExpSetupTev,HSD_TObjSetupVolatileTev; string "mobj->tevdesc" | alts:HSD_MObjSetToonTextureImage
+CONFIRMED 0x8018C6EC HSD_MObjSetup size:0x144 ref:melee/GALE01 ambiguous | - | callees HSD_SetupRenderModeWithCustomPE,HSD_StateInitTev,HSD_TObjSetup,HSD_TObjSetupTextureCoordGen | alts:-
+CONFIRMED 0x8018C90C HSD_MObjAlloc size:0x5C ref:melee/GALE01 ambiguous | - | callees hsdNew; caller HSD_MObjLoadDesc; string "mobj" | alts:HSD_MObjAddShadowTexture,HSD_MObjDeleteShadowTexture,HSD_MObjRemove,HSD_MaterialAlloc
+CONFIRMED 0x8018C968 HSD_MaterialAlloc size:0x60 ref:melee/GALE01 forced | - | callees hsdAllocMemPiece; caller MObjLoad | alts:HSD_MObjAddShadowTexture,HSD_MObjAlloc,HSD_MObjDeleteShadowTexture,MObjAmnesia
+CONFIRMED 0x8018C9C8 HSD_MObjAddShadowTexture size:0x64 ref:melee/GALE01 ambiguous | - | string "tobj" | alts:HSD_MObjAlloc,HSD_MObjDeleteShadowTexture,HSD_MaterialAlloc,MObjAmnesia
+CONFIRMED 0x8018CA90 MObjRelease size:0x9C ref:melee/GALE01 ambiguous | - | callees HSD_AObjRemove,HSD_TExpFreeList,HSD_TExpFreeTevDesc,HSD_TObjRemoveAll,hsdFreeMemPiece | alts:MObjInfoInit
+CONFIRMED 0x8018CB90 MObjInfoInit size:0xB0 ref:melee/GALE01 ambiguous | - | callees HSD_MObjSetup,MObjAmnesia,MObjLoad,MObjMakeTExp,MObjRelease,MObjSetupTev,hsdInitClassInfo; string "hsd_mobj"; string "sysdolphin_base_library" | alts:-
+CONFIRMED 0x8018CFA4 HSD_AObjLoadDesc size:0x128 ref:kar_wowjinxy/GKYE01 ambiguous | - | caller HSD_TObjAddAnim; caller HSD_JObjAddAnim | alts:DObjForeachAnim,callbackForeachFunc
+CONFIRMED 0x8018D0CC HSD_AObjRemove size:0x70 ref:melee/GALE01 ambiguous | - | callees HSD_AObjFree,HSD_FObjRemoveAll,HSD_JObjUnref; caller DObjRelease; caller HSD_TObjAddAnim; caller TObjRelease; caller MObjRelease; caller CObjRelease; caller PObjRelease; caller HSD_JObjAddAnim; caller JObjReleaseChild; caller WObjRelease; caller FogRelease | alts:HSD_AObjAlloc,TObjForeachAnim
+CONFIRMED 0x8018D288 HSD_LObjGetActiveByID size:0x48 ref:melee/GALE01 ambiguous | - | callees HSD_LightID2Index; caller HSD_SetupChannelMode | alts:-
+CONFIRMED 0x8018D66C HSD_LObjSetup size:0x164 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXInitLightColor,GXLoadLightObjImm; caller HSD_SetupChannelMode | alts:HSD_LObjDeleteCurrent,HSD_LObjDeleteCurrentAll,HSD_LObjSetupSpecularInit
+CONFIRMED 0x8018D7D0 HSD_LObjSetupSpecularInit size:0x278 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXInitLightDir,PSVECAdd,PSVECNormalize,PSVECSubtract; caller HSD_JObjDispSub | alts:HSD_LObjAddCurrentAll,HSD_LObjDeleteCurrentAll
+CONFIRMED 0x8018F4C8 LObjInfoInit size:0x80 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees LObjAmnesia,LObjLoad,hsdInitClassInfo; string "hsd_lobj"; string "sysdolphin_base_library" | alts:HSD_CObjAddAnim,HSD_CObjRemoveAnim
+CONFIRMED 0x80190330 HSD_CObjEndCurrent size:0x24 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees _HSD_ZListDisp,_HSD_ZListSort; caller HSD_ShadowStartRender | alts:-
+CONFIRMED 0x801903D4 HSD_CObjGetInterest size:0x6C ref:melee/GALE01 forced | - | callees HSD_WObjGetPosition; caller CObjUpdateFunc | alts:HSD_CObjGetEyePosition,HSD_CObjSetEyePosition,HSD_CObjSetInterest
+CONFIRMED 0x801904AC HSD_CObjGetEyePosition size:0x6C ref:melee/GALE01 forced | - | callees HSD_WObjGetPosition; caller CObjUpdateFunc | alts:HSD_CObjGetInterest,HSD_CObjSetEyePosition,HSD_CObjSetInterest
+CONFIRMED 0x80190B54 HSD_CObjGetUpVector size:0x68 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees roll2upvec | alts:HSD_CObjGetInvViewingMtxPtrDirect,HSD_CObjSetEyePosition
+CONFIRMED 0x80190F14 HSD_CObjGetViewingMtx size:0x34 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_CObjGetViewingMtxPtr,PSMTXCopy | alts:HSD_CObjGetViewingMtxPtr
+CONFIRMED 0x80190F48 HSD_CObjGetInvViewingMtxPtrDirect size:0x64 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_CObjClearFlags,HSD_MtxAlloc,PSMTXInverse; caller TObjSetupMtx | alts:HSD_CObjGetUpVector
+CONFIRMED 0x80191444 HSD_CObjGetNear size:0x18 ref:kar_wowjinxy/GKYE01 ambiguous | - | caller HSD_FogSet; caller HSD_ShadowSetViewingRect | alts:HSD_CObjGetFar
+CONFIRMED 0x80191514 HSD_CObjGetProjectionType size:0x18 ref:melee/GALE01 ambiguous | - | caller makeMatrix; caller HSD_ShadowSetViewingRect | alts:HSD_CObjGetFar,HSD_CObjSetFlags
+CONFIRMED 0x801915B4 HSD_CObjGetCurrent size:0x8 ref:melee/GALE01 ambiguous | - | caller TObjSetupMtx; caller setupInstanceMtx; caller HSD_JObjDispAll; caller HSD_JObjDispDObj; caller _HSD_ZListDisp; caller HSD_FogSet | alts:HSD_CObjGetFlags
+CONFIRMED 0x801915BC HSD_CObjAlloc size:0x5C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees hsdNew; caller HSD_ShadowAlloc | alts:HSD_CObjGetOrtho
+CONFIRMED 0x80191618 CObjLoad size:0x22C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_WObjInit; string "cobj.c" | alts:-
+CONFIRMED 0x80191908 CObjInit size:0x74 ref:melee/GALE01 ambiguous | - | callees HSD_WObjAlloc | alts:CObjInfoInit
+CONFIRMED 0x8019197C CObjRelease size:0x184 ref:melee/GALE01 ambiguous | - | callees HSD_AObjRemove,HSD_MtxFree | alts:-
+CONFIRMED 0x80191C44 HSD_FObjRemoveAll size:0x124 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_FObjRemove; caller HSD_AObjRemove | alts:-
+CONFIRMED 0x80193648 HSD_FObjInterpretAnimAll size:0x70 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_FObjInterpretAnim | alts:HSD_FObjFree
+CONFIRMED 0x801936B8 HSD_FObjLoadDesc size:0x228 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_FObjAlloc; caller HSD_AObjLoadDesc | alts:-
+CONFIRMED 0x80193B14 PObjLoad size:0x23C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_PObjLoadDesc,HSD_SListAlloc,hsdAllocMemPiece | alts:-
+CONFIRMED 0x8019408C HSD_ClearVtxDesc size:0x2C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXClearVtxDesc; caller _HSD_StateInvalidateVtxAttr; caller HSD_ShadowStartRender | alts:-
+CONFIRMED 0x801940B8 get_shape_vertex_xyz size:0x38C ref:kar_wowjinxy/GKYE01 ambiguous | - | caller drawShapeAnim; string "pobj.c"; string "shape_set->vertex_desc->comp_cnt == GX_P" | alts:get_shape_normal_xyz
+CONFIRMED 0x80194444 get_shape_normal_xyz size:0x38C ref:kar_wowjinxy/GKYE01 ambiguous | - | caller drawShapeAnim; string "pobj.c"; string "shape_set->normal_desc->comp_cnt == GX_N"; string "unexpected normal type." | alts:get_shape_vertex_xyz
+CONFIRMED 0x801947D0 get_shape_nbt_xyz size:0x408 ref:kar_wowjinxy/GKYE01 ambiguous | - | caller drawShapeAnim; string "pobj.c"; string "shape_set->normal_desc->comp_cnt == GX_N"; string "unexpected normal type." | alts:-
+CONFIRMED 0x80194BD8 interpretShapeAnimDisplayList size:0x324 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXBegin; caller drawShapeAnim | alts:SetupEnvelopeModelMtx
+CONFIRMED 0x80194EFC drawShapeAnim size:0x73C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees get_shape_nbt_xyz,get_shape_normal_xyz,get_shape_vertex_xyz,interpretShapeAnimDisplayList; caller HSD_PObjDisp | alts:-
+CONFIRMED 0x80195EE4 HSD_PObjDisp size:0x2E8 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXCallDisplayList,GXClearVtxDesc,GXSetArray,GXSetVtxAttrFmt,GXSetVtxDesc,HSD_StateSetCullMode,drawShapeAnim; string "pobj->u.shape_set" | alts:-
+CONFIRMED 0x801961CC PObjRelease size:0x12C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_AObjRemove,HSD_JObjUnrefThis,HSD_SListRemove,hsdFreeMemPiece | alts:HSD_JObjCheckDepend,HSD_PObjDisp
+CONFIRMED 0x801963A4 PObjInfoInit size:0x98 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_PObjDisp,PObjAmnesia,PObjLoad,PObjRelease,PObjSetupMtx,PObjUpdateFunc,hsdInitClassInfo; string "hsd_pobj"; string "sysdolphin_base_library" | alts:-
+CONFIRMED 0x801965C0 HSD_JObjSetMtxDirty size:0x70 ref:xd/GXXE01 ambiguous | - | callees HSD_JObjSetMtxDirtySub | alts:HSD_JObjRemoveAnimByFlags,ftCo_EntryEnd_Anim
+CONFIRMED 0x80196CCC HSD_JObjAddAnim size:0x140 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_AObjLoadDesc,HSD_AObjRemove,HSD_JObjClearFlags,HSD_JObjSetFlags; caller HSD_JObjAddAnimAll | alts:JObjAnimAll
+CONFIRMED 0x80197B2C HSD_JObjAnim size:0x164 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_DObjAnimAll,HSD_RObjAnimAll; caller JObjAnimAll | alts:HSD_JObjAddAnim
+CONFIRMED 0x80197FD8 HSD_JObjAnimAll size:0x3C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees JObjAnimAll | alts:-
+CONFIRMED 0x801989A4 HSD_JObjResolveRefs size:0xF8 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_DObjResolveRefsAll,HSD_JObjUnref,HSD_RObjResolveRefsAll; caller HSD_JObjResolveRefsAll | alts:-
+CONFIRMED 0x80198E3C HSD_JObjUnref size:0x148 ref:kar_wowjinxy/GKYE01 ambiguous | - | caller HSD_AObjLoadDesc; caller HSD_AObjRemove; caller HSD_JObjResolveRefs; caller HSD_ShadowDeleteObject | alts:HSD_JObjAddChild,HSD_JObjAddNext,HSD_JObjResolveRefsAll
+CONFIRMED 0x801991BC HSD_JObjSetFlags size:0x9C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_JObjSetMtxDirtySub; caller HSD_JObjAddAnim; caller JObjUpdateFunc; caller HSD_JObjSetFlagsAll | alts:HSD_JObjClearFlags,HSD_JObjModifyFlags
+CONFIRMED 0x80199A94 HSD_JObjGetCurrent size:0x8 ref:melee/GALE01 ambiguous | - | caller SetupSharedVtxModelMtx; caller SetupEnvelopeModelMtx | alts:-
+CONFIRMED 0x80199A9C resolveIKJoint1 size:0x7F0 ref:melee/GALE01 ambiguous | - | callees HSD_MtxGetTranslate,HSD_RObjGetByType,HSD_RObjGetGlobalPosition,HSD_RObjUpdateAll,PSMTXMultVec,PSMTXRotAxisRad,PSVECAdd,PSVECDotProduct,PSVECScale,PSVECSubtract; caller HSD_JObjSetupMatrixSub | alts:-
+CONFIRMED 0x8019AA60 HSD_JObjSetMtxDirtySub size:0x334 ref:kar_wowjinxy/GKYE01 forced | - | caller HSD_JObjSetMtxDirty; caller HSD_JObjSetFlags; caller HSD_JObjClearFlags | alts:HSD_JObjSetupMatrixSub
+CONFIRMED 0x8019AE08 JObjReleaseChild size:0x4D4 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_AObjRemove,HSD_DObjRemoveAll | alts:-
+CONFIRMED 0x8019B2DC JObjRelease size:0x98 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_IDRemoveByIDFromTable,HSD_MtxFree,HSD_VecFree | alts:HSD_StateInitDirect
+CONFIRMED 0x8019B3D8 JObjInfoInit size:0xBC ref:melee/GALE01 ambiguous | - | callees HSD_JObjDispSub,HSD_JObjMakePositionMtx,JObjAmnesia,JObjInit,JObjRelease,JObjReleaseChild,JObjUpdateFunc,hsdInitClassInfo; string "hsd_jobj"; string "sysdolphin_base_library" | alts:-
+CONFIRMED 0x8019B7A0 mkHBillBoardMtx size:0x344 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees PSMTXCopy,PSVECMag,PSVECNormalize,PSVECScale; caller HSD_JObjMakePositionMtx | alts:mkRBillBoardMtx
+CONFIRMED 0x8019BAE4 mkBillBoardMtx size:0x398 ref:kar_wowjinxy/GKYE01 forced | - | callees PSVECMag,PSVECScale; caller HSD_JObjMakePositionMtx | alts:mkHBillBoardMtx,mkRBillBoardMtx,mkVBillBoardMtx
+CONFIRMED 0x8019BE7C mkRBillBoardMtx size:0x1E8 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees PSMTXConcat,PSMTXRotRad,PSMTXScale; caller HSD_JObjMakePositionMtx | alts:HSD_JObjDisp,HSD_JObjDispDObj,HSD_JObjMakePositionMtx
+CONFIRMED 0x8019C064 HSD_JObjMakePositionMtx size:0x100 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees PSMTXConcat,mkBillBoardMtx,mkHBillBoardMtx,mkRBillBoardMtx,mkVBillBoardMtx; string "displayfunc.c" | alts:_HSD_mkEnvelopeModelNodeMtx
+CONFIRMED 0x8019C164 _HSD_mkEnvelopeModelNodeMtx size:0x10C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees PSMTXConcat,PSMTXInverse; caller SetupEnvelopeModelMtx; string "displayfunc.c" | alts:HSD_JObjMakePositionMtx
+CONFIRMED 0x8019C270 HSD_JObjDispSub size:0xD0 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_JObjSetCurrent,HSD_LObjSetupSpecularInit,HSD_PObjClearMtxMark | alts:HSD_JObjDisp,_HSD_ZListDisp
+CONFIRMED 0x8019C340 HSD_JObjDispDObj size:0x208 ref:melee/GALE01 ambiguous | - | callees HSD_CObjGetCurrent,HSD_JObjSetupMatrixSub,HSD_MtxAlloc,HSD_ObjAlloc,PSMTXCopy; caller HSD_JObjDisp | alts:mkRBillBoardMtx
+CONFIRMED 0x8019C6B4 _HSD_ZListSort size:0x50 ref:melee/GALE01 ambiguous | - | callees zlist_sort; caller HSD_CObjEndCurrent | alts:-
+CONFIRMED 0x8019C704 _HSD_ZListDisp size:0xC8 ref:melee/GALE01 ambiguous | - | callees HSD_CObjGetCurrent,_HSD_ZListClear; caller HSD_CObjEndCurrent | alts:HSD_JObjDisp,HSD_JObjDispSub
+CONFIRMED 0x8019CD88 HSD_AllocateXFB size:0x134 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees OSAllocFromArenaLo; string "initialize.c" | alts:HSD_Init,HSD_InitComponent
+CONFIRMED 0x8019CEBC HSD_AllocateFIFO size:0x50 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees OSAllocFromArenaLo; string "initialize.c" | alts:HSD_Init,_HSD_MemFreeDefaultCB
+CONFIRMED 0x8019D1BC _HSD_MemFreeDefaultCB size:0x34 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_GetHeap,OSFreeToHeap | alts:-
+CONFIRMED 0x8019F5E4 HSD_MtxGetTranslate size:0x1C ref:kar_wowjinxy/GKYE01 ambiguous | - | caller JObjUpdateFunc; caller resolveIKJoint1 | alts:-
+CONFIRMED 0x8019F600 HSD_MtxGetScale size:0x4D8 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees PSVECDotProduct,PSVECMag,PSVECScale,PSVECSquareMag,PSVECSubtract; caller JObjUpdateFunc; caller expEvaluate | alts:HSD_MtxGetRotation,HSD_MtxInverseConcat
+CONFIRMED 0x8019FEEC HSD_MtxSRTQuat size:0x1AC ref:kar_wowjinxy/GKYE01 ambiguous | - | callees PSMTXConcat,PSMTXQuat,PSMTXScale | alts:HSD_MtxGetScale
+CONFIRMED 0x801A0288 HSD_VecFree size:0x34 ref:melee/GALE01 ambiguous | - | callees HSD_ObjFree; caller JObjRelease | alts:HSD_MtxFree,HSD_VecInitAllocData
+CONFIRMED 0x801A0924 HSD_ObjFree size:0x28 ref:kar_wowjinxy/GKYE01 ambiguous | - | caller HSD_AObjFree; caller _HSD_ZListClear; caller HSD_VecFree; caller HSD_MtxFree; caller HSD_RObjFree; caller HSD_SListRemove; caller HSD_ShadowRemove | alts:-
+CONFIRMED 0x801A1AF4 HSD_RObjResolveRefsAll size:0x114 ref:kar_wowjinxy/GKYE01 ambiguous | - | caller HSD_JObjResolveRefs; caller WObjLoad; caller HSD_WObjInit | alts:HSD_RObjUpdateAll
+CONFIRMED 0x801A2174 HSD_RObjFree size:0x2C ref:melee/GALE01 ambiguous | - | callees HSD_ObjFree | alts:-
+CONFIRMED 0x801A2DB4 HSD_WObjInit size:0x74 ref:melee/GALE01 ambiguous | - | callees HSD_RObjLoadDesc,HSD_RObjResolveRefsAll,HSD_WObjSetPosition; caller CObjLoad | alts:-
+CONFIRMED 0x801A2EC0 HSD_WObjSetPosition size:0x48 ref:melee/GALE01 ambiguous | - | caller HSD_LObjSetPosition; caller HSD_CObjSetInterest; caller WObjUpdateFunc; caller WObjLoad; caller HSD_WObjInit | alts:HSD_WObjInterpretAnim,WObjAmnesia
+CONFIRMED 0x801A32C8 WObjRelease size:0x54 ref:melee/GALE01 forced | - | callees HSD_AObjRemove | alts:HSD_WObjAlloc
+CONFIRMED 0x801A3730 HSD_FogInit size:0x8C ref:kar_wowjinxy/GKYE01 forced | - | callees GXGetViewportv; caller HSD_FogLoadDesc | alts:HSD_FogAdjLoadDesc,HSD_FogLoadDesc,WObjInfoInit
+CONFIRMED 0x801A3B28 FogRelease size:0xCC ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_AObjRemove | alts:-
+CONFIRMED 0x801A3BF4 FogInfoInit size:0x64 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees FogRelease,FogUpdateFunc,hsdInitClassInfo; string "hsd_fog"; string "sysdolphin_base_library" | alts:HSD_PerfInitStat
+CONFIRMED 0x801A3C58 FogAdjInfoInit size:0x44 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees hsdInitClassInfo; string "hsd_fogadj"; string "sysdolphin_base_library" | alts:-
+CONFIRMED 0x801A3F58 HSD_SListRemove size:0x50 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_ObjFree; caller PObjRelease; caller HSD_ShadowDeleteObject; caller HSD_ByteCodeEval | alts:HSD_SListPrependList
+CONFIRMED 0x801A4060 _HSD_MemAlloc size:0x2C ref:kar_wowjinxy/GKYE01 ambiguous | - | caller HSD_ObjAllocAddFree; caller GetMemoryEntry; caller hsdAllocMemPiece | alts:HSD_Free,_HSD_MemCheckOwn,_HSD_MemClear,_HSD_MemGetRemain
+CONFIRMED 0x801A4184 HSD_ShadowAlloc size:0xFC ref:melee/GALE01 ambiguous | - | callees HSD_CObjAlloc,HSD_ImageDescAlloc,HSD_ObjAlloc,HSD_TObjAlloc | alts:HSD_ShadowRemove
+CONFIRMED 0x801A4280 HSD_ShadowRemove size:0x108 ref:melee/GALE01 ambiguous | - | callees HSD_ImageDescFree,HSD_MObjDeleteShadowTexture,HSD_ObjFree,HSD_ShadowDeleteObject,HSD_TObjFree | alts:HSD_ShadowAlloc
+CONFIRMED 0x801A4388 HSD_ShadowInit size:0x70 ref:melee/GALE01 ambiguous | - | callees GXSetTexCopyDst,GXSetTexCopySrc | alts:-
+CONFIRMED 0x801A43F8 HSD_ShadowSetSize size:0x160 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees GXGetTexBufferSize | alts:HSD_ShadowStartRender,drawBackgroundRect
+CONFIRMED 0x801A4558 HSD_ShadowStartRender size:0x2A8 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees C_MTXOrtho,GXBegin,GXLoadPosMtxImm,GXSetCurrentMtx,GXSetProjection,GXSetScissor,GXSetViewport,GXSetVtxAttrFmt,GXSetVtxDesc,HSD_CObjEndCurrent,HSD_CObjGetEyeDistance,HSD_CObjSetCurrent,HSD_ClearVtxDesc,HSD_JObjDispAll,HSD_SetupChannelAll,HSD_SetupPEMode,HSD_StateInitTev,HSD_StateSetCullMode,HSD_StateSetNumTexGens | alts:-
+CONFIRMED 0x801A4C84 HSD_ShadowAddObject size:0xAC ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_SListAllocAndPrepend; string "HSD_OBJ(o)->ref_count != HSD_OBJ_NOREF"; string "object.h" | alts:HSD_ShadowCopyTex,HSD_ShadowSetActive
+CONFIRMED 0x801A4D30 HSD_ShadowDeleteObject size:0x94 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_JObjUnref,HSD_SListRemove; caller HSD_ShadowRemove | alts:HSD_ShadowCopyTex,HSD_ShadowEndRender
+CONFIRMED 0x801A4DC4 makeMatrix size:0x13C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees C_MTXLightFrustum,C_MTXLightOrtho,C_MTXLightPerspective,HSD_CObjGetEyeDistance,HSD_CObjGetProjectionType,PSMTXConcat,PSMTXCopy | alts:-
+CONFIRMED 0x801A50C0 HSD_ViewingRectInit size:0x20C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_VecGetOrthogonal,PSVECMag,PSVECNormalize,PSVECSubtract | alts:HSD_ShadowSetViewingRect,HSD_ViewingRectAddRect
+CONFIRMED 0x801A7824 hsdAllocMemPiece size:0x1C8 ref:melee/GALE01 ambiguous | - | callees GetMemoryEntry,_HSD_MemAlloc; caller HSD_TlutAlloc; caller HSD_TObjTevAlloc; caller HSD_ImageDescAlloc; caller MObjLoad; caller HSD_MaterialAlloc; caller PObjLoad; caller _hsdClassAlloc; caller HSD_TExpTev; caller HSD_TExpCnst; caller HSD_TExpCompile | alts:-
+CONFIRMED 0x801A79EC hsdFreeMemPiece size:0x58 ref:melee/GALE01 ambiguous | - | callees GetMemoryEntry; caller HSD_TlutRemove; caller HSD_ImageDescFree; caller TObjRelease; caller MObjRelease; caller PObjRelease; caller GetMemoryEntry; caller HSD_TExpFreeList; caller HSD_TExpFreeTevDesc | alts:CObjAmnesia,OSReport_PrintSpaces,_hsdClassAlloc
+CONFIRMED 0x801A7A44 _hsdClassAlloc size:0x58 ref:melee/GALE01 forced | - | callees hsdAllocMemPiece | alts:OSReport_PrintSpaces,hsdFreeMemPiece
+CONFIRMED 0x801A7AA8 _hsdClassDestroy size:0x6C ref:melee/GALE01 ambiguous | - | callees GetMemoryEntry | alts:-
+CONFIRMED 0x801A7B40 _hsdClassInfoInit size:0x9C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees _hsdClassAlloc,_hsdClassAmnesia,_hsdClassDestroy,_hsdClassInit,_hsdClassRelease; string "hsd_class"; string "sysdolphin_base_library" | alts:hsdIsDescendantOf
+CONFIRMED 0x801A7DE4 HSD_TExpGetType size:0x3C ref:kar_wowjinxy/GKYE01 ambiguous | - | caller MObjMakeTExp; caller HSD_TExpUnref; caller assign_reg; caller HSD_TExpMakeDag; caller HSD_TExpSchedule; caller CalcTevRange; caller HSD_TExpSimplify | alts:hsdSearchClassInfo
+CONFIRMED 0x801A7E20 HSD_TExpRef size:0x88 ref:kar_wowjinxy/GKYE01 ambiguous | - | caller SimplifySrc; caller SimplifyByMerge; caller HSD_TExpSimplify2 | alts:-
+CONFIRMED 0x801A7EA8 HSD_TExpUnref size:0x57C ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_TExpGetType; caller HSD_TExpFreeList; caller HSD_TExpColorInSub; caller HSD_TExpAlphaInSub; caller SimplifySrc; caller SimplifyThis; caller SimplifyByMerge; caller HSD_TExpSimplify2 | alts:-
+CONFIRMED 0x801A8744 HSD_TExpTev size:0xC0 ref:melee/GALE01 ambiguous | - | callees hsdAllocMemPiece; caller MakeColorGenTExp; caller TObjMakeTExp; caller MObjMakeTExp | alts:HSD_TExpColorSwap
+CONFIRMED 0x801A8804 HSD_TExpCnst size:0x120 ref:melee/GALE01 ambiguous | - | callees hsdAllocMemPiece; caller MakeColorGenTExp; caller TObjMakeTExp; caller MObjMakeTExp | alts:HSD_TExpColorIn,HSD_TExpUnref
+CONFIRMED 0x801A95AC HSD_TExpAlphaIn size:0x108 ref:melee/GALE01 ambiguous | - | callees HSD_TExpAlphaInSub; caller MakeColorGenTExp; caller TObjMakeTExp; caller MObjMakeTExp | alts:HSD_TExpColorIn
+CONFIRMED 0x801A96B4 HSD_TExpOrder size:0xC4 ref:melee/GALE01 ambiguous | - | caller MakeColorGenTExp; caller TObjMakeTExp; caller MObjMakeTExp | alts:AssignAlphaReg
+CONFIRMED 0x801A9C80 TExpAssignReg size:0x6CC ref:kar_wowjinxy/GKYE01 ambiguous | - | callees AssignAlphaKonst,AssignColorKonst,AssignColorReg; caller HSD_TExpCompile | alts:-
+CONFIRMED 0x801AA74C HSD_TExpSetReg size:0x4FC ref:melee/GALE01 ambiguous | - | callees GXPixModeSync,GXSetTevColor,GXSetTevKColor,HSD_StateInvalidate; caller HSD_TExpSetupTev | alts:-
+CONFIRMED 0x801AAC48 HSD_TExpSetupTev size:0x6C ref:melee/GALE01 forced | - | callees HSD_StateAssignTev,HSD_TExpSetReg; caller MObjSetupTev | alts:-
+CONFIRMED 0x801AAF5C HSD_TExpFreeTevDesc size:0x40 ref:melee/GALE01 forced | - | callees hsdFreeMemPiece; caller HSD_MObjCompileTev; caller MObjRelease | alts:-
+CONFIRMED 0x801AAF9C assign_reg size:0x1B0 ref:melee/GALE01 forced | - | callees HSD_TExpGetType; caller order_dag | alts:-
+CONFIRMED 0x801AB14C order_dag size:0x238 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees assign_reg; caller HSD_TExpSchedule | alts:HSD_TExpSchedule,HSD_TExpSimplify2
+CONFIRMED 0x801ABC6C HSD_TExpSchedule size:0x368 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_TExpGetType,order_dag; caller HSD_TExpCompile | alts:HSD_TExpFreeList
+CONFIRMED 0x801ABFD4 SimplifySrc size:0x498 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_TExpRef,HSD_TExpSimplify,HSD_TExpUnref; caller HSD_TExpSimplify | alts:CalcDistance,HSD_TExpMakeDag
+CONFIRMED 0x801AC46C SimplifyThis size:0x840 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_TExpUnref; caller HSD_TExpSimplify | alts:-
+CONFIRMED 0x801ACCAC SimplifyByMerge size:0x17C8 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_TExpRef,HSD_TExpUnref; caller HSD_TExpSimplify | alts:-
+CONFIRMED 0x801AE474 CalcTevRange size:0x2B4 ref:kar_wowjinxy/GKYE01 forced | - | callees HSD_TExpGetType; caller HSD_TExpSimplify | alts:-
+CONFIRMED 0x801AE728 HSD_TExpSimplify size:0x90 ref:kar_wowjinxy/GKYE01 ambiguous | - | callees CalcTevRange,HSD_TExpGetType,SimplifyByMerge,SimplifySrc,SimplifyThis; caller HSD_TExpCompile; caller SimplifySrc | alts:HSD_DebugExceptionCallbackThunk,HSD_SaveContext,report_func
+CONFIRMED 0x801AE7B8 HSD_TExpSimplify2 size:0x1FC ref:kar_wowjinxy/GKYE01 ambiguous | - | callees HSD_TExpRef,HSD_TExpUnref; caller HSD_TExpCompile | alts:order_dag
+OK        0x80131C20 PPCMthid0 size:0x8 ref:ac-decomp/GAFE01_00 forced | - | tie: PPCMthid0 (caller PPCDisableSpeculation) vs  | alts:PPCMfhid0,PPCMfl2cr,PPCMfmsr,PPCMtdec,PPCMtl2cr,PPCMtmsr,PPCSync,_getDabr__Fv
+OK        0x801327C8 __OSGetDIConfig size:0x14 ref:ac-decomp/GAFU01_00 forced | - | tie: __OSGetDIConfig (caller EXISync) vs  | alts:OSCreateAlarm,__OSGetExceptionHandler
+OK        0x80132F64 DLInsert size:0xAC ref:tp/Shield forced | - | tie: DLInsert (caller OSFreeToHeap) vs  | alts:OSCreateHeap,__OSCancelInternalAlarms
+OK        0x80133010 OSAllocFromHeap size:0xFC ref:tp/RZDE01_00 forced | - | no call-graph / string evidence | alts:OSCancelAlarm,OSInitAlloc,OSSetCurrentHeap
+OK        0x80133188 OSSetCurrentHeap size:0x10 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x80133198 OSInitAlloc size:0x70 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:OSCreateHeap,OSFreeToHeap
+OK        0x80133208 OSCreateHeap size:0x6C ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:DLOverlap,OSFreeToHeap,OSInitAlloc
+OK        0x80133274 OSDestroyHeap size:0x14 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x80133288 OSCheckHeap size:0x360 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:OSCreateHeap
+OK        0x80133994 DCZeroRange size:0x2C ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:DCFlushRange,DCFlushRangeNoSync,DCInvalidateRange,DCStoreRange,DCStoreRangeNoSync,DCTouchRange,LCDisable
+OK        0x80133A18 __LCEnable size:0xCC ref:melee/GALE01 forced | - | tie: __LCEnable (caller LCEnable) vs  | alts:-
+OK        0x80133B44 LCStoreBlocks size:0x24 ref:melee/GALE01 forced | - | tie: LCStoreBlocks (caller LCStoreData) vs  | alts:LCDisable
+OK        0x80133C14 LCQueueWait size:0x14 ref:tp/GZ2E01 forced | - | no call-graph / string evidence | alts:-
+OK        0x801341C4 OSGetCurrentContext size:0xC ref:melee/GALE01 forced | - | tie: OSGetCurrentContext (caller SelectThread) vs  | alts:-
+OK        0x801341D0 OSSaveContext size:0x80 ref:melee/GALE01 forced | - | tie: OSSaveContext (caller SelectThread) vs  | alts:-
+OK        0x80134328 OSGetStackPointer size:0x8 ref:melee/GALE01 forced | - | tie: OSGetStackPointer (caller OSClearStack) vs  | alts:OSSaveFPUContext
+OK        0x801346C8 OSFillFPUContext size:0x12C ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:OSPanic,PackArgs
+OK        0x8013503C Decode size:0x174 ref:sms/GMSE01 forced | - | tie: Decode (caller OSLoadFont) vs  | alts:ConfigureVideo,GetFontCode,OSPanic,__OSBootDol,__OSUnhandledException
+OK        0x80135C68 __OSGetInterruptHandler size:0x14 ref:melee/GALE01 forced | - | tie: __OSGetInterruptHandler (caller SetExiInterruptMask) vs  | alts:OSDisableInterrupts,OSEnableInterrupts,__OSSetInterruptHandler
+OK        0x80137B08 OSGetSoundMode size:0x80 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:OSGetProgressiveMode,OSGetWirelessID,OSSetWirelessID
+OK        0x80137B88 OSSetSoundMode size:0xA4 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:OSSetEuRgb60Mode,OSSetProgressiveMode,OSSetWirelessID,__OSSetBootMode
+OK        0x80137C9C OSSetProgressiveMode size:0xA4 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:OSSetEuRgb60Mode,OSSetSoundMode,OSSetWirelessID,SIInit,__OSSetBootMode
+OK        0x80137D40 OSGetWirelessID size:0x84 ref:melee/GALE01 forced | - | tie: OSGetWirelessID (caller GetTypeCallback) vs  | alts:OSGetProgressiveMode,OSGetSoundMode,OSSetGbsMode,OSSetWirelessID
+OK        0x80137DC4 OSSetWirelessID size:0xAC ref:ac-decomp/GAFU01_00 forced | - | tie: OSSetWirelessID (caller GetTypeCallback) vs  | alts:OSSetEuRgb60Mode,OSSetGbsMode,OSSetProgressiveMode,OSSetSoundMode,__OSSetBootMode
+OK        0x8013801C DefaultSwitchThreadCallback size:0x4 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:-
+OK        0x80138188 OSGetCurrentThread size:0xC ref:melee/GALE01 forced | - | tie: OSGetCurrentThread (caller __GXFifoInit) vs  | alts:-
+OK        0x8013827C __OSGetEffectivePriority size:0x3C ref:melee/GALE01 forced | - | tie: __OSGetEffectivePriority (caller OSResumeThread) vs  | alts:OSDisableScheduler,OSEnableScheduler,OSYieldThread
+OK        0x8013888C OSResumeThread size:0x288 ref:melee/GALE01 forced | - | tie: OSResumeThread (caller GXCPInterruptHandler) vs  | alts:OSCreateThread,OSSleepThread,SelectThread
+OK        0x80138B14 OSSuspendThread size:0x170 ref:melee/GALE01 forced | - | tie: OSSuspendThread (caller GXCPInterruptHandler) vs  | alts:OSWakeupThread
+OK        0x80138FA4 GetDates size:0x19C ref:ac-decomp/GAFE01_00 forced | - | tie: GetDates (caller OSTicksToCalendarTime) vs  | alts:OSTicksToCalendarTime
+OK        0x801394C4 PSMTXIdentity size:0x2C ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:GXSetClipMode,PPCDisableSpeculation,PSMTXScale,VISetTrapFilter,__VISetRGBModeImm
+OK        0x801395F0 PSMTXTranspose size:0x50 ref:marioparty4/GMPE01_00 forced | - | no call-graph / string evidence | alts:DBPrintf
+OK        0x80139870 PSMTXRotTrig size:0xB0 ref:mkdd/MarioClub_us forced | - | tie: PSMTXRotTrig (caller PSMTXRotRad) vs  | alts:PSMTXQuat,__PSMTXRotAxisRadInternal
+OK        0x80139920 __PSMTXRotAxisRadInternal size:0xB0 ref:mkdd/MarioClub_us forced | - | tie: __PSMTXRotAxisRadInternal (caller PSMTXRotAxisRad) vs  | alts:PSMTXRotTrig
+OK        0x80139A9C PSMTXQuat size:0xA4 ref:marioparty4/GMPE01_00 forced | - | tie: PSMTXQuat (caller HSD_MtxSRTQuat) vs  | alts:PSMTXRotTrig
+OK        0x80139CCC C_MTXLightFrustum size:0x94 ref:sms/GMSE01 forced | - | tie: C_MTXLightFrustum (caller makeMatrix) vs  | alts:C_MTXLightOrtho,PSMTXMultVecArray,PSMTXQuat
+OK        0x80139E2C C_MTXLightOrtho size:0x88 ref:mkdd/MarioClub_us forced | - | tie: C_MTXLightOrtho (caller makeMatrix) vs  | alts:C_MTXLightFrustum,PSMTXMultVecArray,PSMTXMultVecArraySR
+OK        0x80139F5C C_MTXFrustum size:0x9C ref:ttyd/G8MJ01 forced | - | no call-graph / string evidence | alts:C_MTXOrtho
+OK        0x8013A0C8 C_MTXOrtho size:0x98 ref:marioparty4/GMPE01_00 forced | - | tie: C_MTXOrtho (caller HSD_ShadowStartRender) vs  | alts:C_MTXFrustum,PSMTXMultVecArray
+OK        0x8013A208 PSVECSquareMag size:0x18 ref:tp/DZDE01 forced | - | tie: PSVECSquareMag (caller HSD_MtxGetScale) vs  | alts:-
+OK        0x8013A6D4 Read size:0x110 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:PSMTXROMultVecArray,PSVECMag,__DSP_remove_task
+OK        0x8013AD78 DVDLowInquiry size:0x9C ref:ac-decomp/GAFE01_00 forced | - | tie: DVDLowInquiry (caller stateBusy) vs  | alts:DVDLowAudioBufferConfig,DVDLowAudioStream,DVDLowReadDiskID
+OK        0x8013AEAC DVDLowRequestAudioStatus size:0x8C ref:ac-decomp/GAFE01_00 forced | - | tie: DVDLowRequestAudioStatus (caller stateBusy) vs  | alts:DVDLowAudioStream,DVDLowRequestError,DVDLowStopMotor
+OK        0x8013B090 DVDLowBreak size:0x14 ref:ac-decomp/GAFU01_00 forced | - | tie: DVDLowBreak (caller DVDCancelAsync) vs  | alts:-
+OK        0x8013B0A4 DVDLowClearCallback size:0x1C ref:ac-decomp/GAFU01_00 forced | - | tie: DVDLowClearCallback (caller DVDCancelAsync) vs  | alts:-
+OK        0x8013B104 __DVDLowTestAlarm size:0x38 ref:ac-decomp/GAFU01_00 forced | - | tie: __DVDLowTestAlarm (caller __DVDTestAlarm) vs  | alts:__DVDFSInit
+OK        0x8013B468 DVDFastOpen size:0x74 ref:ac-decomp/GAFE01_00 forced | - | tie: DVDFastOpen (caller HSD_DevComDVDWakeUp) vs  | alts:DVDClose
+OK        0x8013B5C8 entryToPath size:0x160 ref:pikmin2/GPVE01 forced | - | tie: entryToPath (caller DVDConvertEntrynumToPath) vs  | alts:DVDChangeDir,DVDConvertEntrynumToPath
+OK        0x8013B87C DVDGetCurrentDir size:0xC4 ref:pikmin2/GPVE01 forced | - | tie: DVDGetCurrentDir (caller DVDOpen) vs  | alts:DVDInit,DVDOpen,DVDReadAsyncPrio
+OK        0x8013BA60 cbForReadAsync size:0x30 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:cbForPrepareStreamAsync,cbForSeekAsync
+OK        0x8013C028 CategorizeError size:0xB4 ref:ac-decomp/GAFE01_00 forced | - | tie: CategorizeError (caller cbForStateGettingError) vs  | alts:CheckCancel,cbForStateError,cbForStoreErrorCode3,cbForUnrecoveredError
+OK        0x8013C0DC cbForStateGettingError size:0x294 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:-
+OK        0x8013C370 cbForUnrecoveredError size:0x68 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:-
+OK        0x8013C498 cbForStateGoToRetry size:0x158 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:-
+OK        0x8013C6D0 stateCheckID3 size:0x34 ref:ac-decomp/GAFU01_00 forced | - | tie: stateCheckID3 (callees DVDLowAudioBufferConfig; caller stateCheckID) vs stateCheckID2a | alts:stateCheckID2,stateCheckID2a
+OK        0x8013C738 cbForStateCheckID2a size:0x74 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:-
+OK        0x8013C7E4 cbForStateCheckID1 size:0x114 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:cbForStateCheckID2,cbForStateCheckID3,cbForStateOpenPartition,cbForStateReadingTOC,stateCheckID
+OK        0x8013C8F8 cbForStateCheckID2 size:0xE4 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:cbForStateCheckID1,cbForStateCheckID3,cbForStateCoverClosed,cbForStateReset,stateCheckID,stateCoverClosed,stateCoverClosed_CMD
+OK        0x8013CC18 cbForStateCoverClosed size:0x70 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:-
+OK        0x8013D2E4 cbForStateBusy size:0x638 ref:bfbb/GQPE78 forced | - | no call-graph / string evidence | alts:stateBusy
+OK        0x8013DD6C DVDGetCommandBlockStatus size:0x4C ref:ac-decomp/GAFE01_00 forced | - | tie: DVDGetCommandBlockStatus (callees OSDisableInterrupts,OSRestoreInterrupts; caller __OSReboot) vs DVDResume | alts:DVDPause,DVDResume
+OK        0x8013DE64 DVDSetAutoInvalidation size:0x10 ref:ac-decomp/GAFU01_00 forced | - | tie: DVDSetAutoInvalidation (caller __OSReboot) vs  | alts:-
+OK        0x8013E210 DVDGetCurrentDiskID size:0x8 ref:ac-decomp/GAFE01_00 forced | - | tie: DVDGetCurrentDiskID (caller DVDLowRead) vs  | alts:__BS2DVDLowCallback,cbForCancelSync
+OK        0x8013E8EC __DVDPrintFatalMessage size:0x30 ref:ac-decomp/GAFU01_00 forced | - | tie: __DVDPrintFatalMessage (caller cbForStateError) vs  | alts:__DVDGetAutoFatalMessaging
+OK        0x8013EB5C __VIRetraceHandler size:0x274 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:DBGEXIImm,SIGetType
+OK        0x8013F0F8 VIInit size:0x4B0 ref:ac-decomp/GAFE01_00 forced | - | tie: VIInit (caller HSD_VIInit) vs  | alts:-
+OK        0x801404B0 VIGetRetraceCount size:0x8 ref:mkdd/MarioClub_us forced | - | no call-graph / string evidence | alts:VIGetCurrentFrameBuffer,VIGetNextFrameBuffer
+OK        0x801404F4 getCurrentFieldEvenOdd size:0x68 ref:mkdd/MarioClub_us forced | - | no call-graph / string evidence | alts:VIGetCurrentLine,VIGetTvFormat,VISetNextFrameBuffer,__VIGetCurrentPosition
+OK        0x80140734 __VIDisplayPositionToXY size:0x21C ref:mkdd/MarioClub_us forced | - | tie: __VIDisplayPositionToXY (caller __VIGetCurrentPosition) vs  | alts:DEMOInitCaption,UpdateOrigin
+OK        0x80140E08 PADOriginCallback size:0xC4 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:DoReset,PADOriginUpdateCallback,PADProbeCallback
+OK        0x80140ECC PADOriginUpdateCallback size:0xCC ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:DoReset,PADOriginCallback,PADProbeCallback
+OK        0x80140F98 PADProbeCallback size:0xD8 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:DoReset,PADClamp,PADClampCircle,PADOriginCallback,PADOriginUpdateCallback
+OK        0x80141070 PADTypeAndStatusCallback size:0x32C ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:-
+OK        0x8014139C PADReceiveCheckCallback size:0x140 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:PADInit,PADRecalibrate
+OK        0x801414DC PADReset size:0x110 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:PADOriginCallback,PADRecalibrate,PADReceiveCheckCallback
+OK        0x80142070 AIStartDMA size:0x18 ref:ttyd/G8MJ01 forced | - | tie: AIStartDMA (caller __AXOutInit) vs  | alts:AIGetDMAStartAddr,AIGetDSPSampleRate,AIResetStreamSampleCount,AIStopDMA
+OK        0x8014217C AIGetStreamPlayState size:0x10 ref:melee/GALE01 forced | - | tie: AIGetStreamPlayState (caller AISetStreamPlayState) vs  | alts:AIGetDMALength,AIGetStreamSampleCount,AIGetStreamSampleRate,AIGetStreamTrigger
+OK        0x8014226C AIGetDSPSampleRate size:0x14 ref:melee/GALE01 forced | - | tie: AIGetDSPSampleRate (caller AISetDSPSampleRate) vs  | alts:AIGetDMALength,AIStartDMA,AIStopDMA
+OK        0x80142650 __AICallbackStackSwitch size:0x58 ref:ac-decomp/GAFU01_00 forced | - | tie: __AICallbackStackSwitch (caller __AIDHandler) vs  | alts:ARAlloc,ARRegisterDMACallback
+OK        0x80142BA0 __ARClearInterrupt size:0x20 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:-
+OK        0x80142BC0 __ARGetInterruptStatus size:0x10 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:-
+OK        0x801444C4 __ARQCallbackHack size:0x4 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:__CARDDefaultApiCallback
+OK        0x8014A43C DSPCheckMailFromDSP size:0x10 ref:ttyd/G8MJ01 forced | - | tie: DSPCheckMailFromDSP (caller __DSPHandler; caller __DSP_boot_task) vs DSPCheckMailToDSP | alts:DSPCheckMailToDSP,__DBExceptionDestination
+OK        0x8014A464 DSPSendMailToDSP size:0x14 ref:ttyd/G8MJ01 forced | - | tie: DSPSendMailToDSP (caller __AXOutNewFrame; caller __DSPHandler; caller __DSP_exec_task; caller __DSP_boot_task; caller InitCallback) vs DSPCheckMailToDSP | alts:DSPCheckMailFromDSP,DSPCheckMailToDSP,DSPReadMailFromDSP
+OK        0x8014AE1C __DSP_insert_task size:0xA0 ref:mkdd/MarioClub_us forced | - | tie: __DSP_insert_task (caller DSPAddTask) vs  | alts:__DSP_remove_task
+OK        0x8014AEBC __DSP_remove_task size:0x94 ref:mkdd/MarioClub_us forced | - | tie: __DSP_remove_task (caller __DSPHandler) vs  | alts:__DSP_insert_task,__HIO2ClearChanInfo
+OK        0x8014AF50 __CARDDefaultApiCallback size:0x4 ref:mkdd/MarioClub_us forced | - | no call-graph / string evidence | alts:__ARQCallbackHack
+OK        0x8014B2A4 __CARDEnableInterrupt size:0xC0 ref:melee/GALE01 forced | - | tie: __CARDEnableInterrupt (callees EXIDeselect,EXIImm,EXISelect,EXISync; caller DoMount) vs __CARDClearStatus | alts:__CARDClearStatus,__CARDExtHandler
+OK        0x8014BE78 __CARDSetDiskID size:0x38 ref:ac-decomp/GAFU01_00 forced | - | tie: __CARDSetDiskID (caller CARDInit) vs  | alts:-
+OK        0x8014BFCC CARDGetResultCode size:0x30 ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:CARDSetFastMode
+OK        0x8014BFFC CARDFreeBlocks size:0x150 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:ReadArrayUnlock,bitrev
+OK        0x8014C5A8 __CARDUnlock size:0xB58 ref:mkdd/MarioClub_us forced | - | tie: __CARDUnlock (caller DoMount) vs  | alts:-
+OK        0x8014E3F0 VerifyFAT size:0x284 ref:melee/GALE01 forced | - | tie: VerifyFAT (caller __CARDVerify; caller CARDCheckExAsync) vs VerifyID | alts:VerifyDir,VerifyID
+OK        0x8014F65C CARDUnmount size:0xAC ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x8014FEA4 CARDFormatAsync size:0x48 ref:melee/GALE01 forced | - | tie: CARDFormatAsync (callees __CARDFormatRegionAsync,__CARDGetFontEncode) vs CARDFormat | alts:CARDFormat,CARDMount
+OK        0x80150210 __CARDGetFileNo size:0x150 ref:ac-decomp/GAFU01_00 forced | - | tie: __CARDGetFileNo (caller CARDDeleteAsync) vs  | alts:CARDFastOpen,CARDOpen,__CARDIsReadable,__CARDIsWritable
+OK        0x80150360 CARDOpen size:0x11C ref:ttyd/G8MJ01 forced | - | no call-graph / string evidence | alts:CARDFastOpen,CreateCallbackFat,__CARDIsWritable
+OK        0x801504D0 __CARDIsOpened size:0x8 ref:melee/GALE01 forced | - | tie: __CARDIsOpened (caller CARDDeleteAsync) vs  | alts:-
+OK        0x80151604 CARDGetSerialNo size:0xC4 ref:tp/GZ2E01 forced | - | tie: CARDGetSerialNo (callees __CARDGetControlBlock,__CARDPutControlBlock) vs __CARDGetStatusEx | alts:HIOEnumDevices,__CARDGetStatusEx
+OK        0x801517C4 __GXDefaultTlutRegionCallback size:0x24 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:-
+OK        0x80152C58 GXInitFifoLimits size:0xC ref:ac-decomp/GAFE01_00 forced | - | tie: GXInitFifoLimits (caller GXInitFifoBase) vs  | alts:-
+OK        0x80152F94 __GXFifoReadEnable size:0x24 ref:ac-decomp/GAFE01_00 forced | - | tie: __GXFifoReadEnable (caller GXSetGPFifo) vs  | alts:__GXFifoReadDisable
+OK        0x80152FB8 __GXFifoReadDisable size:0x24 ref:ac-decomp/GAFU01_00 forced | - | tie: __GXFifoReadDisable (caller GXSetGPFifo) vs  | alts:__GXFifoReadEnable
+OK        0x80152FDC __GXFifoLink size:0x34 ref:ac-decomp/GAFU01_00 forced | - | tie: __GXFifoLink (caller GXSetCPUFifo; caller GXSetGPFifo) vs __GXWriteFifoIntEnable | alts:__GXFifoReadDisable,__GXFifoReadEnable,__GXWriteFifoIntEnable,__GXWriteFifoIntReset
+OK        0x801532E4 GXSetVtxDescv size:0x288 ref:mkdd/MarioClub_us forced | - | no call-graph / string evidence | alts:GXSetVtxAttrFmt,GXSetVtxAttrFmtv,GXSetVtxDesc,__GXCleanGPFifo
+OK        0x8015356C __GXSetVCD size:0xBC ref:ac-decomp/GAFU01_00 forced | - | tie: __GXSetVCD (caller __GXSetDirtyState) vs  | alts:GXClearVtxDesc
+OK        0x80153628 __GXCalculateVLim size:0x124 ref:mkdd/MarioClub_us forced | - | tie: __GXCalculateVLim (caller __GXSetDirtyState) vs  | alts:__GXSetVAT
+OK        0x801539C8 GXSetVtxAttrFmt size:0x25C ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetVtxAttrFmt (caller GXDrawCube; caller HSD_PObjDisp; caller HSD_EraseRect; caller HSD_ShadowStartRender) vs GXSetVtxDesc | alts:GXGetVtxAttrFmt,GXSetGPFifo,GXSetTexCoordGen2,GXSetVtxAttrFmtv,GXSetVtxDesc,GXSetVtxDescv
+OK        0x80153C24 GXSetVtxAttrFmtv size:0x280 ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetVtxAttrFmtv (caller __GXInitGX) vs  | alts:GXGetVtxAttrFmt,GXSetTexCoordGen2,GXSetVtxAttrFmt,GXSetVtxDescv
+OK        0x80153EA4 __GXSetVAT size:0x9C ref:mkdd/MarioClub_us forced | - | tie: __GXSetVAT (caller __GXSetDirtyState) vs  | alts:GXGetVtxDescv,__GXSetVCD
+OK        0x80153F40 GXGetVtxAttrFmt size:0x280 ref:mkdd/MarioClub_us forced | - | tie: GXGetVtxAttrFmt (caller GXGetVtxAttrFmtv) vs  | alts:GXSetTexCoordGen2,GXSetVtxAttrFmt,GXSetVtxAttrFmtv
+OK        0x80154834 GXDrawDone size:0x80 ref:marioparty4/GMPE01_00 forced | - | no call-graph / string evidence | alts:GXSetMisc
+OK        0x801548D8 GXPokeAlphaMode size:0x14 ref:ac-decomp/GAFU01_00 forced | - | tie: GXPokeAlphaMode (caller __GXInitGX) vs  | alts:GXPokeAlphaRead,GXPokeAlphaUpdate,GXPokeColorUpdate
+OK        0x801548EC GXPokeAlphaRead size:0x20 ref:ac-decomp/GAFU01_00 forced | - | tie: GXPokeAlphaRead (caller __GXInitGX) vs  | alts:-
+OK        0x8015490C GXPokeAlphaUpdate size:0x18 ref:ac-decomp/GAFU01_00 forced | - | tie: GXPokeAlphaUpdate (caller __GXInitGX) vs  | alts:GXPokeAlphaRead,GXPokeColorUpdate,GXPokeDither,GXPokeDstAlpha
+OK        0x80154924 GXPokeBlendMode size:0x64 ref:ac-decomp/GAFU01_00 forced | - | tie: GXPokeBlendMode (caller __GXInitGX) vs  | alts:__GXAbort,__GXPEInit
+OK        0x80154988 GXPokeColorUpdate size:0x18 ref:ac-decomp/GAFU01_00 forced | - | tie: GXPokeColorUpdate (caller __GXInitGX) vs  | alts:GXPokeAlphaRead,GXPokeAlphaUpdate,GXPokeDither,GXPokeDstAlpha
+OK        0x801549A0 GXPokeDstAlpha size:0x24 ref:ac-decomp/GAFU01_00 forced | - | tie: GXPokeDstAlpha (caller __GXInitGX) vs  | alts:GXPeekARGB,GXPeekZ,GXPokeZMode
+OK        0x801549C4 GXPokeDither size:0x18 ref:ac-decomp/GAFU01_00 forced | - | tie: GXPokeDither (caller __GXInitGX) vs  | alts:GXPokeAlphaUpdate,GXPokeColorUpdate,GXPokeDstAlpha
+OK        0x801549DC GXPokeZMode size:0x20 ref:ac-decomp/GAFU01_00 forced | - | tie: GXPokeZMode (caller __GXInitGX) vs  | alts:GXPeekZ
+OK        0x80154D50 __GXSendFlushPrim size:0x88 ref:ac-decomp/GAFU01_00 forced | - | tie: __GXSendFlushPrim (caller GXBegin; caller GXCallDisplayList) vs __GXSetDirtyState | alts:GXFinishInterruptHandler,__GXPEInit,__GXSetDirtyState
+OK        0x80154DD8 GXSetLineWidth size:0x40 ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetLineWidth (caller __GXInitGX) vs  | alts:GXEnableTexOffsets,GXGetCullMode,GXSetCoPlanar,GXSetCullMode,GXSetPointSize
+OK        0x80154E18 GXSetPointSize size:0x40 ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetPointSize (caller __GXInitGX) vs  | alts:GXEnableTexOffsets,GXGetCullMode,GXSetCoPlanar,GXSetCullMode,GXSetDispCopySrc,GXSetLineWidth
+OK        0x80154E58 GXEnableTexOffsets size:0x48 ref:ac-decomp/GAFU01_00 forced | - | tie: GXEnableTexOffsets (caller __GXInitGX) vs  | alts:GXGetCullMode,GXSetCoPlanar,GXSetCullMode,GXSetLineWidth,GXSetPointSize
+OK        0x80154EE4 GXSetCoPlanar size:0x34 ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetCoPlanar (caller __GXInitGX) vs  | alts:GXSetDispCopyDst,GXSetLineWidth,GXSetPointSize
+OK        0x80154F18 __GXSetGenMode size:0x24 ref:ac-decomp/GAFU01_00 forced | - | tie: __GXSetGenMode (caller __GXSetDirtyState) vs  | alts:GXSetCullMode,GXSetDispCopyDst
+OK        0x80154F3C GXSetDispCopySrc size:0x7C ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetDispCopySrc (caller __GXInitGX; caller HSD_VICopyEFB2XFBPtr) vs GXSetCopyClamp | alts:GXSetCopyClamp,GXSetCopyClear,GXSetTexCopySrc,__GXPEInit
+OK        0x80154FB8 GXSetTexCopySrc size:0x7C ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetTexCopySrc (caller HSD_ShadowInit) vs  | alts:GXSetCopyClamp,GXSetDispCopySrc
+OK        0x80155198 GXSetDispCopyFrame2Field size:0x24 ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetDispCopyFrame2Field (caller __GXInitGX) vs  | alts:GXSetCopyClamp,GXSetDispCopyDst
+OK        0x801552E0 GXSetCopyClear size:0x78 ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetCopyClear (caller __GXInitGX; caller HSD_VICopyEFB2XFBPtr) vs GXSetCopyClamp | alts:GXSetCopyClamp,GXSetDispCopySrc,__GXGetNumXfbLines
+OK        0x80155358 GXSetCopyFilter size:0x208 ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetCopyFilter (caller __GXInitGX; caller HSD_VICopyEFB2XFBPtr) vs GXSetCopyClamp, GXSetDispCopyYScale | alts:GXGetYScaleFactor,GXSetCopyClamp,GXSetDispCopyYScale
+OK        0x80155574 GXCopyDisp size:0x168 ref:ac-decomp/GAFU01_00 forced | - | tie: GXCopyDisp (caller HSD_VICopyEFB2XFBPtr) vs  | alts:GXCopyTex,GXGetTexBufferSize,GXInitLightSpot
+OK        0x801556DC GXCopyTex size:0x18C ref:ac-decomp/GAFE01_00 forced | - | no call-graph / string evidence | alts:GXCopyDisp,GXInitLightSpot
+OK        0x80155868 GXClearBoundingBox size:0x38 ref:ac-decomp/GAFE01_00 forced | - | tie: GXClearBoundingBox (caller __GXInitGX) vs  | alts:GXReadBoundingBox
+OK        0x80155A4C GXInitLightDistAttn size:0xD0 ref:bfbb/GQPE78 forced | - | no call-graph / string evidence | alts:GXClearBoundingBox,GXInitLightPos,GXInitSpecularDir
+OK        0x80155B1C GXInitLightPos size:0x10 ref:bfbb/GQPE78 forced | - | no call-graph / string evidence | alts:GXInitLightAttnA,GXInitLightAttnK
+OK        0x80155B2C GXInitLightDir size:0x1C ref:ac-decomp/GAFU01_00 forced | - | tie: GXInitLightDir (caller HSD_LObjSetupSpecularInit) vs  | alts:GXInitLightAttn
+OK        0x80155B48 GXInitLightColor size:0xC ref:ac-decomp/GAFU01_00 forced | - | tie: GXInitLightColor (caller HSD_LObjSetup) vs  | alts:-
+OK        0x80155B54 GXLoadLightObjImm size:0x7C ref:ac-decomp/GAFU01_00 forced | - | tie: GXLoadLightObjImm (caller HSD_LObjSetup) vs  | alts:-
+OK        0x80155EA4 GXGetTexBufferSize size:0x15C ref:bfbb/GQPE78 forced | - | tie: GXGetTexBufferSize (caller HSD_ShadowSetSize) vs  | alts:GXCopyDisp,GXInitTexObjLOD,GXLoadTexObj,GXLoadTexObjPreLoaded,GXSetChanAmbColor,GXSetChanMatColor
+OK        0x80156000 __GetImageTileCount size:0xC8 ref:bfbb/GQPE78 forced | - | tie: __GetImageTileCount (caller GXSetTexCopyDst) vs  | alts:GXSetChanAmbColor,GXSetChanCtrl,GXSetChanMatColor,__GXGetTexTileShift
+OK        0x8015635C GXInitTexObjLOD size:0x164 ref:ac-decomp/GAFU01_00 forced | - | tie: GXInitTexObjLOD (caller HSD_TObjSetup) vs  | alts:GXGetTexBufferSize,GXLoadTexObj,GXLoadTexObjPreLoaded
+OK        0x801564C0 GXGetTexObjFmt size:0x8 ref:ac-decomp/GAFU01_00 forced | - | tie: GXGetTexObjFmt (caller __GXDefaultTexRegionCallback) vs  | alts:GXGetTexObjTlut,GXGetTexObjUserData,GXInitTexObjTlut,GXInitTexObjUserData
+OK        0x801564C8 GXGetTexObjMipMap size:0x18 ref:ac-decomp/GAFU01_00 forced | - | tie: GXGetTexObjMipMap (caller __GXDefaultTexRegionCallback) vs  | alts:-
+OK        0x801564E0 GXLoadTexObjPreLoaded size:0x17C ref:ac-decomp/GAFU01_00 forced | - | tie: GXLoadTexObjPreLoaded (caller GXLoadTexObj) vs  | alts:GXGetTexBufferSize,GXInitTexObjLOD,GXLoadTexObj
+OK        0x801566B0 GXInitTlutObj size:0x38 ref:ac-decomp/GAFU01_00 forced | - | tie: GXInitTlutObj (caller HSD_TObjSetup) vs  | alts:GXInitTlutRegion
+OK        0x801568F4 GXSetTexRegionCallback size:0x14 ref:ac-decomp/GAFE01_00 forced | - | tie: GXSetTexRegionCallback (caller __GXInitGX) vs  | alts:GXSetTlutRegionCallback
+OK        0x80156908 GXSetTlutRegionCallback size:0x14 ref:ac-decomp/GAFE01_00 forced | - | tie: GXSetTlutRegionCallback (caller __GXInitGX) vs  | alts:GXSetTexRegionCallback
+OK        0x8015691C __SetSURegs size:0xA0 ref:mkdd/MarioClub_us forced | - | tie: __SetSURegs (caller __GXSetSUTexRegs) vs  | alts:GXSetTevIndirect,GXSetTexCoordScaleManually
+OK        0x80156E8C GXSetTevIndirect size:0x6C ref:tp/DZDE01 forced | - | tie: GXSetTevIndirect (caller GXSetTevDirect) vs  | alts:GXSetTexCoordBias
+OK        0x80156EF8 GXSetIndTexCoordScale size:0x144 ref:xd/GXXE01 forced | - | tie: GXSetIndTexCoordScale (caller __GXInitGX) vs  | alts:GXSetIndTexMtx,GXSetIndTexOrder,__GXSetSUTexRegs
+OK        0x8015703C GXSetNumIndStages size:0x24 ref:xd/GXXE01 forced | - | tie: GXSetNumIndStages (caller __GXInitGX) vs  | alts:__GXFlushTextureState
+OK        0x801570A8 __GXUpdateBPMask size:0x4 ref:ac-decomp/GAFU01_00 forced | - | tie: __GXUpdateBPMask (caller __GXSetDirtyState) vs  | alts:-
+OK        0x8015718C GXSetTevColorIn size:0x44 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:GXSetTevAlphaIn,GXSetTevDirect
+OK        0x801571D0 GXSetTevAlphaIn size:0x44 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:GXSetTevColorIn
+OK        0x80157214 GXSetTevColorOp size:0x68 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:GXSetTevAlphaOp,GXSetTevColor,GXSetTevColorS10,GXSetTevKAlphaSel,GXSetTevKColor,GXSetTevKColorSel
+OK        0x8015727C GXSetTevAlphaOp size:0x68 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:GXSetTevColor,GXSetTevColorOp,GXSetTevColorS10,GXSetTevKAlphaSel,GXSetTevKColor,GXSetTevKColorSel
+OK        0x801572E4 GXSetTevColor size:0x7C ref:bfbb/GQPE78 forced | - | tie: GXSetTevColor (caller HSD_TExpSetReg) vs  | alts:GXSetTevAlphaIn,GXSetTevColorIn,GXSetTevColorS10,GXSetTevKColor,GXSetTevSwapModeTable
+OK        0x80157360 GXSetTevColorS10 size:0x7C ref:bfbb/GQPE78 forced | - | tie: GXSetTevColorS10 (caller HSD_SetTevRegAll) vs  | alts:GXSetTevAlphaIn,GXSetTevColor,GXSetTevColorIn,GXSetTevKColor
+OK        0x801573DC GXSetTevKColor size:0x74 ref:bfbb/GQPE78 forced | - | tie: GXSetTevKColor (caller HSD_TExpSetReg) vs  | alts:GXSetTevColor,GXSetTevColorIn,GXSetTevColorS10,GXSetTevKAlphaSel,GXSetTevKColorSel,GXSetTevSwapModeTable
+OK        0x80157450 GXSetTevKColorSel size:0x5C ref:bfbb/GQPE78 forced | - | tie: GXSetTevKColorSel (caller __GXInitGX) vs  | alts:GXSetAlphaCompare,GXSetTevAlphaOp,GXSetTevColor,GXSetTevColorOp,GXSetTevColorS10,GXSetTevKAlphaSel,GXSetTevKColor,GXSetTevSwapMode
+OK        0x801574AC GXSetTevKAlphaSel size:0x5C ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetTevKAlphaSel (caller __GXInitGX) vs  | alts:GXSetAlphaCompare,GXSetTevAlphaOp,GXSetTevColor,GXSetTevColorOp,GXSetTevColorS10,GXSetTevKColor,GXSetTevKColorSel,GXSetTevSwapMode
+OK        0x80157508 GXSetTevSwapMode size:0x48 ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetTevSwapMode (caller __GXInitGX) vs  | alts:GXSetAlphaCompare,GXSetTevKAlphaSel,GXSetTevKColorSel
+OK        0x80157550 GXSetTevSwapModeTable size:0x80 ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetTevSwapModeTable (caller __GXInitGX) vs  | alts:GXSetTevColor,GXSetZTexture
+OK        0x80157A88 GXInitFogAdjTable size:0x1B0 ref:pikmin2/GPVE01 forced | - | tie: GXInitFogAdjTable (caller HSD_FogSet) vs  | alts:GXSetFog,GXSetTevOrder
+OK        0x80157FAC GXSetFieldMask size:0x38 ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetFieldMask (caller __GXInitGX) vs  | alts:GXSetDither,GXSetDstAlpha,GXSetZCompLoc,RestoreVertState
+OK        0x80158274 GXDrawCube size:0x250 ref:mkdd/MarioClub_us forced | - | no call-graph / string evidence | alts:-
+OK        0x801585D8 GXSetProjectionv size:0x8C ref:ac-decomp/GAFU01_00 forced | - | tie: GXSetProjectionv (caller __GXInitGX) vs  | alts:GXLoadTexMtxImm,GXSetFieldMode
+OK        0x80158664 GXGetProjectionv size:0x48 ref:bfbb/GQPE78 forced | - | tie: GXGetProjectionv (caller HSD_FogSet) vs  | alts:GXGetViewportv,GXLoadNrmMtxImm,GXLoadPosMtxImm,GXSetProjectionv,__GXSetProjection
+OK        0x801586FC GXLoadNrmMtxImm size:0x50 ref:bfbb/GQPE78 forced | - | tie: GXLoadNrmMtxImm (caller __GXInitGX; caller SetupSharedVtxModelMtx; caller SetupEnvelopeModelMtx) vs GXLoadPosMtxImm | alts:GXGetViewportv,GXLoadPosMtxImm,GXSetProjectionv,GXSetViewport,GXSetViewportJitter
+OK        0x80158834 __GXSetViewport size:0x90 ref:ttyd/G8MJ01 forced | - | tie: __GXSetViewport (caller GXSetViewportJitter) vs  | alts:GXLoadTexMtxImm,GXSetScissor
+OK        0x80158A00 GXSetScissorBoxOffset size:0x40 ref:xd/GXXE01 forced | - | tie: GXSetScissorBoxOffset (caller __GXInitGX) vs  | alts:strncmp
+OK        0x80158A40 GXSetClipMode size:0x28 ref:pikmin2/GPVE01 forced | - | tie: GXSetClipMode (caller __GXInitGX) vs  | alts:GXSetViewport,PSMTXIdentity,strcat
+OK        0x80158AEC GXSetGPMetric size:0x848 ref:pikmin2/GPVE01 forced | - | tie: GXSetGPMetric (caller __GXInitGX) vs  | alts:__ieee754_pow
+OK        0x8015A268 TRKTerminateSerialHandler size:0x8 ref:ac-decomp/GAFE01_00 forced | - | tie: TRKTerminateSerialHandler (caller TRKTerminateNub) vs  | alts:TRKInitializeDispatcher,TRKInitializeSerialHandler
+OK        0x8015B544 TRKDoOverride size:0x58 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:TRKDoDisconnect,TRKDoReset
+OK        0x8015B6D0 SetTRKConnected size:0xC ref:ac-decomp/GAFU01_00 forced | - | tie: SetTRKConnected (caller usr_puts_serial) vs  | alts:-
+OK        0x8015B6EC OutputData size:0xA8 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:TRKDoDisconnect
+OK        0x8015BEB0 TRKAcquireMutex size:0x8 ref:ac-decomp/GAFE01_00 forced | - | tie: TRKAcquireMutex (caller TRKPostEvent; caller TRKGetNextEvent; caller TRKInitializeEventQueue; caller TRKReleaseBuffer; caller TRKGetFreeBuffer; caller TRKInitializeMessageBuffers) vs TRKReleaseMutex | alts:TRKInitializeMutex,TRKReleaseMutex
+OK        0x8015BEB8 TRKInitializeMutex size:0x8 ref:ac-decomp/GAFU01_00 forced | - | tie: TRKInitializeMutex (caller TRKInitializeEventQueue; caller TRKInitializeMessageBuffers) vs TRKReleaseMutex | alts:TRKAcquireMutex,TRKReleaseMutex,__TRK_get_MSR
+OK        0x8015BF90 TRK_fill_mem size:0xB8 ref:ac-decomp/GAFE01_00 forced | - | tie: TRK_fill_mem (caller TRK_memset) vs  | alts:TRK_ppc_memcpy
+OK        0x8015C050 __TRK_set_MSR size:0x8 ref:ac-decomp/GAFE01_00 forced | - | tie: __TRK_set_MSR (caller TRKTargetAccessFP) vs  | alts:__TRK_get_MSR,__read_file,__write_file
+OK        0x8015C058 TRK_ppc_memcpy size:0x3C ref:ac-decomp/GAFE01_00 forced | - | tie: TRK_ppc_memcpy (caller TRKTargetAccessMemory) vs  | alts:TRK_flush_cache
+OK        0x8015C3DC ReadFPSCR size:0x24 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:TRKTargetStop,WriteFPSCR
+OK        0x8015C400 WriteFPSCR size:0x24 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:ReadFPSCR,TRKTargetStop
+OK        0x8015C424 TRKTargetAccessARAM size:0xC4 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:TRKSwapAndGo
+OK        0x8015C4F8 TRKTargetStop size:0x18 ref:ac-decomp/GAFU01_00 forced | - | tie: TRKTargetStop (caller TRKDoStop) vs  | alts:-
+OK        0x8015C730 TRKTargetGetPC size:0x10 ref:ac-decomp/GAFU01_00 forced | - | tie: TRKTargetGetPC (caller TRKDoStep) vs  | alts:TRKTargetSetStopped,TRKTargetStopped
+OK        0x8015C740 TRKTargetStepOutOfRange size:0xB8 ref:ac-decomp/GAFU01_00 forced | - | tie: TRKTargetStepOutOfRange (caller TRKDoStep) vs  | alts:TRKTargetAddExceptionInfo,TRKTargetSingleStep
+OK        0x8015C7F8 TRKTargetSingleStep size:0xAC ref:ac-decomp/GAFU01_00 forced | - | tie: TRKTargetSingleStep (caller TRKDoStep) vs  | alts:TRKPostInterruptEvent,TRKTargetAddExceptionInfo,TRKTargetStepOutOfRange
+OK        0x8015D930 TRKValidMemory32 size:0x2A4 ref:tp/GZ2E01 forced | - | tie: TRKValidMemory32 (caller TRKTargetAccessMemory) vs  | alts:-
+OK        0x8015DBE0 TRKAccessFile size:0x8 ref:tp/GZ2E01 forced | - | no call-graph / string evidence | alts:TRKCloseFile,TRKOpenFile,TRKPositionFile
+OK        0x8015DBE8 TRKOpenFile size:0x8 ref:marioparty4/GMPE01_00 forced | - | no call-graph / string evidence | alts:TRKAccessFile,TRKCloseFile,TRKPositionFile
+OK        0x8015DBF0 TRKCloseFile size:0x8 ref:marioparty4/GMPE01_00 forced | - | no call-graph / string evidence | alts:TRKAccessFile,TRKOpenFile,TRKPositionFile
+OK        0x8015DBF8 TRKPositionFile size:0x8 ref:tp/GZ2E01 forced | - | no call-graph / string evidence | alts:TRKAccessFile,TRKCloseFile,TRKOpenFile
+OK        0x8015E408 __TRK_copy_vectors size:0x12C ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:TRK_memcpy,TRK_memset
+OK        0x8015E534 TRKTargetTranslate size:0x58 ref:ac-decomp/GAFU01_00 forced | - | tie: TRKTargetTranslate (caller TRKTargetAccessMemory) vs  | alts:TRKInitializeTarget,TRK_copy_vector,TRK_main
+OK        0x8015E7B4 TRKReadUARTN size:0x3C ref:ac-decomp/GAFU01_00 forced | - | tie: TRKReadUARTN (caller TRKTestForPacket) vs  | alts:TRKInitializeIntDrivenUART,TRKWriteUARTN,TRK_WriteUARTN
+OK        0x8015E7F0 TRKPollUART size:0x30 ref:ac-decomp/GAFU01_00 forced | - | tie: TRKPollUART (caller TRKTestForPacket) vs  | alts:EnableEXI2Interrupts,ReserveEXI2Port,UnreserveEXI2Port
+OK        0x8015E820 EnableEXI2Interrupts size:0x48 ref:ac-decomp/GAFU01_00 forced | - | tie: EnableEXI2Interrupts (caller EnableMetroTRKInterrupts) vs  | alts:TRKInitializeIntDrivenUART,TRKReadUARTN,TRKWriteUARTN,TRK_ReadUARTN,TRK_WriteUARTN
+OK        0x8015EBA0 SetUseSerialIO size:0xC ref:xd/GXXE01 forced | - | tie: SetUseSerialIO (caller TRKDoSetOption) vs  | alts:-
+OK        0x8015F134 CircleBufferReadBytes size:0x108 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:CircleBufferWriteBytes
+OK        0x8015F23C CircleBufferWriteBytes size:0x108 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:CircleBufferReadBytes
+OK        0x8015F344 CircleBufferInitialize size:0x50 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:OutputData,TRK_main
+OK        0x8015F394 CBGetBytesAvailableForRead size:0x8 ref:ac-decomp/GAFU01_00 forced | - | no call-graph / string evidence | alts:MWExitCriticalSection
+OK        0x8015F738 MWExitCriticalSection size:0x24 ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:CircleBufferInitialize,__DBIntrHandler,__DBMtrHandler,gdev_cc_initinterrupts,gdev_cc_open
+OK        0x8015F75C MWEnterCriticalSection size:0x30 ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:EXI2_EnableInterrupts,__copy
+OK        0x8015F78C MWInitializeCriticalSection size:0x4 ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:DBInitComm,DBInitInterrupts,EXI2_EnableInterrupts,EXI2_Init
+OK        0x8015FB18 __div2i size:0x138 ref:tp/ShieldD forced | - | no call-graph / string evidence | alts:-
+OK        0x8015FD34 __mod2i size:0x10C ref:tp/ShieldD forced | - | no call-graph / string evidence | alts:-
+OK        0x8015FE40 __shl2i size:0x24 ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:__shr2i,__shr2u,__unregister_fragment
+OK        0x8015FE64 __shr2u size:0x24 ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:__shl2i,__shr2i
+OK        0x80162748 tolower size:0x24 ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:__prep_buffer,toupper
+OK        0x80162C2C fclose size:0x1BC ref:xd/GXXE01 forced | - | tie: fclose (caller __close_all) vs  | alts:__put_c,__put_char,_fseek
+OK        0x80163430 __copy_longs_rev_unaligned size:0xAC ref:xd/GXXE01 forced | - | tie: __copy_longs_rev_unaligned (caller memmove) vs  | alts:__copy_longs_aligned,__copy_longs_rev_aligned,wcstombs
+OK        0x801634DC __copy_longs_unaligned size:0xC0 ref:xd/GXXE01 forced | - | tie: __copy_longs_unaligned (caller memmove) vs  | alts:__copy_longs_aligned,__copy_longs_rev_aligned,__copy_longs_rev_unaligned,memmove,snprintf,sprintf
+OK        0x8016359C __copy_longs_rev_aligned size:0xA8 ref:xd/GXXE01 forced | - | tie: __copy_longs_rev_aligned (caller memmove) vs  | alts:__copy_longs_rev_unaligned,snprintf,sprintf,vsnprintf
+OK        0x80163644 __copy_longs_aligned size:0xBC ref:xd/GXXE01 forced | - | tie: __copy_longs_aligned (caller memmove) vs  | alts:__copy_longs_rev_aligned,__copy_longs_rev_unaligned,__copy_longs_unaligned,memmove,snprintf,sprintf
+OK        0x801647DC round_decimal size:0x12C ref:xd/GXXE01 forced | - | tie: round_decimal (caller float2str) vs  | alts:sscanf
+OK        0x801656E0 strncmp size:0x40 ref:xd/GXXE01 forced | - | tie: strncmp (caller DVDCompareDiskID) vs  | alts:strcat,strncpy
+OK        0x80165720 strcmp size:0x128 ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:strtok
+OK        0x80165848 strcat size:0x2C ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:strchr
+OK        0x80165A14 __write_console size:0xD0 ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:__read_console,atoi,strcpy
+OK        0x80165AE4 __ieee754_acos size:0x23C ref:xd/GXXE01 forced | - | tie: __ieee754_acos (caller acos) vs  | alts:__ieee754_asin,__ieee754_atan2,__ieee754_exp,__ieee754_hypot
+OK        0x80165D20 __ieee754_asin size:0x238 ref:xd/GXXE01 forced | - | tie: __ieee754_asin (caller asin) vs  | alts:__ieee754_acos,__ieee754_atan2,__ieee754_exp,__ieee754_hypot
+OK        0x801661E8 __ieee754_exp size:0x224 ref:xd/GXXE01 forced | - | tie: __ieee754_exp (caller exp) vs  | alts:__ieee754_acos,__ieee754_asin,__ieee754_atan2
+OK        0x8016640C __ieee754_fmod size:0x33C ref:xd/GXXE01 forced | - | tie: __ieee754_fmod (caller fmod) vs  | alts:__ieee754_acos,__ieee754_rem_pio2
+OK        0x80166748 __ieee754_log size:0x27C ref:xd/GXXE01 forced | - | tie: __ieee754_log (caller log) vs  | alts:__ieee754_asin,__ieee754_atan2
+OK        0x8016857C __kernel_tan size:0x214 ref:xd/GXXE01 forced | - | tie: __kernel_tan (caller tan) vs  | alts:atan
+OK        0x80168AA4 floor size:0x148 ref:xd/GXXE01 forced | - | tie: floor (caller __kernel_rem_pio2) vs  | alts:ceil,ldexp
+OK        0x80168BEC frexp size:0x8C ref:xd/GXXE01 forced | - | tie: frexp (caller __num2dec_internal) vs  | alts:__close_console,__fpclassifyd__Fd,__write_console,fwide
+OK        0x80168E3C modf size:0xFC ref:xd/GXXE01 forced | - | tie: modf (caller __num2dec_internal) vs  | alts:TRKNubMainLoop
+OK        0x80169168 __ieee754_sqrt size:0x224 ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x80169448 EXI2_EnableInterrupts size:0x4 ref:xd/GXXE01 forced | - | tie: EXI2_EnableInterrupts (caller ddh_cc_initinterrupts) vs  | alts:DBClose,DBOpen,EXI2_Init,EXI2_Reserve,MWInitializeCriticalSection,sqrt
+OK        0x8016945C EXI2_WriteN size:0x8 ref:marioparty4/GMPE01_00 forced | - | tie: EXI2_WriteN (caller ddh_cc_write) vs  | alts:AMC_IsStub,EXI2_Poll,EXI2_ReadN,Hu_IsStub
+OK        0x80169464 EXI2_Reserve size:0x4 ref:marioparty4/GMPE01_00 forced | - | tie: EXI2_Reserve (caller ddh_cc_post_stop) vs  | alts:DBClose,DBOpen,EXI2_EnableInterrupts,EXI2_Unreserve
+OK        0x80169468 EXI2_Unreserve size:0x4 ref:ac-decomp/GAFE01_00 forced | - | tie: EXI2_Unreserve (caller ddh_cc_pre_continue) vs  | alts:DBClose,DBOpen,EXI2_Reserve
+OK        0x8016947C DBClose size:0x4 ref:xd/GXXE01 forced | - | tie: DBClose (caller gdev_cc_pre_continue) vs  | alts:DBInitComm,DBInitInterrupts,DBOpen,EXI2_EnableInterrupts,EXI2_Init,EXI2_Reserve,EXI2_Unreserve,sqrt
+OK        0x80169480 DBOpen size:0x4 ref:xd/GXXE01 forced | - | tie: DBOpen (caller gdev_cc_post_stop) vs  | alts:DBClose,DBInitInterrupts,EXI2_EnableInterrupts,EXI2_Init,EXI2_Reserve,EXI2_Unreserve,sqrt
+OK        0x801698D8 DBGHandler size:0x40 ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:MWCallback
+OK        0x80169918 MWCallback size:0x3C ref:xd/GXXE01 forced | - | no call-graph / string evidence | alts:DBGHandler
+OK        0x8016C864 SISetCommand size:0x14 ref:pikmin2/GPVE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x8016C878 SITransferCommands size:0x10 ref:pikmin2/GPVE01 forced | - | no call-graph / string evidence | alts:SIGetStatus
+OK        0x80186498 HSD_DObjGetFlags size:0x18 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_DObjClearFlags,HSD_DObjSetFlags
+OK        0x801864B0 HSD_DObjSetFlags size:0x18 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_DObjClearFlags,HSD_DObjGetFlags
+OK        0x80186590 HSD_DObjReqAnimAllByFlags size:0x80 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x80186824 HSD_DObjRemoveAll size:0x74 ref:melee/GALE01 forced | - | tie: HSD_DObjRemoveAll (caller JObjReleaseChild) vs  | alts:HSD_DObjAnimAll,HSD_DObjCountVertices,HSD_DObjReqAnimAll,HSD_DObjReqAnimAllByFlags,HSD_DObjResolveRefsAll
+OK        0x801868F4 HSD_DObjResolveRefsAll size:0x6C ref:melee/GALE01 forced | - | tie: HSD_DObjResolveRefsAll (caller HSD_JObjResolveRefs) vs  | alts:HSD_DObjAnimAll,HSD_DObjRemoveAll
+OK        0x80186A7C DObjAmnesia size:0x48 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x80186C98 HSD_TObjReqAnimAllByFlags size:0x74 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:DObjInfoInit
+OK        0x80187B18 HSD_TObjSetupTextureCoordGen size:0x290 ref:melee/GALE01 forced | - | tie: HSD_TObjSetupTextureCoordGen (caller HSD_MObjSetup) vs  | alts:HSD_TObjAssignResources
+OK        0x80187DA8 HSD_TObjSetupVolatileTev size:0x120 ref:melee/GALE01 forced | - | tie: HSD_TObjSetupVolatileTev (caller MObjSetupTev) vs  | alts:-
+OK        0x80189334 HSD_TGTex2Index size:0x94 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_Index2TexCoord,HSD_TexCoord2Index,HSD_TexCoordID2TexGenSrc
+OK        0x801893C8 HSD_TexCoordID2TexGenSrc size:0x88 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_Index2TexCoord,HSD_Index2TexMap,HSD_TGTex2Index,HSD_TexCoord2Index
+OK        0x80189450 HSD_TexCoord2Index size:0x90 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_Index2TexCoord,HSD_Index2TexMap,HSD_TGTex2Index,HSD_TexCoordID2TexGenSrc
+OK        0x80189570 HSD_TexMtx2Index size:0xB0 ref:melee/GALE01 forced | - | tie: HSD_TexMtx2Index (string "tobj.c") vs HSD_Index2TexMtx | alts:HSD_Index2TexMtx
+OK        0x801896DC HSD_Index2TexMap size:0x90 ref:melee/GALE01 forced | - | tie: HSD_Index2TexMap (caller HSD_TObjAssignResources) vs  | alts:HSD_Index2TexCoord,HSD_TexCoord2Index,HSD_TexCoordID2TexGenSrc,HSD_TexMap2Index
+OK        0x8018976C HSD_TexMap2Index size:0x90 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_Index2TexCoord,HSD_Index2TexMap
+OK        0x801897FC HSD_TObjRemoveAll size:0x74 ref:melee/GALE01 forced | - | tie: HSD_TObjRemoveAll (caller MObjRelease) vs  | alts:-
+OK        0x80189870 HSD_TObjGetNext size:0x18 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x801898E4 HSD_TObjFree size:0x34 ref:melee/GALE01 forced | - | tie: HSD_TObjFree (caller HSD_ShadowRemove) vs  | alts:HSD_TObjRemove
+OK        0x80189B84 TObjAmnesia size:0x60 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_ImageDescAlloc,TObjInit
+OK        0x8018A670 _HSD_StateInvalidateRenderMode size:0x58 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_RenderInitAllocData,HSD_StateInvalidate,HSD_StateSetDither,HSD_StateSetZCompLoc,splGetHelmite
+OK        0x8018AC60 HSD_SetupChannelAll size:0x7C ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_SetupChannelAll (caller HSD_ShadowStartRender) vs  | alts:-
+OK        0x8018AD48 HSD_StateGetNumTevStages size:0x8 ref:melee/GALE01 forced | - | tie: HSD_StateGetNumTevStages (caller HSD_SetupRenderModeWithCustomPE) vs  | alts:-
+OK        0x8018B410 _HSD_StateInvalidateTevStage size:0xC ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:_HSD_StateInvalidateTexCoordGen,_HSD_StateInvalidateTexCoordGenAll
+OK        0x8018B41C _HSD_StateInvalidateTevRegister size:0x20 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:_HSD_StateInvalidateTevRegisterAll
+OK        0x8018B43C _HSD_StateInvalidateTexCoordGen size:0xC ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:_HSD_StateInvalidateTevStage,_HSD_StateInvalidateTexCoordGenAll
+OK        0x8018B448 HSD_MObjSetCurrent size:0x8 ref:melee/GALE01 forced | - | tie: HSD_MObjSetCurrent (caller HSD_DObjDisp) vs  | alts:_HSD_StateInvalidateTevRegister
+OK        0x8018BA00 HSD_MObjAnim size:0x48 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_MObjAnim (caller HSD_DObjAnimAll) vs  | alts:-
+OK        0x8018C8A4 HSD_MObjGetTObj size:0x18 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x8018C8BC HSD_MObjRemove size:0x50 ref:melee/GALE01 forced | - | tie: HSD_MObjRemove (caller DObjRelease) vs  | alts:-
+OK        0x8018CA2C HSD_MObjDeleteShadowTexture size:0x64 ref:melee/GALE01 forced | - | tie: HSD_MObjDeleteShadowTexture (caller HSD_ShadowRemove) vs  | alts:HSD_MObjAddShadowTexture,HSD_MObjAlloc,HSD_MaterialAlloc,MObjAmnesia
+OK        0x8018CB2C MObjAmnesia size:0x64 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_MObjAddShadowTexture,HSD_MObjDeleteShadowTexture,HSD_MaterialAlloc
+OK        0x8018D1EC HSD_AObjSetRewindFrame size:0x10 ref:melee/GALE01 forced | - | tie: HSD_AObjSetRewindFrame (caller HSD_AObjLoadDesc) vs  | alts:HSD_AObjSetEndFrame,HSD_AObjSetRate
+OK        0x8018D1FC HSD_AObjSetEndFrame size:0x10 ref:melee/GALE01 forced | - | tie: HSD_AObjSetEndFrame (caller HSD_AObjLoadDesc) vs  | alts:HSD_AObjSetRate,HSD_AObjSetRewindFrame
+OK        0x8018D268 HSD_LObjGetLightMaskAttnFunc size:0x8 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_LObjGetLightMaskAlpha,HSD_LObjGetLightMaskDiffuse,HSD_LObjGetLightMaskSpecular,HSD_LObjGetNbActive
+OK        0x8018D270 HSD_LObjGetLightMaskAlpha size:0x8 ref:melee/GALE01 forced | - | tie: HSD_LObjGetLightMaskAlpha (caller HSD_SetupChannelMode) vs  | alts:HSD_LObjGetLightMaskAttnFunc,HSD_LObjGetLightMaskDiffuse,HSD_LObjGetLightMaskSpecular,HSD_LObjGetNbActive
+OK        0x8018D278 HSD_LObjGetLightMaskSpecular size:0x8 ref:melee/GALE01 forced | - | tie: HSD_LObjGetLightMaskSpecular (caller HSD_SetupChannelMode) vs  | alts:HSD_LObjGetLightMaskAlpha,HSD_LObjGetLightMaskAttnFunc,HSD_LObjGetLightMaskDiffuse,HSD_LObjGetNbActive
+OK        0x8018D280 HSD_LObjGetNbActive size:0x8 ref:melee/GALE01 forced | - | tie: HSD_LObjGetNbActive (caller HSD_SetupChannelMode) vs  | alts:HSD_LObjGetLightMaskAlpha,HSD_LObjGetLightMaskAttnFunc,HSD_LObjGetLightMaskDiffuse,HSD_LObjGetLightMaskSpecular
+OK        0x8018D2D0 HSD_LObjGetActiveByIndex size:0x2C ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_LObjGetActiveByIndex (caller HSD_SetupChannelMode) vs  | alts:-
+OK        0x8018E944 HSD_LObjGetCurrentByType size:0x34 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_LObjGetCurrentByType (caller TObjSetupMtx) vs  | alts:-
+OK        0x8018EA64 HSD_Index2LightID size:0x70 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x8018EAD4 HSD_LObjRemoveAll size:0x20C ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x8018ECE0 HSD_LObjSetColor size:0xC ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_LObjGetColor
+OK        0x8018ECEC HSD_LObjGetColor size:0xC ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_LObjSetColor
+OK        0x8018ECF8 HSD_LObjSetPosition size:0x88 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_LObjSetPosition (callees HSD_WObjAlloc,HSD_WObjSetPosition) vs HSD_LObjSetInterest | alts:HSD_LObjSetInterest
+OK        0x8018F468 LObjAmnesia size:0x60 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_CObjRemoveAnim
+OK        0x80190354 HSD_CObjGetInterestWObj size:0x40 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_CObjGetEyePositionWObj
+OK        0x80190394 HSD_CObjGetEyePositionWObj size:0x40 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_CObjGetInterestWObj
+OK        0x80190440 HSD_CObjSetInterest size:0x6C ref:melee/GALE01 forced | - | tie: HSD_CObjSetInterest (callees HSD_WObjSetPosition; caller CObjUpdateFunc) vs HSD_CObjSetEyePosition | alts:HSD_CObjGetEyePosition,HSD_CObjGetInterest,HSD_CObjSetEyePosition
+OK        0x80190EC8 HSD_CObjMtxIsDirty size:0x4C ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x80190FAC HSD_CObjGetViewingMtxPtr size:0x30 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_CObjGetViewingMtxPtr (caller HSD_CObjGetViewingMtx) vs  | alts:HSD_CObjGetViewingMtx
+OK        0x8019145C HSD_CObjSetNear size:0x10 ref:melee/GALE01 forced | - | tie: HSD_CObjSetNear (caller CObjUpdateFunc) vs  | alts:HSD_CObjSetFar
+OK        0x8019146C HSD_CObjGetFar size:0x18 ref:melee/GALE01 forced | - | tie: HSD_CObjGetFar (caller HSD_FogSet) vs  | alts:HSD_CObjGetNear,HSD_CObjGetProjectionType
+OK        0x80191484 HSD_CObjSetFar size:0x10 ref:melee/GALE01 forced | - | tie: HSD_CObjSetFar (caller CObjUpdateFunc) vs  | alts:HSD_CObjSetNear,HSD_CObjSetProjectionType
+OK        0x8019152C HSD_CObjSetProjectionType size:0x10 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_CObjSetFar
+OK        0x8019153C HSD_CObjSetFrustum size:0x24 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_CObjSetFrustum (caller HSD_ShadowSetViewingRect) vs  | alts:HSD_CObjSetOrtho
+OK        0x80191560 HSD_CObjSetOrtho size:0x24 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_CObjSetOrtho (caller HSD_ShadowSetViewingRect) vs  | alts:HSD_CObjSetFrustum
+OK        0x80191584 HSD_CObjSetFlags size:0x18 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_CObjClearFlags,HSD_CObjGetProjectionType
+OK        0x8019159C HSD_CObjClearFlags size:0x18 ref:melee/GALE01 forced | - | tie: HSD_CObjClearFlags (caller HSD_CObjGetInvViewingMtxPtrDirect) vs  | alts:HSD_CObjSetFlags
+OK        0x80191B00 CObjAmnesia size:0x60 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:hsdFreeMemPiece
+OK        0x80191C1C HSD_FObjRemove size:0x28 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_FObjRemove (caller HSD_FObjRemoveAll) vs  | alts:-
+OK        0x80191D68 HSD_FObjReqAnimAll size:0xA4 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_FObjRemoveAll,HSD_FObjStopAnimAll
+OK        0x80191EA4 FObjLoadData size:0x10D0 ref:kar_wowjinxy/GKYE01 forced | - | tie: FObjLoadData (caller HSD_FObjInterpretAnim) vs  | alts:-
+OK        0x801939F8 HSD_PObjReqAnimAllByFlags size:0x74 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_FObjFree,HSD_PObjAnimAll,HSD_PObjRemoveAnimAllByFlags
+OK        0x80193A6C PObjUpdateFunc size:0x4C ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x80193AB8 HSD_PObjAnimAll size:0x5C ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_PObjAnimAll (caller HSD_DObjAnimAll) vs  | alts:HSD_PObjSetCurrent
+OK        0x80193DE8 HSD_PObjRemoveAll size:0x74 ref:melee/GALE01 forced | - | tie: HSD_PObjRemoveAll (caller DObjRelease) vs  | alts:HSD_PObjAnimAll
+OK        0x80195638 HSD_PObjClearMtxMark size:0x18 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_PObjClearMtxMark (caller HSD_JObjDispSub) vs  | alts:-
+OK        0x801962F8 PObjAmnesia size:0xAC ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x8019643C HSD_JObjCheckDepend size:0x12C ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_JObjWalkTree0,HSD_PObjDisp,PObjRelease
+OK        0x80196E0C HSD_JObjAddAnimAll size:0x3DC ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x80197C90 JObjAnimAll size:0x348 ref:kar_wowjinxy/GKYE01 forced | - | tie: JObjAnimAll (caller HSD_JObjAnimAll) vs  | alts:JObjLoad
+OK        0x80198014 setupInstanceMtx size:0x130 ref:kar_wowjinxy/GKYE01 forced | - | tie: setupInstanceMtx (caller HSD_JObjDispAll) vs  | alts:JObjAnimAll
+OK        0x80198688 HSD_CObjGetViewingMtxPtrDirect size:0x8 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_CObjGetViewingMtxPtrDirect (caller HSD_JObjDispAll) vs  | alts:HSD_JObjSetJSoundCallback
+OK        0x801988FC HSD_JObjLoadJoint size:0xA8 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_JObjLoadJoint (caller HSD_AObjLoadDesc) vs  | alts:HSD_JObjAnimAll,HSD_JObjUnrefThis
+OK        0x80198D70 HSD_JObjRef size:0x54 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x80198DF0 ref_INC size:0x4C ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_JObjRef,hsdDelete,iref_INC
+OK        0x80199258 HSD_JObjSetFlagsAll size:0x2D8 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_JObjSetFlagsAll (caller JObjUpdateFunc) vs  | alts:HSD_JObjClearFlagsAll
+OK        0x80199530 HSD_JObjClearFlags size:0x9C ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_JObjClearFlags (callees HSD_JObjSetMtxDirtySub; caller HSD_JObjAddAnim; caller JObjUpdateFunc) vs HSD_JObjSetFlags | alts:HSD_JObjModifyFlags,HSD_JObjSetFlags
+OK        0x80199904 HSD_JObjSetCurrent size:0x190 ref:melee/GALE01 forced | - | tie: HSD_JObjSetCurrent (caller HSD_JObjDispSub) vs  | alts:HSD_JObjClearFlagsAll
+OK        0x8019AD94 HSD_JObjSetDPtclCallback size:0x8 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_JObjSetPtclTargetCallback
+OK        0x8019AD9C HSD_JObjSetPtclTargetCallback size:0x8 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_JObjSetDPtclCallback
+OK        0x8019ADA4 JObjInit size:0x64 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:JObjAmnesia
+OK        0x8019B374 JObjAmnesia size:0x64 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:JObjInit,_HSD_MemAllocDefaultCB
+OK        0x8019C548 zlist_sort size:0x16C ref:melee/GALE01 forced | - | tie: zlist_sort (caller _HSD_ZListSort) vs  | alts:-
+OK        0x8019CD6C HSD_GXSetFifoObj size:0x18 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_SetEraseColor
+OK        0x8019CD84 HSD_DVDInit size:0x4 ref:kar_wowjinxy/GKYP01 forced | - | tie: HSD_DVDInit (caller HSD_InitComponent) vs  | alts:_HSD_DispForgetMemory
+OK        0x8019D2A0 HSD_GetHeap size:0x44 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_GetHeap (caller _HSD_MemFreeDefaultCB) vs  | alts:_HSD_MemGetRemainDefaultCB
+OK        0x8019D65C HSD_VIPostRetraceCB size:0x20C ref:melee/GALE01 forced | - | tie: HSD_VIPostRetraceCB (callees HSD_VICopyEFB2XFBPtr) vs HSD_VICopyXFBAsync | alts:HSD_VICopyXFBAsync
+OK        0x8019D868 HSD_VIGXDrawDoneCB size:0x44 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x8019D8AC HSD_VIGetDrawDoneWaitingFlag size:0x10 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x8019DEDC HSD_VISetBlack size:0x18 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x8019E914 splArcLengthGetParameter size:0x200 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_MtxInverseTranspose,HSD_PadRumbleInit
+OK        0x801A0098 HSD_MtxScaledAdd size:0xC4 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_MtxScaledAdd (caller SetupEnvelopeModelMtx) vs  | alts:-
+OK        0x801A015C HSD_VecGetOrthogonal size:0xE0 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_VecGetOrthogonal (caller HSD_ViewingRectInit) vs  | alts:-
+OK        0x801A039C HSD_MulColor size:0x6C ref:melee/GALE01 forced | - | tie: HSD_MulColor (caller HSD_SetupChannelMode) vs  | alts:HSD_ObjAlloc
+OK        0x801A0408 HSD_GetNbBits size:0xC0 ref:melee/GALE01 forced | - | tie: HSD_GetNbBits (caller expEvaluate) vs  | alts:-
+OK        0x801A0568 HSD_ObjSetHeap size:0x1C ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x801A0B0C RObjAnimUpdateFlags size:0x44 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x801A0B50 HSD_RObjAnimAll size:0x68 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_RObjAnimAll (caller HSD_JObjAnim) vs  | alts:HSD_RObjGetByType,HSD_RObjRemoveAnimAll,HSD_RObjReqAnimAll
+OK        0x801A263C dummy_func size:0x8 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:RObjEvalZero
+OK        0x801A2644 HSD_RvalueRemoveAll size:0x70 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x801A29B8 HSD_IDSetup size:0x30 ref:melee/GALE01 forced | - | tie: HSD_IDSetup (caller HSD_InitComponent) vs  | alts:HSD_IDInitAllocData,_HSD_IDForgetMemory
+OK        0x801A2AD4 HSD_IDRemoveByIDFromTable size:0xAC ref:melee/GALE01 forced | - | tie: HSD_IDRemoveByIDFromTable (caller JObjRelease) vs  | alts:-
+OK        0x801A2F08 HSD_WObjSetPositionX size:0xD4 ref:melee/GALE01 forced | - | tie: HSD_WObjSetPositionX (caller WObjUpdateFunc) vs  | alts:HSD_WObjGetPosition,HSD_WObjLoadDesc,HSD_WObjSetPositionY,HSD_WObjSetPositionZ
+OK        0x801A2FDC HSD_WObjSetPositionY size:0xD4 ref:melee/GALE01 forced | - | tie: HSD_WObjSetPositionY (caller WObjUpdateFunc) vs  | alts:HSD_WObjGetPosition,HSD_WObjLoadDesc,HSD_WObjSetPositionX,HSD_WObjSetPositionZ
+OK        0x801A30B0 HSD_WObjSetPositionZ size:0xD4 ref:melee/GALE01 forced | - | tie: HSD_WObjSetPositionZ (caller WObjUpdateFunc) vs  | alts:HSD_WObjGetPosition,HSD_WObjLoadDesc,HSD_WObjSetPositionX,HSD_WObjSetPositionY
+OK        0x801A331C WObjAmnesia size:0x48 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_WObjSetPosition
+OK        0x801A36A0 HSD_FogLoadDesc size:0x90 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_FogInit
+OK        0x801A37BC HSD_FogGetColor size:0x2C ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x801A37E8 HSD_FogAdjLoadDesc size:0x7C ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_FogAdjLoadDesc (caller HSD_FogLoadDesc) vs  | alts:HSD_FogAdjInit,WObjInfoInit
+OK        0x801A3864 HSD_FogAdjInit size:0x7C ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_FogAdjInit (caller HSD_FogAdjLoadDesc) vs  | alts:HSD_FogAdjLoadDesc
+OK        0x801A38E0 HSD_FogAdjGetFlags size:0x18 ref:kar_wowjinxy/GKYE01 forced | - | tie: HSD_FogAdjGetFlags (caller HSD_FogSet) vs  | alts:-
+OK        0x801A38F8 FogUpdateFunc size:0x230 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x801A3D98 HSD_SListAppend size:0x80 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_SListAllocAndAppend,HSD_SListAllocAndPrepend,HSD_SListPrepend,HSD_SListRemove
+OK        0x801A3E18 HSD_SListAllocAndPrepend size:0x80 ref:melee/GALE01 forced | - | tie: HSD_SListAllocAndPrepend (caller HSD_ShadowAddObject; caller HSD_ByteCodeEval) vs HSD_SListPrepend | alts:HSD_SListAllocAndAppend,HSD_SListPrepend,HSD_SListRemove
+OK        0x801A4F00 HSD_ShadowSetViewingRect size:0x1C0 ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:HSD_ShadowSetActive,HSD_ViewingRectAddRect
+OK        0x801A52CC HSD_ViewingRectCheck size:0x7C ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x801A55FC HSD_ArchiveGetExtern size:0x38 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:HSD_Randi
+OK        0x801A7A9C _hsdClassInit size:0x8 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x801A7AA4 _hsdClassRelease size:0x4 ref:melee/GALE01 forced | - | no call-graph / string evidence | alts:-
+OK        0x801A7B14 _hsdClassAmnesia size:0x2C ref:kar_wowjinxy/GKYE01 forced | - | no call-graph / string evidence | alts:_hsdClassDestroy
+OK        0x801A8924 HSD_TExpColorOp size:0xE8 ref:melee/GALE01 forced | - | tie: HSD_TExpColorOp (caller MakeColorGenTExp; caller TObjMakeTExp; caller MObjMakeTExp) vs HSD_TExpTev | alts:HSD_TExpAlphaOp,HSD_TExpColorIn,HSD_TExpTev
+OK        0x801A8A0C HSD_TExpAlphaOp size:0xE8 ref:melee/GALE01 forced | - | tie: HSD_TExpAlphaOp (caller MakeColorGenTExp; caller TObjMakeTExp; caller MObjMakeTExp) vs HSD_TExpAlphaIn, HSD_TExpTev | alts:HSD_TExpAlphaIn,HSD_TExpColorIn,HSD_TExpColorOp,HSD_TExpTev
+OK        0x801A9778 AssignColorReg size:0x178 ref:kar_wowjinxy/GKYE01 forced | - | tie: AssignColorReg (caller TExpAssignReg) vs  | alts:AssignAlphaKonst
+OK        0x801A98F0 AssignColorKonst size:0x22C ref:kar_wowjinxy/GKYE01 forced | - | tie: AssignColorKonst (caller TExpAssignReg) vs  | alts:-
+OK        0x801A9B1C AssignAlphaKonst size:0x164 ref:kar_wowjinxy/GKYE01 forced | - | tie: AssignAlphaKonst (caller TExpAssignReg) vs  | alts:AssignColorReg
+OK        0x801AB384 CalcDistance size:0x438 ref:kar_wowjinxy/GKYE01 forced | - | tie: CalcDistance (caller HSD_TExpMakeDag) vs  | alts:HSD_TExpMakeDag,SimplifySrc

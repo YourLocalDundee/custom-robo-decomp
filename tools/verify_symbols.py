@@ -6,6 +6,8 @@ Checks, per name:
     the closest reference wins, and the report names it
 Prints a table and a verdict per name: VERIFIED (exact size), CLOSE (within 10%),
 MISMATCH, or UNSOURCED (no independent source has this name).
+Names merged by batch6 with rule R4 / R5 / R6 ("// lib-candidate R5 ...") are justified by asserts, call graph or strings,
+not by size: they must exist in a reference, and a size ratio of 0.5 .. 2.0 is reported as EVIDENCE instead of MISMATCH.
 
 Usage: python -I verify_symbols.py <symbols.txt> <dtk symbols.txt> <reference symbols.txt> [more references ...]
 """
@@ -25,10 +27,17 @@ def load(path):
     return out
 
 
+def rule_names(path):
+    """names merged with a size-independent rule (R4 asserts, R5 call graph, R6 string)"""
+    pat = re.compile(r"^(\S+) = .*// lib-candidate R[456] ")
+    return {m.group(1) for m in (pat.match(l) for l in open(path, encoding="utf-8")) if m}
+
+
 def main():
     ours, dtk = load(sys.argv[1]), load(sys.argv[2])
     refs = [(p.replace(os.sep, '/').split('/config/')[0].split('/')[-1], load(p)) for p in sys.argv[3:]]
     size_at = {addr: size for addr, size in dtk.values()}
+    by_rule = rule_names(sys.argv[1])
     counts = {}
     for name, (addr, _) in sorted(ours.items(), key=lambda kv: kv[1][0]):
         size = size_at.get(addr)
@@ -44,6 +53,8 @@ def main():
                 verdict = "VERIFIED"
             elif abs(size - msize) <= 0.1 * msize:
                 verdict = "CLOSE"
+            elif name in by_rule and 0.5 <= size / msize <= 2.0:
+                verdict = "EVIDENCE"
             else:
                 verdict = "MISMATCH"
         counts[verdict] = counts.get(verdict, 0) + 1
