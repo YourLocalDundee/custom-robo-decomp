@@ -113,8 +113,10 @@ if (-not (Test-Path -LiteralPath "$g/Custom Robo extracted")) {
 
 # 3. Reference symbol lists (names + sizes only) from public GameCube decomps.
 # Melee also: its HSD library + SDK headers (types and prototypes, parsed by ParseHeaders.java)
-PinnedClone melee "$t/melee" @('/config/', '/src/sysdolphin/', '/src/Runtime/', '/src/MSL/',
+PinnedClone melee "$t/melee" @('/config/', '/src/sysdolphin/', '/src/Runtime/', '/src/MSL/', '/src/MetroTRK/',
     '/libs/doldecomp/include/', '/libs/dolphin/include/')
+# (MetroTRK/: the TRK sources, and MSL's math.h includes MetroTRK/intrinsics.h; tools/compiler_probe compiles them.
+#  An older clone without it: git -C tools/melee sparse-checkout add /src/MetroTRK/)
 foreach ($r in 'mkdd', 'pikmin2', 'ttyd', 'tww', 'tp') {
     PinnedClone $r "$t/refs/$r" @('/config/*/symbols.txt', '/config/*/splits.txt')
 }

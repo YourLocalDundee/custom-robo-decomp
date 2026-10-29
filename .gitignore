@@ -54,3 +54,6 @@ decomp/compile_commands.json
 decomp/report.json
 decomp/ctx.*
 tools/ninja/
+
+# tools/compiler_probe (batch 10): compiled objects and results are local
+tools/compiler_probe/out/

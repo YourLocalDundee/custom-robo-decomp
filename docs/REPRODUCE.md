@@ -36,7 +36,7 @@ Downloads are kept in `tools\downloads\` and **every one is SHA-256 checked agai
 |---|---|---|---|
 | 1 | SHA-1 of your ISO checked against the retail dump; stops if different | no | — |
 | 2 | `DolphinTool.exe extract` (Dolphin's own tool) unpacks the disc. Without `-Dolphin`, the official Dolphin 2609a build is downloaded (hash-checked) and unpacked with Windows' `tar` | dl.dolphin-emu.org | `tools\dolphin\`, `Custom Robo extracted\` |
-| 3 | Sparse git clones of public decomps at the commits in `tools\pins.txt`, **only** their `config/*/symbols.txt` + `splits.txt` (Melee also `src/dolphin`, `src/sysdolphin` for assert matching). These are lists of names, addresses and sizes | GitHub | `tools\melee\`, `tools\refs\` |
+| 3 | Sparse git clones of public decomps at the commits in `tools\pins.txt`, **only** their `config/*/symbols.txt` + `splits.txt` (Melee also `src/sysdolphin`, `src/MSL`, `src/Runtime`, `src/MetroTRK` and the SDK headers: assert matching, and the compiler probe of batch 10). These are lists of names, addresses and sizes | GitHub | `tools\melee\`, `tools\refs\` |
 | 4 | HSDLib cloned at the pinned commit, our patch `tools\patches\hsdlib_headless_export_resave.patch` applied (read it: it adds a command-line `--export` / `--resave`), built with `dotnet build` | GitHub, NuGet | `tools\HSDLib\` |
 | 5 | decomp-toolkit `dtk.exe` downloaded and **its SHA-256 checked** against `tools\pins.txt`; `dtk dol split config.yml out` analyses your `main.dol` (function boundaries, SDK signature names) | GitHub | `tools\dtk\` |
 | 6 | Python venv with the exact versions in `tools\requirements-preview.txt` (only used to render preview PNGs) | PyPI | `tools\pyenv\` |
@@ -97,6 +97,7 @@ names, never the export, so its output is the same from the very first pass.
 | Batch 4 | `tools\build_index.py` | SQLite search index + one file per function | → `decompiled\index.db`, `decompiled\funcs\` |
 | Batch 8 | `tools\crosscheck_names.py` | independent cross-check of every name against all references (game-real names: the string still at the cited address, the table indexes still matching, the tables still adjacent and of the same length); **stops** on any FAIL | `decompiled\index.db`, name files → `symbols\names_crosscheck.txt`, `docs\names_crosscheck.md` |
 | Batch 9 | `tools\batches\batch9_decomp_build.ps1` | the Phase 4 build, section 2b; **stops** unless the built `main.dol` is the retail one | name files, dtk analysis, reference layouts → `decomp\config\GXCE01\{symbols,splits}.txt`, `decomp\reports\` |
+| Batch 10 (by hand, not in run_all) | `tools\batches\batch10_compiler_probe.ps1` → `tools\compiler_probe\probe.py` | Phase 4 Milestone 3: compiles reference C (dolsdk2004, Melee sysdolphin / MSL / Runtime / MetroTRK, Mario Party 4 MSL / Runtime / TRK) and our hand-written C for small game functions (`tools\compiler_probe\game\`) with all 19 pinned GC compilers × 40+ flag sets per library and compares each function with `main.dol` (relocated fields masked); about 5 minutes. Conclusions in `docs\compiler.md`; `probe.py --show FUNCTION --version V --flags "..."` diffs one function | `main.dol`, `decomp\config\GXCE01\symbols.txt`, compilers, references → `tools\compiler_probe\out\{summary.txt,results.tsv}` (gitignored) |
 
 ## 2b. Build main.dol from asm — `tools\batches\batch9_decomp_build.ps1` (Phase 4, Milestone 1)
 

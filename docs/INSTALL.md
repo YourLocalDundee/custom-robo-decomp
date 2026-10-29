@@ -108,7 +108,7 @@ pinned in `tools/pins.txt` and checks its SHA-256. The versions are the ones the
 | decomp-toolkit | 1.8.4 (the same pin as above; the template asks for 1.8.3) | splits main.dol into objects | `tools/dtk/` |
 | objdiff-cli | 3.6.1 | progress report (`report.json`), later: per-object diffs | `decomp/build/tools/` |
 | gc-wii-binutils | 2.42-2 | assembler for asm objects (`--non-matching`, Milestone 2) | `decomp/build/binutils/` |
-| CodeWarrior compilers | `compilers_20251118.zip` (files.decomp.dev; GC 1.0 .. 3.0a5.2, Wii, ProDG) | `mwldeppc` links main.dol now; `mwcceppc` compiles C later | `decomp/build/compilers/` |
+| CodeWarrior compilers | `compilers_20251118.zip` (files.decomp.dev; GC 1.0 .. 3.0a5.2, Wii, ProDG) | `mwldeppc` links main.dol now; `mwcceppc` compiles C later, and batch 10 (`docs/compiler.md`) runs all 19 GC versions | `decomp/build/compilers/` |
 | sjiswrap | 1.2.2 | Shift-JIS wrapper the template puts around mwcc | `decomp/build/tools/` |
 | wibo | 1.0.3 (Linux x86_64, macOS) | runs the Windows-only `mwldeppc` / `mwcceppc` on Linux / macOS | `decomp/build/tools/` |
 
