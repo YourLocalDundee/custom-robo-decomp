@@ -1,8 +1,13 @@
 #Requires -Version 7
-# Boot an ISO in the Project Hive Dolphin for N seconds and report whether Dolphin raised a warning dialog
-# (e.g. "Invalid read from ..."), which means the game would have crashed. Closes Dolphin afterwards.
-# Usage: pwsh tools\boot_check.ps1 <game.iso> [seconds]      exit 1 if a warning appeared or Dolphin died
-param([Parameter(Mandatory)][string]$Iso, [int]$Seconds = 60, [string]$Snapshot,
+# Boot an ISO (or an extracted game folder's sys\main.dol) in the Project Hive Dolphin for N seconds and report whether
+# Dolphin raised a warning dialog (e.g. "Invalid read from ..."), which means the game would have crashed. Closes
+# Dolphin afterwards.
+# Usage: pwsh tools\boot_check.ps1 <game.iso | folder\sys\main.dol> [seconds]   exit 1 if a warning appeared or Dolphin died
+#   -Snapshot x.png    picture of the warning dialog, if one appears
+#   -Screenshot x.png  picture of the game window at the end (a screen copy: the window is brought to the front)
+#   -Log x.log         Dolphin's log of this run only (OS reports, files read from the disc, boot / core / CPU
+#                      messages), switched on with command-line config: Dolphin's own settings are not changed
+param([Parameter(Mandatory)][string]$Iso, [int]$Seconds = 60, [string]$Snapshot, [string]$Screenshot, [string]$Log,
       [string]$DolphinDir = 'D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]')
 Add-Type -AssemblyName System.Drawing
 Add-Type @'
@@ -41,6 +46,8 @@ public static class BootWin {
       return true; }, IntPtr.Zero);
     return found;
   }
+  [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+  [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
   public static List<string> Titles(uint pid) {
     var r = new List<string>();
     EnumWindows((h, l) => { uint p; GetWindowThreadProcessId(h, out p);
@@ -51,8 +58,16 @@ public static class BootWin {
 }
 '@
 # start from Dolphin's own folder so it does not create a User\ folder in the current directory
+$dlog = Join-Path $DolphinDir 'User\Logs\dolphin.log'
+$dargs = @('-b')
+if ($Log) {
+    $dargs += 'Logger.Options.WriteToFile=True', 'Logger.Options.Verbosity=3', 'Logger.Logs.OSREPORT=True',
+        'Logger.Logs.FileMon=True', 'Logger.Logs.BOOT=True', 'Logger.Logs.CORE=True', 'Logger.Logs.POWERPC=True',
+        'Logger.Logs.MASTER=True' | ForEach-Object { '-C', $_ }
+    $logStart = if (Test-Path -LiteralPath $dlog) { (Get-Item -LiteralPath $dlog).Length } else { 0 }
+}
 Push-Location -LiteralPath $DolphinDir
-$p = Start-Process -FilePath (Join-Path $DolphinDir 'Dolphin.exe') -ArgumentList @('-b', '-e', "`"$Iso`"") -PassThru
+$p = Start-Process -FilePath (Join-Path $DolphinDir 'Dolphin.exe') -ArgumentList ($dargs + @('-e', "`"$Iso`"")) -PassThru
 Pop-Location
 $warn = $null
 for ($i = 0; $i -lt $Seconds -and -not $p.HasExited; $i++) {
@@ -76,6 +91,24 @@ for ($i = 0; $i -lt $Seconds -and -not $p.HasExited; $i++) {
 $p.Refresh()
 $alive = -not $p.HasExited
 $title = $p.MainWindowTitle
+if ($alive -and $Screenshot -and $p.MainWindowHandle -ne [IntPtr]::Zero) {
+    [void][BootWin]::SetProcessDPIAware()      # window coordinates in real pixels on a scaled display
+    $h = $p.MainWindowHandle
+    [void][BootWin]::SetForegroundWindow($h); Start-Sleep -Milliseconds 700
+    $r = New-Object BootWin+RECT
+    if ([BootWin]::GetWindowRect($h, [ref]$r)) {
+        $bmp = New-Object System.Drawing.Bitmap ([Math]::Max(1, $r.R - $r.L)), ([Math]::Max(1, $r.B - $r.T))
+        $gr = [System.Drawing.Graphics]::FromImage($bmp); $gr.CopyFromScreen($r.L, $r.T, 0, 0, $bmp.Size)
+        $bmp.Save($Screenshot); $gr.Dispose(); $bmp.Dispose()
+    }
+}
 if ($alive) { Stop-Process -Id $p.Id -Force }
+if ($Log) {   # only this run's part of Dolphin's log
+    Start-Sleep -Seconds 1
+    $fs = [IO.File]::Open($dlog, 'Open', 'Read', 'ReadWrite')
+    [void]$fs.Seek($logStart, 'Begin'); $buf = New-Object byte[] ($fs.Length - $logStart)
+    [void]$fs.Read($buf, 0, $buf.Length); $fs.Close()
+    [IO.File]::WriteAllBytes($Log, $buf)
+}
 "boot_check: $(Split-Path $Iso -Leaf): after $i s, running=$alive, title='$title', warning=$(if ($warn) { $warn } else { 'none' })"
 if ($warn -or -not $alive) { exit 1 }

@@ -34,6 +34,9 @@ $files = @(
     'decomp\reports\symbols_report.txt'
     'decomp\reports\splits_report.txt'
     'decomp\reports\build_report.txt'       # built main.dol SHA-1 == retail
+    'decomp\config\GXCE01\config.yml'      # + the generated relocation fixes (tools\gen_dtk_relocs.py, Milestone 2)
+    'decomp\reports\relocs_report.txt'      # relocation audit: what dtk missed / invented + the check of the build
+    'decomp\reports\shift_report.txt'       # static shift test (tools\shift_test.py): padded relink, all checked
 )
 $now = foreach ($f in $files) {
     $p = Join-Path $g ($f -replace '\\', '/')   # names in the list use backslashes

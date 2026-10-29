@@ -126,6 +126,14 @@ python -I tools\iso_patch.py info my_mod.crpatch        # what's in it
 `apply` refuses any ISO that is not the clean US v1.0 disc (SHA-1 `fff6e745…0bcb16`) and checks the result's
 SHA-1, so a player gets exactly the mod author's ISO. Needs only Python 3 — no other tools.
 
+## Source-route modding (Phase 4, work in progress)
+
+The patch route above changes bytes in place, so anything new must fit where the old thing was (or use Gecko / free space). The Phase 4 build (`tools\batches\batch9_decomp_build.ps1`) rebuilds `main.dol` from split objects, and since plan.md step 51 it is **shiftable**: every pointer in code and data is a relocation (dtk's mistakes are fixed by `tools\gen_dtk_relocs.py`), so code and data can move and grow and the linker updates every reference. The test (`tools\shift_test.py`, `tools\batches\batch11_shift_test.ps1`) adds 0x100 bytes at 12 places in code and data, and the game still boots to the title screen.
+
+What this enables: a bigger table (a new robo slot in the motion / model / name tables) or new code is an edit of the split asm (later the C) plus a relink, with no free-space hacks.
+
+Still missing before it is a normal workflow: a battle tested by hand in the shifted build (docs\REPRODUCE.md section 2c); the data sections are not yet split per source file, so growing a game table is only proven safe at a file boundary (where the code stops addressing data from one base plus offsets); no mod tool drives the build yet (make_mod.py still patches bytes); and the code is still asm, not C (Milestones 4-5).
+
 ## How it works (for the curious)
 
 `tools\make_mod.py` → models go back into their archive (`crmodel.from_dat` with the original entry as the

@@ -34,7 +34,10 @@ All in `D:\emulators\gameTesting\tools`. Python tools run with the system Python
 | `struct_fields.py` | Finds typed fields inside a `cr_` struct's unknown stretches from the C's accesses (`report` / `apply`) |
 | `name_evidence.py` | Harvests the game's own names (pointer tables to strings, identifier / format / source-file strings + their users) -> `docs/name_evidence.md` |
 | `match_game_names.py` | Batch 7: applies the game's own names where proven (G1 parallel name/function tables, G2 self-naming messages, G3 source-file module notes), from `main.dol` bytes only -> `symbols/game_real.txt`, leftovers `symbols/game_unnamed_real.txt` |
-| `boot_check.ps1` | Boots an ISO in Dolphin, reports warning dialogs (`-Snapshot` saves a picture) |
+| `boot_check.ps1` | Boots an ISO (or a folder's `sys\main.dol`) in Dolphin, reports warning dialogs (`-Snapshot` saves a picture of one, `-Screenshot` the game window, `-Log` Dolphin's log of that run) |
+| `reloc_audit.py` | Library: checks dtk's relocations in a linked `main.elf` against main.dol's bytes (missed pointers, numbers relocated as pointers, glue spans); used by the two below |
+| `gen_dtk_relocs.py` | Batch 9: writes the generated relocation fixes into `decomp\config\GXCE01\config.yml`, `--check` checks the build (`decomp\reports\relocs_report.txt`) |
+| `shift_test.py` | Batch 9: pads code and data at 12 points in a scratch copy of the build, relinks, checks every relocation (`decomp\reports\shift_report.txt`); batch 11 boots the result |
 
 ## Ghidra scripts (`tools\scripts`)
 
