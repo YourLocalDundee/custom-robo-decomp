@@ -64,7 +64,10 @@ Everything below runs locally, with no network access. The name batches and the 
    `game_real.txt`, `game_unnamed_real.txt`). It stops when a rebuild
    leaves every name unchanged, so the decompiled C is exactly the C of the final names, and fails after 5 rebuilds
    (`-MaxPasses`). The summary prints how many rebuilds it took.
-4. Batches 5, 2, 3, 4 and 8 on the final export, then batch 9 (the Phase 4 build, section 2b; it reads only the final name files).
+4. Batches 5, 2, 3, 4 and 8 on the final export, then batch 9 (the Phase 4 build, section 2b; it reads only the final name files),
+   batch 10 (compiler probe, about 5 minutes), batch 11 (the shifted build booted in Dolphin, section 2c, about 1 minute; don't
+   type while Dolphin is open), and finally `tools\checksums.ps1 -Compare` (section 3). **This one script runs every batch in
+   order** and stops at the first failure. `tools\from_scratch.ps1` runs setup, then this script, then the archive / model / mod steps.
 
 The name matchers take **our names only from the symbol files** and the Ghidra export **only for structure**: function
 starts, calls, string references and computed jumps, all by address (`tools\export_struct.py`; never a name or type Ghidra
@@ -97,7 +100,7 @@ names, never the export, so its output is the same from the very first pass.
 | Batch 4 | `tools\build_index.py` | SQLite search index + one file per function | → `decompiled\index.db`, `decompiled\funcs\` |
 | Batch 8 | `tools\crosscheck_names.py` | independent cross-check of every name against all references (game-real names: the string still at the cited address, the table indexes still matching, the tables still adjacent and of the same length); **stops** on any FAIL | `decompiled\index.db`, name files → `symbols\names_crosscheck.txt`, `docs\names_crosscheck.md` |
 | Batch 9 | `tools\batches\batch9_decomp_build.ps1` | the Phase 4 build, section 2b; **stops** unless the built `main.dol` is the retail one | name files, dtk analysis, reference layouts → `decomp\config\GXCE01\{symbols,splits}.txt`, `decomp\reports\` |
-| Batch 10 (by hand, not in run_all) | `tools\batches\batch10_compiler_probe.ps1` → `tools\compiler_probe\probe.py` | Phase 4 Milestone 3: compiles reference C (dolsdk2004, Melee sysdolphin / MSL / Runtime / MetroTRK, Mario Party 4 MSL / Runtime / TRK) and our hand-written C for small game functions (`tools\compiler_probe\game\`) with all 19 pinned GC compilers × 40+ flag sets per library and compares each function with `main.dol` (relocated fields masked); about 5 minutes. Conclusions in `docs\compiler.md`; `probe.py --show FUNCTION --version V --flags "..."` diffs one function | `main.dol`, `decomp\config\GXCE01\symbols.txt`, compilers, references → `tools\compiler_probe\out\{summary.txt,results.tsv}` (gitignored) |
+| Batch 10 | `tools\batches\batch10_compiler_probe.ps1` → `tools\compiler_probe\probe.py` | Phase 4 Milestone 3: compiles reference C (dolsdk2004, Melee sysdolphin / MSL / Runtime / MetroTRK, Mario Party 4 MSL / Runtime / TRK) and our hand-written C for small game functions (`tools\compiler_probe\game\`) with all 19 pinned GC compilers × 40+ flag sets per library and compares each function with `main.dol` (relocated fields masked); about 5 minutes. Conclusions in `docs\compiler.md`; `probe.py --show FUNCTION --version V --flags "..."` diffs one function | `main.dol`, `decomp\config\GXCE01\symbols.txt`, compilers, references → `tools\compiler_probe\out\{summary.txt,results.tsv}` (gitignored) |
 
 ## 2b. Build main.dol from asm — `tools\batches\batch9_decomp_build.ps1` (Phase 4, Milestones 1 + 2)
 
@@ -123,7 +126,7 @@ the downloads; `configure.py` stops instead of downloading anything unpinned).
 | `gen_dtk_relocs.py --check` | the built `main.elf`: no missed pointer, no false one (except the blocked numbers), every relocated value equals its target | → `decomp\reports\relocs_report.txt` (last section) |
 | `tools\shift_test.py` | the static shift test, on a scratch copy (`decomp\build\shift\`): 0x100 bytes of padding at 12 points chosen by rule (each section start, inside the game code, between library objects, the first glue-span start after the middle of .rodata / .data / .bss; never inside a glue span), those objects reassembled from dtk's asm (a control link without padding must be retail), relinked, then every symbol, relocation, data word, branch and lis pair checked against the unshifted build, and no unrelocated word may still hold a moved address | `decomp\build\GXCE01\` → `decomp\reports\shift_report.txt`, `decomp\build\shift\main.dol` |
 
-## 2c. Boot the shifted build — `tools\batches\batch11_shift_test.ps1` (Phase 4, Milestone 2; by hand)
+## 2c. Boot the shifted build — `tools\batches\batch11_shift_test.ps1` (Phase 4, Milestone 2; run by run_all.ps1, or alone)
 
 ```powershell
 pwsh tools\batches\batch11_shift_test.ps1           # after batch 9; starts Dolphin twice, about 1 minute

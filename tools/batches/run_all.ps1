@@ -1,6 +1,10 @@
 #Requires -Version 7
-# Run every batch in order: names -> Ghidra rebuild with types (~3 min) -> names again, to a fixpoint -> type checks
-# -> cross-check -> game map -> search index -> name cross-check -> decomp build (batch 9), then a summary.
+# The ONE script that runs everything, in order, stopping at the first failure (user rule: one sequenced batch):
+#   batches 1 + 6 + 7 names <-> Ghidra rebuild to a fixpoint -> 5 types -> 2 dtk cross-check -> 3 game map
+#   -> 4 search index -> 8 name cross-check -> 9 decomp build (retail SHA-1, relocations, static shift test)
+#   -> 10 compiler probe (~5 min) -> 11 shifted build booted in Dolphin (~1 min; do not type while Dolphin is open)
+#   -> checksums.ps1 -Compare (every output byte-identical to docs/expected_checksums.txt), then a summary.
+# tools/from_scratch.ps1 wraps it: setup -> this -> archives / models / mod build.
 # Usage:  pwsh D:\emulators\gameTesting\tools\batches\run_all.ps1 [-SkipRebuild] [-MaxPasses 5]
 #
 # Reproducible from any starting point. The name batches (1 = layout proof, then 6 = lib candidates, which builds on
@@ -68,6 +72,12 @@ if (-not $SkipRebuild) {
 # Phase 4 build: outside the name fixpoint (reads the final name files, never Ghidra). Stops the run unless the built
 # main.dol is the retail one.
 & "$PSScriptRoot/batch9_decomp_build.ps1"
+& "$PSScriptRoot/batch10_compiler_probe.ps1"
+"== batch 11: Dolphin opens twice for about a minute - do not type or click (a key mapped to Start skews the check)"
+& "$PSScriptRoot/batch11_shift_test.ps1"
+if ($LASTEXITCODE) { throw 'batch 11 (shifted build boot) failed: decomp/build/shift/boot/boot_result.txt' }
+& "$g/tools/checksums.ps1" -Compare
+if ($LASTEXITCODE) { throw "checksums differ from docs/expected_checksums.txt (docs/REPRODUCE.md, 'If a checksum differs')" }
 
 $c = "$g/decompiled/main_dol.c"
 $funcs = (Select-String -LiteralPath $c -Pattern '^// [0-9a-f]{8}  ').Count
@@ -77,4 +87,6 @@ $generic = (Select-String -LiteralPath $c -Pattern '^// [0-9a-f]{8}  FUN_').Coun
 "functions in C: $funcs, still FUN_: $generic, named: $($funcs - $generic)"
 "reports: symbols\verify_report.txt, symbols\crosscheck_report.txt, docs\game_map.md"
 "decomp build: main.dol == retail SHA-1 (decomp\reports\build_report.txt, splits_report.txt, symbols_report.txt)"
+"compiler probe: tools\compiler_probe\out\summary.txt (docs\compiler.md); shifted boot: decomp\build\shift\boot\boot_result.txt"
+"checksums: all outputs match docs\expected_checksums.txt"
 "search: python -I tools\find.py text|func|callers|callees|refs|str|hint <arg>   (index: decompiled\index.db)"

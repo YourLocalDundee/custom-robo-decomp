@@ -1,6 +1,6 @@
 #Requires -Version 7
-# Batch 11: boot the SHIFTED build in Dolphin (plan.md Phase 4 Milestone 2). By hand, not in run_all.ps1: it starts
-# Dolphin twice (about 2 minutes) and needs a desktop session.
+# Batch 11: boot the SHIFTED build in Dolphin (plan.md Phase 4 Milestone 2). run_all.ps1 runs it after batch 10 (or run it
+# alone). It starts Dolphin twice (about 1 minute) and needs a desktop session; don't type while it runs.
 #   1. tools/shift_test.py (static shift test, also the last step of batch 9) -> decomp/build/shift/main.dol, a main.dol
 #      with 0x100 bytes of padding at 12 points (code, game code, library objects, .rodata .data .bss .sdata .sbss
 #      .sdata2), relinked from dtk's split objects, every relocation checked (decomp/reports/shift_report.txt).

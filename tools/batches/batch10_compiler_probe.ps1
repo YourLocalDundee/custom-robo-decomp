@@ -3,7 +3,7 @@
 # Compiles reference C from the pinned decomps (dolsdk2004, Melee sysdolphin / MSL / Runtime / MetroTRK, Mario Party 4
 # MSL / Runtime / TRK) and our hand-written C for small game functions (tools/compiler_probe/game/) with every pinned GC
 # compiler (decomp/build/compilers/GC) and per-library flag sets, and compares each function with main.dol's bytes
-# (relocated fields masked). Slow-ish (about 5 minutes, ~50,000 compiles), so not part of run_all.ps1.
+# (relocated fields masked). About 5 minutes (~50,000 compiles); run_all.ps1 runs it after batch 9 (or run it alone).
 #   1. tools/setup_decomp.ps1: compilers, binutils, your main.dol (skips what is done)
 #   2. Melee's src/MetroTRK/ in the sparse checkout (added for this batch; an older clone gets it here)
 #   3. python -I tools/compiler_probe/probe.py -> tools/compiler_probe/out/{results.tsv,summary.txt} (gitignored)

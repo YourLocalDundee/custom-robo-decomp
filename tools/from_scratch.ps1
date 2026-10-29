@@ -1,8 +1,8 @@
 #Requires -Version 7
 # Everything from a fresh clone + your ISO, in order, stopping at the first failure, ending in PASS / FAIL:
 #   1. tools\setup.ps1            download + hash-check all tools, extract the disc
-#   2. tools\batches\run_all.ps1  names, Ghidra decompile, cross-check, game map, search index
-#   3. tools\checksums.ps1        outputs must be byte-identical to docs\expected_checksums.txt
+#   2. tools\batches\run_all.ps1  every batch in order (1-11: names, Ghidra, checks, map, index, decomp build,
+#                                 compiler probe, shifted boot), ending in checksums.ps1 -Compare
 #   4. archives + models          SFD repack and model round trip byte-identical; all 1,006 models to .dat,
 #                                 then glTF (.glb) + textures for Blender; one preview render
 #   5. mod test build             test_build\ = the game with robo 0 recoloured, bootable in Dolphin;
@@ -67,8 +67,7 @@ $($rows -join "`n")
 $setupArgs = @{ Iso = $Iso }
 if ($Dolphin) { $setupArgs.Dolphin = $Dolphin }
 Step 'setup' { & "$g/tools/setup.ps1" @setupArgs }
-Step 'decompile (run_all)' { & "$g/tools/batches/run_all.ps1" }
-Step 'checksums' { & "$g/tools/checksums.ps1" -Compare }
+Step 'all batches + checksums (run_all)' { & "$g/tools/batches/run_all.ps1" }
 Step 'SFD unpack + repack' {
     python -I "$g/tools/sfd.py" unpack "$g/Custom Robo extracted/files" "$g/unpacked"
     if ($LASTEXITCODE) { throw 'unpack failed' }

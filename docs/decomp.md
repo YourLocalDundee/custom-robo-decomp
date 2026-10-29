@@ -73,7 +73,8 @@ The game's assert strings name its HSD source files (`jobj.c`, `pobj.c`, `dobj.c
 `pwsh tools\batches\run_all.ps1` (about 4 min per rebuild: 1 rebuild with an export present, 2 on a fresh setup; `-SkipRebuild` to reuse the current Ghidra output) runs:
 batch 1 layout-proof names (`tools\layout_match.py`) + batch 6 lib candidates + batch 7 the game's own names (`tools\match_game_names.py`, plan.md step 48) + lint ->
 Ghidra rebuild (also `CreateDtkFunctions.java`, `ExportXrefs.java`) -> batches 1 + 6 + 7 again, rebuilding until no name file changes (plan.md step 47) -> batch 5 types -> batch 2 dtk cross-check (`symbols\crosscheck_report.txt`) ->
-batch 3 game map (`docs\game_map.md`) -> batch 4 search index (`decompiled\index.db`, `decompiled\funcs\`) -> batch 8 name cross-check (`docs\names_crosscheck.md`; stops on any FAIL).
+batch 3 game map (`docs\game_map.md`) -> batch 4 search index (`decompiled\index.db`, `decompiled\funcs\`) -> batch 8 name cross-check (`docs\names_crosscheck.md`; stops on any FAIL) -> batch 9 decomp build (retail SHA-1, relocations, static shift test)
+-> batch 10 compiler probe -> batch 11 shifted build booted in Dolphin -> `tools\checksums.ps1 -Compare`. One script runs it all, in order, stopping at the first failure.
 
 Search examples:
 ```
