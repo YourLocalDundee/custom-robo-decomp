@@ -2070,7 +2070,7 @@ sysdolphin/baselib/mobj.c                        .sbss   0x8044FF68-0x8044FF78  
 sysdolphin/baselib/mobj.c                        .sdata2 0x804526B0-0x804526BC   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/object.c                      .data   0x8024D050-0x8024D0A4   2 sym  of 2 in the C (0 stripped), 2 at a verified use (C call site, code), bytes = main.dol
 sysdolphin/baselib/object.c                      .sdata  0x8044F208-0x8044F210   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
-sysdolphin/baselib/perf.c                        .data   0x8024CFC0-0x8024D050   1 sym  of 2 in the C (1 stripped), 1 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/perf.c                        .data   0x8024CFC0-0x8024D050   1 sym  of 2 in the C (1 stripped), 1 at a verified use (C call site, code), bytes = main.dol
 sysdolphin/baselib/perf.c                        .sdata  0x8044F1D8-0x8044F1E7   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/spline.c                      .sdata2 0x80452850-0x8045289C  14 sym  of 14 in the C (0 stripped), 14 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/tobj.c                        .data   0x8024B618-0x8024BAE1  28 sym  of 28 in the C (0 stripped), 22 at a verified use (code), bytes = main.dol
@@ -3573,7 +3573,7 @@ data from C sysdolphin/baselib/displayfunc.c: 4 of 16 functions of the object ar
 data from C sysdolphin/baselib/fobj.c: 2 of 11 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/initialize.c: 1 of 18 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/jobj.c: 14 of 48 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/lobj.c: 4 of 27 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/lobj.c: 3 of 27 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/mtx.c: 7 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/pobj.c: 12 of 23 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/robj.c: 6 of 21 functions of the object are not verified C functions (another revision): its data is not proven
