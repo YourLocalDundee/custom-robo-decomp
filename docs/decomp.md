@@ -159,6 +159,34 @@ Python tools are named by script only; run them with `python -I` (Windows) or `p
   nine edges at once (symbols/symbols.txt, "HSD object edges" block). A named function another reference places in
   the same file (a header inline's out-of-line copy such as HSD_JObjRef, or a function of the newer revision) does
   not break a range. What still blocks each file is listed in `decomp/reports/splits_report.txt`
-  (`GALE01:sysdolphin/...` lines): mostly the function-count check (this revision has fewer functions) and one
-  unnamed neighbour per file.
+  (`GALE01:sysdolphin/...` lines).
+- Function count (gen_dtk_splits.py rule 5, iteration 2 of step 61): a count BELOW the reference's by more than
+  max(2, 25%) is accepted when both edges are named neighbours that the reference puts in other files (rule 4's
+  "the named function next to it is another object's"), never on pools, size runs, asserts or the section edge alone;
+  a count above is still rejected. The report's header line "accepted with fewer functions than the reference" lists
+  every object for which some proving reference needed it (in HSD: aobj, class, cobj, fobj, jobj (KAR's count), lobj,
+  pobj, robj, video; the MSL / SDK names there were already split by another reference and are unchanged). For HSD
+  objects only, a named neighbour the reference does not have and that no reference or pinned source puts in the
+  object's file counts as an unnamed one, so naming a newer revision's function (HSD_SaveContext after texpdag.c)
+  loses no proof.
+- Names that unblocked edges (symbols/symbols.txt "HSD object edges", each with its `why:`; batch 8: 0 FAIL):
+  HSD_IDGetDataFromTable (id.c / wobj.c), HSD_CObjEraseScreen (lobj.c / cobj.c; the wowjinxy map's
+  HSD_CObjSetViewportScale is not used), HSD_HashSearch (class.c / hash.c), splGetHelmite (video.c), and
+  HSD_Alloc, HSD_ArchiveGetPublicAddress, HSD_SaveContext (their bodies equal doldecomp/kar's asm or C; they do not
+  unblock shadow.c / archive.c / debug.c yet, see plan.md).
+- C from Kirby Air Ride (doldecomp/kar, `REF=kar`): its sources include `<sysdolphin/x.h>` and bare `"x.h"`, so a kar
+  object is imported with `--inc src=include/kar --inc include=include/kar` and compiled with its own search path
+  (decomp/configure.py `CR_OBJECT_INCLUDES`: `-cwd explicit -i include/cr_kar -i include/kar -i include/kar/sysdolphin
+  -i src/sysdolphin/baselib`): `-cwd explicit` keeps the Melee headers next to util.c / object.c in
+  src/sysdolphin/baselib from shadowing kar's of the same name. `decomp/include/cr_kar/` holds the Custom Robo
+  overrides (found first; the kar copy stays unchanged): sysdolphin/list.h (kar's list.c defines HSD_SListAppend /
+  Prepend, our names are Melee's HSD_SListAllocAndAppend / AllocAndPrepend), sysdolphin/wobj.h (kar's class info
+  `lbl_805041C8` is `hsdWObj`). A new override header does not rebuild an object compiled before it (ninja's .d file
+  does not list it): delete that .o once.
+- From C after iteration 2: util.c, object.c (Melee), list.c, id.c (kar), 100% code and data, main.dol retail.
+  Whole matches not linked yet (100% code, each function its own by bytes): class.c, dobj.c, wobj.c: they use
+  functions / data our symbols do not name yet (memory_list, nb_memory_list, _HSD_MemAlloc; _OSReport,
+  HSD_PObjRemoveAnimAll, HSD_MObjAddAnim, HSD_AObjInterpretAnim; HSD_RObjRemoveAll, objInfo): name them from the call
+  sites (rule R7). kar's objalloc.c is an unfinished stub (does not compile), not imported. The others imported
+  (aobj, fobj, fog, initialize, lobj, mobj, pobj, robj) match 0-95% of their bytes: reasons in `CR_NOT_MATCHING`.
 

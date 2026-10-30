@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 741
+files: 785
 
 src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
 src/MSL/abort_exit.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/abort_exit.c  identical
@@ -379,15 +379,40 @@ src/game/fn_8012F3C0.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80130710.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8013079C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80130988.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/sysdolphin/baselib/aobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/aobj.c  identical
+src/sysdolphin/baselib/class.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/class.c  identical
 src/sysdolphin/baselib/class.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/class.h  identical
 src/sysdolphin/baselib/debug.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/debug.h  identical
+src/sysdolphin/baselib/dobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/dobj.c  identical
+src/sysdolphin/baselib/dobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/dobj.h  identical
+src/sysdolphin/baselib/fobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fobj.c  identical
+src/sysdolphin/baselib/fobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fobj.h  identical
+src/sysdolphin/baselib/fog.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fog.c  identical
+src/sysdolphin/baselib/fog.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fog.h  identical
 src/sysdolphin/baselib/forward.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/forward.h  identical
+src/sysdolphin/baselib/id.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/id.c  identical
+src/sysdolphin/baselib/id.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/id.h  identical
+src/sysdolphin/baselib/initialize.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/initialize.c  identical
+src/sysdolphin/baselib/initialize.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/initialize.h  identical
+src/sysdolphin/baselib/jobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/jobj.h  identical
+src/sysdolphin/baselib/list.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/list.c  identical
+src/sysdolphin/baselib/lobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/lobj.c  identical
+src/sysdolphin/baselib/lobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/lobj.h  identical
+src/sysdolphin/baselib/mobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/mobj.c  identical
+src/sysdolphin/baselib/mobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/mobj.h  identical
 src/sysdolphin/baselib/mtx.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/mtx.h  identical
 src/sysdolphin/baselib/objalloc.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/objalloc.h  identical
 src/sysdolphin/baselib/object.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/object.c  identical
 src/sysdolphin/baselib/object.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/object.h  identical
+src/sysdolphin/baselib/pobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/pobj.c  identical
+src/sysdolphin/baselib/pobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/pobj.h  identical
+src/sysdolphin/baselib/robj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/robj.c  identical
+src/sysdolphin/baselib/robj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/robj.h  identical
 src/sysdolphin/baselib/util.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/util.c  identical
 src/sysdolphin/baselib/util.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/util.h  identical
+src/sysdolphin/baselib/wobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/wobj.c  identical
+include/cr_kar/sysdolphin/list.h  ours (no reference)
+include/cr_kar/sysdolphin/wobj.h  ours (no reference)
 include/dolsdk2001/cmath.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/cmath.h  identical
 include/dolsdk2001/dolphin.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin.h  identical
 include/dolsdk2001/macros.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/macros.h  identical
@@ -568,6 +593,25 @@ include/dolsdk2004/libc/stdlib.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/li
 include/dolsdk2004/libc/string.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/libc/string.h  identical
 include/dolsdk2004/libc/wchar.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/libc/wchar.h  identical
 include/game/cr_game.h  ours (no reference)
+include/kar/functions.h  doldecomp/kar @ 3ed51a1a008a include/functions.h  identical
+include/kar/global.h  doldecomp/kar @ 3ed51a1a008a include/global.h  identical
+include/kar/dolphin/types.h  doldecomp/kar @ 3ed51a1a008a include/dolphin/types.h  identical
+include/kar/dolphin/gx/gxtypes.h  doldecomp/kar @ 3ed51a1a008a include/dolphin/gx/gxtypes.h  identical
+include/kar/dolphin/mtx/mtxtypes.h  doldecomp/kar @ 3ed51a1a008a include/dolphin/mtx/mtxtypes.h  identical
+include/kar/sysdolphin/aobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/aobj.h  identical
+include/kar/sysdolphin/class.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/class.h  identical
+include/kar/sysdolphin/fobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fobj.h  identical
+include/kar/sysdolphin/id.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/id.h  identical
+include/kar/sysdolphin/jobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/jobj.h  identical
+include/kar/sysdolphin/list.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/list.h  identical
+include/kar/sysdolphin/mobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/mobj.h  identical
+include/kar/sysdolphin/objalloc.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/objalloc.h  identical
+include/kar/sysdolphin/object.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/object.h  identical
+include/kar/sysdolphin/robj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/robj.h  identical
+include/kar/sysdolphin/texp.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/texp.h  identical
+include/kar/sysdolphin/tobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/tobj.h  identical
+include/kar/sysdolphin/video.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/video.h  identical
+include/kar/sysdolphin/wobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/wobj.h  identical
 include/marioparty4/dol2asm.h  mariopartyrd/marioparty4 @ 5b01c79b4910 include/dol2asm.h  identical
 include/marioparty4/dolphin.h  mariopartyrd/marioparty4 @ 5b01c79b4910 include/dolphin.h  identical
 include/marioparty4/stdarg.h  mariopartyrd/marioparty4 @ 5b01c79b4910 include/stdarg.h  identical

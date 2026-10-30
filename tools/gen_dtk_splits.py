@@ -15,8 +15,12 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
        of O's functions in R but another object's (else the object would extend further), or when it is unnamed
        and our end function is R's own first / last function of O. Unnamed functions right next to the range whose
        assert passes O's file name (tools/match_game_names.py's G3 notes) are O's and extend it; an unnamed
-       neighbour whose assert names ANOTHER file proves the end. When unnamed functions sit between our end
-       function and the next named function P (in another object of R), the end is still proven
+       neighbour whose assert names ANOTHER file proves the end. A named neighbour this reference does not have, and
+       that no reference or pinned source puts in O's file, counts as an unnamed one (naming it loses no proof; HSD
+       objects only, step 61: elsewhere it would change two SDK / MSL ranges, critical_regions and SISamplingRate,
+       which are not reviewed under this rule yet).
+       When unnamed functions sit between our end function and the next named function P (in another object of R), the
+       end is still proven
          - by a size run: R has exactly as many functions between the two, with our sizes one to one (the same
            code), so they are R's functions and belong to R's objects;
          - by the per-file pools: every source file has its own .sdata2 constant pool and string literals (dtk's
@@ -24,7 +28,13 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
            pool entry at or below the highest of P's side, or at or above the lowest of O's own range, in the same
            section, is in that file (entries used outside this stretch of code are not counted); proven when they
            read P's side first, then O, with no unattributed function at the boundary (method: pool_edge);
-    5. our function count from first to last is within max(2, 25%) of R's count for O (catches a wrong anchor).
+    5. our function count from first to last is within max(2, 25%) of R's count for O (catches a wrong anchor). A count
+       BELOW that is accepted only when BOTH ends are proven by named neighbours that are another object's (rule 4's
+       "the named function next to it is NOT one of O's functions in R but another object's"; not by the section
+       edge, an assert, a size run or the pools): two named foreign neighbours fix the range whatever it holds, and
+       a newer revision of a file can have fewer functions (sysdolphin in Custom Robo = Kirby Air Ride's revision
+       inlines the *GetAllocData / flag accessors). A count above it is still rejected. The report marks these
+       objects ("fewer functions than the reference, both edges named").
   The range is [first's address, start of the next function / symbol after last) - alignment padding after an
   object's last function belongs to that object, as the linker puts it there.
   Agreement: several references can prove the same object. When their ranges differ (different SDK / MSL / TRK
@@ -549,6 +559,13 @@ def code_splits(ours, rejected, notes, audit=None):
                         return f"reference's own {'first' if ref_end is F[0] else 'last'} function" if funcs[i if ref_end is F[0] else j][0] == ref_end[0] else None
                     if where.get(nb) and name not in where[nb]:
                         return f"{nb} is in {sorted(where[nb])[0]}"
+                    if family(path) == "hsd" and not where.get(nb) and objkey(path) not in placed.get(nb, ()) \
+                            and verdict(defs, nb, family(path)) != Path(name).stem.lower():
+                        # a name this reference does not have (a newer revision's function), that no reference and
+                        # no pinned source puts in this file: it counts as an unnamed neighbour (as before it was named)
+                        own = funcs[i if ref_end is F[0] else j][0] == ref_end[0]
+                        return (f"reference's own {'first' if ref_end is F[0] else 'last'} function ({nb} is not in "
+                                f"this reference)") if own else None
                     return None
                 e1, e2 = edge(i - 1, F[0]), edge(j + 1, F[-1])
                 if not e1:
@@ -564,15 +581,21 @@ def code_splits(ours, rejected, notes, audit=None):
                                     f"neighbour {funcs[i - 1][0] if not e1 else funcs[j + 1][0]})")
                     continue
                 n = j - i + 1
-                if abs(n - len(F)) > max(2, len(F) // 4):
-                    rejected.append(f"{tag}: {n} functions in ours vs {len(F)} in the reference")
+                tol = max(2, len(F) // 4)
+                # rule 5: a count below the reference's is accepted when both edges are named neighbours of other
+                # objects (rule 4's "named function next to it is another object's"), not pools / size runs / asserts
+                named = all(e and " is in " in e and not e.startswith(("size run", "pools to")) for e in (e1, e2))
+                fewer = n < len(F) - tol
+                if n > len(F) + tol or (fewer and not named):
+                    rejected.append(f"{tag}: {n} functions in ours vs {len(F)} in the reference"
+                                    + (f" (fewer, and an edge is not a named neighbour of another object: {e1} | {e2})" if fewer else ""))
                     continue
                 start = funcs[i][2]
                 end = next_start(funcs[j][1], funcs[j][2]) or (funcs[j][2] + funcs[j][3])
                 exact = [s[3] for s in F] == [funcs[k][3] for k in range(i, j + 1)]
                 cands[objkey(path)].append(dict(ref=tagr, name=name, path=path, sec=sec, start=start, end=end, n=n,
                                                 nref=len(F), first=funcs[i][0], last=funcs[j][0], e1=e1, e2=e2,
-                                                exact=exact, rsizes=[s[3] for s in F],
+                                                exact=exact, fewer=fewer, rsizes=[s[3] for s in F],
                                                 osizes=[funcs[k][3] for k in range(i, j + 1)], F=F))
 
     kar = kar_objects(wow_syms)
@@ -1741,6 +1764,9 @@ def main(argv) -> int:
         f"data pieces proven: {sum(dsec.values())} in {sum(1 for v in data.values() if v)} objects ("
         + ", ".join(f"{k} {v}" for k, v in sorted(dfam.items())) + "); per section: "
         + ", ".join(f"{s} {dsec[s]}" for s in DATA if dsec[s]),
+        "accepted with fewer functions than the reference (rule 5: both edges are named neighbours of other objects): "
+        + (", ".join(sorted({path for path, _ in objs if path in by_path and any(c.get("fewer") for c in by_path[path][2])}))
+           or "none"),
         "",
         "== objects (path, range, functions, proving references: ref first..last ours/ref count)",
     ]
@@ -1748,7 +1774,9 @@ def main(argv) -> int:
         for s, (a, b) in secs.items():
             proofs = [c for c in by_path[path][2] if c["sec"] == s] if path in by_path else []
             pr = "; ".join(f"{c['ref']} {c['first']}..{c['last']} {c['n']}/{c['nref']} [{c['e1']} | {c['e2']}]"
-                           + (f" [{c['kar']}]" if c.get("kar") else "") for c in proofs) or \
+                           + (f" [{c['kar']}]" if c.get("kar") else "")
+                           + (" [fewer functions than the reference, both edges named: rule 5]" if c.get("fewer") else "")
+                           for c in proofs) or \
                 ("its C file's functions (decomp/src/" + path + ")" if (GAME_SRC.parent / path).exists() else "G3 neighbours")
             head.append(f"{path:<48} {s:<6} 0x{a:08X}-0x{b:08X} {nf(a, b):>3} fn  {pr}")
     head += ["", "== settled disagreements (references gave different ranges: settled by the defining source file, else by "
