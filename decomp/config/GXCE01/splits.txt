@@ -1078,6 +1078,13 @@ dolphin/ax/AXVPB.c:
 	.sbss       start:0x8044FC08 end:0x8044FC18
 	.sdata2     start:0x80451D10 end:0x80451D18
 
+dolphin/ax/AXProf.c:
+	.text       start:0x80147A48 end:0x80147A90
+	.sbss       start:0x8044FC18 end:0x8044FC28
+
+dolphin/axfx/delay.c:
+	.text       start:0x80149E50 end:0x8014A3D0
+
 dolphin/dsp/dsp.c:
 	.text       start:0x8014A42C end:0x8014A67C
 	.data       start:0x80248BD0 end:0x80248C50
