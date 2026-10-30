@@ -620,7 +620,7 @@ static inline HSD_JObj* JObjLoadJointSub(HSD_Joint* joint, HSD_JObj* parent)
         jobj = HSD_JObjAlloc();
     } else {
         jobj = hsdNew(info);
-        HSD_ASSERT(972, jobj);
+        HSD_ASSERT(981, jobj); /* Custom Robo: main.dol passes 981 (0x3d5) here, Melee 972 */
     }
     HSD_JOBJ_METHOD(jobj)->load(jobj, joint, parent);
     return jobj;
@@ -1046,7 +1046,7 @@ HSD_JObj* HSD_JObjAlloc(void)
 {
     HSD_JObj* jobj =
         hsdNew(default_class != NULL ? default_class : &hsdJObj.parent.parent);
-    HSD_ASSERT(2003, jobj);
+    HSD_ASSERT(2006, jobj); /* Custom Robo: main.dol passes 2006 (0x7d6) here, Melee 2003 */
     return jobj;
 }
 

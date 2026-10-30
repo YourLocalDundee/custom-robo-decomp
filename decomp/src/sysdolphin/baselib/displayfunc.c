@@ -235,7 +235,7 @@ void HSD_JObjMakePositionMtx(HSD_JObj* jobj, Mtx vmtx, Mtx pmtx)
             mkRBillBoardMtx(jobj, mtx, pmtx);
             break;
         default:
-            HSD_Panic(__FILE__, 322, "unkown type of billboard.\n");
+            HSD_Panic(__FILE__, 368, "unkown type of billboard.\n"); /* Custom Robo: main.dol passes 368 (0x170) here, Melee 322 */
         }
     } else {
         MTXConcat(vmtx, jobj->mtx, pmtx);
@@ -244,7 +244,7 @@ void HSD_JObjMakePositionMtx(HSD_JObj* jobj, Mtx vmtx, Mtx pmtx)
 
 HSD_JObj* HSD_JObjFindSkeleton(HSD_JObj* jobj)
 {
-    HSD_ASSERT(342, jobj);
+    HSD_ASSERT(388, jobj); /* Custom Robo: main.dol passes 388 (0x184) here, Melee 342 */
     for (; jobj; jobj = jobj->parent) {
         if (jobj->flags & (JOBJ_SKELETON | JOBJ_SKELETON_ROOT)) {
             return jobj;
@@ -259,7 +259,7 @@ MtxPtr _HSD_mkEnvelopeModelNodeMtx(HSD_JObj* m, MtxPtr mtx)
         return NULL;
     } else {
         HSD_JObj* x = HSD_JObjFindSkeleton(m);
-        HSD_ASSERT(422, x);
+        HSD_ASSERT(468, x); /* Custom Robo: main.dol passes 468 (0x1d4) here, Melee 422 */
 
         if (x == m) {
             MTXInverse(x->envelopemtx, mtx);

@@ -268,13 +268,26 @@ void HSD_SetupRenderMode(u32 rendermode)
     HSD_SetupRenderModeWithCustomPE(rendermode, NULL);
 }
 
+/* Custom Robo: the alpha clamp is an inline function with early returns in this revision (main.dol keeps the
+ * result in f2 and loads 255.0F after it); the name is ours, an inline leaves no symbol */
+static inline f32 cr_clamp01(f32 x)
+{
+    if (x <= 0.0F) {
+        return 0.0F;
+    }
+    if (x >= 1.0F) {
+        return 1.0F;
+    }
+    return x;
+}
+
 void HSD_SetMaterialColor(GXColor ambient, GXColor diffuse, GXColor specular,
                           f32 alpha)
 {
     matstate.ambient = ambient;
     matstate.diffuse = diffuse;
     matstate.specular = specular;
-    matstate.alpha = 255.0F * (alpha <= 0.0F ? 0.0F : alpha >= 1.0F ? 1.0F : alpha); /* Custom Robo: clamped (main.dol) */
+    matstate.alpha = 255.0F * cr_clamp01(alpha);
 }
 
 void HSD_SetMaterialShininess(f32 shininess)
@@ -314,8 +327,9 @@ void HSD_StateSetBlendMode(int type, int src_factor, int dst_factor, int op)
 
 void HSD_StateSetZMode(u32 arg0, int arg1, u32 arg2) /* Custom Robo: u32 (cmplw in main.dol) */
 {
-    arg0 = arg0 ? GX_TRUE : GX_FALSE;
+    /* Custom Robo: arg2 first (main.dol: arg0 in r31, arg2 in r30) */
     arg2 = arg2 ? GX_TRUE : GX_FALSE;
+    arg0 = arg0 ? GX_TRUE : GX_FALSE;
 
     if (state_z_enable != arg0 || state_z_func != arg1 ||
         state_z_update != arg2)

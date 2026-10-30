@@ -522,7 +522,7 @@ void HSD_CObjEndCurrent(void)
 
 HSD_WObj* HSD_CObjGetInterestWObj(HSD_CObj* cobj)
 {
-    HSD_ASSERT(661, cobj);
+    HSD_ASSERT(700, cobj); /* Custom Robo: main.dol passes 700 (0x2bc) here, Melee 661 */
     return cobj->interest;
 }
 
@@ -534,7 +534,7 @@ void HSD_CObjSetInterestWObj(HSD_CObj* cobj, HSD_WObj* interest)
 
 HSD_WObj* HSD_CObjGetEyePositionWObj(HSD_CObj* cobj)
 {
-    HSD_ASSERT(685, cobj);
+    HSD_ASSERT(724, cobj); /* Custom Robo: main.dol passes 724 (0x2d4) here, Melee 685 */
     return cobj->eyepos;
 }
 
@@ -546,25 +546,25 @@ void HSD_CObjSetEyePositionWObj(HSD_CObj* cobj, HSD_WObj* eyepos)
 
 void HSD_CObjGetInterest(HSD_CObj* cobj, Vec3* interest)
 {
-    HSD_ASSERT(709, cobj);
+    HSD_ASSERT(748, cobj); /* Custom Robo: main.dol passes 748 (0x2ec) here, Melee 709 */
     HSD_WObjGetPosition(HSD_CObjGetInterestWObj(cobj), interest);
 }
 
 void HSD_CObjSetInterest(HSD_CObj* cobj, Vec3* interest)
 {
-    HSD_ASSERT(721, cobj);
+    HSD_ASSERT(760, cobj); /* Custom Robo: main.dol passes 760 (0x2f8) here, Melee 721 */
     HSD_WObjSetPosition(HSD_CObjGetInterestWObj(cobj), interest);
 }
 
 void HSD_CObjGetEyePosition(HSD_CObj* cobj, Vec3* position)
 {
-    HSD_ASSERT(733, cobj);
+    HSD_ASSERT(772, cobj); /* Custom Robo: main.dol passes 772 (0x304) here, Melee 733 */
     HSD_WObjGetPosition(HSD_CObjGetEyePositionWObj(cobj), position);
 }
 
 void HSD_CObjSetEyePosition(HSD_CObj* cobj, Vec3* position)
 {
-    HSD_ASSERT(745, cobj);
+    HSD_ASSERT(784, cobj); /* Custom Robo: main.dol passes 784 (0x310) here, Melee 745 */
     HSD_WObjSetPosition(HSD_CObjGetEyePositionWObj(cobj), position);
 }
 
@@ -598,8 +598,8 @@ float HSD_CObjGetEyeDistance(HSD_CObj* cobj)
     if (cobj == NULL) {
         return 0.0f;
     }
-    HSD_ASSERT(807, cobj->eyepos);
-    HSD_ASSERT(808, cobj->interest);
+    HSD_ASSERT(831, cobj->eyepos); /* Custom Robo: main.dol passes 831 (0x33f) here, Melee 807 */
+    HSD_ASSERT(832, cobj->interest); /* Custom Robo: main.dol passes 832 (0x340) here, Melee 808 */
     HSD_CObjGetEyePosition(cobj, &position);
     HSD_CObjGetInterest(cobj, &interest);
     VECSubtract(&interest, &position, &look_vector);
@@ -1249,7 +1249,7 @@ HSD_CObj* HSD_CObjAlloc(void)
 {
     HSD_CObj* cobj = HSD_COBJ(
         hsdNew(default_class ? default_class : &hsdCObj.parent.parent));
-    HSD_ASSERT(1954, cobj);
+    HSD_ASSERT(1936, cobj); /* Custom Robo: main.dol passes 1936 (0x790) here, Melee 1954 */
     return cobj;
 }
 
@@ -1321,7 +1321,7 @@ HSD_CObj* HSD_CObjLoadDesc(HSD_CObjDesc* desc)
             cobj = HSD_CObjAlloc();
         } else {
             cobj = hsdNew(info);
-            HSD_ASSERT(0x7F7, cobj);
+            HSD_ASSERT(0x7E5, cobj); /* Custom Robo: main.dol passes 2021 (0x7e5) here, Melee 2039 */
         }
         HSD_COBJ_METHOD(cobj)->load(cobj, desc);
         return cobj;

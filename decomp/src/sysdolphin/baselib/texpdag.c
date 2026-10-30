@@ -75,7 +75,7 @@ void order_dag(int num, u32* dep, u32* full_dep, HSD_TExpDag* list, int depth,
     int* spC;
     int* sp10;
     HSD_TExpDag* dag;
-    u32 dep_bits;
+    int dep_bits; /* Custom Robo: int here (Melee u32): main.dol gives it r4 and the loop counter r5 */
     u32 blocked;
     u32 full_bits;
     int score;

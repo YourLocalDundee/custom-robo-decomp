@@ -227,7 +227,7 @@ static inline HSD_RObj* HSD_JObjGetRObj(HSD_JObj* jobj)
 static inline bool HSD_JObjMtxIsDirty(HSD_JObj* jobj)
 {
     bool result;
-    HSD_ASSERT(564, jobj);
+    HSD_ASSERT(605, jobj); /* Custom Robo: main.dol passes 605 (0x25d) here, Melee 564 */
     result = false;
     if (!(jobj->flags & JOBJ_USER_DEF_MTX) && (jobj->flags & JOBJ_MTX_DIRTY)) {
         result = true;

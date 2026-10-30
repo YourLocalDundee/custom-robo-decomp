@@ -187,6 +187,15 @@ Python tools are named by script only; run them with `python -I` (Windows) or `p
   `lbl_805041C8` is `hsdWObj`, its parent `objInfo` is `hsdObj`), dobj.h (for kar's `#include "dobj.h"`: `_OSReport` /
   `HSD_PObjRemoveAnimAll` are OSReport / HSD_PObjAddAnimAll, then the kar copy in include/kar/sysdolphin). A new override header does not rebuild an object compiled before it (ninja's .d file
   does not list it): delete that .o once.
+- Assert line numbers (step 61 iteration 5): Melee's `HSD_ASSERT(line, cond)` passes its first argument under
+  `MUST_MATCH` (src/sysdolphin/baselib/debug.h), not `__LINE__`, so a `#line` directive changes nothing: a function that
+  differs only in the `li r4, N` before `__assert` / `HSD_Panic` gets the literal main.dol passes, with a comment
+  `/* Custom Robo: main.dol passes N here, Melee M */` (an inline in a Melee header, e.g. jobj.h, too).
+- wowjinxy/KAR's C (tools/refs/kar_wowjinxy/src/sysdolphin, every HSD file) is the same revision as ours and, compiled with
+  our flags against its own include/, equal to main.dol for many functions that doldecomp/kar and Melee lack or have in an
+  older form (each file's CR_NOT_MATCHING reason lists them). Port per function into our copy with a
+  `/* wowjinxy/KAR x.c NAME */` comment and the commit in a block comment (aobj.c is the example), using our copy's global
+  names; it is not matching everywhere (texpdag.c, bytecode.c, video.c's callbacks are 88-99%).
 - From C after iteration 3 (plan.md step 61): util.c, object.c, spline.c (Melee), list.c, id.c, class.c, dobj.c,
   wobj.c, mobj.c (kar), 100% code and data, main.dol retail: 9 of 29 HSD objects, 10.44% of their code. What it took:
   the callees by rule R7 (`// c-callsite` lines: HSD_MObjAddAnim, HSD_AObjInterpretAnim, HSD_RObjRemoveAll,

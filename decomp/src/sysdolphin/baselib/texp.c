@@ -25,7 +25,7 @@ HSD_TExpType HSD_TExpGetType(HSD_TExp* texp)
 static HSD_TExp* TevAlloc(void)
 {
     HSD_TExp* texp = hsdAllocMemPiece(sizeof(HSD_TETev));
-    HSD_ASSERT(62, texp);
+    HSD_ASSERT(63, texp); /* Custom Robo: main.dol passes 63 (0x3f) here, Melee 62 */
     return texp;
 }
 
@@ -183,7 +183,7 @@ HSD_TExp* HSD_TExpTev(HSD_TExp** texp_list)
     int i;
     HSD_TExp* texp;
 
-    HSD_ASSERT(294, texp_list);
+    HSD_ASSERT(295, texp_list); /* Custom Robo: main.dol passes 295 (0x127) here, Melee 294 */
     texp = TevAlloc();
     memset(texp, 0xFF, sizeof(HSD_TETev));
     texp->type = HSD_TE_TEV;
@@ -470,8 +470,8 @@ void HSD_TExpColorIn(HSD_TExp* texp, HSD_TEInput sel_a, HSD_TExp* exp_a,
 {
     HSD_TETev* tev;
 
-    HSD_ASSERT(691, texp);
-    HSD_ASSERT(692, HSD_TExpGetType(texp) == HSD_TE_TEV);
+    HSD_ASSERT(693, texp); /* Custom Robo: main.dol passes 693 (0x2b5) here, Melee 691 */
+    HSD_ASSERT(694, HSD_TExpGetType(texp) == HSD_TE_TEV); /* Custom Robo: main.dol passes 694 (0x2b6) here, Melee 692 */
 
     tev = &texp->tev;
     HSD_TExpColorInSub(tev, sel_a, exp_a, 0);
@@ -587,8 +587,8 @@ void HSD_TExpAlphaIn(HSD_TExp* texp, HSD_TEInput sel_a, HSD_TExp* exp_a,
 {
     HSD_TETev* tev;
 
-    HSD_ASSERT(821, texp);
-    HSD_ASSERT(822, HSD_TExpGetType(texp) == HSD_TE_TEV);
+    HSD_ASSERT(823, texp); /* Custom Robo: main.dol passes 823 (0x337) here, Melee 821 */
+    HSD_ASSERT(824, HSD_TExpGetType(texp) == HSD_TE_TEV); /* Custom Robo: main.dol passes 824 (0x338) here, Melee 822 */
 
     tev = &texp->tev;
     HSD_TExpAlphaInSub(tev, sel_a, exp_a, 0);
@@ -599,8 +599,8 @@ void HSD_TExpAlphaIn(HSD_TExp* texp, HSD_TEInput sel_a, HSD_TExp* exp_a,
 
 void HSD_TExpOrder(HSD_TExp* texp, HSD_TObj* tex, GXChannelID chan)
 {
-    HSD_ASSERT(837, texp);
-    HSD_ASSERT(838, HSD_TExpGetType(texp) == HSD_TE_TEV);
+    HSD_ASSERT(839, texp); /* Custom Robo: main.dol passes 839 (0x347) here, Melee 837 */
+    HSD_ASSERT(840, HSD_TExpGetType(texp) == HSD_TE_TEV); /* Custom Robo: main.dol passes 840 (0x348) here, Melee 838 */
 
     texp->tev.tex = tex;
     if (chan == GX_COLOR_NULL) {

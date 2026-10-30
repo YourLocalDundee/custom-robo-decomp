@@ -158,6 +158,7 @@ void HSD_StateSetNumChans(int num)
 {
     if (prev_num_chans != num) {
         GXSetNumChans(num);
+        prev_num_chans = num; /* Custom Robo: this revision stores it (main.dol; as wowjinxy/KAR tev.c @ cb94b157 HSD_StateSetNumChans) */
     }
 }
 
@@ -319,7 +320,7 @@ int HSD_Index2TevStage(int idx)
     case 15:
         return 15;
     default:
-        HSD_ASSERT(709, 0);
+        HSD_ASSERT(775, 0); /* Custom Robo: main.dol passes 775 (0x307) here, Melee 709 */
         return 15;
     }
 }
@@ -408,7 +409,7 @@ int HSD_TevStage2Num(int stage)
     case 15:
         return 16;
     default:
-        HSD_ASSERT(793, 0);
+        HSD_ASSERT(859, 0); /* Custom Robo: main.dol passes 859 (0x35b) here, Melee 793 */
         return 0;
     }
 }
@@ -464,7 +465,7 @@ int HSD_TexCoordID2Num(int id)
     case 0xFF:
         return 0;
     default:
-        HSD_ASSERT(1010, 0);
+        HSD_ASSERT(1076, 0); /* Custom Robo: main.dol passes 1076 (0x434) here, Melee 1010 */
         return 0;
     }
 }

@@ -287,7 +287,7 @@ HSD_TObj* HSD_TObjLoadDesc(HSD_TObjDesc* td)
             tobj = HSD_TObjAlloc();
         } else {
             tobj = hsdNew(info);
-            HSD_ASSERT(468, tobj);
+            HSD_ASSERT(493, tobj); /* Custom Robo: main.dol passes 493 (0x1ed) here, Melee 468 */
         }
         HSD_TOBJ_METHOD(tobj)->load(tobj, td);
         return tobj;
@@ -354,7 +354,7 @@ static u32 HSD_TexMapID2PTTexMtx(GXTexMapID id)
     case GX_TEXMAP7:
         return GX_PTTEXMTX7;
     default:
-        HSD_Panic(__FILE__, 574, "unexpected texmap id.\n");
+        HSD_Panic(__FILE__, 600, "unexpected texmap id.\n"); /* Custom Robo: main.dol passes 600 (0x258) here, Melee 574 */
     }
     return 0;
 }
@@ -430,7 +430,7 @@ static void TObjSetupMtx(HSD_TObj* tobj)
             MtxPtr vmtx;
 
             cobj = HSD_CObjGetCurrent();
-            HSD_ASSERT(0x2A8, cobj);
+            HSD_ASSERT(0x2C2, cobj); /* Custom Robo: main.dol passes 706 (0x2c2) here, Melee 680 */
             vmtx = HSD_CObjGetViewingMtxPtrDirect(cobj);
             HSD_LObjGetLightVector(lobj, &ldir);
             MTXMultVecSR(vmtx, &ldir, &ldir);
@@ -832,7 +832,7 @@ static void MakeColorGenTExp(u32 lightmap, HSD_TObj* tobj, HSD_TExp** c,
                 exp[i] = tmp;
                 break;
             default:
-                HSD_ASSERT(0x4A7, 0);
+                HSD_ASSERT(0x4C1, 0); /* Custom Robo: main.dol passes 1217 (0x4c1) here, Melee 1191 */
                 break;
             }
         }
@@ -900,7 +900,7 @@ static void MakeColorGenTExp(u32 lightmap, HSD_TObj* tobj, HSD_TExp** c,
                 exp[i] = tmp;
                 break;
             default:
-                HSD_ASSERT(0x4F0, 0);
+                HSD_ASSERT(0x50A, 0); /* Custom Robo: main.dol passes 1290 (0x50a) here, Melee 1264 */
                 break;
             }
         }
@@ -1264,7 +1264,7 @@ u32 HSD_TGTex2Index(GXTexGenSrc tgtex)
     case GX_TG_TEX7:
         return 7;
     default:
-        HSD_ASSERT(1701, 0);
+        HSD_ASSERT(1727, 0); /* Custom Robo: main.dol passes 1727 (0x6bf) here, Melee 1701 */
     }
     return GX_TG_TEX0;
 }
@@ -1288,7 +1288,7 @@ GXTexGenSrc HSD_TexCoordID2TexGenSrc(GXTexCoordID coord)
         return GX_TG_TEXCOORD6;
     case GX_TEXCOORD7:
     default:
-        HSD_ASSERT(1738, 0);
+        HSD_ASSERT(1764, 0); /* Custom Robo: main.dol passes 1764 (0x6e4) here, Melee 1738 */
     }
     return GX_TG_TEXCOORD0;
 }
@@ -1313,7 +1313,7 @@ u32 HSD_TexCoord2Index(GXTexCoordID coord_id)
     case GX_TEXCOORD7:
         return 7;
     default:
-        HSD_ASSERT(1776, 0);
+        HSD_ASSERT(1802, 0); /* Custom Robo: main.dol passes 1802 (0x70a) here, Melee 1776 */
     }
     return GX_TEXCOORD0;
 }
@@ -1338,7 +1338,7 @@ GXTexCoordID HSD_Index2TexCoord(u32 index)
     case 7:
         return GX_TEXCOORD7;
     default:
-        HSD_ASSERT(1800, 0);
+        HSD_ASSERT(1826, 0); /* Custom Robo: main.dol passes 1826 (0x722) here, Melee 1800 */
     }
     return GX_TEXCOORD0;
 }
@@ -1369,7 +1369,7 @@ u32 HSD_TexMtx2Index(GXTexMtx texmtx)
     case GX_IDENTITY:
         return 10;
     default:
-        HSD_Panic(__FILE__, 1845, "specified texmtx id desn't exist.\n");
+        HSD_Panic(__FILE__, 1871, "specified texmtx id desn't exist.\n"); /* Custom Robo: main.dol passes 1871 (0x74f) here, Melee 1845 */
     }
     return (u32) -1;
 }
@@ -1401,7 +1401,7 @@ GXTexMtx HSD_Index2TexMtx(u32 index)
         return GX_IDENTITY;
     default:
         OSReport("texmtx index exceed hardware limit (%d).\n", index);
-        HSD_Panic(__FILE__, 1877, "");
+        HSD_Panic(__FILE__, 1903, ""); /* Custom Robo: main.dol passes 1903 (0x76f) here, Melee 1877 */
     }
     return GX_IDENTITY;
 }
@@ -1426,7 +1426,7 @@ GXTexMapID HSD_Index2TexMap(u32 index)
     case 7:
         return GX_TEXMAP7;
     default:
-        HSD_ASSERT(1915, 0);
+        HSD_ASSERT(1941, 0); /* Custom Robo: main.dol passes 1941 (0x795) here, Melee 1915 */
     }
     return GX_TEXMAP0;
 }
@@ -1451,7 +1451,7 @@ u32 HSD_TexMap2Index(GXTexMapID mapid)
     case GX_TEXMAP7:
         return 7;
     default:
-        HSD_ASSERT(1939, 0);
+        HSD_ASSERT(1965, 0); /* Custom Robo: main.dol passes 1965 (0x7ad) here, Melee 1939 */
     }
     return 0;
 }
@@ -1495,7 +1495,7 @@ HSD_TObjInfo* HSD_TObjGetDefaultClass(void)
 HSD_TObj* HSD_TObjAlloc(void)
 {
     HSD_TObj* new = hsdNew(&HSD_TObjGetDefaultClass()->parent);
-    HSD_ASSERT(2040, new);
+    HSD_ASSERT(2066, new); /* Custom Robo: main.dol passes 2066 (0x812) here, Melee 2040 */
     return new;
 }
 
@@ -1509,7 +1509,7 @@ void HSD_TObjFree(HSD_TObj* tobj)
 HSD_Tlut* HSD_TlutAlloc(void)
 {
     HSD_Tlut* tlut = hsdAllocMemPiece(sizeof(HSD_Tlut));
-    HSD_ASSERT(2069, tlut);
+    HSD_ASSERT(2095, tlut); /* Custom Robo: main.dol passes 2095 (0x82f) here, Melee 2069 */
     memset(tlut, 0, sizeof(HSD_Tlut));
     return tlut;
 }
@@ -1529,7 +1529,7 @@ void HSD_TlutRemove(HSD_Tlut* tlut)
 HSD_TObjTev* HSD_TObjTevAlloc(void)
 {
     HSD_TObjTev* tev = hsdAllocMemPiece(sizeof(HSD_TObjTev));
-    HSD_ASSERT(2112, tev);
+    HSD_ASSERT(2138, tev); /* Custom Robo: main.dol passes 2138 (0x85a) here, Melee 2112 */
     memset(tev, 0, sizeof(HSD_TObjTev));
     return tev;
 }
@@ -1549,7 +1549,7 @@ void HSD_TObjTevRemove(HSD_TObjTev* tev)
 HSD_ImageDesc* HSD_ImageDescAlloc(void)
 {
     HSD_ImageDesc* idesc = hsdAllocMemPiece(sizeof(HSD_ImageDesc));
-    HSD_ASSERT(2155, idesc);
+    HSD_ASSERT(2181, idesc); /* Custom Robo: main.dol passes 2181 (0x885) here, Melee 2155 */
     memset(idesc, 0, sizeof(HSD_ImageDesc));
     return idesc;
 }

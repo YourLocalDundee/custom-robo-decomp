@@ -1,4 +1,4 @@
-names_crosscheck: 2177 names; FAIL 0, WEAK 454, UNCHECKABLE 16, OK 1707; symbols OK=1098/WEAK=407, cand_hsd OK=63/WEAK=9, cand_sdk OK=60/WEAK=21, cand_rt OK=15/WEAK=16, descriptive OK=418/UNCHECKABLE=14, cr_globals OK=51/UNCHECKABLE=2
+names_crosscheck: 2179 names; FAIL 0, WEAK 456, UNCHECKABLE 16, OK 1707; symbols OK=1098/WEAK=409, cand_hsd OK=63/WEAK=9, cand_sdk OK=60/WEAK=21, cand_rt OK=15/WEAK=16, descriptive OK=418/UNCHECKABLE=14, cr_globals OK=51/UNCHECKABLE=2
 // tools/crosscheck_names.py: VERDICT ADDR NAME SOURCE TAG | AGAINST (contradictions) | independent kinds | evidence | notes
 WEAK        80003424 __flush_cache                        symbols     dtk                          independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x34/melee/GALE01 0x34=1.00 (46 refs)
 WEAK        800034AC gTRKInterruptVectorTable             symbols     dtk                          independent: none | no reference map has this name
@@ -247,6 +247,7 @@ WEAK        8018C884 HSD_MObjSetAlpha                     symbols     C-define  
 WEAK        8018C8A4 HSD_MObjGetTObj                      symbols     layout-proof kar_wowjinxy/GKYE01 independent: none | size 0x18/melee/GALE01 0x18=1.00 (6 refs)
 WEAK        8018CB2C MObjAmnesia                          symbols     layout-proof melee/GALE01    independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x64/melee/GALE01 0x64=1.00 (6 refs)
 WEAK        8018CC70 HSD_AObjInitEndCallBack              symbols     C-callsite                   independent: none | evidence: callers: caller HSD_JObjAnimAll | size 0x10/melee/GALE01 0x10=1.00 (6 refs)
+WEAK        8018D1DC HSD_AObjSetRate                      symbols     hand melee/GALE01            independent: none | size 0x10/melee/GALE01 0x10=1.00 (6 refs)
 WEAK        8018D268 HSD_LObjGetLightMaskAttnFunc         symbols     layout-proof melee/GALE01    independent: none | size 0x8/melee/GALE01 0x8=1.00 (6 refs)
 WEAK        8018EAD4 HSD_LObjRemoveAll                    symbols     layout-proof kar_wowjinxy/GKYE01 independent: none | evidence: size: size within 10% of kar_wowjinxy/GKYE01 | size 0x20C/kar_wowjinxy/GKYE01 0x20C=1.00 (4 refs) ; callees partly explained (1.00), no swapped callee
 WEAK        8018ECE0 HSD_LObjSetColor                     symbols     layout-proof kar_wowjinxy/GKYE01 independent: none | size 0xC/melee/GALE01 0xC=1.00 (6 refs)
@@ -271,6 +272,7 @@ WEAK        8019B374 JObjAmnesia                          symbols     layout-pro
 WEAK        8019CD6C HSD_GXSetFifoObj                     symbols     layout-proof melee/GALE01    independent: none | size 0x18/melee/GALE01 0x18=1.00 (2 refs)
 WEAK        8019D868 HSD_VIGXDrawDoneCB                   symbols     layout-proof melee/GALE01    independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x44/melee/GALE01 0x44=1.00 (4 refs)
 WEAK        8019D8AC HSD_VIGetDrawDoneWaitingFlag         symbols     layout-proof kar_wowjinxy/GKYE01 independent: none | size 0x10/melee/GALE01 0x10=1.00 (4 refs)
+WEAK        8019DE54 HSD_VISetConfigure                   symbols     hand melee/GALE01            independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x88/melee/GALE01 0x88=1.00 (4 refs)
 WEAK        8019DEDC HSD_VISetBlack                       symbols     layout-proof kar_wowjinxy/GKYE01 independent: none | size 0x18/melee/GALE01 0x18=1.00 (4 refs)
 WEAK        801A0568 HSD_ObjSetHeap                       symbols     layout-proof melee/GALE01    independent: none | size 0x1C/melee/GALE01 0x1C=1.00 (6 refs)
 WEAK        801A263C dummy_func                           symbols     layout-proof melee/GALE01    independent: none | size 0x8/melee/GALE01 0x8=1.00 (3 refs)
