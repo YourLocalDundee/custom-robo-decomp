@@ -530,7 +530,7 @@ src/sysdolphin/baselib/robj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/robj.
 src/sysdolphin/baselib/robj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/robj.h  identical
 src/sysdolphin/baselib/spline.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/spline.c  changed (38 lines added / removed)
 src/sysdolphin/baselib/spline.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/spline.h  identical
-src/sysdolphin/baselib/state.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/state.c  changed (34 lines added / removed)
+src/sysdolphin/baselib/state.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/state.c  changed (252 lines added / removed)
 src/sysdolphin/baselib/state.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/state.h  changed (12 lines added / removed)
 src/sysdolphin/baselib/tev.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tev.c  changed (7 lines added / removed)
 src/sysdolphin/baselib/tev.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tev.h  identical

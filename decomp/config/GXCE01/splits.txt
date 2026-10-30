@@ -1665,6 +1665,8 @@ sysdolphin/baselib/state.c:
 	.data       start:0x8024BAE8 end:0x8024BC48
 	.bss        start:0x80449D18 end:0x80449D30
 	.sdata      start:0x8044EFD8 end:0x8044EFE0
+	.sbss       start:0x8044FF08 end:0x8044FF48
+	.sdata2     start:0x804526A0 end:0x804526B0
 
 sysdolphin/baselib/tev.c:
 	.text       start:0x8018A728 end:0x8018B448
