@@ -770,6 +770,7 @@ MetroTRK/nubevent.c                                5 functions
 MetroTRK/targcont.c                                1 functions
 MetroTRK/target_options.c                          2 functions
 MetroTRK/usr_put.c                                 2 functions
+Runtime/GCN_mem_alloc.c                            1 functions
 Runtime/__mem.c                                    3 functions
 Runtime/__va_arg.c                                 1 functions
 Runtime/global_destructor_chain.c                  1 functions
@@ -1280,6 +1281,7 @@ DEF 0x8015FE40 __shl2i Runtime/runtime.c .text size:0x24 global
 DEF 0x8015FE64 __shr2u Runtime/runtime.c .text size:0x24 global
 DEF 0x8015FE88 __shr2i Runtime/runtime.c .text size:0x28 global
 DEF 0x8015FEB0 __cvt_dbl_usll Runtime/runtime.c .text size:0xCC global
+DEF 0x8015FF7C __sys_free Runtime/GCN_mem_alloc.c .text size:0xB8 global
 DEF 0x80160124 free MSL/alloc.c .text size:0x70 global
 DEF 0x80160194 __pool_free MSL/alloc.c .text size:0x58 global
 DEF 0x801601EC deallocate_from_fixed_pools MSL/alloc.c .text size:0x158 global
@@ -1493,6 +1495,8 @@ DEF 0x801A7BDC hsdNew sysdolphin/baselib/class.c .text size:0xC8 global
 DEF 0x801A7CA4 hsdSearchClassInfo sysdolphin/baselib/class.c .text size:0x40 global
 DEF 0x801B6600 __destroy_global_chain_reference Runtime/global_destructor_chain.c .dtors size:0x4 local
 DEF 0x801C4930 __constants Runtime/runtime.c .rodata size:0x18 local
+DEF 0x801C4948 @135 Runtime/GCN_mem_alloc.c .rodata size:0x36 local
+DEF 0x801C4980 @136 Runtime/GCN_mem_alloc.c .rodata size:0x39 local
 DEF 0x801C49C0 fix_pool_sizes MSL/alloc.c .rodata size:0x18 local
 DEF 0x801C4B10 Zero MSL/e_fmod.c .rodata size:0x10 local
 DEF 0x801C4B50 two_over_pi MSL/e_rem_pio2.c .rodata size:0x108 local
@@ -2073,6 +2077,7 @@ MSL/s_sin.c                                      .sdata2 0x804523F0-0x804523F8  
 MSL/s_tan.c                                      .sdata2 0x804523F8-0x80452400   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 MetroTRK/nubevent.c                              .bss    0x80439BF8-0x80439C20   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
 MetroTRK/target_options.c                        .bss    0x8043BB90-0x8043BB98   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
+Runtime/GCN_mem_alloc.c                          .rodata 0x801C4948-0x801C49B9   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 Runtime/global_destructor_chain.c                .sbss   0x8044FCC8-0x8044FCCC   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
 Runtime/global_destructor_chain.c                .dtors  0x801B6600-0x801B6604   1 sym  of 1 in the C (0 stripped), 0 at a verified use (pointer content), bytes = main.dol
 Runtime/runtime.c                                .rodata 0x801C4930-0x801C4948   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
@@ -2122,7 +2127,7 @@ dolphin/mtx/mtx44.c                              .sdata2 0x80451CD0-0x80451CE8  
 dolphin/os/OSAlarm.c                             .data   0x802429E8-0x802429F8   1 sym  of 6 in the C (5 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/os/OSAlarm.c                             .sbss   0x8044F8D8-0x8044F8E0   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
 dolphin/os/OSAlloc.c                             .data   0x802429F8-0x80242D90  19 sym  of 19 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
-dolphin/os/OSAlloc.c                             .sdata  0x8044ED60-0x8044ED68   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/os/OSAlloc.c                             .sdata  0x8044ED60-0x8044ED68   1 sym  of 1 in the C (0 stripped), 1 at a verified use (C call site, code), bytes = main.dol
 dolphin/os/OSAlloc.c                             .sbss   0x8044F8E0-0x8044F8F0   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code)
 dolphin/os/OSArena.c                             .sdata  0x8044ED68-0x8044ED6C   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/os/OSArena.c                             .sbss   0x8044F8F0-0x8044F8F4   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
@@ -2466,7 +2471,7 @@ sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x80452940  
 .sdata2 0x804529F8-0x80452A14 size 0x1C
 .sbss2  0x80452A20-0x80452AC0 size 0xA0
 
-== rejected candidates (1156)
+== rejected candidates (1155)
 GALE01:Runtime/__va_arg.c .text: start not proven (__va_arg .. __va_arg; neighbour MWInitializeCriticalSection)
 GALE01:Runtime/Gecko_ExceptionPPC.c .text: none of its functions is (uniquely) named in ours
 GALE01:Runtime/Gecko_setjmp.c .text: none of its functions is (uniquely) named in ours
@@ -3595,7 +3600,6 @@ data from C MetroTRK/msghndlr.c: 15 of 17 functions of the object are not verifi
 data from C MetroTRK/nubinit.c: 1 of 3 functions of the object are not verified C functions (another revision): its data is not proven
 data from C MetroTRK/serpoll.c: 3 of 5 functions of the object are not verified C functions (another revision): its data is not proven
 data from C MetroTRK/targimpl.c: 12 of 29 functions of the object are not verified C functions (another revision): its data is not proven
-data from C Runtime/GCN_mem_alloc.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/ax/AXVPB.c: 2 of 22 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/exi/EXIBios.c: 22 of 23 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/gx/GXAttr.c: 2 of 16 functions of the object are not verified C functions (another revision): its data is not proven

@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,359 @@ def MatchingFor(*versions):
+@@ -284,18 +307,360 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -150,6 +150,8 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/exi/EXIBios.c": ["-O3,p"],
 +    "dolphin/card/CARDOpen.c": ["-char signed"],
 +    "dolphin/card/CARDRename.c": ["-char signed"],
++    # its two OSReport strings are separate objects in main.dol, not one pool (step 65)
++    "Runtime/GCN_mem_alloc.c": ["-str nopool"],
 +}
 +# Per-object header roots, replacing the library's -i ones (an object taken from another reference than its library).
 +CR_OBJECT_INCLUDES: Dict[str, List[str]] = {
@@ -296,6 +298,7 @@ diff --git a/configure.py b/configure.py
 +    "MSL/string.c",
 +    "MSL/ansi_files.c",
 +    "MSL/alloc.c",
++    "Runtime/GCN_mem_alloc.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -378,8 +381,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 5 of 5 functions differ (TRKSuppAccessFile 39%, TRKRequestSend 77%, HandleOpenFileSupportRequest 24%, HandleCloseFileSupportRequest 51% (+1 more)): the reference is another revision",
 +    "MetroTRK/targimpl.c":
 +        "code: 12 of 29 functions differ (TRKValidMemory32 40%, TRKTargetAccessFP 23%, TRKPostInterruptEvent 86%, TRKTargetInterrupt 81% (+8 more)): the reference is another revision",
-+    "Runtime/GCN_mem_alloc.c":
-+        "code: 1 of 1 functions differ (__sys_free 98%): the reference is another revision",
 +    "dolphin/ax/AXVPB.c":
 +        "code: 4 of 22 functions differ (__AXSetPBDefault 89%, fn_80146ED8 0%, fn_801470D8 0%, fn_8014719C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
 +    "dolphin/card/CARDRdwr.c":
