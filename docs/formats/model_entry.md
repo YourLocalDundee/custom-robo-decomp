@@ -1,8 +1,8 @@
 # Model entry format (robo, weapon, story character)
 
-Used by entries of `chara.BIN`, `weapon_*.BIN` and `scenario_*\snr_chara.BIN`.
+Used by entries of `chara.BIN`, `weapon_*.BIN` and `scenario_*/snr_chara.BIN`.
 
-**Sources**: the game's own loaders in `decompiled\main_dol.c` (addresses below), cross-checked by HSDLib parsing and exporting every entry, and by `tools\crmodel.py roundtrip` (484/484 entries byte-identical).
+**Sources**: the game's own loaders in `decompiled/main_dol.c` (addresses below), cross-checked by HSDLib parsing and exporting every entry, and by `tools/crmodel.py roundtrip` (484/484 entries byte-identical).
 
 ## Summary
 
@@ -17,14 +17,14 @@ An entry is HAL Laboratory **sysdolphin (HSD)** model data — the same engine l
 
 ## Loaders (verified by reading the decompiled code)
 
-Function names stay `FUN_…` — no verified real names exist for game code.
+Names are today's (`cr_` from `symbols/descriptive.txt`, `HSD_` from `symbols/symbols.txt`, each with its evidence); `FUN_` = not named yet. Offsets written `cr_Chara+0x…` are into the character object that builds the model (`cr_Chara`, a story-mode field character, plan.md steps 39-41; older notes called it "robo").
 
 | Function | Loads | What it does |
 |---|---|---|
 | `cr_CharaEntry_OnLoaded` (0x800747B0) | robo ("abs" variant) | base = entry + header[0]; for i < header[7]: `*(base + table[i]) += base` with table at **entry + header[6]**; header[2] += base; header[3], [4], [8] += entry. Then only stores the entry in `cr_g_CharaEntries[robo]` (loaded = 1). **Correction (Oct 27, 2026):** it does not build the skeleton; `cr_Chara_BuildModel` does. |
-| `cr_Chara_BuildModel` (0x80074110) | robo, when one is set up | loads the root joint `**header[2]` (`FUN_801988fc`), attaches its first joint animation (`FUN_80196e0c`), resolves blocks B, C (and D) to joints of the new tree and keeps block A; see "Trailer blocks". |
+| `cr_Chara_BuildModel` (0x80074110) | robo, when one is set up | loads the root joint `**header[2]` (`HSD_JObjLoadJoint`), attaches its first joint animation (`HSD_JObjAddAnimAll`), resolves blocks B, C (and D) to joints of the new tree and keeps block A; see "Trailer blocks". |
 | `cr_ModelEntry_LoadAndBuild` (0x800748A8) | story character ("abs") | same relocation, then loads the root joint and animation itself and walks its own joint paths. |
-| `FUN_80073cb8` | weapon ("rel" variant) | same relocation but table at **base + header[6]**; header[2] and header[4] += base; header[8] += base unless −1. Then for i < header[3]: loads the root joint of the i-th 0x10-byte JOBJDesc record at header[2], attaches its animation if present, and walks joint paths from header[8]. |
+| `cr_WeaponModel_OnLoaded` (0x80073CB8) | weapon ("rel" variant) | same relocation but table at **base + header[6]**; header[2] and header[4] += base; header[8] += base unless −1. Then for i < header[3]: loads the root joint of the i-th 0x10-byte JOBJDesc record at header[2], attaches its animation if present, and walks joint paths from header[8]. |
 
 ## The game keeps its own copy of each archive's entry table
 
@@ -50,23 +50,23 @@ JOBJDesc (HSD, 0x10 bytes): `{ RootJoint*, JointAnimations*, MaterialAnimations*
 
 ## Data block
 
-Standard HSD structures, offsets per HSDLib (`HSDRaw\Common\*.cs`), confirmed by HSDLib decoding every entry:
+Standard HSD structures, offsets per HSDLib (`HSDRaw/Common/*.cs`), confirmed by HSDLib decoding every entry:
 - **JObj** (0x40): flags +0x04, child +0x08, next +0x0C, DObj +0x10 (unless SPLINE/PTCL flag), rotation / scale / translation floats +0x14…+0x34, inverse bind matrix +0x38.
 - **DObj**: next +0x04, MObj +0x08, PObj +0x0C.
 - **MObj**: render mode +0x04, TObj +0x08, material colours +0x0C.
 - **TObj**: next +0x04, image +0x4C. **Image**: data +0x00, width +0x04 (u16), height +0x06 (u16), format +0x08 (CMPR = 14).
 - **PObj**: vertex attribute list, display lists, envelope (skin weight) tables.
 
-Example (robo 0, `chara\000.bin`): 55 joints, 18 DObjs, 52 PObjs, 2 CMPR textures.
+Example (robo 0, `chara/000.bin`): 55 joints, 18 DObjs, 52 PObjs, 2 CMPR textures.
 
 ## Trailer blocks
 
 | Block | Where | What is known |
 |---|---|---|
-| A | header[3] | **Limb measurements**: 0x80 bytes = 0x20 floats. Kept at robo+0xB3C, copied to `cr_g_CurrentCharaLimbParams` and read only by the procedural limb code (`FUN_8005aee8`, `FUN_80058ad0`, `FUN_8005299c`, `FUN_8003c4f0`): [0], [1], [0xE] are scaled by the robo scale and used as lengths; [2..7] and [8..13] feed the two symmetric calls of one limb pair, [0xF..0x14] and [0x15..0x1A] the other pair; [0x13] and [0x19] are compared with heights. Exact meaning of each float: open. |
-| B | header[4] | **One joint path ending in `FE`** (same 02/01 bytes as C). `cr_Chara_BuildModel` keeps that joint's material (`jobj->dobj->mobj`) at robo+0xBC0. Usually `02 fe` = joint 1. What the material is used for: open. |
-| C | header[8] | **19 joint roles** - `02` = child, `01` = next sibling, `ff` = end of one path (`ff` alone = no joint). `cr_Chara_BuildModel` stores the joints at robo+0xB44 + 4*role. Roles from robo 0's bind pose (table below). `tools/robo_joints.py` decodes and re-encodes them; re-encoding is byte-identical for all 170 robo entries. |
-| D | header[9] | 0 in every robo. When non-zero `cr_Chara_BuildModel` reads more joint paths from entry + header[9] + 0x60: 6 for robos 0 and 0xD, 2 x 6 for robo 2 (robo+0xB90...). In some `snr_chara` (read by their own loader). |
+| A | header[3] | **Limb measurements**: 0x80 bytes = 0x20 floats. Kept at cr_Chara+0xB3C, copied to `cr_g_CurrentCharaLimbParams` and read only by the procedural limb code (`cr_Chara_PoseLimbs`, `FUN_80058ad0`, `FUN_8005299c`, `FUN_8003c4f0`): [0], [1], [0xE] are scaled by the robo scale and used as lengths; [2..7] and [8..13] feed the two symmetric calls of one limb pair, [0xF..0x14] and [0x15..0x1A] the other pair; [0x13] and [0x19] are compared with heights. Exact meaning of each float: open. |
+| B | header[4] | **One joint path ending in `FE`** (same 02/01 bytes as C). `cr_Chara_BuildModel` keeps that joint's material (`jobj->dobj->mobj`) at cr_Chara+0xBC0. Usually `02 fe` = joint 1. What the material is used for: open. |
+| C | header[8] | **19 joint roles** - `02` = child, `01` = next sibling, `ff` = end of one path (`ff` alone = no joint). `cr_Chara_BuildModel` stores the joints at cr_Chara+0xB44 + 4*role. Roles from robo 0's bind pose (table below). `tools/robo_joints.py` decodes and re-encodes them; re-encoding is byte-identical for all 170 robo entries. |
+| D | header[9] | 0 in every robo. When non-zero `cr_Chara_BuildModel` reads more joint paths from entry + header[9] + 0x60: 6 for robos 0 and 0xD, 2 x 6 for robo 2 (cr_Chara+0xB90...). In some `snr_chara` (read by their own loader). |
 
 When re-importing, `crmodel.py from-dat` copies A/B/C/D unchanged and shifts their header offsets - right as long as the skeleton is unchanged. For a **different skeleton** `tools/make_mod.py` rebuilds B and C from a roles file (`tools/robo_joints.py write_paths`) and can take block A from another robo; see docs/MODDING.md.
 
@@ -84,7 +84,7 @@ When re-importing, `crmodel.py from-dat` copies A/B/C/D unchanged and shifts the
 
 Source: joint positions of robo 0's bind pose (glTF export; joint numbers verified equal to HSDRawViewer's JOBJ_n by comparing all 55 parents). Every robo has the same pattern with its own joint numbers (51-69 joints). Which side is the robo's left/right is **not verified** (hence a/b).
 
-## Conversion to a standard .dat (`tools\crmodel.py`)
+## Conversion to a standard .dat (`tools/crmodel.py`)
 
 - `to-dat`: standard HSD .dat = 0x20 header {file size, data size, reloc count, root count, 0} + the data block + reloc table + root table + names. Roots written:
   - `cr_header2` → the header[2] object (needed by `from-dat` to rebuild header word 2)
@@ -95,7 +95,7 @@ Source: joint positions of robo 0's bind pose (glTF export; joint numbers verifi
 
 ## Robo size
 
-The game draws every robo at the same scale: the factor the limb code multiplies block A by (robo+0x3C0) is set to 1.0 for every robo (FUN_800ba488), and every robo model's root joint has scale (1, 1, 1). A robo's size is in its vertices. Setting the root joint scale (HSD_Joint +0x20) scales the drawn model (`tools/robo_swap.py --size`). **Tested in game: no visible effect** - the root scale is overridden at run time, most likely by the joint animations.
+The game draws every robo at the same scale: the factor the limb code multiplies block A by (cr_Chara+0x3C0) is set to 1.0 for every robo (FUN_800ba488), and every robo model's root joint has scale (1, 1, 1). A robo's size is in its vertices. Setting the root joint scale (HSD_Joint +0x20) scales the drawn model (`tools/robo_swap.py --size`). **Tested in game: no visible effect** - the root scale is overridden at run time, most likely by the joint animations.
 
 ## Open questions
 

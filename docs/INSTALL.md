@@ -44,7 +44,7 @@ winget install --id EclipseAdoptium.Temurin.21.JDK -e
 ```
 
 Close and reopen the terminal, then run everything from `pwsh` (not the blue Windows PowerShell). All five IDs were
-looked up with `winget search` on 2026-10-28. Python from winget provides `python`.
+looked up with `winget search` on Oct 28, 2026. Python from winget provides `python`.
 
 ## Debian / Ubuntu (apt)
 
@@ -70,15 +70,26 @@ sudo apt install -y git curl unzip python3 python3-venv openjdk-21-jdk
   (any newer 21.x from https://adoptium.net/temurin/releases/?version=21 works the same way). Everything else the
   pipeline needs is downloaded into the repo folder by `tools/setup.sh`, so nothing else needs root.
 
-## Arch (pacman)
+## Arch (KDE: Konsole, pacman / yay)
+
+Open **Konsole** (KDE's terminal: Application Launcher → System → Konsole, or `Ctrl+Alt+T` in Plasma)
+and install the packages with pacman:
 
 ```bash
 sudo pacman -S --needed git curl unzip python jdk21-openjdk
 ```
 
-If several JDKs are installed: `sudo archlinux-java set java-21-openjdk`. Arch's `python` package provides `python3`.
-Ghidra itself is downloaded at the pinned version by `setup.sh`; do not use Arch's `ghidra` package (a different version
-changes the output). Nothing from the AUR is needed.
+or, if you use the AUR helper **yay**, the same packages through it (yay hands repository packages to pacman, so the
+result is the same; nothing from the AUR itself is needed):
+
+```bash
+yay -S --needed git curl unzip python jdk21-openjdk
+```
+
+Then check `java -version` says 21 or newer; if several JDKs are installed: `sudo archlinux-java set java-21-openjdk`.
+Arch's `python` package provides `python3`, and Arch ships bash 5. Ghidra itself is downloaded at the pinned version by
+`setup.sh`; do not use Arch's or the AUR's `ghidra` package (a different version changes the output). Run the
+project's scripts in Konsole too (`tools/from_scratch.sh ...`, below).
 
 ## Fedora (dnf)
 
@@ -123,7 +134,8 @@ tool at the version pinned in `tools/pins.txt` and checks its SHA-256. The versi
 - **Linux x86_64 / macOS**: the CodeWarrior tools are Windows programs and run through the pinned **wibo**; nothing to
   install.
 - **Linux aarch64** (no wibo build is pinned): install **wine**, which the template uses when there is no wibo:
-  Debian / Ubuntu `sudo apt install -y wine`, Arch `sudo pacman -S --needed wine`, Fedora `sudo dnf install -y wine`.
+  Debian / Ubuntu `sudo apt install -y wine`, Arch `sudo pacman -S --needed wine` (or `yay -S --needed wine`), Fedora
+  `sudo dnf install -y wine`.
 - A ninja from your package manager also works (`sudo apt install ninja-build`, `sudo pacman -S ninja`,
   `sudo dnf install ninja-build`, `brew install ninja`) if you pass `--ninja $(command -v ninja)` to `configure.py`;
   batch 9 always uses the pinned one.

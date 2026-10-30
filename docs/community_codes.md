@@ -112,7 +112,7 @@ word is never used. This is a possible conflict (**unverified**). A cleaner vers
 
 ## Address cross-reference with our decomp
 
-Lookups: `python -I tools\find.py refs <addr>`, `func`, `callers`, plus a read-only containing-function query on `decompiled/index.db`.
+Lookups: `tools/find.py refs <addr>` ([workflows.md](workflows.md#5-read-and-search-the-code)), `func`, `callers`, plus a read-only containing-function query on `decompiled/index.db`.
 `find.py func` only accepts function entry points.
 
 | Address | Code(s) | What our decomp shows | Current name | Fits? |
@@ -192,7 +192,7 @@ Community recolours or texture tools specific to Custom Robo: **none found**, be
 - **Nintendont / USB Loader GX:** a binary `.gct` file (header `00D0C0DE 00D0C0DE`, the code lines, then `F0000000 00000000`), placed under
   `codes/GXCE01.gct` (**unverified** detail, general knowledge; no Nintendont doc fetched). The forum says button-activated codes may not work
   on Nintendont ([GBAtemp][gbt2], **unverified**).
-- **Riivolution:** Wii-only (disc patching through the Wii's IOS). It does not apply to GameCube games (**unverified**, general knowledge).
+- **Riivolution:** Wii-only (disc patching through the Wii's IOS). It does not apply to GameCube games (**unverified**, general knowledge). **Contradicted (Oct 29, 2026):** Dolphin loads Riivolution patches for this GameCube game too; Project Hive ships its code that way ([community/discord_codes.md](community/discord_codes.md)).
 - **Limits:** about 6 KB in Dolphin ([GeckoCode.h][gch]). Wiimm's `--gct-move` puts a large list into a section overlaying BSS
   ([wiimm][wim], MKWii-specific).
 
@@ -279,25 +279,7 @@ Community recolours or texture tools specific to Custom Robo: **none found**, be
 
 ## Proposed plan.md roadmap items
 
-Ready to paste (Phase 2 "Ideas", plus one Phase 3 "Ship" line):
-
-```
-- **Codes (community request, Oct 28, 2026).** Public lists are 15 AR codes (cheathappens, decrypted: HP x4, 1-hit x4, parts-owned x5, unlock flags) + Dolphin's 16:9 Gecko code; all 13 addresses map into our decomp (docs/community_codes.md, docs/community/codes_gxce01.tsv). Use them as naming evidence leads, not names.
-  - [ ] `tools/ardecrypt.py`: AR (encrypted or plain) -> Gecko lines, so community codes can be dropped into a mod.
-  - [ ] `make_mod.py`: `code/*.gecko` -> Dolphin `GXCE01.ini` + `.gct`; writes whose target is inside main.dol become static patches with `[was]` checks; bss/heap targets stay Gecko-only.
-  - [ ] `make_mod.py`: `code/*.s` -> C2 code (devkitPPC `powerpc-eabi-as`, pinned) and, permanently, a body in free space + `b` hook.
-  - [ ] Free space: new DOL text section at 0x80001800-0x80003000 first (T2-T6 / D6-D10 are unused); then prove dead code (MetroTRK) with `find.py callers`; check how `OSInit` sets ArenaLo before trying a section after bss.
-  - [ ] Name leads from the codes: player battle record (x4, stride 0x33520, HP float) used by `FUN_8004ede4`; parts-owned bitsets `803BFB9C..` (5 x 4 x 64 bits) set up by `FUN_800a3c0c`; bitset helpers `FUN_80023228` / `FUN_800231ec`; unlock flags `DAT_80321d44`; camera aspect `FLOAT_8044c438`; 2D ortho setup `FUN_80091518`.
-- **Textures.** Dolphin hash packs already exist (HD pack, Dec 2024); our route is file replacement (model TObjs via make_mod.py, `.tpl` via `files/`).
-  - [ ] Map Dolphin texture hashes to our TObjs (hash the decoded texture the way Dolphin does) so a texture pack can be turned into a disc mod and back.
-  - [ ] `.tpl` read/write tool (already a Phase 2 idea) - 590 of 915 disc files are `.tpl`.
-- **Models: codes can't do it** (6 KB code space vs 186-233 KB per robo; models live in heap). File replacement is the path (Phase 1). Cross-check Zoeyism's Model Swapper: it byte-overwrites `rpg_t/f_models.BIN` with a smaller model and leaves the entry table alone.
-```
-
-Phase 3 "Ship":
-```
-- A `GXCE01.ini` / `.gct` export next to every `.crpatch`, so code-only mods can be used without rebuilding the ISO (Dolphin cheats, Nintendont).
-```
+Applied: these items are in [plan.md](../plan.md) (Phase 2b "New content" and Phase 3, Oct 28, 2026), which is where their status is kept.
 
 [ch]: https://www.cheathappens.com/8922-Gamecube-Custom_Robo_cheats
 [ini]: https://raw.githubusercontent.com/dolphin-emu/dolphin/master/Data/Sys/GameSettings/GXCE01.ini

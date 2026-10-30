@@ -6,11 +6,12 @@ one for all of them, checks each against the original, and says where to start. 
 the linkable matches into `decomp/src/game` and, when that folder changed, runs batch 9 again, which adds that build's time
 (with `-Sample` there is no promotion):
 
-    pwsh tools\batches\batch12_drafts.ps1 [-Sample 50] [-Jobs 8]      # or: python -I tools\draft_batch.py [--only NAME ...]
+    pwsh tools\batches\batch12_drafts.ps1 [-Sample 50] [-Jobs 8]      # Windows; or: python -I tools\draft_batch.py [--only NAME ...]
+    tools/batches/batch12_drafts.sh [--sample 50] [--jobs 8]          # Linux / macOS; or: python3 -I tools/draft_batch.py [--only NAME ...]
 
 It is in `run_all.ps1` (after batch 11, before the checksums). The draft step needs batch 9's output (`decomp/build/GXCE01/asm`
 and `obj`, the compilers; all read only: the drafts write nothing in `decomp/build` and never run ninja; the promotion
-and the batch 9 rerun after it do) and `tools/m2c` (`tools/setup.ps1` clones it at the commit in `tools/pins.txt`;
+and the batch 9 rerun after it do) and `tools/m2c` (`tools/setup.ps1` / `tools/setup.sh` clone it at the commit in `tools/pins.txt`;
 plain Python, nothing to install).
 
 ## What it does, per game function
@@ -129,5 +130,5 @@ Functions are processed in address order, m2c runs with `--deterministic-vars`, 
 the output only depends on the pinned m2c, the asm / object of batch 9, the headers, the types files and
 `decomp/config/GXCE01/symbols.txt` (the data sizes; a full run also rebuilds `ctx_protos.h` from the first pass). Two consecutive
 full runs gave byte-identical `draft_report.txt` and `draft_summary.txt`. It changes legitimately whenever a name, a type or
-`cr_globals.txt` changes, so it is not in `tools/checksums.ps1` (which would then fail after every naming step); the
+`cr_globals.txt` changes, so it is not in `tools/checksums.ps1` / `checksums.sh` (which would then fail after every naming step); the
 summary is committed instead so a diff shows progress.

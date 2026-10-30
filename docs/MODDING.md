@@ -4,28 +4,30 @@ A mod is a folder with only the things you changed. One command turns it into an
 small `.crpatch` file you can share. The patch contains **no game data**: everything that also exists on the
 clean disc is stored as a reference to the player's own ISO, so only your new bytes are inside.
 
-Before you start, run the one-time build (`pwsh tools\from_scratch.ps1 -Iso ...`, see the README), so you
-have `models_dat\` (every model, editable) and `Custom Robo extracted\`.
+Before you start, run the one-time build (`pwsh tools\from_scratch.ps1 -Iso ...` on Windows,
+`tools/from_scratch.sh ...` on Linux / macOS; see the [README](../README.md#quick-start)), so you have `models_dat/`
+(every model, editable) and `Custom Robo extracted/`. Commands below come in pairs, Windows first, then Linux / macOS.
+Editing models in HSDRawViewer and the glTF export are Windows-only; building and applying mods works everywhere.
 
 ## 1. Make the folder
 
 ```
-mods\my_mod\
+mods/my_mod/
 ├─ mod.json                         {"name": "my_mod", "author": "you", "description": "what it does"}
-├─ models\chara\chara_005.dat       edited models, SAME name as in models_dat\ (category folder + file name)
-├─ files\font.tpl                   any disc file replaced as-is (textures, text, sound, ...)
-└─ code\fixes.txt                   small code changes (see 4)
+├─ models/chara/chara_005.dat       edited models, SAME name as in models_dat/ (category folder + file name)
+├─ files/font.tpl                   any disc file replaced as-is (textures, text, sound, ...)
+└─ code/fixes.txt                   small code changes (see 4)
 ```
 
 Everything is optional; use what your mod needs.
 
 ## 2. Edit a model
 
-1. Find it in `models_export\<category>\<name>\` (look at the `.glb` in Blender) and its editable twin in
-   `models_dat\<category>\<name>.dat`.
+1. Find it in `models_export/<category>/<name>/` (look at the `.glb` in Blender) and its editable twin in
+   `models_dat/<category>/<name>.dat`.
 2. Open the `.dat` in HSDRawViewer (`tools\HSDLib\HSDRawViewer\bin\Release\net8.0-windows7.0\HSDRawViewer.exe`),
    select `root0_joint`, and edit or import over it (keep the same skeleton: same bones, same order).
-3. Save it as `mods\my_mod\models\<category>\<same name>.dat`.
+3. Save it as `mods/my_mod/models/<category>/<same name>.dat`.
 
 Supported categories: `chara` (robos), `weapon_gun`, `weapon_bom`, `weapon_pod`, `weapon_leg`, `snr_chara`
 (story characters), `bg_data` (stages), `leg_effect`, `snr_obj`. Effects in `*_effect` containers are not yet.
@@ -38,6 +40,10 @@ as long as you say which of your bones plays each role. Next to your `.dat`, put
 
 ```powershell
 python -I tools\robo_joints.py roles unpacked\chara\000.bin > mods\my_mod\models\chara\chara_000.roles.json
+```
+
+```bash
+python3 -I tools/robo_joints.py roles unpacked/chara/000.bin > mods/my_mod/models/chara/chara_000.roles.json
 ```
 
 Then change the numbers to your model's bones (`JOBJ_n` in HSDRawViewer / Blender = joint number n):
@@ -62,12 +68,16 @@ slot (55 bones) builds, its patch is 32 KB with 177 new bytes, and the ISO boots
 
 ### Robo numbers vs. entry numbers
 
-Each robo has **5 entries** in `chara.BIN` (variants, probably colours - not verified): **robo N = entries 5N to 5N+4**. The game loads entry `robo number x 5` (`FUN_800a63c0`). So `chara_000`-`chara_004` are robo 0 (Ray 01), `chara_020`-`chara_024` are robo 4, `chara_005` is robo 1 variant 0. `python -I tools\robo_joints.py table` lists them as robo/variant. To change a robo everywhere, replace all 5 of its entries.
+Each robo has **5 entries** in `chara.BIN` (variants, probably colours - not verified): **robo N = entries 5N to 5N+4**. The game loads entry `robo number x 5` (`FUN_800a63c0`). So `chara_000`-`chara_004` are robo 0 (Ray 01), `chara_020`-`chara_024` are robo 4, `chara_005` is robo 1 variant 0. `tools/robo_joints.py table` lists them as robo/variant. To change a robo everywhere, replace all 5 of its entries.
 
 **Quick test - swap two robos completely** (all 5 variants, models + skeletons + roles + limb measurements):
 
 ```powershell
 python -I tools\robo_swap.py 0 7      # robo 0 (Ray 01) <-> robo 7
+```
+
+```bash
+python3 -I tools/robo_swap.py 0 7     # robo 0 (Ray 01) <-> robo 7
 ```
 
 It swaps the bodies **and** two per-robo values the game looks up by robo number: the **motion set**
@@ -96,14 +106,20 @@ with bodies only, a body runs with the slot's animations; changing `cr_g_CharaYO
 python -I tools\make_mod.py mods\my_mod
 ```
 
+```bash
+python3 -I tools/make_mod.py mods/my_mod
+```
+
 Output:
-- `build\mods\my_mod\my_mod.iso` — play it in Dolphin (Open, or drag it in)
-- `mods\my_mod\my_mod.crpatch` — share this
+- `build/mods/my_mod/my_mod.iso` — play it in Dolphin (Open, or drag it in)
+- `mods/my_mod/my_mod.crpatch` — share this
+
+The clean ISO is taken from `Custom Robo (USA).iso` in the repo root, or from a second argument.
 
 If an archive changed (any model with a new size), `main.dol`'s own copy of that archive's entry table is updated too - the game reads that copy, not the archive header (docs/formats/model_entry.md). Checks on the way: each rebuilt model must parse like the game's own loader parses it; every replaced file
 must exist on the disc; the result is written from your clean ISO (SHA-1 checked).
 
-## 4. Code changes (`code\*.txt`)
+## 4. Code changes (`code/*.txt`)
 
 One change per line, RAM address (as in the decompiled C / Ghidra), new bytes, and the bytes you expect to
 replace:
@@ -114,7 +130,7 @@ replace:
 ```
 
 `[was ...]` is checked against the clean `main.dol`; if it does not match, nothing is built. Always give it.
-Find addresses with `python -I tools\find.py func <name>` and the Ghidra project.
+Find addresses with `tools/find.py func <name>` ([workflows.md](workflows.md#5-read-and-search-the-code)) and the Ghidra project.
 
 ## 5. Players: apply a patch
 
@@ -123,23 +139,28 @@ python -I tools\iso_patch.py apply "Custom Robo (USA).iso" my_mod.crpatch "Custo
 python -I tools\iso_patch.py info my_mod.crpatch        # what's in it
 ```
 
+```bash
+python3 -I tools/iso_patch.py apply "Custom Robo (USA).iso" my_mod.crpatch "Custom Robo - my_mod.iso"
+python3 -I tools/iso_patch.py info my_mod.crpatch       # what's in it
+```
+
 `apply` refuses any ISO that is not the clean US v1.0 disc (SHA-1 `fff6e745…0bcb16`) and checks the result's
 SHA-1, so a player gets exactly the mod author's ISO. Needs only Python 3 — no other tools.
 
 ## Source-route modding (Phase 4, work in progress)
 
-The patch route above changes bytes in place, so anything new must fit where the old thing was (or use Gecko / free space). The Phase 4 build (`tools\batches\batch9_decomp_build.ps1`) rebuilds `main.dol` from split objects, and since plan.md step 51 it is **shiftable**: every pointer in code and data is a relocation (dtk's mistakes are fixed by `tools\gen_dtk_relocs.py`), so code and data can move and grow and the linker updates every reference. The test (`tools\shift_test.py`, `tools\batches\batch11_shift_test.ps1`) adds 0x100 bytes at 12 places in code and data, and the game still boots to the title screen.
+The patch route above changes bytes in place, so anything new must fit where the old thing was (or use Gecko / free space). The Phase 4 build (batch 9, [REPRODUCE.md](REPRODUCE.md) section 2b) rebuilds `main.dol` from split objects, and since plan.md step 51 it is **shiftable**: every pointer in code and data is a relocation (dtk's mistakes are fixed by `tools/gen_dtk_relocs.py`), so code and data can move and grow and the linker updates every reference. The static test (`tools/shift_test.py`, batch 9) adds 0x100 bytes at 30 points in code and data (`decomp/reports/shift_report.txt`), and batch 11 (Windows) boots that build to the title screen.
 
-What this enables: a bigger table (a new robo slot in the motion / model / name tables) or new code is an edit of the split asm (later the C) plus a relink, with no free-space hacks.
+What this enables: a bigger table (a new robo slot in the motion / model / name tables) or new code is an edit of the split asm or the C plus a relink, with no free-space hacks.
 
-Still missing before it is a normal workflow: a battle tested by hand in the shifted build (docs\REPRODUCE.md section 2c); the data sections are not yet split per source file, so growing a game table is only proven safe at a file boundary (where the code stops addressing data from one base plus offsets); no mod tool drives the build yet (make_mod.py still patches bytes); and the code is still asm, not C (Milestones 4-5).
+Still missing before it is a normal workflow (Oct 29, 2026): a battle tested by hand in the shifted build ([REPRODUCE.md](REPRODUCE.md) section 2c); the game's own data is still in dtk's automatic objects (only library objects have proven data pieces, plan.md step 53), so growing a game table is only proven safe at a file boundary (where the code stops addressing data from one base plus offsets); no mod tool drives the build yet (make_mod.py still patches bytes); and most code is still asm: 324 of the 620 units are built from C, 5.41% of the code, of the game code 232 functions, 0.77% (`decomp/reports/progress_report.txt`).
 
 ## How it works (for the curious)
 
-`tools\make_mod.py` → models go back into their archive (`crmodel.from_dat` with the original entry as the
-template, then `sfd.build`), files are copied, code lines patch a copy of `main.dol` → `tools\iso_patch.py build`
+`tools/make_mod.py` → models go back into their archive (`crmodel.from_dat` with the original entry as the
+template, then `sfd.build`), files are copied, code lines patch a copy of `main.dol` → `tools/iso_patch.py build`
 writes each changed file over the clean ISO (in place if it fits, else appended, file table updated) →
-`tools\iso_patch.py diff` stores the difference: blocks found in the clean ISO (also when moved) become
+`tools/iso_patch.py diff` stores the difference: blocks found in the clean ISO (also when moved) become
 references, the rest the changed bytes only.
 Tested: robo 0 recolour → 43 KB of new bytes in the patch; apply on a clean ISO gives the same SHA-1;
 the ISO boots in Dolphin.

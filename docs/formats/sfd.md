@@ -1,6 +1,6 @@
 # SFD archive format (`*.BIN`)
 
-**Verified** on all 22 SFD archives on the disc: `tools\sfd.py verify` rebuilds every one byte-identical from its unpacked entries.
+**Verified** on all 22 SFD archives on the disc: `tools/sfd.py verify` rebuilds every one byte-identical from its unpacked entries.
 
 ## Layout (big-endian)
 
@@ -34,8 +34,18 @@ Rules (all verified on every archive):
 
 ## Tool
 
-```
+`tools/sfd.py` ([tools.md](../tools.md)). Windows:
+
+```powershell
 python -I tools\sfd.py unpack "Custom Robo extracted\files" unpacked     # entries -> unpacked\<path>\<name>\000.bin ...
 python -I tools\sfd.py pack unpacked\chara out\chara.BIN                  # entries 000.bin, 001.bin ... in index order
 python -I tools\sfd.py verify "Custom Robo extracted\files" unpacked      # repack all in memory and compare
+```
+
+Linux / macOS:
+
+```bash
+python3 -I tools/sfd.py unpack "Custom Robo extracted/files" unpacked     # entries -> unpacked/<path>/<name>/000.bin ...
+python3 -I tools/sfd.py pack unpacked/chara out/chara.BIN                  # entries 000.bin, 001.bin ... in index order
+python3 -I tools/sfd.py verify "Custom Robo extracted/files" unpacked      # repack all in memory and compare
 ```
