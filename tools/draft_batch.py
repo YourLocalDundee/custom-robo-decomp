@@ -27,6 +27,15 @@ D = os.path.join(G, 'decomp')
 GAME_START = 0x800055E0
 B = os.path.join(D, 'build/GXCE01')
 MWCC = None
+
+
+def mwcc_cmd(ver):
+    """the compiler command prefix: mwcceppc.exe, through the pinned wibo (or wine) off Windows, as configure.py does"""
+    exe = os.path.join(D, 'build/compilers', ver, 'mwcceppc.exe')
+    if os.name == 'nt':
+        return [exe]
+    wibo = os.path.join(D, 'build/tools/wibo')
+    return [wibo if os.path.exists(wibo) else 'wine', exe]
 M2C = os.path.join(G, 'tools/m2c')
 MELEE = '../tools/melee'
 # the same defines tools/scripts/ParseHeaders.java uses: no __MWERKS__ (inline asm drops out), M2CTX = the plain-C paths
@@ -255,8 +264,7 @@ def one(job):
         return name, 'm2c failed', msg
     open(c, 'w', encoding='utf-8', newline='\n').write(
         '// m2c draft of %s (0x%08X, %d bytes): decompiled output, gitignored, never commit\n#include "ctx.h"\n\n%s' % (name, addr, size, body))
-    cmd = [MWCC, '-c'] + W['flags'] + CTX_DEFS + ['-i', 'drafts'] + sum([['-i', i] for i in CTX_INC], []) + ['-o', o, c.replace('\\', '/')]
-    cmd[0] = os.path.join(D, 'build/compilers', W['ver'], 'mwcceppc.exe')
+    cmd = mwcc_cmd(W['ver']) + ['-c'] + W['flags'] + CTX_DEFS + ['-i', 'drafts'] + sum([['-i', i] for i in CTX_INC], []) + ['-o', o, c.replace('\\', '/')]
     rc, so, se = run(cmd, 120, cwd=D)
     txt = so + se
     if rc != 0 or not os.path.exists(o):
@@ -338,7 +346,7 @@ def main():
         + '#include "../../symbols/cr_types.h"\n' + globals_decls())
     ctxin = os.path.join(out, 'ctx_in.h')
     shutil.copyfile(os.path.join(out, 'ctx.h'), ctxin)
-    cmd = [os.path.join(D, 'build/compilers', ver, 'mwcceppc.exe'), '-E', '-nodefaults', '-proc', 'gekko', '-nosyspath'] + CTX_DEFS \
+    cmd = mwcc_cmd(ver) + ['-E', '-nodefaults', '-proc', 'gekko', '-nosyspath'] + CTX_DEFS \
         + sum([['-i', i] for i in CTX_INC], []) + ['-i', 'drafts', ctxin]
     rc, so, se = run(cmd, 120, cwd=D)
     if rc != 0:

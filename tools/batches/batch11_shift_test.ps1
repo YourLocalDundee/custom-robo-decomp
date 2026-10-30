@@ -16,6 +16,7 @@
 # Usage:  pwsh tools/batches/batch11_shift_test.ps1 [-Seconds 22]
 param([int]$Seconds = 22)   # the title screen shows from ~13 s; at ~40 s the attract video starts (black between)
 $ErrorActionPreference = 'Stop'
+if (-not $IsWindows) { 'batch 11 skipped: the Dolphin boot check (tools/boot_check.ps1) uses Windows window APIs; run it on Windows (the static shift test ran in batch 9)'; exit 0 }
 $g = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $src = "$g/Custom Robo extracted"
 $s = "$g/decomp/build/shift"

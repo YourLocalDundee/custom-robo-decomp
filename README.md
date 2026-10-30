@@ -107,9 +107,9 @@ pwsh tools\batches\run_all.ps1
 
 It runs batches 1–12 in order and ends with `tools\checksums.ps1 -Compare` by itself (about 17 minutes), stopping
 at the first failure. **During batch 11 Dolphin opens by itself, twice, for about a minute: don't type or click**
-(a key mapped to Start moves the game past the title screen and the check fails). Batch 11 starts the Dolphin
-folder set as the `-DolphinDir` default in `tools\boot_check.ps1`. `from_scratch.ps1` runs `run_all.ps1` too, so
-the same applies there.
+(a key mapped to Start moves the game past the title screen and the check fails). Batch 11 uses the pinned Dolphin
+that `setup.ps1` downloads (`tools\dolphin\Dolphin-x64`), or the folder in `CR_DOLPHIN_DIR`; it is Windows-only and
+skipped on Linux / macOS. `from_scratch.ps1` runs `run_all.ps1` too, so the same applies there.
 
 Every step, what it runs and why: [docs/REPRODUCE.md](docs/REPRODUCE.md).
 

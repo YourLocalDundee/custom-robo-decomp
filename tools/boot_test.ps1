@@ -1,8 +1,9 @@
 #Requires -Version 7
-# Boot a game folder in the Project Hive Dolphin build, take a screenshot after a delay, then close Dolphin.
+# Boot a game folder in Dolphin (CR_DOLPHIN_DIR, a local Project Hive build, or the pinned tools/dolphin), take a screenshot after a delay, then close Dolphin.
 # Usage: pwsh boot_test.ps1 <build_dir> <out.png> [seconds]
 param([string]$Build, [string]$Out, [int]$Seconds = 40)
-$dolphin = 'D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]\Dolphin.exe'
+$dolphin = if ($env:CR_DOLPHIN_DIR) { Join-Path $env:CR_DOLPHIN_DIR 'Dolphin.exe' } else { 'D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]\Dolphin.exe' }
+if (-not (Test-Path -LiteralPath $dolphin)) { $dolphin = Join-Path (Split-Path $PSScriptRoot -Parent) 'tools/dolphin/Dolphin-x64/Dolphin.exe' }
 Add-Type -AssemblyName System.Drawing, System.Windows.Forms
 Add-Type @'
 using System; using System.Runtime.InteropServices;

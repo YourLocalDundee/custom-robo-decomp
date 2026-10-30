@@ -1,6 +1,6 @@
 #Requires -Version 7
 # Rebuild the Ghidra project and decompiled C from scratch, reapplying every saved name.
-# Run from anywhere:  pwsh D:\emulators\gameTesting\tools\rebuild_decomp.ps1
+# Run from anywhere:  pwsh tools/rebuild_decomp.ps1
 $ErrorActionPreference = 'Stop'
 $g = Split-Path $PSScriptRoot -Parent
 $t = $PSScriptRoot

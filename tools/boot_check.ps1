@@ -1,5 +1,5 @@
 #Requires -Version 7
-# Boot an ISO (or an extracted game folder's sys\main.dol) in the Project Hive Dolphin for N seconds and report whether
+# Boot an ISO (or an extracted game folder's sys\main.dol) in Dolphin (Windows; see -DolphinDir below) for N seconds and report whether
 # Dolphin raised a warning dialog (e.g. "Invalid read from ..."), which means the game would have crashed. Closes
 # Dolphin afterwards.
 # Usage: pwsh tools\boot_check.ps1 <game.iso | folder\sys\main.dol> [seconds]   exit 1 if a warning appeared or Dolphin died
@@ -8,7 +8,18 @@
 #   -Log x.log         Dolphin's log of this run only (OS reports, files read from the disc, boot / core / CPU
 #                      messages), switched on with command-line config: Dolphin's own settings are not changed
 param([Parameter(Mandatory)][string]$Iso, [int]$Seconds = 60, [string]$Snapshot, [string]$Screenshot, [string]$Log,
-      [string]$DolphinDir = 'D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]')
+      [string]$DolphinDir)
+# Dolphin folder: -DolphinDir, else $env:CR_DOLPHIN_DIR, else the pinned Dolphin tools/setup.ps1 downloads
+# (tools/dolphin/Dolphin-x64, made portable so its User/ and log stay in that folder), else a local Project Hive build.
+if (-not $DolphinDir) { $DolphinDir = $env:CR_DOLPHIN_DIR }
+if (-not $DolphinDir) {
+    $pinned = Join-Path (Split-Path $PSScriptRoot -Parent) 'tools/dolphin/Dolphin-x64'
+    foreach ($c in $pinned, 'D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]') {
+        if (Test-Path -LiteralPath (Join-Path $c 'Dolphin.exe')) { $DolphinDir = $c; break }
+    }
+}
+if (-not $DolphinDir) { throw 'no Dolphin found: pass -DolphinDir, set CR_DOLPHIN_DIR, or run tools/setup.ps1 (it downloads the pinned Dolphin to tools/dolphin/Dolphin-x64)' }
+if (-not (Test-Path -LiteralPath (Join-Path $DolphinDir 'portable.txt'))) { $null = New-Item -ItemType File -Path (Join-Path $DolphinDir 'portable.txt') }
 Add-Type -AssemblyName System.Drawing
 Add-Type @'
 using System; using System.Text; using System.Collections.Generic; using System.Runtime.InteropServices;

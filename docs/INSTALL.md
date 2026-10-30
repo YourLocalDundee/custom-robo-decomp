@@ -43,7 +43,7 @@ looked up with `winget search` on 2026-10-28. Python from winget provides `pytho
 ```bash
 sudo apt update
 sudo apt install -y git curl unzip python3 python3-venv python-is-python3 openjdk-21-jdk
-# PowerShell is not in the distro repos: add Microsoft's repo (Ubuntu: use e.g. ubuntu/24.04 instead of debian/12)
+# PowerShell is not in the distro repos: add Microsoft's repo (Ubuntu: use ubuntu/<release>, e.g. ubuntu/24.04 or ubuntu/26.04, instead of debian/12)
 curl -fsSLO https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
 sudo apt update && sudo apt install -y powershell
@@ -143,7 +143,8 @@ Or step by step: `pwsh tools/setup.ps1 -Iso ...`, `pwsh tools/batches/run_all.ps
 
 ## Limits and status
 
-- **Windows is the tested platform.** Linux / macOS support was written from the docs and has not been run end to end.
+- **Windows is the tested platform.** Linux / macOS support was written from the docs; the first Linux end-to-end test (Ubuntu 26.04) is in progress (Oct 29, 2026).
+- Batch 11 (the shifted build booted in Dolphin) is Windows-only (`tools/boot_check.ps1` reads Dolphin's windows through the Win32 API) and is skipped on Linux / macOS; the static shift test in batch 9 still runs. On Windows it uses the pinned Dolphin that `setup.ps1` downloads (`tools/dolphin/Dolphin-x64`), or `-DolphinDir` / `CR_DOLPHIN_DIR`.
 - Model export to glTF (`tools/export_models.py`) uses HSDRawViewer, a Windows (WinForms) program: on Linux / macOS
   `setup.ps1` skips building it and `from_scratch.ps1` skips the glTF and preview steps. Decompile, naming, archives,
   `.dat` models, mods and patches are meant to work wherever the scripts run.

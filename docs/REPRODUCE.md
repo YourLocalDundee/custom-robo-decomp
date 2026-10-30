@@ -131,7 +131,7 @@ the downloads; `configure.py` stops instead of downloading anything unpinned).
 | `gen_dtk_relocs.py --check` | the built `main.elf`: no missed pointer, no false one (except the blocked numbers), every relocated value equals its target | → `decomp\reports\relocs_report.txt` (last section) |
 | `tools\shift_test.py` | the static shift test, on a scratch copy (`decomp\build\shift\`): 0x100 bytes of padding at 30 points chosen by rule (each section start, inside the game code, between library objects, the first glue-span start after the middle of .rodata / .data / .bss, and inside every data section at the first, middle and last data-object boundary that gen_dtk_splits.py proved; never inside a glue span; `--all-data` pads every data-object boundary at once, by hand), those objects reassembled from dtk's asm (a control link without padding must be retail), relinked, then every symbol, relocation, data word, branch and lis pair checked against the unshifted build, and no unrelocated word may still hold a moved address | `decomp\build\GXCE01\` → `decomp\reports\shift_report.txt`, `decomp\build\shift\main.dol` |
 
-## 2c. Boot the shifted build — `tools\batches\batch11_shift_test.ps1` (Phase 4, Milestone 2; run by run_all.ps1, or alone)
+## 2c. Boot the shifted build — `tools\batches\batch11_shift_test.ps1` (Phase 4, Milestone 2; run by run_all.ps1, or alone; Windows only, skipped elsewhere)
 
 ```powershell
 pwsh tools\batches\batch11_shift_test.ps1           # after batch 9; starts Dolphin twice, about 1 minute

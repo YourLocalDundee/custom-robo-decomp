@@ -5,7 +5,7 @@
 #   -> 10 compiler probe (~5 min) -> 11 shifted build booted in Dolphin (~1 min; do not type while Dolphin is open)
 #   -> checksums.ps1 -Compare (every output byte-identical to docs/expected_checksums.txt), then a summary.
 # tools/from_scratch.ps1 wraps it: setup -> this -> archives / models / mod build.
-# Usage:  pwsh D:\emulators\gameTesting\tools\batches\run_all.ps1 [-SkipRebuild] [-MaxPasses 5]
+# Usage:  pwsh tools/batches/run_all.ps1 [-SkipRebuild] [-MaxPasses 5]
 #
 # Reproducible from any starting point. The name batches (1 = layout proof, then 6 = lib candidates, which builds on
 # batch 1, then 7 = the game's own names, from main.dol only) take our names only from the committed symbol files
@@ -73,7 +73,7 @@ if (-not $SkipRebuild) {
 # main.dol is the retail one.
 & "$PSScriptRoot/batch9_decomp_build.ps1"
 & "$PSScriptRoot/batch10_compiler_probe.ps1"
-"== batch 11: Dolphin opens twice for about a minute - do not type or click (a key mapped to Start skews the check)"
+if ($IsWindows) { "== batch 11: Dolphin opens twice for about a minute - do not type or click (a key mapped to Start skews the check)" }
 & "$PSScriptRoot/batch11_shift_test.ps1"
 if ($LASTEXITCODE) { throw 'batch 11 (shifted build boot) failed: decomp/build/shift/boot/boot_result.txt' }
 & "$PSScriptRoot/batch12_drafts.ps1"   # m2c drafts of the game code, compiled and compared (decomp/drafts/ stays local); the linkable 100% ones -> decomp/src/game (tools/promote_drafts.py), batch 9 again if that changed
