@@ -47,7 +47,11 @@ Get-Content -LiteralPath "$t/pins.txt" | Where-Object { $_ -notmatch '^\s*(#|$)'
 
 function PinnedClone($name, $dir, [string[]]$sparse) {
     $p = $pins[$name]
-    if (Test-Path -LiteralPath $dir) { "skip $dir (exists)"; return }
+    if (Test-Path -LiteralPath $dir) {
+        # an existing clone gets this script's sparse paths (a list widened later, e.g. tp / pikmin2 in step 68)
+        if ($sparse) { git -C $dir sparse-checkout set --no-cone @sparse }
+        "skip $dir (exists)"; return
+    }
     git init -q $dir
     git -C $dir remote add origin $p.src
     if ($sparse) { git -C $dir sparse-checkout set --no-cone @sparse }
@@ -117,9 +121,15 @@ PinnedClone melee "$t/melee" @('/config/', '/src/sysdolphin/', '/src/Runtime/', 
     '/libs/doldecomp/include/', '/libs/dolphin/include/')
 # (MetroTRK/: the TRK sources, and MSL's math.h includes MetroTRK/intrinsics.h; tools/compiler_probe compiles them.
 #  An older clone without it: git -C tools/melee sparse-checkout add /src/MetroTRK/)
-foreach ($r in 'mkdd', 'pikmin2', 'ttyd', 'tww', 'tp') {
+foreach ($r in 'mkdd', 'ttyd', 'tww') {
     PinnedClone $r "$t/refs/$r" @('/config/*/symbols.txt', '/config/*/splits.txt')
 }
+# Twilight Princess / Pikmin 2: also their MetroTRK v2.6, MSL and SDK sources (docs/compiler.md "Source hunt"; the
+# MetroTRK objects and FILE_POS.c are imported from them by tools/import_ref_source.py, tools/compiler_probe/sources.py)
+PinnedClone tp "$t/refs/tp" @('/config/*/symbols.txt', '/config/*/splits.txt', '/include/', '/libs/TRK_MINNOW_DOLPHIN/',
+    '/libs/PowerPC_EABI_Support/', '/libs/dolphin/', '/configure.py')
+PinnedClone pikmin2 "$t/refs/pikmin2" @('/config/*/symbols.txt', '/config/*/splits.txt', '/include/', '/src/Dolphin/',
+    '/configure.py')
 # Library-naming references (tools/match_lib_*.py): names, sizes, and source text for call graphs / asserts / strings.
 # Only text is read; nothing from these repos is built or run.
 foreach ($r in 'kar_wowjinxy', 'xd', 'dolsdk2001', 'dolsdk2004', 'ac-decomp', 'sms', 'marioparty4', 'pikmin', 'bfbb') {

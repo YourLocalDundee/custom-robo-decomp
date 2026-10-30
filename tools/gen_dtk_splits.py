@@ -384,6 +384,8 @@ def code_splits(ours, rejected, notes, audit=None):
 
     hsd = hsd_stems()
     placed = placed_in(hsd)  # function name -> the library files (objkeys) the references place it in
+    PLACED_SZ.clear()
+    PLACED_SZ.update(placed_sized(hsd))
     g3 = {a: Path(f).stem.lower() for a, f in read_g3().items()}  # function -> the .c file its assert names
     melee_paths = {}
     refinfo = {}  # ref tag -> (symbols, {object name: [(sec, start, end)]})
@@ -779,6 +781,26 @@ def settle(path, key, lst, funcs, defs, rejected, notes):
         lo, hi = min(a for a, b in rs), max(b for a, b in rs)
         diff = [f for f in funcs if f[1] == sec and lo <= f[2] < hi and not DEFAULT.match(f[0])
                 and not all(a <= f[2] < b for a, b in rs)]
+        # 0. by the function itself (step 68): a name two revisions give to different functions (MetroTRK mslsupp.c's
+        #    __close_console, 0x84 in Pikmin 2, vs MSL's 8-byte one in uart_console_io.c) is settled by where the
+        #    references put a function of that name AT OUR SIZE, before the pinned sources (which only know the name);
+        #    only when every such placement of every differing function agrees and the name has another size elsewhere
+        ev = {}
+        for f in diff:
+            at = PLACED_SZ.get(f[0], set())
+            mine = {k for k, z in at if z == f[3]}
+            if not mine or len(mine) > 1:
+                ev = None
+                break
+            ev[f[0]] = (next(iter(mine)) == key, any(z != f[3] for k, z in at))
+        if ev and any(o for _, o in ev.values()):
+            ok0 = [(a, b) for a, b in sorted(rs) if all((a <= f[2] < b) == ev[f[0]][0] for f in diff)]
+            if len(ok0) == 1:
+                keep += [c for c in cs if (c["start"], c["end"]) == ok0[0]]
+                how.append(f"{sec} 0x{ok0[0][0]:08X}-0x{ok0[0][1]:08X} by the function's size in the references ("
+                           + ", ".join(sorted(ev)) + ": only placed at our size "
+                           + ("here" if all(v[0] for v in ev.values()) else "as this range says") + ")")
+                continue
         vd = {f[0]: verdict(defs, f[0], key[0]) for f in diff}
         known = {n: v for n, v in vd.items() if v}
         ok = []
@@ -810,6 +832,30 @@ def settle(path, key, lst, funcs, defs, rejected, notes):
 def fmt_sizes(lst):
     s = ",".join(f"{x:X}" for x in lst[:12])
     return f"[{s}{',..' if len(lst) > 12 else ''}]"
+
+
+PLACED_SZ = {}  # function name -> {(objkey, size)} over all references (code sections); filled by code_splits
+
+
+def placed_sized(hsd):
+    """{function name: {(objkey of the library file a reference places it in, its size there)}}"""
+    out = defaultdict(set)
+    for ref in REFS:
+        d = G / "tools" / ref
+        tagr = ref.split('/')[-1]
+        if not (d / "splits.txt").exists() or not (d / "symbols.txt").exists():
+            continue
+        rf = sorted([s for s in read_syms(d / "symbols.txt") if s[4]], key=lambda s: s[2])
+        for name, secs in read_splits(d / "splits.txt"):
+            path = lib_path(tagr, name, hsd)
+            if path is None:
+                continue
+            for sec, a, b in secs:
+                if sec in CODE:
+                    for s in rf:
+                        if a <= s[2] < b and s[1] == sec and not DEFAULT.match(s[0]):
+                            out[s[0]].add((objkey(path), s[3]))
+    return out
 
 
 def placed_in(hsd):

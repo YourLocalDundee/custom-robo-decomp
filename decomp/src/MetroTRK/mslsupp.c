@@ -1,9 +1,9 @@
-/* Custom Robo: from mariopartyrd/marioparty4 @ 5b01c79b4910525e3fc5aa312eddd6d014e7f337, src/TRK_MINNOW_DOLPHIN/mslsupp.c */ #include "PowerPC_EABI_Support/MetroTRK/trk.h"
-#include <stddef.h>
+/* Custom Robo: from doldecomp/pikmin2 @ 999140f3521e22619547d5d61862a6577ea73882, src/Dolphin/TRK_MINNOW_DOLPHIN/mslsupp.c */ #include "PowerPC_EABI_Support/MetroTRK/trk.h"
 
 // forward declares
 DSIOResult __read_file(u32 handle, u8* buffer, size_t* count, void* ref_con);
 DSIOResult __write_file(u32 handle, u8* buffer, size_t* count, void* ref_con);
+DSIOResult __close_file(u32 handle, u8* buffer, size_t* count, void* ref_con);
 DSIOResult __access_file(u32 handle, u8* buffer, size_t* count, void* ref_con, MessageCommandID cmd);
 
 /**
@@ -31,6 +31,15 @@ DSIOResult __TRK_write_console(u32 handle, u8* buffer, size_t* count, void* ref_
 }
 
 /**
+ * @note Address: 0x800C0A0C
+ * @note Size: 0x84
+ */
+DSIOResult __close_console(u32 handle, u8* buffer, size_t* count, void* ref_con)
+{
+	return __close_file(handle, buffer, count, ref_con);
+}
+
+/**
  * @note Address: N/A
  * @note Size: 0xB4
  */
@@ -55,6 +64,30 @@ DSIOResult __write_file(u32 handle, u8* buffer, size_t* count, void* ref_con)
 void __open_file(void)
 {
 	// UNUSED FUNCTION
+}
+
+/**
+ * @note Address: N/A
+ * @note Size: 0x84
+ */
+DSIOResult __close_file(u32 handle, u8* buffer, size_t* count, void* ref_con)
+{
+	u32 r0;
+
+	if (GetTRKConnected() == DS_NoError) {
+		return DS_IOError;
+	}
+
+	r0 = TRKCloseFile(DSMSG_CloseFile, handle);
+
+	switch ((u8)r0) {
+	case DS_IONoError:
+		return DS_IONoError;
+	case DS_IOEOF:
+		return DS_IOEOF;
+	}
+
+	return DS_IOError;
 }
 
 /**

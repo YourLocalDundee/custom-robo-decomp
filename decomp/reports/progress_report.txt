@@ -3,14 +3,14 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           82     82   0x02BAB8/0x02BAB8 100.00%   0x016D30/0x016D30 100.00%    690/  690
-MSL                               49     46   0x008EE8/0x00939C  96.81%   0x0014B2/0x0014BA  99.85%     80/   85
+dolphin                           83     82   0x02BAB8/0x02BAE8  99.97%   0x016D38/0x016D38 100.00%    690/  698
+MSL                               49     47   0x008FB8/0x00939C  97.36%   0x0014BA/0x0014BA 100.00%     81/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
-MetroTRK                          29     12   0x000AD8/0x006220  11.05%   0x000030/0x0034F8   0.35%     32/  162
+MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
 sysdolphin                        30     13   0x0081F4/0x026600  21.17%   0x0010AE/0x00247E  45.71%    157/  472
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
-automatic objects (unsplit)      244      0   0x000000/0x14D3BC   0.00%   0x000000/0x27E838   0.00%      0/ 1815
-main.dol (all units)             729    448   0x042068/0x1B342C  15.17%   0x01935C/0x29C434   3.77%   1268/ 3533
+automatic objects (unsplit)      236      0   0x000000/0x14D2DC   0.00%   0x000000/0x27E6A8   0.00%      0/ 1805
+main.dol (all units)             722    466   0x047934/0x1B3430  16.44%   0x01C9B1/0x29C429   4.28%   1401/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
@@ -53,7 +53,7 @@ MSL/s_modf.c                                  code 0xFC/0xFC  data 0x0/0x0  func
 MSL/s_sin.c                                   code 0xD8/0xD8  data 0x8/0x8  functions 1/1  linked from C
 MSL/s_tan.c                                   code 0x78/0x78  data 0x8/0x8  functions 1/1  linked from C
 MSL/string.c                                  code 0x2DC/0x2DC  data 0x0/0x0  functions 7/7  linked from C
-MSL/uart_console_io_gcn.c                     code 0xD0/0xD0  data 0x8/0x8  functions 1/1  not linked: link: 100% code and data (BfBB's file), but the C also defines __close_console, which main.dol has at 0x8015EBAC, before MetroTRK/mslsupp.c, far outside this object's range 0x80165A14-0x80165AE4 (MKDD's map puts it in another unit of the same name there): linked from C it is defined twice (step 65)
+MSL/uart_console_io_gcn.c                     code 0xD0/0xD0  data 0x8/0x8  functions 1/1  linked from C
 MSL/w_acos.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_asin.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_atan2.c                                 code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
@@ -63,29 +63,34 @@ MSL/w_log.c                                   code 0x20/0x20  data 0x0/0x0  func
 MSL/w_pow.c                                   code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_sqrt.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/wchar_io.c                                code 0x88/0x88  data 0x0/0x0  functions 1/1  linked from C
+MetroTRK/CircleBuffer.c                       code 0x268/0x268  data 0x0/0x0  functions 4/4  linked from C
+MetroTRK/MWCriticalSection_gc.cpp             code 0x58/0x58  data 0x0/0x0  functions 3/3  linked from C
 MetroTRK/MWTrace.c                            code 0x50/0x50  data 0x0/0x0  functions 1/1  linked from C
 MetroTRK/UDP_Stubs.c                          code 0x48/0x48  data 0x0/0x0  functions 9/9  linked from C
-MetroTRK/dispatch.c                           code 0x0/0x178  data 0x0/0x40  functions 0/2  not linked: code: 2 of 2 functions differ (TRKInitializeDispatcher 0%, TRKDispatchMessage 24%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)  (C has data the split object lacks: .bss 0x4, .data 0x84)
-MetroTRK/dolphin_trk.c                        code 0x100/0x638  data 0x0/0x48  functions 3/8  not linked: code: 5 of 8 functions differ (TRKTargetTranslate 73%, __TRK_copy_vectors 85%, fn_8015E288 0%, fn_8015E09C 0% (+1 more)): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise); ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)  (C has data the split object lacks: .init 0x104)
-MetroTRK/dolphin_trk_glue.c                   code 0xC4/0x558  data 0x0/0x138  functions 3/13  not linked: code: 10 of 13 functions differ (InitMetroTRKCommTable 37%, TRKInitializeIntDrivenUART 75%, EnableEXI2Interrupts 67%, TRKPollUART 0% (+6 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
+MetroTRK/ddh/main.c                           code 0x344/0x344  data 0x908/0x908  functions 10/10  linked from C
+MetroTRK/dispatch.c                           code 0x178/0x178  data 0xB0/0xB0  functions 2/2  linked from C
+MetroTRK/dolphin_trk.c                        code 0x668/0x668  data 0x48/0x48  functions 9/9  linked from C
+MetroTRK/dolphin_trk_glue.c                   code 0x558/0x558  data 0x138/0x138  functions 13/13  linked from C
 MetroTRK/flush_cache.c                        code 0x38/0x38  data 0x0/0x0  functions 1/1  linked from C
-MetroTRK/main_TRK.c                           code 0x0/0x58  data 0x8/0x18  functions 0/1  not linked: code: 1 of 1 functions differ (TRK_main 77%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
+MetroTRK/gdev/main.c                          code 0x34C/0x34C  data 0x608/0x608  functions 10/10  linked from C
+MetroTRK/main_TRK.c                           code 0x58/0x58  data 0x18/0x18  functions 1/1  linked from C
 MetroTRK/mainloop.c                           code 0xF8/0xF8  data 0x0/0x0  functions 1/1  linked from C
 MetroTRK/mem_TRK.c                            code 0x10C/0x10C  data 0x0/0x0  functions 3/3  linked from C
 MetroTRK/mpc_7xx_603e.c                       code 0x370/0x370  data 0x0/0x0  functions 2/2  linked from C
-MetroTRK/msg.c                                code 0x0/0x44  data 0x0/0x28  functions 0/1  not linked: code: 1 of 1 functions differ (TRKMessageSend 0%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
-MetroTRK/msgbuf.c                             code 0x604/0x83C  data 0x19B0/0x19B0  functions 11/14  not linked: code: 3 of 14 functions differ (TRKResetBuffer 92%, TRKAppendBuffer1_ui64 53%, TRKAppendBuffer_ui32 65%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)  (C has data the split object lacks: .rodata 0x1D)
-MetroTRK/msghndlr.c                           code 0x1C/0x1070  data 0x0/0x228  functions 2/17  not linked: code: 15 of 17 functions differ (OutputData 0%, TRKDoConnect 0%, TRKDoDisconnect 0%, TRKDoReset 0% (+11 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
-MetroTRK/mslsupp.c                            code 0x178/0x178  data 0x0/0x0  functions 2/2  linked from C
+MetroTRK/msg.c                                code 0x44/0x44  data 0x25/0x25  functions 1/1  linked from C
+MetroTRK/msgbuf.c                             code 0x83C/0x83C  data 0x19CD/0x19CD  functions 14/14  linked from C
+MetroTRK/msghndlr.c                           code 0x1070/0x1070  data 0x226/0x226  functions 17/17  linked from C
+MetroTRK/mslsupp.c                            code 0x1FC/0x1FC  data 0x0/0x0  functions 3/3  linked from C
 MetroTRK/mutex_TRK.c                          code 0x18/0x18  data 0x0/0x0  functions 3/3  linked from C
-MetroTRK/notify.c                             code 0x0/0x98  data 0x0/0x0  functions 0/1  not linked: code: 1 of 1 functions differ (TRKDoNotifyStopped 61%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
+MetroTRK/notify.c                             code 0x98/0x98  data 0x0/0x0  functions 1/1  linked from C
 MetroTRK/nubevent.c                           code 0x228/0x228  data 0x28/0x28  functions 5/5  linked from C
-MetroTRK/nubinit.c                            code 0x4C/0x198  data 0x0/0x30  functions 2/3  not linked: code: 1 of 3 functions differ (TRKInitializeNub 73%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)  (C has data the split object lacks: .bss 0x4)
-MetroTRK/serpoll.c                            code 0x58/0x2B8  data 0x0/0x1A8  functions 2/5  not linked: code: 3 of 5 functions differ (TRKTestForPacket 0%, TRKGetInput 38%, TRKInitializeSerialHandler 16%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
-MetroTRK/support.c                            code 0x0/0x714  data 0x0/0xA8  functions 0/5  not linked: code: 5 of 5 functions differ (TRKSuppAccessFile 39%, TRKRequestSend 77%, HandleOpenFileSupportRequest 24%, HandleCloseFileSupportRequest 51% (+1 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
+MetroTRK/nubinit.c                            code 0x198/0x198  data 0x38/0x38  functions 3/3  linked from C
+MetroTRK/serpoll.c                            code 0x2B8/0x2B8  data 0x1B0/0x1B0  functions 5/5  linked from C
+MetroTRK/support.c                            code 0x714/0x714  data 0xA5/0xA5  functions 5/5  linked from C
 MetroTRK/targcont.c                           code 0x34/0x34  data 0x0/0x0  functions 1/1  linked from C
 MetroTRK/target_options.c                     code 0x1C/0x1C  data 0x8/0x8  functions 2/2  linked from C
-MetroTRK/targimpl.c                           code 0xC20/0x1B8C  data 0x30/0x648  functions 17/29  not linked: code: 12 of 29 functions differ (TRKValidMemory32 40%, TRKTargetAccessFP 23%, TRKPostInterruptEvent 86%, TRKTargetInterrupt 81% (+8 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
+MetroTRK/targimpl.c                           code 0x1B8C/0x1B8C  data 0x648/0x648  functions 29/29  linked from C
+MetroTRK/targsupp.c                           code 0x20/0x20  data 0x0/0x0  functions 4/4  linked from C
 MetroTRK/usr_put.c                            code 0x8C/0x8C  data 0x0/0x0  functions 2/2  linked from C
 Runtime/GCN_mem_alloc.c                       code 0xB8/0xB8  data 0x78/0x78  functions 1/1  linked from C
 Runtime/__mem.c                               code 0x138/0x138  data 0x0/0x0  functions 3/3  linked from C
@@ -135,8 +140,8 @@ dolphin/gx/GXFrameBuf.c                       code 0x964/0x964  data 0x138/0x138
 dolphin/gx/GXGeometry.c                       code 0x33C/0x33C  data 0x0/0x0  functions 9/9  linked from C
 dolphin/gx/GXInit.c                           code 0x1380/0x1380  data 0x8C8/0x8C8  functions 5/5  linked from C
 dolphin/gx/GXLight.c                          code 0x604/0x604  data 0x50/0x50  functions 11/11  linked from C
-dolphin/gx/GXMisc.c                           code 0x674/0x674  data 0x14/0x14  functions 19/19  linked from C
-dolphin/gx/GXPerf.c                           code 0x858/0x858  data 0xEC/0xEC  functions 2/2  linked from C
+dolphin/gx/GXMisc.c                           code 0x674/0x674  data 0x18/0x18  functions 19/19  linked from C
+dolphin/gx/GXPerf.c                           code 0x858/0x858  data 0xF0/0xF0  functions 2/2  linked from C
 dolphin/gx/GXPixel.c                          code 0x7F8/0x7F8  data 0x80/0x80  functions 13/13  linked from C
 dolphin/gx/GXTev.c                            code 0x764/0x764  data 0x78/0x78  functions 16/16  linked from C
 dolphin/gx/GXTexture.c                        code 0xFE8/0xFE8  data 0x28E/0x28E  functions 19/19  linked from C

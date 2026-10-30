@@ -48,7 +48,11 @@ pinned_clone() {
     shift 2
     src=$(pin_field "$name" 2); ver=$(pin_field "$name" 3)
     [ -n "$src" ] || die "no pin '$name' in tools/pins.txt"
-    if [ -e "$dir" ]; then echo "skip $dir (exists)"; return 0; fi
+    if [ -e "$dir" ]; then
+        # an existing clone gets the caller's sparse paths (a list widened later, e.g. tp / pikmin2 in step 68)
+        if [ $# -gt 0 ]; then git -C "$dir" sparse-checkout set --no-cone "$@"; fi
+        echo "skip $dir (exists)"; return 0
+    fi
     git init -q "$dir"
     git -C "$dir" remote add origin "$src"
     if [ $# -gt 0 ]; then git -C "$dir" sparse-checkout set --no-cone "$@"; fi

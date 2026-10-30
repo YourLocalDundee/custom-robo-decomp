@@ -21,10 +21,14 @@ BOOL __write_console(s32 arg0, s32 arg1, s32* arg2, s32 arg3)
 	return FALSE;
 }
 
+/* Custom Robo: __close_console is not this file's here: main.dol's (0x8015EBAC, 0x84) is MetroTRK mslsupp.c's
+   (Pikmin 2's, which calls __close_file inline), linked before this object; kept out so it is defined once */
+#if 0
 int __close_console()
 {
 	return 0;
 }
+#endif
 
 int __init_uart_console(void)
 {

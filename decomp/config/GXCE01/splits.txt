@@ -1165,7 +1165,7 @@ dolphin/gx/GXAttr.c:
 
 dolphin/gx/GXMisc.c:
 	.text       start:0x8015458C end:0x80154C00
-	.sbss       start:0x8044FC98 end:0x8044FCAC
+	.sbss       start:0x8044FC98 end:0x8044FCB0
 
 dolphin/gx/GXGeometry.c:
 	.text       start:0x80154C00 end:0x80154F3C
@@ -1212,7 +1212,7 @@ dolphin/gx/GXTransform.c:
 
 dolphin/gx/GXPerf.c:
 	.text       start:0x80158AEC end:0x80159344
-	.data       start:0x80249868 end:0x80249954
+	.data       start:0x80249868 end:0x80249958
 
 MetroTRK/mainloop.c:
 	.text       start:0x80159530 end:0x80159628
@@ -1224,19 +1224,22 @@ MetroTRK/nubevent.c:
 MetroTRK/nubinit.c:
 	.text       start:0x80159850 end:0x801599E8
 	.rodata     start:0x801C40E8 end:0x801C4118
+	.bss        start:0x80439C20 end:0x80439C28
 
 MetroTRK/msg.c:
 	.text       start:0x801599E8 end:0x80159A2C
-	.rodata     start:0x801C4118 end:0x801C4140
+	.rodata     start:0x801C4118 end:0x801C413D
 
 MetroTRK/msgbuf.c:
 	.text       start:0x80159A2C end:0x8015A268
+	.rodata     start:0x801C4140 end:0x801C415D
 	.bss        start:0x80439C28 end:0x8043B5D8
 
 MetroTRK/serpoll.c:
 	.text       start:0x8015A268 end:0x8015A520
 	.rodata     start:0x801C4160 end:0x801C42F0
 	.bss        start:0x8043B5D8 end:0x8043B5F0
+	.sbss       start:0x8044FCB0 end:0x8044FCB8
 
 MetroTRK/usr_put.c:
 	.text       start:0x8015A520 end:0x8015A5AC
@@ -1244,16 +1247,17 @@ MetroTRK/usr_put.c:
 MetroTRK/dispatch.c:
 	.text       start:0x8015A5AC end:0x8015A724
 	.rodata     start:0x801C42F0 end:0x801C4330
+	.data       start:0x80249958 end:0x802499C8
 
 MetroTRK/msghndlr.c:
 	.text       start:0x8015A724 end:0x8015B794
-	.rodata     start:0x801C4330 end:0x801C4518
+	.rodata     start:0x801C4330 end:0x801C4516
 	.data       start:0x802499C8 end:0x80249A00
 	.bss        start:0x8043B5F0 end:0x8043B5F8
 
 MetroTRK/support.c:
 	.text       start:0x8015B794 end:0x8015BEA8
-	.rodata     start:0x801C4518 end:0x801C45C0
+	.rodata     start:0x801C4518 end:0x801C45BD
 
 MetroTRK/mutex_TRK.c:
 	.text       start:0x8015BEA8 end:0x8015BEC0
@@ -1281,6 +1285,7 @@ MetroTRK/mpc_7xx_603e.c:
 	.text       start:0x8015DC00 end:0x8015DF70
 
 MetroTRK/dolphin_trk.c:
+	.init       start:0x800053E0 end:0x8000540C
 	.text       start:0x8015DF70 end:0x8015E5AC
 	.data       start:0x80249A30 end:0x80249A70
 	.bss        start:0x8043BB78 end:0x8043BB80
@@ -1304,13 +1309,14 @@ MetroTRK/target_options.c:
 	.bss        start:0x8043BB90 end:0x8043BB98
 
 MetroTRK/mslsupp.c:
-	.text       start:0x8015EC30 end:0x8015EDA8
+	.text       start:0x8015EBAC end:0x8015EDA8
 
 MetroTRK/UDP_Stubs.c:
 	.text       start:0x8015EDA8 end:0x8015EDF0
 
 MetroTRK/ddh/main.c:
 	.text       start:0x8015EDF0 end:0x8015F134
+	.rodata     start:0x801C4770 end:0x801C4850
 	.bss        start:0x8043BB98 end:0x8043C3B8
 	.sbss       start:0x8044FCB8 end:0x8044FCC0
 
@@ -1321,6 +1327,7 @@ MetroTRK/gdev/main.c:
 	.text       start:0x8015F39C end:0x8015F6E8
 	.rodata     start:0x801C4850 end:0x801C4930
 	.bss        start:0x8043C3B8 end:0x8043C8D8
+	.sbss       start:0x8044FCC0 end:0x8044FCC8
 
 MetroTRK/MWTrace.c:
 	.text       start:0x8015F6E8 end:0x8015F738
@@ -1534,6 +1541,9 @@ MSL/exponentialsf.c:
 
 MSL/w_sqrt.c:
 	.text       start:0x80169424 end:0x80169444
+
+dolphin/amcstubs/AmcExi2Stubs.c:
+	.text       start:0x80169444 end:0x80169474
 
 dolphin/odenotstub/odenotstub.c:
 	.text       start:0x80169474 end:0x8016947C

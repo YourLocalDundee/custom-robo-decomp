@@ -74,7 +74,11 @@ def points(elf, objs, c, units, pad):
     us = unit_sections(elf)
     secs = {s[1]: (s[3], s[3] + s[4]) for s in elf.alloc}
     # main.elf's FILE symbols are in the units' link order (two units may share a basename: MetroTRK ddh/gdev main.c)
-    if len(us) != len(units) or any(n != os.path.basename(u['name']) for (n, _), u in zip(us, units)):
+    # an object assembled from a .s source (MetroTRK targsupp, dtk-template's `source`) is named 'targsupp.o (asm)' by
+    # `dtk elf fixup`: compared by stem
+    def stem(x): return os.path.splitext(x.split(' ')[0])[0]
+    if len(us) != len(units) or any(n != os.path.basename(u['name']) and stem(n) != stem(os.path.basename(u['name']))
+                                    for (n, _), u in zip(us, units)):
         raise SystemExit('the FILE symbols of main.elf are not the units of config.json in link order: cannot map them')
     where = []    # (start, section, unit name)
     for u, (n, ss) in zip(units, us):

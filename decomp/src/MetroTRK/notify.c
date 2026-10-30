@@ -1,47 +1,28 @@
-/* Custom Robo: from mariopartyrd/marioparty4 @ 5b01c79b4910525e3fc5aa312eddd6d014e7f337, src/TRK_MINNOW_DOLPHIN/notify.c */ #include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/notify.h"
-#include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/msgbuf.h"
-#include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/support.h"
-#include "TRK_MINNOW_DOLPHIN/ppc/Generic/targimpl.h"
-#include "PowerPC_EABI_Support/MetroTRK/trk.h"
+/* Custom Robo: from zeldaret/tp @ c8fa8c9e2aab72cf4e5db0e5d1c84a9ea6ee6eb0, libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/notify.c */ #include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/notify.h"
+#include "trk.h"
 
-inline DSError TRKDoNotifyStopped_Inline(TRKBuffer* msg, MessageCommandID cmd) {
+DSError TRKDoNotifyStopped(MessageCommandID cmd) {
+    int reqIdx;
+    int bufIdx;
+    TRKBuffer* msg;
     DSError err;
+    DSError bufError;
 
-	if (msg->position >= 0x880) {
-		err = DS_MessageBufferOverflow;
-	} else {
-		msg->data[msg->position++] = cmd;
-		msg->length+=1;
-	    err = 0;
-	}
+    bufError = TRKGetFreeBuffer(&bufIdx, &msg);
+    if ((err = bufError) == FALSE) {
+        if (err == DS_NoError) {
+            if (cmd == DSMSG_NotifyStopped) {
+                TRKTargetAddStopInfo(msg);
+            } else {
+                TRKTargetAddExceptionInfo(msg);
+            }
+        }
+        bufError = TRKRequestSend(msg, &reqIdx, 2, 3, 1);
+        err = bufError;
+        if (err == DS_NoError) {
+            TRKReleaseBuffer(reqIdx);
+        }
+        TRKReleaseBuffer(bufIdx);
+    }
     return err;
-}
-
-DSError TRKDoNotifyStopped(MessageCommandID cmd)
-{
-	DSError err;
-	int reqIdx;
-	int bufIdx;
-	TRKBuffer* msg;
-
-	err = TRKGetFreeBuffer(&bufIdx, &msg);
-	if (err == DS_NoError) {
-		err = TRKDoNotifyStopped_Inline(msg, cmd);
-
-		if (err == DS_NoError) {
-			if (cmd == DSMSG_NotifyStopped) {
-				TRKTargetAddStopInfo(msg);
-			} else {
-				TRKTargetAddExceptionInfo(msg);
-			}
-		}
-
-		err = TRKRequestSend(msg, &reqIdx, 2, 3, 1);
-		if (err == DS_NoError) {
-			TRKReleaseBuffer(reqIdx);
-		}
-		TRKReleaseBuffer(bufIdx);
-	}
-
-	return err;
 }

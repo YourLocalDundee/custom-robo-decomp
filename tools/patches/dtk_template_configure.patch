@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,407 @@ def MatchingFor(*versions):
+@@ -284,18 +307,422 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -220,6 +220,27 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/thp/THPDec.c": BFBB_INC,
 +    "dolphin/thp/THPAudio.c": BFBB_INC,
 +    "dolphin/si/SISamplingRate.c": BFBB_INC,
++}
++# from Twilight Princess (tools/refs/tp, zeldaret/tp; step 68): MetroTRK v2.6 (the TRK of this game; docs/compiler.md
++# "Source hunt"); its header roots in include/tp (include/, MSL_Common/Include, MSL_Common_Embedded/Math/Include,
++# PowerPC_EABI_Support/MetroTRK, dolphin/include and dolphin/include/dolphin), defines as TP's configure.py
++TP_INC = ["-i include/tp", "-i include/tp/msl_common", "-i include/tp/msl_math", "-i include/tp/metrotrk",
++          "-i include/tp/dolphin", "-i include/tp/dolphin/dolphin", "-DVERSION=0", "-D__GEKKO__"]
++# from Pikmin 2 (tools/refs/pikmin2, doldecomp/pikmin2; step 68): targimpl.c (the only exact one), mslsupp.c (with the
++# 0x84 __close_console main.dol has there), MWCriticalSection_gc.cpp
++PIKMIN2_INC = ["-i include/pikmin2", "-DVERSION_GPVE01"]
++for _o in ("dispatch", "dolphin_trk", "dolphin_trk_glue", "main_TRK", "msg", "msgbuf", "msghndlr", "notify", "nubinit",
++           "serpoll", "support", "ddh/main", "gdev/main", "CircleBuffer"):
++    CR_OBJECT_INCLUDES[f"MetroTRK/{_o}.c"] = TP_INC
++for _o in ("MetroTRK/targimpl.c", "MetroTRK/MWCriticalSection_gc.cpp", "MetroTRK/mslsupp.c"):
++    CR_OBJECT_INCLUDES[_o] = PIKMIN2_INC
++# TP / Pikmin 2 build these three with -sdata 8 (their configure.py; serpoll.c: gTRKInputPendingPtr is in .sbss here)
++CR_OBJECT_CFLAGS["MetroTRK/serpoll.c"] = ["-sdata 8"]
++CR_OBJECT_CFLAGS["MetroTRK/ddh/main.c"] = ["-sdata 8"]
++CR_OBJECT_CFLAGS["MetroTRK/gdev/main.c"] = ["-sdata 8"]
++# An object whose source is not decomp/src/<object name> (dtk-template's `source`): Pikmin 2 / TP assemble targsupp
++CR_OBJECT_SOURCE: Dict[str, str] = {
++    "MetroTRK/targsupp.c": "MetroTRK/targsupp.s",
 +}
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
@@ -376,6 +397,24 @@ diff --git a/configure.py b/configure.py
 +    "MSL/ansi_fp.c",
 +    "MetroTRK/UDP_Stubs.c",
 +    "MetroTRK/MWTrace.c",
++    "MSL/uart_console_io_gcn.c",
++    "MetroTRK/dispatch.c",
++    "MetroTRK/dolphin_trk.c",
++    "MetroTRK/dolphin_trk_glue.c",
++    "MetroTRK/main_TRK.c",
++    "MetroTRK/msg.c",
++    "MetroTRK/msgbuf.c",
++    "MetroTRK/msghndlr.c",
++    "MetroTRK/notify.c",
++    "MetroTRK/nubinit.c",
++    "MetroTRK/serpoll.c",
++    "MetroTRK/support.c",
++    "MetroTRK/targimpl.c",
++    "MetroTRK/ddh/main.c",
++    "MetroTRK/gdev/main.c",
++    "MetroTRK/CircleBuffer.c",
++    "MetroTRK/MWCriticalSection_gc.cpp",
++    "MetroTRK/targsupp.c",
 +    "dolphin/thp/THPDec.c",
 +    "dolphin/thp/THPAudio.c",
 +    "dolphin/si/SISamplingRate.c",
@@ -393,8 +432,6 @@ diff --git a/configure.py b/configure.py
 +# "data": the C defines data main.dol keeps in a dtk automatic object (the data split must give this object that
 +# piece first); "link": the C calls functions / uses data our symbols do not name yet.
 +CR_NOT_MATCHING = {
-+    "MSL/uart_console_io_gcn.c":
-+        "link: 100% code and data (BfBB's file), but the C also defines __close_console, which main.dol has at 0x8015EBAC, before MetroTRK/mslsupp.c, far outside this object's range 0x80165A14-0x80165AE4 (MKDD's map puts it in another unit of the same name there): linked from C it is defined twice (step 65)",
 +    "sysdolphin/baselib/bytecode.c":
 +        "code: HSD_ByteCodeEval (0x15C8, the whole object) 97% in objdiff: Melee's saves f30 / f31 and computes a few values differently (another revision; doldecomp/kar has only asm): adapt to this revision",
 +    "sysdolphin/baselib/mtx.c":
@@ -427,30 +464,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 13 of 15 functions equal in objdiff (doldecomp/kar's aobj.c for its 10 functions, the 9 it lacks ported from wowjinxy/KAR's aobj.c, provenance per function; HSD_AObjSetRate named by its bytes): fn_8018CCDC (0x50) and fn_8018CD2C (0x80), between HSD_AObjInvokeCallBacks and HSD_AObjReqAnim, have no function of their size in Melee's or KAR's file (HSD_AObjSetFObj 0x4C, HSD_AObjStopAnim 0x44 there); the C also has functions this revision inlines (HSD_AObjGetAllocData, Get/Set/ClearFlags, SetFObj, StopAnim)",
 +    "MSL/FILE_POS.c":
 +        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision; BfBB has no FILE_POS.c and no reference reproduces _fseek (86%) or ftell (46%) (step 66)",
-+    "MetroTRK/dispatch.c":
-+        "code: 2 of 2 functions differ (TRKInitializeDispatcher 0%, TRKDispatchMessage 24%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
-+    "MetroTRK/dolphin_trk.c":
-+        "code: 5 of 8 functions differ (TRKTargetTranslate 73%, __TRK_copy_vectors 85%, fn_8015E288 0%, fn_8015E09C 0% (+1 more)): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise); ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
-+    "MetroTRK/dolphin_trk_glue.c":
-+        "code: 10 of 13 functions differ (InitMetroTRKCommTable 37%, TRKInitializeIntDrivenUART 75%, EnableEXI2Interrupts 67%, TRKPollUART 0% (+6 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
-+    "MetroTRK/main_TRK.c":
-+        "code: 1 of 1 functions differ (TRK_main 77%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
-+    "MetroTRK/msg.c":
-+        "code: 1 of 1 functions differ (TRKMessageSend 0%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
-+    "MetroTRK/msgbuf.c":
-+        "code: 3 of 14 functions differ (TRKResetBuffer 92%, TRKAppendBuffer1_ui64 53%, TRKAppendBuffer_ui32 65%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
-+    "MetroTRK/msghndlr.c":
-+        "code: 15 of 17 functions differ (OutputData 0%, TRKDoConnect 0%, TRKDoDisconnect 0%, TRKDoReset 0% (+11 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
-+    "MetroTRK/notify.c":
-+        "code: 1 of 1 functions differ (TRKDoNotifyStopped 61%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
-+    "MetroTRK/nubinit.c":
-+        "code: 1 of 3 functions differ (TRKInitializeNub 73%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
-+    "MetroTRK/serpoll.c":
-+        "code: 3 of 5 functions differ (TRKTestForPacket 0%, TRKGetInput 38%, TRKInitializeSerialHandler 16%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
-+    "MetroTRK/support.c":
-+        "code: 5 of 5 functions differ (TRKSuppAccessFile 39%, TRKRequestSend 77%, HandleOpenFileSupportRequest 24%, HandleCloseFileSupportRequest 51% (+1 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
-+    "MetroTRK/targimpl.c":
-+        "code: 12 of 29 functions differ (TRKValidMemory32 40%, TRKTargetAccessFP 23%, TRKPostInterruptEvent 86%, TRKTargetInterrupt 81% (+8 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +}
 +
 +
@@ -467,6 +480,8 @@ diff --git a/configure.py b/configure.py
 +        if name.startswith(d):
 +            extra += f
 +    opts: Dict[str, Any] = {"extra_cflags": extra}
++    if name in CR_OBJECT_SOURCE:
++        opts["source"] = CR_OBJECT_SOURCE[name]
 +    if name in CR_OBJECT_INCLUDES:
 +        _, lib_cflags = CR_LIBS[name.split("/")[0]]
 +        opts["cflags"] = [f for f in lib_cflags if not f.startswith(("-i ", "-ir "))] + CR_OBJECT_INCLUDES[name]
