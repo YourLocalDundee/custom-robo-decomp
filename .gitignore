@@ -61,3 +61,4 @@ tools/compiler_probe/out/
 
 # tools/draft_batch.py (batch 12): m2c drafts, their objects and logs are decompiled output, never committed
 decomp/drafts/
+tools/refs_new/
