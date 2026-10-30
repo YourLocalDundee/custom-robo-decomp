@@ -56,7 +56,8 @@ static HSD_TexAnim* lookupTextureAnim(s32 id, HSD_TexAnim* texanim)
     return NULL;
 }
 
-void HSD_TObjAddAnim(HSD_TObj* tobj, HSD_TexAnim* texanim)
+/* wowjinxy/KAR tobj.c TObjAddAnim (static inline there and here; Melee: HSD_TObjAddAnim) */
+static inline void TObjAddAnim(HSD_TObj* tobj, HSD_TexAnim* texanim)
 {
     s32 i;
     HSD_TexAnim* ta;
@@ -77,7 +78,7 @@ void HSD_TObjAddAnim(HSD_TObj* tobj, HSD_TexAnim* texanim)
             }
 
             if (ta->n_tluttbl) {
-                tobj->tluttbl = HSD_MemAlloc((s32) sizeof(HSD_Tlut*) *
+                tobj->tluttbl = (HSD_Tlut**) HSD_Alloc((s32) sizeof(HSD_Tlut*) *
                                              (ta->n_tluttbl + 1));
                 for (i = 0; i < ta->n_tluttbl; i++) {
                     tobj->tluttbl[i] = HSD_TlutLoadDesc(ta->tluttbl[i]);
@@ -86,18 +87,22 @@ void HSD_TObjAddAnim(HSD_TObj* tobj, HSD_TexAnim* texanim)
             } else {
                 tobj->tluttbl = NULL;
             }
-            tobj->tlut_no = -1;
+            tobj->tlut_no = (u8) -1;
         }
     }
 }
 
+/* wowjinxy/KAR tobj.c HSD_TObjAddAnimAll. Custom Robo: compiled here it equals main.dol's function at 0x80186B44 (0x154)
+ * instruction for instruction; wowjinxy and Melee (HSD_MObjAddAnim calls HSD_TObjAddAnimAll) name that function
+ * HSD_TObjAddAnimAll (symbols/symbols.txt since step 61 iteration 7; HSD_TObjAddAnim before, from kar's mobj.c call
+ * site), and main.dol has no separate single-TObj function (wowjinxy's TObjAddAnim is static inline). */
 void HSD_TObjAddAnimAll(HSD_TObj* tobj, HSD_TexAnim* texanim)
 {
     HSD_TObj* tp;
 
     if (tobj != NULL) {
         for (tp = tobj; tp; tp = tp->next) {
-            HSD_TObjAddAnim(tp, texanim);
+            TObjAddAnim(tp, texanim);
         }
     }
 }
@@ -132,6 +137,8 @@ void HSD_TObjReqAnimAll(HSD_TObj* tobj, f32 startframe)
     HSD_TObjReqAnimAllByFlags(tobj, startframe, TOBJ_ANIM);
 }
 
+/* wowjinxy/KAR tobj.c TObjUpdateFunc; its ClampUnit with the constants written out */
+#define ClampUnit(v) ((v) <= 0.0F ? 0.0F : ((v) >= 1.0F ? 1.0F : (v)))
 static void TObjUpdateFunc(void* obj, enum_t type, HSD_ObjData* val)
 {
     HSD_TObj* tobj = obj;
@@ -143,7 +150,7 @@ static void TObjUpdateFunc(void* obj, enum_t type, HSD_ObjData* val)
     switch (type) {
     case HSD_A_T_TIMG: {
         int n;
-        HSD_ASSERT(276, tobj->imagetbl);
+        HSD_ASSERT(278, tobj->imagetbl); /* Custom Robo: main.dol passes 278 (0x116) here, wowjinxy 0x155 */
         n = (int) val->fv;
         if (tobj->imagetbl[n]) {
             tobj->imagedesc = tobj->imagetbl[n];
@@ -155,7 +162,7 @@ static void TObjUpdateFunc(void* obj, enum_t type, HSD_ObjData* val)
         }
     } break;
     case HSD_A_T_BLEND:
-        tobj->blending = val->fv;
+        tobj->blending = ClampUnit(val->fv);
         break;
     case HSD_A_T_ROTX:
         tobj->rotate.x = val->fv;
@@ -182,46 +189,72 @@ static void TObjUpdateFunc(void* obj, enum_t type, HSD_ObjData* val)
         tobj->flags |= TEX_MTX_DIRTY;
         break;
     case HSD_A_T_LOD_BIAS:
-        tobj->lod->LODBias = val->fv;
+        if (tobj->lod) {
+            tobj->lod->LODBias = val->fv;
+        }
         break;
     case HSD_A_T_KONST_R:
-        tobj->tev->konst.r = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->konst.r = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_KONST_G:
-        tobj->tev->konst.g = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->konst.g = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_KONST_B:
-        tobj->tev->konst.b = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->konst.b = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_KONST_A:
-        tobj->tev->konst.a = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->konst.a = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_TEV0_R:
-        tobj->tev->tev0.r = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->tev0.r = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_TEV0_G:
-        tobj->tev->tev0.g = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->tev0.g = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_TEV0_B:
-        tobj->tev->tev0.b = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->tev0.b = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_TEV0_A:
-        tobj->tev->tev0.a = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->tev0.a = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_TEV1_R:
-        tobj->tev->tev1.r = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->tev1.r = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_TEV1_G:
-        tobj->tev->tev1.g = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->tev1.g = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_TEV1_B:
-        tobj->tev->tev1.b = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->tev1.b = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_TEV1_A:
-        tobj->tev->tev1.a = (u8) (255.0 * val->fv);
+        if (tobj->tev) {
+            tobj->tev->tev1.a = (u8) (255.0F * ClampUnit(val->fv));
+        }
         break;
     case HSD_A_T_TS_BLEND:
-        tobj->blending = val->fv;
+        tobj->blending = ClampUnit(val->fv);
         break;
     }
 }
@@ -232,7 +265,9 @@ void HSD_TObjAnim(HSD_TObj* tobj)
         return;
     }
 
-    HSD_AObjInterpretAnim(tobj->aobj, tobj, TObjUpdateFunc);
+    /* wowjinxy/KAR tobj.c HSD_TObjInterpretAnim: the update method of the class (main.dol's HSD_TObjAnimAll loads
+     * it from the class info, lwz 0x48) */
+    HSD_AObjInterpretAnim(tobj->aobj, tobj, HSD_TOBJ_METHOD(tobj)->update);
 }
 
 void HSD_TObjAnimAll(HSD_TObj* tobj)
@@ -248,10 +283,22 @@ void HSD_TObjAnimAll(HSD_TObj* tobj)
     }
 }
 
-static int TObjLoad(HSD_TObj* tobj, HSD_TObjDesc* td)
+/* Custom Robo: TObjAddAnim / HSD_TObjAddAnimAll, TObjUpdateFunc, TObjLoad, TObjInit, TObjInfoInit and HSD_TObjAnim's
+ * body are wowjinxy/KAR @
+ * cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 src/sysdolphin/tobj.c's (the same HSD revision as main.dol), adapted to Melee's
+ * headers: hsdTObj is the class info itself here (wowjinxy: hsdTObj.info), tobj.h gains wowjinxy's u16 id at 0x4A
+ * (Melee's id is map_id) and the update method; _HSD_NeedCacheInvalidate is fn_8019D398 (unnamed; the function both
+ * TObjLoad and PObjLoad call with 2 / 1 in main.dol, wowjinxy's name there) and TObjInit is fn_80189A70 (the init
+ * method TObjInfoInit stores at 0x2C in main.dol; its body is wowjinxy's TObjInit) */
+#define _HSD_NeedCacheInvalidate fn_8019D398
+#define TObjInit fn_80189A70
+void _HSD_NeedCacheInvalidate(int);
+
+/* wowjinxy/KAR tobj.c TObjLoad */
+int TObjLoad(HSD_TObj* tobj, HSD_TObjDesc* td)
 {
     tobj->next = HSD_TObjLoadDesc(td->next);
-    tobj->id = td->id;
+    tobj->id = (u16) td->id;
     tobj->src = td->src;
     tobj->mtxid = GX_IDENTITY;
     tobj->rotate.x = td->rotate.x;
@@ -273,6 +320,8 @@ static int TObjLoad(HSD_TObj* tobj, HSD_TObjDesc* td)
     tobj->flags |= TEX_MTX_DIRTY;
     tobj->tlut_no = (u8) -1;
     tobj->tev = HSD_TObjTevLoadDesc(td->tev);
+
+    _HSD_NeedCacheInvalidate(2);
 
     return 0;
 }
@@ -367,12 +416,13 @@ static void MakeTextureMtx(HSD_TObj* tobj)
     Quaternion rot;
 
     PAD_STACK(8);
-    HSD_ASSERT(589, tobj->repeat_s && tobj->repeat_t);
+    HSD_ASSERT(615, tobj->repeat_s && tobj->repeat_t); /* Custom Robo: main.dol passes 615 (0x267) here, Melee 589 */
 
-    scale.x = fabsf(tobj->scale.x) < FLT_EPSILON
+    /* Custom Robo: (f32) __fabs as wowjinxy/KAR's MakeTextureMtx (main.dol rounds with frsp before the compare) */
+    scale.x = (f32) __fabs(tobj->scale.x) < FLT_EPSILON
                   ? 0.0F
                   : (f32) tobj->repeat_s / tobj->scale.x;
-    scale.y = fabsf(tobj->scale.y) < FLT_EPSILON
+    scale.y = (f32) __fabs(tobj->scale.y) < FLT_EPSILON
                   ? 0.0F
                   : (f32) tobj->repeat_t / tobj->scale.y;
     scale.z = tobj->scale.z;
@@ -538,7 +588,7 @@ static void setupTextureCoordGenToon(HSD_TObj* toon)
 void HSD_TObjSetupTextureCoordGen(HSD_TObj* tobj)
 {
     for (; tobj != NULL; tobj = tobj->next) {
-        if (tobj->id == GX_TEXMAP_NULL) {
+        if (tobj->map_id == GX_TEXMAP_NULL) {
             continue;
         }
         if (tobj_bump(tobj)) {
@@ -569,7 +619,7 @@ static void TObjSetupTevModulateShadow(HSD_TObj* shadow)
     {
         tevdesc.stage = HSD_StateAssignTev();
         tevdesc.coord = shadow->coord;
-        tevdesc.map = shadow->id;
+        tevdesc.map = shadow->map_id;
         HSD_SetupTevStage(&tevdesc);
     }
 }
@@ -588,7 +638,7 @@ static void SetupEmbossBumpTev(HSD_TObj* bump)
 
     tevdesc.stage = HSD_StateAssignTev();
     tevdesc.coord = bump->coord;
-    tevdesc.map = bump->id;
+    tevdesc.map = bump->map_id;
     tevdesc.u.tevconf.clr_op = GX_TEV_ADD;
     tevdesc.u.tevconf.alpha_op = GX_TEV_ADD;
     tevdesc.u.tevconf.clr_clamp = GX_DISABLE;
@@ -604,7 +654,7 @@ static void SetupEmbossBumpTev(HSD_TObj* bump)
 void HSD_TObjSetupVolatileTev(HSD_TObj* tobj, u32 rendermode)
 {
     for (; tobj; tobj = tobj->next) {
-        if (tobj->id == GX_TEXMAP_NULL) {
+        if (tobj->map_id == GX_TEXMAP_NULL) {
             continue;
         }
 
@@ -921,7 +971,7 @@ static void TObjMakeTExp(HSD_TObj* tobj, u32 lightmap, u32 lightmap_done,
     HSD_TExp *e0, *e1;
     HSD_TExp *c_src, *a_src;
     HSD_TEInput c_sel, a_sel;
-    int repeat = (lightmap_done & tobj_lightmap(tobj));
+    int repeat = (lightmap_done & tobj_lightmap(tobj)) != 0; /* Custom Robo: != 0 as wowjinxy/KAR's TObjMakeTExp */
 
     c_src = HSD_TEXP_TEX;
     c_sel = HSD_TE_RGB;
@@ -983,7 +1033,7 @@ static void TObjMakeTExp(HSD_TObj* tobj, u32 lightmap, u32 lightmap_done,
                         HSD_TEXP_ZERO, HSD_TE_RGB, *c);
         break;
     default:
-        HSD_ASSERT(1372, 0);
+        HSD_ASSERT(1398, 0); /* Custom Robo: main.dol passes 1398 (0x576) here, Melee 1372 */
     }
     *c = e0;
 
@@ -1036,7 +1086,7 @@ static void TObjMakeTExp(HSD_TObj* tobj, u32 lightmap, u32 lightmap_done,
                             HSD_TE_0, HSD_TEXP_ZERO, HSD_TE_A, *a);
             break;
         default:
-            HSD_ASSERT(1430, 0);
+            HSD_ASSERT(1456, 0); /* Custom Robo: main.dol passes 1456 (0x5b0) here, Melee 1430 */
         }
         *a = e0;
     }
@@ -1073,15 +1123,15 @@ s32 HSD_TObjAssignResources(HSD_TObj* tobj_top)
     for (tobj = tobj_top; tobj; tobj = tobj->next) {
         if (tobj_coord(tobj) == TEX_COORD_TOON) {
             if (tobj != toon) {
-                tobj->id = GX_TEXMAP_NULL;
+                tobj->map_id = GX_TEXMAP_NULL;
             }
         } else if (tobj_bump(tobj)) {
             if (tobj != bump) {
-                tobj->id = GX_TEXMAP_NULL;
+                tobj->map_id = GX_TEXMAP_NULL;
             }
         } else if (texmap_no < limit) {
-            tobj->id = HSD_Index2TexMap(texmap_no++);
-            tobj->mtxid = HSD_TexMapID2PTTexMtx(tobj->id);
+            tobj->map_id = HSD_Index2TexMap(texmap_no++);
+            tobj->mtxid = HSD_TexMapID2PTTexMtx(tobj->map_id);
             switch (tobj_coord(tobj)) {
             case TEX_COORD_REFLECTION:
             case TEX_COORD_HILIGHT:
@@ -1092,12 +1142,12 @@ s32 HSD_TObjAssignResources(HSD_TObj* tobj_top)
                 break;
             }
         } else {
-            tobj->id = GX_TEXMAP_NULL;
+            tobj->map_id = GX_TEXMAP_NULL;
         }
     }
 
     for (tobj = tobj_top; tobj; tobj = tobj->next) {
-        if (tobj->id != GX_TEXMAP_NULL && !tobj_bump(tobj)) {
+        if (tobj->map_id != GX_TEXMAP_NULL && !tobj_bump(tobj)) {
             switch (tobj_coord(tobj)) {
             case TEX_COORD_UV:
                 tobj->coord = HSD_Index2TexCoord(texcoord_no++);
@@ -1109,13 +1159,13 @@ s32 HSD_TObjAssignResources(HSD_TObj* tobj_top)
     }
 
     if (bump) {
-        bump->id = HSD_Index2TexMap(texmap_no++);
+        bump->map_id = HSD_Index2TexMap(texmap_no++);
         bump->mtxid = GX_TEXMTX9;
         bump->coord = HSD_Index2TexCoord(texcoord_no);
         texcoord_no += 2;
     }
     if (toon) {
-        toon->id = HSD_Index2TexMap(texmap_no++);
+        toon->map_id = HSD_Index2TexMap(texmap_no++);
         toon->coord = HSD_Index2TexCoord(texcoord_no++);
     }
 
@@ -1161,13 +1211,13 @@ void HSD_TObjSetup(HSD_TObj* tobj)
         HSD_ImageDesc* imagedesc = tobj->imagedesc;
         GXTexFilter min_filter;
 
-        if (tobj->id == GX_TEXMAP_NULL) {
+        if (tobj->map_id == GX_TEXMAP_NULL) {
             continue;
         }
 
         TObjSetupMtx(tobj);
-        HSD_ASSERT(1578, imagedesc);
-        HSD_ASSERT(1579, imagedesc->image_ptr);
+        HSD_ASSERT(1604, imagedesc); /* Custom Robo: main.dol passes 1604 (0x644) here, Melee 1578 */
+        HSD_ASSERT(1605, imagedesc->image_ptr); /* Custom Robo: main.dol passes 1605 (0x645) here, Melee 1579 */
 
         lod = tobj->lod != NULL ? tobj->lod : &default_lod;
         min_filter = lod->minFilt;
@@ -1184,7 +1234,7 @@ void HSD_TObjSetup(HSD_TObj* tobj)
                 tlut = tobj->tlut;
             }
 
-            HSD_ASSERT(1595, tlut);
+            HSD_ASSERT(1621, tlut); /* Custom Robo: main.dol passes 1621 (0x655) here, Melee 1595 */
 
             for (i = 0; i < nb_tluts; i++) {
                 if (!DifferentTluts(tluts[i], tlut)) {
@@ -1194,7 +1244,7 @@ void HSD_TObjSetup(HSD_TObj* tobj)
             if (i < nb_tluts) {
                 tlut->tlut_name = tluts[i]->tlut_name;
             } else if (nb_tluts < 8) {
-                if (tlut->n_entries >= 256) {
+                if (tlut->n_entries > 256) { /* Custom Robo: main.dol `cmplwi r0, 0x100; ble` (Melee and wowjinxy: >=) */
                     tlut->tlut_name = big_tlut_name++;
                 } else {
                     tlut->tlut_name = tlut_name++;
@@ -1230,7 +1280,7 @@ void HSD_TObjSetup(HSD_TObj* tobj)
             break;
 
         default:
-            HSD_ASSERT(0x677, 0);
+            HSD_ASSERT(0x691, 0); /* Custom Robo: main.dol passes 1681 (0x691) here, Melee 1655 */
         }
 
         if (!imagedesc->mipmap) {
@@ -1240,7 +1290,7 @@ void HSD_TObjSetup(HSD_TObj* tobj)
                         imagedesc->maxLOD, lod->LODBias, lod->bias_clamp,
                         lod->edgeLODEnable, lod->max_anisotropy);
 
-        GXLoadTexObj(&texobj, tobj->id);
+        GXLoadTexObj(&texobj, tobj->map_id);
     }
 }
 
@@ -1608,16 +1658,31 @@ static void TObjAmnesia(HSD_ClassInfo* info)
     HSD_PARENT_INFO(&hsdTObj)->amnesia(info);
 }
 
-static void TObjInfoInit(void)
+/* wowjinxy/KAR tobj.c TObjInit */
+int TObjInit(HSD_Class* o)
 {
-    hsdInitClassInfo(HSD_CLASS_INFO(&hsdTObj), HSD_CLASS_INFO(&hsdObj),
+    int result = HSD_PARENT_INFO(&hsdTObj)->init(o);
+    if (result >= 0) {
+        result = 0;
+        ((HSD_TObj*) o)->id = (u16) -1;
+    }
+    return result;
+}
+
+/* wowjinxy/KAR tobj.c TObjInfoInit */
+void TObjInfoInit(void)
+{
+    hsdInitClassInfo(HSD_CLASS_INFO(&hsdTObj), &hsdObj,
                      "sysdolphin_base_library", "hsd_tobj",
                      sizeof(HSD_TObjInfo), sizeof(HSD_TObj));
 
+    HSD_CLASS_INFO(&hsdTObj)->init = TObjInit;
     HSD_CLASS_INFO(&hsdTObj)->release = TObjRelease;
     HSD_CLASS_INFO(&hsdTObj)->amnesia = TObjAmnesia;
     HSD_TOBJ_INFO(&hsdTObj)->load = TObjLoad;
     HSD_TOBJ_INFO(&hsdTObj)->make_texp = TObjMakeTExp;
 
     hsdTObj.make_mtx = MakeTextureMtx;
+
+    HSD_TOBJ_INFO(&hsdTObj)->update = TObjUpdateFunc;
 }

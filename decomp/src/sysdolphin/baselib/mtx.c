@@ -272,50 +272,146 @@ void HSD_MtxGetTranslate(Mtx mat, Vec3* vec)
     vec->z = mat[2][3];
 }
 
+/* Custom Robo: HSD_MtxGetScale is from wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57, src/sysdolphin/mtx.c
+ * (the same HSD revision as main.dol, 0x4D8 here; Melee's above is 0x198), adapted: wowjinxy's extern constants are
+ * main.dol's .sdata2 objects of the same values (HSDMtxFloatZero 0.0F = lbl_804528A0, FloatOne 1.0F = lbl_804528A4,
+ * DoubleHalf 0.5 = lbl_804528A8, DoubleThree 3.0 = lbl_804528B0, FloatEps 1e-10F = lbl_804528C8, DoubleZero 0.0 =
+ * lbl_804528D0, DoubleNegOne -1.0 = lbl_804528D8; each read by HSD_MtxGetScale, 0x8019F600..0x8019FAD8 in main.dol, values from
+ * the split object), extern as in wowjinxy, so this function does not depend on the order of the literal pool;
+ * PSVECScale with the SDK's argument order (Melee's mtx.h; wowjinxy declares it scale first, the same registers),
+ * Vec3 = wowjinxy's Vec */
+extern const f32 lbl_804528A0;
+extern const f32 lbl_804528A4;
+extern const f64 lbl_804528A8;
+extern const f64 lbl_804528B0;
+extern const f32 lbl_804528C8;
+extern const f64 lbl_804528D0;
+extern const f64 lbl_804528D8;
+#define HSDMtxFloatZero lbl_804528A0
+#define HSDMtxFloatOne lbl_804528A4
+#define HSDMtxDoubleHalf lbl_804528A8
+#define HSDMtxDoubleThree lbl_804528B0
+#define HSDMtxFloatEps lbl_804528C8
+#define HSDMtxDoubleZero lbl_804528D0
+#define HSDMtxDoubleNegOne lbl_804528D8
+
+/* wowjinxy/KAR mtx.c mtx_sqrtf (static inline there and here) */
+static inline f32 mtx_sqrtf(f32 x)
+{
+    volatile f32 y;
+
+    if (x > HSDMtxFloatZero) {
+        f64 guess = __frsqrte((f64) x);
+        guess = HSDMtxDoubleHalf * guess * __fnmsub(x, guess * guess, HSDMtxDoubleThree);
+        guess = HSDMtxDoubleHalf * guess * __fnmsub(x, guess * guess, HSDMtxDoubleThree);
+        guess = HSDMtxDoubleHalf * guess * __fnmsub(x, guess * guess, HSDMtxDoubleThree);
+        y = (f32) (x * guess);
+        return y;
+    }
+    return x;
+}
+
+/* wowjinxy/KAR mtx.c HSD_MtxGetScale */
 void HSD_MtxGetScale(Mtx arg0, Vec3* arg1)
 {
-    f64 scale;
-
-    u8 _[8];
-
     Vec3 vec1;
     Vec3 vec2;
     Vec3 vec3;
     Vec3 vec4;
+    f32 sq1, sq2, sq3;
 
     vec1.x = arg0[0][0];
     vec1.y = arg0[1][0];
     vec1.z = arg0[2][0];
 
-    arg1->x = VECMag(&vec1);
-    VECNormalize(&vec1, &vec1);
+    sq1 = PSVECSquareMag(&vec1);
+    if (sq1 > HSDMtxFloatEps) {
+        f32 invMag = mtx_sqrtf(HSDMtxFloatOne / sq1);
+        arg1->x = HSDMtxFloatOne / invMag;
+        PSVECScale(&vec1, &vec1, invMag);
 
-    vec2.x = arg0[0][1];
-    vec2.y = arg0[1][1];
-    vec2.z = arg0[2][1];
+        vec2.x = arg0[0][1];
+        vec2.y = arg0[1][1];
+        vec2.z = arg0[2][1];
 
-    VECScale(&vec1, &vec4, VECDotProduct(&vec1, &vec2));
-    VECSubtract(&vec2, &vec4, &vec2);
-    arg1->y = VECMag(&vec2);
-    VECNormalize(&vec2, &vec2);
+        PSVECScale(&vec1, &vec4, PSVECDotProduct(&vec1, &vec2));
+        PSVECSubtract(&vec2, &vec4, &vec2);
 
-    vec3.x = arg0[0][2];
-    vec3.y = arg0[1][2];
-    vec3.z = arg0[2][2];
+        sq2 = PSVECSquareMag(&vec2);
+        if (sq2 > HSDMtxFloatEps) {
+            f32 invMag2 = mtx_sqrtf(HSDMtxFloatOne / sq2);
+            arg1->y = HSDMtxFloatOne / invMag2;
+            PSVECScale(&vec2, &vec2, invMag2);
 
-    VECScale(&vec2, &vec4, VECDotProduct(&vec2, &vec3));
-    VECSubtract(&vec3, &vec4, &vec3);
-    VECScale(&vec1, &vec4, VECDotProduct(&vec1, &vec3));
-    VECSubtract(&vec3, &vec4, &vec3);
-    arg1->z = VECMag(&vec3);
-    VECNormalize(&vec3, &vec3);
-    VECCrossProduct(&vec2, &vec3, &vec4);
+            vec3.x = arg0[0][2];
+            vec3.y = arg0[1][2];
+            vec3.z = arg0[2][2];
 
-    if (VECDotProduct(&vec1, &vec4) < 0.0) {
-        scale = -1.0;
-        arg1->x *= scale;
-        arg1->y *= scale;
-        arg1->z *= scale;
+            PSVECScale(&vec2, &vec4, PSVECDotProduct(&vec2, &vec3));
+            PSVECSubtract(&vec3, &vec4, &vec3);
+            PSVECScale(&vec1, &vec4, PSVECDotProduct(&vec1, &vec3));
+            PSVECSubtract(&vec3, &vec4, &vec3);
+
+            sq3 = PSVECSquareMag(&vec3);
+            if (sq3 > HSDMtxFloatEps) {
+                arg1->z = mtx_sqrtf(sq3);
+
+                PSVECCrossProduct(&vec2, &vec3, &vec4);
+                if (PSVECDotProduct(&vec1, &vec4) < HSDMtxDoubleZero) {
+                    f64 neg;
+                    arg1->x = (f32) (arg1->x * (neg = HSDMtxDoubleNegOne));
+                    arg1->y = (f32) (arg1->y * neg);
+                    arg1->z = (f32) (arg1->z * neg);
+                }
+            } else {
+                arg1->z = HSDMtxFloatZero;
+            }
+        } else {
+            arg1->y = HSDMtxFloatZero;
+
+            vec3.x = arg0[0][2];
+            vec3.y = arg0[1][2];
+            vec3.z = arg0[2][2];
+
+            PSVECScale(&vec1, &vec4, PSVECDotProduct(&vec1, &vec3));
+            PSVECSubtract(&vec3, &vec4, &vec3);
+
+            sq3 = PSVECSquareMag(&vec3);
+            if (sq3 > HSDMtxFloatEps) {
+                arg1->z = mtx_sqrtf(sq3);
+            } else {
+                arg1->z = HSDMtxFloatZero;
+            }
+        }
+    } else {
+        arg1->x = HSDMtxFloatZero;
+
+        vec2.x = arg0[0][1];
+        vec2.y = arg0[1][1];
+        vec2.z = arg0[2][1];
+
+        sq2 = PSVECSquareMag(&vec2);
+        if (sq2 > HSDMtxFloatEps) {
+            f32 invMag2 = mtx_sqrtf(HSDMtxFloatOne / sq2);
+            arg1->y = HSDMtxFloatOne / invMag2;
+            PSVECScale(&vec2, &vec2, invMag2);
+
+            vec3.x = arg0[0][2];
+            vec3.y = arg0[1][2];
+            vec3.z = arg0[2][2];
+
+            PSVECScale(&vec2, &vec4, PSVECDotProduct(&vec2, &vec3));
+            PSVECSubtract(&vec3, &vec4, &vec3);
+            arg1->z = PSVECMag(&vec3);
+        } else {
+            arg1->y = HSDMtxFloatZero;
+
+            vec3.x = arg0[0][2];
+            vec3.y = arg0[1][2];
+            vec3.z = arg0[2][2];
+
+            arg1->z = PSVECMag(&vec3);
+        }
     }
 }
 
@@ -455,11 +551,43 @@ void HSD_MtxScaledAdd(Mtx arg0, Mtx arg1, Mtx arg2, f32 arg3)
     *arr2++ = *arr1++ + (arg3 * *arr0++);
 }
 
+/* wowjinxy/KAR mtx.c HSD_VecGetOrthogonal (not in Melee's file; constants as for HSD_MtxGetScale above) */
+void HSD_VecGetOrthogonal(Vec3* v, Vec3* out)
+{
+    Vec3 e;
+
+    if (v->x <= v->y) {
+        if (v->x <= v->z) {
+            e.y = HSDMtxFloatZero;
+            e.x = HSDMtxFloatOne;
+            e.z = HSDMtxFloatZero;
+            PSVECCrossProduct(&e, v, out);
+        } else {
+            e.x = HSDMtxFloatZero;
+            e.y = HSDMtxFloatZero;
+            e.z = HSDMtxFloatOne;
+            PSVECCrossProduct(&e, v, out);
+        }
+    } else {
+        if (v->y <= v->z) {
+            e.x = HSDMtxFloatZero;
+            e.y = HSDMtxFloatOne;
+            e.z = HSDMtxFloatZero;
+            PSVECCrossProduct(&e, v, out);
+        } else {
+            e.x = HSDMtxFloatZero;
+            e.y = HSDMtxFloatZero;
+            e.z = HSDMtxFloatOne;
+            PSVECCrossProduct(&e, v, out);
+        }
+    }
+}
+
 void* HSD_VecAlloc(void)
 {
     void* vec = HSD_ObjAlloc(&HSD_Mtx_804C2310);
 
-    HSD_ASSERT(0x335, vec);
+    HSD_ASSERT(0x38C, vec); /* Custom Robo: main.dol passes 908 here, Melee 821 */
 
     return vec;
 }
@@ -476,7 +604,7 @@ void* HSD_MtxAlloc(void)
     void* mtx;
 
     mtx = HSD_ObjAlloc(&HSD_Mtx_804C233C);
-    HSD_ASSERT(0x354, mtx);
+    HSD_ASSERT(0x3AB, mtx); /* Custom Robo: main.dol passes 939 here, Melee 852 */
     return mtx;
 }
 

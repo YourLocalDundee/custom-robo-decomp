@@ -1,8 +1,9 @@
 // all rounds of batch6_lib_candidates.ps1 (tools\match_lib_sdk.py)
 __OSDBJump = .text:0x8013264C; // type:function size:0x4 scope:global // R3 ref:ac-decomp/GAFE01_00 why: size 0x4 vs ref 0x4, between __OSDBIntegrator and __OSSetExceptionHandler
 GetFontCode = .text:0x80134EA0; // type:function size:0x19C scope:global // R3 ref:sms/GMSE01 why: size 0x19C vs ref 0x19C, between __OSUnhandledException and Decode
-OSGetFontEncode = .text:0x801351B0; // type:function size:0x58 scope:global // R3 ref:sms/GMSE01 why: size 0x58 vs ref 0x58, between Decode and ReadROM
-OSLoadFont = .text:0x80135294; // type:function size:0x334 scope:global // R3 ref:sms/GMSE01 why: size 0x334 vs ref 0x334, between ReadROM and ExpandFontSheet
+OSGetFontEncode = .text:0x801351B0; // type:function size:0x58 scope:global // R3 ref:sms/GMSE01 why: size 0x58 vs ref 0x58, between Decode and ExpandFontSheet
+ReadROM = .text:0x80135208; // type:function size:0x8C scope:global // R3 ref:sms/GMSE01 why: size 0x8C vs ref 0x8C, between Decode and ExpandFontSheet
+OSLoadFont = .text:0x80135294; // type:function size:0x334 scope:global // R3 ref:sms/GMSE01 why: size 0x334 vs ref 0x334, between Decode and ExpandFontSheet
 OSGetFontTexture = .text:0x80135A58; // type:function size:0x1A8 scope:global // R3 ref:kar_wowjinxy/GKYE01 why: size 0x1A8 vs ref 0x1A8, between OSInitFont and OSDisableInterrupts
 __OSUnlockAllMutex = .text:0x80136768; // type:function size:0x70 scope:global // R3 ref:bfbb/GQPE78 why: size 0x70 vs ref 0x70, run between __OSInitMemoryProtection and __OSReboot
 SystemCallVector = .text:0x80137F98; // type:function size:0x20 scope:global // R3 ref:ac-decomp/GAFU01_00 why: size 0x20 vs ref 0x20, between OSSetGbsMode and __OSInitSystemCall
@@ -10,6 +11,7 @@ UnsetRun = .text:0x80138214; // type:function size:0x68 scope:global // R3 ref:a
 SetEffectivePriority = .text:0x801382B8; // type:function size:0x1C0 scope:global // R3 ref:marioparty4/GMPE01_00 why: size 0x1C0 vs ref 0x1C0, between __OSGetEffectivePriority and SelectThread
 PSMTXTrans = .text:0x80139A40; // type:function size:0x34 scope:global // R3 ref:marioparty4/GMPE01_00 why: size 0x34 vs ref 0x34, between PSMTXRotAxisRad and PSMTXScale
 defaultOptionalCommandChecker = .text:0x8013BD30; // type:function size:0x4 scope:global // R3 ref:tp/DZDE01 why: size 0x4 vs ref 0x4, run between DVDOpenDir and DVDInit
+stateCheckID2a = .text:0x8013C704; // type:function size:0x34 scope:global // R3 ref:ac-decomp/GAFU01_00 why: size 0x34 vs ref 0x34, between stateCheckID3 and cbForStateCheckID2a
 stateCoverClosed = .text:0x8013CB1C; // type:function size:0xCC scope:global // R5 ref:ac-decomp/dvd.c why: only stateCoverClosed (dvd.c) uses DVDReset,OSCreateAlarm,OSSetAlarm,__DVDClearWaitingQueue,stateReady and is used by cbForStateGettingError (refs agreeing: 7); size 0xCC vs ref 0xCC
 __VIGetCurrentPosition = .text:0x80140950; // type:function size:0x60 scope:global // R5 ref:bfbb/vi.c why: only __VIGetCurrentPosition (vi.c) uses __VIDisplayPositionToXY and is used by __VIRetraceHandler (refs agreeing: 3); size 0x60 vs ref 0x60
 ARInit = .text:0x80142A64; // type:function size:0xC4 scope:global // R5 ref:ac-decomp/ar.c why: only ARInit (ar.c) uses OSDisableInterrupts,OSRestoreInterrupts,__ARChecksize,__OSSetInterruptHandler,__OSUnmaskInterrupts and is used by - (refs agreeing: 7); size 0xC4 vs ref 0xC4

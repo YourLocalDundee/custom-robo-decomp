@@ -54,6 +54,34 @@ void HSD_JObjCheckDepend(HSD_JObj* jobj)
     }
 }
 
+/* Custom Robo: HSD_JObjCheckDepend as inlined into HSD_JObjAnim (and through it JObjAnimAll) in main.dol: the same
+ * test written with if instead of Melee's / wowjinxy's switch (main.dol branches straight past it with one bne there;
+ * the switch gives beq + b, while the out-of-line HSD_JObjCheckDepend above needs the switch) */
+static inline void JObjCheckDependInline(HSD_JObj* jobj)
+{
+    if (jobj == NULL) {
+        return;
+    }
+
+    if (!HSD_JObjMtxIsDirty(jobj)) {
+        if ((jobj->flags & JOBJ_USER_DEF_MTX)) {
+            if (!(jobj->flags & JOBJ_MTX_INDEP_PARENT) &&
+                jobj->parent != NULL && HSD_JObjMtxIsDirty(jobj->parent))
+            {
+                jobj->flags |= JOBJ_MTX_DIRTY;
+            }
+        } else if ((jobj->parent != NULL &&
+                    (jobj->parent->flags & JOBJ_MTX_DIRTY)) ||
+                   (jobj->flags & JOBJ_EFFECTOR) == JOBJ_JOINT1 ||
+                   (jobj->flags & JOBJ_EFFECTOR) == JOBJ_JOINT2 ||
+                   (jobj->flags & JOBJ_EFFECTOR) == JOBJ_EFFECTOR ||
+                   jobj->robj != NULL)
+        {
+            jobj->flags |= JOBJ_MTX_DIRTY;
+        }
+    }
+}
+
 void JObjResetRST(HSD_JObj* jobj, HSD_Joint* joint)
 {
     if (jobj == NULL || joint == NULL) {
@@ -348,7 +376,10 @@ void HSD_JObjAddAnimAll(HSD_JObj* jobj, HSD_AnimJoint* ajoint,
 
 typedef void (*ufc_callback)(HSD_JObj*, u32, f32);
 
-void JObjUpdateFunc(void* obj, enum_t type, HSD_ObjData* val)
+/* wowjinxy/KAR jobj.c JObjUpdateFunc: Melee's, adapted as wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 has it
+ * (equal to main.dol there): no 1e-3 floor on the scale tracks, double (not long double) clamp constants, this
+ * revision's assert lines */
+void JObjUpdateFunc(void* obj, u32 type, HSD_ObjData* val) /* Custom Robo: u32 type as wowjinxy/KAR (enum_t in Melee) */
 {
     HSD_JObj* jobj = obj;
     ufc_callback cb;
@@ -360,16 +391,16 @@ void JObjUpdateFunc(void* obj, enum_t type, HSD_ObjData* val)
     if (jobj != NULL) {
         switch (type) {
         case HSD_A_J_PATH:
-            if (val->fv < 0.0L) {
+            if (val->fv < 0.0) {
                 val->fv = 0.0F;
             }
-            if (1.0L < val->fv) {
+            if (1.0 < val->fv) {
                 val->fv = 1.0F;
             }
-            HSD_ASSERT(0x24B, jobj->aobj);
+            HSD_ASSERT(0x24E, jobj->aobj); /* Custom Robo: main.dol passes 590 (0x24e) here, Melee 0x24B */
             jp = jobj->aobj->jobj;
-            HSD_ASSERT(0x24D, jp);
-            HSD_ASSERT(0x24E, jp->u.spline);
+            HSD_ASSERT(0x250, jp); /* Custom Robo: main.dol passes 592 (0x250) here, Melee 0x24D */
+            HSD_ASSERT(0x251, jp->u.spline); /* Custom Robo: main.dol passes 593 (0x251) here, Melee 0x24E */
             splArcLengthPoint(&p, jp->u.spline, val->fv);
             HSD_JObjSetTranslateX(jobj, p.x);
             HSD_JObjSetTranslateY(jobj, p.y);
@@ -400,21 +431,12 @@ void JObjUpdateFunc(void* obj, enum_t type, HSD_ObjData* val)
             HSD_JObjSetTranslateZ(jobj, val->fv);
             break;
         case HSD_A_J_SCAX:
-            if (fabsf_bitwise(val->fv) < 1e-3F) {
-                val->fv = 1e-3F;
-            }
             HSD_JObjSetScaleX(jobj, val->fv);
             break;
         case HSD_A_J_SCAY:
-            if (fabsf_bitwise(val->fv) < 1e-3F) {
-                val->fv = 1e-3F;
-            }
             HSD_JObjSetScaleY(jobj, val->fv);
             break;
         case HSD_A_J_SCAZ:
-            if (fabsf_bitwise(val->fv) < 1e-3F) {
-                val->fv = 1e-3F;
-            }
             HSD_JObjSetScaleZ(jobj, val->fv);
             break;
         case HSD_A_J_BRANCH:
@@ -531,8 +553,8 @@ void JObjUpdateFunc(void* obj, enum_t type, HSD_ObjData* val)
 void HSD_JObjAnim(HSD_JObj* jobj)
 {
     if (jobj != NULL) {
-        HSD_JObjCheckDepend(jobj);
-        HSD_AObjInterpretAnim(jobj->aobj, jobj, JObjUpdateFunc);
+        JObjCheckDependInline(jobj);
+        HSD_AObjInterpretAnim(jobj->aobj, jobj, HSD_JOBJ_METHOD(jobj)->update); /* wowjinxy/KAR jobj.c HSD_JObjAnim */
         HSD_RObjAnimAll(jobj->robj);
         if (union_type_dobj(jobj)) {
             HSD_DObjAnimAll(jobj->u.dobj);
@@ -692,7 +714,7 @@ void HSD_JObjResolveRefs(HSD_JObj* jobj, HSD_Joint* joint)
         HSD_JObjUnref(jobj->child);
         jobj->child =
             HSD_IDGetDataFromTable(NULL, (HSD_IDKey) joint->child, NULL);
-        HSD_ASSERT(1108, jobj->child);
+        HSD_ASSERT(1119, jobj->child); /* Custom Robo: main.dol passes 1119 (0x45f) here, Melee 1108 */
         HSD_JObjRef(jobj->child);
     }
     if (union_type_dobj(jobj)) {
@@ -832,17 +854,19 @@ void HSD_JObjAddChild(HSD_JObj* jobj, HSD_JObj* child)
     if (jobj == NULL || child == NULL) {
         return;
     }
-    HSD_ASSERTREPORT(1350, child->parent == NULL,
+    /* Custom Robo: main.dol passes 1353 (0x549) here, Melee 1350 */
+    HSD_ASSERTREPORT(1353, child->parent == NULL,
                      "child should be a orphan.\n");
-    HSD_ASSERTREPORT(1351, child->next == NULL,
+    /* Custom Robo: main.dol passes 1354 (0x54a) here, Melee 1351 */
+    HSD_ASSERTREPORT(1354, child->next == NULL,
                      "child should not have siblings");
     if (jobj->child == NULL) {
         jobj->child = child;
     } else {
-        HSD_ASSERT(1357, !(jobj->flags & JOBJ_INSTANCE));
+        HSD_ASSERT(1360, !(jobj->flags & JOBJ_INSTANCE)); /* Custom Robo: main.dol passes 1360 (0x550) here, Melee 1357 */
         last = jobj->child;
         while (last->next != NULL) {
-            HSD_ASSERT(1360, last != child);
+            HSD_ASSERT(1363, last != child); /* Custom Robo: main.dol passes 1363 (0x553) here, Melee 1360 */
             last = last->next;
         }
         last->next = child;
@@ -864,7 +888,7 @@ HSD_JObj* HSD_JObjReparent(HSD_JObj* jobj, HSD_JObj* parent)
             jobj->parent->child = next;
         } else {
             HSD_JObj* prev = HSD_JObjGetPrev(jobj);
-            HSD_ASSERT(0x56F, prev);
+            HSD_ASSERT(0x572, prev); /* Custom Robo: main.dol passes 1394 (0x572) here, Melee 1391 */
             prev->next = next;
         }
         RecalcParentTrspBits(jobj->parent);
@@ -923,7 +947,7 @@ HSD_JObj* HSD_JObjGetPrev(HSD_JObj* jobj)
         }
         cur = cur->next;
     }
-    HSD_Panic(__FILE__, 1516,
+    HSD_Panic(__FILE__, 1519, /* Custom Robo: main.dol passes 1519 (0x5ef) here, Melee 1516 */
               "can not find specified jobj. maybe jobj tree is broken.\n");
     return NULL;
 }
@@ -1169,7 +1193,7 @@ void resolveIKJoint1(HSD_JObj* jobj)
             (jobj != NULL))
         {
             if (jobj->robj != NULL) {
-                HSD_RObjUpdateAll(jobj->robj, jobj, JObjUpdateFunc);
+                HSD_RObjUpdateAll(jobj->robj, jobj, HSD_JOBJ_METHOD(jobj)->update); /* wowjinxy/KAR jobj.c: the class's update method */
                 if (HSD_JObjMtxIsDirty(jobj)) {
                     HSD_JOBJ_METHOD(jobj)->make_mtx(jobj);
                     jobj->flags &= 0xFFFFFFBF;
@@ -1430,7 +1454,7 @@ void HSD_JObjSetupMatrixSub(HSD_JObj* jobj)
             break;
         default:
             if (jobj->robj != NULL && jobj != NULL && jobj->robj != NULL) {
-                HSD_RObjUpdateAll(jobj->robj, jobj, JObjUpdateFunc);
+                HSD_RObjUpdateAll(jobj->robj, jobj, HSD_JOBJ_METHOD(jobj)->update); /* wowjinxy/KAR jobj.c: the class's update method */
                 if (HSD_JObjMtxIsDirty(jobj)) {
                     HSD_JOBJ_METHOD(jobj)->make_mtx(jobj);
                     jobj->flags &= ~JOBJ_MTX_DIRTY;
@@ -1461,6 +1485,12 @@ void HSD_JObjSetMtxDirtySub(HSD_JObj* jobj)
 void HSD_JObjSetDPtclCallback(DPCtlCallback cb)
 {
     dptcl_callback = cb;
+}
+
+/* wowjinxy/KAR jobj.c HSD_JObjSetPtclTargetCallback */
+void HSD_JObjSetPtclTargetCallback(void (*cb)(HSD_JObj*, s32))
+{
+    ptcltgt_callback = cb;
 }
 
 int JObjInit(HSD_Class* o)
@@ -1568,6 +1598,7 @@ void JObjInfoInit(void)
     HSD_JOBJ_INFO(&hsdJObj)->disp = HSD_JObjDispSub;
     HSD_JOBJ_INFO(&hsdJObj)->load = JObjLoad;
     HSD_JOBJ_INFO(&hsdJObj)->release_child = JObjReleaseChild;
+    HSD_JOBJ_INFO(&hsdJObj)->update = (HSD_ObjUpdateFunc) JObjUpdateFunc; /* wowjinxy/KAR jobj.c JObjInfoInit */
 }
 
 #ifdef MUST_MATCH

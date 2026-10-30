@@ -151,6 +151,9 @@ typedef struct HSD_JObjInfo {
     void (*disp)(HSD_JObj* jobj, Mtx vmtx, Mtx pmtx, HSD_TrspMask trsp_mask,
                  u32 rendermode);
     void (*release_child)(HSD_JObj* jobj);
+    /* Custom Robo: one more method, as in wowjinxy/KAR @ cb94b157 include/sysdolphin/jobj.h: main.dol's JObjInfoInit
+     * passes info size 0x54 and stores JObjUpdateFunc after release_child */
+    HSD_ObjUpdateFunc update;
 } HSD_JObjInfo;
 
 extern HSD_JObjInfo hsdJObj;
@@ -296,8 +299,8 @@ static inline void HSD_JObjSetRotationWithMtxDirty(HSD_JObj* jobj,
 
 static inline void HSD_JObjSetRotationX(HSD_JObj* jobj, f32 x)
 {
-    HSD_ASSERT(639, jobj);
-    HSD_ASSERT(640, !(jobj->flags & JOBJ_USE_QUATERNION));
+    HSD_ASSERT(676, jobj); /* Custom Robo: main.dol passes 676 (0x2a4) here, Melee 639 */
+    HSD_ASSERT(677, !(jobj->flags & JOBJ_USE_QUATERNION)); /* Custom Robo: main.dol passes 677 (0x2a5) here, Melee 640 */
     jobj->rotate.x = x;
     if (!(jobj->flags & JOBJ_MTX_INDEP_SRT)) {
         HSD_JObjSetMtxDirty(jobj);
@@ -316,8 +319,8 @@ static inline void HSD_JObjSetRotationXWithMtxDirty(HSD_JObj* jobj, f32 x)
 
 static inline void HSD_JObjSetRotationY(HSD_JObj* jobj, f32 y)
 {
-    HSD_ASSERT(660, jobj);
-    HSD_ASSERT(661, !(jobj->flags & JOBJ_USE_QUATERNION));
+    HSD_ASSERT(696, jobj); /* Custom Robo: main.dol passes 696 (0x2b8) here, Melee 660 */
+    HSD_ASSERT(697, !(jobj->flags & JOBJ_USE_QUATERNION)); /* Custom Robo: main.dol passes 697 (0x2b9) here, Melee 661 */
     jobj->rotate.y = y;
     if (!(jobj->flags & JOBJ_MTX_INDEP_SRT)) {
         HSD_JObjSetMtxDirty(jobj);
@@ -336,8 +339,8 @@ static inline void HSD_JObjSetRotationYWithMtxDirty(HSD_JObj* jobj, f32 y)
 
 static inline void HSD_JObjSetRotationZ(HSD_JObj* jobj, f32 z)
 {
-    HSD_ASSERT(681, jobj);
-    HSD_ASSERT(682, !(jobj->flags & JOBJ_USE_QUATERNION));
+    HSD_ASSERT(716, jobj); /* Custom Robo: main.dol passes 716 (0x2cc) here, Melee 681 */
+    HSD_ASSERT(717, !(jobj->flags & JOBJ_USE_QUATERNION)); /* Custom Robo: main.dol passes 717 (0x2cd) here, Melee 682 */
     jobj->rotate.z = z;
     if (!(jobj->flags & JOBJ_MTX_INDEP_SRT)) {
         HSD_JObjSetMtxDirty(jobj);
@@ -401,7 +404,7 @@ static inline void HSD_JObjSetScaleWithMtxDirty(HSD_JObj* jobj, Vec3* scale)
 
 static inline void HSD_JObjSetScaleX(HSD_JObj* jobj, f32 x)
 {
-    HSD_ASSERT(776, jobj);
+    HSD_ASSERT(805, jobj); /* Custom Robo: main.dol passes 805 (0x325) here, Melee 776 */
     jobj->scale.x = x;
     if (!(jobj->flags & JOBJ_MTX_INDEP_SRT)) {
         HSD_JObjSetMtxDirty(jobj);
@@ -419,7 +422,7 @@ static inline void HSD_JObjSetScaleXWithMtxDirty(HSD_JObj* jobj, f32 x)
 
 static inline void HSD_JObjSetScaleY(HSD_JObj* jobj, f32 y)
 {
-    HSD_ASSERT(791, jobj);
+    HSD_ASSERT(819, jobj); /* Custom Robo: main.dol passes 819 (0x333) here, Melee 791 */
     jobj->scale.y = y;
     if (!(jobj->flags & JOBJ_MTX_INDEP_SRT)) {
         HSD_JObjSetMtxDirty(jobj);
@@ -437,7 +440,7 @@ static inline void HSD_JObjSetScaleYWithMtxDirty(HSD_JObj* jobj, f32 y)
 
 static inline void HSD_JObjSetScaleZ(HSD_JObj* jobj, f32 z)
 {
-    HSD_ASSERT(806, jobj);
+    HSD_ASSERT(833, jobj); /* Custom Robo: main.dol passes 833 (0x341) here, Melee 806 */
     jobj->scale.z = z;
     if (!(jobj->flags & JOBJ_MTX_INDEP_SRT)) {
         HSD_JObjSetMtxDirty(jobj);
@@ -512,7 +515,7 @@ static inline void HSD_JObjSetTranslateWithMtxDirtyOutOfLine(HSD_JObj* jobj,
 
 static inline void HSD_JObjSetTranslateX(HSD_JObj* jobj, f32 x)
 {
-    HSD_ASSERT(932, jobj);
+    HSD_ASSERT(952, jobj); /* Custom Robo: main.dol passes 952 (0x3b8) here, Melee 932 */
     jobj->translate.x = x;
     if (!(jobj->flags & JOBJ_MTX_INDEP_SRT)) {
         HSD_JObjSetMtxDirty(jobj);
@@ -530,7 +533,7 @@ static inline void HSD_JObjSetTranslateXWithMtxDirty(HSD_JObj* jobj, f32 x)
 
 static inline void HSD_JObjSetTranslateY(HSD_JObj* jobj, f32 y)
 {
-    HSD_ASSERT(947, jobj);
+    HSD_ASSERT(966, jobj); /* Custom Robo: main.dol passes 966 (0x3c6) here, Melee 947 */
     jobj->translate.y = y;
     if (!(jobj->flags & JOBJ_MTX_INDEP_SRT)) {
         HSD_JObjSetMtxDirty(jobj);
@@ -548,7 +551,7 @@ static inline void HSD_JObjSetTranslateYWithMtxDirty(HSD_JObj* jobj, f32 y)
 
 static inline void HSD_JObjSetTranslateZ(HSD_JObj* jobj, f32 z)
 {
-    HSD_ASSERT(962, jobj);
+    HSD_ASSERT(980, jobj); /* Custom Robo: main.dol passes 980 (0x3d4) here, Melee 962 */
     jobj->translate.z = z;
     if (!(jobj->flags & JOBJ_MTX_INDEP_SRT)) {
         HSD_JObjSetMtxDirty(jobj);
@@ -744,7 +747,7 @@ void HSD_JObjReqAnimAllByFlags(HSD_JObj* jobj, u32 flags, f32 frame);
 void HSD_JObjReqAnim(HSD_JObj* jobj, f32 frame);
 void JObjSortAnim(HSD_AObj* aobj);
 void JObjResetRST(HSD_JObj* jobj, HSD_Joint* joint);
-void JObjUpdateFunc(void* obj, enum_t type, HSD_ObjData* val);
+void JObjUpdateFunc(void* obj, u32 type, HSD_ObjData* val); /* Custom Robo: u32 type as wowjinxy/KAR */
 void HSD_JObjAnim(HSD_JObj* jobj);
 void JObjAnimAll(HSD_JObj* jobj);
 s32 JObjLoad(HSD_JObj* jobj, HSD_Joint* joint, HSD_JObj* parent);

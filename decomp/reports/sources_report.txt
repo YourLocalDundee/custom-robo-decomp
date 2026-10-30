@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 880
+files: 884
 
 src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
 src/MSL/abort_exit.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/abort_exit.c  identical
@@ -442,23 +442,23 @@ src/sysdolphin/baselib/bytecode.c  doldecomp/melee @ 24e685d57535 src/sysdolphin
 src/sysdolphin/baselib/bytecode.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/bytecode.h  identical
 src/sysdolphin/baselib/class.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/class.c  changed (11 lines added / removed)
 src/sysdolphin/baselib/class.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/class.h  identical
-src/sysdolphin/baselib/cobj.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/cobj.c  changed (20 lines added / removed)
-src/sysdolphin/baselib/cobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/cobj.h  identical
+src/sysdolphin/baselib/cobj.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/cobj.c  changed (75 lines added / removed)
+src/sysdolphin/baselib/cobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/cobj.h  changed (3 lines added / removed)
 src/sysdolphin/baselib/debug.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/debug.h  identical
-src/sysdolphin/baselib/displayfunc.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/displayfunc.c  changed (6 lines added / removed)
+src/sysdolphin/baselib/displayfunc.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/displayfunc.c  changed (66 lines added / removed)
 src/sysdolphin/baselib/displayfunc.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/displayfunc.h  identical
 src/sysdolphin/baselib/dobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/dobj.c  identical
 src/sysdolphin/baselib/dobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/dobj.h  identical
 src/sysdolphin/baselib/fobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fobj.c  changed (424 lines added / removed)
 src/sysdolphin/baselib/fobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/fobj.h  identical
-src/sysdolphin/baselib/fog.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fog.c  identical
+src/sysdolphin/baselib/fog.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fog.c  changed (371 lines added / removed)
 src/sysdolphin/baselib/forward.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/forward.h  identical
 src/sysdolphin/baselib/id.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/id.c  identical
 src/sysdolphin/baselib/id.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/id.h  identical
-src/sysdolphin/baselib/initialize.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/initialize.c  identical
+src/sysdolphin/baselib/initialize.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/initialize.c  changed (383 lines added / removed)
 src/sysdolphin/baselib/initialize.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/initialize.h  identical
-src/sysdolphin/baselib/jobj.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/jobj.c  changed (4 lines added / removed)
-src/sysdolphin/baselib/jobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/jobj.h  changed (2 lines added / removed)
+src/sysdolphin/baselib/jobj.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/jobj.c  changed (87 lines added / removed)
+src/sysdolphin/baselib/jobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/jobj.h  changed (143 lines added / removed)
 src/sysdolphin/baselib/list.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/list.c  identical
 src/sysdolphin/baselib/list.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/list.h  identical
 src/sysdolphin/baselib/lobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/lobj.c  changed (433 lines added / removed)
@@ -466,15 +466,15 @@ src/sysdolphin/baselib/lobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/bas
 src/sysdolphin/baselib/memory.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/memory.h  identical
 src/sysdolphin/baselib/mobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/mobj.c  changed (23 lines added / removed)
 src/sysdolphin/baselib/mobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/mobj.h  identical
-src/sysdolphin/baselib/mtx.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/mtx.c  identical
+src/sysdolphin/baselib/mtx.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/mtx.c  changed (188 lines added / removed)
 src/sysdolphin/baselib/mtx.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/mtx.h  identical
 src/sysdolphin/baselib/objalloc.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/objalloc.h  identical
 src/sysdolphin/baselib/object.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/object.c  identical
 src/sysdolphin/baselib/object.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/object.h  identical
-src/sysdolphin/baselib/pobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/pobj.c  identical
+src/sysdolphin/baselib/pobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/pobj.c  changed (313 lines added / removed)
 src/sysdolphin/baselib/pobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/pobj.h  identical
 src/sysdolphin/baselib/random.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/random.h  identical
-src/sysdolphin/baselib/robj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/robj.c  identical
+src/sysdolphin/baselib/robj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/robj.c  changed (331 lines added / removed)
 src/sysdolphin/baselib/robj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/robj.h  identical
 src/sysdolphin/baselib/spline.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/spline.c  changed (38 lines added / removed)
 src/sysdolphin/baselib/spline.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/spline.h  identical
@@ -482,12 +482,12 @@ src/sysdolphin/baselib/state.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/ba
 src/sysdolphin/baselib/state.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/state.h  changed (12 lines added / removed)
 src/sysdolphin/baselib/tev.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tev.c  changed (7 lines added / removed)
 src/sysdolphin/baselib/tev.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tev.h  identical
-src/sysdolphin/baselib/texp.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/texp.c  changed (16 lines added / removed)
+src/sysdolphin/baselib/texp.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/texp.c  changed (18 lines added / removed)
 src/sysdolphin/baselib/texp.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/texp.h  changed (2 lines added / removed)
 src/sysdolphin/baselib/texpdag.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/texpdag.c  changed (4 lines added / removed)
 src/sysdolphin/baselib/texpdag.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/texpdag.h  identical
-src/sysdolphin/baselib/tobj.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tobj.c  changed (34 lines added / removed)
-src/sysdolphin/baselib/tobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tobj.h  identical
+src/sysdolphin/baselib/tobj.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tobj.c  changed (199 lines added / removed)
+src/sysdolphin/baselib/tobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tobj.h  changed (9 lines added / removed)
 src/sysdolphin/baselib/util.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/util.c  identical
 src/sysdolphin/baselib/util.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/util.h  identical
 src/sysdolphin/baselib/video.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/video.c  identical
@@ -495,8 +495,12 @@ src/sysdolphin/baselib/video.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/ba
 src/sysdolphin/baselib/wobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/wobj.c  identical
 src/sysdolphin/baselib/wobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/wobj.h  identical
 include/cr_kar/dobj.h  ours (no reference)
+include/cr_kar/fog.h  ours (no reference)
 include/cr_kar/lobj.h  ours (no reference)
+include/cr_kar/pobj.h  ours (no reference)
+include/cr_kar/robj.h  ours (no reference)
 include/cr_kar/sysdolphin/list.h  ours (no reference)
+include/cr_kar/sysdolphin/tobj.h  ours (no reference)
 include/cr_kar/sysdolphin/wobj.h  ours (no reference)
 include/dolsdk2001/cmath.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/cmath.h  identical
 include/dolsdk2001/dolphin.h  doldecomp/dolsdk2001 @ eb1234c45e6d include/dolphin.h  identical

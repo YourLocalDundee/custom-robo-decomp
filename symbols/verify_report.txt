@@ -1038,7 +1038,7 @@ VERIFIED  80186960 HSD_DObjDisp                             ours=0xc0 ref=0xc0 k
 VERIFIED  80186A20 DObjRelease                              ours=0x5c ref=0x5c melee
 VERIFIED  80186A7C DObjAmnesia                              ours=0x48 ref=0x48 melee
 VERIFIED  80186AC4 DObjInfoInit                             ours=0x80 ref=0x80 kar_wowjinxy
-CLOSE     80186B44 HSD_TObjAddAnim                          ours=0x154 ref=0x148 melee
+VERIFIED  80186B44 HSD_TObjAddAnimAll                       ours=0x154 ref=0x154 kar_wowjinxy
 VERIFIED  80186C98 HSD_TObjReqAnimAllByFlags                ours=0x74 ref=0x74 melee
 VERIFIED  80186D0C TObjUpdateFunc                           ours=0x5cc ref=0x5cc kar_wowjinxy
 VERIFIED  801872D8 HSD_TObjAnimAll                          ours=0x5c ref=0x5c kar_wowjinxy
@@ -1468,4 +1468,4 @@ VERIFIED  801AE7B8 HSD_TExpSimplify2                        ours=0x1fc ref=0x1fc
 VERIFIED  801AE9B4 HSD_SaveContext                          ours=0x98 ref=0x98 kar_wowjinxy
 VERIFIED  801AEA4C __assert                                 ours=0x5c ref=0x5c kar_wowjinxy
 VERIFIED  801AEAA8 HSD_Panic                                ours=0x98 ref=0x98 kar_wowjinxy
-{'VERIFIED': 1434, 'MISMATCH': 3, 'CLOSE': 30, 'EVIDENCE': 3}
+{'VERIFIED': 1435, 'MISMATCH': 3, 'CLOSE': 29, 'EVIDENCE': 3}

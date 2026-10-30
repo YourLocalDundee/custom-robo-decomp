@@ -1170,7 +1170,7 @@ void HSD_TExpSetupTev(HSD_TExpTevDesc* tevdesc, HSD_TExp* texp)
     HSD_TExpSetReg(texp);
     for (; tevdesc != NULL; tevdesc = (HSD_TExpTevDesc*) tevdesc->desc.next) {
         if (tevdesc->tobj != NULL) {
-            tevdesc->desc.map = tevdesc->tobj->id;
+            tevdesc->desc.map = tevdesc->tobj->map_id; /* Custom Robo: tobj.h map_id (Melee id) */
             tevdesc->desc.coord = tevdesc->tobj->coord;
         }
         HSD_StateAssignTev();

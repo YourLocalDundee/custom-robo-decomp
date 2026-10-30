@@ -679,23 +679,17 @@ static inline f32 cobj_get_up_x(Vec3* up)
     return up->x;
 }
 
+/* wowjinxy/KAR cobj.c HSD_CObjGetUpVector (Melee: a default up vector when there is none, another revision) */
 int HSD_CObjGetUpVector(HSD_CObj* cobj, Vec3* up)
 {
-    if (cobj != NULL && up != NULL) {
-        if ((cobj->flags & 1) != 0) {
-            *up = cobj->u.up;
-            return 0;
-        }
-        if (roll2upvec(cobj, up, cobj->u.roll) == 0) {
-            return 0;
-        }
+    if (cobj == NULL || up == NULL) {
+        return 0; /* FALSE */
     }
-    if (up) {
-        up->x = 0.0f;
-        up->y = 1.0f;
-        up->z = 0.0f;
+    if (cobj->flags & 1) {
+        *up = cobj->u.up;
+        return 1; /* TRUE */
     }
-    return -1;
+    return roll2upvec(cobj, up, cobj->u.roll);
 }
 
 void HSD_CObjSetUpVector(HSD_CObj* cobj, Vec3* up)
@@ -784,24 +778,17 @@ MtxPtr HSD_CObjGetInvViewingMtxPtrDirect(HSD_CObj* cobj)
     return *cobj->proj_mtx;
 }
 
+/* Custom Robo: wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 cobj.c's HSD_CObjSetupViewingMtx is fn_8018FD60
+ * here (unnamed; 0xCC in main.dol vs 0x13C in KAR, not ported): main.dol's HSD_CObjGetViewingMtxPtr calls it and
+ * returns cobj->view_mtx (addi r3, r31, 0x54) as wowjinxy's does */
+#define HSD_CObjSetupViewingMtx fn_8018FD60
+void HSD_CObjSetupViewingMtx(HSD_CObj* cobj);
+
+/* wowjinxy/KAR cobj.c HSD_CObjGetViewingMtxPtr */
 MtxPtr HSD_CObjGetViewingMtxPtr(HSD_CObj* cobj)
 {
-    Vec3 interest;
-    Vec3 up_vec;
-    Vec3 eyepos;
-    PAD_STACK(24);
-
-    if (!(cobj->flags & 2) && HSD_CObjMtxIsDirty(cobj)) {
-        HSD_CObjGetEyePosition(cobj, &eyepos);
-        get_up_vector_for_viewing_mtx(cobj, &up_vec);
-        HSD_CObjGetInterest(cobj, &interest);
-        C_MTXLookAt(cobj->view_mtx, &eyepos, &up_vec, &interest);
-        HSD_WObjClearFlags(cobj->eyepos, 2);
-        HSD_WObjClearFlags(cobj->interest, 2);
-        HSD_CObjClearFlags(cobj, 0x40000000);
-        HSD_CObjSetFlags(cobj, 0x80000000);
-    }
-    return HSD_CObjGetViewingMtxPtrDirect(cobj);
+    HSD_CObjSetupViewingMtx(cobj);
+    return cobj->view_mtx;
 }
 
 MtxPtr HSD_CObjGetInvViewingMtxPtr(HSD_CObj* cobj)
@@ -1258,7 +1245,8 @@ static inline void CObjResetFlags(HSD_CObj* cobj, u32 flags)
     if (cobj == NULL) {
         return;
     }
-    cobj->flags = (cobj->flags & 0xC0000000) | flags;
+    /* Custom Robo: wowjinxy/KAR cobj.c CObjResetFlags (the desc flags masked too: main.dol rlwimi) */
+    cobj->flags = (cobj->flags & 0xC0000000) | (flags & ~0xC0000000);
 }
 
 static int CObjLoad(HSD_CObj* cobj, HSD_CObjDesc* desc)
@@ -1295,7 +1283,7 @@ static int CObjLoad(HSD_CObj* cobj, HSD_CObjDesc* desc)
                            desc->frustum.left, desc->frustum.right);
         break;
     default:
-        HSD_ASSERT(0x7D0, 0);
+        HSD_ASSERT(0x7BE, 0); /* Custom Robo: main.dol passes 1982 (0x7be) here, Melee 2000 */
         break;
     }
     return 0;
@@ -1383,4 +1371,5 @@ static void CObjInfoInit(void)
     HSD_CLASS_INFO(&hsdCObj)->release = CObjRelease;
     HSD_CLASS_INFO(&hsdCObj)->amnesia = CObjAmnesia;
     hsdCObj.load = CObjLoad;
+    hsdCObj.update = (HSD_ObjUpdateFunc) CObjUpdateFunc; /* wowjinxy/KAR cobj.c CObjInfoInit */
 }
