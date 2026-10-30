@@ -110,8 +110,8 @@ src/dolphin/gx/GXBump.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXBump.c  id
 src/dolphin/gx/GXDisplayList.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXDisplayList.c  identical
 src/dolphin/gx/GXFifo.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXFifo.c  changed (6 lines added / removed)
 src/dolphin/gx/GXFrameBuf.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXFrameBuf.c  identical
-src/dolphin/gx/GXGeometry.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXGeometry.c  identical
-src/dolphin/gx/GXInit.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXInit.c  identical
+src/dolphin/gx/GXGeometry.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXGeometry.c  changed (2 lines added / removed)
+src/dolphin/gx/GXInit.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXInit.c  changed (102 lines added / removed)
 src/dolphin/gx/GXLight.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXLight.c  identical
 src/dolphin/gx/GXMisc.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXMisc.c  identical
 src/dolphin/gx/GXTev.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXTev.c  identical

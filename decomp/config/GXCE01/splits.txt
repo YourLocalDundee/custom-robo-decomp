@@ -1124,6 +1124,8 @@ dolphin/card/CARDNet.c:
 
 dolphin/gx/GXInit.c:
 	.text       start:0x801516C8 end:0x80152A48
+	.data       start:0x80248FA0 end:0x802491DC
+	.bss        start:0x80439340 end:0x80439970
 	.sdata      start:0x8044EE48 end:0x8044EE50
 	.sbss       start:0x8044FC50 end:0x8044FC78
 	.sdata2     start:0x80451D98 end:0x80451DC0

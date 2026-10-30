@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,360 @@ def MatchingFor(*versions):
+@@ -284,18 +307,358 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -283,6 +283,8 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/gx/GXMisc.c",
 +    "dolphin/os/init/__start.c",
 +    "dolphin/gx/GXFrameBuf.c",
++    "dolphin/gx/GXInit.c",
++    "dolphin/gx/GXGeometry.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -385,10 +387,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 1 of 4 functions differ (WriteUARTN 93%): the reference is another revision",
 +    "dolphin/gx/GXAttr.c":
 +        "code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision",
-+    "dolphin/gx/GXGeometry.c":
-+        "code: 1 of 9 functions differ (GXSetCullMode 35%): the reference is another revision",
-+    "dolphin/gx/GXInit.c":
-+        "code: 1 of 5 functions differ (GXInit 79%): the reference is another revision",
 +    "dolphin/gx/GXLight.c":
 +        "code: 3 of 11 functions differ (GXSetChanAmbColor 92%, GXSetChanMatColor 92%, GXSetChanCtrl 81%): the reference is another revision",
 +    "dolphin/gx/GXTev.c":
