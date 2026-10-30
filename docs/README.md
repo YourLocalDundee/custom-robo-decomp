@@ -29,6 +29,7 @@ Every command runs from the repo root. `tools/check_docs.py` checks this convent
 |---|---|
 | [../README.md](../README.md) | Front door: what the project is, install and quick start per OS, status, where to go next |
 | [INSTALL.md](INSTALL.md) | The tools to install per OS (Windows, Debian / Ubuntu, Arch, Fedora, macOS), versions, limits |
+| [arch_container.md](arch_container.md) | The Arch Linux test image (`tools/arch_container/Dockerfile`): how it is built and run, what it verified |
 | [REPRODUCE.md](REPRODUCE.md) | Fresh ISO to the named decompile and the rebuilt `main.dol`: every step, what it runs, reads, writes and downloads, checksums to compare |
 | [../CONTRIBUTING.md](../CONTRIBUTING.md) | How to help: naming rules for contributors, types, matching a library file, repo rules |
 | [../plan.md](../plan.md) | Project log (every step, numbered and dated) and roadmap; the full naming policy |

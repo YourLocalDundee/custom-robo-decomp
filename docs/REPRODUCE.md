@@ -29,13 +29,14 @@ pwsh tools\from_scratch.ps1 -Iso "D:\Games\Custom Robo (USA).iso"
 # Linux / macOS
 git clone https://github.com/YourLocalDundee/custom-robo-decomp.git
 cd custom-robo-decomp
-tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
+bash tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
 ```
 
 `tools\from_scratch.ps1` / `tools/from_scratch.sh` runs sections 1–4 below in order, stops at the first failure, and
 ends with a PASS / FAIL table. Tested from an empty folder on Windows (Oct 27, 2026: **PASS**, 10–15 minutes, mostly
 downloads; that was before the Phase 4 batches, which add to it) and on Ubuntu 26.04 (Oct 30, 2026: **PASS**, 90 minutes on
-4 cores with the tools already downloaded). The sections explain what each part does, so you can also run them one by one.
+4 cores with the tools already downloaded). On Arch only the install block is verified so far (an `archlinux`
+container, Oct 30, 2026: [arch_container.md](arch_container.md)); the pipeline is not yet run there. The sections explain what each part does, so you can also run them one by one.
 
 ## 1. Setup — `tools\setup.ps1` / `tools/setup.sh`
 

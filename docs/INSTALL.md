@@ -70,28 +70,56 @@ sudo apt install -y git curl unzip python3 python3-venv openjdk-21-jdk
   (any newer 21.x from https://adoptium.net/temurin/releases/?version=21 works the same way). Everything else the
   pipeline needs is downloaded into the repo folder by `tools/setup.sh`, so nothing else needs root.
 
-## Arch (KDE: Konsole, pacman / yay)
+## Arch (KDE: Konsole, yay / pacman)
 
-Open **Konsole** (KDE's terminal: Application Launcher → System → Konsole, or `Ctrl+Alt+T` in Plasma)
-and install the packages with pacman:
+Open **Konsole**, KDE's terminal (Application Launcher → System → Konsole, or `Ctrl+Alt+T` in Plasma). Konsole is the
+window; the shell running in it is whatever `echo $SHELL` prints (bash, zsh or fish are all fine). Every command
+below works unchanged in each of them: nothing to `export`, no rc file to edit, and the project's scripts are started
+as `bash tools/...`, so they run in bash whatever your shell is.
 
-```bash
-sudo pacman -S --needed git curl unzip python jdk21-openjdk
-# optional, from the AUR with yay: Temurin's JDK 21 instead of the repo's OpenJDK (either one runs Ghidra)
-yay -S --needed jdk21-temurin
-```
-
-or, if you use the AUR helper **yay**, the same packages through it (yay hands repository packages to pacman, so the
-result is the same; nothing from the AUR itself is needed):
+Install with **yay**:
 
 ```bash
 yay -S --needed git curl unzip python jdk21-openjdk
 ```
 
-Then check `java -version` says 21 or newer; if several JDKs are installed: `sudo archlinux-java set java-21-openjdk`.
-Arch's `python` package provides `python3`, and Arch ships bash 5. Ghidra itself is downloaded at the pinned version by
-`setup.sh`; do not use Arch's or the AUR's `ghidra` package (a different version changes the output). Run the
-project's scripts in Konsole too (`tools/from_scratch.sh ...`, below).
+All five are repository packages (core / extra), nothing from the AUR: yay passes them to pacman, which asks for
+your sudo password and "Proceed with installation? [Y/n]". yay's clean-build and diff menus are only for AUR packages,
+so they do not come up. `--needed` skips what is already installed.
+
+Without yay, the same with pacman:
+
+```bash
+sudo pacman -S --needed git curl unzip python jdk21-openjdk
+```
+
+- If a download fails (404, "failed retrieving file"), your package lists are older than the mirrors: update the
+  system first (`yay`, or `sudo pacman -Syu`) and run the line again. Never `-Sy` without the `u`: Arch does not
+  support partial upgrades.
+- Java: `jdk21-openjdk` becomes `java` through Arch's `archlinux-java`, no `PATH` or `JAVA_HOME` to set.
+  `java -version` must say 21 or newer; only if you have several JDKs and it does not: `archlinux-java status` lists
+  them and `sudo archlinux-java set java-21-openjdk` picks 21.
+- Arch's `python` is Python 3 and provides `python3` (with `venv`); Arch's bash is 5. The pinned Linux tools (dtk,
+  ninja, objdiff-cli, wibo) need only glibc, which every Arch system has; wine is needed only on aarch64 (see "Phase 4
+  build tools").
+- Do not install Arch's or the AUR's `ghidra`: setup downloads the pinned 12.1.4 (another version changes the output).
+
+Then clone and run in Konsole (the same in bash, zsh and fish):
+
+```bash
+git clone https://github.com/YourLocalDundee/custom-robo-decomp.git
+cd custom-robo-decomp
+bash tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
+```
+
+Verified on Oct 30, 2026 in the official `archlinux` Docker image
+(`archlinux@sha256:e82623936fa1a69700b48e98b058df6eaab18b737c27473a7234a40fdecb9413`, upgraded to that day's packages),
+as a normal user with sudo: yay 13.1.0 built from the AUR (`yay-bin`, as yay's README says), then the yay line above
+run once from bash, once from zsh and once from fish, and the pacman line from bash; after each, `bash tools/setup.sh`
+found every tool (git 2.56.0, curl 8.23.0, unzip 6.0, Python 3.14.8, OpenJDK 21.0.13, bash 5.3.20, glibc 2.44). The
+pinned dtk, ninja, objdiff-cli and wibo (with a CodeWarrior compiler), Ghidra's launcher and the preview venv also ran
+there. The full pipeline (`from_scratch.sh`) has not been run on Arch yet: [arch_container.md](arch_container.md)
+(the image and how to run it).
 
 ## Fedora (dnf)
 
@@ -165,12 +193,12 @@ cd custom-robo-decomp
 pwsh tools/from_scratch.ps1 -Iso "D:\Games\Custom Robo (USA).iso"
 ```
 
-Linux / macOS:
+Linux / macOS (from any shell; `bash` runs the script whatever your login shell is):
 
 ```bash
 git clone https://github.com/YourLocalDundee/custom-robo-decomp.git
 cd custom-robo-decomp
-tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
+bash tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
 ```
 
 Or step by step: `pwsh tools/setup.ps1 -Iso ...`, `pwsh tools/batches/run_all.ps1`, `pwsh tools/checksums.ps1 -Compare`
@@ -181,9 +209,11 @@ Or step by step: `pwsh tools/setup.ps1 -Iso ...`, `pwsh tools/batches/run_all.ps
 - **Verified end to end on Windows and on Ubuntu 26.04 (x86_64).** The Linux run (Oct 30, 2026, a 4-core machine
   without root: JDK from the tarball above, nothing else installed beyond git, python3, curl, unzip):
   `tools/from_scratch.sh` ended with PASS and `tools/checksums.sh --compare` reported every file matching
-  `docs/expected_checksums.txt`, batch 11 and the glTF / preview steps skipped as described below. Arch, Fedora and
-  macOS: the package lists above are from their package indexes and the scripts have no distro-specific code, but
-  they have not been run there yet.
+  `docs/expected_checksums.txt`, batch 11 and the glTF / preview steps skipped as described below.
+- **Arch: install block verified in an Arch container, pipeline not yet run on Arch.** The yay and pacman lines above
+  were run as a normal user in the `archlinux` Docker image, from bash, zsh and fish, and `tools/setup.sh`'s tool check
+  then found everything ([arch_container.md](arch_container.md)). Fedora and macOS: the package lists are from their
+  package indexes and the scripts have no distro-specific code, but they have not been run there yet.
 - Batch 11 (the shifted build booted in Dolphin) is Windows-only (`tools/boot_check.ps1` reads Dolphin's windows through
   the Win32 API) and is skipped on Linux / macOS; the static shift test in batch 9 still runs. On Windows it uses the
   pinned Dolphin that `setup.ps1` downloads (`tools/dolphin/Dolphin-x64`), or `-DolphinDir` / `CR_DOLPHIN_DIR`.
