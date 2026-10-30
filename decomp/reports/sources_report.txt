@@ -398,7 +398,7 @@ src/sysdolphin/baselib/jobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/jobj.
 src/sysdolphin/baselib/list.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/list.c  identical
 src/sysdolphin/baselib/lobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/lobj.c  identical
 src/sysdolphin/baselib/lobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/lobj.h  identical
-src/sysdolphin/baselib/mobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/mobj.c  identical
+src/sysdolphin/baselib/mobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/mobj.c  changed (23 lines added / removed)
 src/sysdolphin/baselib/mobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/mobj.h  identical
 src/sysdolphin/baselib/mtx.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/mtx.h  identical
 src/sysdolphin/baselib/objalloc.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/objalloc.h  identical

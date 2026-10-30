@@ -11,6 +11,8 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
        between: they are enclosed by O's own functions, so they belong to O), or one the pinned library sources
        define in O's very file (another revision of the file has it), or one that every reference placing it puts
        in a library file of the same name (another revision's function, or a header inline's out-of-line copy);
+       in HSD objects also one that no reference places in any file and no pinned source defines (it counts as the
+       unnamed function it was: step 61 iteration 3, HSD_MObjGetFlags, a name only Pokemon XD's map has);
     4. both ends are proven. An end is proven by the section edge, or when the named function next to it is NOT one
        of O's functions in R but another object's (else the object would extend further), or when it is unnamed
        and our end function is R's own first / last function of O. Unnamed functions right next to the range whose
@@ -416,7 +418,11 @@ def code_splits(ours, rejected, notes, audit=None):
                 # a library file of this name: another revision's function, or a header inline's out-of-line copy)
                 bad = [funcs[k][0] for k in range(i, j + 1) if not DEFAULT.match(funcs[k][0]) and funcs[k][0] not in names
                        and verdict(defs, funcs[k][0], family(path)) != Path(name).stem.lower()
-                       and placed.get(funcs[k][0]) != {objkey(path)}]
+                       and placed.get(funcs[k][0]) != {objkey(path)}
+                       and not (family(path) == "hsd" and not placed.get(funcs[k][0]) and not defs.get(funcs[k][0]))]
+                # (HSD only, step 61 iteration 3: a name between two of R's functions of O that no reference places in
+                # any file and no pinned source defines carries no file of its own: it counts as the unnamed function
+                # it was, enclosed by O's functions - as rule 4 does for such a neighbour)
                 if bad:
                     rejected.append(f"{tag}: our range {funcs[i][0]} .. {funcs[j][0]} contains other functions: {', '.join(bad[:4])}")
                     continue

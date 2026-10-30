@@ -7,10 +7,10 @@ dolphin                           75     47   0x010F98/0x022354  49.62%   0x0020
 MSL                               48     29   0x002F00/0x00937C  31.87%   0x000718/0x000D20  54.05%     37/   84
 Runtime                            5      4   0x000924/0x0009DC  92.71%   0x000024/0x00009C  23.08%     18/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
-sysdolphin                        29      7   0x001DDC/0x0265A4   4.87%   0x0006E8/0x001A40  26.31%     57/  471
+sysdolphin                        29      8   0x0035D4/0x0265A4   8.77%   0x0008A0/0x001BB0  31.15%     83/  471
 game                             232    232   0x0024F0/0x0024F0 100.00%   0x000000/0x000000    -       232/  232
-automatic objects (unsplit)      229      0   0x000000/0x1586CC   0.00%   0x000000/0x2811D0   0.00%      0/ 1919
-main.dol (all units)             647    329   0x0194C8/0x1B342C   5.81%   0x002EE0/0x29C458   0.44%    705/ 3533
+automatic objects (unsplit)      230      0   0x000000/0x1586CC   0.00%   0x000000/0x281060   0.00%      0/ 1919
+main.dol (all units)             648    330   0x01ACC0/0x1B342C   6.16%   0x003098/0x29C458   0.45%    731/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 232 objects from C (one function each, tools/promote_drafts.py), 0x24F0 bytes = 0.77% of the game code, 0.53% of all code
 
@@ -390,7 +390,7 @@ sysdolphin/baselib/id.c                       code 0x280/0x280  data 0x1D0/0x1D0
 sysdolphin/baselib/initialize.c               code 0x4/0x788  data 0x0/0x0  functions 1/18  not linked: code: 1 of 18 functions equal in objdiff (doldecomp/kar's initialize.c) and the C has data the split object lacks (.data 0xD, .sbss2 0x4)  (C has data the split object lacks: .data 0xD, .sbss2 0x4)
 sysdolphin/baselib/list.c                     code 0x2B0/0x2B0  data 0x78/0x78  functions 7/7  linked from C
 sysdolphin/baselib/lobj.c                     code 0x200/0x22E8  data 0x40/0x1E8  functions 8/27  not linked: code: 8 of 27 functions equal in objdiff (0x200 of 0x22E8 bytes; doldecomp/kar's lobj.c) and the C has .sdata2 (0x14) the split object lacks  (C has data the split object lacks: .sdata2 0x14)
-sysdolphin/baselib/mobj.c                     code 0x173C/0x17F8  data 0x38/0x48  functions 20/26  not linked: code: 19 of 26 functions equal in objdiff (0x16D4 of 0x17F8 bytes; doldecomp/kar's mobj.c) and the C has .data (0x169) the split object lacks  (C has data the split object lacks: .data 0x169)
+sysdolphin/baselib/mobj.c                     code 0x17F8/0x17F8  data 0x1B8/0x1B8  functions 26/26  linked from C
 sysdolphin/baselib/object.c                   code 0x44/0x44  data 0x5C/0x5C  functions 1/1  linked from C
 sysdolphin/baselib/pobj.c                     code 0x74/0x2AD4  data 0x0/0x60  functions 1/23  not linked: code: 1 of 23 functions equal in objdiff (0x74 of 0x2AD4 bytes; doldecomp/kar's pobj.c)
 sysdolphin/baselib/robj.c                     code 0x1CC/0x1F18  data 0x0/0x220  functions 5/21  not linked: code: 5 of 21 functions equal in objdiff (0x1CC of 0x1F18 bytes; doldecomp/kar's robj.c)

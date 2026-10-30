@@ -15,6 +15,17 @@ void HSD_MObjSetCurrent(HSD_MObj *mobj)
     current_mobj = mobj;
 }
 
+/* Custom Robo (step 61): not in kar's mobj.c; our mobj.c object has it here (0x8018B450, 0x18), between
+ * HSD_MObjSetCurrent and HSD_MObjSetFlags as in Pokemon XD's map (HSD_MObjGetFlags, 0x18), with the body of
+ * HSD_DObjGetFlags (dobj.c). */
+u32 HSD_MObjGetFlags(HSD_MObj *mobj)
+{
+    if (mobj != NULL) {
+        return mobj->rendermode;
+    }
+    return 0;
+}
+
 void HSD_MObjSetFlags(HSD_MObj *mobj, u32 flags)
 {
     if (mobj != NULL)
@@ -975,6 +986,18 @@ void HSD_MObjSetup(HSD_MObj* mobj, u32 rendermode)
 void HSD_MObjUnset(HSD_MObj* mobj, u32 rendermode)
 {
     HSD_TObjSetup(NULL);
+}
+
+/* Custom Robo (step 61): not in kar's mobj.c; Melee's mobj.c has it between HSD_MObjUnset and HSD_MObjSetAlpha,
+ * and so does our object (0x8018C854, 0x30), with the NULL checks this revision's HSD_MObjSetAlpha has. */
+void HSD_MObjSetDiffuseColor(HSD_MObj* mobj, u8 r, u8 g, u8 b)
+{
+    if (mobj == NULL || mobj->mat == NULL) {
+        return;
+    }
+    mobj->mat->diffuse.r = r;
+    mobj->mat->diffuse.g = g;
+    mobj->mat->diffuse.b = b;
 }
 
 void HSD_MObjSetAlpha(HSD_MObj* mobj, f32 alpha)
