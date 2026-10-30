@@ -146,7 +146,9 @@ class Emitter:
         from m2c_pycparser.c_generator import CGenerator
         self.ctx, self.ca, self.gen = ctx, ctx.ca, CGenerator
         self.provided = provided
-        self.full = full   # the structs a used global / function points to are defined (the draft reads their fields)
+        self.full = full   # the structs a used global / function points to are defined (the draft reads their fields);
+        # "deep" (step 69): also the structs their members point to, and so on (cr_C_ACT_TURN_POINT reads
+        # cr_g_CurrentChara->motion_set->turn_r: cr_Chara's member points to the cr_MotionSet it needs)
         self.top = False   # walking such a declaration itself (not the members of a struct it pulls in)
         self.out, self.done, self.tstate, self.sstate = [], set(), {}, {}
         self.local = set()
@@ -160,6 +162,12 @@ class Emitter:
         if n is None:
             return
         if isinstance(n, ca.PtrDecl):
+            if self.top == "member":
+                # "deep": a member pointing to one of our own types (cr_*) gets that type's definition, any other
+                # (HSD, SDK) stays a pointer to an incomplete type
+                t = n.type.type if isinstance(n.type, ca.TypeDecl) else None
+                own = isinstance(t, ca.IdentifierType) and any(x.startswith("cr_") for x in t.names)
+                return self.walk(n.type, not own)
             return self.walk(n.type, not self.top)
         if isinstance(n, ca.TypeDecl):
             return self.walk(n.type, ptr)
@@ -171,7 +179,7 @@ class Emitter:
         if isinstance(n, (ca.Struct, ca.Union)):
             if n.decls is None:
                 return self.need_tag(kind(n), n.name, ptr)
-            top, self.top = self.top, False
+            top, self.top = self.top, "member" if self.full == "deep" else False
             for d in n.decls:
                 self.walk(d)
             self.top = top
@@ -238,7 +246,7 @@ class Emitter:
         if self.sstate.get(key) == "full":
             return
         self.sstate[key] = "full"
-        top, self.top = self.top, False
+        top, self.top = self.top, "member" if self.full == "deep" else False
         for d in su.decls:
             self.walk(d)
         self.top = top
@@ -560,7 +568,7 @@ def main(argv):
         # 5. the promoted file: the declarations it uses (a struct used only through a pointer incomplete); when the
         #    compiler needs a struct's fields there (illegal use of incomplete struct), again with every struct defined
         body = draft_body(name)
-        for full in (False, True):
+        for full in (False, True, "deep"):
             r = promoted_text(name, a, size, body, full, not referenced(a, size))
             if isinstance(r, str):
                 return r
@@ -572,7 +580,7 @@ def main(argv):
                                                 str(src.relative_to(D)).replace("\\", "/")])
             if rc or not obj.exists():
                 err = db.compile_error(txt)
-                if not full and "incomplete struct" in err:
+                if full != "deep" and "incomplete struct" in err:
                     continue
                 return "the promoted file does not compile: " + err
             break
