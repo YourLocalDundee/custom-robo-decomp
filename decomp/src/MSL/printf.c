@@ -8,6 +8,7 @@
 #include "string.h"
 #include "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/wchar_io.h"
 #include "stdarg.h"
+#include "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/critical_regions.h" /* Custom Robo: vprintf's critical region */
 
 extern void __num2dec(const decform*, double, decimal*);
 
@@ -1224,7 +1225,9 @@ int vprintf(const char* format, va_list arg)
         return -1;
     }
 
+    __begin_critical_region(stdin_access); /* Custom Robo: this revision locks stdout here (BfBB's printf.c) */
     ret = __pformatter(&__FileWrite, (void*)stdout, format, arg);
+    __end_critical_region(stdin_access);
     return ret;
 }
 

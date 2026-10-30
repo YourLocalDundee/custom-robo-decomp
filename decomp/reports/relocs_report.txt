@@ -74,7 +74,7 @@ jump tables dtk did not name (verified):
   0x8022B110 lbl_8022B110: 8 cases in fn_800A63C0
   0x802434F4 @87: 16 cases in __OSUnhandledException
   0x8024488C @724: 7 cases in VIGetTvFormat
-  0x80249F00 @1248_80249F00: 33 cases in longlong2str_80164C40
+  0x80249F00 @1248: 33 cases in longlong2str
 
 named pointer tables (symbols/cr_globals.txt), words in their extent:
   ok   0x801F1200 cr_g_FileDescs (cr_FileDesc*[43], 43 pointers): 43 relocated words, 0 NULL, 0 unrelocated in-range words

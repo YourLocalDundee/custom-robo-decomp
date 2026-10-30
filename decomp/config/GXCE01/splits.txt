@@ -1345,6 +1345,7 @@ MSL/ansi_files.c:
 MSL/ansi_fp.c:
 	.text       start:0x801606F0 end:0x80162644
 	.rodata     start:0x801C49D8 end:0x801C4AB8
+	.data       start:0x80249BD8 end:0x80249D00
 	.sdata2     start:0x80451EA8 end:0x80451EB0
 
 MSL/buffer_io.c:
@@ -1382,6 +1383,8 @@ MSL/misc_io.c:
 MSL/printf.c:
 	.text       start:0x80163710 end:0x801656B0
 	.rodata     start:0x801C4AB8 end:0x801C4AE0
+	.data       start:0x80249F00 end:0x8024A130
+	.sdata      start:0x8044EEA0 end:0x8044EEA4
 	.sdata2     start:0x80451EB8 end:0x80451EC0
 
 MSL/string.c:
