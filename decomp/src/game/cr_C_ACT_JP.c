@@ -4,13 +4,12 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 *lbl_8044F778;
 
 void cr_C_ACT_JP(void) {
-    u8 *temp_r31_5;
+    void *temp_r31_5;
 
     temp_r31_5 = lbl_8044F778;
     lbl_8044F778 += 8;
-    lbl_8044F778 = *M2C_FIELD(temp_r31_5, u8 ***, 4);
+    lbl_8044F778 = *M2C_FIELD(temp_r31_5, void ***, 4);
 }

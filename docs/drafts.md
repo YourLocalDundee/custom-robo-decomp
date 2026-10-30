@@ -206,6 +206,79 @@ Not done in this round (bound): the 146 drafts at 80-99% (144 before) (classes l
 struct-typed globals in arithmetic (`*(cr_g_AreaBoxes + off) & 1`) and on struct values plus offsets (11), `illegal
 type` (10) and `pointer/array required` (8).
 
+## Sixth generator (plan.md step 64, Oct 30, 2026)
+
+Round 5 worked on the drafts at 80-99% first (each one diffed instruction by instruction against the original, the
+differences sorted into classes), then on the failures. Every fix is in `tools/draft_batch.py` (one in
+`symbols/cr_types.h`, one in the game flags of `decomp/configure.py`); no draft is edited. "Changed" = drafts whose
+text the rule changes in the final run (counted by running each rule off), "matched" = drafts it brought to 100%.
+1. **Game flags: `-use_lmw_stmw on`** (configure.py, tools/patches/dtk_template_configure.patch). All 614 game
+   functions that save five or more registers use stmw / lmw (three or four: single stw), none calls `_savegpr_N`,
+   which GC/2.6 does at level 0 without the option. No draft with stmw in the original had ever matched. With the
+   register order (6) it matched fn_800772C0, fn_800773D0, fn_800774A4, fn_80077578.
+2. **Library prototypes without m2c's `arg_spN`** (`signature`): m2c reads the stack slots `_savegpr_N` addresses
+   through r11 as a stack argument; the 17 prototypes that had one made every caller pass
+   `M2C_ERROR(unset register)`, which the repair loop turned into `li r3,0`. 8 near matches had that load; 7 match
+   now (fn_800055E8, fn_80021A40, cr_SEQ_TITLE_FrameC with rule 3, fn_80075BBC, fn_80075C14, fn_80079080,
+   fn_800BCC60; fn_800EAC48 86%).
+3. **HSD assert as a conditional expression** (`assert_ternary`): `if (c) { } else { __assert(...); }` ->
+   `(c) ? (void) 0 : __assert(...);` (Melee's HSD_ASSERT; `beq; b` instead of `bne`). Changed 46, matched
+   fn_80075120, fn_80094394 and the callers of rule 2.
+4. **Mixed-use pointer globals** (`data_decls` MIXED, `mixed_externs`): a 4-byte object the first-pass drafts type as
+   pointers to different things (44 of them, e.g. lbl_8044F728) is no longer declared `u8 *` for everyone; each
+   draft declares it with its own type (m2c's own extern; `void *` becomes `u8 *`, the section is kept). Changed 263,
+   matched the fn_800AB468 family (10 functions, `lhz` where `u8 *` gave `lbz`).
+5. **m2c's byte steps** (`byte_steps`, `element_terms`): m2c prints `p + n` with n in bytes whatever p points to. For a
+   pointer / array of larger elements: element steps when n is a constant multiple (`p + 8` -> `p + 2`), the terms
+   divided when every term is (`p + ((x * 0xC) + 4)` -> `p + x * 3 + 1` on a u32 *, not for dtk's `lbl_` arrays),
+   else `(T *) ((u8 *) p + n)`. Changed 562, matched fn_8001F654, fn_8006FAC4, fn_8009760C, fn_80096F54,
+   fn_80097530, fn_80097588, fn_80099538, fn_800BAF3C.
+6. **Register order** (`register_order`): the locals m2c names after the original's register are declared from r31
+   (f31) down in the slots they had; the compiler hands out callee-saved registers in declaration order. Changed 862.
+   A variant (below), because the allocator's first key is not always the declaration (fn_8001F558).
+7. **Unsigned same-type copies** (`same_type_copies`): `M2C_FIELD(a, u16 *, n) = (u16) M2C_FIELD(b, u16 *, m);` drops the
+   cast (another register at level 0). Changed 131, matched cr_Motion_LoadInfo (with rule 5).
+8. **cr_Sin16 / cr_Cos16 return f32** (symbols/cr_types.h, with evidence: every path ends in `lfs f1` / `fneg`, callers
+   store with stfs / use fmuls with no frsp): 19 drafts call them; matched fn_800A54A4, fn_800A5638.
+9. **`cror eq, lt, eq`** (asm input): dtk's spelling of `x <= y` after fcmpo was unknown to m2c's FcmpoCrorPattern
+   (numeric only), so the bne after it became `==`. The asm m2c reads uses `cror 2, 0, 2` now: 79 functions.
+10. **Callee return widths** (`narrow_returns`): a first-pass caller declares an unknown callee itself (`u8
+    fn_80099538(M2C_UNK); /* extern */`); when every caller agrees on u8 / s8 / u16 / s16 and the callee's own draft
+    says s32 / u32, the prototype takes the narrower type: 25 prototypes; matched fn_800F60A8, fn_80125C2C.
+11. **Repairs**: explicit conversion from `T *` to `T` of `(f32) (&a[i])` -> the element; a float array element used as
+    a pointer read as u32; `void **p` for `*p += x` (relocation loops) declared `u8 **`; `->` no longer ends an
+    operand in byte_steps. Failures 52 -> 47.
+12. **`-1U` against a halfword / byte** (`narrow_minus_one`): `(u16) x != -1U` / `M2C_FIELD(.., u16 *, n) != -1U`
+    -> `0xFFFF` (0xFF). Changed 82, matched fn_80130848.
+13. **Parameters**: `var_r3_0 = arg0;` as a first statement (the parameter's own register) is the parameter
+    (`param_regs`, 7; fn_8008E598 18% -> 75%); `var_r23_8 = arg0;` in a function that calls (`param_copies`,
+    24): the parameter kept in a callee-saved register (matched fn_80095700); `sp8 = arg1;` (`param_homes`, a variant,
+    72: the parameter's stack home in fn_800683B4, a real local in fn_8005A668).
+14. **Signed fields** (`signed_fields`): `(s8) M2C_FIELD(x, u8 *, n)` -> `M2C_FIELD(x, s8 *, n)` (s16 alike): one
+    register for load and extension. Changed 186, matched fn_80008E80.
+15. **Access widths in m2c's output** (`M2C_WIDTH`, a run-time patch in the generated m2c_run.py; the pinned m2c is
+    unchanged): m2c prints a load it cannot place in a field as `*p` / `*(p + x)` whatever p's C type points to (a
+    lwz through a `u8[]` became a byte load). When p's element size is known and differs, or p is `void *` / an
+    integer, m2c's own `M2C_FIELD(p, T *, 0)` with the access's type is printed instead (address constants stay as
+    they were). Changed 383; matched fn_80079108, fn_80077290 (with 16).
+16. **VARIANTS** (`one`): a draft that does not match and scores 40% or more is compiled again without
+    register_order, without param_copies, without both, with param_homes, with `((void *) 0)` for NULL in comparisons
+    (`void_null`: `li r0,0; cmplw` where MSL's 0L gives cmplwi; 313 drafts have a NULL comparison), and without
+    register_order with void_null; the best score is kept (ties: the full rules). Deterministic; batch 12 takes about
+    8 minutes.
+**Before -> after** (full runs, same m2c, GC/2.6 with the new flag): compile 1,697 -> 1,702 of 1,751 (failures
+52 -> 47, + 2 m2c), **100% MATCH 293 -> 350** (57 new, none lost), bytes equal after alignment 399,064 -> 428,472;
+histogram 0-9% 76 -> 67, 10-19% 117 -> 93, 20-29% 159 -> 152, 30-39% 311 -> 294, 40-49% 148 -> 136, 50-59% 160 -> 159,
+60-69% 142 -> 138, 70-79% 145 -> 156, 80-89% 92 -> 114, 90-99% 54 -> 43. **Promoted 340 + 2 kept = 342 game objects**
+(was 290), 0x67AC bytes = 2.16% of the game code (was 1.33%); 441 of 809 units from C, 7.26% of all code (was 6.69%);
+batch 9 main.dol retail SHA-1, every game object 100% code + data in objdiff.
+Left for the next round: the `li r5,2` family of the SEQ handlers (cr_SEQ_ENDING_FrameA & co., two stores whose
+constant the original keeps in r5: not found), m2c merging a temporary into a later variable (fn_8001D05C family,
+the sum before cr_Sqrt), ArrayAccess widths (m2c's ArrayAccess keeps the element type, not the access's:
+fn_8001B3F0), extra callee-saved registers of m2c temporaries (the `stmw r25` vs `r26` class), switch layouts
+(fn_8001F558); failures: pointer/array required 11, illegal operand 10, explicit / implicit conversions 7 + 7,
+illegal type 7.
+
 ## Promoted to decomp/src/game (plan.md step 58)
 
 After the drafts, batch 12 runs `python -I tools/promote_drafts.py` (method: its docstring). Every 100% draft that can be
@@ -250,6 +323,20 @@ and cr_C_ACT_MOVE 458, 24 (lbl_80451290 alone has 52 users over 0x80099EAC-0x800
 over every pool entry, the runs grow further, because a string (0x801B6620) is also used from a data table and some
 .sdata2 entries are used across very distant code (const globals or very large files). These runs become available as
 the drafts around them match; the rule never links a group it cannot prove.
+Step 64 (owned data only): a C file brings only the data its compiler generates itself (in practice the int-to-float
+constants 0x4330000080000000 / 0x4330000000000000, one copy per file; jump tables and literals would count too); every
+other pool entry is an extern `lbl_` of the drafts and stays in its asm object. So `Pools.file_run` now closes over the
+users of the entries the drafts OWN (their compiled objects' data, mapped to main.dol through main.elf's relocations at
+the same sites), not over every entry they read. The "constant placed with its first user, the others reference it"
+alternative does not work: the constant is the compiler's local `@N` symbol, which the asm users cannot name, and
+writing the conversion by hand around an extern would be a fake match. Result after step 64: still **no file run is
+complete**, because each conversion constant is shared by the whole source file: fn_80008F8C 127 functions of
+0x80008ED8-0x8001AA98 (55 at 100%; before: "not a file" through the string 0x801B6620, which is not owned), closed
+129 (56); fn_800683B4 / fn_800694C4 38 (8); fn_800858B0 27 (1); fn_80112A0C 27 (10), closed 34 (15);
+fn_800A54A4 / fn_800A5638 / cr_C_ACT_MOVE_LENG / cr_C_ACT_MOVE 458 (40), closed 1,340 (242: some entries are shared
+across files, e.g. 0x80451290 by 52 functions). A function whose conversion constants only it uses links as a
+one-function file object as soon as it matches (10 such functions, e.g. fn_8001EB48, fn_80022830; nearest fn_8005C4D0
+at 85%).
 
 ## Using it
 

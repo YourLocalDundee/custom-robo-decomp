@@ -6,8 +6,9 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void cr_MotionFile_Register(u32 *arg0);
-extern u8 *lbl_8044F33C;
+
+extern u32 *lbl_8044F33C;
 
 void fn_800A0204(void) {
-    cr_MotionFile_Register((u32 *) lbl_8044F33C);
+    cr_MotionFile_Register(lbl_8044F33C);
 }

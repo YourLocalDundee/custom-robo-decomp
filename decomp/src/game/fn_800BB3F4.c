@@ -26,6 +26,7 @@ typedef enum cr_Seq
 __declspec(section ".data") extern cr_Seq cr_g_SeqCurrent;
 extern u32 lbl_8031FED8[5];
 extern u8 lbl_8044F756;
+
 extern u8 *lbl_8044F728;
 
 void fn_800BB3F4(void) {

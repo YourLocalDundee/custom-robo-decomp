@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u32 lbl_8044F3F8;
 void fn_800EAC48(void);
-void fn_80023164(void);
+void fn_8019D38C(void);
 typedef enum _HSD_RenderPass
 {
   HSD_RP_SCREEN,
@@ -16,6 +16,10 @@ typedef enum _HSD_RenderPass
   HSD_RP_OFFSCREEN,
   HSD_RP_NUM
 } HSD_RenderPass;
+void fn_8019DB14(enum _HSD_RenderPass arg0);
+void fn_8019DC90(void);
+void VIWaitForRetrace(void);
+void fn_80023164(void);
 void HSD_StartRender(HSD_RenderPass pass);
 void fn_80091518(u32 arg0);
 void fn_800373AC(void);
@@ -23,16 +27,11 @@ void fn_800055E0(void);
 void fn_80021AB0(void);
 void fn_80098410(void);
 
-M2C_UNK VIWaitForRetrace();                         /* extern */
-M2C_UNK fn_8019D38C();                              /* extern */
-M2C_UNK fn_8019DB14(M2C_UNK);                       /* extern */
-M2C_UNK fn_8019DC90();                              /* extern */
-
 void fn_80021A40(void) {
     do {
         fn_800EAC48();
         fn_8019D38C();
-        fn_8019DB14(0);
+        fn_8019DB14(HSD_RP_SCREEN);
         fn_8019DC90();
         VIWaitForRetrace();
         fn_80023164();
@@ -42,5 +41,5 @@ void fn_80021A40(void) {
         fn_800055E0();
         fn_80021AB0();
         fn_80098410();
-    } while ((u32) lbl_8044F3F8 == 0);
+    } while (lbl_8044F3F8 == 0);
 }

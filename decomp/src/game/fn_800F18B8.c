@@ -6,16 +6,17 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void fn_800F1954(void);
-extern u8 *lbl_8044F310;
-extern u8 *lbl_8044F30C;
-extern u8 *lbl_8044F308;
 void fn_80023264(s32 *arg0, s32 *arg1, u32 arg2);
 extern u16 lbl_803BF914[434];
 void fn_800EF39C(s32 arg0, s32 arg1);
 
+extern s32 *lbl_8044F308;
+extern s32 *lbl_8044F30C;
+extern s32 *lbl_8044F310;
+
 void fn_800F18B8(s32 arg0) {
     s32 *sp8;
-    u8 *var_r31_0;
+    s32 *var_r31_0;
 
     fn_800F1954();
     switch (arg0) {                                 /* irregular */
@@ -29,8 +30,8 @@ void fn_800F18B8(s32 arg0) {
         var_r31_0 = lbl_8044F308;
         break;
     }
-    sp8 = (s32 *) var_r31_0;
-    fn_80023264((s32 *) var_r31_0, (s32 *) lbl_803BF914, 0x364U);
+    sp8 = var_r31_0;
+    fn_80023264(var_r31_0, (s32 *) lbl_803BF914, 0x364U);
     fn_800EF39C(arg0, 0);
     fn_800EF39C(arg0, 1);
 }

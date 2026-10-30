@@ -5,14 +5,15 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 *lbl_8044F2A4;
-extern u8 *lbl_8044F2E4;
 typedef struct OSFontHeader OSFontHeader;
 BOOL OSInitFont(OSFontHeader *fontData);
 
+extern OSFontHeader *lbl_8044F2A4;
+extern OSFontHeader *lbl_8044F2E4;
+
 void fn_8002312C(void) {
     lbl_8044F2A4 = lbl_8044F2E4;
-    if (OSInitFont((OSFontHeader *) lbl_8044F2A4) == 0) {
+    if (OSInitFont(lbl_8044F2A4) == 0) {
 loop_1:
         goto loop_1;
     }

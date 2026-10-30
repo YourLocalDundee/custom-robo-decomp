@@ -8,8 +8,8 @@
 extern u8 lbl_80407260[75344];
 
 s32 fn_80100BD0(void) {
-    s32 var_r30_6;
     u8 var_r31_4;
+    s32 var_r30_6;
 
     var_r31_4 = 0;
     var_r30_6 = 0;
