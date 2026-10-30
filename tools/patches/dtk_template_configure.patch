@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,345 @@ def MatchingFor(*versions):
+@@ -284,18 +307,342 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -273,18 +273,15 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/object.c",
 +    "sysdolphin/baselib/id.c",
 +    "sysdolphin/baselib/list.c",
++    "sysdolphin/baselib/class.c",
++    "sysdolphin/baselib/dobj.c",
++    "sysdolphin/baselib/wobj.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
 +# "data": the C defines data main.dol keeps in a dtk automatic object (the data split must give this object that
 +# piece first); "link": the C calls functions / uses data our symbols do not name yet.
 +CR_NOT_MATCHING = {
-+    "sysdolphin/baselib/dobj.c":
-+        "link: 100% code (every function its own by bytes, from doldecomp/kar), but it uses _OSReport, HSD_PObjRemoveAnimAll, HSD_MObjAddAnim and HSD_AObjInterpretAnim, which our symbols do not name yet: name them from the call sites (rule R7) to link it",
-+    "sysdolphin/baselib/wobj.c":
-+        "link: 100% code (every function its own by bytes, from doldecomp/kar), but it uses HSD_RObjRemoveAll and the parent class info objInfo, which our symbols do not name yet: name them from the call sites (rule R7) to link it",
-+    "sysdolphin/baselib/class.c":
-+        "link: 100% code (every function its own by bytes, from doldecomp/kar), but GetMemoryEntry uses memory_list, nb_memory_list and _HSD_MemAlloc, which our symbols do not name yet (memory.c, not split): name them from the call sites (rule R7) to link it",
 +    "sysdolphin/baselib/mobj.c":
 +        "code: 19 of 26 functions equal in objdiff (0x16D4 of 0x17F8 bytes; doldecomp/kar's mobj.c) and the C has .data (0x169) the split object lacks",
 +    "sysdolphin/baselib/initialize.c":

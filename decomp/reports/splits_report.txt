@@ -1608,6 +1608,9 @@ DEF 0x8044FD38 __PADFixBits dolphin/si/SIBios.c .sbss size:0x4 global
 DEF 0x8044FEF8 default_class sysdolphin/baselib/dobj.c .sbss size:0x4 local
 DEF 0x8044FEFC current_dobj sysdolphin/baselib/dobj.c .sbss size:0x4 local
 DEF 0x80450050 lbl_805DE2E0 sysdolphin/baselib/wobj.c .sbss size:0x4 local
+DEF 0x80450058 memory_list sysdolphin/baselib/class.c .sbss size:0x4 local
+DEF 0x8045005C nb_memory_list sysdolphin/baselib/class.c .sbss size:0x4 local
+DEF 0x80450060 current_hash sysdolphin/baselib/class.c .sbss size:0x4 local
 DEF 0x80451CB0 @18 dolphin/mtx/mtx.c .sdata2 size:0x4 local
 DEF 0x80451CB4 @19 dolphin/mtx/mtx.c .sdata2 size:0x4 local
 DEF 0x80451CB8 @103 dolphin/mtx/mtx.c .sdata2 size:0x4 local
@@ -1798,6 +1801,7 @@ dolphin/si/SIBios.c                              .sdata  0x8044EEC8-0x8044EECC  
 dolphin/si/SIBios.c                              .sbss   0x8044FD30-0x8044FD40   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
 sysdolphin/baselib/class.c                       .data   0x8024D4D8-0x8024D668  14 sym  of 14 in the C (0 stripped), 4 at a verified use (C call site, code), bytes = main.dol
 sysdolphin/baselib/class.c                       .sdata  0x8044F248-0x8044F250   1 sym  of 3 in the C (2 stripped), 1 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/class.c                       .sbss   0x80450058-0x80450068   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
 sysdolphin/baselib/dobj.c                        .data   0x8024B4F8-0x8024B618   8 sym  of 8 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/dobj.c                        .sdata  0x8044EF88-0x8044EF99   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/dobj.c                        .sbss   0x8044FEF8-0x8044FF00   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
@@ -1805,7 +1809,7 @@ sysdolphin/baselib/id.c                          .bss    0x8044B550-0x8044B710  
 sysdolphin/baselib/id.c                          .sdata  0x8044F180-0x8044F18E   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/list.c                        .bss    0x8044B710-0x8044B768   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
 sysdolphin/baselib/list.c                        .sdata  0x8044F1E8-0x8044F205   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code), bytes = main.dol
-sysdolphin/baselib/object.c                      .data   0x8024D050-0x8024D0A4   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/object.c                      .data   0x8024D050-0x8024D0A4   2 sym  of 2 in the C (0 stripped), 2 at a verified use (C call site, code), bytes = main.dol
 sysdolphin/baselib/object.c                      .sdata  0x8044F208-0x8044F210   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/util.c                        .data   0x8024CBF8-0x8024CC50   2 sym  of 2 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/util.c                        .sdata  0x8044F138-0x8044F142   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
@@ -2585,7 +2589,6 @@ GKYE01:controller.c .text: none of its functions is (uniquely) named in ours
 GKYE01:rumble.c .text: none of its functions is (uniquely) named in ours
 GKYE01:perf.c .text: none of its functions is (uniquely) named in ours
 GKYE01:quatlib.c .text: none of its functions is (uniquely) named in ours
-GKYE01:memory.c .text: start not proven (HSD_Alloc .. HSD_ShadowRemove; neighbour fn_801A40EC)
 GKYE01:archive.c .text: end not proven (HSD_ArchiveGetPublicAddress .. HSD_ArchiveGetExtern; neighbour fn_801A5634)
 GKYE01:random.c .text: none of its functions is (uniquely) named in ours
 GKYE01:gobjproc.c .text: end not proven (HSD_SaveContext .. HSD_Panic; neighbour fn_801AEB40)
@@ -3080,6 +3083,7 @@ G8MJ01:gx/GXPerf.c .text: end not proven (GXSetGPMetric .. GXClearGPMetric; neig
 G8MJ01:si/SISamplingRate.c .text: end not proven (SISetSamplingRate .. SIRefreshSamplingRate; neighbour AXDriverAlloc)
 G8MJ01:thp/THPDec.c .text: none of its functions is (uniquely) named in ours
 G8MJ01:thp/THPAudio.c .text: none of its functions is (uniquely) named in ours
+sysdolphin/baselib/memory.c: only the wowjinxy KAR map proves it, and doldecomp/kar does not agree (doldecomp/kar memory: 0x8041BF1C-0x8041CF1C, wowjinxy 0x8041CD84-0x8041D15C)
 sysdolphin/baselib/objalloc.c: the wowjinxy KAR map's objalloc.c .text 0x801A0584-0x801A0A70 is not given by any other reference: not used
 sysdolphin/baselib/shadow.c: only the wowjinxy KAR map proves it, and doldecomp/kar does not agree (doldecomp/kar shadow: 0x8041CF1C-0x8041E224, wowjinxy 0x8041D15C-0x8041E224)
 sysdolphin/baselib/tev.c: the wowjinxy KAR map's tev.c .text 0x80189C88-0x8018B448 is not given by any other reference: not used

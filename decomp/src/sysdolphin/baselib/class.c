@@ -1,6 +1,15 @@
 /* Custom Robo: from doldecomp/kar @ 3ed51a1a008a05c33225cc286c046b8f90fb3d0e, src/sysdolphin/class.c */ #include "class.h"
 
-extern u32 lbl_805DE300;
+/* Custom Robo (step 61): kar's class.c declares the three .sbss words below extern (its data is not split); Melee's
+ * class.c defines them here, static (memory_list, nb_memory_list, current_hash), and so does our class.c object
+ * (.sbss 0x80450058-0x80450068, in that order, used by its functions only; this compiler places .sbss statics in
+ * the reverse order of their definitions, so they are defined last to first here). lbl_805DE300 is Melee's current_hash;
+ * kar's _OSReport is our (and the wowjinxy map's) OSReport. */
+#define lbl_805DE300 current_hash
+#define _OSReport OSReport
+static u32 lbl_805DE300;
+static s32 nb_memory_list;
+static HSD_MemoryEntry** memory_list;
 
 extern void _hsdClassInfoInit();
 HSD_ClassInfo hsdClass = { _hsdClassInfoInit };
