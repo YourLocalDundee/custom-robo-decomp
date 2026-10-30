@@ -110,6 +110,8 @@ DATA FROM THE MATCHED C (Phase 4 Milestone 4, step 56): a C file that matches it
        start 4-aligned). A dtk symbol that runs on over the C's last byte is cut where the piece ends (symbols.txt,
        trim_symbols: a split may not end inside a symbol). A C piece replaces the relocation users' piece of the same
        object; another object's piece it overlaps is dropped.
+    4. second pass (main): the relocation users' pieces are computed again with the C pieces known (a symbol next to
+       a candidate range that lies in another object's C piece is that object's, whoever uses it), then 2-3 again.
   Report: the whole matches (with the functions our names call otherwise), the pieces, the global symbols our names
   call otherwise (an object linked from C needs every name another object uses), and every C definition ("DEF"
   lines: rule R8, the // c-define lines of symbols/symbols.txt are checked against them by check_c_callsites.py).
