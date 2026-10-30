@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,422 @@ def MatchingFor(*versions):
+@@ -284,18 +307,424 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -242,6 +242,8 @@ diff --git a/configure.py b/configure.py
 +CR_OBJECT_SOURCE: Dict[str, str] = {
 +    "MetroTRK/targsupp.c": "MetroTRK/targsupp.s",
 +}
++CR_OBJECT_INCLUDES["dolphin/amcstubs/AmcExi2Stubs.c"] = BFBB_INC
++CR_OBJECT_INCLUDES["MSL/FILE_POS.c"] = TP_INC
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
 +    "dolphin/mtx/": ["-char signed"],
@@ -426,6 +428,8 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/fog.c",
 +    "sysdolphin/baselib/perf.c",
 +    "sysdolphin/baselib/initialize.c",
++    "dolphin/amcstubs/AmcExi2Stubs.c",
++    "MSL/FILE_POS.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -462,8 +466,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 10 of 11 functions equal in objdiff (doldecomp/kar's fobj.c for its functions; FObjLoadData, HSD_FObjInterpretAnim / InterpretAnimAll, HSD_FObjLoadDesc, HSD_FObjAlloc, HSD_FObjFree ported from wowjinxy/KAR's fobj.c, provenance per function, assert lines of this revision; step 61 iteration 8: HSD_FObjGetState as a conditional expression (main.dol puts the NULL case first) -> FObjLoadData equal, the update data as wowjinxy's 0xC union HSD_ObjData -> InterpretAnim's frame 0x60 as main.dol's): HSD_FObjInterpretAnim 99.6%: cases 4 / 5 store the new state with clrlwi / rlwimi from the state register in main.dol, the C folds the constant (ori 3 / ori 4); tried: Melee's MUST_MATCH `state = state = 3`, a non-inline static HSD_FObjSetState, u8 state parameter / return, the operand order of Melee's SetState, a bitfield store, state-- / state++, compilers GC/1.2.5 / 1.3 / 1.3.2r",
 +    "sysdolphin/baselib/aobj.c":
 +        "code: 13 of 15 functions equal in objdiff (doldecomp/kar's aobj.c for its 10 functions, the 9 it lacks ported from wowjinxy/KAR's aobj.c, provenance per function; HSD_AObjSetRate named by its bytes): fn_8018CCDC (0x50) and fn_8018CD2C (0x80), between HSD_AObjInvokeCallBacks and HSD_AObjReqAnim, have no function of their size in Melee's or KAR's file (HSD_AObjSetFObj 0x4C, HSD_AObjStopAnim 0x44 there); the C also has functions this revision inlines (HSD_AObjGetAllocData, Get/Set/ClearFlags, SetFObj, StopAnim)",
-+    "MSL/FILE_POS.c":
-+        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision; BfBB has no FILE_POS.c and no reference reproduces _fseek (86%) or ftell (46%) (step 66)",
 +}
 +
 +

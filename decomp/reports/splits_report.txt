@@ -756,6 +756,7 @@ dolphin/thp/THPDec.c                             .sbss   0x80450080-0x80450198  
 dolphin/thp/THPDec.c                             .sdata2 0x804529F8-0x80452A14   6 sym  core 6, edge zone 0/0, size 0x1C = GMSE01, G8MJ01(same code)
 
 == objects whose every function is a function of their C file (bytes and relocations = main.dol's; the C proves their data)
+MSL/FILE_POS.c                                     3 functions
 MSL/PPC_EABI/critical_regions.gamecube.c           3 functions
 MSL/abort_exit.c                                   1 functions
 MSL/alloc.c                                        4 functions
@@ -837,6 +838,7 @@ Runtime/global_destructor_chain.c                  1 functions
 Runtime/runtime.c                                 13 functions
 dolphin/OdemuExi2/DebuggerDriver.c                14 functions
 dolphin/ai/ai.c                                   19 functions
+dolphin/amcstubs/AmcExi2Stubs.c                    8 functions
 dolphin/ar/ar.c                                    9 functions (named otherwise in ours: fn_80142B28 = __ARHandler)
 dolphin/ar/arq.c                                   5 functions
 dolphin/ax/AXAlloc.c                              10 functions
@@ -1735,6 +1737,9 @@ DEF 0x8016276C __fwrite MSL/direct_io.c .text size:0x30C global
 DEF 0x80162A78 fwrite MSL/direct_io.c .text size:0x7C global
 DEF 0x80162AF4 fflush MSL/file_io.c .text size:0x138 global
 DEF 0x80162C2C fclose MSL/file_io.c .text size:0x1BC global
+DEF 0x80162DE8 fseek MSL/FILE_POS.c .text size:0x6C global
+DEF 0x80162E54 _fseek MSL/FILE_POS.c .text size:0x270 global
+DEF 0x801630C4 ftell MSL/FILE_POS.c .text size:0xE4 global
 DEF 0x801631A8 wcstombs MSL/mbstring.c .text size:0x118 global
 DEF 0x801632C0 memcmp MSL/mem.c .text size:0x4C global
 DEF 0x8016330C __memrchr MSL/mem.c .text size:0x2C global
@@ -1795,6 +1800,14 @@ DEF 0x80169128 log MSL/w_log.c .text size:0x20 global
 DEF 0x80169148 pow MSL/w_pow.c .text size:0x20 global
 DEF 0x80169168 __ieee754_sqrt MSL/e_sqrt.c .text size:0x224 global
 DEF 0x80169424 sqrt MSL/w_sqrt.c .text size:0x20 global
+DEF 0x80169444 EXI2_Init dolphin/amcstubs/AmcExi2Stubs.c .text size:0x4 global
+DEF 0x80169448 EXI2_EnableInterrupts dolphin/amcstubs/AmcExi2Stubs.c .text size:0x4 global
+DEF 0x8016944C EXI2_Poll dolphin/amcstubs/AmcExi2Stubs.c .text size:0x8 global
+DEF 0x80169454 EXI2_ReadN dolphin/amcstubs/AmcExi2Stubs.c .text size:0x8 global
+DEF 0x8016945C EXI2_WriteN dolphin/amcstubs/AmcExi2Stubs.c .text size:0x8 global
+DEF 0x80169464 EXI2_Reserve dolphin/amcstubs/AmcExi2Stubs.c .text size:0x4 global
+DEF 0x80169468 EXI2_Unreserve dolphin/amcstubs/AmcExi2Stubs.c .text size:0x4 global
+DEF 0x8016946C AMC_IsStub dolphin/amcstubs/AmcExi2Stubs.c .text size:0x8 global
 DEF 0x80169474 Hu_IsStub dolphin/odenotstub/odenotstub.c .text size:0x8 local
 DEF 0x8016947C DBClose dolphin/OdemuExi2/DebuggerDriver.c .text size:0x4 global
 DEF 0x80169480 DBOpen dolphin/OdemuExi2/DebuggerDriver.c .text size:0x4 global

@@ -1,13 +1,14 @@
-/* Custom Robo: from mariopartyrd/marioparty4 @ 5b01c79b4910525e3fc5aa312eddd6d014e7f337, src/MSL_C.PPCEABI.bare.H/FILE_POS.c */ #include "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/ansi_files.h"
-#include "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/errno.h"
+/* Custom Robo: from zeldaret/tp @ c8fa8c9e2aab72cf4e5db0e5d1c84a9ea6ee6eb0, libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/FILE_POS.c */ #include "FILE_POS.h"
+#include "critical_regions.h"
+#include "errno.h"
 
-inline fpos_t _ftell(FILE* file) {
+int _ftell(FILE* file) {
     int charsInUndoBuffer = 0;
-    fpos_t position;
-    unsigned char tmp_kind = file->file_mode.file_kind;
+    int position;
 
+    unsigned char tmp_kind = file->file_mode.file_kind;
     if (!(tmp_kind == __disk_file || tmp_kind == __console_file) || file->file_state.error) {
-        errno = EFPOS;
+        errno = 0x28;
         return -1;
     }
 
@@ -21,77 +22,89 @@ inline fpos_t _ftell(FILE* file) {
         position -= charsInUndoBuffer;
     }
 
+    if (!file->file_mode.binary_io) {
+        int n = file->buffer_ptr - file->buffer - charsInUndoBuffer;
+        unsigned char* p = (unsigned char*)file->buffer;
+
+        while (n--)
+            if (*p++ == '\n')
+                position++;
+    }
+
     return (position);
 }
 
-long ftell(FILE* file) {
-    long retval;
+long ftell(FILE* stream) {
+    int retval;
 
-    retval = (long)_ftell(file);
-
+    __begin_critical_region(stdin_access);
+    retval = (long)_ftell(stream);
+    __end_critical_region(stdin_access);
     return retval;
 }
 
-int _fseek(FILE* file, fpos_t offset, int file_mode) {
-    fpos_t position;
-    __pos_proc pos_proc;
-    unsigned char tmp_kind = file->file_mode.file_kind;
+int _fseek(FILE* file, unsigned long offset, int whence) {
+    int bufferCode;
+    int pos;
 
-    if (!(tmp_kind == __disk_file) || file->file_state.error) {
-        errno = EFPOS;
-        return (-1);
+    unsigned char* ptr;
+
+    if (file->file_mode.file_kind != 1 || file->file_state.error != 0) {
+        errno = 0x28;
+        return -1;
     }
 
-    if (file->file_state.io_state == __writing) {
-        if (__flush_buffer(file, NULL) != __no_io_error) {
-            set_error(file);
-            errno = EFPOS;
-            return (-1);
+    if (file->file_state.io_state == 1) {
+        if (__flush_buffer(file, NULL) != 0) {
+            file->file_state.error = 1;
+            file->buffer_length = 0;
+            errno = 0x28;
+            return -1;
         }
     }
 
-    if (file_mode == SEEK_CUR) {
-        file_mode = SEEK_SET;
-        if ((position = _ftell(file)) < 0)
-            position = 0;
-        offset += position;
+    if (whence == SEEK_CUR) {
+        whence = SEEK_SET;
+        pos = _ftell(file);
+        offset += pos;
     }
 
-    if ((file_mode != SEEK_END) && (file->file_mode.io_mode != __read_write) &&
-        ((file->file_state.io_state == __reading) || (file->file_state.io_state == __rereading)))
+    if ((whence != SEEK_END) && (file->file_mode.io_mode != 3) &&
+        (file->file_state.io_state == 2 || file->file_state.io_state == 3))
     {
-        if (offset >= file->position || offset < file->buffer_position) {
-            file->file_state.io_state = __neutral;
+        if ((offset >= file->position) || !(offset >= file->buffer_position)) {
+            file->file_state.io_state = 0;
         } else {
             file->buffer_ptr = file->buffer + (offset - file->buffer_position);
             file->buffer_length = file->position - offset;
-            file->file_state.io_state = __reading;
+            file->file_state.io_state = 2;
         }
     } else {
-        file->file_state.io_state = __neutral;
+        file->file_state.io_state = 0;
     }
 
-    if (file->file_state.io_state == __neutral) {
-        if ((pos_proc = file->position_fn) != NULL && pos_proc(file->handle, &offset, file_mode, file->idle_fn)) {
-            set_error(file);
-            errno = EFPOS;
+    if (file->file_state.io_state == 0) {
+        if (file->position_fn != NULL &&
+            (int)file->position_fn(file->handle, &offset, whence, file->idle_fn))
+        {
+            file->file_state.error = 1;
+            file->buffer_length = 0;
+            errno = 0x28;
             return -1;
+        } else {
+            file->file_state.eof = 0;
+            file->position = offset;
+            file->buffer_length = 0;
         }
-
-        file->file_state.eof = 0;
-        file->position = offset;
-        file->buffer_length = 0;
     }
 
     return 0;
 }
 
-int fseek(FILE * file, long offset, int file_mode)
-{
-    fpos_t real_offset = (fpos_t)offset;
-    int retval;		
-
-    retval = _fseek(file, real_offset, file_mode);
-
-    return(retval);
+int fseek(FILE* stream, unsigned long offset, int whence) {
+    int code;
+    __begin_critical_region(stdin_access);
+    code = _fseek(stream, offset, whence);  // 0 if successful, -1 if error
+    __end_critical_region(stdin_access);
+    return code;
 }

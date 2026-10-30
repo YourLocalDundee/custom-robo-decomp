@@ -1,9 +1,9 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 1114
+files: 1119
 
-src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
+src/MSL/FILE_POS.c  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
 src/MSL/alloc.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common/alloc.c  identical
 src/MSL/ansi_files.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common/ansi_files.c  identical
@@ -89,6 +89,7 @@ src/Runtime/platform.h  doldecomp/melee @ 24e685d57535 src/Runtime/platform.h  i
 src/Runtime/runtime.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/Runtime.PPCEABI.H/runtime.c  identical
 src/dolphin/OdemuExi2/DebuggerDriver.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/OdemuExi2/DebuggerDriver.c  identical
 src/dolphin/ai/ai.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ai/ai.c  changed (2 lines added / removed)
+src/dolphin/amcstubs/AmcExi2Stubs.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/amcstubs/AmcExi2Stubs.c  identical
 src/dolphin/ar/__ar.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/__ar.h  identical
 src/dolphin/ar/ar.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/ar.c  changed (2 lines added / removed)
 src/dolphin/ar/arq.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/arq.c  changed (2 lines added / removed)
@@ -559,6 +560,8 @@ include/bfbb/dolphin/sipriv.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/includ
 include/bfbb/dolphin/thp.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/thp.h  identical
 include/bfbb/dolphin/types.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/types.h  identical
 include/bfbb/dolphin/vi.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/vi.h  identical
+include/bfbb/dolphin/amc/AmcExi2Comm.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/amc/AmcExi2Comm.h  identical
+include/bfbb/dolphin/amc/AmcTypes.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/amc/AmcTypes.h  identical
 include/bfbb/dolphin/base/PPCArch.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/base/PPCArch.h  identical
 include/bfbb/dolphin/demo/DEMOAVX.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/demo/DEMOAVX.h  identical
 include/bfbb/dolphin/demo/DEMOInit.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/demo/DEMOInit.h  identical
@@ -1100,10 +1103,12 @@ include/tp/dolphin/dolphin/os/OSTimer.h  zeldaret/tp @ c8fa8c9e2aab libs/dolphin
 include/tp/dolphin/dolphin/os/OSUtf.h  zeldaret/tp @ c8fa8c9e2aab libs/dolphin/include/dolphin/os/OSUtf.h  identical
 include/tp/dolphin/dolphin/vi/vitypes.h  zeldaret/tp @ c8fa8c9e2aab libs/dolphin/include/dolphin/vi/vitypes.h  identical
 include/tp/metrotrk/trk.h  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MetroTRK/trk.h  identical
+include/tp/msl_common/FILE_POS.h  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Include/FILE_POS.h  identical
 include/tp/msl_common/ansi_files.h  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Include/ansi_files.h  identical
 include/tp/msl_common/arith.h  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Include/arith.h  identical
 include/tp/msl_common/char_io.h  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Include/char_io.h  identical
 include/tp/msl_common/cmath  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Include/cmath  identical
+include/tp/msl_common/critical_regions.h  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Include/critical_regions.h  identical
 include/tp/msl_common/cstdarg  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Include/cstdarg  identical
 include/tp/msl_common/cstddef  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Include/cstddef  identical
 include/tp/msl_common/cstdio  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Include/cstdio  identical
