@@ -114,6 +114,17 @@ library objects from C, 44 more C files in `decomp/src` compiled for objdiff onl
 `CR_NOT_MATCHING`); provenance of every file: `decomp/reports/sources_report.txt`. Game functions come into
 `decomp/src/game` another way (m2c drafts that match, promoted by script): [drafts.md](drafts.md).
 
+Step 65 (Oct 30, 2026): 444 objects from C, the Dolphin SDK 82 of 82 objects, MSL 46 of 49, Runtime 5 of 5. Which
+reference to take: Custom Robo's SDK is BfBB's Apr 17 2003 build (OS / GX Jul 23 2003, AX Jul 29 2003), so BfBB's
+file (`tools/refs/bfbb`) is the first choice for an SDK or MSL file, with dolsdk2004's functions that BfBB's file lacks
+inserted in main.dol's order ([compiler.md, "Source revisions"](compiler.md)). A BfBB file is imported with
+`--inc src/dolphin/include=include/bfbb --inc include=include/bfbb --inc src/PowerPC_EABI_Support/include=include/bfbb/libc
+--inc src/dolphin/src=include/bfbb/dolphin_src` and gets `BFBB_INC` in `CR_OBJECT_INCLUDES` (an object's own header
+roots replace the library's `-i` and `-ir`). Functions in reverse source order in main.dol come from deferred inlining
+(MSL / TRK flags; `-inline auto,deferred` for OdemuExi2): reverse the source or add the flag. A function only a
+byte match names (not split yet) is named as a `c-define` line of the object it will be in; the object is then split
+from the references and the linked C confirms the name (plan.md step 65).
+
 How to add a C file (one object of `decomp/config/GXCE01/splits.txt`):
 Python tools are named by script only; run them with `python -I` (Windows) or `python3 -I` (Linux / macOS).
 

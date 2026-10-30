@@ -428,31 +428,31 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/fog.c":
 +        "code: 11 of 11 functions equal in objdiff, .sdata 100% (the 11 functions of wowjinxy/KAR's fog.c with the structs of include/cr_kar/fog.h, main.dol's assert lines; kar's two KAR-only functions removed; step 61 iteration 7): data: the split's .data piece is 0x118, the C's .data 0x117: the zero byte after \"hsd_fogadj\" (to the next object's alignment) is in the piece (dtk's lbl_8024CF9C runs on over the padding), so objdiff reports .data 279/280; likewise .sdata2 (0x28 piece, the C's pool 0x24: 4 zero bytes after 255.0F): 36/40; the bytes before are equal",
 +    "MSL/FILE_POS.c":
-+        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision",
++        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision; BfBB has no FILE_POS.c and no reference reproduces _fseek (86%) or ftell (46%) (step 66)",
 +    "MetroTRK/dispatch.c":
-+        "code: 2 of 2 functions differ (TRKInitializeDispatcher 0%, TRKDispatchMessage 24%): the reference is another revision",
++        "code: 2 of 2 functions differ (TRKInitializeDispatcher 0%, TRKDispatchMessage 24%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/dolphin_trk.c":
-+        "code: 5 of 8 functions differ (TRKTargetTranslate 73%, __TRK_copy_vectors 85%, fn_8015E288 0%, fn_8015E09C 0% (+1 more)): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++        "code: 5 of 8 functions differ (TRKTargetTranslate 73%, __TRK_copy_vectors 85%, fn_8015E288 0%, fn_8015E09C 0% (+1 more)): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise); ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/dolphin_trk_glue.c":
-+        "code: 10 of 13 functions differ (InitMetroTRKCommTable 37%, TRKInitializeIntDrivenUART 75%, EnableEXI2Interrupts 67%, TRKPollUART 0% (+6 more)): the reference is another revision",
++        "code: 10 of 13 functions differ (InitMetroTRKCommTable 37%, TRKInitializeIntDrivenUART 75%, EnableEXI2Interrupts 67%, TRKPollUART 0% (+6 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/main_TRK.c":
-+        "code: 1 of 1 functions differ (TRK_main 77%): the reference is another revision",
++        "code: 1 of 1 functions differ (TRK_main 77%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/msg.c":
-+        "code: 1 of 1 functions differ (TRKMessageSend 0%): the reference is another revision",
++        "code: 1 of 1 functions differ (TRKMessageSend 0%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/msgbuf.c":
-+        "code: 3 of 14 functions differ (TRKResetBuffer 92%, TRKAppendBuffer1_ui64 53%, TRKAppendBuffer_ui32 65%): the reference is another revision",
++        "code: 3 of 14 functions differ (TRKResetBuffer 92%, TRKAppendBuffer1_ui64 53%, TRKAppendBuffer_ui32 65%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/msghndlr.c":
-+        "code: 15 of 17 functions differ (OutputData 0%, TRKDoConnect 0%, TRKDoDisconnect 0%, TRKDoReset 0% (+11 more)): the reference is another revision",
++        "code: 15 of 17 functions differ (OutputData 0%, TRKDoConnect 0%, TRKDoDisconnect 0%, TRKDoReset 0% (+11 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/notify.c":
-+        "code: 1 of 1 functions differ (TRKDoNotifyStopped 61%): the reference is another revision",
++        "code: 1 of 1 functions differ (TRKDoNotifyStopped 61%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/nubinit.c":
-+        "code: 1 of 3 functions differ (TRKInitializeNub 73%): the reference is another revision",
++        "code: 1 of 3 functions differ (TRKInitializeNub 73%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/serpoll.c":
-+        "code: 3 of 5 functions differ (TRKTestForPacket 0%, TRKGetInput 38%, TRKInitializeSerialHandler 16%): the reference is another revision",
++        "code: 3 of 5 functions differ (TRKTestForPacket 0%, TRKGetInput 38%, TRKInitializeSerialHandler 16%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/support.c":
-+        "code: 5 of 5 functions differ (TRKSuppAccessFile 39%, TRKRequestSend 77%, HandleOpenFileSupportRequest 24%, HandleCloseFileSupportRequest 51% (+1 more)): the reference is another revision",
++        "code: 5 of 5 functions differ (TRKSuppAccessFile 39%, TRKRequestSend 77%, HandleOpenFileSupportRequest 24%, HandleCloseFileSupportRequest 51% (+1 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/targimpl.c":
-+        "code: 12 of 29 functions differ (TRKValidMemory32 40%, TRKTargetAccessFP 23%, TRKPostInterruptEvent 86%, TRKTargetInterrupt 81% (+8 more)): the reference is another revision",
++        "code: 12 of 29 functions differ (TRKValidMemory32 40%, TRKTargetAccessFP 23%, TRKPostInterruptEvent 86%, TRKTargetInterrupt 81% (+8 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +}
 +
 +
