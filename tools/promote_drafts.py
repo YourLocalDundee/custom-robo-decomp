@@ -31,9 +31,12 @@ struct"), the file is generated again with the structs the draft's globals / fun
 their members' pointers stay incomplete): cr_Chara_SetCurrentPointers (step 63).
 FILE OBJECTS (plan.md step 63): a 100% draft that fails only rule 2 because it has data of its own (an .sdata2
 constant, a string literal) can be linked only together with the other functions of its source file. The per-file
-pool rule (tools/gen_dtk_splits.py) gives them: every function using one of its pool entries (.sdata2 symbols and
-dtk's data:string symbols, main.elf's relocations) is in its file, and so is every function in between (code is
-contiguous per file); repeated until closed, that is the file run. When every function of the run is a 100% draft
+pool rule (tools/gen_dtk_splits.py) gives them: every function using one of its pool entries is in its file, and so
+is every function in between (code is contiguous per file). Only the entries the drafts OWN count (step 64, class
+Pools): the data their compiled objects bring themselves (in practice the int-to-float constants
+0x4330000080000000 / 0x4330000000000000, one copy per file); the other pool entries are extern `lbl_` names in the
+drafts and stay in their asm objects. Every user of an owned entry (main.elf's relocations), and every function in
+between, repeated until closed, is the file run. When every function of the run is a 100% draft
 passing rules 1-4 (its own data relocations aside), the drafts are concatenated, in address order, into one file
 decomp/src/game/<first>_<last>.c (declarations as above, then the functions' own prototypes, then the bodies), which
 must compile to the drafts' .text one after another, and gen_dtk_splits.game_file_data must place its data: every
@@ -339,50 +342,81 @@ def file_text(name, a, b, decls, body, members=None):
 
 class Pools:
     """the per-file pools (tools/gen_dtk_splits.py docstring): each source file has its own .sdata2 constants and
-    string literals (dtk's data:string symbols), so all functions using one entry are in one file"""
+    string literals, so all functions using one entry are in one file.
+    OWNED DATA ONLY (step 64): a C file brings only the data its compiler generates itself (the draft object's own
+    .sdata2 / .rodata / .data: the int-to-float constants 0x4330000080000000 / 0x4330000000000000, jump tables,
+    literals); every other pool entry a draft uses is an extern `lbl_` of the context, which stays in its asm object
+    whatever object the function is in. So a run must hold every user of the entries its drafts OWN (they move into
+    the C object, and asm cannot name the compiler's local `@N` symbol), not every user of every entry they read: the
+    step-63 closure over all entries also pulled in the users of shared literals read by name (1.0f, strings) and
+    ran into data tables (fn_80008F8C: "not a file" through the string 0x801B6620)."""
 
     def __init__(self, elf, funcs, ours):
         import bisect
         import reloc_audit as ra
         self.funcs = funcs
-        strings = set()
-        for line in gs.OURS.read_text(encoding="utf-8").splitlines():
-            m = gs.SYM.match(line)
-            if m and "data:string" in line:
-                strings.add(int(m.group(3), 16))
-        dobjs = ra.Objects(elf)
+        self.elf = elf
+        self.dobjs = dobjs = ra.Objects(elf)
         start = [f[1] for f in funcs]
         self.users = {}
-        self.of = {}
         for site, r in elf.relocs.items():
-            if r[0] in (ra.R_REL24, ra.R_REL14):
+            if r[0] in (ra.R_REL24, ra.R_REL14) or elf.section_of(r[1]) in (None, ".text", ".init"):
                 continue
             c = dobjs.containing(r[1])
-            if not c or not (elf.section_of(r[1]) == ".sdata2" or c[0] in strings):
+            if not c:
                 continue
             k = bisect.bisect_right(start, site) - 1
             if k < 0 or site >= funcs[k][1] + funcs[k][2]:
                 k = -1   # used from outside the game functions (library code, data)
             self.users.setdefault(c[0], set()).add(k)
-            self.of.setdefault(k, set()).add(c[0])
+        self._owned = {}
+
+    def owned(self, k):
+        """the data entries (dtk symbol starts in main.elf) that function k's compiled draft owns: every relocation of
+        its .text into one of its own data sections, at the same site in main.elf; None when there is no object, or
+        a relocation main.elf does not have"""
+        if k not in self._owned:
+            name, addr = self.funcs[k][0], self.funcs[k][1]
+            o = DRAFTS / "obj" / f"{name}.o"
+            out = set()
+            if not o.exists():
+                out = None
+            else:
+                secs, syms, rels = gs.read_obj(o)
+                own = {i for i, s in enumerate(secs) if s[0] in SPACE and s[2]}
+                ti = next((i for i, s in enumerate(secs) if s[0] == ".text"), None)
+                fv = next((s[1] for s in syms if s[0] == name), 0)
+                for off, typ, si, add in rels.get(ti, []) if own else []:
+                    if syms[si][5] not in own:
+                        continue
+                    site = addr + off - fv
+                    r = self.elf.relocs.get(site) or (self.elf.relocs.get(site & ~3) if typ == 109 else None)
+                    c = self.dobjs.containing(r[1]) if r else None
+                    if not c:
+                        out = None
+                        break
+                    out.add(c[0])
+            self._owned[k] = out
+        return self._owned[k]
 
     def direct(self, k):
-        """(first, last): the functions using function k's own pool entries (one step of file_run)"""
-        u = {j for c in self.of.get(k, ()) for j in self.users[c] if j >= 0} | {k}
+        """(first, last): the functions using function k's own (owned) entries (one step of file_run)"""
+        u = {j for c in (self.owned(k) or ()) for j in self.users.get(c, ()) if j >= 0} | {k}
         return min(u), max(u)
 
     def file_run(self, k):
-        """(first, last, an entry used outside the game functions or None): the smallest run of consecutive functions
-        around k that holds every user of every pool entry its functions use (repeated until closed)"""
+        """(first, last, an owned entry used outside the game functions or None): the smallest run of consecutive
+        functions around k that holds every user of every entry its functions' drafts own (repeated until closed)"""
         lo = hi = k
         while True:
             nlo, nhi = lo, hi
             for j in range(lo, hi + 1):
-                for c in self.of.get(j, ()):
-                    u = self.users[c]
+                for c in self.owned(j) or ():
+                    u = self.users.get(c, set())
                     if -1 in u:
                         return lo, hi, c
-                    nlo, nhi = min(nlo, min(u)), max(nhi, max(u))
+                    if u:
+                        nlo, nhi = min(nlo, min(u)), max(nhi, max(u))
             if (nlo, nhi) == (lo, hi):
                 return lo, hi, None
             lo, hi = nlo, nhi
@@ -610,7 +644,7 @@ def main(argv):
         todo.append((lo, hi, outside))
         dl, dh = pool.direct(gi[c[1]])
         nm = sum(1 for f in funcs[dl:dh + 1] if "100% MATCH" in status.get(f[0], ""))
-        direct.append(f"{c[1]}: its pool entries' users alone span {funcs[dl][0]}..{funcs[dh][0]} "
+        direct.append(f"{c[1]}: the users of the entries its draft owns span {funcs[dl][0]}..{funcs[dh][0]} "
                       f"(0x{funcs[dl][1]:08X}-0x{funcs[dh][1] + funcs[dh][2]:08X}, {dh - dl + 1} functions, {nm} at 100%)")
     for lo, hi, outside in todo:
         key = (funcs[lo][0], funcs[hi][0])
@@ -620,7 +654,7 @@ def main(argv):
         n100 = [f for f in mem if "100% MATCH" in status.get(f[0], "")]
         head = f"{funcs[lo][1]:08X}-{funcs[hi][1] + funcs[hi][2]:08X}  {key[0]}..{key[1]}  {len(mem)} functions, {len(n100)} at 100%"
         if outside is not None:
-            runs[key] = head + f" so far: its pool entry 0x{outside:08X} ({elf.section_of(outside)}) is also used outside the game functions (data, library code): not a file"
+            runs[key] = head + f" so far: its own entry 0x{outside:08X} ({elf.section_of(outside)}) is also used outside the game functions (data, library code): not a file"
             continue
         if len(n100) < len(mem):
             miss = [f[0] for f in mem if f not in n100]
@@ -693,8 +727,8 @@ def main(argv):
            f"removed (function name no longer ours): {len(removed)}",
            "", "== promoted (address, function, bytes)"]
     out += [f"{a:08X}  {n:44} {s:5}" for a, n, s in promoted]
-    out += ["", "== file runs of the drafts with data of their own (range, first..last, functions; the users of every pool "
-                "entry they use, closed: plan.md step 63)"] + [runs[k] for k in sorted(runs, key=lambda k: gi[k[0]])] + direct
+    out += ["", "== file runs of the drafts with data of their own (range, first..last, functions; the users of every entry "
+                "the run's drafts own, closed: plan.md steps 63, 64)"] + [runs[k] for k in sorted(runs, key=lambda k: gi[k[0]])] + direct
     out += ["", "== left out (address, function, bytes, why)"]
     out += [f"{a:08X}  {n:44} {s:5}  {why[n]}" for a, n, s in left]
     out += ["", "== kept (function, its draft's status now)"] + [f"{n:44} {s}" for n, s in kept]

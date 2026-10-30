@@ -1812,8 +1812,10 @@ void* cr_Heap_AllocAligned(u32 size);
 void cr_Chara_BuildModel(s32 number);
 void cr_Chara_SetCurrentPointers(void);
 void cr_Chara_UpdateAll(void);
-f64 cr_Sin16(u32 angle);
-f64 cr_Cos16(u32 angle);
+// cr_Sin16 / cr_Cos16 return f32 (step 64): every path ends in `lfs f1` (or `lfs f0; fneg f1,f0`) from the f32 table,
+// and the callers store the result with stfs / use it in fmuls with no frsp (fn_800B7B18, fn_800A54A4)
+f32 cr_Sin16(u32 angle);
+f32 cr_Cos16(u32 angle);
 void cr_AreaBoxes_Update(void);
 void cr_Mtx_TranslateX(f64 d);
 void cr_Mtx_TranslateZX(f64 z, f64 x);

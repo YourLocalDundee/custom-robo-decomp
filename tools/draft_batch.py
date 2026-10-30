@@ -22,7 +22,10 @@ the arguments the callee's draft takes. The draft is post-processed before it is
 in this file, so a rerun reproduces it; nothing is edited by hand): stack arrays m2c names but does not declare
 (from its --stack-structs template), its `x = saved_reg_rN;` reads of never-written registers, and then a repair
 loop on the compiler's own messages (a cast where it reports an illegal implicit conversion, `u8 *` where it reports
-arithmetic on `void *`), each fix checked by compiling again.
+arithmetic on `void *`), each fix checked by compiling again. m2c runs through m2c_run.py, which also makes it print the
+width of a load it cannot place in a field (M2C_WIDTH; the pinned checkout is not changed). A draft that does not
+match but scores 40% or more is also compiled with the VARIANTS of the post-processing (rules whose evidence is not in
+the draft: register order, parameter copies, the null pointer's spelling) and the best-scoring one is kept.
 Everything goes into decomp/drafts/ (gitignored: decompiled output must never be committed):
   c/<name>.c  the drafts      asm/<name>.s  the input   obj/  compiled objects   log/  m2c / compiler messages of failures
   draft_report.txt  one line per function + totals     ctx_pp.c  the m2c context     orig/  copies of the original objects
@@ -50,6 +53,72 @@ def mwcc_cmd(ver):
     wibo = os.path.join(D, 'build/tools/wibo')
     return [wibo if os.path.exists(wibo) else 'wine', exe]
 M2C = os.path.join(G, 'tools/m2c')
+# step 64: m2c prints a load or store it could not place in a field as `*p` / `*(p + x)` whatever p's C type points to:
+# `*(lbl_801F9E08 + off)` on a u8[] is a byte to the compiler where the original loads a word (lwz), `*lbl_8044F728`
+# on a u8 * where it loads a halfword. m2c knows the access width (its type is the load's), so m2c_run.py wraps it in
+# m2c's own M2C_FIELD(p, T *, 0) when the pointer's C element size (p's declared type; for `p + x` the pointer
+# operand's) is known and is not the access's (an untyped `void *` / integer base is left to the repair rules). The pinned m2c checkout is not changed: the wrapper patches the class at run time.
+M2C_WIDTH = r'''import m2c.translate as _t
+_fmt = _t.StructAccess.format
+
+
+def _target_size(e):
+    # the element size of the C type of a dereferenced expression; 0 for an integer (the compiler cannot dereference
+    # it: the repair rules would guess s32), None when unknown or an address constant (left as m2c prints it)
+    e = _t.late_unwrap(e)
+    if isinstance(e, _t.Literal) or (isinstance(e, _t.Cast) and isinstance(_t.late_unwrap(e.expr), _t.Literal)):
+        return None
+    if isinstance(e, _t.Cast) and e.silent:
+        return _target_size(e.expr)
+    if isinstance(e, _t.BinaryOp) and e.op in ('+', '-'):
+        for side in (e.left, e.right):
+            if _t.late_unwrap(side).type.is_pointer_or_array():
+                return _target_size(side)
+        return 0   # no side typed as a pointer by m2c: the C type is the draft's void * / integer
+    ty = e.type
+    if ty.is_array() or ty.is_pointer():
+        tgt = ty.data().ptr_to
+        if tgt is None or tgt.is_void():
+            return 0   # void *: the repair rules would guess s32 where m2c knows f32 (fn_8008CDE4)
+        return tgt.get_size_bytes() if not tgt.is_struct() else None
+    return 0 if ty.is_int() else None
+
+
+def _scalar(ty):
+    if ty.is_int() or ty.is_float():
+        return True
+    tgt = ty.get_pointer_target() if ty.is_pointer() else None
+    return tgt is not None and not tgt.is_function()
+
+
+def _width_format(self, fmt):
+    s = _fmt(self, fmt)
+    if not fmt.valid_syntax or self.offset != 0 or not s.startswith('*'):
+        return s
+    var = _t.late_unwrap(self.struct_var)
+    want = self.type.get_size_bytes()
+    if not want or not _scalar(self.type) or s != '*' + var.format(fmt):
+        return s
+    have = _target_size(var)
+    if have is None or have == want:
+        return s
+    return 'M2C_FIELD(%s, %s, 0)' % (var.format(fmt), _t.Type.ptr(self.type).format(fmt))
+
+
+_afmt = _t.ArrayAccess.format
+
+
+def _array_width_format(self, fmt):
+    # `lbl_801F10C0[i]` on a u8[] where the code loads a word: the index is a byte offset there
+    want = self.type.get_size_bytes()
+    if fmt.valid_syntax and want and want > 1 and _scalar(self.type) and _target_size(self.ptr) == 1:
+        return 'M2C_FIELD(%s, %s, %s)' % (self.ptr.format(fmt), _t.Type.ptr(self.type).format(fmt), _t.format_expr(self.index, fmt))
+    return _afmt(self, fmt)
+
+
+_t.StructAccess.format = _width_format
+_t.ArrayAccess.format = _array_width_format
+'''
 MELEE = '../tools/melee'
 # the same defines tools/scripts/ParseHeaders.java uses: no __MWERKS__ (inline asm drops out), M2CTX = the plain-C paths
 CTX_DEFS = ['-DM2CTX', '-D__attribute__(x)=', '-D__declspec(x)=']
@@ -59,6 +128,7 @@ CTX_INC = [MELEE + '/src', MELEE + '/src/sysdolphin/baselib', MELEE + '/src/MSL'
 FN = re.compile(r'^\.fn (\S+), \w+')
 ENDFN = re.compile(r'^\.endfn (\S+)')
 HDR = re.compile(r'^# \.text:0x[0-9A-Fa-f]+ \| 0x([0-9A-F]{8}) \| size: 0x([0-9A-F]+)')
+CROR = re.compile(r'\bcror eq, (lt|gt), eq\b')
 
 
 def game_end():
@@ -246,7 +316,13 @@ def data_decls(ptrs={}):
     u8 name[], which hid their type from m2c: a float in .rodata was read as bytes); a size-0 object of a large section
     stays u8 name[].
     ptrs: {name: pointer type} for the 4-byte objects m2c itself typed as pointers in the first pass (`u8 *` when its
-    drafts disagree or say `void *`, which the compiler cannot do arithmetic on)."""
+    drafts disagree or say `void *`, which the compiler cannot do arithmetic on).
+    MIXED (step 64): a 4-byte object the first-pass drafts type as pointers to different things (`lbl_8044F728`: a
+    struct pointer read as a byte in one function, a halfword in another) is not declared at all. m2c then declares it
+    in each draft itself, with the type that draft needs (`extern u16 *lbl_8044F728;`, as in the first pass), and the
+    load keeps its width; before, it was `u8 *` for every draft, and `*p` loaded a byte where the original loads a
+    halfword (the fn_800AB468 family). Its section goes into a comment line `// CR_MIXED name prefix`, so a draft's
+    own extern gets the same CR_SECTION (mixed_sections)."""
     out = ['\n// every lbl_ data object of decomp/config/GXCE01/symbols.txt with its size, so the compiler picks the\n'
            '// same data model as the original (small data only for the small sections; tools/draft_batch.py data_decls)\n']
     for l in open(os.path.join(D, 'config/GXCE01/symbols.txt'), encoding='utf-8'):
@@ -269,7 +345,9 @@ def data_decls(ptrs={}):
         elif size <= 8:
             pre = 'CR_SECTION("%s") ' % DECL_SECTION[sec]
         es = ELEM[t]
-        if size == 4 and name in ptrs:
+        if size == 4 and ptrs.get(name) == MIXED:
+            out.append('// CR_MIXED %s %s\n' % (name, pre.strip()))
+        elif size == 4 and name in ptrs:
             out.append('%sextern %s%s;\n' % (pre, ptrs[name], name))
         elif size == es:
             out.append('%sextern %s %s;\n' % (pre, t, name))
@@ -278,6 +356,35 @@ def data_decls(ptrs={}):
         else:
             out.append('%sextern u8 %s[%d];\n' % (pre, name, size))
     return ''.join(out)
+
+
+MIXED = 'CR_MIXED'
+
+
+def mixed_sections():
+    """{name: CR_SECTION prefix or ''} of the objects data_decls leaves to each draft (MIXED), read once per process
+    from the context (ctx.h)"""
+    if 'mixed' not in W:
+        try:
+            text = open(os.path.join(W['out'], 'ctx.h'), encoding='utf-8').read()
+        except OSError:
+            text = ''
+        W['mixed'] = {m.group(1): m.group(2).strip() for m in re.finditer(r'^// CR_MIXED (\w+) ?(.*)$', text, re.M)}
+    return W['mixed']
+
+
+def mixed_externs(body):
+    """a draft's own `extern T *lbl_X;` of a MIXED object (data_decls) gets the object's section (CR_SECTION), like the
+    context's declarations; m2c's `void *` (a base pointer only: arithmetic on it is illegal) is `u8 *`, as data_decls
+    declares such an object when all drafts say `void *`"""
+    mx = mixed_sections()
+
+    def fix(m):
+        if m.group(2) not in mx:
+            return m.group(0)
+        d = m.group(0).replace('extern void *', 'extern u8 *', 1)
+        return (mx[m.group(2)] + ' ' + d) if mx[m.group(2)] else d
+    return re.sub(r'^extern ([\w ]+ \**)(lbl_[0-9A-F]{8});', fix, body, flags=re.M)
 
 
 def decl_sections():
@@ -295,12 +402,41 @@ DEF = re.compile(r'^([A-Za-z_][\w \t\*]*?)\s*\**\b(\w+)\(((?:[^()]|\([^()]*\))*)
 
 
 def signature(name, body):
-    """the prototype of a draft's own definition line (`void fn_X(void *arg0, s32 arg1) {`), or None"""
+    """the prototype of a draft's own definition line (`void fn_X(void *arg0, s32 arg1) {`), or None.
+    m2c's `M2C_UNK arg_spN` parameters are dropped (step 64): m2c reads the stack slots that _savegpr_N / _restgpr_N
+    address through r11 as stack arguments (all 17 such prototypes are library functions that save registers that
+    way, e.g. fn_8019DC90). In the prototype it is one more parameter, so every caller's draft passed
+    `M2C_ERROR(/* Read from unset register */)` for it, and the repair loop then loaded a 0 (`li r3,0`) that the
+    original call does not have."""
     for m in DEF.finditer(body):
         if m.group(2) == name:
             line = body[m.start():m.end()]
+            line = re.sub(r',\s*M2C_UNK arg_sp[0-9A-F]+\b', '', line)
+            line = re.sub(r'\(M2C_UNK arg_sp[0-9A-F]+\)', '(void)', line)
             return line[:-2].rstrip() + ';'
     return None
+
+
+EXTERN_FN = re.compile(r'^((?:unsigned |signed )?\w+(?: \*+)?) (\w+)\([^;{}]*\);\s*/\* extern \*/', re.M)
+NARROW = ('u8', 's8', 'u16', 's16')
+
+
+def narrow_returns(sigs, rets):
+    """callee return widths (step 64): a first-pass draft types its callee's return from what its own body does with
+    it (`u8 fn_80099538(M2C_UNK); /* extern */`: it tests the low byte, `clrlwi.`), while the callee's own draft can
+    only say s32 / u32 (it returns a register, `li r29,1 ... mr r3,r29`). When every caller that declares the callee
+    agrees on one narrower integer type, the prototype (ctx_protos.h) takes it: the callers then compile the same
+    test (fn_800F60A8, fn_800F67FC: `cmpwi r3,0` before). Changes sigs in place; returns how many."""
+    n = 0
+    for fn, ts in rets.items():
+        if fn not in sigs or len(ts) != 1 or next(iter(ts)) not in NARROW:
+            continue
+        sig = sigs[fn][1]
+        m = re.match(r'^(s32|u32|M2C_UNK) (%s\()' % re.escape(fn), sig)
+        if m:
+            sigs[fn] = (sigs[fn][0], next(iter(ts)) + ' ' + sig[len(m.group(1)) + 1:])
+            n += 1
+    return n
 
 
 def protos_text(sigs, ctx_pp):
@@ -715,8 +851,364 @@ def compound_assign(body):
     return re.sub(r'^([ \t]+)([^\n;]+?) = ([^\n;]+);$', fix, body, flags=re.M)
 
 
-def postprocess(body):
-    return double_negation(unsigned_const_stores(table_call_args(while_loops(drop_same_casts(compound_assign(type_void_stores(drop_saved_reg_reads(drop_param_spills(declare_unk_stack(declare_stack_arrays(body)))))))))))
+def assert_ternary(body):
+    """m2c's `if (c) { } else { __assert(file, line, text); }` -> `(c) ? (void) 0 : __assert(file, line, text);`
+    (step 64): the HSD assert macro (Melee's HSD_ASSERT, `((cond) ? ((void) 0) : __assert(__FILE__, line, #cond))`) is a
+    conditional expression, which the compiler emits at level 0 as `beq assert; b end`; the if / else form as one
+    `bne end` (fn_80075120, cr_SEQ_TITLE_FrameC)"""
+    pat = re.compile(r'^([ \t]*)if \((.+)\) \{\n\n?\1\} else \{\n\1    (__assert\([^;\n]*\);)\n\1\}\n', re.M)
+    return pat.sub(lambda m: '%s(%s) ? (void) 0 : %s\n' % (m.group(1), m.group(2), m.group(3)), body)
+
+
+REGVAR = re.compile(r'^\s+[^;=()]*?\b(?:var|temp)_([rf])(\d+)_\w*(?:\[\w*\])*;\s*$')
+
+
+def top_level_binop(ex):
+    """True when ex has a binary operator outside brackets (it is not one operand)"""
+    d = 0
+    for i, ch in enumerate(ex):
+        if ch in '([':
+            d += 1
+        elif ch in ')]':
+            d -= 1
+        elif d == 0 and ch == ' ' and i + 1 < len(ex) and ex[i + 1] in '+-*/%&|^<>=!?:':
+            return True
+    return False
+
+
+def param_regs(body):
+    """`var_r3_0 = arg0;` as a first statement: a variable m2c names after the register the parameter arrives in (argN
+    in r3+N, fargN in f1+N) is the parameter itself: renamed, as param_copies does (fn_8008E598; step 64)"""
+    return rename_param_copies(body, lambda v, a: param_home(v, a) and not v.startswith('sp'))
+
+
+def param_homes(body):
+    """`sp8 = arg1;` as a first statement, with sp8 used later (drop_param_spills takes the case where it is not): sp8
+    may be the parameter's own stack home (level 0 keeps the parameter there; fn_800683B4) or a real local
+    (fn_8005A668), so this is only a variant (step 64)"""
+    return rename_param_copies(body, lambda v, a: v.startswith('sp'))
+
+
+def param_home(v, a):
+    """is v (m2c's name) parameter a's own place: its stack home spN, or the register it arrives in"""
+    if re.match(r'^sp[0-9A-F]+$', v):
+        return True
+    m = re.match(r'^(?:var|temp)_([rf])(\d+)_', v)
+    fl = a.startswith('farg')
+    n = int(a[4:] if fl else a[3:])
+    return bool(m) and (m.group(1) == 'f') == fl and int(m.group(2)) == (1 + n if fl else 3 + n)
+
+
+def param_copies(body):
+    """`var_r23_8 = arg0;` at the top level of the body, with arg0 used nowhere else and var_r23_8 declared with arg0's
+    own type: the original worked on the parameter itself (kept in a callee-saved register, `mr r23,r3`); m2c's copy
+    makes the compiler store the parameter to its stack home and load it back (`stw r3,8(r1); lwz r23,8(r1)`). The
+    variable is renamed to the parameter, its declaration and the copy go (fn_80095700; step 64). Not in a leaf
+    function (no bl): there a parameter stays in its own register, so a copy in r29-r31 is a real local (fn_80023304);
+    the variants also try the draft without it."""
+    if W.get('leaf'):
+        return body
+
+    def copy(v, a):
+        return not param_home(v, a)
+    return rename_param_copies(body, copy)
+
+
+def rename_param_copies(body, which):
+    lines = body.split('\n')
+    for i, l in enumerate(lines):
+        dm = DEF.match(l)
+        if not dm:
+            continue
+        params = {}
+        for p in dm.group(3).split(','):
+            pm = re.match(r'^\s*(.*?)\s*\b(f?arg\d+)\s*$', p)
+            if pm:
+                params[pm.group(2)] = re.sub(r'\s+', '', pm.group(1))
+        text = '\n'.join(lines)
+        for a, t in params.items():
+            if len(re.findall(r'\b%s\b' % a, text)) != 2:
+                continue
+            cm = re.search(r'^    (\w+) = %s;\n' % a, text, re.M)
+            if not cm:
+                continue
+            # only a copy among the first statements (the prologue's): a later `sp8 = arg1;` is a real local
+            # (fn_8005A668)
+            dpos = text.find('\n\n', text.find(dm.group(2) + '('))
+            if dpos < 0 or not re.fullmatch(r'(    \w+ = f?arg\d+;\n)*', text[dpos + 2:cm.start()]):
+                continue
+            v = cm.group(1)
+            if not which(v, a):
+                continue
+            vd = re.search(r'^    ([^;=()\n]*?)\s*\b%s;\n' % v, text, re.M)
+            if not vd or re.sub(r'\s+', '', vd.group(1)) != t:
+                continue
+            text = text[:cm.start()] + text[cm.end():]
+            vd = re.search(r'^    ([^;=()\n]*?)\s*\b%s;\n' % v, text, re.M)
+            text = text[:vd.start()] + text[vd.end():]
+            text = re.sub(r'\b%s\b' % v, a, text)
+        return text
+    return body
+
+
+def signed_fields(body):
+    """`(s8) M2C_FIELD(x, u8 *, 9)` -> `M2C_FIELD(x, s8 *, 9)` (and s16 / u16): m2c types the load by its `lbz` and
+    writes the sign extension as a cast; the compiler then loads into one register and extends into another
+    (`lbz r0 / extsb r4,r0`), where a signed field is loaded and extended in the same one (`lbz r4 / extsb r4,r4`:
+    fn_80008E80; step 64)"""
+    out, i = [], 0
+    for m in re.finditer(r'\((s8|s16)\) M2C_FIELD\(', body):
+        if m.start() < i:
+            continue
+        e = close_paren(body, m.end() - 1)
+        if e < 0:
+            continue
+        u = 'u' + m.group(1)[1:]
+        inner = body[m.end():e]
+        fm = re.search(r', %s \*, ([^,()]+)$' % u, inner)
+        if not fm:
+            continue
+        out.append(body[i:m.start()] + 'M2C_FIELD(' + inner[:fm.start()] + ', %s *, %s)' % (m.group(1), fm.group(1)))
+        i = e + 1
+    out.append(body[i:])
+    return ''.join(out)
+
+
+def void_null(body):
+    """`p != NULL` with the null pointer written `((void *) 0)`: the compiler then loads the 0 into a register
+    (`li r0,0; cmplw r3,r0`) where `NULL` (MSL's 0L) gives `cmplwi r3,0`; the game uses both (fn_80077290), so this is
+    a variant (one(), step 64)"""
+    return re.sub(r'([=!]=) NULL\b', r'\1 ((void *) 0)', body)
+
+
+def narrow_minus_one(body):
+    """`(u16) *p != -1U` / `M2C_FIELD(x, u16 *, 4) == -1U`: m2c's -1 of a halfword (byte) compare (`cmplwi r0,0xFFFF`) is
+    -1U, which C compares with the promoted 16-bit value as 0xFFFFFFFF (`addis r0,r3,1; cmplwi r0,0xFFFF`, or no test
+    at all); the halfword's own -1 is 0xFFFF (0xFF for a byte). fn_80130848, fn_800BAF3C (step 64)"""
+    out, i = [], 0
+    for m in re.finditer(r' (==|!=) -1U\b', body):
+        if m.start() < i:
+            continue
+        st = expr_start(body, m.start())
+        left = body[st:m.start()]
+        cm = re.match(r'^\((u8|u16)\) (.*)$', left, re.S)
+        t = None
+        if cm and not top_level_binop(cm.group(2)):
+            t = cm.group(1)
+        elif left.startswith('M2C_FIELD(') and close_paren(left, 9) == len(left) - 1:
+            fm = re.search(r', (u8|u16) \*, [^,()]+\)$', left)
+            t = fm.group(1) if fm else None
+        if t:
+            out.append(body[i:m.start()] + ' %s %s' % (m.group(1), '0xFFFF' if t == 'u16' else '0xFF'))
+            i = m.end()
+    out.append(body[i:])
+    return ''.join(out)
+
+
+def register_order(body):
+    """the locals m2c names after the original's register (`var_r27_15`, `temp_f31_3`) declared from the highest register
+    down (r31, r30, ...; the same for f), in the slots the register-named declarations take (the others stay where m2c
+    put them: stack locals keep their layout). The compiler hands the callee-saved registers out in declaration order
+    from r31 down, so m2c's order gave fn_800773D0's three pointers r29 / r28 / r27 instead of r27 / r28 / r29 (step 64)"""
+    lines = body.split('\n')
+    for i, l in enumerate(lines):
+        if DEF.match(l):
+            j = i + 1
+            while j < len(lines) and lines[j].strip():
+                j += 1
+            slots = [k for k in range(i + 1, j) if REGVAR.match(lines[k])]
+            decl = [lines[k] for k in slots]
+            decl.sort(key=lambda d: (REGVAR.match(d).group(1), -int(REGVAR.match(d).group(2))))
+            for k, d in zip(slots, decl):
+                lines[k] = d
+            break
+    return '\n'.join(lines)
+
+
+def same_type_copies(body):
+    """`M2C_FIELD(a, T *, n) = (T) M2C_FIELD(b, T *, m);`: a field copied to a field of the same type, with m2c's cast to
+    that type; at level 0 the cast moves the loaded value to another register (`lhz r4 / sth r4` where the original
+    has `lhz r0 / sth r0`: cr_Motion_LoadInfo). The cast means nothing, so it goes (step 64; only this whole-statement
+    form and only unsigned types: drop_same_casts says why not in general, and the signed `(s16)` copy of
+    cr_C_ACT_TURN_POINT matches only with its cast, 96% -> 79% without)"""
+    def fix(m):
+        if m.group(2) != m.group(3) or m.group(3) != m.group(5):
+            return m.group(0)
+        return '%s = %s;' % (m.group(1), m.group(4))
+    return re.sub(r'^([ \t]+M2C_FIELD\([^;=]*?, (%s) \*, [^,()]+\)) = \((%s)\) (M2C_FIELD\([^;=]*?, (%s) \*, [^,()]+\));$'
+                  % (('u8|u16|u32',) * 3), fix, body, flags=re.M)
+
+
+BYTE_TYPES = {'u8', 's8', 'char', 'void', 'M2C_UNK8', 'unsigned char', 'signed char', 'const char', 'const u8'}
+DECL = re.compile(r'^(?:CR_SECTION\("[^"]+"\) )?(?:extern |static )?((?:const |struct |union |unsigned |signed )*[A-Za-z_]\w*)'
+                  r'(?: |(?= *\*)) *(\**) *(\w+)((?:\[\w*\])*);')
+
+
+def pointee(t, stars, dims):
+    """the element type of a declaration `t stars name dims` used as a pointer (`u32 x[5]` -> u32, `u8 **p` -> `u8 *`),
+    or None when it is not a pointer / array"""
+    if dims:
+        return t + ' ' + stars if stars else t
+    if stars:
+        return (t + ' ' + stars[1:]) if len(stars) > 1 else t
+    return None
+
+
+def ctx_pointees():
+    """{name: element type} of every pointer / array the context declares (ctx.h, read once per process)"""
+    if 'pointees' not in W:
+        out = {}
+        try:
+            text = open(os.path.join(W['out'], 'ctx.h'), encoding='utf-8').read()
+        except OSError:
+            text = ''
+        for l in text.split('\n'):
+            m = DECL.match(l)
+            if m and m.group(1).split()[-1] not in ('typedef', 'return'):
+                e = pointee(m.group(1), m.group(2), m.group(4))
+                if e:
+                    out[m.group(3)] = e
+        W['pointees'] = out
+    return W['pointees']
+
+
+def elem_size(e):
+    """the size of an element type, if it is a scalar or a pointer (None for a struct: unknown here)"""
+    e = e.strip()
+    if e.endswith('*'):
+        return 4
+    e = re.sub(r'^const ', '', e)
+    return {**LOCAL_SIZE, 's32': 4, 'u32': 4, 'int': 4, 'BOOL': 4, 'f32': 4, 'f64': 8, 'short': 2}.get(e)
+
+
+def element_terms(rhs, es):
+    """the byte offset `(x * 0xC) + 4` as element terms for elements of es bytes (`x * 3`, `1`), when every top-level
+    term is a literal or a product with a literal that es divides; else None"""
+    ex = unbracket(rhs)
+    parts, d, start = [], 0, 0
+    for i, ch in enumerate(ex):
+        if ch in '([':
+            d += 1
+        elif ch in ')]':
+            d -= 1
+        elif d == 0 and ex[i:i + 3] == ' + ':
+            parts.append(ex[start:i])
+            start = i + 3
+        elif d == 0 and ch == ' ' and ex[i + 1:i + 2] in ('-', '<', '>', '&', '|', '^', '=', '!', '?', ':', '/', '%'):
+            return None
+    parts.append(ex[start:])
+    out = []
+    for t in parts:
+        t = unbracket(t)
+        lm = re.match(r'^(0x[0-9A-Fa-f]+|\d+)U?$', t)
+        pm = re.match(r'^(.+) \* (0x[0-9A-Fa-f]+|\d+)U?$', t)
+        if lm and int(lm.group(1), 0) % es == 0:
+            k = int(lm.group(1), 0) // es
+            out.append(('0x%X' % k) if k > 9 else str(k))
+        elif pm and int(pm.group(2), 0) % es == 0 and not top_level_binop(pm.group(1)):
+            k = int(pm.group(2), 0) // es
+            out.append(pm.group(1) if k == 1 else '%s * %s' % (pm.group(1), ('0x%X' % k) if k > 9 else k))
+        else:
+            return None
+    return out if len(out) > 1 or ' * ' in out[0] or out[0] != unbracket(rhs) else None
+
+
+def byte_steps(body):
+    """m2c prints `p + n` (an add it could not turn into a field or an element) with n in BYTES whatever p points to;
+    C scales it by the element size. With `u32 lbl_8031FED8[5]` (dtk's 4-byte data) `lbl_8031FED8 + (i * 0xA4)` became
+    i * 0xA4 * 4 (`slwi` more than the original: fn_8001F654, fn_8006FAC4; cr_Motion_LoadInfo's `rlwinm 4` for `2`).
+    (step 64) For every pointer / array whose element is larger than a byte (a global of the context, a parameter or a
+    local of the draft; struct pointers too), `p + n` / `p - n` and `p += n` / `p -= n` become: element steps when n is
+    a constant multiple of the element size (`p + 8` -> `p + 2` on a u32 *), else the byte step written out with p's own
+    type kept, `(T *) ((u8 *) p + n)`. Not when p is dereferenced, indexed, a field, or cast first."""
+    names = dict(ctx_pointees())
+    for l in body.split('\n'):
+        m = DECL.match(l.strip()) if not DEF.match(l) else None
+        if m:
+            e = pointee(m.group(1), m.group(2), m.group(4))
+            if e:
+                names[m.group(3)] = e
+            elif m.group(3) in names:
+                del names[m.group(3)]   # a local scalar shadows a global
+        dm = DEF.match(l)
+        if dm:
+            for p in dm.group(3).split(','):
+                pm = re.match(r'^\s*((?:const |struct |unsigned |signed )*[A-Za-z_]\w*) (\**)(\w+)\s*$', p)
+                if pm:
+                    e = pointee(pm.group(1), pm.group(2), '')
+                    if e:
+                        names[pm.group(3)] = e
+                    elif pm.group(3) in names:
+                        del names[pm.group(3)]
+    allp = set(names)
+    names = {n: e for n, e in names.items() if e.strip() not in BYTE_TYPES and '(' not in e}
+    if not names:
+        return body
+    pat = re.compile(r'(?<![\w.>*&])\b(%s) ([+-])(=?) ' % '|'.join(re.escape(n) for n in sorted(names, key=len, reverse=True)))
+    stop = re.compile(r'\s*(?:[)\],;?:]|==|!=|<=|>=|&&|\|\||<<|>>|[<>&|^]|=(?!=))')
+    out, i = [], 0
+    while True:
+        m = pat.search(body, i)
+        if not m:
+            out.append(body[i:])
+            return ''.join(out)
+        pre = body[max(0, m.start() - 12):m.start()]
+        # skip `(s32) p + n` (an integer) and `x - p` (not the pointer operand)
+        if re.search(r'\)\s*$', pre) and re.search(r'\((?:[us](?:8|16|32)|f32|f64|M2C_UNK\w*)\)\s*$', pre) \
+                or re.search(r'[\w)\]]\s*[+\-]\s*$', pre):
+            out.append(body[i:m.end()])
+            i = m.end()
+            continue
+        # the right operand: up to the end of the additive expression at this bracket level
+        j, depth = m.end(), 0
+        while j < len(body):
+            ch = body[j]
+            if ch in '([':
+                depth += 1
+            elif ch in ')]' and depth:
+                depth -= 1
+            elif depth == 0 and (ch == '\n' or stop.match(body, j)) and not (ch == '>' and body[j - 1] == '-'):
+                break
+            j += 1
+        rhs = body[m.end():j].rstrip()
+        j = m.end() + len(rhs)
+        name, op, assign = m.group(1), m.group(2), m.group(3)
+        e = names[name]
+        es = elem_size(e)
+        lit = re.match(r'^(0x[0-9A-Fa-f]+|\d+)U?$', rhs)
+        terms = element_terms(rhs, es) if es and es > 1 and op == '+' and not name.startswith('lbl_') else None
+        if es and lit and int(lit.group(1), 0) % es == 0:
+            k = int(lit.group(1), 0) // es
+            new = '%s %s%s %s' % (name, op, assign, ('0x%X' % k) if k > 9 else k)
+        elif terms:
+            # `p + ((x * 0xC) + 4)` on a u32 *: `p + x * 3 + 1` (mulli 3, slwi 2, addi 4 as in fn_800BAF3C)
+            new = '%s %s%s %s' % (name, op, assign, ' + '.join(terms))
+        elif es == 1 or (op == '-' and unbracket(rhs) in allp):
+            new = body[m.start():j]
+        elif assign:
+            new = '%s = (%s *) ((u8 *) %s %s %s)' % (name, e, name, op, rhs)
+        else:
+            new = '((%s *) ((u8 *) %s %s %s))' % (e, name, op, rhs)
+        out.append(body[i:m.start()] + new)
+        i = j
+
+
+def postprocess(body, skip=(), add=()):
+    """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
+    for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
+              signed_fields, compound_assign, drop_same_casts, while_loops, table_call_args, unsigned_const_stores,
+              double_negation, assert_ternary, mixed_externs, byte_steps, same_type_copies, param_regs, param_homes,
+              param_copies, register_order, narrow_minus_one, void_null):
+        if f not in skip and (f not in OPTIONAL or f in add):
+            body = f(body)
+    return body
+
+
+# rules only a variant applies, and the variants a near draft is also tried with (one(), step 64), in this order:
+# (rules left out, optional rules applied)
+OPTIONAL = (void_null, param_homes)
+VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
+            ((), (void_null,)), ((register_order,), (void_null,)))
 
 
 # ---- the repair loop: one fix per compiler message, checked by compiling again -------------------------------------------
@@ -1061,6 +1553,18 @@ def repair(lines, e):
         if struct_dst and a_t.endswith('*'):
             lines[ln - 1] = s[:st] + '*(%s *) %s' % (ct, wrap(operand)) + s[st + len(ex):]
             return 'struct %s by value from its pointer' % ct
+        inner = unbracket(operand)
+        if canon(a_t) == canon(t) + '*' and inner.startswith('&'):
+            # step 64: `(f32) (&lbl_80388284[0x800])`: m2c's address of the element where the code loads it (lfs
+            # f1, 0x2000(r3)): the element itself
+            lines[ln - 1] = s[:st] + '(%s) %s' % (ct, inner[1:].strip()) + s[st + len(ex):]
+            return 'element instead of its address'
+        em = re.match(r'^([A-Za-z_]\w*)\[([^\[\]]+)\]$', inner)
+        if em and canon(a_t) == 'float' and t.endswith('*'):
+            # step 64: `(s8 *) lbl_80388284[0x80C]`: a word of an array dtk typed float that holds a pointer
+            # (a struct of mixed fields): the same word read as a pointer
+            lines[ln - 1] = s[:st] + '(%s) ((u32 *) %s)[%s]' % (ct, em.group(1), em.group(2)) + s[st + len(ex):]
+            return 'float element read as a pointer'
         return None
     if msg == 'call of non-function':
         # `*(table + i * 4)(args)` / `*obj(args)` / `table[i](args)`: a call through a pointer m2c could not type; the
@@ -1174,10 +1678,11 @@ def repair(lines, e):
             lines[ln - 1] = fixed
             changed.append('void **')
         for i, l in enumerate(lines):
-            dm = re.match(r'^(\s*)void \*\s*(\w+)((?:\[\w*\])*);$', l)
-            if dm and dm.group(2) in names:
-                lines[i] = '%su8 *%s%s;' % (dm.group(1), dm.group(2), dm.group(3))
-                changed.append(dm.group(2))
+            # (step 64: also `void **p` for `*p += x`, the relocation loops of cr_ModelEntry_LoadAndBuild & co.)
+            dm = re.match(r'^(\s*)void (\*+)\s*(\w+)((?:\[\w*\])*);$', l)
+            if dm and dm.group(3) in names:
+                lines[i] = '%su8 %s%s%s;' % (dm.group(1), dm.group(2), dm.group(3), dm.group(4))
+                changed.append(dm.group(3))
             dm = DEF.match(l)
             if dm:
                 def param(pm):
@@ -1303,41 +1808,74 @@ def one(job):
         open(lg, 'w', encoding='utf-8').write(so + '\n' + se)
         return name, 'm2c failed', msg, 0
     if W.get('pass1'):
-        return name, signature(name, body), re.findall(r'^extern ([\w ]+ \**)(lbl_[0-9A-F]{8});', body, re.M), 0
-    body = postprocess(body)
-    # the context's prototype of the function itself (ctx_protos.h, from its first-pass draft) is renamed away while
-    # the context is read: the draft defines the function with the signature of this pass
-    lines = ('// m2c draft of %s (0x%08X, %d bytes): decompiled output, gitignored, never commit\n'
-             '#define %s %s__proto\n#include "ctx.h"\n#undef %s\n\n%s' % (name, addr, size, name, name, name, body)).split('\n')
-    cmd = mwcc_cmd(W['ver']) + ['-c'] + W['flags'] + CTX_DEFS + ['-DCR_DRAFT_CC', '-i', out.replace(os.sep, '/')] + sum([['-i', i] for i in CTX_INC], []) + ['-o', o, c.replace('\\', '/')]
-    fixes = []
-    last = None
-    while True:
-        open(c, 'w', encoding='utf-8', newline='\n').write('\n'.join(lines))
-        rc, so, se = run(cmd, 120, cwd=D)
-        txt = so + se
-        if rc == 0 and os.path.exists(o):
-            break
-        e = first_error(txt)
-        if e is None or len(fixes) >= 300:
-            open(lg, 'w', encoding='utf-8').write(txt)
-            return name, 'compile failed', compile_error(txt), 0
-        before = '\n'.join(lines)
-        f = repair(lines, e)
-        if f is None or '\n'.join(lines) == before:
-            open(lg, 'w', encoding='utf-8').write(txt)
-            return name, 'compile failed', compile_error(txt), 0
-        fixes.append(f)
-    try:
-        mine = Elf(open(o, 'rb').read()).func(name)
-    except Exception as e:
-        mine = None
-    if mine is None:
-        return name, 'compile failed', 'no function symbol in the object', 0
+        # the data objects m2c declares itself, and the functions it declares itself (`u8 fn_80099538(M2C_UNK); /*
+        # extern */`: the return type this caller's code needs)
+        return name, signature(name, body), (re.findall(r'^extern ([\w ]+ \**)(lbl_[0-9A-F]{8});', body, re.M),
+                                             re.findall(EXTERN_FN, body)), 0
+    m2c_body = body
     orig = orig_elf(orig_obj).func(name)
-    if orig is None:
-        return name, 'compile failed', 'function not in the original object', 0
-    p, eq = compare(orig, mine)
+    W['leaf'] = not re.search(r'\bbl\s', open(a, encoding='utf-8').read())
+
+    def build(body, c, o):
+        """compile one post-processed draft (repair loop) and compare: (percent, equal words, fixes) or (None, the
+        compiler's text, fixes)"""
+        # the context's prototype of the function itself (ctx_protos.h, from its first-pass draft) is renamed away
+        # while the context is read: the draft defines the function with the signature of this pass
+        lines = ('// m2c draft of %s (0x%08X, %d bytes): decompiled output, gitignored, never commit\n'
+                 '#define %s %s__proto\n#include "ctx.h"\n#undef %s\n\n%s' % (name, addr, size, name, name, name, body)).split('\n')
+        cmd = mwcc_cmd(W['ver']) + ['-c'] + W['flags'] + CTX_DEFS + ['-DCR_DRAFT_CC', '-i', out.replace(os.sep, '/')] + sum([['-i', i] for i in CTX_INC], []) + ['-o', o, c.replace('\\', '/')]
+        fixes = []
+        while True:
+            open(c, 'w', encoding='utf-8', newline='\n').write('\n'.join(lines))
+            rc, so, se = run(cmd, 120, cwd=D)
+            txt = so + se
+            if rc == 0 and os.path.exists(o):
+                break
+            e = first_error(txt)
+            if e is None or len(fixes) >= 300:
+                return None, txt, fixes
+            before = '\n'.join(lines)
+            f = repair(lines, e)
+            if f is None or '\n'.join(lines) == before:
+                return None, txt, fixes
+            fixes.append(f)
+        try:
+            mine = Elf(open(o, 'rb').read()).func(name)
+        except Exception:
+            mine = None
+        if mine is None:
+            return None, 'no function symbol in the object', fixes
+        if orig is None:
+            return None, 'function not in the original object', fixes
+        p, eq = compare(orig, mine)
+        return p, eq, fixes
+
+    body = postprocess(m2c_body)
+    p, eq, fixes = build(body, c, o)
+    if p is None:
+        open(lg, 'w', encoding='utf-8').write(eq)
+        return name, 'compile failed', compile_error(eq) if '\n' in eq or 'Error' in eq else eq, 0
+    # VARIANTS (step 64): the two post-processing rules whose evidence is not in the draft itself (which register a
+    # local gets, whether the original worked on the parameter or on a copy) are tried both ways when the draft does not
+    # match and is close (40% or more): the variant that scores higher is kept (first one on a tie: the full rules)
+    if p < 100 and p >= 40:
+        seen = {body}
+        for k, (skip, add) in enumerate(VARIANTS):
+            vb = postprocess(m2c_body, skip, add)
+            if vb in seen:
+                continue
+            seen.add(vb)
+            vc, vo = c[:-2] + '.v%d.c' % k, o[:-2] + '.v%d.o' % k
+            vp, veq, vfixes = build(vb, vc, vo)
+            if vp is not None and (vp, veq) > (p, eq):
+                shutil.copyfile(vc, c)
+                shutil.copyfile(vo, o)
+                body, p, eq, fixes = vb, vp, veq, vfixes
+            for f in (vc, vo):
+                if os.path.exists(f):
+                    os.remove(f)
+            if p == 100:
+                break
     note = ' '.join(filter(None, ['M2C_ERROR' if 'M2C_ERROR' in body else '', ('%d fixes' % len(fixes)) if fixes else '']))
     return name, '%d%%' % p if p < 100 else '100% MATCH', note, eq * 4
 
@@ -1397,6 +1935,9 @@ def main():
                         nb.append('.L_%s:' % m.group(1))
                     nb.append(l)
                 b = nb + [''] + tx
+        # dtk prints `cror eq, lt, eq` (x <= y after fcmpo); m2c's FcmpoCrorPattern only knows the numeric form
+        # `cror 2, 0, 2`, and without it m2c took the bne after it for `==` (79 functions; step 64)
+        b = [CROR.sub(lambda m: 'cror 2, %d, 2' % {'lt': 0, 'gt': 1}[m.group(1)], l) for l in b]
         open(os.path.join(out, 'asm', name + '.s'), 'w', encoding='utf-8', newline='\n').write('\n'.join(b) + '\n')
     jobs = [(n, ad, sz, o) for n, ad, sz, _, o in funcs]
     if a.only:
@@ -1409,7 +1950,7 @@ def main():
             + ''.join('#include "%s"\n' % h for h in sorted(os.listdir(os.path.join(G, 'tools/melee/src/sysdolphin/baselib'))) if h.endswith('.h'))
             + '#include "../../symbols/cr_types.h"\n' + SECTION_PRELUDE + globals_decls())
     open(os.path.join(out, 'm2c_run.py'), 'w', newline='\n').write(
-        "import sys\nsys.path.insert(0, %r)\nfrom m2c.main import main\nmain()\n" % M2C.replace('\\', '/'))
+        "import sys\nsys.path.insert(0, %r)\n%sfrom m2c.main import main\nmain()\n" % (M2C.replace('\\', '/'), M2C_WIDTH))
     protos = os.path.join(out, 'ctx_protos.h')
     sdk = os.path.join(out, 'ctx_sdk.h')
 
@@ -1454,20 +1995,26 @@ def main():
         # then see the callee's parameters) and the pointer types m2c infers for 4-byte data objects; the library
         # functions the game calls that have no prototype yet get theirs the same way
         ctx_pp = context(base + '#include "ctx_sdk.h"\n')
-        sigs, ptr = {}, collections.defaultdict(set)
+        sigs, ptr, rets = {}, collections.defaultdict(set), collections.defaultdict(set)
         p1 = [(n, ad, sz, o) for n, ad, sz, _, o in funcs] + [(n, lib[n][1], lib[n][2], lib[n][4]) for n in libcalled if n in und and n not in found]
         with cf.ProcessPoolExecutor(a.jobs, initializer=init, initargs=(out, ver, flags, True)) as ex:
-            for name, sig, externs, _ in ex.map(one, p1, chunksize=4):
+            for name, sig, ext, _ in ex.map(one, p1, chunksize=4):
                 if sig:
                     sigs[name] = (starts[name], sig)
+                    externs, fdecls = ext
                     for t, lbl in externs:
                         if '*' in t:
                             ptr[lbl].add(t)
-        ptrs = {n: (next(iter(ts)) if len(ts) == 1 and ts != {'void *'} else 'u8 *') for n, ts in ptr.items()}
+                    for t, fn in fdecls:
+                        rets[fn].add(t.strip())
+        narrowed = narrow_returns(sigs, rets)
+        ptrs = {n: (next(iter(ts)) if len(ts) == 1 and ts != {'void *'} else MIXED if len(ts) > 1 else 'u8 *')
+                for n, ts in ptr.items()}
         open(protos, 'w', encoding='utf-8', newline='\n').write(
             protos_text(sigs, ctx_pp) + '\n// data objects m2c typed as pointers in that pass (size 4; tools/draft_batch.py data_decls)\n'
             + ''.join('#define CR_PTR_%s %s\n' % (n, ptrs[n]) for n in sorted(ptrs)))
-        print('pass 1: %d prototypes, %d pointer objects from the drafts (%d s)' % (len(sigs), len(ptrs), time.time() - t0))
+        print('pass 1: %d prototypes (%d return types narrowed by their callers), %d pointer objects from the drafts (%d s)' % (
+            len(sigs), narrowed, len(ptrs), time.time() - t0))
     ptrs = dict(re.findall(r'^#define CR_PTR_(lbl_[0-9A-F]{8}) (.*)$', open(protos, encoding='utf-8').read(), re.M))
     context(base + '#include "ctx_sdk.h"\n' + data_decls(ptrs) + '\n#include "ctx_protos.h"\n')
     res = {}

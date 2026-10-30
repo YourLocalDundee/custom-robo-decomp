@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,365 @@ def MatchingFor(*versions):
+@@ -284,18 +307,368 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -142,7 +142,10 @@ diff --git a/configure.py b/configure.py
 +                           "-common off", "-fp_contract on", *inc_mp4]),
 +    "MetroTRK": ("GC/2.6", [*cflags_cr, "-O4,p", "-inline auto,deferred", "-use_lmw_stmw on", "-str reuse,readonly",
 +                            "-common off", "-sdata 0", "-sdata2 0", "-fp_contract on", *inc_mp4]),
-+    "game": ("GC/2.6", [*cflags_cr, "-opt level=0,peephole,schedule,speed", "-fp_contract on", "-i include"]),
++    # game: -use_lmw_stmw on (plan.md step 64): all 614 game functions that save five or more registers do it with
++    # stmw / lmw (three or four: single stw, as the compiler does with the option), none calls _savegpr_N /
++    # _restgpr_N (GC/2.6's default at level 0)
++    "game": ("GC/2.6", [*cflags_cr, "-opt level=0,peephole,schedule,speed", "-use_lmw_stmw on", "-fp_contract on", "-i include"]),
 +}
 +# Per-object additions (appended, so they override: mwcc takes the last setting). dolsdk2004's Makefile: EXIBios.c
 +# -O3,p; dvd, mtx, CARDOpen.c, CARDRename.c -char signed.
