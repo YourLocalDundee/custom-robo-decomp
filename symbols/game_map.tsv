@@ -3051,7 +3051,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80186A20	DObjRelease	16	0	3	anim,model			
 80186A7C	DObjAmnesia	13	0	0				
 80186AC4	DObjInfoInit	18	0	1				s_hsd_dobj_8024b60c,s_sysdolphin_base_library_8024b5f4
-80186B44	HSD_TObjAddAnim	69	1	8	anim			
+80186B44	HSD_TObjAddAnimAll	69	1	8	anim			
 80186C98	HSD_TObjReqAnimAllByFlags	19	1	1	anim			
 80186D0C	TObjUpdateFunc	195	0	1		tobj.c		s_tobj_,s_tobj_c_8044efa0
 801872D8	HSD_TObjAnimAll	21	1	1	anim			

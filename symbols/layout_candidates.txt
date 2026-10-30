@@ -801,10 +801,10 @@ HSD_DObjDisp = .text:0x80186960; // type:function size:0xC0 ref:melee/GALE01 ref
 // evidence DObjRelease 0x80186A20: callees HSD_MObjRemove,HSD_PObjRemoveAll
 DObjRelease = .text:0x80186A20; // type:function size:0x5C ref:melee/GALE01 ref_size:0x5C anchors:0x80186898-0x80186B44
 DObjAmnesia = .text:0x80186A7C; // type:function size:0x48 ref:melee/GALE01 ref_size:0x48 anchors:0x80186898-0x80186B44
-HSD_TObjReqAnimAllByFlags = .text:0x80186C98; // type:function size:0x74 ref:kar_wowjinxy/GKYE01 ref_size:0x74 anchors:0x80186A7C-0x801872D8
+HSD_TObjReqAnimAllByFlags = .text:0x80186C98; // type:function size:0x74 ref:kar_wowjinxy/GKYE01 ref_size:0x74 anchors:0x80186B44-0x801872D8
 // evidence TObjLoad 0x80187334: callees HSD_TObjLoadDesc
 TObjLoad = .text:0x80187334; // type:function size:0x128 ref:melee/GALE01 ref_size:0x120 anchors:0x801872D8-0x8018745C
-// evidence HSD_TlutLoadDesc 0x801874F4: callees HSD_TlutAlloc; caller HSD_TObjAddAnim
+// evidence HSD_TlutLoadDesc 0x801874F4: callees HSD_TlutAlloc
 HSD_TlutLoadDesc = .text:0x801874F4; // type:function size:0x4C ref:melee/GALE01 ref_size:0x54 anchors:0x8018745C-0x80187830
 // evidence HSD_TObjTevLoadDesc 0x80187540: callees HSD_TObjTevAlloc
 HSD_TObjTevLoadDesc = .text:0x80187540; // type:function size:0x4C ref:melee/GALE01 ref_size:0x54 anchors:0x8018745C-0x80187830
@@ -899,9 +899,8 @@ MObjRelease = .text:0x8018CA90; // type:function size:0x9C ref:melee/GALE01 ref_
 MObjAmnesia = .text:0x8018CB2C; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x8018C884-0x8018CC40
 // evidence MObjInfoInit 0x8018CB90: callees HSD_MObjUnset,MObjAmnesia,MObjUpdateFunc; string "hsd_mobj"; string "sysdolphin_base_library"
 MObjInfoInit = .text:0x8018CB90; // type:function size:0xB0 ref:melee/GALE01 ref_size:0xA0 anchors:0x8018C884-0x8018CC40
-// evidence HSD_AObjLoadDesc 0x8018CFA4: caller HSD_TObjAddAnim; caller HSD_MObjAddAnim
 HSD_AObjLoadDesc = .text:0x8018CFA4; // type:function size:0x128 ref:kar_wowjinxy/GKYE01 ref_size:0x128 anchors:0x8018CDEC-0x8018D0CC
-// evidence HSD_AObjRemove 0x8018D0CC: callees HSD_FObjRemoveAll; caller HSD_TObjAddAnim; caller HSD_MObjAddAnim; caller LObjRelease; caller CObjRelease
+// evidence HSD_AObjRemove 0x8018D0CC: callees HSD_FObjRemoveAll; caller HSD_MObjAddAnim; caller LObjRelease; caller CObjRelease
 HSD_AObjRemove = .text:0x8018D0CC; // type:function size:0x70 ref:melee/GALE01 ref_size:0x70 anchors:0x8018CDEC-0x8018D13C
 HSD_AObjSetRewindFrame = .text:0x8018D1EC; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x8018D1DC-0x8018D20C
 HSD_AObjSetEndFrame = .text:0x8018D1FC; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x8018D1DC-0x8018D20C
@@ -973,7 +972,7 @@ FObjLoadData = .text:0x80191EA4; // type:function size:0x10D0 ref:kar_wowjinxy/G
 HSD_FObjInterpretAnim = .text:0x80192F74; // type:function size:0x6D4 ref:kar_wowjinxy/GKYE01 ref_size:0x6D4 anchors:0x80191BEC-0x801938E0
 // evidence HSD_FObjInterpretAnimAll 0x80193648: callees HSD_FObjInterpretAnim; caller HSD_AObjInterpretAnim
 HSD_FObjInterpretAnimAll = .text:0x80193648; // type:function size:0x70 ref:kar_wowjinxy/GKYE01 ref_size:0x70 anchors:0x80191BEC-0x801938E0
-// evidence HSD_FObjLoadDesc 0x801936B8: callees HSD_FObjAlloc
+// evidence HSD_FObjLoadDesc 0x801936B8: callees HSD_FObjAlloc; caller HSD_AObjLoadDesc
 HSD_FObjLoadDesc = .text:0x801936B8; // type:function size:0x228 ref:kar_wowjinxy/GKYE01 ref_size:0x228 anchors:0x80191BEC-0x801938E0
 HSD_PObjReqAnimAllByFlags = .text:0x801939F8; // type:function size:0x74 ref:kar_wowjinxy/GKYE01 ref_size:0x74 anchors:0x80193968-0x80193D50
 PObjUpdateFunc = .text:0x80193A6C; // type:function size:0x4C ref:kar_wowjinxy/GKYE01 ref_size:0x4C anchors:0x80193968-0x80193D50
@@ -1004,7 +1003,7 @@ PObjAmnesia = .text:0x801962F8; // type:function size:0xAC ref:kar_wowjinxy/GKYE
 // evidence PObjInfoInit 0x801963A4: callees PObjAmnesia,PObjSetupMtx,PObjUpdateFunc; string "hsd_pobj"; string "sysdolphin_base_library"
 PObjInfoInit = .text:0x801963A4; // type:function size:0x98 ref:kar_wowjinxy/GKYE01 ref_size:0x98 anchors:0x801958D0-0x80196C74
 HSD_JObjCheckDepend = .text:0x8019643C; // type:function size:0x12C ref:kar_wowjinxy/GKYE01 ref_size:0x12C anchors:0x801958D0-0x80196C74
-// evidence HSD_JObjAddAnim 0x80196CCC: callees HSD_AObjRemove,HSD_DObjAddAnimAll,HSD_JObjClearFlags,HSD_RObjAddAnimAll; caller HSD_JObjAddAnimAll
+// evidence HSD_JObjAddAnim 0x80196CCC: callees HSD_AObjLoadDesc,HSD_AObjRemove,HSD_DObjAddAnimAll,HSD_JObjClearFlags,HSD_RObjAddAnimAll; caller HSD_JObjAddAnimAll
 HSD_JObjAddAnim = .text:0x80196CCC; // type:function size:0x140 ref:kar_wowjinxy/GKYE01 ref_size:0x140 anchors:0x80196C74-0x801971E8
 HSD_JObjAddAnimAll = .text:0x80196E0C; // type:function size:0x3DC ref:kar_wowjinxy/GKYE01 ref_size:0x3DC anchors:0x80196C74-0x801971E8
 // evidence HSD_JObjAnim 0x80197B2C: callees HSD_AObjInterpretAnim,HSD_RObjAnimAll; caller JObjAnimAll
@@ -1020,6 +1019,7 @@ HSD_JObjResolveRefsAll = .text:0x80198A9C; // type:function size:0x2D4 ref:kar_w
 HSD_JObjRef = .text:0x80198D70; // type:function size:0x54 ref:kar_wowjinxy/GKYE01 ref_size:0x54 anchors:0x801971E8-0x8019902C
 HSD_IDGetData = .text:0x80198DC4; // type:function size:0x2C ref:kar_wowjinxy/GKYE01 ref_size:0x2C anchors:0x801971E8-0x8019902C
 ref_INC = .text:0x80198DF0; // type:function size:0x4C ref:kar_wowjinxy/GKYE01 ref_size:0x4C anchors:0x801971E8-0x8019902C
+// evidence HSD_JObjUnref 0x80198E3C: caller HSD_AObjLoadDesc; caller HSD_AObjRemove
 HSD_JObjUnref = .text:0x80198E3C; // type:function size:0x148 ref:kar_wowjinxy/GKYE01 ref_size:0x148 anchors:0x801971E8-0x8019902C
 // evidence HSD_JObjSetFlags 0x801991BC: caller JObjUpdateFunc; caller HSD_JObjSetFlagsAll
 HSD_JObjSetFlags = .text:0x801991BC; // type:function size:0x9C ref:kar_wowjinxy/GKYE01 ref_size:0x9C anchors:0x8019902C-0x801998A8

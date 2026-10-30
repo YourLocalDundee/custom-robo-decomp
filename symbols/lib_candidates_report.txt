@@ -1,4 +1,12 @@
-lib candidates: 183 accepted (R3:97, R4:16, R5:62, R6:8), 0 rejected, 0 layout-proof names replaced, 3 round(s)
+lib candidates: 183 accepted (R3:97, R4:16, R5:62, R6:8), 0 rejected, 8 layout-proof names replaced, 3 round(s)
+REPLACED layout-proof acos at 0x80169088
+REPLACED layout-proof asin at 0x801690A8
+REPLACED layout-proof atan2 at 0x801690C8
+REPLACED layout-proof exp at 0x801690E8
+REPLACED layout-proof fmod at 0x80169108
+REPLACED layout-proof log at 0x80169128
+REPLACED layout-proof ReadROM at 0x80135208
+REPLACED layout-proof stateCheckID2a at 0x8013C704
 ACCEPT __AXAllocInit 0x8014485C R3 melee/GALE01
 ACCEPT __AXAuxInit 0x80144C8C R3 melee/GALE01
 ACCEPT __AXDepopVoice 0x8014642C R3 melee/GALE01
