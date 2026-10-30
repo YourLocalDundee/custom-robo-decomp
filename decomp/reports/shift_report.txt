@@ -31,7 +31,7 @@ padding per point: 0x100 bytes; points: 30
   28. 0x80451CA8 .sdata2  inside .sdata2: the data piece of dolphin/os/OSFont.c (a proven object boundary) -> everything from here moves by +0x1C00
   29. 0x804522D0 .sdata2  inside .sdata2: the data piece of MSL/k_rem_pio2.c (a proven object boundary) -> everything from here moves by +0x1D00
   30. 0x804529F8 .sdata2  inside .sdata2: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x1E00
-objects linked from C (batch 9, configure.py CR_MATCHING): 472 in both links, 471 of them moved by the padding; 13 holding a point, reassembled from asm
+objects linked from C (batch 9, configure.py CR_MATCHING): 473 in both links, 472 of them moved by the padding; 13 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
 shifted main.dol: SHA-1 7ae81c9f666943deae73d99d4f1ebc20457dc758 (2430848 bytes, retail 2425472)
 sections, unshifted -> shifted:
@@ -51,7 +51,7 @@ sections, unshifted -> shifted:
   _stack_addr  0x80462AC0 -> 0x804648C0
   __ArenaLo    0x80464AC0 -> 0x804668C0
 static check:
-  symbols compared (unique names): 15243
+  symbols compared (unique names): 15238
   symbols moved by the wrong amount: 0
   relocations of the unshifted build: 92805
   relocations missing after the shift: 0

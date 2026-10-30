@@ -542,7 +542,7 @@ src/sysdolphin/baselib/tobj.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/bas
 src/sysdolphin/baselib/tobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tobj.h  changed (9 lines added / removed)
 src/sysdolphin/baselib/util.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/util.c  identical
 src/sysdolphin/baselib/util.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/util.h  identical
-src/sysdolphin/baselib/video.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/video.c  identical
+src/sysdolphin/baselib/video.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/video.c  changed (40 lines added / removed)
 src/sysdolphin/baselib/video.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/video.h  identical
 src/sysdolphin/baselib/wobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/wobj.c  identical
 src/sysdolphin/baselib/wobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/wobj.h  identical

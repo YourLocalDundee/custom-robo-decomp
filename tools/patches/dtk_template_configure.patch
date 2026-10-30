@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,445 @@ def MatchingFor(*versions):
+@@ -284,18 +307,444 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -453,6 +453,7 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/objalloc.c",
 +    "sysdolphin/baselib/state.c",
 +    "sysdolphin/baselib/aobj.c",
++    "sysdolphin/baselib/video.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -469,8 +470,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 3 of 11 functions equal in objdiff (Melee's texpdag.c adapted: HSD_TExpSchedule reads a_dst for alpha inputs, HSD_TExpSimplify2 the TETev a_range byte, texp.h, order_dag's dep_bits an int): CalcDistance 99.1% (r3 / r4 swapped in its inlined recursive copies; statement order, declaration order, signedness, index-only and for-header forms tried), assign_reg 0x1B0 here vs 0x1B4, HSD_TExpMakeDag 0x4B0 vs 0x4A8, SimplifySrc 0x498 vs 0x414, SimplifyThis 0x840 vs 0x7EC, SimplifyByMerge 0x17C8 vs 0xA04, HSD_TExpSimplify 0x90 vs 0x88, CalcTevRange not in Melee's C (wowjinxy/KAR has C for all of them, none equal: 90-99.6%, its SimplifyByMerge 0xC9C 32%) (another revision; doldecomp/kar has only asm): adapt to this revision",
 +    "sysdolphin/baselib/tev.c":
 +        "code: 17 of 22 functions equal in objdiff (Melee's tev.c, assert line numbers of this revision, HSD_StateSetNumChans stores prev_num_chans as wowjinxy/KAR's does): HSD_DisableChannelLighting, fn_8018AEA4, fn_8018AFE0, fn_8018B3B8 are not in Melee's C (wowjinxy's HSD_DisableChannelLighting 58%), HSD_SetTevRegAll 83% (another revision): adapt to this revision",
-+    "sysdolphin/baselib/video.c":
-+        "code: 8 of 10 functions equal in objdiff (Melee's video.c; fn_8019DE54 named HSD_VISetConfigure by its bytes): fn_8019DB14 (0x17C) and fn_8019DC90 (0x1C4) have no function of their size in Melee's (HSD_VICopyXFBAsync 0x104 ... HSD_VIGetXFBLastDrawDone 0x170) or KAR's file (wowjinxy map: 0x208 0xD4 0x178 0x16C 0x170) (another revision): adapt to this revision",
 +    "sysdolphin/baselib/cobj.c":
 +        "code: 32 of 48 functions equal in objdiff (Melee's cobj.c with this revision's assert lines; HSD_CObjGetUpVector, HSD_CObjGetViewingMtxPtr, CObjInfoInit's update method, CObjResetFlags from wowjinxy/KAR's cobj.c; step 61 iteration 7): unnamed, not in Melee's C: fn_8018F830, fn_8018FA94, fn_8018FD60 (0xCC, HSD_CObjSetupViewingMtx by its caller; 0x13C in KAR), fn_80190BBC, fn_80190EB8, fn_80191424, fn_80191494, fn_801914B0, fn_801914CC, fn_801914F8; HSD_CObjEraseScreen 97% (double tan + frsp here), HSD_CObjSetCurrent 0x504 here 86%, upvec2roll 63%, roll2upvec 84%, HSD_CObjSetRoll 0x428 here 83% (wowjinxy's 46-88%) (another revision): adapt to this revision",
 +    "sysdolphin/baselib/jobj.c":

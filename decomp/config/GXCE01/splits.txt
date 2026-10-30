@@ -1736,7 +1736,8 @@ sysdolphin/baselib/initialize.c:
 
 sysdolphin/baselib/video.c:
 	.text       start:0x8019D3EC end:0x8019E11C
-	.data       start:0x8024CB70 end:0x8024CBF8
+	.data       start:0x8024CB70 end:0x8024CBF7
+	.bss        start:0x80449EA0 end:0x8044B4A0
 	.sdata      start:0x8044F120 end:0x8044F128
 	.sbss       start:0x80450038 end:0x80450040
 	.sdata2     start:0x80452840 end:0x80452850

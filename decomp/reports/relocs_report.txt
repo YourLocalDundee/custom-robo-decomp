@@ -174,7 +174,7 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x80449558..0x80449B74 .bss lbl_80449558 .. lbl_80449B58
   0x80449B78..0x80449C24 .bss lbl_80449B78 .. lbl_80449C24
   0x80449C58..0x80449CD8 .bss lbl_80449C58 .. lbl_80449C98
-  0x80449E9C..0x80449EA0 .bss lbl_80449E8C .. lbl_80449EA0
+  0x80449E9C..0x80449EA0 .bss lbl_80449E8C .. HSD_VIData
   0x8044C278..0x8044C3AC .bss lbl_8044BFB0 .. lbl_8044C398
   0x8044C3F4..0x8044C3F6 .sdata lbl_8044C3F4 .. lbl_8044C3F5
   0x8044ECA8..0x8044ECAB .sdata lbl_8044ECA8 .. gap_07_8044ECA9_sdata

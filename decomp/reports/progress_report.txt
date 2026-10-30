@@ -7,10 +7,10 @@ dolphin                           98     97   0x032CC4/0x033700  98.76%   0x01F8
 MSL                               49     48   0x009378/0x00939C  99.90%   0x0014BA/0x0014BA 100.00%     84/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
-sysdolphin                        30     16   0x0097BC/0x026600  24.71%   0x00136E/0x002556  52.04%    195/  472
+sysdolphin                        30     17   0x00A4EC/0x026600  26.86%   0x002A15/0x003B55  70.93%    205/  472
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
-automatic objects (unsplit)      213      0   0x000000/0x1456C4   0.00%   0x000000/0x2759CC   0.00%      0/ 1672
-main.dol (all units)             714    485   0x0504C8/0x1B3430  18.45%   0x025824/0x29C420   5.61%   1577/ 3533
+automatic objects (unsplit)      213      0   0x000000/0x1456C4   0.00%   0x000000/0x2743CC   0.00%      0/ 1672
+main.dol (all units)             714    486   0x0511F8/0x1B3430  18.64%   0x026ECB/0x29C41F   5.82%   1587/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
@@ -512,5 +512,5 @@ sysdolphin/baselib/texp.c                     code 0x47C/0x31B8  data 0x38/0x3A0
 sysdolphin/baselib/texpdag.c                  code 0x79C/0x3A18  data 0x10/0xC8  functions 3/11  not linked: code: 3 of 11 functions equal in objdiff (Melee's texpdag.c adapted: HSD_TExpSchedule reads a_dst for alpha inputs, HSD_TExpSimplify2 the TETev a_range byte, texp.h, order_dag's dep_bits an int): CalcDistance 99.1% (r3 / r4 swapped in its inlined recursive copies; statement order, declaration order, signedness, index-only and for-header forms tried), assign_reg 0x1B0 here vs 0x1B4, HSD_TExpMakeDag 0x4B0 vs 0x4A8, SimplifySrc 0x498 vs 0x414, SimplifyThis 0x840 vs 0x7EC, SimplifyByMerge 0x17C8 vs 0xA04, HSD_TExpSimplify 0x90 vs 0x88, CalcTevRange not in Melee's C (wowjinxy/KAR has C for all of them, none equal: 90-99.6%, its SimplifyByMerge 0xC9C 32%) (another revision; doldecomp/kar has only asm): adapt to this revision  (C has data the split object lacks: .sbss2 0x8)
 sysdolphin/baselib/tobj.c                     code 0x3144/0x3144  data 0x53E/0x53E  functions 39/39  linked from C
 sysdolphin/baselib/util.c                     code 0x1CC/0x1CC  data 0x68/0x68  functions 3/3  linked from C
-sysdolphin/baselib/video.c                    code 0x9F0/0xD30  data 0x20/0xA8  functions 8/10  not linked: code: 8 of 10 functions equal in objdiff (Melee's video.c; fn_8019DE54 named HSD_VISetConfigure by its bytes): fn_8019DB14 (0x17C) and fn_8019DC90 (0x1C4) have no function of their size in Melee's (HSD_VICopyXFBAsync 0x104 ... HSD_VIGetXFBLastDrawDone 0x170) or KAR's file (wowjinxy map: 0x208 0xD4 0x178 0x16C 0x170) (another revision): adapt to this revision  (C has data the split object lacks: .bss 0x1600)
+sysdolphin/baselib/video.c                    code 0xD30/0xD30  data 0x16A7/0x16A7  functions 10/10  linked from C
 sysdolphin/baselib/wobj.c                     code 0x7DC/0x7DC  data 0xF5/0xF5  functions 13/13  linked from C

@@ -68,7 +68,7 @@ extern const u32 HSD_DefaultClearColor[2];
 #define HSD_MemReportData memReport
 #define HSD_ClearColor lbl_8044F110
 #define HSD_CurrentRenderPass lbl_80450030
-#define CObjRenderMode lbl_80449EA0
+#define CObjRenderMode HSD_VIData /* Custom Robo: named (step 68); its first member is this HSD_VIStatus */
 #define HSD_ZBufferFormat lbl_8044F108
 #define HSD_PixelFormat lbl_8045001C
 #define HSD_CacheInvalidateFlags lbl_8045002C

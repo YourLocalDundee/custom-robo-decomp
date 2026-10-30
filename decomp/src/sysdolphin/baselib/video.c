@@ -370,6 +370,46 @@ int HSD_VIGetXFBLastDrawDone(void)
     return idx;
 }
 
+/* Custom Robo: this revision splits Melee's HSD_VICopyXFBAsync in two (main.dol 0x8019DB14 / 0x8019DC90, between
+   HSD_VICopyEFB2XFBPtr and HSD_VISetConfigure; named by address: no reference has this split): the copy, which
+   waits for the draw done with GXDrawDone, and the hand-over of the drawn XFB (HSD_VISetXFBWaitDone and
+   HSD_VIDrawDoneXFB inline, assert line 763 for the search) */
+void fn_8019DB14(HSD_RenderPass rpass)
+{
+    int idx;
+
+    if (HSD_VIGetNbXFB() < 2) {
+        return;
+    }
+
+    idx = HSD_VIWaitXFBDrawEnable();
+    HSD_VICopyEFB2XFBPtr(HSD_VIGetVIStatus(), HSD_VIGetXFBPtr(idx), rpass);
+
+    while (HSD_VIGetDrawDoneWaitingFlag()) {
+        GXWaitDrawDone();
+    }
+    _p->drawdone.waiting = 1;
+    _p->drawdone.arg = idx;
+    GXDrawDone();
+}
+
+void fn_8019DC90(void)
+{
+    bool intr;
+    int idx;
+
+    if (HSD_VIGetNbXFB() < 2) {
+        return;
+    }
+
+    intr = OSDisableInterrupts();
+    idx = HSD_VISearchXFBByStatus(HSD_VI_XFB_DRAWING);
+    HSD_ASSERT(763, idx != -1);
+    HSD_VISetXFBWaitDone(idx);
+    HSD_VIDrawDoneXFB(idx);
+    OSRestoreInterrupts(intr);
+}
+
 void HSD_VISetConfigure(GXRenderModeObj* rmode)
 {
     _p->current.vi.rmode = *rmode;
