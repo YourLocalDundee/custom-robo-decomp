@@ -181,12 +181,24 @@ Python tools are named by script only; run them with `python -I` (Windows) or `p
   src/sysdolphin/baselib from shadowing kar's of the same name. `decomp/include/cr_kar/` holds the Custom Robo
   overrides (found first; the kar copy stays unchanged): sysdolphin/list.h (kar's list.c defines HSD_SListAppend /
   Prepend, our names are Melee's HSD_SListAllocAndAppend / AllocAndPrepend), sysdolphin/wobj.h (kar's class info
-  `lbl_805041C8` is `hsdWObj`). A new override header does not rebuild an object compiled before it (ninja's .d file
+  `lbl_805041C8` is `hsdWObj`, its parent `objInfo` is `hsdObj`), dobj.h (for kar's `#include "dobj.h"`: `_OSReport` /
+  `HSD_PObjRemoveAnimAll` are OSReport / HSD_PObjAddAnimAll, then the kar copy in src/sysdolphin/baselib). A new override header does not rebuild an object compiled before it (ninja's .d file
   does not list it): delete that .o once.
-- From C after iteration 2: util.c, object.c (Melee), list.c, id.c (kar), 100% code and data, main.dol retail.
-  Whole matches not linked yet (100% code, each function its own by bytes): class.c, dobj.c, wobj.c: they use
-  functions / data our symbols do not name yet (memory_list, nb_memory_list, _HSD_MemAlloc; _OSReport,
-  HSD_PObjRemoveAnimAll, HSD_MObjAddAnim, HSD_AObjInterpretAnim; HSD_RObjRemoveAll, objInfo): name them from the call
-  sites (rule R7). kar's objalloc.c is an unfinished stub (does not compile), not imported. The others imported
-  (aobj, fobj, fog, initialize, lobj, mobj, pobj, robj) match 0-95% of their bytes: reasons in `CR_NOT_MATCHING`.
+- From C after iteration 3 (plan.md step 61): util.c, object.c, spline.c (Melee), list.c, id.c, class.c, dobj.c,
+  wobj.c, mobj.c (kar), 100% code and data, main.dol retail: 9 of 29 HSD objects, 10.44% of their code. What it took:
+  the callees by rule R7 (`// c-callsite` lines: HSD_MObjAddAnim, HSD_AObjInterpretAnim, HSD_RObjRemoveAll,
+  _HSD_MemAlloc, HSD_TObjAnimAll, HSD_SetMaterialColor / Shininess); kar names for things we name already mapped in
+  `decomp/include/cr_kar` (dobj.h: `_OSReport` -> OSReport, `HSD_PObjRemoveAnimAll` -> HSD_PObjAddAnimAll;
+  sysdolphin/wobj.h: `objInfo` -> hsdObj); and small edits of the decomp/src copies, each with a `Custom Robo`
+  comment: class.c defines memory_list / nb_memory_list / current_hash static as Melee does (so the C proves its
+  .sbss; this compiler places .sbss statics in reverse order of definition), mobj.c gains HSD_MObjGetFlags and
+  HSD_MObjSetDiffuseColor (our object has them, kar's file does not), spline.c (Melee) has splArcLength as a function
+  of its own and the inline sqrtf of math_ppc.h, as this revision does. gen_dtk_splits.py rule 3: in an HSD object a
+  named function no reference places and no pinned source defines counts as unnamed (HSD_MObjGetFlags).
+- Not linked (reasons in `CR_NOT_MATCHING`): kar's aobj, fobj, fog, initialize, lobj, pobj, robj have C for part of
+  their functions only (port the rest from Melee); Melee's mtx.c, texpdag.c, bytecode.c are another revision
+  (objdiff only). kar's objalloc.c is an unfinished stub (does not compile), not imported. Melee's state.c and
+  displayfunc.c are not imported: kar's src headers (dobj.h, fobj.h, fog.h, id.h, initialize.h, jobj.h, lobj.h,
+  mobj.h, pobj.h, robj.h) sit in src/sysdolphin/baselib next to Melee's and shadow the Melee ones those files need;
+  moving them to their own folder comes first.
 

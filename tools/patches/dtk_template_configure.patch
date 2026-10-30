@@ -289,21 +289,21 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/mtx.c":
 +        "code: 6 of 16 functions equal in objdiff (Melee's mtx.c: HSD_MtxGetTranslate, HSD_MtxScaledAdd, HSD_VecFree, HSD_MtxFree, HSD_VecInitAllocData, HSD_MtxInitAllocData); our first five functions (0x8019EB5C..0x8019FC14, sizes 0x430 0x320 0x338 0x13C 0x2D8) are unnamed and none has the size of Melee's HSD_MtxInverse / InverseConcat / InverseTranspose / GetRotation / MkRotationMtx, HSD_MtxGetScale is 0x4D8 here vs 0x198, HSD_MtxSRTQuat 0x1AC vs 0x110, HSD_VecGetOrthogonal is not in Melee's file, HSD_VecAlloc / HSD_MtxAlloc 99.95% (another revision; doldecomp/kar has only asm): adapt to this revision",
 +    "sysdolphin/baselib/texpdag.c":
-+        "code: 1 of 11 functions equal in objdiff (HSD_TExpSchedule; Melee's texpdag.c): order_dag 99.8%, HSD_TExpSimplify2 99.9%, CalcDistance 99.1%, assign_reg 97.9%, HSD_TExpMakeDag 97.1% (an instruction or a register apart), SimplifyThis 95.7%, HSD_TExpSimplify 90.1%, SimplifySrc 87.8%, SimplifyByMerge 33.4%, CalcTevRange 0% (another revision; doldecomp/kar has only asm): adapt to this revision",
++        "code: 0 of 11 functions equal in objdiff (Melee's texpdag.c): HSD_TExpSchedule 99.99% (one relocation), order_dag 99.8%, HSD_TExpSimplify2 99.9%, CalcDistance 99.1%, assign_reg 97.9%, HSD_TExpMakeDag 97.1% (an instruction or a register apart), SimplifyThis 95.7%, HSD_TExpSimplify 90.1%, SimplifySrc 87.8%, SimplifyByMerge 33.4%, CalcTevRange not paired (another revision; doldecomp/kar has only asm): adapt to this revision",
 +    "sysdolphin/baselib/initialize.c":
-+        "code: 1 of 18 functions equal in objdiff (doldecomp/kar's initialize.c) and the C has data the split object lacks (.data 0xD, .sbss2 0x4)",
++        "code: 1 of 18 functions equal in objdiff (doldecomp/kar's initialize.c has C for 2 functions only: HSD_DVDInit, and HSD_InitComponent, 0x13C there vs 0x108 here; the other 16 of ours are not in C there) and the C has data the split object lacks (.data 0xD, .sbss2 0x4)",
 +    "sysdolphin/baselib/robj.c":
-+        "code: 5 of 21 functions equal in objdiff (0x1CC of 0x1F18 bytes; doldecomp/kar's robj.c)",
++        "code: 5 of 21 functions equal in objdiff (0x1CC of 0x1F18 bytes; doldecomp/kar's robj.c has C for 16 functions, 5 of them ours, the rest inlined or absent here; our other 16 are not in C there: port them from Melee's robj.c)",
 +    "sysdolphin/baselib/lobj.c":
-+        "code: 8 of 27 functions equal in objdiff (0x200 of 0x22E8 bytes; doldecomp/kar's lobj.c) and the C has .sdata2 (0x14) the split object lacks",
++        "code: 8 of 27 functions equal in objdiff (0x200 of 0x22E8 bytes; doldecomp/kar's lobj.c has C for 18 functions, HSD_LObjGetLightVector 97.8%; our other 18 are not in C there) and the C has .sdata2 (0x14) the split object lacks",
 +    "sysdolphin/baselib/pobj.c":
-+        "code: 1 of 23 functions equal in objdiff (0x74 of 0x2AD4 bytes; doldecomp/kar's pobj.c)",
++        "code: 1 of 23 functions equal in objdiff (0x74 of 0x2AD4 bytes; doldecomp/kar's pobj.c has C for 4 functions, its HSD_PObjRemoveAnimAll is our HSD_PObjAddAnimAll; our other 21 are not in C there)",
 +    "sysdolphin/baselib/fobj.c":
-+        "code: 5 of 11 functions equal in objdiff (0x2B8 of 0x1D7C bytes; doldecomp/kar's fobj.c): adapt or match the rest",
++        "code: 5 of 11 functions equal in objdiff (0x2B8 of 0x1D7C bytes; doldecomp/kar's fobj.c has C for 9 functions; FObjLoadData, HSD_FObjInterpretAnim / InterpretAnimAll, HSD_FObjLoadDesc, HSD_FObjAlloc, HSD_FObjFree are not in C there): port them from Melee's fobj.c",
 +    "sysdolphin/baselib/aobj.c":
-+        "code: 2 of 15 functions equal in objdiff (0x70 of 0x620 bytes; doldecomp/kar's aobj.c, not finished there for every function): adapt or match the rest",
++        "code: 2 of 15 functions equal in objdiff (0x70 of 0x620 bytes; doldecomp/kar's aobj.c has C for 10 functions, the rest inlined or absent here; our other 13, HSD_AObjInterpretAnim, HSD_AObjLoadDesc ..., are not in C there): port them from Melee's aobj.c",
 +    "sysdolphin/baselib/fog.c":
-+        "code: 0 of 11 functions equal in objdiff (doldecomp/kar's fog.c) and the C has .data (0x7C) the split object lacks",
++        "code: 0 of 11 functions equal in objdiff (doldecomp/kar's fog.c has C for 2 functions, func_8041B0D0 and func_8041B0F4, none of ours: the 11 are not in C there) and the C has .data (0x7C) the split object lacks",
 +    "MSL/FILE_POS.c":
 +        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision",
 +    "MSL/abort_exit.c":
