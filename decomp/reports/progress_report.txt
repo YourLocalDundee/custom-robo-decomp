@@ -3,14 +3,14 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           75     47   0x010F98/0x022354  49.62%   0x00208C/0x015594   9.53%    339/  646
+dolphin                           75     48   0x011644/0x022354  50.84%   0x0023F8/0x015588  10.53%    343/  646
 MSL                               48     29   0x002F00/0x00937C  31.87%   0x000718/0x000D20  54.05%     37/   84
 Runtime                            5      4   0x000924/0x0009DC  92.71%   0x000024/0x00009C  23.08%     18/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
 sysdolphin                        29      9   0x004014/0x0265A4  10.44%   0x0008F4/0x002238  26.16%     88/  471
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
-automatic objects (unsplit)      257      0   0x000000/0x156B9C   0.00%   0x000000/0x2809D8   0.00%      0/ 1861
-main.dol (all units)             733    389   0x01D230/0x1B342C   6.69%   0x0030EC/0x29C458   0.46%    794/ 3533
+automatic objects (unsplit)      258      0   0x000000/0x156B9C   0.00%   0x000000/0x2809E4   0.00%      0/ 1861
+main.dol (all units)             734    390   0x01D8DC/0x1B342C   6.79%   0x003458/0x29C458   0.49%    798/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
@@ -133,7 +133,7 @@ dolphin/os/OSArena.c                          code 0x4C/0x4C  data 0x10/0x10  fu
 dolphin/os/OSAudioSystem.c                    code 0x294/0x294  data 0x80/0x80  functions 2/2  linked from C
 dolphin/os/OSCache.c                          code 0x64C/0x64C  data 0x230/0x230  functions 18/18  linked from C
 dolphin/os/OSContext.c                        code 0x8E0/0x8E0  data 0x1D8/0x1D8  functions 13/13  linked from C
-dolphin/os/OSError.c                          code 0x6AC/0x6AC  data 0x378/0x378  functions 4/4  not linked: data: 100% code and data, its data proven by the C (step 56), but linked from C main.dol differs by one relocation: its .bss (__OSErrorTable 0x8041EBD0-0x8041EC14) is followed by 0xC bytes of padding up to the next object at 0x8041EC20, which the asm piece brings and the C object does not (the next object is then placed at 0x8041EC18)
+dolphin/os/OSError.c                          code 0x6AC/0x6AC  data 0x36C/0x36C  functions 4/4  linked from C
 dolphin/os/OSFont.c                           code 0x200/0xD60  data 0x18/0xB30  functions 2/8  not linked: code: 6 of 8 functions differ (GetFontCode 86%, OSGetFontEncode 86%, OSLoadFont 13%, ExpandFontSheet 94% (+2 more)): the reference is another revision
 dolphin/os/OSInterrupt.c                      code 0x86C/0x86C  data 0x48/0x48  functions 11/11  linked from C
 dolphin/os/OSLink.c                           code 0x18/0x18  data 0x0/0x0  functions 1/1  linked from C

@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,365 @@ def MatchingFor(*versions):
+@@ -284,18 +307,364 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -258,6 +258,7 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/os/OSAlloc.c",
 +    "dolphin/os/OSArena.c",
 +    "dolphin/os/OSThread.c",
++    "dolphin/os/OSError.c",
 +    "dolphin/card/CARDOpen.c",
 +    "dolphin/gx/GXTexture.c",
 +    "dolphin/gx/GXTransform.c",
@@ -396,8 +397,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 3 of 16 functions differ (GXSetTevColor 29%, GXSetTevColorS10 49%, GXSetTevKColor 22%): the reference is another revision",
 +    "dolphin/os/OS.c":
 +        "code: 2 of 15 functions differ (ClearArena 78%, OSInit 73%): the reference is another revision",
-+    "dolphin/os/OSError.c":
-+        "data: 100% code and data, its data proven by the C (step 56), but linked from C main.dol differs by one relocation: its .bss (__OSErrorTable 0x8041EBD0-0x8041EC14) is followed by 0xC bytes of padding up to the next object at 0x8041EC20, which the asm piece brings and the C object does not (the next object is then placed at 0x8041EC18)",
 +    "dolphin/os/OSFont.c":
 +        "code: 6 of 8 functions differ (GetFontCode 86%, OSGetFontEncode 86%, OSLoadFont 13%, ExpandFontSheet 94% (+2 more)): the reference is another revision",
 +    "dolphin/os/OSReboot.c":

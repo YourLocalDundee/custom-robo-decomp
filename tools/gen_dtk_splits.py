@@ -102,9 +102,9 @@ DATA FROM THE MATCHED C (Phase 4 Milestone 4, step 56): a C file that matches it
        in the .o, a global main.elf uses is at its offset.
     3. every placed symbol's bytes equal main.dol's, every pointer in it is main.elf's relocation to its target; the
        piece starts aligned and on no dtk symbol's inside, and ends with its last symbol (to the end of a dtk symbol
-       that runs on over the padding). The zeros after it go with it up to another object's piece (as dtk splits);
-       when an automatic object follows, it starts that object from the next word on (from C, the object brings no
-       padding). A C piece replaces the relocation users' piece of the same object; another object's piece it
+       that runs on over the padding). The zeros after it go with it up to another object's piece (as dtk splits)
+       when that piece's 8-byte alignment reaches it; else, and when an automatic object follows, they start an
+       automatic object from the next word on (from C, the object brings no padding: step 65, OSError.c). A C piece replaces the relocation users' piece of the same object; another object's piece it
        overlaps is dropped.
   Report: the whole matches (with the functions our names call otherwise), the pieces, the global symbols our names
   call otherwise (an object linked from C needs every name another object uses), and every C definition ("DEF"
@@ -1563,10 +1563,12 @@ def merge_c_data(objs, data, cdata, dlines, clines, rejected, elf):
                     s2.pop(sec)
             data.setdefault(path, {})[sec] = (a, b)
     # the zeros after a C piece (alignment padding): up to another object's piece or the section end when that is
-    # near, as dtk splits (it makes them one gap_ symbol, which a split may not cut). When an automatic object
-    # follows, the padding starts it (linked from C, this object brings no padding; the automatic object must, as
-    # the next one's alignment need not give it), from the next word on (dtk splits at 4-byte boundaries only).
-    # .ctors / .dtors: zeros there are the end marker, not padding.
+    # near, as dtk splits (it makes them one gap_ symbol, which a split may not cut), as long as the next piece's own
+    # alignment gives them (dtk aligns an asm piece to 8). Otherwise, and when an automatic object follows, the
+    # padding starts an automatic object (linked from C, this object brings no padding), from the next word on (dtk
+    # splits at 4-byte boundaries only). Step 65: OSError.c's .bss ends at 0x8041EC14, and the 0xC zeros up to
+    # OSReboot.c's 32-aligned Header at 0x8041EC20 came only with the asm piece, so linked from C OSReboot.c's piece
+    # went to 0x8041EC18. .ctors / .dtors: zeros there are the end marker, not padding.
     import reloc_audit as ra
     dobjs = ra.Objects(elf)
     starts = [x for x in dobjs.starts if not dobjs.info[x][0].startswith("gap_")]
@@ -1585,7 +1587,7 @@ def merge_c_data(objs, data, cdata, dlines, clines, rejected, elf):
             pieces = [s[sec][0] for p, s in data.items() if p != path and sec in s and s[sec][0] >= b]
             k = bisect.bisect_left(starts, b)
             nxt = min([hi] + pieces + ([starts[k]] if k < len(starts) else []))
-            if nxt not in pieces and nxt != hi:
+            if nxt != hi and (nxt not in pieces or (b + 7) & ~7 < nxt):
                 nxt = (b + 3) & ~3
             if b < nxt and nxt - b < C_PAD and zeros(b, nxt - b):
                 data[path][sec] = cdata[path][sec] = (a, nxt)
