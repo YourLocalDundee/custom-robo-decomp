@@ -1,6 +1,6 @@
 symbols from the objects built from C (tools/gen_c_symbols.py): main.elf's symbols inside each object's
 ranges replace those of decomp/config/GXCE01/symbols.txt there (same bytes; the C's names, sizes, scopes).
-objects: 411; symbols written: 1572
+objects: 415; symbols written: 1678
 functions and globals the C names differently from symbols.txt before it (a dtk default name: the matched C
 is the proof of the real name; one of our own names: the two disagree):
   .bss     0x80439BF8  lbl_80439BF8 -> gTRKEventQueue
@@ -18,7 +18,10 @@ is the proof of the real name; one of our own names: the two disagree):
   .sdata   0x8044EFF0  lbl_8044EFF0 -> lbl_805DCAA0
   .sdata   0x8044EFFD  lbl_8044EFFD -> lbl_805DCAAD
   .sdata   0x8044F000  lbl_8044F000 -> lbl_805DCAB0
+  .text    0x8013264C  __OSDBINTEND -> __OSDBJUMPSTART
   .text    0x80132EC4  fn_80132EC4 -> OnReset
+  .text    0x801367D8  fn_801367D8 -> Run
+  .text    0x801367E8  fn_801367E8 -> Callback
   .text    0x8013A5E0  fn_8013A5E0 -> AlarmHandler
   .text    0x80142B28  fn_80142B28 -> __ARHandler
   .text    0x8014C234  fn_8014C234 -> bitrev

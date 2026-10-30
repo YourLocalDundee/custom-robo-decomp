@@ -888,6 +888,8 @@ dolphin/os/OS.c:
 	.text       start:0x80131D1C end:0x80132808
 	.data       start:0x802427F0 end:0x802429E8
 	.bss        start:0x8041EB80 end:0x8041EBD0
+	.sdata      start:0x8044ED50 end:0x8044ED60
+	.sbss       start:0x8044F898 end:0x8044F8D8
 
 dolphin/os/OSAlarm.c:
 	.text       start:0x80132808 end:0x80132F64

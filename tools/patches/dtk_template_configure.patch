@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,359 @@ def MatchingFor(*versions):
+@@ -284,18 +307,363 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -150,18 +150,29 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/exi/EXIBios.c": ["-O3,p"],
 +    "dolphin/card/CARDOpen.c": ["-char signed"],
 +    "dolphin/card/CARDRename.c": ["-char signed"],
++    "dolphin/os/OSFont.c": ["-char signed"],
 +    # its two OSReport strings are separate objects in main.dol, not one pool (step 65)
 +    "Runtime/GCN_mem_alloc.c": ["-str nopool"],
 +}
 +# Per-object header roots, replacing the library's -i ones (an object taken from another reference than its library).
++# from BfBB (tools/refs/bfbb): the same Apr 17 2003 SDK and the same MSL revision as ours (step 65; docs/compiler.md
++# "Source revisions"); its headers in include/bfbb (dolphin + its include/), include/bfbb/libc (PowerPC_EABI_Support)
++# and include/bfbb/dolphin_src (the SDK's private <gx/__gx.h>-style headers)
++BFBB_INC = ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"]
 +CR_OBJECT_INCLUDES: Dict[str, List[str]] = {
-+    # from BfBB: this revision of the SDK file (step 65)
-+    "dolphin/card/CARDMount.c": ["-i include/bfbb", "-i include/bfbb/libc"],
-+    "dolphin/exi/EXIUart.c": ["-i include/bfbb", "-i include/bfbb/libc"],
-+    "MSL/alloc.c": ["-i include/bfbb", "-i include/bfbb/libc"],
-+    "MSL/e_pow.c": ["-i include/bfbb", "-i include/bfbb/libc"],
-+    "MSL/string.c": ["-i include/bfbb", "-i include/bfbb/libc"],
-+    "MSL/ansi_files.c": ["-i include/bfbb", "-i include/bfbb/libc"],
++    "dolphin/card/CARDMount.c": BFBB_INC,
++    "dolphin/exi/EXIUart.c": BFBB_INC,
++    "MSL/alloc.c": BFBB_INC,
++    "MSL/e_pow.c": BFBB_INC,
++    "MSL/string.c": BFBB_INC,
++    "MSL/ansi_files.c": BFBB_INC,
++    "dolphin/card/CARDRdwr.c": BFBB_INC,
++    "dolphin/exi/EXIBios.c": BFBB_INC,
++    "dolphin/os/OSReset.c": BFBB_INC,
++    "MSL/abort_exit.c": BFBB_INC,
++    "MSL/direct_io.c": BFBB_INC,
++    "MSL/e_acos.c": BFBB_INC,
++    "MSL/e_asin.c": BFBB_INC,
 +    # from Melee: Mario Party 4's __mem.c has the three functions in another order than ours
 +    "Runtime/__mem.c": ["-i include/melee/MSL", "-i include/melee/dolphin"],
 +    "sysdolphin/baselib/id.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin"],
@@ -179,13 +190,10 @@ diff --git a/configure.py b/configure.py
 +    # from doldecomp/kar (Kirby Air Ride: the same sysdolphin revision as ours), its headers; include/cr_kar
 +    # holds Custom Robo's overrides of them (step 61)
 +    "sysdolphin/baselib/list.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin"],
-+    "dolphin/card/CARDRdwr.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
-+    "dolphin/exi/EXIBios.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
-+    "dolphin/os/OSReset.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
-+    "MSL/abort_exit.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
-+    "MSL/direct_io.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
-+    "MSL/e_acos.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
-+    "MSL/e_asin.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
++    "dolphin/os/OS.c": BFBB_INC,
++    "dolphin/os/OSFont.c": BFBB_INC,
++    "dolphin/os/OSReboot.c": BFBB_INC,
++    "dolphin/gx/GXLight.c": BFBB_INC,
 +}
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
@@ -316,6 +324,10 @@ diff --git a/configure.py b/configure.py
 +    "MSL/direct_io.c",
 +    "MSL/e_acos.c",
 +    "MSL/e_asin.c",
++    "dolphin/os/OS.c",
++    "dolphin/os/OSFont.c",
++    "dolphin/os/OSReboot.c",
++    "dolphin/gx/GXLight.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -392,14 +404,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 4 of 22 functions differ (__AXSetPBDefault 89%, fn_80146ED8 0%, fn_801470D8 0%, fn_8014719C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
 +    "dolphin/gx/GXAttr.c":
 +        "code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision",
-+    "dolphin/gx/GXLight.c":
-+        "code: 3 of 11 functions differ (GXSetChanAmbColor 92%, GXSetChanMatColor 92%, GXSetChanCtrl 81%): the reference is another revision",
-+    "dolphin/os/OS.c":
-+        "code: 2 of 15 functions differ (ClearArena 78%, OSInit 73%): the reference is another revision",
-+    "dolphin/os/OSFont.c":
-+        "code: 6 of 8 functions differ (GetFontCode 86%, OSGetFontEncode 86%, OSLoadFont 13%, ExpandFontSheet 94% (+2 more)): the reference is another revision",
-+    "dolphin/os/OSReboot.c":
-+        "code: 3 of 3 functions differ (fn_801367D8 0%, fn_801367E8 0%, __OSReboot 12%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
 +    "dolphin/vi/vi.c":
 +        "code: 4 of 22 functions differ (getTiming 95%, __VIInit 81%, VIConfigure 92%, VIGetTvFormat 100%): the reference is another revision",
 +}
@@ -421,7 +425,7 @@ diff --git a/configure.py b/configure.py
 +    opts: Dict[str, Any] = {"extra_cflags": extra}
 +    if name in CR_OBJECT_INCLUDES:
 +        _, lib_cflags = CR_LIBS[name.split("/")[0]]
-+        opts["cflags"] = [f for f in lib_cflags if not f.startswith("-i ")] + CR_OBJECT_INCLUDES[name]
++        opts["cflags"] = [f for f in lib_cflags if not f.startswith(("-i ", "-ir "))] + CR_OBJECT_INCLUDES[name]
 +    return Object(Matching if cr_matching(name) else NonMatching, name, **opts)
 +
 +

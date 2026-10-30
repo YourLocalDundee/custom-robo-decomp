@@ -118,7 +118,7 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x8023BE78..0x8023CEC0 .data lbl_8023BE78 .. lbl_8023CE54
   0x8023CF28..0x80240898 .data lbl_8023CF28 .. lbl_80240828
   0x802409E8..0x80242698 .data lbl_802409E8 .. lbl_80242644
-  0x802427F0..0x802429CC .data @1_802427F0 .. lbl_80242834
+  0x802427F0..0x802429CC .data @1 .. lbl_80242834
   0x80242E10..0x8024300C .data @69 .. lbl_80242E39
   0x80243218..0x802432E0 .data @13 .. lbl_8024322E
   0x80244468..0x802444C4 .data @36 .. lbl_80244482
