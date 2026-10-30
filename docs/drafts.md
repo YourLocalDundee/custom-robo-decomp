@@ -1,8 +1,9 @@
 # Game-code drafts: m2c, compile, compare (batch 12)
 
 Milestone 5 (game code to matching C, about 1,750 functions) needs a first C version of every function. This batch makes
-one for all of them, checks each against the original, and says where to start. The drafts take about 6.5 minutes, parallel
-(two m2c passes and the repair loop, plan.md step 59; 2 minutes in the first version, step 57); after them the batch promotes
+one for all of them, checks each against the original, and says where to start. The drafts take about 21 minutes, parallel
+(two m2c passes, the repair loop and the variants of every draft below 100%, plan.md step 69; 6.5 minutes after step 59,
+2 minutes in the first version, step 57); after them the batch promotes
 the linkable matches into `decomp/src/game` and, when that folder changed, runs batch 9 again, which adds that build's time
 (with `-Sample` there is no promotion):
 
@@ -278,6 +279,100 @@ the sum before cr_Sqrt), ArrayAccess widths (m2c's ArrayAccess keeps the element
 fn_8001B3F0), extra callee-saved registers of m2c temporaries (the `stmw r25` vs `r26` class), switch layouts
 (fn_8001F558); failures: pointer/array required 11, illegal operand 10, explicit / implicit conversions 7 + 7,
 illegal type 7.
+
+## Seventh generator (plan.md step 69, Oct 30, 2026)
+
+Round 6 started from a baseline run of the step 64 generator on the current build (batch 9 first: the copied build
+still had step 63's asm with `cr_Sqrt`, which cost two matches): 350 at 100%, 1,702 compile, 428,472 bytes equal.
+Method as in round 5: the near matches diffed instruction by instruction (scratch tools, not committed: an objdump
+side-by-side of the draft's and the original's function, and a classifier that sorts every draft's differing blocks
+by their mnemonics, so the classes are ranked by how many drafts they touch), one generator fix per class, measured
+with `--only` on the drafts at 40-100% (no match lost at any step) and then with full runs. Every fix is in
+`tools/draft_batch.py` (one in `tools/promote_drafts.py`, three field types in `symbols/cr_types.h`); no draft is
+edited. "Changed" = drafts whose text the rule changes (counted over the final m2c output, default and --reg-vars),
+"matched" = 100% drafts whose kept form needs it (the report's note now names the winning variant, e.g. `[reg-vars
++float_literals]`).
+1. **m2c --reg-vars drafts** (`REG_VARS`, `regvar_cleanup`): at level 0 the compiler gives every C local its own
+   callee-saved register from r31 / f31 down and never shares one, so two m2c temporaries in the same callee-saved
+   register were one variable (fn_80017668's saved interrupt state, `temp_r31_23` / `temp_r31_76`), and m2c's folding
+   of a value into its single use hides the variable the original kept (fn_8001D05C family: `f31 = x*x + y*y + z*z;
+   f31 = sqrt(f31);`). Every draft below 100% is drafted again with m2c's own `--reg-vars` for r14-r31 / f14-f31 (the
+   epilogue restores it prints as `M2C_ERROR(psq_l ...)` statements are dropped) and tried with the same rules and
+   variants. 34 matches need it (fn_80017668, fn_8001D05C / D104 / D1AC, fn_8000DA5C / DB94 / DCCC, fn_800F67FC,
+   fn_80104AB0 ...).
+2. **Volatile temporaries back into their use** (`inline_volatile_temps`): a temporary named after r0, r3-r12 or
+   f0-f13, assigned once and used once, was an expression; as a C local it took a callee-saved register the
+   original never saves (the `stmw r25` vs `r26` / extra `stw r30` class). The expression goes into its use: in place
+   when the statements between only update other locals; with those statements moved after the use when they update
+   locals it reads (the scheduler had moved a loop's `addi` above the store: fn_8008C3B4); past any simple statements
+   when it reads only locals; an address of named objects (`&lbl_803BE358[lbl_8044F770]`) past statements that write
+   only other named objects (two named objects never overlap); a pointer or narrow integer keeps its type as a cast
+   (fn_80005D38's `u16 *`). Changed 694 (702 of the --reg-vars drafts); a variant leaves it out (it loses as often as it wins: 250 of the kept drafts
+   below 100% are better without it).
+3. **Parameter aliases** (`param_aliases`): `var_r31 = arg0;` among the first statements with neither assigned again
+   (the --reg-vars drafts name the parameter after its copy everywhere) is the parameter itself; not in leaf
+   functions; a variant leaves it out. Changed 120 (all --reg-vars drafts).
+4. **Float constants as literals** (`float_literals`, a variant; `pool_floats` reads the values of dtk's
+   data:float / data:double objects of .sdata2 from main.dol): three stores of `0.0f` load f0, f1, f0 with the second
+   load moved up, three stores of an extern float load f0 three times (fn_80079C70, fn_8001CA84). The literal is the
+   compiler's own pool constant, masked by the compare. 16 matches need it; such a draft owns its .sdata2 constant,
+   so it is linked only with its whole file run (promote_report.txt "left out": all 33 are drafts with data of their own).
+5. **Table calls**: `temp_r3 = table + i * 4; *temp_r3(temp_r3, x);` drops the slot's own address from the arguments
+   (`table_call_self`, it was only in r3; changed 27); the variant `table_call_noargs` calls through the slot with
+   no arguments (m2c passed whatever the argument registers held: fn_8005C4D0's r4; 15 matches); the repair rule
+   for `call of non-function` takes `M2C_FIELD(table + i * 4, u32 *, off)(args)` (rule 8's width form of a function
+   pointer) as a call through that slot.
+6. **Callers' parameter signedness** (`narrow_params`, pass 1): when most callers that type an argument (their
+   first-pass `/* extern */` declarations; constants say s32 or M2C_UNK) pass a byte / halfword of the other
+   signedness than the callee's own draft, the prototype in ctx_protos.h takes the callers' type (fn_80098104's
+   `s8 arg1` gave every caller an `extsb` after its `clrlwi`): 6 parameters; with rule 7 matched fn_8005C4D0.
+7. **Small expression rules**: `(u8) (s32) (f)` -> `(u8) (f)` (`narrow_int_casts`: m2c's two casts of a float
+   converted to a byte add a `clrlwi`; changed 25); `= -1U;` -> `= -1;` (`minus_one_stores`: `li r0,-1` stored
+   through a byte; changed 29; fn_80111E54 97%); `(u8) a[3] == 0` on a u8 array drops its cast (drop_same_casts
+   for indexed arrays: cr_SEQ_MODE_SELECTOR_Leave).
+8. **Access widths of words in byte arrays** (`M2C_WIDTH`): m2c's int-or-pointer loads (its type for a `lwz` it
+   cannot tell from a pointer) from dtk's untyped `u8[]` objects are printed with their width,
+   `M2C_FIELD(lbl_8024E120 + i * 0x33520, u32 *, 0)`, and so is its array spelling `lbl_801F10C0[(x * 4) & 0xFC]`
+   (fn_8001B3F0, the round-5 ArrayAccess item) and a struct pointer stepped in bytes (`*(chara->motion_set + i * 2)`
+   -> `M2C_FIELD(chara->motion_set, u16 *, i * 2)`: cr_C_ACT_MOT, the `lhzx` the repair rule had read as u32).
+   Matched fn_8000768C, fn_800BC9A4, fn_8010D2D0, fn_800B77AC, fn_8001B3F0.
+9. **More variants** (each one toggle; a second round adds every single toggle to the best variant of a draft at
+   80-99%, for two rules a draft needs together): `drop_same_field_casts` (`(s32) M2C_FIELD(x, s32 *, n)` anywhere),
+   `unsigned_fields` (`(u16) M2C_FIELD(x, s16 *, n)` -> a u16 field: cr_C_ACT_TURN_POINT; as a rule it lost
+   cr_C_ACT_MOVE), `redundant_returns` (`if (c) { ...; return; } return;` -> one return: fn_8008BA44's two blr),
+   `widen_masked_bytes` (a `u8` local only ever assigned `(u8) (E)` becomes a u32 of `(E) & 0xFF`: fn_8005C628 with
+   table_call_noargs), `invert_early_returns` (`if (c) { return; } rest` at the function's end -> `if (!c) { rest }`),
+   `chain_assign` (`A = v; B = v;` -> `B = A = v;`); no match needs the last two yet. The variants and --reg-vars now run for every compiled draft
+   below 100% (VARIANT_MIN 0: 3 more matches below 40%); the draft step takes about 21 minutes (1,284 s; was 445 s).
+10. **Field signedness from the loads** (symbols/cr_types.h): cr_Chara.id (+193C), target_id (+1996) and
+    countdown_1990 (+1990) are u16: every load of them in the game code is `lhz` (42, 3, 2), none `lha`.
+11. **promote_drafts.py**: the other names of an anonymous struct (`typedef struct { ... } Vec, Vec3, *VecPtr,
+    Point3d;`) are emitted as typedefs of its first name; as copies they were distinct structs and
+    cr_Chara_SetCurrentPointers' regenerated file stored a `Vec3 *` in a `Point3d *` (round 5's open item: it links
+    again from its current draft); and when one level of struct definitions is not enough, a third try ("deep") also
+    defines our own `cr_` structs that a defined struct's members point to (cr_C_ACT_TURN_POINT reads
+    `cr_g_CurrentChara->motion_set->turn_r`).
+**Before -> after** (full runs; m2c, compiler, flags unchanged): compile 1,702 -> 1,703 of 1,751 (failures 47 -> 46 + 2 m2c: pointer/array required 11,
+illegal operand 9, explicit / implicit conversions 6 + 8, illegal type 7), **100% MATCH 350 ->
+439**, bytes equal after alignment 428,472 -> 482,760; histogram 0-9% 67 -> 48, 10-19% 93 -> 72, 20-29% 152 -> 106, 30-39% 294 -> 127, 40-49% 136 -> 275, 50-59% 159 -> 144, 60-69% 138 -> 143, 70-79% 156 -> 155, 80-89% 114 -> 134, 90-99% 43 -> 60. **Linked: 407 game objects** (405 promoted, 1 file object, 1 kept; was 342), the
+first FILE OBJECT among them: `game/fn_8005C4D0_fn_8005C4D0.c`, fn_8005C4D0 with its own int-to-float constant
+(.sdata2 0x804509A0-0x804509A8), which no other function uses (round 5's prediction); 0xABF4 bytes = 3.58% of the game
+code; 565 of 894 units from C, 16.72% of all code. Batch 9: main.dol retail SHA-1, every object 100%, static shift PASS.
+Not found / left for the next round:
+- the script-command head (`cr_S_BGM_STOP`, `cr_CHAR_MOVE` and about 35 more at 78-85%): the original saves r30 and
+  never uses it, evaluates the log index `lbl_803BE358[2]` before the store's base and keeps the counter's address in
+  r4; no spelling found (struct form, index arithmetic, temporaries inlined or not, an unused local: 78-82%); the
+  common dispatch tail (`cr_g_ScrCmdFuncs[*script]()` / error flags from .sdata2 words) points to a macro or inline
+  function of the script system;
+- the `li r5,2` SEQ handlers (cr_SEQ_ENDING_FrameA & co., 6): **an inline function with a parameter reproduces them
+  exactly** (`static inline void f(s32 v) { seq.x40 = v; seq.x24 = 1; }`; tested by hand): the source had a helper
+  that sets the sequence state; it needs a name with evidence before a rule can write it;
+- HSD inlines: fn_80095D7C matches as `if (!(jobj && HSD_JObjMtxIsDirty(jobj))) return; HSD_JObjSetupMatrixSub(jobj);`
+  with this revision's MtxIsDirty (its assert at jobj.h line 605, Melee's 564) as an inline function, not as m2c's
+  expansion: 12 drafts carry that assert; a rule that folds known HSD inline bodies back into calls would take them;
+- epilogue order (`lwz r0` before `lwz r31` after a final store: fn_800A0804, 96 originals): the compiler gives the
+  other order for every spelling tried (a label, do / while, an inline, a block, an unused local);
+- `-inline_volatile_temps` wins in 250 drafts that do not match: the expression form is not always the source's.
 
 ## Promoted to decomp/src/game (plan.md step 58)
 
