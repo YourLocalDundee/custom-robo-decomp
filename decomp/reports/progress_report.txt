@@ -3,14 +3,14 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           89     89   0x02FA40/0x02FA40 100.00%   0x017196/0x017196 100.00%    776/  776
+dolphin                           98     97   0x032CC4/0x033700  98.76%   0x01F8EB/0x01F933  99.94%    825/  831
 MSL                               49     48   0x009378/0x00939C  99.90%   0x0014BA/0x0014BA 100.00%     84/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
 sysdolphin                        30     13   0x0081F4/0x026600  21.17%   0x0010AE/0x00247E  45.71%    157/  472
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
-automatic objects (unsplit)      226      0   0x000000/0x149384   0.00%   0x000000/0x27E248   0.00%      0/ 1727
-main.dol (all units)             718    474   0x04BC7C/0x1B3430  17.41%   0x01CE0F/0x29C427   4.32%   1490/ 3533
+automatic objects (unsplit)      217      0   0x000000/0x1456C4   0.00%   0x000000/0x275AA8   0.00%      0/ 1672
+main.dol (all units)             718    482   0x04EF00/0x1B3430  18.14%   0x025564/0x29C424   5.59%   1539/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
@@ -101,11 +101,20 @@ dolphin/OdemuExi2/DebuggerDriver.c            code 0xA80/0xA80  data 0x1D/0x1D  
 dolphin/ai/ai.c                               code 0x8E8/0x8E8  data 0x90/0x90  functions 19/19  linked from C
 dolphin/amcstubs/AmcExi2Stubs.c               code 0x30/0x30  data 0x0/0x0  functions 8/8  linked from C
 dolphin/ar/ar.c                               code 0x1B38/0x1B38  data 0x70/0x70  functions 9/9  linked from C
-dolphin/ar/arq.c                              code 0x39C/0x39C  data 0x74/0x74  functions 5/5  linked from C
-dolphin/ax/AXAlloc.c                          code 0x4BC/0x4BC  data 0x104/0x104  functions 10/10  linked from C
+dolphin/ar/arq.c                              code 0x39C/0x39C  data 0x75/0x75  functions 5/5  linked from C
+dolphin/ax/AX.c                               code 0x70/0x70  data 0x4C/0x4C  functions 2/2  linked from C
+dolphin/ax/AXAlloc.c                          code 0x4BC/0x4BC  data 0x108/0x108  functions 10/10  linked from C
+dolphin/ax/AXAux.c                            code 0x490/0x490  data 0x2D38/0x2D38  functions 14/14  linked from C
+dolphin/ax/AXCL.c                             code 0x72C/0x72C  data 0x618/0x618  functions 5/5  linked from C
+dolphin/ax/AXOut.c                            code 0x7B4/0x7B4  data 0x4AD8/0x4AD8  functions 8/8  linked from C
 dolphin/ax/AXProf.c                           code 0x48/0x48  data 0x10/0x10  functions 1/1  linked from C
-dolphin/ax/AXVPB.c                            code 0x1588/0x1588  data 0x118E8/0x118E8  functions 22/22  linked from C
+dolphin/ax/AXSPB.c                            code 0x4C4/0x4C4  data 0x68/0x68  functions 4/4  linked from C
+dolphin/ax/AXVPB.c                            code 0x1588/0x1588  data 0x118EC/0x118EC  functions 22/22  linked from C
+dolphin/axfx/axfx.c                           code 0x5C/0x5C  data 0x8/0x8  functions 3/3  linked from C
+dolphin/axfx/chorus.c                         code 0xA7C/0xA7C  data 0x808/0x808  functions 6/6  linked from C
 dolphin/axfx/delay.c                          code 0x580/0x580  data 0x0/0x0  functions 4/4  linked from C
+dolphin/axfx/reverb_hi.c                      code 0xF08/0xF08  data 0x60/0x60  functions 7/7  linked from C
+dolphin/axfx/reverb_std.c                     code 0x5C0/0xA3C  data 0x10/0x48  functions 5/6  not linked: code: ReverbSTDCreate (0x80148998, 0x47C, the first function: no public source compiles to it; dolsdk2004 63%, dolsdk2001 49%, TP 47%: the same instructions with other registers and the delay-line loop counters set up in another order; GC/1.2.5-2.6 and -O4,p / -O3,p / -O2 variants tried, step 67): write it from our asm starting from dolsdk2004; the other five functions are dolsdk2004's
 dolphin/base/PPCArch.c                        code 0x114/0x114  data 0x0/0x0  functions 22/22  linked from C
 dolphin/card/CARDBios.c                       code 0x12E4/0x12E4  data 0x2C0/0x2C0  functions 25/25  linked from C
 dolphin/card/CARDBlock.c                      code 0x404/0x404  data 0x0/0x0  functions 6/6  linked from C

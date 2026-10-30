@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,434 @@ def MatchingFor(*versions):
+@@ -284,18 +307,445 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -248,6 +248,7 @@ diff --git a/configure.py b/configure.py
 +CR_OBJECT_INCLUDES["dolphin/card/CARDRead.c"] = BFBB_INC
 +CR_OBJECT_INCLUDES["dolphin/card/CARDWrite.c"] = BFBB_INC
 +CR_OBJECT_INCLUDES["dolphin/dvd/dvd.c"] = BFBB_INC
++CR_OBJECT_INCLUDES["dolphin/ax/AX.c"] = BFBB_INC
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
 +    "dolphin/mtx/": ["-char signed"],
@@ -440,12 +441,22 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/dvd/dvd.c",
 +    "dolphin/dvd/dvdfs.c",
 +    "dolphin/texPalette/texPalette.c",
++    "dolphin/ax/AX.c",
++    "dolphin/ax/AXAux.c",
++    "dolphin/ax/AXCL.c",
++    "dolphin/ax/AXOut.c",
++    "dolphin/ax/AXSPB.c",
++    "dolphin/axfx/axfx.c",
++    "dolphin/axfx/reverb_hi.c",
++    "dolphin/axfx/chorus.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
 +# "data": the C defines data main.dol keeps in a dtk automatic object (the data split must give this object that
 +# piece first); "link": the C calls functions / uses data our symbols do not name yet.
 +CR_NOT_MATCHING = {
++    "dolphin/axfx/reverb_std.c":
++        "code: ReverbSTDCreate (0x80148998, 0x47C, the first function: no public source compiles to it; dolsdk2004 63%, dolsdk2001 49%, TP 47%: the same instructions with other registers and the delay-line loop counters set up in another order; GC/1.2.5-2.6 and -O4,p / -O3,p / -O2 variants tried, step 67): write it from our asm starting from dolsdk2004; the other five functions are dolsdk2004's",
 +    "sysdolphin/baselib/bytecode.c":
 +        "code: HSD_ByteCodeEval (0x15C8, the whole object) 97% in objdiff: Melee's saves f30 / f31 and computes a few values differently (another revision; doldecomp/kar has only asm): adapt to this revision",
 +    "sysdolphin/baselib/mtx.c":

@@ -185,6 +185,8 @@ PLACEHOLDER_FILE = re.compile(r"^hsd_[0-9A-Fa-f]{3,8}$|_[0-9A-Fa-f]{8}$|^text_|^
 
 def family(path: str) -> str:
     p = path.lower()
+    if p.startswith("musyx/"):
+        return "musyx"  # MusyX (its runtime/ is not the MSL Runtime): a library this game does not link
     if p.startswith("sysdolphin/"):
         return "hsd"
     if "trk" in p.split("/")[0] or "metrotrk" in p or "trk_minnow" in p:
@@ -217,6 +219,8 @@ def canonical(path: str) -> str:
     # sysdolphin/baselib/), the file name as the reference writes it
     parts = path.split("/")
     f, fam = parts[-1], family(path)
+    if fam == "musyx":
+        return path
     if fam == "hsd":
         return "sysdolphin/baselib/" + f
     if fam == "trk":
@@ -286,6 +290,8 @@ def lib_path(ref: str, name: str, hsd: set):
         return "sysdolphin/baselib/" + name if ref == WOW and stem.lower() in hsd else None
     if name.split("/")[0] not in LIB_DIRS:
         return None
+    if family(name) == "musyx":
+        return None  # step 68: MusyX is not linked here (its reverb / chorus names overlap the SDK's AXFX files)
     if ref == WOW and name.startswith("dolphin/") and name.count("/") == 1 and stem.lower() in SDK_LIBS:
         return None  # wowjinxy's dolphin/os.c etc.: a whole SDK library as one file, not a source file
     return name
@@ -609,6 +615,11 @@ def code_splits(ours, rejected, notes, audit=None):
                         # the pinned sources define it only in another library (step 65: HSD_Panic, sysdolphin's, before
                         # the SDK's THPDec.c): no file of this library holds it, so it is another object's
                         return f"{nb} is in another library's sources"
+                    fst = {st for f, st in defs.get(nb, ()) if f == family(path)}
+                    if family(path) != "hsd" and fst and Path(name).stem.lower() not in fst:
+                        # step 68: the pinned sources of this library define it only in other files (AXCL.c's
+                        # AXSetMode before AXOut.c, AXAlloc.c's AXSetVoicePriority before AXAux.c)
+                        return f"{nb} is defined in {sorted(fst)[0]}.c"
                     if family(path) == "hsd" and not where.get(nb) and objkey(path) not in placed.get(nb, ()) \
                             and verdict(defs, nb, family(path)) != Path(name).stem.lower():
                         # a name this reference does not have (a newer revision's function), that no reference and
