@@ -3,14 +3,14 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           75     64   0x019FE4/0x02235C  75.98%   0x003F34/0x015F74  17.98%    505/  647
+dolphin                           75     67   0x01E8D4/0x02235C  89.31%   0x016034/0x0162C4  99.28%    565/  647
 MSL                               49     37   0x0048C4/0x00939C  49.30%   0x000F10/0x001160  86.69%     56/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
 sysdolphin                        29      9   0x004014/0x0265A4  10.44%   0x0008F4/0x002238  26.16%     88/  471
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
-automatic objects (unsplit)      258      0   0x000000/0x156B74   0.00%   0x000000/0x27FBB8   0.00%      0/ 1859
-main.dol (all units)             735    415   0x027CF8/0x1B342C   9.15%   0x005804/0x29C458   0.82%    980/ 3533
+automatic objects (unsplit)      258      0   0x000000/0x156B74   0.00%   0x000000/0x27F868   0.00%      0/ 1859
+main.dol (all units)             735    418   0x02C5E8/0x1B342C  10.19%   0x017904/0x29C458   3.53%   1040/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
@@ -85,7 +85,7 @@ Runtime/runtime.c                             code 0x6DC/0x6DC  data 0x18/0x18  
 dolphin/ai/ai.c                               code 0x8E8/0x8E8  data 0x90/0x90  functions 19/19  linked from C
 dolphin/ar/ar.c                               code 0x1B38/0x1B38  data 0x70/0x70  functions 9/9  linked from C
 dolphin/ar/arq.c                              code 0x39C/0x39C  data 0x78/0x78  functions 5/5  linked from C
-dolphin/ax/AXVPB.c                            code 0x1228/0x1588  data 0x0/0x11818  functions 18/22  not linked: code: 4 of 22 functions differ (__AXSetPBDefault 89%, fn_80146ED8 0%, fn_801470D8 0%, fn_8014719C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)  (C has data the split object lacks: .data 0xD4)
+dolphin/ax/AXVPB.c                            code 0x1588/0x1588  data 0x118F0/0x118F0  functions 22/22  linked from C
 dolphin/base/PPCArch.c                        code 0x114/0x114  data 0x0/0x0  functions 22/22  linked from C
 dolphin/card/CARDBlock.c                      code 0x404/0x404  data 0x0/0x0  functions 6/6  linked from C
 dolphin/card/CARDCheck.c                      code 0xF14/0xF14  data 0x0/0x0  functions 6/6  linked from C
@@ -110,13 +110,13 @@ dolphin/dvd/dvdqueue.c                        code 0x1F8/0x1F8  data 0x20/0x20  
 dolphin/dvd/fstload.c                         code 0x240/0x240  data 0x100/0x100  functions 2/2  linked from C
 dolphin/exi/EXIBios.c                         code 0x19DC/0x19DC  data 0x1E0/0x1E0  functions 23/23  linked from C
 dolphin/exi/EXIUart.c                         code 0x5D4/0x5D4  data 0x10/0x10  functions 4/4  linked from C
-dolphin/gx/GXAttr.c                           code 0x13EC/0x1514  data 0x0/0x10  functions 14/16  not linked: code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision  (C has data the split object lacks: .data 0x274)
+dolphin/gx/GXAttr.c                           code 0x1514/0x1514  data 0x288/0x288  functions 16/16  linked from C
 dolphin/gx/GXBump.c                           code 0x274/0x274  data 0x0/0x0  functions 7/7  linked from C
 dolphin/gx/GXDisplayList.c                    code 0x70/0x70  data 0x0/0x0  functions 1/1  linked from C
 dolphin/gx/GXFifo.c                           code 0x630/0x630  data 0x20/0x20  functions 14/14  linked from C
 dolphin/gx/GXFrameBuf.c                       code 0x964/0x964  data 0x138/0x138  functions 13/13  linked from C
 dolphin/gx/GXGeometry.c                       code 0x33C/0x33C  data 0x0/0x0  functions 9/9  linked from C
-dolphin/gx/GXInit.c                           code 0x1380/0x1380  data 0x8C4/0x8C4  functions 5/5  linked from C
+dolphin/gx/GXInit.c                           code 0x1380/0x1380  data 0x8C8/0x8C8  functions 5/5  linked from C
 dolphin/gx/GXLight.c                          code 0x604/0x604  data 0x50/0x50  functions 11/11  linked from C
 dolphin/gx/GXMisc.c                           code 0x674/0x674  data 0x18/0x18  functions 19/19  linked from C
 dolphin/gx/GXTev.c                            code 0x764/0x764  data 0x78/0x78  functions 16/16  linked from C
@@ -148,7 +148,7 @@ dolphin/os/OSTime.c                           code 0x424/0x424  data 0x60/0x60  
 dolphin/os/init/__ppc_eabi_init.c             code 0xEC/0xEC  data 0x0/0x0  functions 5/5  linked from C
 dolphin/os/init/__start.c                     code 0x300/0x300  data 0x8/0x8  functions 6/6  linked from C
 dolphin/si/SIBios.c                           code 0x1478/0x1478  data 0x32C/0x32C  functions 18/18  linked from C
-dolphin/vi/vi.c                               code 0x1324/0x1E54  data 0x10/0x588  functions 18/22  not linked: code: 4 of 22 functions differ (getTiming 95%, __VIInit 81%, VIConfigure 92%, VIGetTvFormat 100%): the reference is another revision
+dolphin/vi/vi.c                               code 0x1E54/0x1E54  data 0x584/0x584  functions 22/22  linked from C
 game/cr_Battle_SetCurrentPointers.c           code 0x88/0x88  data 0x0/0x0  functions 1/1  linked from C
 game/cr_CAMMODE_DEBUG_Frame.c                 code 0x44/0x44  data 0x0/0x0  functions 1/1  linked from C
 game/cr_CAMMODE_DRAW_Frame.c                  code 0x4C/0x4C  data 0x0/0x0  functions 1/1  linked from C

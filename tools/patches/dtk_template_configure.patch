@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,363 @@ def MatchingFor(*versions):
+@@ -284,18 +307,364 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -151,6 +151,7 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/card/CARDOpen.c": ["-char signed"],
 +    "dolphin/card/CARDRename.c": ["-char signed"],
 +    "dolphin/os/OSFont.c": ["-char signed"],
++    "dolphin/vi/vi.c": ["-DMATCHING"],
 +    # its two OSReport strings are separate objects in main.dol, not one pool (step 65)
 +    "Runtime/GCN_mem_alloc.c": ["-str nopool"],
 +}
@@ -194,6 +195,9 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/os/OSFont.c": BFBB_INC,
 +    "dolphin/os/OSReboot.c": BFBB_INC,
 +    "dolphin/gx/GXLight.c": BFBB_INC,
++    "dolphin/vi/vi.c": BFBB_INC,
++    "dolphin/gx/GXAttr.c": BFBB_INC,
++    "dolphin/ax/AXVPB.c": BFBB_INC,
 +}
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
@@ -328,6 +332,9 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/os/OSFont.c",
 +    "dolphin/os/OSReboot.c",
 +    "dolphin/gx/GXLight.c",
++    "dolphin/vi/vi.c",
++    "dolphin/gx/GXAttr.c",
++    "dolphin/ax/AXVPB.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -400,12 +407,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 5 of 5 functions differ (TRKSuppAccessFile 39%, TRKRequestSend 77%, HandleOpenFileSupportRequest 24%, HandleCloseFileSupportRequest 51% (+1 more)): the reference is another revision",
 +    "MetroTRK/targimpl.c":
 +        "code: 12 of 29 functions differ (TRKValidMemory32 40%, TRKTargetAccessFP 23%, TRKPostInterruptEvent 86%, TRKTargetInterrupt 81% (+8 more)): the reference is another revision",
-+    "dolphin/ax/AXVPB.c":
-+        "code: 4 of 22 functions differ (__AXSetPBDefault 89%, fn_80146ED8 0%, fn_801470D8 0%, fn_8014719C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
-+    "dolphin/gx/GXAttr.c":
-+        "code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision",
-+    "dolphin/vi/vi.c":
-+        "code: 4 of 22 functions differ (getTiming 95%, __VIInit 81%, VIConfigure 92%, VIGetTvFormat 100%): the reference is another revision",
 +}
 +
 +

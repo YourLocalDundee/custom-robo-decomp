@@ -1,21 +1,44 @@
-/* Custom Robo: from doldecomp/dolsdk2004 @ 2328b4164b1a98422a2255d83ce9a5a7548990cc, src/gx/GXAttr.c */ #include <dolphin/gx.h>
+/* Custom Robo: from bfbbdecomp/bfbb @ d8e8eac38dd617ee72161f4cb2da4498bc89aad6, src/dolphin/src/gx/GXAttr.c */ #include <dolphin/gx.h>
 #include <dolphin/os.h>
 
-#include "__gx.h"
+#include <gx/__gx.h>
 
-#define CHECK_ATTRPTR(line, attrPtr) ASSERTMSGLINE(line, (attrPtr) != NULL, "GXSetVtxDescv: attrPtr is NULL")
-#define CHECK_ATTRNAME(line, attr)   ASSERTMSGLINE(line, (attr) >= GX_VA_PNMTXIDX, "GXSetVtxDesc: Invalid vertex attribute name")
-#define CHECK_ATTRNAME2(line, attr)  ASSERTMSGLINE(line, (attr) <= GX_VA_TEX7 || (attr) == GX_VA_NBT, "GXSetVtxDesc: Invalid vertex attribute name")
-#define CHECK_ATTRNAME3(line, attr)  ASSERTMSGLINE(line, (attr) >= GX_VA_PNMTXIDX && (attr) < GX_VA_MAX_ATTR, "GXSetVtxDesc: Invalid vertex attribute name")
-#define CHECK_ATTRNAME4(line, attr)  ASSERTMSGLINE(line, ((attr) >= GX_VA_POS && (attr) <= GX_VA_TEX7) || (attr) == GX_VA_NBT, "GXSetVtxAttrFmt: Invalid vertex attribute name")
-#define CHECK_ATTRNAME5(line, attr)  ASSERTMSGLINE(line, (attr) >= GX_VA_POS && (attr) <= GX_LIGHT_ARRAY, "GXSetArray: Invalid vertex attribute name")
-#define CHECK_ATTRTYPE(line, type)   ASSERTMSGLINE(line, (type) >= GX_NONE && (type) <= GX_INDEX16, "GXSetVtxDesc: Invalid vertex attribute type")
-#define CHECK_VTXFMT(line, vtxfmt)   ASSERTMSGLINE(line, (vtxfmt) < GX_MAX_VTXFMT, "GXSetVtxAttrFmt: Format Index is out of range")
-#define CHECK_FRAC(line, frac)       ASSERTMSGLINE(line, (frac) < 32, "GXSetVtxAttrFmt: Frac value is >= 32")
-#define CHECK_LISTPTR(line, list)    ASSERTMSGLINE(line, (list) != NULL, "GXSetVtxAttrFmt: list pointer is NULL")
-#define CHECK_MTXIDX(line, attr, type)    ASSERTMSGLINE(line, (attr) > GX_VA_TEX7MTXIDX || (type) <= GX_VA_TEX0MTXIDX, "GXSetVtxDesc: GX_VA_*MTXIDX accepts GX_NONE or GX_DIRECT only")
+#define CHECK_ATTRPTR(line, attrPtr)                                                               \
+    ASSERTMSGLINE(line, (attrPtr) != NULL, "GXSetVtxDescv: attrPtr is NULL")
+#define CHECK_ATTRNAME(line, attr)                                                                 \
+    ASSERTMSGLINE(line, (attr) >= GX_VA_PNMTXIDX, "GXSetVtxDesc: Invalid vertex attribute name")
+#define CHECK_ATTRNAME2(line, attr)                                                                \
+    ASSERTMSGLINE(line, (attr) <= GX_VA_TEX7 || (attr) == GX_VA_NBT,                               \
+                  "GXSetVtxDesc: Invalid vertex attribute name")
+#define CHECK_ATTRNAME3(line, attr)                                                                \
+    ASSERTMSGLINE(line, (attr) >= GX_VA_PNMTXIDX && (attr) < GX_VA_MAX_ATTR,                       \
+                  "GXSetVtxDesc: Invalid vertex attribute name")
+#define CHECK_ATTRNAME4(line, attr)                                                                \
+    ASSERTMSGLINE(line, ((attr) >= GX_VA_POS && (attr) <= GX_VA_TEX7) || (attr) == GX_VA_NBT,      \
+                  "GXSetVtxAttrFmt: Invalid vertex attribute name")
+#define CHECK_ATTRNAME5(line, attr)                                                                \
+    ASSERTMSGLINE(line, (attr) >= GX_VA_POS && (attr) <= GX_LIGHT_ARRAY,                           \
+                  "GXSetArray: Invalid vertex attribute name")
+#define CHECK_ATTRTYPE(line, type)                                                                 \
+    ASSERTMSGLINE(line, (type) >= GX_NONE && (type) <= GX_INDEX16,                                 \
+                  "GXSetVtxDesc: Invalid vertex attribute type")
+#define CHECK_VTXFMT(line, vtxfmt)                                                                 \
+    ASSERTMSGLINE(line, (vtxfmt) < GX_MAX_VTXFMT, "GXSetVtxAttrFmt: Format Index is out of range")
+#define CHECK_FRAC(line, frac)                                                                     \
+    ASSERTMSGLINE(line, (frac) < 32, "GXSetVtxAttrFmt: Frac value is >= 32")
+#define CHECK_LISTPTR(line, list)                                                                  \
+    ASSERTMSGLINE(line, (list) != NULL, "GXSetVtxAttrFmt: list pointer is NULL")
+#define CHECK_MTXIDX(line, attr, type)                                                             \
+    ASSERTMSGLINE(line, (attr) > GX_VA_TEX7MTXIDX || (type) <= GX_VA_TEX0MTXIDX,                   \
+                  "GXSetVtxDesc: GX_VA_*MTXIDX accepts GX_NONE or GX_DIRECT only")
 
-static void __GXXfVtxSpecs(void) {
+#define GX_CP_LOAD_REG(addr, data)                                                                 \
+    GXWGFifo.s8 = 0x08;                                                                            \
+    GXWGFifo.s8 = (addr);                                                                          \
+    GXWGFifo.s32 = (data);
+
+inline void __GXXfVtxSpecs(void)
+{
     u32 nCols = 0;
     u32 nNrm;
     u32 nTex;
@@ -51,65 +74,117 @@ static void __GXXfVtxSpecs(void) {
     __GXData->bpSentNot = 1;
 }
 
-static inline void SETVCDATTR(GXAttr Attr, GXAttrType Type) {
-    switch (Attr) {
-    case GX_VA_PNMTXIDX:   SET_REG_FIELD(212, __GXData->vcdLo, 1, 0, Type); break;
-    case GX_VA_TEX0MTXIDX: SET_REG_FIELD(213, __GXData->vcdLo, 1, 1, Type); break;
-    case GX_VA_TEX1MTXIDX: SET_REG_FIELD(214, __GXData->vcdLo, 1, 2, Type); break;
-    case GX_VA_TEX2MTXIDX: SET_REG_FIELD(215, __GXData->vcdLo, 1, 3, Type); break;
-    case GX_VA_TEX3MTXIDX: SET_REG_FIELD(216, __GXData->vcdLo, 1, 4, Type); break;
-    case GX_VA_TEX4MTXIDX: SET_REG_FIELD(217, __GXData->vcdLo, 1, 5, Type); break;
-    case GX_VA_TEX5MTXIDX: SET_REG_FIELD(218, __GXData->vcdLo, 1, 6, Type); break;
-    case GX_VA_TEX6MTXIDX: SET_REG_FIELD(219, __GXData->vcdLo, 1, 7, Type); break;
-    case GX_VA_TEX7MTXIDX: SET_REG_FIELD(220, __GXData->vcdLo, 1, 8, Type); break;
-    case GX_VA_POS:        SET_REG_FIELD(221, __GXData->vcdLo, 2, 9, Type); break;
+static inline void SETVCDATTR(GXAttr Attr, GXAttrType Type)
+{
+    switch (Attr)
+    {
+    case GX_VA_PNMTXIDX:
+        SET_REG_FIELD(212, __GXData->vcdLo, 1, 0, Type);
+        break;
+    case GX_VA_TEX0MTXIDX:
+        SET_REG_FIELD(213, __GXData->vcdLo, 1, 1, Type);
+        break;
+    case GX_VA_TEX1MTXIDX:
+        SET_REG_FIELD(214, __GXData->vcdLo, 1, 2, Type);
+        break;
+    case GX_VA_TEX2MTXIDX:
+        SET_REG_FIELD(215, __GXData->vcdLo, 1, 3, Type);
+        break;
+    case GX_VA_TEX3MTXIDX:
+        SET_REG_FIELD(216, __GXData->vcdLo, 1, 4, Type);
+        break;
+    case GX_VA_TEX4MTXIDX:
+        SET_REG_FIELD(217, __GXData->vcdLo, 1, 5, Type);
+        break;
+    case GX_VA_TEX5MTXIDX:
+        SET_REG_FIELD(218, __GXData->vcdLo, 1, 6, Type);
+        break;
+    case GX_VA_TEX6MTXIDX:
+        SET_REG_FIELD(219, __GXData->vcdLo, 1, 7, Type);
+        break;
+    case GX_VA_TEX7MTXIDX:
+        SET_REG_FIELD(220, __GXData->vcdLo, 1, 8, Type);
+        break;
+    case GX_VA_POS:
+        SET_REG_FIELD(221, __GXData->vcdLo, 2, 9, Type);
+        break;
     case GX_VA_NRM:
-        if (Type != GX_NONE) {
+        if (Type != GX_NONE)
+        {
             __GXData->hasNrms = 1;
             __GXData->hasBiNrms = 0;
             __GXData->nrmType = Type;
-        } else {
+        }
+        else
+        {
             __GXData->hasNrms = 0;
         }
         break;
     case GX_VA_NBT:
-        if (Type != GX_NONE) {
+        if (Type != GX_NONE)
+        {
             __GXData->hasBiNrms = 1;
             __GXData->hasNrms = 0;
             __GXData->nrmType = Type;
-        } else {
+        }
+        else
+        {
             __GXData->hasBiNrms = 0;
         }
         break;
-    case GX_VA_CLR0: SET_REG_FIELD(246, __GXData->vcdLo, 2, 13, Type); break;
-    case GX_VA_CLR1: SET_REG_FIELD(247, __GXData->vcdLo, 2, 15, Type); break;
-    case GX_VA_TEX0: SET_REG_FIELD(248, __GXData->vcdHi, 2, 0, Type); break;
-    case GX_VA_TEX1: SET_REG_FIELD(249, __GXData->vcdHi, 2, 2, Type); break;
-    case GX_VA_TEX2: SET_REG_FIELD(250, __GXData->vcdHi, 2, 4, Type); break;
-    case GX_VA_TEX3: SET_REG_FIELD(251, __GXData->vcdHi, 2, 6, Type); break;
-    case GX_VA_TEX4: SET_REG_FIELD(252, __GXData->vcdHi, 2, 8, Type); break;
-    case GX_VA_TEX5: SET_REG_FIELD(253, __GXData->vcdHi, 2, 10, Type); break;
-    case GX_VA_TEX6: SET_REG_FIELD(254, __GXData->vcdHi, 2, 12, Type); break;
-    case GX_VA_TEX7: SET_REG_FIELD(255, __GXData->vcdHi, 2, 14, Type); break;
+    case GX_VA_CLR0:
+        SET_REG_FIELD(246, __GXData->vcdLo, 2, 13, Type);
+        break;
+    case GX_VA_CLR1:
+        SET_REG_FIELD(247, __GXData->vcdLo, 2, 15, Type);
+        break;
+    case GX_VA_TEX0:
+        SET_REG_FIELD(248, __GXData->vcdHi, 2, 0, Type);
+        break;
+    case GX_VA_TEX1:
+        SET_REG_FIELD(249, __GXData->vcdHi, 2, 2, Type);
+        break;
+    case GX_VA_TEX2:
+        SET_REG_FIELD(250, __GXData->vcdHi, 2, 4, Type);
+        break;
+    case GX_VA_TEX3:
+        SET_REG_FIELD(251, __GXData->vcdHi, 2, 6, Type);
+        break;
+    case GX_VA_TEX4:
+        SET_REG_FIELD(252, __GXData->vcdHi, 2, 8, Type);
+        break;
+    case GX_VA_TEX5:
+        SET_REG_FIELD(253, __GXData->vcdHi, 2, 10, Type);
+        break;
+    case GX_VA_TEX6:
+        SET_REG_FIELD(254, __GXData->vcdHi, 2, 12, Type);
+        break;
+    case GX_VA_TEX7:
+        SET_REG_FIELD(255, __GXData->vcdHi, 2, 14, Type);
+        break;
     }
 }
 
-void GXSetVtxDesc(GXAttr attr, GXAttrType type) {
-    CHECK_GXBEGIN(264, "GXSetVtxDesc");
-    CHECK_ATTRNAME(267, attr);
-    CHECK_ATTRNAME2(269, attr);
-    CHECK_ATTRTYPE(271, type);
-    CHECK_MTXIDX(274, attr, type);
-
+void GXSetVtxDesc(GXAttr attr, GXAttrType type)
+{
     SETVCDATTR(attr, type);
-    if (__GXData->hasNrms || __GXData->hasBiNrms) {
+    if (__GXData->hasNrms || __GXData->hasBiNrms)
+    {
         SET_REG_FIELD(280, __GXData->vcdLo, 2, 11, __GXData->nrmType);
-    } else {
+    }
+    else
+    {
         SET_REG_FIELD(0, __GXData->vcdLo, 2, 11, 0);
     }
     __GXData->dirtyState |= 8;
 }
 
+/* Custom Robo: the release-build assert of dolsdk2004 (its functions below use it; BfBB's headers lack it) */
+#ifndef ASSERTMSGLINE
+#define ASSERTMSGLINE(line, cond, msg) (void)0
+#endif
+
+/* Custom Robo: GXSetVtxDescv from dolsdk2004's GXAttr.c (not in BfBB's file) */
 void GXSetVtxDescv(const GXVtxDescList *attrPtr) {
     CHECK_GXBEGIN(306, "GXSetVtxDescv");
     CHECK_ATTRPTR(307, attrPtr);
@@ -130,13 +205,15 @@ void GXSetVtxDescv(const GXVtxDescList *attrPtr) {
     __GXData->dirtyState |= 8;
 }
 
-void __GXSetVCD(void) {
+void __GXSetVCD(void)
+{
     GX_WRITE_SOME_REG4(8, 0x50, __GXData->vcdLo, -12);
     GX_WRITE_SOME_REG4(8, 0x60, __GXData->vcdHi, -12);
     __GXXfVtxSpecs();
 }
 
-void __GXCalculateVLim(void) {
+void __GXCalculateVLim(void)
+{
     static u8 tbl1[] = { 0, 4, 1, 2 };
     static u8 tbl2[] = { 0, 8, 1, 2 };
     static u8 tbl3[] = { 0, 12, 1, 2 };
@@ -148,13 +225,14 @@ void __GXCalculateVLim(void) {
     u32 vh;
     u32 va;
 
-    if (__GXData->vNum != 0) {
+    if (__GXData->vNum != 0)
+    {
         vl = __GXData->vcdLo;
         vh = __GXData->vcdHi;
         va = __GXData->vatA[0];
         nc = GET_REG_FIELD(va, 1, 9);
 
-        vlm  = GET_REG_FIELD(vl, 1, 0);
+        vlm = GET_REG_FIELD(vl, 1, 0);
         vlm += (u8)GET_REG_FIELD(vl, 1, 1);
         vlm += (u8)GET_REG_FIELD(vl, 1, 2);
         vlm += (u8)GET_REG_FIELD(vl, 1, 3);
@@ -164,10 +242,13 @@ void __GXCalculateVLim(void) {
         vlm += (u8)GET_REG_FIELD(vl, 1, 7);
         vlm += (u8)GET_REG_FIELD(vl, 1, 8);
         vlm += tbl3[(u8)GET_REG_FIELD(vl, 2, 9)];
-        
-        if (nc == 1) {
+
+        if (nc == 1)
+        {
             b = 3;
-        } else {
+        }
+        else
+        {
             b = 1;
         }
 
@@ -186,6 +267,7 @@ void __GXCalculateVLim(void) {
     }
 }
 
+/* Custom Robo: GXGetVtxDesc from dolsdk2004's GXAttr.c (not in BfBB's file) */
 void GXGetVtxDesc(GXAttr attr, GXAttrType* type) {
     u32 cpType;
 
@@ -220,6 +302,7 @@ void GXGetVtxDesc(GXAttr attr, GXAttrType* type) {
     *type = cpType;
 }
 
+/* Custom Robo: GXGetVtxDescv from dolsdk2004's GXAttr.c (not in BfBB's file) */
 void GXGetVtxDescv(GXVtxDescList* vcd) {
     GXAttr attr;
 
@@ -238,7 +321,8 @@ void GXGetVtxDescv(GXVtxDescList* vcd) {
     vcd[attr].attr = GX_VA_NULL;
 }
 
-void GXClearVtxDesc(void) {
+void GXClearVtxDesc(void)
+{
     CHECK_GXBEGIN(543, "GXClearVtxDesc");
     __GXData->vcdLo = 0;
     SET_REG_FIELD(0, __GXData->vcdLo, 2, 9, 1);
@@ -248,8 +332,11 @@ void GXClearVtxDesc(void) {
     __GXData->dirtyState |= 8;
 }
 
-static inline void SETVAT(u32* va, u32* vb, u32* vc, GXAttr attr, GXCompCnt cnt, GXCompType type, u8 shft) {
-    switch (attr) {
+static inline void SETVAT(u32* va, u32* vb, u32* vc, GXAttr attr, GXCompCnt cnt, GXCompType type,
+                          u8 shft)
+{
+    switch (attr)
+    {
     case GX_VA_POS:
         SET_REG_FIELD(583, *va, 1, 0, cnt);
         SET_REG_FIELD(584, *va, 3, 1, type);
@@ -258,10 +345,13 @@ static inline void SETVAT(u32* va, u32* vb, u32* vc, GXAttr attr, GXCompCnt cnt,
     case GX_VA_NRM:
     case GX_VA_NBT:
         SET_REG_FIELD(593, *va, 3, 10, type);
-        if (cnt == GX_NRM_NBT3) {
+        if (cnt == GX_NRM_NBT3)
+        {
             SET_REG_FIELD(0, *va, 1, 9, 1);
             SET_REG_FIELD(0, *va, 1, 31, 1);
-        } else {
+        }
+        else
+        {
             SET_REG_FIELD(599, *va, 1, 9, cnt);
             SET_REG_FIELD(599, *va, 1, 31, 0);
         }
@@ -317,15 +407,16 @@ static inline void SETVAT(u32* va, u32* vb, u32* vc, GXAttr attr, GXCompCnt cnt,
     }
 }
 
-void GXSetVtxAttrFmt(GXVtxFmt vtxfmt, GXAttr attr, GXCompCnt cnt, GXCompType type, u8 frac) {
+void GXSetVtxAttrFmt(GXVtxFmt vtxfmt, GXAttr attr, GXCompCnt cnt, GXCompType type, u8 frac)
+{
     u32* va;
     u32* vb;
     u32* vc;
 
-    CHECK_GXBEGIN(666, "GXSetVtxAttrFmt");
-    CHECK_VTXFMT(667, vtxfmt);
-    CHECK_ATTRNAME4(671, attr);
-    CHECK_FRAC(672, frac);
+    //CHECK_GXBEGIN(666, "GXSetVtxAttrFmt");
+    //CHECK_VTXFMT(667, vtxfmt);
+    //CHECK_ATTRNAME4(671, attr);
+    //CHECK_FRAC(672, frac);
 
     va = &__GXData->vatA[vtxfmt];
     vb = &__GXData->vatB[vtxfmt];
@@ -340,22 +431,18 @@ void GXSetVtxAttrFmt(GXVtxFmt vtxfmt, GXAttr attr, GXCompCnt cnt, GXCompType typ
     __GXData->dirtyVAT |= (u8)(1 << (u8)vtxfmt);
 }
 
-void GXSetVtxAttrFmtv(GXVtxFmt vtxfmt, const GXVtxAttrFmtList* list) {
+void GXSetVtxAttrFmtv(GXVtxFmt vtxfmt, const GXVtxAttrFmtList* list)
+{
     u32* va;
     u32* vb;
     u32* vc;
-
-    CHECK_GXBEGIN(713, "GXSetVtxAttrFmtv");
-    CHECK_LISTPTR(714, list);
-    CHECK_VTXFMT(715, vtxfmt);
 
     va = &__GXData->vatA[vtxfmt];
     vb = &__GXData->vatB[vtxfmt];
     vc = &__GXData->vatC[vtxfmt];
 
-    while (list->attr != GX_VA_NULL) {
-        CHECK_ATTRNAME4(725, list->attr);
-        CHECK_FRAC(726, list->frac);
+    while (list->attr != GX_VA_NULL)
+    {
         SETVAT(va, vb, vc, list->attr, list->cnt, list->type, list->frac);
 #ifdef DEBUG
         __GXVerifyVATImm(list->attr, list->cnt, list->type, list->frac);
@@ -366,29 +453,29 @@ void GXSetVtxAttrFmtv(GXVtxFmt vtxfmt, const GXVtxAttrFmtList* list) {
     __GXData->dirtyVAT |= (u8)(1 << (u8)vtxfmt);
 }
 
-void __GXSetVAT(void) {
-    s32 i;
-    u32 dirty = __GXData->dirtyVAT;
-    
-    i = 0;
-    do {
-        if (dirty & 1) {
-            GX_WRITE_SOME_REG4(8, i | 0x70, __GXData->vatA[i], i - 12);
-            GX_WRITE_SOME_REG4(8, i | 0x80, __GXData->vatB[i], i - 12);
-            GX_WRITE_SOME_REG4(8, i | 0x90, __GXData->vatC[i], i - 12);
+void __GXSetVAT(void)
+{
+    u8 i;
+
+    for (i = 0; i < 8; i++)
+    {
+        if (__GXData->dirtyVAT & (1 << (u8)i))
+        {
+            GX_WRITE_SOME_REG4(GX_LOAD_CP_REG, i | 0x70, __GXData->vatA[i], i - 12);
+            GX_WRITE_SOME_REG4(GX_LOAD_CP_REG, i | 0x80, __GXData->vatB[i], i - 12);
+            GX_WRITE_SOME_REG4(GX_LOAD_CP_REG, i | 0x90, __GXData->vatC[i], i - 12);
         }
-
-        dirty >>= 1;
-        i++;
-    } while (dirty != 0);
-
+    }
     __GXData->dirtyVAT = 0;
 }
 
-static inline u8 GetFracForNrm(GXCompType type) {
+/* Custom Robo: GetFracForNrm moved here, before its first user (GXGetVtxAttrFmt, from dolsdk2004) */
+static inline u8 GetFracForNrm(GXCompType type)
+{
     u8 frac;
 
-    switch (type) {
+    switch (type)
+    {
     case GX_S8:
         frac = 6;
         break;
@@ -404,6 +491,7 @@ static inline u8 GetFracForNrm(GXCompType type) {
     return frac;
 }
 
+/* Custom Robo: GXGetVtxAttrFmt from dolsdk2004's GXAttr.c (not in BfBB's file) */
 void GXGetVtxAttrFmt(GXVtxFmt fmt, GXAttr attr, GXCompCnt* cnt, GXCompType* type, u8* frac) {
     u32* va;
     u32* vb;
@@ -489,6 +577,7 @@ void GXGetVtxAttrFmt(GXVtxFmt fmt, GXAttr attr, GXCompCnt* cnt, GXCompType* type
     }
 }
 
+/* Custom Robo: GXGetVtxAttrFmtv from dolsdk2004's GXAttr.c (not in BfBB's file) */
 void GXGetVtxAttrFmtv(GXVtxFmt fmt, GXVtxAttrFmtList* vat) {
     GXAttr attr;
 
@@ -505,70 +594,136 @@ void GXGetVtxAttrFmtv(GXVtxFmt fmt, GXVtxAttrFmtList* vat) {
     vat->attr = GX_VA_NULL;
 }
 
-void GXSetArray(GXAttr attr, void* base_ptr, u8 stride) {
-    GXAttr cpAttr;
-    u32 phyAddr;
 
-    attr;  // needed to match
+void GXSetArray(GXAttr attr, void* basePtr, u8 stride)
+{
+    s32 idx;
+    s32 newAttr;
+    s32 attrReg;
 
-    CHECK_GXBEGIN(963, "GXSetArray");
-    if (attr == GX_VA_NBT) {
-        attr = GX_VA_NRM;
+    newAttr = attr;
+    if (newAttr == GX_VA_NBT)
+    {
+        newAttr = GX_VA_NRM;
     }
 
-    CHECK_ATTRNAME5(966, attr);
-    cpAttr = attr - GX_VA_POS;
-    phyAddr = (u32)base_ptr & 0x3FFFFFFF;
+    attrReg = newAttr - GX_VA_POS;
 
-    GX_WRITE_SOME_REG2(8, cpAttr | 0xA0, phyAddr, cpAttr - 12);
-    GX_WRITE_SOME_REG3(8, cpAttr | 0xB0, stride, cpAttr - 12);
+    GX_CP_LOAD_REG(0xA0 | attrReg,
+                   // Address -> offset?
+                   (u32)basePtr & ~0xC0000000);
+
+    idx = attrReg - 12;
+    if (idx >= 0 && idx < 4)
+    {
+        __GXData->indexBase[idx] = (u32)basePtr & ~0xC0000000;
+    }
+
+    GX_CP_LOAD_REG(0xB0 | attrReg, stride);
+
+    idx = attrReg - 12;
+    if (idx >= 0 && idx < 4)
+    {
+        __GXData->indexStride[idx] = stride;
+    }
 }
 
-void GXInvalidateVtxCache(void) {
+void GXInvalidateVtxCache(void)
+{
     CHECK_GXBEGIN(988, "GXInvalidateVtxCache");
     GX_WRITE_U8(0x48);
 }
 
-void GXSetTexCoordGen2(GXTexCoordID dst_coord, GXTexGenType func, GXTexGenSrc src_param, u32 mtx, GXBool normalize, u32 pt_texmtx) {
+void GXSetTexCoordGen2(GXTexCoordID dst_coord, GXTexGenType func, GXTexGenSrc src_param, u32 mtx,
+                       GXBool normalize, u32 pt_texmtx)
+{
     u32 reg = 0;
     u32 row;
-    u32 bumprow;  // unused
+    u32 bumprow; // unused
     u32 form;
     GXAttr mtxIdAttr;
 
     CHECK_GXBEGIN(1030, "GXSetTexCoordGen");
-    ASSERTMSGLINE(1031, dst_coord < GX_MAX_TEXCOORD, "GXSetTexCoordGen: Invalid coordinate Id");
+    //ASSERTMSGLINE(1031, dst_coord < GX_MAX_TEXCOORD, "GXSetTexCoordGen: Invalid coordinate Id");
 
     form = 0;
     row = 5;
-    switch (src_param) {
-    case GX_TG_POS:     row = 0; form = 1; break;
-    case GX_TG_NRM:     row = 1; form = 1; break;
-    case GX_TG_BINRM:   row = 3; form = 1; break;
-    case GX_TG_TANGENT: row = 4; form = 1; break;
-    case GX_TG_COLOR0:  row = 2; break;
-    case GX_TG_COLOR1:  row = 2; break;
-    case GX_TG_TEX0:    row = 5; break;
-    case GX_TG_TEX1:    row = 6; break;
-    case GX_TG_TEX2:    row = 7; break;
-    case GX_TG_TEX3:    row = 8; break;
-    case GX_TG_TEX4:    row = 9; break;
-    case GX_TG_TEX5:    row = 10; break;
-    case GX_TG_TEX6:    row = 11; break;
-    case GX_TG_TEX7:    row = 12; break;
-    case GX_TG_TEXCOORD0: bumprow; break;
-    case GX_TG_TEXCOORD1: bumprow; break;
-    case GX_TG_TEXCOORD2: bumprow; break;
-    case GX_TG_TEXCOORD3: bumprow; break;
-    case GX_TG_TEXCOORD4: bumprow; break;
-    case GX_TG_TEXCOORD5: bumprow; break;
-    case GX_TG_TEXCOORD6: bumprow; break;
+    switch (src_param)
+    {
+    case GX_TG_POS:
+        row = 0;
+        form = 1;
+        break;
+    case GX_TG_NRM:
+        row = 1;
+        form = 1;
+        break;
+    case GX_TG_BINRM:
+        row = 3;
+        form = 1;
+        break;
+    case GX_TG_TANGENT:
+        row = 4;
+        form = 1;
+        break;
+    case GX_TG_COLOR0:
+        row = 2;
+        break;
+    case GX_TG_COLOR1:
+        row = 2;
+        break;
+    case GX_TG_TEX0:
+        row = 5;
+        break;
+    case GX_TG_TEX1:
+        row = 6;
+        break;
+    case GX_TG_TEX2:
+        row = 7;
+        break;
+    case GX_TG_TEX3:
+        row = 8;
+        break;
+    case GX_TG_TEX4:
+        row = 9;
+        break;
+    case GX_TG_TEX5:
+        row = 10;
+        break;
+    case GX_TG_TEX6:
+        row = 11;
+        break;
+    case GX_TG_TEX7:
+        row = 12;
+        break;
+    case GX_TG_TEXCOORD0:
+        bumprow;
+        break;
+    case GX_TG_TEXCOORD1:
+        bumprow;
+        break;
+    case GX_TG_TEXCOORD2:
+        bumprow;
+        break;
+    case GX_TG_TEXCOORD3:
+        bumprow;
+        break;
+    case GX_TG_TEXCOORD4:
+        bumprow;
+        break;
+    case GX_TG_TEXCOORD5:
+        bumprow;
+        break;
+    case GX_TG_TEXCOORD6:
+        bumprow;
+        break;
     default:
-        ASSERTMSGLINE(1059, 0, "GXSetTexCoordGen: Invalid source parameter");
+        //ASSERTMSGLINE(1059, 0, "GXSetTexCoordGen: Invalid source parameter");
         break;
     }
 
-    switch (func) {
+    switch (func)
+    {
     case GX_TG_MTX2x4:
         SET_REG_FIELD(1069, reg, 1, 1, 0);
         SET_REG_FIELD(1069, reg, 1, 2, form);
@@ -589,7 +744,8 @@ void GXSetTexCoordGen2(GXTexCoordID dst_coord, GXTexGenType func, GXTexGenSrc sr
     case GX_TG_BUMP5:
     case GX_TG_BUMP6:
     case GX_TG_BUMP7:
-        ASSERTMSGLINE(1091, src_param >= 12 && src_param <= 18, "GXSetTexCoordGen:  Bump source texture value is invalid");
+        //ASSERTMSGLINE(1091, src_param >= 12 && src_param <= 18,
+        //"GXSetTexCoordGen:  Bump source texture value is invalid");
         SET_REG_FIELD(1093, reg, 1, 1, 0);
         SET_REG_FIELD(1093, reg, 1, 2, form);
         SET_REG_FIELD(1095, reg, 3, 4, 1);
@@ -600,15 +756,18 @@ void GXSetTexCoordGen2(GXTexCoordID dst_coord, GXTexGenType func, GXTexGenSrc sr
     case GX_TG_SRTG:
         SET_REG_FIELD(1102, reg, 1, 1, 0);
         SET_REG_FIELD(1102, reg, 1, 2, form);
-        if (src_param == GX_TG_COLOR0) {
+        if (src_param == GX_TG_COLOR0)
+        {
             SET_REG_FIELD(0, reg, 3, 4, 2);
-        } else {
+        }
+        else
+        {
             SET_REG_FIELD(0, reg, 3, 4, 3);
         }
         SET_REG_FIELD(0, reg, 5, 7, 2);
         break;
     default:
-        ASSERTMSGLINE(1113, 0, "GXSetTexCoordGen:  Invalid function");
+        //ASSERTMSGLINE(1113, 0, "GXSetTexCoordGen:  Invalid function");
         break;
     }
 
@@ -618,22 +777,40 @@ void GXSetTexCoordGen2(GXTexCoordID dst_coord, GXTexGenType func, GXTexGenSrc sr
     SET_REG_FIELD(1133, reg, 1, 8, normalize);
     GX_WRITE_XF_REG(dst_coord + 0x50, reg);
 
-    switch (dst_coord) {
-    case GX_TEXCOORD0: SET_REG_FIELD(1147, __GXData->matIdxA, 6, 6, mtx);  break;
-    case GX_TEXCOORD1: SET_REG_FIELD(1148, __GXData->matIdxA, 6, 12, mtx); break;
-    case GX_TEXCOORD2: SET_REG_FIELD(1149, __GXData->matIdxA, 6, 18, mtx); break;
-    case GX_TEXCOORD3: SET_REG_FIELD(1150, __GXData->matIdxA, 6, 24, mtx); break;
-    case GX_TEXCOORD4: SET_REG_FIELD(1151, __GXData->matIdxB, 6, 0, mtx);  break;
-    case GX_TEXCOORD5: SET_REG_FIELD(1152, __GXData->matIdxB, 6, 6, mtx);  break;
-    case GX_TEXCOORD6: SET_REG_FIELD(1153, __GXData->matIdxB, 6, 12, mtx); break;
-    default:           SET_REG_FIELD(1154, __GXData->matIdxB, 6, 18, mtx); break;
+    switch (dst_coord)
+    {
+    case GX_TEXCOORD0:
+        SET_REG_FIELD(1147, __GXData->matIdxA, 6, 6, mtx);
+        break;
+    case GX_TEXCOORD1:
+        SET_REG_FIELD(1148, __GXData->matIdxA, 6, 12, mtx);
+        break;
+    case GX_TEXCOORD2:
+        SET_REG_FIELD(1149, __GXData->matIdxA, 6, 18, mtx);
+        break;
+    case GX_TEXCOORD3:
+        SET_REG_FIELD(1150, __GXData->matIdxA, 6, 24, mtx);
+        break;
+    case GX_TEXCOORD4:
+        SET_REG_FIELD(1151, __GXData->matIdxB, 6, 0, mtx);
+        break;
+    case GX_TEXCOORD5:
+        SET_REG_FIELD(1152, __GXData->matIdxB, 6, 6, mtx);
+        break;
+    case GX_TEXCOORD6:
+        SET_REG_FIELD(1153, __GXData->matIdxB, 6, 12, mtx);
+        break;
+    default:
+        SET_REG_FIELD(1154, __GXData->matIdxB, 6, 18, mtx);
+        break;
     }
 
     mtxIdAttr = dst_coord + 1;
     __GXSetMatrixIndex(mtxIdAttr);
 }
 
-void GXSetNumTexGens(u8 nTexGens) {
+void GXSetNumTexGens(u8 nTexGens)
+{
     CHECK_GXBEGIN(1172, "GXSetNumTexGens");
     SET_REG_FIELD(1174, __GXData->genMode, 4, 0, nTexGens);
     GX_WRITE_XF_REG(0x3F, nTexGens);
