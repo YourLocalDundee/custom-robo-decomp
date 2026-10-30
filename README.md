@@ -1,7 +1,8 @@
 # Custom Robo (GameCube) — Decomp & Modding Toolkit
 
-Tools, file-format docs and a named symbol map for **Custom Robo** (GameCube, US, `GXCE01`), so anyone can
-read the game's code, pull out its 3D models, and put modified models back in.
+Tools, file-format docs, a named symbol map and a growing matching-C decompilation of **Custom Robo** (GameCube, US,
+`GXCE01`), so anyone can read the game's code, pull out its 3D models, put modified models back in, and rebuild
+`main.dol` from source.
 
 > **No game files are in this repo.** You need your own copy of the game. Everything here is
 > our own tools, notes and names; the setup script rebuilds the rest from *your* disc.
@@ -134,7 +135,7 @@ Or open `ghidra_project\CustomRobo` in the Ghidra GUI to browse and click throug
 
 | Looks like | Where it comes from | Trust |
 |---|---|---|
-| `OSReport`, `GXSetTevOrder`, `HSD_JObjAlloc` | **Verified**: matched to the same function in other GameCube decomps (Melee, Twilight Princess, Mario Kart DD, Pikmin 2, TTYD, Wind Waker) by signature, assert text, or position + size. In `symbols/symbols.txt`. | real names |
+| `OSReport`, `GXSetTevOrder`, `HSD_JObjAlloc` | **Verified**: matched to the same function in the pinned reference decomps (Melee, Kirby Air Ride, Twilight Princess, Wind Waker, Mario Kart DD, Pikmin, Pikmin 2, TTYD, Sunshine, Mario Party 4, BfBB, Animal Crossing, XD, the Dolphin SDK decomps; [tools/pins.txt](tools/pins.txt)) by signature, assert text, position + size, or the matched C's own call sites. In `symbols/symbols.txt`, each with its evidence. | real names |
 | `cr_Archive_OpenEntry` | **Descriptive**: our name for what the function does. Custom Robo's own code has no surviving real names. In `symbols/descriptive.txt`, each with a `why:` note. | our best reading |
 | `HSD_JObj *jobj`, `jobj->child` | **Types**: the HAL library's structs and prototypes from the Melee decomp's headers, checked against the sizes Custom Robo registers for each class | verified |
 | `cr_FileSlot`, `cr_g_FileSlots[i].in_use` | **Our types/globals**: `symbols/cr_types.h`, `symbols/cr_globals.txt`, every field with its offset and evidence | our best reading |
@@ -185,7 +186,9 @@ project log: [plan.md](plan.md).
 All of the project's own work: tools, batch scripts, symbol names with their evidence, type headers, reports, docs and
 findings, the matched C in `decomp/src` (library files from the pinned reference decomps, game functions whose draft
 compiles to the retail bytes), plus everything needed to reproduce the whole result from your own disc (pinned tools
-and references, [docs/REPRODUCE.md](docs/REPRODUCE.md), expected checksums).
+and references, [docs/REPRODUCE.md](docs/REPRODUCE.md), expected checksums). Everything generated from the disc
+(extracted files, models, Ghidra's C and project, the m2c drafts, the build) is gitignored and made locally by the
+scripts; mods are shared as `.crpatch` files applied to a clean retail ISO ([CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ## License
 
@@ -195,7 +198,16 @@ and references, [docs/REPRODUCE.md](docs/REPRODUCE.md), expected checksums).
 
 Built on [Ghidra](https://github.com/NationalSecurityAgency/ghidra), the
 [GameCube loader](https://github.com/Cuyler36/Ghidra-GameCube-Loader),
-[decomp-toolkit](https://github.com/encounter/decomp-toolkit), [HSDLib](https://github.com/Ploaj/HSDLib),
-and the symbol work of the [Melee](https://github.com/doldecomp/melee), [Twilight Princess](https://github.com/zeldaret/tp),
+[decomp-toolkit](https://github.com/encounter/decomp-toolkit) and [dtk-template](https://github.com/encounter/dtk-template),
+[objdiff](https://github.com/encounter/objdiff), [m2c](https://github.com/matt-kempster/m2c), [HSDLib](https://github.com/Ploaj/HSDLib),
+[ninja](https://github.com/ninja-build/ninja), [gc-wii-binutils](https://github.com/encounter/gc-wii-binutils),
+[sjiswrap](https://github.com/encounter/sjiswrap), [wibo](https://github.com/decompals/wibo), the CodeWarrior compiler
+archive from [decomp.dev](https://decomp.dev), [Dolphin](https://dolphin-emu.org),
+and the symbol and source work of the [Melee](https://github.com/doldecomp/melee), [Kirby Air Ride](https://github.com/doldecomp/kar)
+(and [wowjinxy's map](https://github.com/wowjinxy/KAR)), [Twilight Princess](https://github.com/zeldaret/tp),
 [Wind Waker](https://github.com/zeldaret/tww), [Mario Kart DD](https://github.com/doldecomp/mkdd),
-[Pikmin 2](https://github.com/doldecomp/pikmin2) and [TTYD](https://github.com/doldecomp/ttyd) decomp projects.
+[Pikmin](https://github.com/projectPiki/pikmin), [Pikmin 2](https://github.com/doldecomp/pikmin2), [TTYD](https://github.com/doldecomp/ttyd),
+[Sunshine](https://github.com/doldecomp/sms), [Mario Party 4](https://github.com/mariopartyrd/marioparty4),
+[BfBB](https://github.com/bfbbdecomp/bfbb), [Animal Crossing](https://github.com/ACreTeam/ac-decomp),
+[XD](https://github.com/TeamOrre/xd-decomp), [dolsdk2001](https://github.com/doldecomp/dolsdk2001) and
+[dolsdk2004](https://github.com/doldecomp/dolsdk2004) decomp projects (exact commits in [tools/pins.txt](tools/pins.txt)).

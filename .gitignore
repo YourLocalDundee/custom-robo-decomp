@@ -1,4 +1,4 @@
-# NEVER commit game data or anything derived from Nintendo's code/assets (see README "What is not in this repo").
+# NEVER commit game data or anything derived from Nintendo's code/assets (see CONTRIBUTING.md "Never commit game data").
 *.iso
 *.gcm
 *.rvz
