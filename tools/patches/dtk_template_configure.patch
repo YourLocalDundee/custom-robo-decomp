@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,365 @@ def MatchingFor(*versions):
+@@ -284,18 +307,362 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -278,6 +278,10 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/wobj.c",
 +    "sysdolphin/baselib/mobj.c",
 +    "sysdolphin/baselib/spline.c",
++    "sysdolphin/baselib/tobj.c",
++    "sysdolphin/baselib/fog.c",
++    "sysdolphin/baselib/perf.c",
++    "sysdolphin/baselib/initialize.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -296,8 +300,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 17 of 22 functions equal in objdiff (Melee's tev.c, assert line numbers of this revision, HSD_StateSetNumChans stores prev_num_chans as wowjinxy/KAR's does): HSD_DisableChannelLighting, fn_8018AEA4, fn_8018AFE0, fn_8018B3B8 are not in Melee's C (wowjinxy's HSD_DisableChannelLighting 58%), HSD_SetTevRegAll 83% (another revision): adapt to this revision",
 +    "sysdolphin/baselib/video.c":
 +        "code: 8 of 10 functions equal in objdiff (Melee's video.c; fn_8019DE54 named HSD_VISetConfigure by its bytes): fn_8019DB14 (0x17C) and fn_8019DC90 (0x1C4) have no function of their size in Melee's (HSD_VICopyXFBAsync 0x104 ... HSD_VIGetXFBLastDrawDone 0x170) or KAR's file (wowjinxy map: 0x208 0xD4 0x178 0x16C 0x170) (another revision): adapt to this revision",
-+    "sysdolphin/baselib/tobj.c":
-+        "code: 39 of 39 functions equal in objdiff, .sdata / .sbss / .sdata2 100% (Melee's tobj.c with this revision's assert / HSD_Panic lines; TObjLoad, TObjInit (fn_80189A70, the init method), TObjInfoInit, TObjUpdateFunc, HSD_TObjAnim and HSD_TObjAddAnimAll ported from wowjinxy/KAR's tobj.c, the *Info update method and TObj.id of wowjinxy in tobj.h; step 61 iteration 7): data: the split's .data piece is 0x4D0, the C's .data 0x4C9: the 7 zero bytes after its last string (to the next object's alignment) are in the piece (gen_dtk_splits ends a C piece with dtk's last symbol, which runs on over the padding), so objdiff reports .data 1225/1232; the bytes before are equal",
 +    "sysdolphin/baselib/cobj.c":
 +        "code: 32 of 48 functions equal in objdiff (Melee's cobj.c with this revision's assert lines; HSD_CObjGetUpVector, HSD_CObjGetViewingMtxPtr, CObjInfoInit's update method, CObjResetFlags from wowjinxy/KAR's cobj.c; step 61 iteration 7): unnamed, not in Melee's C: fn_8018F830, fn_8018FA94, fn_8018FD60 (0xCC, HSD_CObjSetupViewingMtx by its caller; 0x13C in KAR), fn_80190BBC, fn_80190EB8, fn_80191424, fn_80191494, fn_801914B0, fn_801914CC, fn_801914F8; HSD_CObjEraseScreen 97% (double tan + frsp here), HSD_CObjSetCurrent 0x504 here 86%, upvec2roll 63%, roll2upvec 84%, HSD_CObjSetRoll 0x428 here 83% (wowjinxy's 46-88%) (another revision): adapt to this revision",
 +    "sysdolphin/baselib/jobj.c":
@@ -306,20 +308,16 @@ diff --git a/configure.py b/configure.py
 +        "code: 7 of 22 functions equal in objdiff (Melee's texp.c, TETev with this revision's a_range byte and assert line numbers): HSD_TExpUnref 0x57C here vs 0x274, TExp2TevDesc 0x400 vs 0x464, HSD_TExpCnst / ColorOp / AlphaOp sizes differ, the other 10 are 2-93 instructions apart (another revision; wowjinxy/KAR has no texp.c): adapt to this revision",
 +    "sysdolphin/baselib/displayfunc.c":
 +        "code: 10 of 16 functions equal in objdiff (Melee's displayfunc.c with this revision's assert lines; zlist_sort from wowjinxy/KAR's displayfunc.c, step 61 iteration 7): mkVBillBoardMtx / mkHBillBoardMtx / mkBillBoardMtx 0x2DC / 0x344 / 0x398 here vs 0x23C / 0x2D4 / 0x2B8 (74 / 78 / 61%; wowjinxy's 80-90%), HSD_EraseRect 98.8% (r7 / r8 / r10 / r11 swapped in the GX FIFO writes; no wowjinxy form matches), fn_8019C86C and fn_8019C918 not in Melee's C (another revision): adapt to this revision",
-+    "sysdolphin/baselib/initialize.c":
-+        "code: 17 of 18 functions equal in objdiff (wowjinxy/KAR's initialize.c: HSD_InitComponent and HSD_GXSetFifoObj in its VERSION_GKYP01 (KAR PAL) form, HSD_AllocateXFB, HSD_GXInit, the memory callbacks, HSD_GetHeap, render pass functions, HSD_ObjInit; this revision's assert / HSD_Panic lines, _HSD_MemClearDefaultCB without the fill-heap loop; the unnamed ones under their fn_ addresses; step 61 iteration 7): HSD_OSInit (fn_8019CFB8, 0x1A4) 99.4%: main.dol reloads HSD_HeapLo / HeapHi before OSCreateHeap in the second branch, the C reuses the register (wowjinxy's form without its fill-heap loops; a shared inline tried); the C also has .data / .sbss the split object lacks",
 +    "sysdolphin/baselib/robj.c":
 +        "code: 15 of 21 functions equal in objdiff (doldecomp/kar's robj.c for its 6; resolveLimits, HSD_RObjLoadDesc, HSD_RObjRemoveAll, HSD_RObjAlloc, HSD_RObjFree, HSD_RvalueRemoveAll, dummy_func (wowjinxy's RObjEvalZero), expLoadDesc, bcexpLoadDesc ported from wowjinxy/KAR's robj.c, include/cr_kar/robj.h with the 8-byte HSD_RvalueList; step 61 iteration 7): HSD_RObjGetGlobalPosition 90% (94% with the JOBJ test as a BOOL inline; main.dol computes the constraint type branch-free with cntlzw of (rp == NULL)), resolveCnsDirUp 91%, HSD_RObjUpdateAll 89%, expEvaluate 97% (registers r28-r30 permuted), HSD_RObjResolveRefsAll / HSD_RvalueResolveRefsAll (their assert strings are addressed from the file's .data base, +0x4C / 0x5C / 0x68 / 0x130: need the whole file's .data): adapt to this revision",
 +    "sysdolphin/baselib/lobj.c":
-+        "code: 23 of 27 functions equal in objdiff, 24 with LObjUpdateFunc (equal but for its jump table's name) (doldecomp/kar's lobj.c for its functions, TryNormalize comparing with the double FLT_MIN as main.dol does; the 13 kar lacks ported from wowjinxy/KAR's lobj.c, provenance per function, with the HSD_LightPoint / Spot desc structs of wowjinxy's lobj.h in include/cr_kar/lobj.h; LObjUpdateFunc, HSD_LObjGetPosition / GetInterest, LObjRelease named by their bytes): HSD_LObjSetupSpecularInit (0x278) and HSD_LObjSetupInit (0xBBC) are asm in kar and 96% / 92% in wowjinxy's C, fn_8018E604 (0x340, between SetupInit and HSD_LObjGetCurrentByType: no reference function of its size, wowjinxy's HSD_LObjAddCurrent / SetCurrentAll differ); the C has .sdata2 the split object lacks",
++        "code: 24 of 27 functions equal in objdiff, 25 with LObjUpdateFunc (equal but for its jump table's name) (doldecomp/kar's lobj.c for its functions, TryNormalize comparing with the double FLT_MIN as main.dol does; the 13 kar lacks ported from wowjinxy/KAR's lobj.c, provenance per function, with the HSD_LightPoint / Spot desc structs of wowjinxy's lobj.h in include/cr_kar/lobj.h; LObjUpdateFunc, HSD_LObjGetPosition / GetInterest, LObjRelease named by their bytes): HSD_LObjSetCurrentAll (0x8018E604, 0x340 = KAR) written as Melee's LObjReplaceAll with wowjinxy's HSD_LObjAddCurrent inline (step 61 iteration 8): HSD_LObjSetupSpecularInit (0x278) and HSD_LObjSetupInit (0xBBC) are asm in kar (KAR's, 0x284 / 0xBC8) and 96% / 92% in wowjinxy's C (not ported yet: it reads its float constants as externs; this file's .sdata2 must come from literals first); the C has .sdata2 the split object lacks (kar's HSD_LObjSetup reads lbl_805E5A34, a KAR address, as an extern)",
 +    "sysdolphin/baselib/pobj.c":
 +        "code: 11 of 23 functions equal in objdiff (doldecomp/kar's pobj.c for HSD_PObjReqAnimAllByFlags; HSD_PObjAddAnimAll, PObjUpdateFunc, HSD_PObjAnimAll, HSD_PObjLoadDesc, HSD_PObjRemoveAll, HSD_PObjAlloc, HSD_ClearVtxDesc, HSD_PObjClearMtxMark, PObjSetupMtx, PObjAmnesia, PObjInfoInit ported from wowjinxy/KAR's pobj.c, include/cr_kar/pobj.h with HSD_A_S_W0 2 and the blend union; step 61 iteration 7): PObjInfoInit 99.9% (its class strings at hsdPObj + 0x318 / 0x330: needs the whole file's .data), get_shape_vertex_xyz / get_shape_normal_xyz 99.8% in wowjinxy's C (assert lines 0x43A / 0x465 here and vertex_desc / comp_type in r5 / r6 swapped), PObjRelease 99.5% (r29 / r31 swapped), PObjLoad 96%, HSD_PObjResolveRefsAll 95%, get_shape_nbt_xyz 94%, interpretShapeAnimDisplayList 98%, drawShapeAnim 96%, SetupSharedVtxModelMtx 96%, SetupEnvelopeModelMtx 93%, HSD_PObjDisp 94% (wowjinxy's C, not ported): adapt to this revision",
 +    "sysdolphin/baselib/fobj.c":
-+        "code: 9 of 11 functions equal in objdiff (doldecomp/kar's fobj.c for its functions; FObjLoadData, HSD_FObjInterpretAnim / InterpretAnimAll, HSD_FObjLoadDesc, HSD_FObjAlloc, HSD_FObjFree ported from wowjinxy/KAR's fobj.c, provenance per function, assert lines of this revision): FObjLoadData 97.3% (the inlined HSD_FObjGetState: main.dol puts the NULL case first, `li r30, 0; b` after the bne; ternary / if-else forms tried) and HSD_FObjInterpretAnim 97.3% (frame 0x60 here vs 0x80: kar's FObjData is a struct of 0x14, wowjinxy's HSD_ObjData a union of 0xC, plus the same GetState order)",
++        "code: 10 of 11 functions equal in objdiff (doldecomp/kar's fobj.c for its functions; FObjLoadData, HSD_FObjInterpretAnim / InterpretAnimAll, HSD_FObjLoadDesc, HSD_FObjAlloc, HSD_FObjFree ported from wowjinxy/KAR's fobj.c, provenance per function, assert lines of this revision; step 61 iteration 8: HSD_FObjGetState as a conditional expression (main.dol puts the NULL case first) -> FObjLoadData equal, the update data as wowjinxy's 0xC union HSD_ObjData -> InterpretAnim's frame 0x60 as main.dol's): HSD_FObjInterpretAnim 99.6%: cases 4 / 5 store the new state with clrlwi / rlwimi from the state register in main.dol, the C folds the constant (ori 3 / ori 4); tried: Melee's MUST_MATCH `state = state = 3`, a non-inline static HSD_FObjSetState, u8 state parameter / return, the operand order of Melee's SetState, a bitfield store, state-- / state++, compilers GC/1.2.5 / 1.3 / 1.3.2r",
 +    "sysdolphin/baselib/aobj.c":
 +        "code: 13 of 15 functions equal in objdiff (doldecomp/kar's aobj.c for its 10 functions, the 9 it lacks ported from wowjinxy/KAR's aobj.c, provenance per function; HSD_AObjSetRate named by its bytes): fn_8018CCDC (0x50) and fn_8018CD2C (0x80), between HSD_AObjInvokeCallBacks and HSD_AObjReqAnim, have no function of their size in Melee's or KAR's file (HSD_AObjSetFObj 0x4C, HSD_AObjStopAnim 0x44 there); the C also has functions this revision inlines (HSD_AObjGetAllocData, Get/Set/ClearFlags, SetFObj, StopAnim)",
-+    "sysdolphin/baselib/fog.c":
-+        "code: 11 of 11 functions equal in objdiff, .sdata 100% (the 11 functions of wowjinxy/KAR's fog.c with the structs of include/cr_kar/fog.h, main.dol's assert lines; kar's two KAR-only functions removed; step 61 iteration 7): data: the split's .data piece is 0x118, the C's .data 0x117: the zero byte after \"hsd_fogadj\" (to the next object's alignment) is in the piece (dtk's lbl_8024CF9C runs on over the padding), so objdiff reports .data 279/280; likewise .sdata2 (0x28 piece, the C's pool 0x24: 4 zero bytes after 255.0F): 36/40; the bytes before are equal",
 +    "MSL/FILE_POS.c":
 +        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision",
 +    "MSL/abort_exit.c":
@@ -411,8 +409,7 @@ diff --git a/configure.py b/configure.py
 +}
 +
 +
-+# Game objects (game/ in splits.txt: decomp/src/game, tools/promote_drafts.py, one function per object or a file
-+# object of consecutive functions sharing a constant pool; plan.md steps 58, 63)
++# Game objects (game/ in splits.txt: decomp/src/game, tools/promote_drafts.py, one function per object; plan.md step 58)
 +# are all linked from C unless CR_NOT_MATCHING names one: tools/gen_dtk_splits.py only splits a game object for a file
 +# in decomp/src/game, and batch 9 checks each is 100% in objdiff with the retail SHA-1.
 +def cr_matching(name: str) -> bool:

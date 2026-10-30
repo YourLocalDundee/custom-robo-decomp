@@ -118,7 +118,7 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x8023BE78..0x8023CEC0 .data lbl_8023BE78 .. lbl_8023CE54
   0x8023CF28..0x80240898 .data lbl_8023CF28 .. lbl_80240828
   0x802409E8..0x80242698 .data lbl_802409E8 .. lbl_80242644
-  0x802427F0..0x802429CC .data @1_802427F0 .. lbl_80242834
+  0x802427F0..0x802429CC .data @1 .. lbl_80242834
   0x80242E10..0x8024300C .data @69 .. lbl_80242E39
   0x80243218..0x802432E0 .data @13 .. lbl_8024322E
   0x80244468..0x802444C4 .data @36 .. lbl_80244482
@@ -128,7 +128,7 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x8024A3F0..0x8024A5B4 .data lbl_8024A3F0 .. lbl_8024A550
   0x8024A760..0x8024B044 .data lbl_8024A760 .. lbl_8024ADB0
   0x8024B4F8..0x8024B60C .data hsdDObj .. lbl_8024B540
-  0x8024B618..0x8024BAD8 .data lbl_8024B618 .. lbl_8024BA9C
+  0x8024B618..0x8024BAD8 .data hsdTObj .. lbl_8024BA9C
   0x8024BE78..0x8024BFD8 .data hsdMObj .. lbl_8024BF28
   0x8024C028..0x8024C17C .data lbl_8024C028 .. lbl_8024C140
   0x8024C188..0x8024C2D4 .data lbl_8024C188 .. lbl_8024C2B0
@@ -138,7 +138,7 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x8024CC50..0x8024CC78 .data lbl_8024CC50 .. lbl_8024CC60
   0x8024CC98..0x8024CD00 .data lbl_8024CC98 .. lbl_8024CCE4
   0x8024CE00..0x8024CE9C .data hsdWObj .. lbl_8024CE50
-  0x8024CEA8..0x8024CFB4 .data lbl_8024CEA8 .. lbl_8024CF9C
+  0x8024CEA8..0x8024CFB4 .data hsdFog .. lbl_8024CF9C
   0x8024D4D8..0x8024D604 .data hsdClass .. lbl_8024D5E0
   0x8024D680..0x8024D9D0 .data lbl_8024D680 .. lbl_8024D95C
   0x8031B5A0..0x8031F0E0 .bss lbl_8031B5A0 .. lbl_8031F020
