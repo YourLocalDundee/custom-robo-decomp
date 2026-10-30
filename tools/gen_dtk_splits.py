@@ -9,7 +9,8 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
     2. first <= last in our address order, in the same section;
     3. every NAMED function of ours from first to last is one of R's functions of O (unnamed fn_ ones may be in
        between: they are enclosed by O's own functions, so they belong to O), or one the pinned library sources
-       define in O's very file (another revision of the file has it);
+       define in O's very file (another revision of the file has it), or one that every reference placing it puts
+       in a library file of the same name (another revision's function, or a header inline's out-of-line copy);
     4. both ends are proven. An end is proven by the section edge, or when the named function next to it is NOT one
        of O's functions in R but another object's (else the object would extend further), or when it is unnamed
        and our end function is R's own first / last function of O. Unnamed functions right next to the range whose
@@ -354,6 +355,7 @@ def code_splits(ours, rejected, notes, audit=None):
         return lst[j] if j < len(lst) else None
 
     hsd = hsd_stems()
+    placed = placed_in(hsd)  # function name -> the library files (objkeys) the references place it in
     g3 = {a: Path(f).stem.lower() for a, f in read_g3().items()}  # function -> the .c file its assert names
     melee_paths = {}
     refinfo = {}  # ref tag -> (symbols, {object name: [(sec, start, end)]})
@@ -400,9 +402,11 @@ def code_splits(ours, rejected, notes, audit=None):
                     continue
                 i, j = hit[0], hit[-1]
                 # (a named function R's file lacks is still allowed when the pinned library sources define it in this
-                # very file: another revision of the file has it)
+                # very file: another revision of the file has it; or when every reference that places it puts it in
+                # a library file of this name: another revision's function, or a header inline's out-of-line copy)
                 bad = [funcs[k][0] for k in range(i, j + 1) if not DEFAULT.match(funcs[k][0]) and funcs[k][0] not in names
-                       and verdict(defs, funcs[k][0], family(path)) != Path(name).stem.lower()]
+                       and verdict(defs, funcs[k][0], family(path)) != Path(name).stem.lower()
+                       and placed.get(funcs[k][0]) != {objkey(path)}]
                 if bad:
                     rejected.append(f"{tag}: our range {funcs[i][0]} .. {funcs[j][0]} contains other functions: {', '.join(bad[:4])}")
                     continue
@@ -757,6 +761,28 @@ def settle(path, key, lst, funcs, defs, rejected, notes):
 def fmt_sizes(lst):
     s = ",".join(f"{x:X}" for x in lst[:12])
     return f"[{s}{',..' if len(lst) > 12 else ''}]"
+
+
+def placed_in(hsd):
+    """{function name: {objkey of every library file a reference places it in}} over all references (code sections);
+    a name another reference puts in the same library file as the object under test is that file's"""
+    out = defaultdict(set)
+    for ref in REFS:
+        d = G / "tools" / ref
+        tagr = ref.split('/')[-1]
+        if not (d / "splits.txt").exists() or not (d / "symbols.txt").exists():
+            continue
+        rf = sorted([s for s in read_syms(d / "symbols.txt") if s[4]], key=lambda s: s[2])
+        for name, secs in read_splits(d / "splits.txt"):
+            path = lib_path(tagr, name, hsd)
+            if path is None:
+                continue
+            for sec, a, b in secs:
+                if sec in CODE:
+                    for s in rf:
+                        if a <= s[2] < b and s[1] == sec and not DEFAULT.match(s[0]):
+                            out[s[0]].add(objkey(path))
+    return out
 
 
 def wow_agrees(use, kar):

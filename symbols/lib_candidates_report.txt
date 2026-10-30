@@ -1,4 +1,4 @@
-lib candidates: 185 accepted (R3:97, R4:17, R5:63, R6:8), 0 rejected, 8 layout-proof names replaced, 3 round(s)
+lib candidates: 186 accepted (R3:97, R4:17, R5:64, R6:8), 0 rejected, 8 layout-proof names replaced, 3 round(s)
 REPLACED layout-proof acos at 0x80169088
 REPLACED layout-proof asin at 0x801690A8
 REPLACED layout-proof atan2 at 0x801690C8
@@ -110,6 +110,7 @@ ACCEPT GetMemoryEntry 0x801A75C0 R4 melee/GALE01
 ACCEPT GXGetVtxDesc 0x8015374C R3 mkdd/MarioClub_us
 ACCEPT GXGetVtxDescv 0x80153900 R3 mkdd/MarioClub_us
 ACCEPT HSD_AObjFree 0x8018D1A8 R5 kar/GKYE01
+ACCEPT HSD_AObjReqAnim 0x8018CDAC R5 kar/GKYE01
 ACCEPT HSD_AudioMalloc 0x80172DD8 R4 melee/GALE01
 ACCEPT HSD_AudioSFXStartParam 0x8016EEFC R6 melee/GALE01
 ACCEPT HSD_CObjGetEyeDistance 0x80190584 R4 kar/GKYE01
@@ -128,6 +129,7 @@ ACCEPT HSD_InitComponent 0x8019CC64 R5 melee/GALE01
 ACCEPT HSD_JObjMakeMatrix 0x80196630 R5 kar/GKYE01
 ACCEPT HSD_JObjReqAnimAllByFlags 0x80196988 R5 kar/GKYE01
 ACCEPT HSD_JObjReqAnimByFlags 0x80196900 R5 kar/GKYE01
+ACCEPT HSD_JObjSetMtxDirty 0x801965C0 R5 kar/GKYE01
 ACCEPT HSD_JObjUnrefThis 0x80198F84 R5 kar/GKYE01
 ACCEPT HSD_LObjGetLightMaskDiffuse 0x8018D260 R5 kar/GKYE01
 ACCEPT HSD_LObjGetLightVector 0x8018D548 R5 kar/GKYE01
@@ -144,7 +146,6 @@ ACCEPT HSD_RObjReqAnimAllByFlags 0x801A0BB8 R5 kar/GKYE01
 ACCEPT HSD_RvalueResolveRefsAll 0x801A28A0 R5 kar/GKYE01
 ACCEPT HSD_SetupRenderModeWithCustomPE 0x8018A038 R5 kar/GKYE01
 ACCEPT HSD_SetupTevStage 0x8018ADAC R5 melee/GALE01
-ACCEPT HSD_StartRender 0x8019D2EC R5 kar/GKYE01
 ACCEPT HSD_StateSetAlphaCompare 0x8018A3F8 R5 kar/GKYE01
 ACCEPT HSD_StateSetCullMode 0x8018A28C R5 kar/GKYE01
 ACCEPT HSD_StateSetZMode 0x8018A368 R5 kar/GKYE01

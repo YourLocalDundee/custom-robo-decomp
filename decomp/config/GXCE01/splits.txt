@@ -1347,6 +1347,12 @@ dolphin/si/SIBios.c:
 	.sdata      start:0x8044EEC8 end:0x8044EECC
 	.sbss       start:0x8044FD30 end:0x8044FD40
 
+sysdolphin/baselib/dobj.c:
+	.text       start:0x80186490 end:0x80186B44
+	.data       start:0x8024B4F8 end:0x8024B618
+	.sdata      start:0x8044EF88 end:0x8044EFA0
+	.sbss       start:0x8044FEF8 end:0x8044FF00
+
 sysdolphin/baselib/tobj.c:
 	.text       start:0x80186B44 end:0x80189C88
 	.sdata      start:0x8044EFA0 end:0x8044EFD8
@@ -1358,23 +1364,61 @@ sysdolphin/baselib/state.c:
 	.bss        start:0x80449D18 end:0x80449D30
 	.sdata      start:0x8044EFD8 end:0x8044EFE0
 
+sysdolphin/baselib/tev.c:
+	.text       start:0x8018A728 end:0x8018B448
+	.bss        start:0x80449D30 end:0x80449DB8
+	.sdata      start:0x8044EFE0 end:0x8044EFF0
+	.sbss       start:0x8044FF48 end:0x8044FF68
+
 sysdolphin/baselib/mobj.c:
 	.text       start:0x8018B448 end:0x8018CC40
 	.sdata      start:0x8044EFF0 end:0x8044F018
 	.sbss       start:0x8044FF68 end:0x8044FF78
 	.sdata2     start:0x804526B0 end:0x804526C0
 
+sysdolphin/baselib/jobj.c:
+	.text       start:0x8019643C end:0x8019B494
+	.rodata     start:0x801C4E80 end:0x801C4EA8
+	.data       start:0x8024C668 end:0x8024CA40
+	.sbss       start:0x8044FFD0 end:0x8044FFE8
+	.sdata2     start:0x804527C0 end:0x80452810
+
+sysdolphin/baselib/displayfunc.c:
+	.text       start:0x8019B494 end:0x8019CC64
+	.bss        start:0x80449E50 end:0x80449E80
+	.sdata      start:0x8044F0D8 end:0x8044F100
+	.sbss       start:0x8044FFE8 end:0x80450008
+
+sysdolphin/baselib/initialize.c:
+	.text       start:0x8019CC64 end:0x8019D3EC
+
 sysdolphin/baselib/spline.c:
 	.text       start:0x8019E11C end:0x8019EB5C
+
+sysdolphin/baselib/mtx.c:
+	.text       start:0x8019EB5C end:0x801A039C
+	.bss        start:0x8044B4A0 end:0x8044B4F8
+	.sdata      start:0x8044F128 end:0x8044F138
+	.sdata2     start:0x804528A0 end:0x804528E8
 
 sysdolphin/baselib/util.c:
 	.text       start:0x801A039C end:0x801A0568
 	.data       start:0x8024CBF8 end:0x8024CC50
-	.sdata      start:0x8044F138 end:0x8044F144
+	.sdata      start:0x8044F138 end:0x8044F148
+
+sysdolphin/baselib/objalloc.c:
+	.text       start:0x801A0568 end:0x801A0A70
+	.sdata      start:0x8044F148 end:0x8044F150
+	.sbss       start:0x80450040 end:0x80450048
 
 sysdolphin/baselib/fog.c:
 	.text       start:0x801A33E4 end:0x801A3C9C
 	.sdata2     start:0x80452940 end:0x80452968
+
+sysdolphin/baselib/list.c:
+	.text       start:0x801A3CF8 end:0x801A3FA8
+	.bss        start:0x8044B710 end:0x8044B768
+	.sdata      start:0x8044F1E8 end:0x8044F208
 
 sysdolphin/baselib/object.c:
 	.text       start:0x801A3FA8 end:0x801A3FEC
@@ -1391,6 +1435,11 @@ sysdolphin/baselib/texp.c:
 	.data       start:0x8024D680 end:0x8024D9E8
 	.sdata      start:0x8044F258 end:0x8044F280
 	.sdata2     start:0x804529E8 end:0x804529F8
+
+sysdolphin/baselib/texpdag.c:
+	.text       start:0x801AAF9C end:0x801AE9B4
+	.data       start:0x8024D9E8 end:0x8024DAA0
+	.sdata      start:0x8044F280 end:0x8044F290
 
 Runtime/__mem.c:
 	.init       start:0x8000540C end:0x80005544
