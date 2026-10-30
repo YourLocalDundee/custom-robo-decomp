@@ -8,11 +8,11 @@ MSL                               48     29   0x002F00/0x00937C  31.87%   0x0007
 Runtime                            5      4   0x000924/0x0009DC  92.71%   0x000024/0x00009C  23.08%     18/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
 sysdolphin                        29      9   0x004014/0x0265A4  10.44%   0x0008F0/0x001C00  31.92%     88/  471
-game                             289    289   0x003F8C/0x003F8C 100.00%   0x000000/0x000000    -       289/  289
-automatic objects (unsplit)      257      0   0x000000/0x156C30   0.00%   0x000000/0x281010   0.00%      0/ 1862
-main.dol (all units)             732    388   0x01D19C/0x1B342C   6.69%   0x0030E8/0x29C458   0.46%    793/ 3533
+game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
+automatic objects (unsplit)      257      0   0x000000/0x156B9C   0.00%   0x000000/0x281010   0.00%      0/ 1861
+main.dol (all units)             733    389   0x01D230/0x1B342C   6.69%   0x0030E8/0x29C458   0.46%    794/ 3533
 
-game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 289 objects from C (one function each, tools/promote_drafts.py), 0x3F8C bytes = 1.32% of the game code, 0.91% of all code
+game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
 MSL/FILE_POS.c                                code 0x0/0x3C0  data 0x0/0x0  functions 0/3  not linked: code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision
@@ -157,6 +157,7 @@ game/cr_CAMMODE_PEAK_Frame.c                  code 0xCC/0xCC  data 0x0/0x0  func
 game/cr_CAMMODE_SNR_AUTO_MOVE_Frame.c         code 0x1C/0x1C  data 0x0/0x0  functions 1/1  linked from C
 game/cr_C_ACT_JP.c                            code 0x30/0x30  data 0x0/0x0  functions 1/1  linked from C
 game/cr_Cam_SetMode.c                         code 0x18/0x18  data 0x0/0x0  functions 1/1  linked from C
+game/cr_Chara_SetCurrentPointers.c            code 0x94/0x94  data 0x0/0x0  functions 1/1  linked from C
 game/cr_SEQ_BATTLE_Enter.c                    code 0x4/0x4  data 0x0/0x0  functions 1/1  linked from C
 game/cr_SEQ_BATTLE_FrameB.c                   code 0x34/0x34  data 0x0/0x0  functions 1/1  linked from C
 game/cr_SEQ_CUSTOMIZE_Enter.c                 code 0x24/0x24  data 0x0/0x0  functions 1/1  linked from C

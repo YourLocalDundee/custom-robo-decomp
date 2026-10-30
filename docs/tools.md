@@ -87,7 +87,7 @@ Everything in `tools/`. Run from the repo root.
 | `make_configure_patch.py` | Rewrites `tools/patches/dtk_template_configure.patch` from the edited `decomp/configure.py` (and checks template + patch == file) | `tools/make_configure_patch.py` |
 | `compiler_probe/probe.py` | Batch 10: which CodeWarrior version and flags built each part of main.dol ([compiler](compiler.md)) | `tools/compiler_probe/probe.py --show FUNCTION --version V --flags "..."` |
 | `draft_batch.py` | Batch 12: m2c C draft of every game function (context: HSD / `cr_types.h` + every `lbl_` data object with its size + the game functions' prototypes from a first pass) → post-processed and repaired on the compiler's messages → compared with the original, aligned ([drafts](drafts.md)) | `tools/draft_batch.py [--only NAME ...] [--sample N] [--jobs N] [--out DIR]` (`--only` / `--sample` reuse `ctx_protos.h` / `ctx_sdk.h` of the output folder, `decomp/drafts` by default; `--out` keeps an experiment apart from the last full run: copy those two files there first) |
-| `promote_drafts.py` | Batch 12: puts every 100% draft that can be linked into `decomp/src/game/<function>.c` → `decomp/reports/promote_report.txt` (method: its docstring) | run by batch 12 |
+| `promote_drafts.py` | Batch 12: puts every 100% draft that can be linked into `decomp/src/game/<function>.c`, and the drafts of a whole file run (functions sharing a constant pool, step 63) into a file object `<first>_<last>.c` → `decomp/reports/promote_report.txt` (method: its docstring; `--check --try-run FIRST LAST` tests a run) | run by batch 12 |
 
 ## Batches (`tools/batches`)
 

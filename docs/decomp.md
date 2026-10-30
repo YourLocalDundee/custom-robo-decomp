@@ -146,6 +146,32 @@ Python tools are named by script only; run them with `python -I` (Windows) or `p
    must stay retail. Then the full run, and `pwsh tools\checksums.ps1 -Write` / `tools/checksums.sh --write` for the
    intended changes.
 
+### Game file objects (step 63, Oct 30, 2026)
+
+The game code has no reference decomp, so its object edges come from the code itself. Linked game functions are
+one object each (`decomp/src/game/<function>.c`) as long as they own no data. A function that uses a compiler
+constant (.sdata2: float literals, the int-to-float double) or a string literal can only be linked with the rest of
+its source file, because that data is the file's own pool:
+- **the per-file pool rule** (tools/gen_dtk_splits.py, already used for library edges): every source file
+  has its own .sdata2 constant pool and string literals, laid out in link order. The game confirms it: 0.0f is in
+  .sdata2 41 times, the two int-to-float doubles 28 and 26 times (one copy per file).
+- **the file run**: every function that uses one of a function's pool entries is in its file, and so is every
+  function between them (a file's code is contiguous); repeated until closed (tools/promote_drafts.py `Pools`).
+- **a file object** `game/<first>_<last>.c` is made when every function of the run is a 100% draft: the drafts one
+  after another in one generated file. It must compile to the drafts' .text in a row, and its own data must sit in
+  main.dol exactly once: every relocation into its .sdata2 / strings gives the same piece start, the bytes are
+  main.dol's, and no code or data outside the run uses the piece (`gen_dtk_splits.game_file_data`, which also adds
+  the piece to splits.txt). The run's one-function files are removed.
+- When a pool entry is also used by a function that is not matched yet, the run cannot be built yet. The entry stays
+  in dtk's automatic object and the functions keep their own objects.
+  `decomp/reports/promote_report.txt` ("file runs") lists each run, how many of its functions match, and the span of
+  each draft's direct pool users.
+Status after step 63: none of the 6 matched drafts that own a constant has a complete run. Their direct pool users
+span 27 to 458 functions, with 1 to 54 of them at 100%. Some .sdata2 entries are used across very distant code (for
+example 0x8045113C by 0x800120D8 and 0x800B0CF8, and 0x80451168..84 by 118 functions over 0x80099EAC-0x800DB8A4).
+Those are either `const` globals or very large files, so the closed run grows to 1,642 functions. The rule never
+links a group it cannot prove, so such a run simply waits until all its functions match.
+
 ### HSD (sysdolphin) notes (step 61, Oct 30, 2026)
 
 - Custom Robo links the Kirby Air Ride revision of sysdolphin (tools/refs/kar, kar_wowjinxy: the same function sizes),

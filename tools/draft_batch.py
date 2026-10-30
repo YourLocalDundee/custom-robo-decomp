@@ -315,6 +315,14 @@ def protos_text(sigs, ctx_pp):
 
 
 SDK_INC = 'include/dolsdk2004'   # the decomp's pinned SDK headers (decomp/include; read only here)
+# then MSL's math.h (Mario Party 4's MSL_C, decomp/include; read only): atan2 / acos, which pass 1 typed void(void)
+MSL_INC = 'include/marioparty4/PowerPC_EABI_Support/Msl/MSL_C/MSL_Common'
+# library functions the game calls that no header we have declares (step 63; each with its evidence)
+LIB_PROTOS = {
+    # 0x8019AD9C, KAR's name (layout proof, symbols.txt): `stw r3, lbl_8044FFE0; blr` keeps its argument, and
+    # 0x80197A00 loads that word, tests it for 0 and calls it (mtctr r12; bctrl): a function pointer
+    'HSD_JObjSetPtclTargetCallback': ('tools/draft_batch.py LIB_PROTOS', 'void HSD_JObjSetPtclTargetCallback(void (*callback)());'),
+}
 KEYWORDS = {'void', 'char', 'short', 'int', 'long', 'float', 'double', 'signed', 'unsigned', 'const', 'volatile',
             'struct', 'union', 'enum', 'extern', 'register'}
 
@@ -338,30 +346,49 @@ def sdk_protos(names, ctx_pp):
     """{name: (header, prototype)} of the library functions in names that the context does not declare, from the SDK
     headers of decomp/include/dolsdk2004 (dolphin/, libc/): a function the game calls without a prototype is an
     implicit `int f()` to the compiler (float arguments promoted to double, the result an int: PSMTXRotRad, cos, ...).
-    Only a one-line prototype whose types the context already knows is taken (the compiler must accept the context)."""
+    Only a one-line prototype whose types the context already knows is taken (the compiler must accept the context),
+    or one whose unknown types have a one-line typedef in the same header that the context can take (AIDCallback;
+    returned as the second value, emitted first). Then MSL's math.h (atan2, acos) and LIB_PROTOS (functions no header
+    we have declares, each with its evidence). -> ({name: (header, prototype)}, [typedef lines])"""
     known = set(re.findall(r'\b[A-Za-z_]\w*\b', ctx_pp))
-    root = os.path.join(D, SDK_INC)
     found = {}
-    for d, _, files in sorted(os.walk(root)):
-        for f in sorted(files):
-            if not f.endswith('.h'):
+    typedefs = {}
+    files_ = [(d, f) for d, _, fs in sorted(os.walk(os.path.join(D, SDK_INC))) for f in sorted(fs)]
+    files_ += [(os.path.join(D, MSL_INC), 'math.h')]
+
+    def typedef_of(ident, text):
+        """a one-line typedef of ident in the same header whose own types the context knows (AIDCallback)"""
+        for m in re.finditer(r'^[ \t]*typedef\b([^;{}#]*)\b%s\b([^;{}#]*);' % re.escape(ident), text, re.M):
+            words = set(re.findall(r'\b[A-Za-z_]\w*\b', m.group(1) + m.group(2)))
+            if all(w in known or w in KEYWORDS for w in words):
+                return re.sub(r'\s+', ' ', m.group(0).strip())
+        return None
+    for d, f in files_:
+        if not f.endswith('.h') or not os.path.exists(os.path.join(d, f)):
+            continue
+        text = open(os.path.join(d, f), encoding='utf-8', errors='replace').read()
+        text = re.sub(r'//[^\n]*', '', re.sub(r'/\*.*?\*/', ' ', text, flags=re.S))
+        for m in re.finditer(r'^[ \t]*((?:[A-Za-z_]\w*[ \t\*]+)+?)\s*\b(\w+)\s*\(([^(){};#]*)\)\s*;', text, re.M):
+            ret, name, params = re.sub(r'\s+', ' ', m.group(1)).strip(), m.group(2), re.sub(r'\s+', ' ', m.group(3)).strip()
+            if name not in names or name in found or {'static', 'inline', 'typedef', 'return'} & set(ret.split()):
                 continue
-            text = open(os.path.join(d, f), encoding='utf-8', errors='replace').read()
-            text = re.sub(r'//[^\n]*', '', re.sub(r'/\*.*?\*/', ' ', text, flags=re.S))
-            for m in re.finditer(r'^[ \t]*((?:[A-Za-z_]\w*[ \t\*]+)+?)\s*\b(\w+)\s*\(([^(){};#]*)\)\s*;', text, re.M):
-                ret, name, params = re.sub(r'\s+', ' ', m.group(1)).strip(), m.group(2), re.sub(r'\s+', ' ', m.group(3)).strip()
-                if name not in names or name in found or {'static', 'inline', 'typedef', 'return'} & set(ret.split()):
-                    continue
-                idents = set(re.findall(r'\b[A-Za-z_]\w*\b', ret.replace('extern ', '')))
-                for p in params.split(','):
-                    w = re.findall(r'\b[A-Za-z_]\w*\b', p)
-                    if len(w) >= 2 and w[-1] not in KEYWORDS:
-                        w = w[:-1]   # the parameter's name
-                    idents |= set(w)
-                if all(i in known or i in KEYWORDS for i in idents):
-                    found[name] = (os.path.relpath(os.path.join(d, f), D).replace('\\', '/'),
-                                   '%s %s(%s);' % (ret.replace('extern ', ''), name, params))
-    return found
+            idents = set(re.findall(r'\b[A-Za-z_]\w*\b', ret.replace('extern ', '')))
+            for p in params.split(','):
+                w = re.findall(r'\b[A-Za-z_]\w*\b', p)
+                if len(w) >= 2 and w[-1] not in KEYWORDS:
+                    w = w[:-1]   # the parameter's name
+                idents |= set(w)
+            need = [i for i in sorted(idents) if i not in known and i not in KEYWORDS]
+            tds = [typedef_of(i, text) for i in need]
+            if all(tds):
+                for i, td in zip(need, tds):
+                    typedefs.setdefault(i, td)
+                found[name] = (os.path.relpath(os.path.join(d, f), D).replace('\\', '/'),
+                               '%s %s(%s);' % (ret.replace('extern ', ''), name, params))
+    for name, v in LIB_PROTOS.items():
+        if name in names and name not in found:
+            found[name] = v
+    return found, [typedefs[i] for i in sorted(typedefs)]
 
 
 def globals_decls():
@@ -959,6 +986,16 @@ def repair(lines, e):
             t = 'void *'          # an anonymous struct's pointer: void * converts to it
         elif re.match(r'^(struct|union) \w+$', t) and a_t.endswith('*'):
             deref = True          # a struct by value where m2c passes its address
+        elif re.match(r'^(struct|union)\b', a_t) and not a_t.endswith('*') and not re.match(r'^(struct|union)\b', t) \
+                and '(' not in t:
+            # `x = *(desc + off)` with desc a struct pointer m2c stepped in bytes: the scalar at that byte offset
+            st = expr_start(s, at)
+            ex = s[st:at].rstrip()
+            inner = unbracket(ex)
+            if inner.startswith('*('):
+                lines[ln - 1] = s[:st] + '*(%s *) ((u8 *) %s)' % (t, unbracket(inner[1:])) + s[st + len(ex):]
+                return 'struct %s read as %s' % (a_t.split()[-1], t)
+            return None
         elif (re.match(r'^(struct|union)\b', t) and not t.endswith('*')) or (re.match(r'^(struct|union)\b', a_t) and not a_t.endswith('*')):
             return None   # a struct by value: no cast makes that
         if '(' in t and '(*' not in t:
@@ -1167,13 +1204,38 @@ def repair(lines, e):
             if args and args[1].strip().endswith('**'):
                 lines[ln - 1] = s[:m.end() - 10] + '(s32) ' + s[m.end() - 10:]
                 return 'pointer field as an integer'
-        # `(u32) x == ptr`: the pointer as an integer
-        for m in re.finditer(r'(==|!=)\s*(\w+)\b|\b(\w+)\s*(==|!=)', s):
+        # `(u32) x == ptr` / `M2C_FIELD(p, u32 *, 4) == ptr` (an integer field): the pointer as an integer
+        intish = '(u32)' in s or re.search(r'M2C_FIELD\([^;]*?,\s*[us](?:8|16|32) \*,', s)
+        for m in re.finditer(r'(==|!=)\s*(\w+)\b(?!\s*[(\[.]|\s*->)|(?<![.>\w])\b(\w+)\s*(==|!=)', s):
             n = m.group(2) or m.group(3)
-            if n in ptrs and '(u32)' in s:
+            if n in ptrs and intish:
                 st = m.start(2) if m.group(2) else m.start(3)
+                if s[max(0, st - 6):st] == '(u32) ':
+                    continue
                 lines[ln - 1] = s[:st] + '(u32) ' + s[st:]
                 return 'pointer %s as an integer' % n
+        # `(void *) M2C_FIELD(...) == x` with x an integer: the field as an integer (the same cmplw)
+        for m in re.finditer(r'\(void \*\) (M2C_FIELD\()', s):
+            args, end = split_args(s, m.end(1) - 1)
+            rest = s[end:] if end else ''
+            om = re.match(r'\s*(==|!=)\s*(\w+)\b', rest)
+            if om and om.group(2) not in ptrs:
+                lines[ln - 1] = s[:m.start()] + '(u32) ' + s[m.start(1):]
+                return 'pointer field compared with an integer'
+        # `M2C_FIELD(p, u8 **, n) == (u32) x`: the pointer field as an integer
+        for m in re.finditer(r'(?<!\(u32\) )M2C_FIELD\(', s):
+            args, end = split_args(s, m.end() - 1)
+            if args and len(args) == 3 and args[1].strip().endswith('*') and args[1].strip().count('*') >= 2:
+                if re.match(r'\s*(==|!=)\s*\((u32|s32)\)', s[end:]):
+                    lines[ln - 1] = s[:m.start()] + '(u32) ' + s[m.start():]
+                    return 'pointer field compared with an integer'
+        # `(u8 *) lbl == arg` / `arg == (u8 *) lbl` with arg an integer: the address as an integer
+        for m in re.finditer(r'\(\w+ \*\) (\w+)\s*(==|!=)\s*(\w+)\b(?!\s*[(\[])|(\w+)\s*(==|!=)\s*\(\w+ \*\) (\w+)\b', s):
+            other = m.group(3) or m.group(4)
+            if other and other not in ptrs and not other.isdigit():
+                seg = m.group(0)
+                lines[ln - 1] = s[:m.start()] + re.sub(r'\(\w+ \*\) ', '(u32) ', seg, 1) + s[m.end():]
+                return 'address compared with an integer'
         return None
     m = re.match(r"type mismatch '(.*)' and '(.*)'$", msg)
     if m:
@@ -1379,10 +1441,12 @@ def main():
         # the SDK / MSL prototypes of the library functions the game calls that the HSD headers do not declare
         ctx_pp = context(base, check=False)
         und = sorted(n for n in called if n not in game and not declared(n, ctx_pp))
-        found = sdk_protos(und, ctx_pp)
+        found, tdefs = sdk_protos(und, ctx_pp)
         open(sdk, 'w', encoding='utf-8', newline='\n').write(
             '// prototypes of the library functions the game code calls that the HSD headers do not declare, from the\n'
-            '// decomp\'s SDK headers (decomp/include/dolsdk2004; tools/draft_batch.py sdk_protos); gitignored, a full run rewrites it\n'
+            '// decomp\'s SDK headers (decomp/include/dolsdk2004, MSL math.h, LIB_PROTOS; tools/draft_batch.py sdk_protos);\n'
+            '// gitignored, a full run rewrites it\n'
+            + ''.join('%s\n' % td for td in tdefs)
             + ''.join('%s   // %s\n' % (found[n][1], found[n][0]) for n in sorted(found)))
         print('SDK prototypes: %d of %d undeclared library callees (%d unnamed fn_ get theirs from pass 1)' % (
             len(found), len(und), sum(1 for n in und if n in lib and n not in found)))

@@ -350,6 +350,9 @@ game/fn_800498FC.c:
 game/fn_80049904.c:
 	.text       start:0x80049904 end:0x80049924
 
+game/cr_Chara_SetCurrentPointers.c:
+	.text       start:0x80050E74 end:0x80050F08
+
 game/cr_Battle_SetCurrentPointers.c:
 	.text       start:0x80050F08 end:0x80050F90
 

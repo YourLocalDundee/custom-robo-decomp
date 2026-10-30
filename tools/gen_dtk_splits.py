@@ -115,9 +115,13 @@ GAME code: no reference exists. Two ways a game object is split:
      taken from the functions it defines (a definition = a line at column 0 that ends in "{" and names the
      function before its "("): each must be one function of ours (decomp/config/GXCE01/symbols.txt) in the game code
      (before the first library object), they must be consecutive functions of ours, and the range is [first's
-     address, the start of the next function / symbol after the last) - the padding after it belongs to it. Today
-     these are tools/promote_drafts.py's one-function files (a matching m2c draft each, no data of their own); a
-     file that does not resolve stops the run. Configure.py links every game object from C (cr_matching).
+     address, the start of the next function / symbol after the last) - the padding after it belongs to it. These
+     are tools/promote_drafts.py's files: one function each (a matching m2c draft, no data of their own), or a FILE
+     OBJECT (step 63): the consecutive functions that share a constant pool (per-file pools, above) in one file with
+     its own .sdata2 constants / string literals; game_file_data places that data (every relocation of the object
+     into its own data gives one piece start in main.elf, the bytes are main.dol's, no relocation from outside the
+     object's code goes into the piece, the zeros up to the next dtk symbol go with it). A file that does not resolve
+     stops the run. Configure.py links every game object from C (cr_matching).
   2. by tools/match_game_names.py's G3 module notes (assert .c names), which say which file a function is in, but
      not where a file starts or ends: only where both ends are proven: its first and last function have a G3 note
      for it, and the functions right outside have G3 notes for OTHER files (on the current data this proves none);
@@ -1654,6 +1658,98 @@ def game_c_objects(funcs, game_end):
     return out
 
 
+GAME_DATA = (".rodata", ".data", ".sdata", ".sdata2")
+
+
+def game_file_data(elf, dobjs, opath, text_start, text_end, addr_of):
+    """FILE OBJECTS (plan.md step 63): a game C file's own data (its .sdata2 constant pool, string literals) placed
+    where main.dol has it -> ({section: (start, end)}, "") or ({}, the reason it is not proven).
+    Every relocation of the compiled object's .text into one of its own data sections goes to that section's piece
+    start + the symbol's offset in the object: main.elf (the sections-only scratch link) relocates that site, with
+    the same type, to that address, so all of them must give the same piece start. The piece is then proven when its
+    bytes equal the object's section, it starts on a dtk data symbol, every relocation of main.elf into it comes from
+    the file's own code range (the per-file pool rule: no other function shares an entry, so no other file needs it),
+    and the bytes after it up to the next dtk symbol are zeros (the alignment padding, which goes with it).
+    Data sections with relocations of their own (pointer tables) are not handled: reported."""
+    secs, syms, rels = read_obj(opath)
+    ti = next(i for i, s in enumerate(secs) if s[0] == ".text")
+    own = {i: s for i, s in enumerate(secs) if s[0] in GAME_DATA and s[2]}
+    if not own:
+        return {}, ""
+    for i in own:
+        if rels.get(i):
+            return {}, f"its {secs[i][0]} has relocations (a pointer table): not handled"
+    start = {}
+    for off, typ, si, add in rels.get(ti, []):
+        n, v, sz, t, b, shn = syms[si]
+        site = text_start + off
+        r = elf.relocs.get(site)
+        if r is None and typ == 109:
+            r = elf.relocs.get(site & ~3)
+        if r is None or r[0] != typ:
+            return {}, f"main.elf has no relocation of type {typ} at 0x{site:08X}"
+        if shn in own:
+            s = r[1] - (v + add)
+            if start.setdefault(shn, s) != s:
+                return {}, f"{secs[shn][0]}: its relocations give two piece starts (0x{start[shn]:08X}, 0x{s:08X})"
+        elif shn == ti:
+            if r[1] != text_start + v + add:
+                return {}, f"the call / reference at 0x{site:08X} goes elsewhere in main.elf"
+        elif shn == 0:
+            if addr_of(n) is None or r[1] != addr_of(n) + add:
+                return {}, f"{n} at 0x{site:08X}: main.elf's target is 0x{r[1]:08X}"
+    out = {}
+    for shn, s in sorted(start.items()):
+        name, typ, size, align, data = own[shn]
+        if name not in [x[1] for x in elf.alloc] or elf.section_of(s) != name or s % max(1, align):
+            return {}, f"{name} piece 0x{s:08X} is not in main.dol's {name} or not aligned"
+        sec = next(x for x in elf.alloc if x[1] == name)
+        got = elf.d[sec[5] + s - sec[3]: sec[5] + s - sec[3] + size]
+        if got != data:
+            return {}, f"{name} piece 0x{s:08X}: main.dol's bytes differ from the object's"
+        if s not in dobjs.info:
+            return {}, f"{name} piece 0x{s:08X} does not start on a dtk symbol"
+        i = bisect.bisect_left(dobjs.starts, s + size)
+        e = dobjs.starts[i] if i < len(dobjs.starts) and dobjs.starts[i] < sec[3] + sec[4] else sec[3] + sec[4]
+        if any(elf.d[sec[5] + s + size - sec[3]: sec[5] + e - sec[3]]):
+            return {}, f"{name} piece 0x{s:08X}: non-zero bytes between its end 0x{s + size:08X} and the next symbol"
+        for site, r in elf.relocs.items():
+            if s <= r[1] < e and not text_start <= site < text_end:
+                return {}, f"{name} 0x{r[1]:08X} is also used from 0x{site:08X} (another file's code or data)"
+        out[name] = (s, e)
+    return out, ""
+
+
+def game_data(audit, objs, data, ours, rejected):
+    """the data pieces of the game C files that have data of their own (game_file_data) -> report lines"""
+    elf, dobjs = audit[0], audit[1]
+    addr = defaultdict(set)
+    for n, sec, a, sz, isf in ours:
+        addr[n].add(a)
+
+    def addr_of(n):
+        s = addr.get(n, ())
+        return next(iter(s)) if len(s) == 1 else None
+    taken = [r for v in data.values() for r in v.values()]
+    lines = []
+    for path, secs in objs:
+        o = COBJ / (path[:-2] + ".o")
+        if not path.startswith("game/") or ".text" not in secs or not o.exists():
+            continue
+        pieces, why = game_file_data(elf, dobjs, o, secs[".text"][0], secs[".text"][1], addr_of)
+        if why:
+            rejected.append(f"data {path}: {why}")
+            continue
+        for s, (a, b) in sorted(pieces.items()):
+            if any(a < y and x < b for x, y in taken):
+                rejected.append(f"data {path} {s}: 0x{a:08X}-0x{b:08X} overlaps another object's piece")
+                continue
+            data.setdefault(path, {})[s] = (a, b)
+            taken.append((a, b))
+            lines.append(f"{path:<48} {s:<7} 0x{a:08X}-0x{b:08X} the file's own {s} (bytes = the object's, used only "
+                         f"by its code: file objects, plan.md step 63)")
+    return lines
+
 def game_splits(funcs, chosen, rejected):
     g3 = read_g3()
     idx_of = {s[2]: i for i, s in enumerate(funcs)}
@@ -1721,6 +1817,7 @@ def main(argv) -> int:
         if "--no-c" not in argv:
             compile_c(objs, data)
             cdata, clines, need, cwhole = c_data(audit[0], ours, objs, data, rejected)
+            clines += game_data(audit, objs, data, ours, rejected)
             dgaps = merge_c_data(objs, data, cdata, dlines, clines, rejected, audit[0])
             at = defaultdict(list)
             for n, sec, a, sz, isf in ours:

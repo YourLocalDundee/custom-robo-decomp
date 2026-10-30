@@ -26,6 +26,21 @@ The promoted file is the draft's own text, behind a committed header instead of 
 One function per object: the game's own source files are not known (no reference decomp, no file names in the
 asserts for most of it). The file says so; merging functions into real files later is a new object range and nothing
 else (tools/gen_dtk_splits.py takes a game object's range from the functions its file defines).
+When the generated declarations leave a struct incomplete that the draft reads fields of ("illegal use of incomplete
+struct"), the file is generated again with the structs the draft's globals / functions point to defined (one level;
+their members' pointers stay incomplete): cr_Chara_SetCurrentPointers (step 63).
+FILE OBJECTS (plan.md step 63): a 100% draft that fails only rule 2 because it has data of its own (an .sdata2
+constant, a string literal) can be linked only together with the other functions of its source file. The per-file
+pool rule (tools/gen_dtk_splits.py) gives them: every function using one of its pool entries (.sdata2 symbols and
+dtk's data:string symbols, main.elf's relocations) is in its file, and so is every function in between (code is
+contiguous per file); repeated until closed, that is the file run. When every function of the run is a 100% draft
+passing rules 1-4 (its own data relocations aside), the drafts are concatenated, in address order, into one file
+decomp/src/game/<first>_<last>.c (declarations as above, then the functions' own prototypes, then the bodies), which
+must compile to the drafts' .text one after another, and gen_dtk_splits.game_file_data must place its data: every
+relocation into its own .sdata2 / strings gives one piece start in main.elf, the bytes are main.dol's, and nothing
+outside the run uses the piece. The run's per-function files are removed. Runs that are not available (a function not
+at 100%, a pool entry also used from data or library code) are listed in the report with the span of each draft's
+direct pool users. `--try-run FIRST LAST` (with --check) builds a given run of 100% drafts as a file to test the path.
 
 Files this tool writes start with its marker line; only those are ever rewritten or removed (a hand-edited game file
 drops the marker and is then left alone). A marked file whose draft is no longer 100% is KEPT (it still matches on its
@@ -33,7 +48,8 @@ own: batch 9 links it and checks the SHA-1); a marked file whose function name i
 symbols/descriptive.txt) is removed and, when the draft under the new name passes, written again under that name.
 Writes decomp/reports/promote_report.txt (CRLF, deterministic: promoted files, files kept, every 100% draft left out
 and why). Exit 1 on an internal error only. Prints "changed" when decomp/src/game changed (batch 12 then rebuilds).
-Usage: python -I tools/promote_drafts.py [--check]   (--check: write nothing in decomp/src, only the report to stdout)
+Usage: python -I tools/promote_drafts.py [--check] [--try-run FIRST LAST]
+       (--check: write nothing in decomp/src, only the report to stdout)
 """
 import concurrent.futures as cf
 import os
@@ -116,10 +132,12 @@ SECTIONS = db.decl_sections()   # {data object: section} of the context's CR_SEC
 class Emitter:
     """the declarations a draft needs out of the context, dependencies first"""
 
-    def __init__(self, ctx, provided):
+    def __init__(self, ctx, provided, full=False):
         from m2c_pycparser.c_generator import CGenerator
         self.ctx, self.ca, self.gen = ctx, ctx.ca, CGenerator
         self.provided = provided
+        self.full = full   # the structs a used global / function points to are defined (the draft reads their fields)
+        self.top = False   # walking such a declaration itself (not the members of a struct it pulls in)
         self.out, self.done, self.tstate, self.sstate = [], set(), {}, {}
         self.local = set()
 
@@ -132,7 +150,7 @@ class Emitter:
         if n is None:
             return
         if isinstance(n, ca.PtrDecl):
-            return self.walk(n.type, True)
+            return self.walk(n.type, not self.top)
         if isinstance(n, ca.TypeDecl):
             return self.walk(n.type, ptr)
         if isinstance(n, ca.IdentifierType):
@@ -143,8 +161,10 @@ class Emitter:
         if isinstance(n, (ca.Struct, ca.Union)):
             if n.decls is None:
                 return self.need_tag(kind(n), n.name, ptr)
+            top, self.top = self.top, False
             for d in n.decls:
                 self.walk(d)
+            self.top = top
             return
         if isinstance(n, ca.Enum):
             if n.values is None:
@@ -192,7 +212,10 @@ class Emitter:
         if name in c.enumer:
             return self.emit(c.enumer[name])
         if name in c.ident:
-            return self.emit(c.ident[name])
+            top, self.top = self.top, self.full
+            self.emit(c.ident[name])
+            self.top = top
+            return
         raise Unknown(name)
 
     def need_enum(self, name):
@@ -205,8 +228,10 @@ class Emitter:
         if self.sstate.get(key) == "full":
             return
         self.sstate[key] = "full"
+        top, self.top = self.top, False
         for d in su.decls:
             self.walk(d)
+        self.top = top
         self.out.append(self.text(su) + ";")
 
     def need_type(self, name, ptr):
@@ -295,18 +320,72 @@ def marked(path):
         return False
 
 
-def file_text(name, a, b, decls, body):
-    head = [
-        f"{MARK}; edit by hand only after removing this line.",
-        f" * {name}: .text 0x{a:08X}-0x{b:08X} ({b - a} bytes), linked from this file (batch 9: retail SHA-1, objdiff 100%).",
-        " * One function per object: the game's own source files are not known yet, so this is not the original file.",
-        " * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */",
-        f'#include "{HEADER}"',
-        "",
-    ]
+def file_text(name, a, b, decls, body, members=None):
+    if members:
+        about = [f" * {name}: .text 0x{a:08X}-0x{b:08X} ({b - a} bytes, {len(members)} functions: {members[0]} .. {members[-1]}), "
+                 "linked from this file (batch 9: retail SHA-1, objdiff 100%).",
+                 " * A FILE OBJECT (plan.md step 63): these consecutive functions share their .sdata2 constant pool / string",
+                 " * literals (the per-file pool rule), so they are one source file; the file's real edges may lie further out.",
+                 " * The code is the functions' m2c drafts (docs/drafts.md), which compile to main.dol's bytes. */"]
+    else:
+        about = [f" * {name}: .text 0x{a:08X}-0x{b:08X} ({b - a} bytes), linked from this file (batch 9: retail SHA-1, objdiff 100%).",
+                 " * One function per object: the game's own source files are not known yet, so this is not the original file.",
+                 " * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */"]
+    head = [f"{MARK}; edit by hand only after removing this line."] + about + [f'#include "{HEADER}"', ""]
     if decls:
         head += ["/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */"] + decls + [""]
     return "\n".join(head) + "\n" + body.rstrip("\n") + "\n"
+
+
+class Pools:
+    """the per-file pools (tools/gen_dtk_splits.py docstring): each source file has its own .sdata2 constants and
+    string literals (dtk's data:string symbols), so all functions using one entry are in one file"""
+
+    def __init__(self, elf, funcs, ours):
+        import bisect
+        import reloc_audit as ra
+        self.funcs = funcs
+        strings = set()
+        for line in gs.OURS.read_text(encoding="utf-8").splitlines():
+            m = gs.SYM.match(line)
+            if m and "data:string" in line:
+                strings.add(int(m.group(3), 16))
+        dobjs = ra.Objects(elf)
+        start = [f[1] for f in funcs]
+        self.users = {}
+        self.of = {}
+        for site, r in elf.relocs.items():
+            if r[0] in (ra.R_REL24, ra.R_REL14):
+                continue
+            c = dobjs.containing(r[1])
+            if not c or not (elf.section_of(r[1]) == ".sdata2" or c[0] in strings):
+                continue
+            k = bisect.bisect_right(start, site) - 1
+            if k < 0 or site >= funcs[k][1] + funcs[k][2]:
+                k = -1   # used from outside the game functions (library code, data)
+            self.users.setdefault(c[0], set()).add(k)
+            self.of.setdefault(k, set()).add(c[0])
+
+    def direct(self, k):
+        """(first, last): the functions using function k's own pool entries (one step of file_run)"""
+        u = {j for c in self.of.get(k, ()) for j in self.users[c] if j >= 0} | {k}
+        return min(u), max(u)
+
+    def file_run(self, k):
+        """(first, last, an entry used outside the game functions or None): the smallest run of consecutive functions
+        around k that holds every user of every pool entry its functions use (repeated until closed)"""
+        lo = hi = k
+        while True:
+            nlo, nhi = lo, hi
+            for j in range(lo, hi + 1):
+                for c in self.of.get(j, ()):
+                    u = self.users[c]
+                    if -1 in u:
+                        return lo, hi, c
+                    nlo, nhi = min(nlo, min(u)), max(nhi, max(u))
+            if (nlo, nhi) == (lo, hi):
+                return lo, hi, None
+            lo, hi = nlo, nhi
 
 
 # ---- main ------------------------------------------------------------------------------------------------------------
@@ -342,20 +421,51 @@ def main(argv):
 
     import reloc_audit as ra
     targets = {}
-    for site, r in ra.Elf(str(D / "build/splitdata/main.elf")).relocs.items():
+    elf = ra.Elf(str(D / "build/splitdata/main.elf"))
+    dobjs = ra.Objects(elf)
+    for site, r in elf.relocs.items():
         targets.setdefault(r[1], []).append(site)
 
     def referenced(a, size):
         return any(not a <= x < a + size for x in targets.get(a, []))
 
-    def check_one(c):
+    def promoted_text(name, a, size, body, full, keep):
+        """the promoted file's text for one draft -> (text, "") or the reason it cannot be generated"""
+        e = Emitter(ctx, provided, full)
+        try:
+            pp = WORK / "src" / f"{name}.pp.c"
+            pp.write_text(f'#include "{HEADER}"' + NL + body, encoding="utf-8", newline=NL)
+            rc, txt = run(cc + ["-E", "-nodefaults", "-proc", "gekko", "-nosyspath", "-i", "include",
+                           str(pp.relative_to(D)).replace("\\", "/")])
+            if rc:
+                return "does not preprocess with the committed header: " + txt.strip().splitlines()[-1][:80]
+            from m2c.c_types import parse_c
+            ast, _ = parse_c(m2c_source(txt), ctx.scope)
+            items = [it for it in ast.ext if not (isinstance(it, ctx.ca.Typedef) and it.name in provided)]
+            for it in items:
+                for n in walk_decls(ctx.ca, it):
+                    e.local.add(n)
+            for it in items:
+                e.walk(it.decl if isinstance(it, ctx.ca.FuncDef) else it)
+                if isinstance(it, ctx.ca.FuncDef):
+                    e.walk(it.body)
+        except Unknown as x:
+            return f"uses {x} that the drafts' context does not declare"
+        except Exception as x:   # a parse problem of the context reader: report, not fatal
+            return f"declarations could not be generated ({type(x).__name__}: {str(x).splitlines()[0][:60]})"
+        return file_text(name, a, a + size, e.out, force_active(body, name) if keep else body), ""
+
+    def check_one(c, group=False):
+        """None when the draft can be promoted on its own (group: as a member of a file object, its own data
+        checked with the file's)"""
         a, name, size = c
         o = DRAFTS / "obj" / f"{name}.o"
         if name not in where or where[name][0] != a:
             return "not a game function of the current split at this address"
         sec, fn, rl = obj_summary(o)
+        snames = [s[0] for s in gs.read_obj(o)[0]]
         space = [f"{s} 0x{v[0]:X}" for s, v in sorted(sec.items()) if s in SPACE and v[0]]
-        if space:
+        if space and not group:
             return "has data of its own (" + ", ".join(space) + "): needs the data piece split too"
         if len(fn) != 1 or fn[0][0] != name or fn[0][2] != size or sec[".text"][0] != size:
             return "the object is not exactly the function (%s)" % ", ".join(f"{f[0]} 0x{f[2]:X}" for f in fn)
@@ -379,6 +489,9 @@ def main(argv):
                 orl[off - ofn[1]] = (t, tgt, sn)
         mine = {}
         for off, t, sn, sshn, ad in rl:
+            if group and sshn < len(snames) and snames[sshn] in SPACE:
+                orl.pop(off, None)   # its own data: checked against main.elf with the whole file (game_file_data)
+                continue
             if sshn not in (0,) and sn != name:
                 return f"relocation to its own symbol {sn} at +0x{off:X}"
             tgt = a + ad if sn == name else (addr_of(sn) + ad if addr_of(sn) is not None else None)
@@ -390,40 +503,27 @@ def main(argv):
                 return f"relocation type differs at +0x{off:X}"
             if mine[off][1] is None or mine[off][1] != orl[off][1]:
                 return f"relocation at +0x{off:X} goes to {mine[off][2]}, the original's to {orl[off][2]}"
-        # 5. the promoted file
+        if group:
+            return None
+        # 5. the promoted file: the declarations it uses (a struct used only through a pointer incomplete); when the
+        #    compiler needs a struct's fields there (illegal use of incomplete struct), again with every struct defined
         body = draft_body(name)
-        e = Emitter(ctx, provided)
-        try:
-            pp = WORK / "src" / f"{name}.pp.c"
-            pp.write_text(f'#include "{HEADER}"\n' + body, encoding="utf-8", newline="\n")
-            rc, txt = run(cc + ["-E", "-nodefaults", "-proc", "gekko", "-nosyspath", "-i", "include",
-                           str(pp.relative_to(D)).replace("\\", "/")])
-            if rc:
-                return "does not preprocess with the committed header: " + txt.strip().splitlines()[-1][:80]
-            from m2c.c_types import parse_c
-            ast, _ = parse_c(m2c_source(txt), ctx.scope)
-            items = [it for it in ast.ext if not (isinstance(it, ctx.ca.Typedef) and it.name in provided)]
-            for it in items:
-                for n in walk_decls(ctx.ca, it):
-                    e.local.add(n)
-            for it in items:
-                e.walk(it.decl if isinstance(it, ctx.ca.FuncDef) else it)
-                if isinstance(it, ctx.ca.FuncDef):
-                    e.walk(it.body)
-        except Unknown as x:
-            return f"uses {x} that the drafts' context does not declare"
-        except Exception as x:   # a parse problem of the context reader: report, not fatal
-            return f"declarations could not be generated ({type(x).__name__}: {str(x).splitlines()[0][:60]})"
-        if not referenced(a, size):
-            body = force_active(body, name)
-        text = file_text(name, a, a + size, e.out, body)
-        src = WORK / "src" / f"{name}.c"
-        src.write_text(text, encoding="utf-8", newline="\n")
-        obj = WORK / f"{name}.o"
-        rc, txt = run(cc + ["-c"] + flags + ["-o", str(obj.relative_to(D)).replace("\\", "/"),
-                                            str(src.relative_to(D)).replace("\\", "/")])
-        if rc or not obj.exists():
-            return "the promoted file does not compile: " + db.compile_error(txt)
+        for full in (False, True):
+            r = promoted_text(name, a, size, body, full, not referenced(a, size))
+            if isinstance(r, str):
+                return r
+            text = r[0]
+            src = WORK / "src" / f"{name}.c"
+            src.write_text(text, encoding="utf-8", newline=NL)
+            obj = WORK / f"{name}.o"
+            rc, txt = run(cc + ["-c"] + flags + ["-o", str(obj.relative_to(D)).replace("\\", "/"),
+                                                str(src.relative_to(D)).replace("\\", "/")])
+            if rc or not obj.exists():
+                err = db.compile_error(txt)
+                if not full and "incomplete struct" in err:
+                    continue
+                return "the promoted file does not compile: " + err
+            break
         s2, f2, r2 = obj_summary(obj)
         if {k: v for k, v in s2.items() if v[0] and k != ".comment"} != \
                 {k: v for k, v in sec.items() if v[0] and k != ".comment"} or f2 != fn or r2 != rl:
@@ -431,9 +531,119 @@ def main(argv):
         objs[name] = text
         return None
 
+    def file_object(mem):
+        """the members' drafts as one file -> (text, {section: (start, end)}) or why not: the file compiles to the
+        drafts' .text one after another (each function where it is in main.dol) and its own data is main.dol's
+        piece used only by these functions (gen_dtk_splits.game_file_data)"""
+        first, last = mem[0][0], mem[-1][0]
+        a, b = mem[0][1], mem[-1][1] + mem[-1][2]
+        bodies = [draft_body(f[0]) for f in mem]
+        want = b""
+        for f in mem:
+            dsec = gs.read_obj(DRAFTS / "obj" / f"{f[0]}.o")[0]
+            want += next(s[4] for s in dsec if s[0] == ".text")
+        stem = f"{first}_{last}"
+        for full in (False, True):
+            e = Emitter(ctx, provided, full)
+            try:
+                pp = WORK / "src" / f"{stem}.pp.c"
+                pp.write_text(f'#include "{HEADER}"' + NL + NL.join(bodies), encoding="utf-8", newline=NL)
+                rc, txt = run(cc + ["-E", "-nodefaults", "-proc", "gekko", "-nosyspath", "-i", "include",
+                                    str(pp.relative_to(D)).replace("\\", "/")])
+                if rc:
+                    return "does not preprocess with the committed header"
+                from m2c.c_types import parse_c
+                ast, _ = parse_c(m2c_source(txt), ctx.scope)
+                items = [it for it in ast.ext if not (isinstance(it, ctx.ca.Typedef) and it.name in provided)]
+                for it in items:
+                    for n in walk_decls(ctx.ca, it):
+                        e.local.add(n)
+                for it in items:
+                    e.walk(it.decl if isinstance(it, ctx.ca.FuncDef) else it)
+                    if isinstance(it, ctx.ca.FuncDef):
+                        e.walk(it.body)
+                protos = [e.text(it.decl) + ";" for it in items if isinstance(it, ctx.ca.FuncDef)]
+            except Unknown as x:
+                return f"uses {x} that the drafts' context does not declare"
+            except Exception as x:
+                return f"declarations could not be generated ({type(x).__name__}: {str(x).splitlines()[0][:60]})"
+            body = NL.join(force_active(bd, f[0]) if not referenced(f[1], f[2]) else bd for bd, f in zip(bodies, mem))
+            text = file_text(stem, a, b, e.out + ["", "/* the file's functions (each is defined below, in address order) */"]
+                             + protos, body, [f[0] for f in mem])
+            src = WORK / "src" / f"{stem}.c"
+            src.write_text(text, encoding="utf-8", newline=NL)
+            obj = WORK / f"{stem}.o"
+            rc, txt = run(cc + ["-c"] + flags + ["-o", str(obj.relative_to(D)).replace("\\", "/"),
+                                                str(src.relative_to(D)).replace("\\", "/")])
+            if rc or not obj.exists():
+                err = db.compile_error(txt)
+                if not full and "incomplete struct" in err:
+                    continue
+                return "the file does not compile: " + err
+            break
+        s2, f2, r2 = obj_summary(obj)
+        if s2[".text"][2] != want:
+            return "the file's .text is not the drafts' .text one after another"
+        off = 0
+        for f in mem:
+            if (f[0], off, f[2]) not in f2:
+                return f"{f[0]} is not at +0x{off:X} (0x{f[2]:X} bytes) in the file's object"
+            off += f[2]
+        pieces, why = gs.game_file_data(elf, dobjs, obj, a, b, addr_of)
+        if why:
+            return why
+        return text, pieces
+
     with cf.ThreadPoolExecutor(os.cpu_count() or 4) as ex:
         why = dict(zip([c[1] for c in cands], ex.map(check_one, cands)))
-    promoted = [c for c in cands if why[c[1]] is None]
+
+    # FILE OBJECTS (plan.md step 63): a draft with data of its own goes into a file of consecutive functions
+    files, runs = {}, {}
+    pool = Pools(elf, funcs, ours)
+    try_run = argv[argv.index("--try-run") + 1:argv.index("--try-run") + 3] if "--try-run" in argv else None
+    blocked = [c for c in cands if why[c[1]] and why[c[1]].startswith("has data of its own")]
+    gi = {f[0]: i for i, f in enumerate(funcs)}
+    todo = [(gi[try_run[0]], gi[try_run[1]], None)] if try_run else []
+    direct = []
+    for c in blocked:
+        lo, hi, outside = pool.file_run(gi[c[1]])
+        todo.append((lo, hi, outside))
+        dl, dh = pool.direct(gi[c[1]])
+        nm = sum(1 for f in funcs[dl:dh + 1] if "100% MATCH" in status.get(f[0], ""))
+        direct.append(f"{c[1]}: its pool entries' users alone span {funcs[dl][0]}..{funcs[dh][0]} "
+                      f"(0x{funcs[dl][1]:08X}-0x{funcs[dh][1] + funcs[dh][2]:08X}, {dh - dl + 1} functions, {nm} at 100%)")
+    for lo, hi, outside in todo:
+        key = (funcs[lo][0], funcs[hi][0])
+        if key in runs:
+            continue
+        mem = funcs[lo:hi + 1]
+        n100 = [f for f in mem if "100% MATCH" in status.get(f[0], "")]
+        head = f"{funcs[lo][1]:08X}-{funcs[hi][1] + funcs[hi][2]:08X}  {key[0]}..{key[1]}  {len(mem)} functions, {len(n100)} at 100%"
+        if outside is not None:
+            runs[key] = head + f" so far: its pool entry 0x{outside:08X} ({elf.section_of(outside)}) is also used outside the game functions (data, library code): not a file"
+            continue
+        if len(n100) < len(mem):
+            miss = [f[0] for f in mem if f not in n100]
+            runs[key] = head + f": not available yet ({len(miss)} not matched: {', '.join(miss[:6])}{' ...' if len(miss) > 6 else ''})"
+            continue
+        bad = [(f[0], r) for f in mem for r in [check_one((f[1], f[0], f[2]), True)] if r]
+        if bad:
+            runs[key] = head + f": {bad[0][0]}: {bad[0][1]}"
+            continue
+        r = file_object(mem)
+        if isinstance(r, str):
+            runs[key] = head + ": " + r
+            continue
+        runs[key] = head + f": FILE OBJECT game/{key[0]}_{key[1]}.c (" + ", ".join(
+            f"{s} 0x{a:08X}-0x{b:08X}" for s, (a, b) in sorted(r[1].items())) + ")"
+        if not (try_run and key == (try_run[0], try_run[1])):
+            files[f"{key[0]}_{key[1]}"] = (mem, r[0])
+    in_file = {f[0] for mem, _ in files.values() for f in mem}
+    for n in in_file:
+        if n in why:
+            why[n] = None
+            objs.pop(n, None)
+    promoted = [c for c in cands if why[c[1]] is None and c[1] not in in_file]
     left = [c for c in cands if why[c[1]] is not None]
 
     # decomp/src/game: write the promoted files; marked files of names that are no longer ours go
@@ -441,15 +651,25 @@ def main(argv):
     existing = {p.stem: p for p in SRC.glob("*.c")} if SRC.exists() else {}
     kept, removed = [], []
     for stem, p in sorted(existing.items()):
-        if not marked(p) or stem in objs:
+        if not marked(p) or stem in objs or stem in files:
             continue
-        if addr_of(stem) is None:
-            removed.append(stem)
+        defs = [m.group(1) for m in map(gs.CDEF.match, p.read_text(encoding="utf-8").splitlines()) if m]
+        if stem in in_file or any(addr_of(n) is None for n in defs) or not defs:
+            removed.append(stem)   # now in a file object, or a name that is no longer ours
             if not check:
                 p.unlink()
                 changed.append(stem)
         else:
-            kept.append((stem, status.get(stem, "no draft")))
+            kept.append((stem, status.get(stem, "no draft") if len(defs) == 1 else f"file object of {len(defs)} functions"))
+    for stem, (mem, text) in sorted(files.items()):
+        p = SRC / f"{stem}.c"
+        if p.exists() and not marked(p):
+            continue
+        if not p.exists() or p.read_text(encoding="utf-8") != text:
+            changed.append(stem)
+            if not check:
+                SRC.mkdir(parents=True, exist_ok=True)
+                p.write_text(text, encoding="utf-8", newline="\n")
     for a, name, size in promoted:
         p = SRC / f"{name}.c"
         if p.exists() and not marked(p):
@@ -460,16 +680,21 @@ def main(argv):
                 SRC.mkdir(parents=True, exist_ok=True)
                 p.write_text(objs[name], encoding="utf-8", newline="\n")
     nbytes = sum(c[2] for c in promoted)
-    out = ["m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md step 58)",
-           "one object per function (the game's own source files are not known); batch 9 links them and checks the SHA-1",
+    fbytes = sum(f[2] for mem, _ in files.values() for f in mem)
+    out = ["m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md steps 58, 63)",
+           "one object per function, or one per file of consecutive functions that share their constant pool (file "
+           "objects); batch 9 links them and checks the SHA-1",
            "",
            f"drafts at 100% MATCH: {len(cands)}",
            f"promoted: {len(promoted)} ({nbytes} bytes = 0x{nbytes:X})",
+           f"file objects: {len(files)} ({len(in_file)} functions, {fbytes} bytes = 0x{fbytes:X})",
            f"left out: {len(left)}",
            f"kept from earlier runs (draft no longer 100%): {len(kept)}",
            f"removed (function name no longer ours): {len(removed)}",
            "", "== promoted (address, function, bytes)"]
     out += [f"{a:08X}  {n:44} {s:5}" for a, n, s in promoted]
+    out += ["", "== file runs of the drafts with data of their own (range, first..last, functions; the users of every pool "
+                "entry they use, closed: plan.md step 63)"] + [runs[k] for k in sorted(runs, key=lambda k: gi[k[0]])] + direct
     out += ["", "== left out (address, function, bytes, why)"]
     out += [f"{a:08X}  {n:44} {s:5}  {why[n]}" for a, n, s in left]
     out += ["", "== kept (function, its draft's status now)"] + [f"{n:44} {s}" for n, s in kept]
@@ -478,7 +703,7 @@ def main(argv):
         print("\n".join(out))
     else:
         REPORT.write_bytes(("\r\n".join(out) + "\r\n").encode("utf-8"))
-        print("\n".join(out[3:8]))
+        print("\n".join(out[3:9]))
     print("changed" if changed else "unchanged", len(changed))
     return 0
 

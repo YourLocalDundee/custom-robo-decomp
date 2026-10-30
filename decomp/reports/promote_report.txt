@@ -1,9 +1,10 @@
-m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md step 58)
-one object per function (the game's own source files are not known); batch 9 links them and checks the SHA-1
+m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md steps 58, 63)
+one object per function, or one per file of consecutive functions that share their constant pool (file objects); batch 9 links them and checks the SHA-1
 
 drafts at 100% MATCH: 293
-promoted: 286 (16020 bytes = 0x3E94)
-left out: 7
+promoted: 287 (16168 bytes = 0x3F28)
+file objects: 0 (0 functions, 0 bytes = 0x0)
+left out: 6
 kept from earlier runs (draft no longer 100%): 3
 removed (function name no longer ours): 0
 
@@ -120,6 +121,7 @@ removed (function name no longer ours): 0
 800450DC  fn_800450DC                                     16
 800498FC  fn_800498FC                                      8
 80049904  fn_80049904                                     32
+80050E74  cr_Chara_SetCurrentPointers                    148
 80050F08  cr_Battle_SetCurrentPointers                   136
 8005CD8C  fn_8005CD8C                                      4
 8005CE70  fn_8005CE70                                      4
@@ -295,9 +297,20 @@ removed (function name no longer ours): 0
 80130988  fn_80130988                                      4
 8013149C  fn_8013149C                                     56
 
+== file runs of the drafts with data of their own (range, first..last, functions; the users of every pool entry they use, closed: plan.md step 63)
+80008ED8-8001AA98  fn_80008ED8..cr_SEQ_LOGO_FrameC  127 functions, 54 at 100% so far: its pool entry 0x801B6620 (.rodata) is also used outside the game functions (data, library code): not a file
+800120D8-8013149C  cr_SEQ_SCENARIO_Enter..fn_801310D4  1642 functions, 243 at 100% so far: its pool entry 0x801B6620 (.rodata) is also used outside the game functions (data, library code): not a file
+80081440-80089F40  fn_80081440..fn_80089BB0  30 functions, 1 at 100%: not available yet (29 not matched: fn_80081440, fn_80081908, fn_80081B54, fn_80081D9C, fn_80082364, fn_80082A00 ...)
+8010E47C-80113680  fn_8010E47C..fn_80112D30  34 functions, 15 at 100%: not available yet (19 not matched: fn_8010E47C, fn_8010E820, fn_8010E9DC, fn_8010EB5C, fn_8010F07C, fn_8010F87C ...)
+fn_80008F8C: its pool entries' users alone span fn_80008ED8..cr_SEQ_LOGO_FrameC (0x80008ED8-0x8001AA98, 127 functions, 54 at 100%)
+fn_800694C4: its pool entries' users alone span fn_800672AC..fn_8006B144 (0x800672AC-0x8006B3D0, 46 functions, 8 at 100%)
+fn_800858B0: its pool entries' users alone span fn_80081440..fn_80089140 (0x80081440-0x80089550, 27 functions, 1 at 100%)
+cr_C_ACT_MOVE_LENG: its pool entries' users alone span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 24 at 100%)
+cr_C_ACT_MOVE: its pool entries' users alone span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 24 at 100%)
+fn_80112A0C: its pool entries' users alone span fn_8010E47C..fn_80112A0C (0x8010E47C-0x80112AB8, 27 functions, 10 at 100%)
+
 == left out (address, function, bytes, why)
 80008F8C  fn_80008F8C                                    140  has data of its own (.sdata2 0x8): needs the data piece split too
-80050E74  cr_Chara_SetCurrentPointers                    148  the promoted file does not compile: illegal use of incomplete struct/union/class '*'
 800694C4  fn_800694C4                                     64  has data of its own (.sdata2 0x8): needs the data piece split too
 800858B0  fn_800858B0                                   1076  has data of its own (.sdata2 0x10): needs the data piece split too
 800BE48C  cr_C_ACT_MOVE_LENG                             384  has data of its own (.sdata2 0x8): needs the data piece split too

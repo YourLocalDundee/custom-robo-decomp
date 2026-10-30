@@ -171,6 +171,41 @@ failures: `illegal operand` (23: pointer / integer comparisons, struct-typed glo
 through `void *` (10), `pointer/array required` (8). Target 3 of the step (SDK prototypes for AIRegisterDMACallback /
 atan2 / acos / HSD_JObjSetPtclTargetCallback) not done.
 
+## Fifth generator (plan.md step 63, Oct 30, 2026)
+
+Round 4 worked on the compile failures and the 4 library prototypes left over from step 62. As before, every fix is in
+the generator and no draft is edited. Fixes were measured with `--only` on the 72 failures in a separate `--out` folder
+and then with a full run.
+1. **Library prototypes the context lacked** (`sdk_protos`): `AIRegisterDMACallback` was skipped because its type
+   `AIDCallback` was unknown. A one-line typedef from the same SDK header is now taken along when the context knows
+   its types, and is written first in `ctx_sdk.h`. `atan2` / `acos` come from MSL's `math.h` (Mario Party 4's MSL_C in
+   decomp/include, read only). Before, their pass-1 drafts had typed them `void f(void)`.
+   `HSD_JObjSetPtclTargetCallback` (KAR's name, no header has it) gets `void (*)()` from `LIB_PROTOS`. Evidence: its
+   body `stw r3, lbl_8044FFE0; blr` stores its argument, and 0x80197A00 loads that word, tests it for 0 and calls it
+   (`mtctr r12; bctrl`). Effect: fn_80075CA8 74 -> 81%, fn_800E52D0 29 -> 46%, fn_8001C5AC 21 -> 24%.
+2. **`illegal operand` in comparisons**:
+   - an integer field compared with a pointer (`M2C_FIELD(p, u32 *, 4) == arg0`): the pointer is cast to `(u32)`, which
+     is the same `cmplw`;
+   - `(void *) M2C_FIELD(...) == x` with an integer x: the field is cast to `(u32)`;
+   - `M2C_FIELD(p, u8 **, n) == (u32) x`: the field is cast to `(u32)`;
+   - `(u8 *) lbl == arg` with an integer arg: the address is cast to `(u32)`.
+   23 -> 11.
+3. **A struct read by value where the code reads a scalar** (`illegal implicit conversion from 'struct cr_FileDesc'`):
+   m2c steps a struct pointer in bytes (`*(cr_g_FileDescs[a] + ((e * 0x10) & 0xFFFF0) + 8)`). The read becomes
+   `*(T *) ((u8 *) base + off)`, with T the type the compiler names, as step 60 already did for the explicit casts.
+   Implicit conversions 12 -> 6.
+
+**Before -> after** (full run): compile 1,679 -> 1,697 of 1,751 (failures 70 -> 52 + 2 m2c), 100% MATCH 293 -> 293,
+bytes equal after alignment 393,544 -> 399,064. Histogram: 0-9% 76 -> 76, 10-19% 116 -> 117, 20-29% 154 -> 159,
+30-39% 310 -> 311, 40-49% 144 -> 148, 50-59% 159 -> 160, 60-69% 138 -> 142, 70-79% 145 -> 145, 80-89% 90 -> 92,
+90-99% 54 -> 54. No match was lost; the 18 newly compiled drafts score 14-87% (one at 80-99%). Promoted: 287 + 3 kept =
+**290 game objects**. cr_Chara_SetCurrentPointers now links: the promoted file defines the structs that its globals
+point to when the compiler needs their fields (promote_drafts.py). No file object was possible yet (next section).
+Not done in this round (bound): the 146 drafts at 80-99% (144 before) (classes listed under the Fourth generator, still open). Of the
+52 failures, the ones left are explicit conversions from `float *` / `void (*)()` (12), `illegal operand` on
+struct-typed globals in arithmetic (`*(cr_g_AreaBoxes + off) & 1`) and on struct values plus offsets (11), `illegal
+type` (10) and `pointer/array required` (8).
+
 ## Promoted to decomp/src/game (plan.md step 58)
 
 After the drafts, batch 12 runs `python -I tools/promote_drafts.py` (method: its docstring). Every 100% draft that can be
@@ -192,6 +227,29 @@ constant of its own: the shared int-to-float constant, needs that data piece spl
 own and cr_Chara_SetCurrentPointers (its generated declarations leave a struct incomplete that the draft uses by value);
 the 2 kept (fn_800A0804, fn_800F60A8) matched in the first version and still link, their new drafts are at 85 / 94%.
 Files carry a marker line: only marked files are rewritten; remove it before editing one by hand.
+
+## File objects (plan.md step 63)
+
+A 100% draft with data of its own (an .sdata2 constant or a string literal) cannot be linked as a one-function object.
+That data is part of its source file's pool, and the file's other functions use the same pool. `tools/promote_drafts.py`
+therefore looks for the draft's **file run**. Every source file has its own constant pool and string literals, laid out
+in link order (the per-file pool rule of `tools/gen_dtk_splits.py`). So every function that uses one of the draft's
+pool entries is in its file, and so is every function in between; this is repeated until nothing new is added. When all
+functions of the run are 100% drafts, they become one generated file `decomp/src/game/<first>_<last>.c`: the
+declarations, the functions' own prototypes, then the drafts in address order. The file must compile to the drafts'
+.text one after another. `gen_dtk_splits.game_file_data` then places its data: every relocation into its own .sdata2 /
+strings must give the same piece start in main.elf, the bytes must be main.dol's, and nothing outside the run may use
+the piece. The piece then goes into splits.txt with the object, and the run's one-function files are removed.
+`decomp/reports/promote_report.txt` lists every run under "file runs": its range, how many of its functions match,
+and why it is not built yet, plus the span of each draft's direct pool users. `python -I tools/promote_drafts.py
+--check --try-run FIRST LAST` builds any run of 100% drafts as a file without writing anything (tested on
+fn_80112848..fn_80112940, four functions: the file compiles to the four drafts' bytes in a row).
+Status after step 63: **no run is complete**. The 6 matched drafts with a constant: fn_80008F8C's direct users are
+127 functions, 54 at 100% (0x80008ED8-0x8001AA98); fn_800694C4 46, 8 at 100%; fn_800858B0 27, 1; cr_C_ACT_MOVE_LENG
+and cr_C_ACT_MOVE 458, 24 (lbl_80451290 alone has 52 users over 0x80099EAC-0x800D9C88); fn_80112A0C 27, 10. Closed
+over every pool entry, the runs grow further, because a string (0x801B6620) is also used from a data table and some
+.sdata2 entries are used across very distant code (const globals or very large files). These runs become available as
+the drafts around them match; the rule never links a group it cannot prove.
 
 ## Using it
 
