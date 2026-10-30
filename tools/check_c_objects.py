@@ -71,6 +71,20 @@ def ref_dir(name):
     return os.path.join(G, 'tools', 'melee') if name == 'melee' else os.path.join(G, 'tools', 'refs', name)
 
 
+def ref_file(name, refpath):
+    """the reference file's real path: the provenance line was written on Windows, where the file system ignores case
+    (GCN_mem_alloc.c finds GCN_Mem_Alloc.c), so each component is matched without case when it is not found as is"""
+    p = ref_dir(name)
+    for part in refpath.replace('\\', '/').split('/'):
+        q = os.path.join(p, part)
+        if not os.path.exists(q) and os.path.isdir(p):
+            hit = [e for e in os.listdir(p) if e.lower() == part.lower()]
+            if len(hit) == 1:
+                q = os.path.join(p, hit[0])
+        p = q
+    return p
+
+
 def elf_sections(path):
     """{name: size} of the allocated sections of an ELF object"""
     d = open(path, 'rb').read()
@@ -109,7 +123,7 @@ def sources_report():
                 name, pin = p[repo]
                 if commit != pin:
                     errors.append(f'{rel}: {repo} @ {commit}, but tools/pins.txt pins {pin}')
-                ref = os.path.join(ref_dir(name), refpath)
+                ref = ref_file(name, refpath)
                 body = data[m.end():]
                 if not os.path.exists(ref):
                     state = 'reference file missing locally (run tools/setup.ps1)'
