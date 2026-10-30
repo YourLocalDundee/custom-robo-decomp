@@ -1,4 +1,4 @@
-c-callsite names (tools/check_c_callsites.py): 169 lines in symbols/symbols.txt, 169 OK, 0 FAIL; 1948 names derived from matched C call sites, 63 at a dtk default name, 2 differ from our name, 0 at two addresses, 0 sites without the same relocation
+c-callsite names (tools/check_c_callsites.py): 170 lines in symbols/symbols.txt, 170 OK, 0 FAIL; 1948 names derived from matched C call sites, 59 at a dtk default name, 2 differ from our name, 0 at two addresses, 0 sites without the same relocation
 
 OK   DSPCheckMailToDSP 0x8014A42C: 40 call site(s), all agree; e.g. dolphin/ax/AXOut __AXOutNewFrame+0x4C (0x80145894 REL24)
 OK   PSVECCrossProduct 0x8013A284: 3 call site(s), all agree; e.g. dolphin/mtx/mtx C_MTXLookAt+0x6C (0x80139BAC REL24)
@@ -84,6 +84,7 @@ OK   hsdDObj 0x8024B4F8: defined there by sysdolphin/baselib/dobj.c (.data, size
 OK   hsdWObj 0x8024CE00: defined there by sysdolphin/baselib/wobj.c (.data, size 0x44)
 OK   hsdTObj 0x8024B618: defined there by sysdolphin/baselib/tobj.c (.data, size 0x4C)
 OK   tobj_head 0x8044FF04: defined there by sysdolphin/baselib/tobj.c (.sbss, size 0x4)
+OK   aobj_alloc_data 0x80449DB8: defined there by sysdolphin/baselib/aobj.c (.bss, size 0x2C)
 OK   hsdFog 0x8024CEA8: defined there by sysdolphin/baselib/fog.c (.data, size 0x40)
 OK   hsdFogAdj 0x8024CEE8: defined there by sysdolphin/baselib/fog.c (.data, size 0x3C)
 OK   HSD_PerfCurrentStat 0x8024CFC0: defined there by sysdolphin/baselib/perf.c (.data, size 0x90)
@@ -181,7 +182,6 @@ UNNAMED HSD_Mtx_804C233C 0x8044B4CC (main.elf: lbl_8044B4CC): 6 site(s), e.g. sy
 UNNAMED HSD_VIData 0x80449EA0 (main.elf: lbl_80449EA0): 54 site(s), e.g. sysdolphin/baselib/video HSD_VIPreRetraceCB+0xA (0x8019D3F6 ADDR16_HA)
 UNNAMED TevReg 0x8024BC48 (main.elf: lbl_8024BC48): 2 site(s), e.g. sysdolphin/baselib/tev _HSD_StateInvalidateTevRegister+0x2 (0x8018B41E ADDR16_HA)
 UNNAMED active_lights 0x80449DE8 (main.elf: lbl_80449DE8): 10 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjGetActiveByID+0x22 (0x8018D2AA ADDR16_HA)
-UNNAMED aobj_alloc_data 0x80449DB8 (main.elf: lbl_80449DB8): 6 site(s), e.g. sysdolphin/baselib/aobj HSD_AObjInitAllocData+0xA (0x8018CC4A ADDR16_HA)
 UNNAMED current 0x8044FFAC (main.elf: lbl_8044FFAC): 2 site(s), e.g. sysdolphin/baselib/cobj HSD_CObjGetCurrent+0x0 (0x801915B4 EMB_SDA21)
 UNNAMED current_jobj 0x8044FFE4 (main.elf: lbl_8044FFE4): 4 site(s), e.g. sysdolphin/baselib/jobj HSD_JObjSetCurrent+0x50 (0x80199954 EMB_SDA21)
 UNNAMED current_tev 0x8044FF60 (main.elf: lbl_8044FF60): 7 site(s), e.g. sysdolphin/baselib/tev HSD_StateInitTev+0x4 (0x8018AD40 EMB_SDA21)
@@ -196,9 +196,6 @@ UNNAMED hsdLObj 0x8024C028 (main.elf: lbl_8024C028): 8 site(s), e.g. sysdolphin/
 UNNAMED i2fMagic 0x80451D88 (main.elf: lbl_80451D88): 2 site(s), e.g. dolphin/axfx/reverb_std HandleReverb+0x36 (0x80148E4A ADDR16_HA)
 UNNAMED invalid_prev_ch 0x8024BDB8 (main.elf: lbl_8024BDB8): 2 site(s), e.g. sysdolphin/baselib/tev _HSD_StateInvalidateColorChannel+0xE (0x8018B3C6 ADDR16_HA)
 UNNAMED jsound_callback 0x8044FFDC (main.elf: lbl_8044FFDC): 1 site(s), e.g. sysdolphin/baselib/jobj JObjUpdateFunc+0x7FC (0x801979E4 EMB_SDA21)
-UNNAMED lbl_805DE1F8 0x8044FF78 (main.elf: lbl_8044FF78): 1 site(s), e.g. sysdolphin/baselib/aobj HSD_AObjInvokeCallBacks+0x28 (0x8018CCA8 EMB_SDA21)
-UNNAMED lbl_805DE1FC 0x8044FF7C (main.elf: lbl_8044FF7C): 4 site(s), e.g. sysdolphin/baselib/aobj HSD_AObjInitEndCallBack+0x8 (0x8018CC78 EMB_SDA21)
-UNNAMED lbl_805DE200 0x8044FF80 (main.elf: lbl_8044FF80): 4 site(s), e.g. sysdolphin/baselib/aobj HSD_AObjInitEndCallBack+0x4 (0x8018CC74 EMB_SDA21)
 UNNAMED lbl_805DE208 0x8044FF88 (main.elf: lbl_8044FF88): 3 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjLoadDesc+0x3C (0x8018F250 EMB_SDA21)
 UNNAMED lbl_805DE20C 0x8044FF8C (main.elf: lbl_8044FF8C): 9 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjSetCurrentAll+0xCC (0x8018E6D0 EMB_SDA21)
 UNNAMED lbl_805E5A34 0x804526E8 (main.elf: lbl_804526E8): 1 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjSetup+0xEC (0x8018D758 EMB_SDA21)

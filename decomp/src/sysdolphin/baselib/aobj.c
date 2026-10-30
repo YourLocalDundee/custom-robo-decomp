@@ -2,10 +2,15 @@
 
 #include <sysdolphin/jobj.h>
 
-extern HSD_ObjAllocData aobj_alloc_data;
-extern s32 lbl_805DE200;
-extern s32 lbl_805DE1FC;
-extern HSD_SList* lbl_805DE1F8;
+HSD_ObjAllocData aobj_alloc_data; /* Custom Robo: defined here, as Melee's aobj.c does (kar: extern) */
+/* Custom Robo: kar's KAR-address names are main.dol's .sbss words of this file (named by address, reverse order of
+   definition): the callback list 0x8044FF78 and the two flags HSD_AObjInitEndCallBack clears */
+#define lbl_805DE200 lbl_8044FF80
+#define lbl_805DE1FC lbl_8044FF7C
+#define lbl_805DE1F8 lbl_8044FF78
+static s32 lbl_8044FF80;
+static s32 lbl_8044FF7C;
+static HSD_SList* lbl_8044FF78;
 
 void HSD_AObjInitAllocData(void)
 {
@@ -64,6 +69,36 @@ void HSD_AObjInvokeCallBacks(void)
             void (*func)(void) = list->data;
             (*func)();
             list = list->next;
+        }
+    }
+}
+
+/* Custom Robo: two functions no reference has (between HSD_AObjInvokeCallBacks and HSD_AObjReqAnim, as main.dol
+   has them; named by address): add a callback to the list (assert "callback", line 228) and remove one, or all */
+extern void __assert(const char*, unsigned long, const char*);
+
+void fn_8018CCDC(void (*callback)(void))
+{
+    callback ? ((void) 0) : __assert(__FILE__, 228, "callback");
+    lbl_805DE1F8 = HSD_SListAllocAndPrepend(lbl_805DE1F8, callback); /* (-DCR_LIST_PREPEND_RETURNS) */
+}
+
+void fn_8018CD2C(void (*callback)(void))
+{
+    HSD_SList** p;
+
+    if (callback != NULL) {
+        p = &lbl_805DE1F8;
+        while (*p != NULL) {
+            if ((*p)->data == callback) {
+                *p = HSD_SListRemove(*p);
+            } else {
+                p = &(*p)->next;
+            }
+        }
+    } else {
+        while (lbl_805DE1F8 != NULL) {
+            lbl_805DE1F8 = HSD_SListRemove(lbl_805DE1F8);
         }
     }
 }

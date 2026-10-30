@@ -485,7 +485,7 @@ src/game/fn_80130710.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_8013079C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80130988.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8013149C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
-src/sysdolphin/baselib/aobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/aobj.c  changed (204 lines added / removed)
+src/sysdolphin/baselib/aobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/aobj.c  changed (247 lines added / removed)
 src/sysdolphin/baselib/aobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/aobj.h  identical
 src/sysdolphin/baselib/bytecode.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/bytecode.c  identical
 src/sysdolphin/baselib/bytecode.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/bytecode.h  identical

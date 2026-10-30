@@ -249,6 +249,7 @@ diff --git a/configure.py b/configure.py
 +CR_OBJECT_INCLUDES["dolphin/card/CARDWrite.c"] = BFBB_INC
 +CR_OBJECT_INCLUDES["dolphin/dvd/dvd.c"] = BFBB_INC
 +CR_OBJECT_INCLUDES["dolphin/ax/AX.c"] = BFBB_INC
++CR_OBJECT_CFLAGS["sysdolphin/baselib/aobj.c"] = ["-DCR_LIST_PREPEND_RETURNS"]
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
 +    "dolphin/mtx/": ["-char signed"],
@@ -451,6 +452,7 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/axfx/chorus.c",
 +    "sysdolphin/baselib/objalloc.c",
 +    "sysdolphin/baselib/state.c",
++    "sysdolphin/baselib/aobj.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -485,8 +487,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 11 of 23 functions equal in objdiff (doldecomp/kar's pobj.c for HSD_PObjReqAnimAllByFlags; HSD_PObjAddAnimAll, PObjUpdateFunc, HSD_PObjAnimAll, HSD_PObjLoadDesc, HSD_PObjRemoveAll, HSD_PObjAlloc, HSD_ClearVtxDesc, HSD_PObjClearMtxMark, PObjSetupMtx, PObjAmnesia, PObjInfoInit ported from wowjinxy/KAR's pobj.c, include/cr_kar/pobj.h with HSD_A_S_W0 2 and the blend union; step 61 iteration 7): PObjInfoInit 99.9% (its class strings at hsdPObj + 0x318 / 0x330: needs the whole file's .data), get_shape_vertex_xyz / get_shape_normal_xyz 99.8% in wowjinxy's C (assert lines 0x43A / 0x465 here and vertex_desc / comp_type in r5 / r6 swapped), PObjRelease 99.5% (r29 / r31 swapped), PObjLoad 96%, HSD_PObjResolveRefsAll 95%, get_shape_nbt_xyz 94%, interpretShapeAnimDisplayList 98%, drawShapeAnim 96%, SetupSharedVtxModelMtx 96%, SetupEnvelopeModelMtx 93%, HSD_PObjDisp 94% (wowjinxy's C, not ported): adapt to this revision",
 +    "sysdolphin/baselib/fobj.c":
 +        "code: 10 of 11 functions equal in objdiff (doldecomp/kar's fobj.c for its functions; FObjLoadData, HSD_FObjInterpretAnim / InterpretAnimAll, HSD_FObjLoadDesc, HSD_FObjAlloc, HSD_FObjFree ported from wowjinxy/KAR's fobj.c, provenance per function, assert lines of this revision; step 61 iteration 8: HSD_FObjGetState as a conditional expression (main.dol puts the NULL case first) -> FObjLoadData equal, the update data as wowjinxy's 0xC union HSD_ObjData -> InterpretAnim's frame 0x60 as main.dol's): HSD_FObjInterpretAnim 99.6%: cases 4 / 5 store the new state with clrlwi / rlwimi from the state register in main.dol, the C folds the constant (ori 3 / ori 4); tried: Melee's MUST_MATCH `state = state = 3`, a non-inline static HSD_FObjSetState, u8 state parameter / return, the operand order of Melee's SetState, a bitfield store, state-- / state++, compilers GC/1.2.5 / 1.3 / 1.3.2r",
-+    "sysdolphin/baselib/aobj.c":
-+        "code: 13 of 15 functions equal in objdiff (doldecomp/kar's aobj.c for its 10 functions, the 9 it lacks ported from wowjinxy/KAR's aobj.c, provenance per function; HSD_AObjSetRate named by its bytes): fn_8018CCDC (0x50) and fn_8018CD2C (0x80), between HSD_AObjInvokeCallBacks and HSD_AObjReqAnim, have no function of their size in Melee's or KAR's file (HSD_AObjSetFObj 0x4C, HSD_AObjStopAnim 0x44 there); the C also has functions this revision inlines (HSD_AObjGetAllocData, Get/Set/ClearFlags, SetFObj, StopAnim)",
 +}
 +
 +

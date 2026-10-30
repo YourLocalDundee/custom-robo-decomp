@@ -1676,13 +1676,14 @@ sysdolphin/baselib/tev.c:
 
 sysdolphin/baselib/mobj.c:
 	.text       start:0x8018B448 end:0x8018CC40
-	.data       start:0x8024BE78 end:0x8024BFE4
+	.data       start:0x8024BE78 end:0x8024BFE8
 	.sdata      start:0x8044EFF0 end:0x8044F018
 	.sbss       start:0x8044FF68 end:0x8044FF78
 	.sdata2     start:0x804526B0 end:0x804526C0
 
 sysdolphin/baselib/aobj.c:
 	.text       start:0x8018CC40 end:0x8018D260
+	.data       start:0x8024BFE8 end:0x8024C027
 	.bss        start:0x80449DB8 end:0x80449DE8
 	.sdata      start:0x8044F018 end:0x8044F028
 	.sbss       start:0x8044FF78 end:0x8044FF88
