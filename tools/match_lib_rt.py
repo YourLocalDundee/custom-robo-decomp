@@ -89,7 +89,7 @@ for i, (a, sz, n) in enumerate(cr):
     if a in layout_named and any(0 <= j < len(cr) and cr[j][1] == sz for j in (i - 1, i + 1)): suspect.add(a)
 anchors = {a: n for a, n in verified.items() if a not in suspect}
 REFS = [os.path.join(G, 'tools/melee/config/GALE01/symbols.txt')] + sorted(
-    glob.glob(os.path.join(G, 'tools/refs/*/config/*/symbols.txt')))
+    glob.glob(os.path.join(G, 'tools/refs/*/config/*/symbols.txt')), key=lambda p: p.replace('/', '\\'))   # Windows path order on every OS (ties -> the same reference)
 refdata = []
 for ref in REFS:
     ml = [x for x in load(ref) if not placeholder(x[2])]
@@ -235,7 +235,7 @@ for _pass in range(2):  # second pass: wrappers of wrappers (powf calls pow)
 
 # ---- R5 (caller side): a verified caller whose reference source calls exactly one function our other callees do not explain
 csrc = []
-for f in sorted(glob.glob(os.path.join(G, 'tools/refs/*/src/**/*.c'), recursive=True)):
+for f in sorted(glob.glob(os.path.join(G, 'tools/refs/*/src/**/*.c'), recursive=True), key=lambda p: p.replace('/', '\\')):   # Windows path order on every OS (ties -> the same reference)
     try: csrc.append((os.path.relpath(f, G).replace(os.sep, '/'), open(f, encoding='utf-8', errors='ignore').read()))
     except OSError: pass
 KW = {'if', 'while', 'for', 'switch', 'return', 'sizeof', 'else', 'do'}

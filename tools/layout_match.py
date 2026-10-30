@@ -52,7 +52,7 @@ def tag(p):
 
 def default_refs():
     return [os.path.join(G, 'tools/melee/config/GALE01/symbols.txt')] + sorted(
-        glob.glob(os.path.join(G, 'tools/refs/*/config/*/symbols.txt')))
+        glob.glob(os.path.join(G, 'tools/refs/*/config/*/symbols.txt')), key=lambda p: p.replace('/', '\\'))   # Windows path order on every OS (ties -> the same reference)
 
 
 def ref_lists(refs):
@@ -312,7 +312,7 @@ def main():
     args = [a for a in args if a != '--permissive']
     if permissive: found, _ = run(args or None, True)
     else: found, _, banned = match(args or None)
-    with open(os.path.join(G, 'symbols/layout_candidates.txt'), 'w') as f:
+    with open(os.path.join(G, 'symbols/layout_candidates.txt'), 'w', newline='\r\n') as f:   # CRLF on every OS (checksummed)
         f.write('// layout-proof candidates: addr size | reference name, its size, which reference | anchored between\n')
         f.write('// rule: forced alignment (unique optimal), or a non-forced pair confirmed by tools/layout_evidence.py\n')
         for a in sorted(found):

@@ -11,6 +11,11 @@ and the outputs are **byte-for-byte reproducible**. At the end you compare SHA-2
   (SHA-1 `fff6e74590366a5c0c5ba0d40c8ccf94770bcb16`, MD5 `546e5108173bceb4d5c8ca27b3fcfc96`, matching GameTDB).
 - Windows 10/11, **PowerShell 7** (`pwsh`; every script has `#Requires -Version 7`, so the blue Windows PowerShell 5.1 refuses them. Under 5.1 the Ghidra call returned before Ghidra finished), **git**, **Python 3.11+**, **Java 21+** (Ghidra), **.NET SDK 8 or newer** (HSDRawViewer).
   Everything else is downloaded and hash-checked by the scripts. Dolphin is optional (the official build is fetched for its `DolphinTool`).
+- Or Linux / macOS: **bash**, **git**, **Python 3.11+** (`python3`), **Java 21+**, **curl**, **unzip** ([docs/INSTALL.md](INSTALL.md)). Every
+  `.ps1` below has a `.sh` twin (`tools/setup.sh`, `tools/batches/run_all.sh`, `tools/checksums.sh --compare`, ...) that runs the
+  same steps with the same arguments and writes the same files; the disc is extracted by the pinned decomp-toolkit instead of
+  DolphinTool (byte-identical, checked), HSDRawViewer (glTF export) and batch 11 (Dolphin boot) are skipped. Verified on
+  Ubuntu 26.04 x86_64, Oct 30, 2026: `tools/from_scratch.sh` PASS, all checksums matching.
 
 ## The one command
 
@@ -20,15 +25,30 @@ cd custom-robo-decomp
 pwsh tools\from_scratch.ps1 -Iso "D:\Games\Custom Robo (USA).iso"
 ```
 
+```bash
+# Linux / macOS
+git clone https://github.com/YourLocalDundee/custom-robo-decomp.git
+cd custom-robo-decomp
+tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
+```
+
 `tools\from_scratch.ps1` runs sections 1–4 below in order, stops at the first failure, and ends with a
 PASS / FAIL table (about 10–15 minutes the first time, mostly downloads). Tested from an empty folder on
 Oct 27, 2026: **PASS**. The sections explain what each part does, so you can also run them one by one.
 
-## 1. Setup — `tools\setup.ps1`
+## 1. Setup — `tools\setup.ps1` / `tools/setup.sh`
 
 ```powershell
 pwsh tools\setup.ps1 -Iso "D:\Games\Custom Robo (USA).iso"            # -Dolphin "C:\Dolphin" to use your own
 ```
+
+```bash
+tools/setup.sh "$HOME/Games/Custom Robo (USA).iso"                      # [DolphinTool] as a second argument to use your own
+```
+
+On Linux / macOS step 2 is `dtk disc extract` with the pinned decomp-toolkit (downloaded first, so step 5's binary is already
+there): same `sys/` + `files/` layout as DolphinTool, all 920 files byte-identical; a `dolphin-tool` is only the fallback.
+Step 4 (HSDRawViewer) is skipped; step 8 is `tools/setup_decomp.sh` (wibo 1.0.3 for the CodeWarrior tools).
 
 Downloads are kept in `tools\downloads\` and **every one is SHA-256 checked against `tools\pins.txt`** on every run.
 
@@ -45,10 +65,10 @@ Downloads are kept in `tools\downloads\` and **every one is SHA-256 checked agai
 
 Nothing in setup sends anything anywhere; downloads are the only network use.
 
-## 2. Decompile and name — `tools\batches\run_all.ps1`
+## 2. Decompile and name — `tools\batches\run_all.ps1` / `tools/batches/run_all.sh`
 
 ```powershell
-pwsh tools\batches\run_all.ps1
+pwsh tools\batches\run_all.ps1          # Linux / macOS:  tools/batches/run_all.sh  (same batches, batch 11 skipped)
 ```
 
 Everything below runs locally, with no network access. The name batches and the Ghidra rebuild run **to a fixpoint**
@@ -104,12 +124,13 @@ names, never the export, so its output is the same from the very first pass.
 | Batch 12 | `tools\batches\batch12_drafts.ps1` → `tools\draft_batch.py` | Phase 4 Milestone 5 prep: for each of the 1,751 game functions m2c (`tools\m2c`, pinned) writes a C draft (our names, our types as context), the draft is compiled with the game compiler and flags (GC\2.6, `CR_LIBS["game"]`) and compared with the original (relocated fields masked); parallel, about 2 minutes. Method, how to read the report, determinism: `docs\drafts.md` | `decomp\build\GXCE01\{asm,obj}`, compilers, `tools\m2c`, Melee headers, `symbols\cr_types.h`, `cr_globals.txt` → `decomp\drafts\` (gitignored: drafts, objects, logs, `draft_report.txt`), `decomp\reports\draft_summary.txt` (counts only) |
 | Batch 12, then | `tools\promote_drafts.py` | every 100% draft that links as it is (no data of its own, no padding, relocations to the same addresses, compiles the same behind `decomp\include\game\cr_game.h` + generated declarations) becomes a one-function game object `decomp\src\game\<function>.c` (committed); when that folder changed, batch 9 runs again (plan.md step 58, `docs\drafts.md`) | `decomp\drafts\`, `decomp\build\splitdata\main.elf` → `decomp\src\game\`, `decomp\reports\promote_report.txt` |
 
-## 2b. Build main.dol from asm — `tools\batches\batch9_decomp_build.ps1` (Phase 4, Milestones 1 + 2)
+## 2b. Build main.dol from asm — `tools\batches\batch9_decomp_build.ps1` / `batch9_decomp_build.sh` (Phase 4, Milestones 1 + 2)
 
 ```powershell
 pwsh tools\batches\batch9_decomp_build.ps1          # run_all.ps1 runs it last; it needs setup step 8
 # or by hand, after the batch has generated the config once:
 cd decomp; python configure.py; ..\tools\ninja\ninja.exe
+# Linux / macOS:  tools/batches/batch9_decomp_build.sh     or   cd decomp; python3 configure.py; ../tools/ninja/ninja
 ```
 
 `decomp\` is a [decomp-toolkit](https://github.com/encounter/decomp-toolkit) project made from `encounter/dtk-template`.
@@ -146,15 +167,18 @@ Reruns `tools\shift_test.py`, makes `decomp\build\shift\disc\` (hard links to `C
 4. Back in the menu, start a second battle with a different robo, gun, bomb and pod (different code and motion tables are used), and a different stage.
 5. Pass: no Dolphin warning dialog ("Invalid read", "Unknown instruction"), no freeze, the models, animations, sounds and the camera behave as in the real game. Note anything odd and where (menu, battle start, a weapon, the results), and send `decomp\build\shift\boot\boot_result.txt` with it.
 
-## 3. Check you got the same result — `tools\checksums.ps1`
+## 3. Check you got the same result — `tools\checksums.ps1` / `tools/checksums.sh`
 
 ```powershell
-pwsh tools\checksums.ps1 -Compare
+pwsh tools\checksums.ps1 -Compare          # Linux / macOS:  tools/checksums.sh --compare
 ```
 
 Compares SHA-256 of your `main.dol`, the dtk analysis, every symbols/report file and the decompiled C with
 [`docs/expected_checksums.txt`](expected_checksums.txt). We rebuilt twice from scratch and got identical hashes
-for all of them. **All OK = you have exactly what we have**, produced only by the scripts above.
+for all of them, and the Linux run (Ubuntu 26.04) matched the same file. **All OK = you have exactly what we have**, produced
+only by the scripts above. The same bytes on every OS is deliberate: the files the Windows scripts wrote with CRLF line ends
+are written with CRLF by the Python tools, the Ghidra scripts (`tools/scripts/*.java`) and the bash batches too, and the two
+lists the PowerShell batches sort in Windows culture order are sorted the same way by `tools/ps_sort.py`.
 
 ### If a checksum differs
 
@@ -165,7 +189,7 @@ for all of them. **All OK = you have exactly what we have**, produced only by th
 - only `decomp\*` differs → the name files differ (then symbols.txt does too), or a different dtk / template commit
   than `tools\pins.txt`. `build_report.txt` says whether your built `main.dol` matched the retail one.
 
-## 4. Models — same tools we used, in order (`from_scratch.ps1` runs the unpack, verify and round-trip lines)
+## 4. Models — same tools we used, in order (`from_scratch.ps1` / `from_scratch.sh` run the unpack, verify and round-trip lines; on Linux / macOS `python3 -I` and forward slashes)
 
 ```powershell
 python -I tools\sfd.py unpack "Custom Robo extracted\files" unpacked     # all 22 SFD .bin archives -> entries
@@ -179,16 +203,19 @@ Formats: [formats/sfd.md](formats/sfd.md), [formats/model_entry.md](formats/mode
 
 ## 5. Auditing the code yourself
 
-- **Everything that executes** is in `tools\` (`*.ps1`, `*.py`), `tools\scripts\*.java` and `tools\patches\*.patch`.
+- **Everything that executes** is in `tools\` (`*.ps1`, `*.sh`, `*.py`), `tools\scripts\*.java` and `tools\patches\*.patch`.
   There is no compiled code of ours and nothing is obfuscated.
 - Python scripts use only the standard library (except `render_preview.py`: trimesh/matplotlib) and are run with
   `python -I` (isolated mode: ignores environment variables and the user's site-packages).
-- The only network access is in `tools\setup.ps1`, to the URLs listed in `tools\pins.txt`.
+- The only network access is in `tools\setup.ps1` / `tools/setup.sh` (`tools/setup_decomp.*`, `tools/common.sh`), to the URLs listed in `tools\pins.txt`.
 - Quick self-check for anything unexpected:
   ```powershell
   Select-String -Path tools\*.py,tools\*.ps1,tools\batches\*.ps1,tools\scripts\*.java `
       -Pattern 'http|Invoke-WebRequest|urllib|socket|requests|subprocess|Start-Process|eval|exec\('
   ```
   Expected hits, and only these: `setup.ps1` (the dtk download), `export_models.py` (runs the locally built
-  HSDRawViewer) and `boot_test.ps1` (starts your local Dolphin).
+  HSDRawViewer) and `boot_test.ps1` (starts your local Dolphin). On Linux / macOS the same with
+  `grep -rE 'http|curl|urllib|socket|requests|subprocess|eval|exec\(' tools/*.py tools/*.sh tools/batches/*.sh tools/scripts/*.java`:
+  the extra hits are `common.sh` (curl, the pinned downloads) and the `subprocess` calls of the Python tools that run the pinned
+  compilers, dtk and ninja.
 - Mods are published as patches against the clean ISO, never as modified game files, so you can always diff them.

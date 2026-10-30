@@ -24,10 +24,11 @@ public class ExportXrefs extends GhidraScript {
 		File dir = new File(getScriptArgs()[0]);
 		dir.mkdirs();
 		int nf = 0, nr = 0, ns = 0;
+		// CRLF line ends on every OS: the files are checksummed (tools/checksums.ps1 / .sh)
 		try (PrintWriter fw = new PrintWriter(new File(dir, "functions.tsv"), "UTF-8");
 				PrintWriter rw = new PrintWriter(new File(dir, "refs.tsv"), "UTF-8")) {
 			for (Function f : currentProgram.getFunctionManager().getFunctions(true)) {
-				fw.println(f.getEntryPoint() + "\t" + f.getName() + "\t" + f.getBody().getNumAddresses());
+				fw.print(f.getEntryPoint() + "\t" + f.getName() + "\t" + f.getBody().getNumAddresses() + "\r\n");
 				nf++;
 				for (Instruction in : currentProgram.getListing().getInstructions(f.getBody(), true)) {
 					for (Reference r : in.getReferencesFrom()) {
@@ -36,8 +37,8 @@ public class ExportXrefs extends GhidraScript {
 							continue;
 						}
 						Symbol s = getSymbolAt(to);
-						rw.println(f.getEntryPoint() + "\t" + in.getAddress() + "\t" + to + "\t" +
-							r.getReferenceType() + "\t" + (s == null ? "" : clean(s.getName())));
+						rw.print(f.getEntryPoint() + "\t" + in.getAddress() + "\t" + to + "\t" +
+							r.getReferenceType() + "\t" + (s == null ? "" : clean(s.getName())) + "\r\n");
 						nr++;
 					}
 				}
@@ -49,8 +50,8 @@ public class ExportXrefs extends GhidraScript {
 					continue;
 				}
 				Symbol s = getSymbolAt(d.getAddress());
-				sw.println(d.getAddress() + "\t" + (s == null ? "" : clean(s.getName())) + "\t" +
-					clean(String.valueOf(d.getValue())));
+				sw.print(d.getAddress() + "\t" + (s == null ? "" : clean(s.getName())) + "\t" +
+					clean(String.valueOf(d.getValue())) + "\r\n");
 				ns++;
 			}
 		}
