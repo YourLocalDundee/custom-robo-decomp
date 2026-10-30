@@ -371,7 +371,9 @@ void HSD_OSInit(void)
         } else {
             new_arena_lo = OSRoundUp32B((u32) OSGetArenaLo());
             new_arena_hi = (u32) OSGetArenaHi();
-            HSD_HeapLo = new_arena_lo;
+            /* Custom Robo: a store through the address (main.dol reloads HSD_HeapLo for OSCreateHeap below instead
+             * of reusing new_arena_lo; the plain assignment reuses the register) */
+            *(u32*) &HSD_HeapLo = new_arena_lo;
             if (HSD_HeapMaxSize > 0) {
                 u32 want = new_arena_lo + HSD_HeapMaxSize;
                 HSD_HeapHi = want;
