@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 1008
+files: 1011
 
 src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
@@ -162,8 +162,11 @@ src/dolphin/os/OSTime.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSTime.c  id
 src/dolphin/os/__os.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__os.h  identical
 src/dolphin/os/init/__ppc_eabi_init.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__ppc_eabi_init.c  identical
 src/dolphin/os/init/__start.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__start.c  changed (2 lines added / removed)
+src/dolphin/pad/PadClamp.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/pad/Padclamp.c  identical
+src/dolphin/pad/pad.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/pad/Pad.c  identical
 src/dolphin/si/SIBios.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/si/SIBios.c  changed (2 lines added / removed)
 src/dolphin/si/SISamplingRate.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/si/SISamplingRate.c  identical
+src/dolphin/si/__si.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/si/__si.h  identical
 src/dolphin/thp/THPAudio.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/thp/THPAudio.c  identical
 src/dolphin/thp/THPDec.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/thp/THPDec.c  identical
 src/dolphin/vi/__vi.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/vi/__vi.h  identical

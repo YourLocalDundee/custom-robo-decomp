@@ -1034,8 +1034,19 @@ dolphin/vi/vi.c:
 	.text       start:0x8013EB5C end:0x801409B0
 	.data       start:0x802444D8 end:0x802448A8
 	.bss        start:0x8041F888 end:0x8041F9D0
-	.sdata      start:0x8044EDC8 end:0x8044EDD4
+	.sdata      start:0x8044EDC8 end:0x8044EDD8
 	.sbss       start:0x8044FA48 end:0x8044FAA8
+
+dolphin/pad/PadClamp.c:
+	.text       start:0x801409B0 end:0x80140C64
+	.rodata     start:0x801C40D8 end:0x801C40E8
+	.sdata2     start:0x80451CF0 end:0x80451D10
+
+dolphin/pad/pad.c:
+	.text       start:0x80140C64 end:0x80141FA4
+	.bss        start:0x8041F9D0 end:0x8041FA20
+	.sdata      start:0x8044EDD8 end:0x8044EDF8
+	.sbss       start:0x8044FAA8 end:0x8044FAC8
 
 dolphin/ai/ai.c:
 	.text       start:0x80141FA4 end:0x8014288C
