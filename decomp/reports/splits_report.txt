@@ -728,6 +728,7 @@ sysdolphin/baselib/texpdag.c                     .data   0x8024D9E8-0x8024DAA0  
 sysdolphin/baselib/texpdag.c                     .sdata  0x8044F280-0x8044F290   3 sym  core 3, edge zone 1/0, size 0x10 = GALE01
 
 == objects whose every function is a function of their C file (bytes and relocations = main.dol's; the C proves their data)
+MSL/alloc.c                                        4 functions
 MSL/ansi_files.c                                   2 functions
 MSL/buffer_io.c                                    2 functions
 MSL/ctype.c                                        1 functions
@@ -1279,6 +1280,10 @@ DEF 0x8015FE40 __shl2i Runtime/runtime.c .text size:0x24 global
 DEF 0x8015FE64 __shr2u Runtime/runtime.c .text size:0x24 global
 DEF 0x8015FE88 __shr2i Runtime/runtime.c .text size:0x28 global
 DEF 0x8015FEB0 __cvt_dbl_usll Runtime/runtime.c .text size:0xCC global
+DEF 0x80160124 free MSL/alloc.c .text size:0x70 global
+DEF 0x80160194 __pool_free MSL/alloc.c .text size:0x58 global
+DEF 0x801601EC deallocate_from_fixed_pools MSL/alloc.c .text size:0x158 global
+DEF 0x80160344 deallocate_from_var_pools MSL/alloc.c .text size:0x294 local
 DEF 0x801605D8 __flush_all MSL/ansi_files.c .text size:0x70 global
 DEF 0x80160648 __close_all MSL/ansi_files.c .text size:0xA8 global
 DEF 0x80162644 __flush_buffer MSL/buffer_io.c .text size:0xC4 global
@@ -1488,6 +1493,7 @@ DEF 0x801A7BDC hsdNew sysdolphin/baselib/class.c .text size:0xC8 global
 DEF 0x801A7CA4 hsdSearchClassInfo sysdolphin/baselib/class.c .text size:0x40 global
 DEF 0x801B6600 __destroy_global_chain_reference Runtime/global_destructor_chain.c .dtors size:0x4 local
 DEF 0x801C4930 __constants Runtime/runtime.c .rodata size:0x18 local
+DEF 0x801C49C0 fix_pool_sizes MSL/alloc.c .rodata size:0x18 local
 DEF 0x801C4B10 Zero MSL/e_fmod.c .rodata size:0x10 local
 DEF 0x801C4B50 two_over_pi MSL/e_rem_pio2.c .rodata size:0x108 local
 DEF 0x801C4C58 npio2_hw MSL/e_rem_pio2.c .rodata size:0x80 local
@@ -1877,6 +1883,7 @@ DEF 0x8044FC9C DrawDoneCB dolphin/gx/GXMisc.c .sbss size:0x4 local
 DEF 0x8044FCA0 DrawDone dolphin/gx/GXMisc.c .sbss size:0x1 local
 DEF 0x8044FCA4 FinishQueue dolphin/gx/GXMisc.c .sbss size:0x8 local
 DEF 0x8044FCC8 __global_destructor_chain Runtime/global_destructor_chain.c .sbss size:0x4 global
+DEF 0x8044FCE0 init$91 MSL/alloc.c .sbss size:0x1 local
 DEF 0x8044FD20 Chan dolphin/exi/EXIUart.c .sbss size:0x4 local
 DEF 0x8044FD24 Dev dolphin/exi/EXIUart.c .sbss size:0x4 local
 DEF 0x8044FD28 Enabled dolphin/exi/EXIUart.c .sbss size:0x4 local
@@ -2040,6 +2047,8 @@ DEF 0x80452958 @51 sysdolphin/baselib/fog.c .sdata2 size:0x8 local
 DEF 0x80452960 @183 sysdolphin/baselib/fog.c .sdata2 size:0x4 local
 
 == data pieces proven by the matched C (path, section, range, the C's symbols there, how their address is known)
+MSL/alloc.c                                      .rodata 0x801C49C0-0x801C49D8   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+MSL/alloc.c                                      .sbss   0x8044FCE0-0x8044FCE8   1 sym  of 2 in the C (1 stripped), 1 at a verified use (code)
 MSL/ansi_files.c                                 .data   0x80249A98-0x80249BD8   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 MSL/ansi_files.c                                 .bss    0x8043CA10-0x8043CD10   3 sym  of 3 in the C (0 stripped), 3 at a verified use (pointer)
 MSL/ctype.c                                      .data   0x80249D00-0x80249F00   2 sym  of 3 in the C (1 stripped), 2 at a verified use (C call site, code), bytes = main.dol
@@ -3571,7 +3580,7 @@ data sysdolphin/baselib/class.c .sdata: no candidate range(s) with a reference s
 data sysdolphin/baselib/texpdag.c .sdata2: no symbol used only by this object (references: GALE01 0x8)
 data sysdolphin/baselib/texpdag.c .sbss2: 0x80452AB8.. is used only by this object, but no proving reference has a .sbss2 piece
 data from C MSL/abort_exit.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven
-data from C MSL/alloc.c: 1 of 4 functions of the object are not verified C functions (another revision): its data is not proven
+data from C MSL/alloc.c .bss: __malloc_pool (+0x38) may be after the piece (no bytes to tell, the neighbour is unproven)
 data from C MSL/ansi_fp.c: 2 of 4 functions of the object are not verified C functions (another revision): its data is not proven
 data from C MSL/e_acos.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven
 data from C MSL/e_asin.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven

@@ -156,6 +156,7 @@ diff --git a/configure.py b/configure.py
 +    # from BfBB: this revision of the SDK file (step 65)
 +    "dolphin/card/CARDMount.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    "dolphin/exi/EXIUart.c": ["-i include/bfbb", "-i include/bfbb/libc"],
++    "MSL/alloc.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    "MSL/string.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    "MSL/ansi_files.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    # from Melee: Mario Party 4's __mem.c has the three functions in another order than ours
@@ -294,6 +295,7 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/exi/EXIUart.c",
 +    "MSL/string.c",
 +    "MSL/ansi_files.c",
++    "MSL/alloc.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -340,8 +342,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision",
 +    "MSL/abort_exit.c":
 +        "code: 1 of 1 functions differ (exit 85%): the reference is another revision",
-+    "MSL/alloc.c":
-+        "code: 1 of 4 functions differ (free 86%): the reference is another revision",
 +    "MSL/ansi_fp.c":
 +        "code: 2 of 4 functions differ (__two_exp 93%, __num2dec_internal 96%): the reference is another revision",
 +    "MSL/direct_io.c":
