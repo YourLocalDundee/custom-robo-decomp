@@ -115,7 +115,8 @@ def sources_report():
                     state = 'reference file missing locally (run tools/setup.ps1)'
                 else:
                     want = open(ref, 'rb').read()
-                    if body == want:
+                    # line ends aside: the references check out CRLF on Windows (git autocrlf) and LF on Linux / macOS
+                    if body.replace(b'\r\n', b'\n') == want.replace(b'\r\n', b'\n'):
                         state = 'identical'
                     else:
                         a, b = want.decode('utf-8', 'replace').splitlines(), body.decode('utf-8', 'replace').splitlines()

@@ -68,7 +68,11 @@ Nothing in setup sends anything anywhere; downloads are the only network use.
 ## 2. Decompile and name — `tools\batches\run_all.ps1` / `tools/batches/run_all.sh`
 
 ```powershell
-pwsh tools\batches\run_all.ps1          # Linux / macOS:  tools/batches/run_all.sh  (same batches, batch 11 skipped)
+pwsh tools\batches\run_all.ps1
+```
+
+```bash
+tools/batches/run_all.sh                 # Linux / macOS: the same batches in the same order, batch 11 skipped
 ```
 
 Everything below runs locally, with no network access. The name batches and the Ghidra rebuild run **to a fixpoint**
@@ -130,7 +134,11 @@ names, never the export, so its output is the same from the very first pass.
 pwsh tools\batches\batch9_decomp_build.ps1          # run_all.ps1 runs it last; it needs setup step 8
 # or by hand, after the batch has generated the config once:
 cd decomp; python configure.py; ..\tools\ninja\ninja.exe
-# Linux / macOS:  tools/batches/batch9_decomp_build.sh     or   cd decomp; python3 configure.py; ../tools/ninja/ninja
+```
+
+```bash
+tools/batches/batch9_decomp_build.sh                 # Linux / macOS (run_all.sh runs it too)
+cd decomp; python3 configure.py; ../tools/ninja/ninja   # or by hand, after the batch has generated the config once
 ```
 
 `decomp\` is a [decomp-toolkit](https://github.com/encounter/decomp-toolkit) project made from `encounter/dtk-template`.
@@ -170,7 +178,11 @@ Reruns `tools\shift_test.py`, makes `decomp\build\shift\disc\` (hard links to `C
 ## 3. Check you got the same result — `tools\checksums.ps1` / `tools/checksums.sh`
 
 ```powershell
-pwsh tools\checksums.ps1 -Compare          # Linux / macOS:  tools/checksums.sh --compare
+pwsh tools\checksums.ps1 -Compare
+```
+
+```bash
+tools/checksums.sh --compare               # Linux / macOS
 ```
 
 Compares SHA-256 of your `main.dol`, the dtk analysis, every symbols/report file and the decompiled C with

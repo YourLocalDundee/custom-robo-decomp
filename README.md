@@ -51,10 +51,11 @@ sudo apt install -y git curl unzip python3 python3-venv openjdk-21-jdk
 
 (No root? A JDK from the Temurin tarball under `~/.local` works too: [docs/INSTALL.md](docs/INSTALL.md#debian--ubuntu-apt).)
 
-**Arch (pacman)**
+**Arch / KDE (in Konsole: pacman, and yay for the AUR)**
 
 ```bash
 sudo pacman -S --needed git curl unzip python jdk21-openjdk
+yay -S --needed jdk21-temurin        # optional: Temurin instead of the repo JDK; nothing else needs the AUR
 ```
 
 **Fedora (dnf)**
@@ -105,7 +106,11 @@ empty folder (Oct 27, 2026: 10–15 minutes) was before the Phase 4 batches exis
 After that, one command reruns everything:
 
 ```powershell
-pwsh tools\batches\run_all.ps1          # Linux / macOS:  tools/batches/run_all.sh
+pwsh tools\batches\run_all.ps1
+```
+
+```bash
+tools/batches/run_all.sh                 # Linux / macOS
 ```
 
 It runs batches 1–12 in order and ends with `tools\checksums.ps1 -Compare` (`tools/checksums.sh --compare`) by itself (about 17 minutes), stopping

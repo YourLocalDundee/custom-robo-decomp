@@ -70,15 +70,20 @@ sudo apt install -y git curl unzip python3 python3-venv openjdk-21-jdk
   (any newer 21.x from https://adoptium.net/temurin/releases/?version=21 works the same way). Everything else the
   pipeline needs is downloaded into the repo folder by `tools/setup.sh`, so nothing else needs root.
 
-## Arch (pacman)
+## Arch / KDE (Konsole: pacman, and yay for the AUR)
+
+Open Konsole (KDE's terminal) and run:
 
 ```bash
 sudo pacman -S --needed git curl unzip python jdk21-openjdk
+# optional, from the AUR with yay: Temurin's JDK 21 instead of the repo's OpenJDK (either one runs Ghidra)
+yay -S --needed jdk21-temurin
 ```
 
-If several JDKs are installed: `sudo archlinux-java set java-21-openjdk`. Arch's `python` package provides `python3`.
-Ghidra itself is downloaded at the pinned version by `setup.sh`; do not use Arch's `ghidra` package (a different version
-changes the output). Nothing from the AUR is needed.
+If several JDKs are installed: `sudo archlinux-java set java-21-openjdk` (or `java-21-temurin`). Arch's `python`
+package provides `python3`. Ghidra itself is downloaded at the pinned version by `setup.sh`; do not use Arch's `ghidra`
+package (a different version changes the output). Nothing the pipeline needs comes only from the AUR; `yay` is just the
+usual way to get optional extras (a different JDK, Dolphin) there.
 
 ## Fedora (dnf)
 
