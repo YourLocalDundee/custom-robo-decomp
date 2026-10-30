@@ -532,7 +532,7 @@ src/sysdolphin/baselib/spline.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/b
 src/sysdolphin/baselib/spline.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/spline.h  identical
 src/sysdolphin/baselib/state.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/state.c  changed (252 lines added / removed)
 src/sysdolphin/baselib/state.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/state.h  changed (12 lines added / removed)
-src/sysdolphin/baselib/tev.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tev.c  changed (7 lines added / removed)
+src/sysdolphin/baselib/tev.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tev.c  changed (118 lines added / removed)
 src/sysdolphin/baselib/tev.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/tev.h  identical
 src/sysdolphin/baselib/texp.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/texp.c  changed (18 lines added / removed)
 src/sysdolphin/baselib/texp.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/texp.h  changed (2 lines added / removed)

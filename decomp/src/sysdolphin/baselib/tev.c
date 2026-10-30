@@ -10,23 +10,26 @@ static struct TevReg_t {
     int c;
 } TevReg[4] = { 0 };
 
+/* Custom Robo: main.dol's values (enable 0xFF, diff_fn GX_DF_NONE, attn_fn GX_AF_NONE for all four) */
 static HSD_Chan prev_ch[4] = {
-    { NULL, 0, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0, 0, 0, 0, 2, 0, NULL },
-    { NULL, 1, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0, 0, 0, 0, 2, 2, NULL },
-    { NULL, 2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0, 0, 0, 0, 2, 0, NULL },
-    { NULL, 3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0, 0, 0, 0, 2, 2, NULL },
+    { NULL, 0, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0xFF, 0, 0, 0, 0, 2, NULL },
+    { NULL, 1, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0xFF, 0, 0, 0, 0, 2, NULL },
+    { NULL, 2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0xFF, 0, 0, 0, 0, 2, NULL },
+    { NULL, 3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0xFF, 0, 0, 0, 0, 2, NULL },
 };
 
 HSD_ObjAllocData render_alloc_data;
 HSD_ObjAllocData tevreg_alloc_data;
 HSD_ObjAllocData chan_alloc_data;
 
+/* Custom Robo: main.dol's .sbss order (num_tex_gens, prev_num_chans, prev_mat_invalid, prev_amb_invalid, current_tev;
+   all static here, defined in reverse) */
 static int current_tev;
-static int num_tex_gens;
+static int prev_amb_invalid[2];
+static int prev_mat_invalid[2];
 static int prev_num_chans;
+static int num_tex_gens;
 
-int prev_mat_invalid[2];
-int prev_amb_invalid[2];
 
 void HSD_RenderInitAllocData(void)
 {
@@ -151,6 +154,45 @@ void HSD_SetupChannel(HSD_Chan* ch)
             prev_ch[idx + 2].diff_fn = ch->diff_fn;
             prev_ch[idx + 2].attn_fn = ch->attn_fn;
         }
+    }
+}
+
+/* Custom Robo: wowjinxy/KAR tev.c HSD_DisableChannelLighting (cb94b15; main.dol = doldecomp/kar's tev.s), Melee's
+   names, the channel test as a switch (main.dol compares with 6, then 4): turn the lighting of a channel off in the
+   cached state (a COLOR0A0 / COLOR1A1 channel also its alpha) */
+void HSD_DisableChannelLighting(int chan)
+{
+    int idx = chan & 3;
+
+    switch (chan) {
+    case GX_COLOR0A0:
+    case GX_COLOR1A1:
+        if (prev_ch[idx].enable != 0 || prev_ch[idx + 2].enable != 0) {
+            prev_ch[idx + 2].enable = 0;
+            prev_ch[idx].enable = 0;
+            prev_ch[idx + 2].light_mask = 0;
+            prev_ch[idx].light_mask = 0;
+            {
+                GXColorSrc amb = prev_ch[idx].amb_src;
+                GXColorSrc mat = prev_ch[idx].mat_src;
+                GXDiffuseFn diff = prev_ch[idx].diff_fn;
+                GXAttnFn attn = prev_ch[idx].attn_fn;
+                prev_ch[idx + 2].amb_src = amb;
+                prev_ch[idx + 2].mat_src = mat;
+                prev_ch[idx + 2].diff_fn = diff;
+                prev_ch[idx + 2].attn_fn = attn;
+                GXSetChanCtrl(chan, 0, amb, mat, 0, diff, attn);
+            }
+        }
+        break;
+    default:
+        if (prev_ch[idx].enable != 0) {
+            prev_ch[idx].enable = 0;
+            prev_ch[idx].light_mask = 0;
+            GXSetChanCtrl(chan, 0, prev_ch[idx].amb_src, prev_ch[idx].mat_src, 0, prev_ch[idx].diff_fn,
+                          prev_ch[idx].attn_fn);
+        }
+        break;
     }
 }
 
@@ -279,7 +321,7 @@ int HSD_Channel2Num(int chan)
     case 0xFF:
         return 0;
     default:
-        HSD_ASSERT(656, 0);
+        HSD_ASSERT(722, 0); /* Custom Robo: main.dol passes 722 here, Melee 656 */
         return 0;
     }
 }
@@ -329,6 +371,7 @@ int HSD_Index2TevStage(int idx)
 #pragma push
 #pragma force_active on
 #endif
+#if 0 /* Custom Robo: not in main.dol (its jump table would stay in .data) */
 int HSD_TevStage2Index(int stage)
 {
     switch (stage) {
@@ -369,6 +412,7 @@ int HSD_TevStage2Index(int stage)
         return 0;
     }
 }
+#endif
 #ifdef MUST_MATCH
 #pragma pop
 #endif
@@ -414,30 +458,30 @@ int HSD_TevStage2Num(int stage)
     }
 }
 
+/* Custom Robo: the register as an inline in the call: main.dol evaluates the colour argument first (MWCC evaluates
+   arguments right to left), then the switch; the inline's name is ours (an inline leaves no symbol) */
+static inline int cr_tevreg_id(u32 i)
+{
+    switch (i) {
+    case 0:
+        return 1;
+    case 1:
+        return 2;
+    case 2:
+        return 3;
+    case 3:
+        return 0;
+    default:
+        return 1;
+    }
+}
+
 void HSD_SetTevRegAll(void)
 {
     u32 i;
     for (i = 0; i < 4; i++) {
         if (TevReg[i].c != 0) {
-            int reg;
-            switch (i) {
-            case 0:
-                reg = 1;
-                break;
-            case 1:
-                reg = 2;
-                break;
-            case 2:
-                reg = 3;
-                break;
-            case 3:
-                reg = 0;
-                break;
-            default:
-                reg = 1;
-                break;
-            }
-            GXSetTevColorS10(reg, TevReg[i].a);
+            GXSetTevColorS10(cr_tevreg_id(i), TevReg[i].a);
             TevReg[i].c = 0;
         }
     }
@@ -474,6 +518,7 @@ int HSD_TexCoordID2Num(int id)
 #pragma push
 #pragma force_active on
 #endif
+#if 0 /* Custom Robo: not in main.dol (its jump table would stay in .data) */
 void ChanUpdateFunc(HSD_Chan* chan, int arg1, const f32* arg2)
 {
     if (chan != NULL) {
@@ -505,15 +550,17 @@ void ChanUpdateFunc(HSD_Chan* chan, int arg1, const f32* arg2)
         }
     }
 }
+#endif
 #ifdef MUST_MATCH
 #pragma pop
 #endif
 
+/* Custom Robo: main.dol's values (enable 0xFF, diff_fn GX_DF_NONE, attn_fn GX_AF_NONE for all four) */
 static HSD_Chan invalid_prev_ch[4] = {
-    { NULL, 0, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0, 0, 0, 0, 2, 0, NULL },
-    { NULL, 1, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0, 0, 0, 0, 2, 2, NULL },
-    { NULL, 2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0, 0, 0, 0, 2, 0, NULL },
-    { NULL, 3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0, 0, 0, 0, 2, 2, NULL },
+    { NULL, 0, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0xFF, 0, 0, 0, 0, 2, NULL },
+    { NULL, 1, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0xFF, 0, 0, 0, 0, 2, NULL },
+    { NULL, 2, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0xFF, 0, 0, 0, 0, 2, NULL },
+    { NULL, 3, 0, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, 0xFF, 0, 0, 0, 0, 2, NULL },
 };
 
 void _HSD_StateInvalidateColorChannel(void)
