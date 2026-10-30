@@ -278,7 +278,7 @@ def main(argv):
     gl = libs.get('game', dict(c=0, ccode=0))
     if gend:
         out += ['', f'game code (.text 0x{gstart:08X}-0x{gend:08X}, 0x{gend - gstart:X} bytes): {gl["c"]} objects from C '
-                    f'(one function each, tools/promote_drafts.py), 0x{gl["ccode"]:X} bytes = '
+                    f'(one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0x{gl["ccode"]:X} bytes = '
                     f'{pc(gl["ccode"], gend - gstart).strip()} of the game code, {pc(gl["ccode"], tot["code"]).strip()} of all code']
     out += ['', '== C objects (decomp/src): objdiff matched bytes, and whether linked']
     out += [r for _, r in sorted(rows)]

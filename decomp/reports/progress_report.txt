@@ -12,7 +12,7 @@ game                             407    407   0x00ABF4/0x00ABF4 100.00%   0x0000
 automatic objects (unsplit)      292      0   0x000000/0x1467E8   0.00%   0x000000/0x27E830   0.00%      0/ 1698
 main.dol (all units)             894    565   0x048C3C/0x1B342C  16.72%   0x019364/0x29C434   3.77%   1385/ 3533
 
-game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 407 objects from C (one function each, tools/promote_drafts.py), 0xABF4 bytes = 3.58% of the game code, 2.47% of all code
+game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 407 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0xABF4 bytes = 3.58% of the game code, 2.47% of all code
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
 MSL/FILE_POS.c                                code 0x0/0x3C0  data 0x0/0x0  functions 0/3  not linked: code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision; BfBB has no FILE_POS.c and no reference reproduces _fseek (86%) or ftell (46%) (step 66)
