@@ -91,7 +91,6 @@ typedef s32 enum_t;
 #define PObjPrevVtxDescListArray lbl_8044FFC4
 #define PObjPrevVtxDesc lbl_8044FFC8
 #define PObjMtxMark lbl_80449E40
-#define HSD_PerfCurrentStat lbl_8024CFC0
 #define _HSD_MemCheckOwn fn_801A40BC
 extern HSD_ClassInfo hsdClass;
 extern HSD_PObjInfo hsdPObj;
