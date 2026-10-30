@@ -1,12 +1,12 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 943
+files: 946
 
 src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
 src/MSL/abort_exit.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/abort_exit.c  identical
 src/MSL/alloc.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/alloc.c  identical
-src/MSL/ansi_files.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/ansi_files.c  identical
+src/MSL/ansi_files.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common/ansi_files.c  identical
 src/MSL/ansi_fp.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/ansi_fp.c  identical
 src/MSL/buffer_io.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/buffer_io.c  identical
 src/MSL/ctype.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/ctype.c  identical
@@ -36,7 +36,7 @@ src/MSL/s_ldexp.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bar
 src/MSL/s_modf.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/s_modf.c  identical
 src/MSL/s_sin.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/s_sin.c  identical
 src/MSL/s_tan.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/s_tan.c  identical
-src/MSL/string.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/string.c  identical
+src/MSL/string.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common/string.c  identical
 src/MSL/w_acos.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_acos.c  identical
 src/MSL/w_asin.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_asin.c  identical
 src/MSL/w_atan2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_atan2.c  identical
@@ -553,6 +553,9 @@ include/bfbb/dolphin/os/OSResetSW.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/
 include/bfbb/dolphin/os/OSSerial.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSSerial.h  identical
 include/bfbb/dolphin/os/OSThread.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSThread.h  identical
 include/bfbb/dolphin/os/OSTime.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSTime.h  identical
+include/bfbb/libc/other.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/other.h  identical
+include/bfbb/libc/stdarg.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/stdarg.h  identical
+include/bfbb/libc/stdio.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/stdio.h  identical
 include/cr_kar/dobj.h  ours (no reference)
 include/cr_kar/fog.h  ours (no reference)
 include/cr_kar/lobj.h  ours (no reference)

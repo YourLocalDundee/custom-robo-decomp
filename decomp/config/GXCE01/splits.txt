@@ -1330,6 +1330,8 @@ MSL/alloc.c:
 
 MSL/ansi_files.c:
 	.text       start:0x801605D8 end:0x801606F0
+	.data       start:0x80249A98 end:0x80249BD8
+	.bss        start:0x8043CA10 end:0x8043CD10
 
 MSL/ansi_fp.c:
 	.text       start:0x801606F0 end:0x80162644

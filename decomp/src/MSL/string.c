@@ -1,42 +1,38 @@
-/* Custom Robo: from mariopartyrd/marioparty4 @ 5b01c79b4910525e3fc5aa312eddd6d014e7f337, src/MSL_C.PPCEABI.bare.H/string.c */ #include "string.h"
-#include "stddef.h"
+/* Custom Robo: from bfbbdecomp/bfbb @ d8e8eac38dd617ee72161f4cb2da4498bc89aad6, src/PowerPC_EABI_Support/src/MSL_C/MSL_Common/string.c */ #include "types.h"
+//#define K1 0x80808080
+//#define K2 0xFEFEFEFF
 
-#define K1 0x80808080
-#define K2 0xFEFEFEFF
-
-size_t strlen(const char* str)
+size_t(strlen)(const char* str)
 {
-	size_t len       = -1;
-	unsigned char* p = (unsigned char*)str - 1;
+	size_t len = -1;
+	u8* p      = (u8*)str - 1;
 
-	do {
+	do
 		len++;
-	} while (*++p);
-
-	return len;
+	while (*++p);
+	return (len);
 }
 
-char* strcpy(char* dst, const char* src)
+char*(strcpy)(char* dst, const char* src)
 {
-	register unsigned char *destb, *fromb;
-	register unsigned long w, t, align;
+	register u8 *destb, *fromb;
+	register u32 w, t, align;
 
-	fromb = (unsigned char*)src;
-	destb = (unsigned char*)dst;
+	u32 K1, K2;
+
+	fromb = (u8*)src;
+	destb = (u8*)dst;
 
 	if ((align = ((int)fromb & 3)) != ((int)destb & 3)) {
 		goto bytecopy;
 	}
 
 	if (align) {
-		if ((*destb = *fromb) == 0) {
-			return dst;
-		}
-
+		if ((*destb = *fromb) == 0)
+			return (dst);
 		for (align = 3 - align; align; align--) {
-			if ((*(++destb) = *(++fromb)) == 0) {
-				return dst;
-			}
+			if ((*(++destb) = *(++fromb)) == 0)
+				return (dst);
 		}
 		++destb;
 		++fromb;
@@ -44,12 +40,14 @@ char* strcpy(char* dst, const char* src)
 
 	w = *((int*)(fromb));
 
+	K2 = 0xFEFEFEFF;
 	t = w + K2;
 
+	K1 = 0x80808080;
+
 	t &= K1;
-	if (t) {
+	if (t)
 		goto bytecopy;
-	}
 	--((int*)(destb));
 
 	do {
@@ -58,23 +56,18 @@ char* strcpy(char* dst, const char* src)
 
 		t = w + K2;
 		t &= K1;
-		if (t) {
+		if (t)
 			goto adjust;
-		}
 	} while (1);
 
 adjust:
 	++((int*)(destb));
-
 bytecopy:
-	if ((*destb = *fromb) == 0) {
+	if ((*destb = *fromb) == 0)
 		return dst;
-	}
-
 	do {
-		if ((*(++destb) = *(++fromb)) == 0) {
+		if ((*(++destb) = *(++fromb)) == 0)
 			return dst;
-		}
 	} while (1);
 
 	return dst;
@@ -84,55 +77,59 @@ char* strncpy(char* dst, const char* src, size_t n)
 {
 	const unsigned char* p = (const unsigned char*)src - 1;
 	unsigned char* q       = (unsigned char*)dst - 1;
+	unsigned char zero     = 0;
 
 	n++;
-	while (--n) {
+
+	while (--n)
 		if (!(*++q = *++p)) {
-			while (--n) {
+			while (--n)
 				*++q = 0;
-			}
 			break;
 		}
-	}
-
-	return dst;
+	return (dst);
 }
 
-// TODO: same implementation as strncpy?
-char* strcat(char* dst, const char* src, size_t n)
+char* strcat(char* dst, const char* src)
 {
-    const unsigned char* p = (const unsigned char*)src - 1;
-	unsigned char* q       = (unsigned char*)dst - 1;
+	const u8* p = (u8*)src - 1;
+	u8* q       = (u8*)dst - 1;
 
-	n++;
-	while (--n) {
-		if (!(*++q = *++p)) {
-			while (--n) {
-				*++q = 0;
-			}
-			break;
-		}
-	}
+	while (*++q)
+		;
 
-	return dst;
+	q--;
+
+	while (*++q = *++p)
+		;
+
+	return (dst);
+}
+
+void strncat(void)
+{
+	// UNUSED FUNCTION
 }
 
 int strcmp(const char* str1, const char* str2)
 {
-	register unsigned char* left  = (unsigned char*)str1;
-	register unsigned char* right = (unsigned char*)str2;
-	unsigned long align, l1, r1, x;
+	// bless metrowerks for this implementation
+
+	register u8* left  = (u8*)str1;
+	register u8* right = (u8*)str2;
+	u32 align, l1, r1, x;
+
+	u32 K1, K2;
 
 	l1 = *left;
 	r1 = *right;
 	if (l1 - r1) {
-		return l1 - r1;
+		return (l1 - r1);
 	}
 
 	if ((align = ((int)left & 3)) != ((int)right & 3)) {
 		goto bytecopy;
 	}
-
 	if (align) {
 		if (l1 == 0) {
 			return 0;
@@ -141,7 +138,7 @@ int strcmp(const char* str1, const char* str2)
 			l1 = *(++left);
 			r1 = *(++right);
 			if (l1 - r1) {
-				return l1 - r1;
+				return (l1 - r1);
 			}
 			if (l1 == 0) {
 				return 0;
@@ -153,11 +150,14 @@ int strcmp(const char* str1, const char* str2)
 
 	l1 = *(int*)left;
 	r1 = *(int*)right;
+
+	K1 = 0x80808080;
+	K2 = 0xFEFEFEFF;
+
 	x  = l1 + K2;
 	if (x & K1) {
 		goto adjust;
 	}
-
 	while (l1 == r1) {
 		l1 = *(++((int*)(left)));
 		r1 = *(++((int*)(right)));
@@ -166,29 +166,25 @@ int strcmp(const char* str1, const char* str2)
 			goto adjust;
 		}
 	}
-
-	if (l1 > r1) {
+	if (l1 > r1)
 		return 1;
-	}
 	return -1;
 
 adjust:
 	l1 = *left;
 	r1 = *right;
 	if (l1 - r1) {
-		return l1 - r1;
+		return (l1 - r1);
 	}
-
 bytecopy:
 	if (l1 == 0) {
 		return 0;
 	}
-
 	do {
 		l1 = *(++left);
 		r1 = *(++right);
 		if (l1 - r1) {
-			return l1 - r1;
+			return (l1 - r1);
 		}
 		if (l1 == 0) {
 			return 0;
@@ -198,77 +194,113 @@ bytecopy:
 
 int strncmp(const char* str1, const char* str2, size_t n)
 {
-    const unsigned char* p1 = (unsigned char*)str1 - 1;
-    const unsigned char* p2 = (unsigned char*)str2 - 1;
-    unsigned long c1, c2;
+	const u8* p1 = (u8*)str1 - 1;
+	const u8* p2 = (u8*)str2 - 1;
+	u32 c1, c2;
 
-    n++;
+	n++;
 
-    while (--n)
-        if ((c1 = *++p1) != (c2 = *++p2))
-            return (c1 - c2);
-        else if (!c1)
-            break;
-    return 0;
+	while (--n)
+		if ((c1 = *++p1) != (c2 = *++p2))
+			return (c1 - c2);
+		else if (!c1)
+			break;
+	return 0;
 }
 
-char* strchr(const char* str, int c)
+char* strchr(const char* str, int chr)
 {
-	const unsigned char* p = (unsigned char*)str - 1;
-	unsigned long chr      = (c & 0xFF);
+	const u8* p = (u8*)str - 1;
+	u32 c       = (chr & 0xFF);
+	u32 ch;
 
-	unsigned long ch;
-	while (ch = *++p) {
-		if (ch == chr) {
-			return (char*)p;
-		}
-	}
+	while (ch = *++p)
+		if (ch == c)
+			return ((char*)p);
 
-	return chr ? NULL : (char*)p;
+	return (c ? 0 : (char*)p);
 }
 
-char* strrchr(const char* str, int c)
+void strcoll(void)
 {
-	const unsigned char* p = (unsigned char*)str - 1;
-	const unsigned char* q = NULL;
-	unsigned long chr      = (c & 0xFF);
+	// UNUSED FUNCTION
+}
 
-	unsigned long ch;
-	while (ch = *++p) {
-		if (ch == chr) {
+void strxfrm(void)
+{
+	// UNUSED FUNCTION
+}
+
+char* strrchr(const char* str, int chr)
+{
+	const u8* p = (u8*)str - 1;
+	const u8* q = 0;
+	u32 c       = (chr & 0xFF);
+	u32 ch;
+
+	while (ch = *++p)
+		if (ch == c)
 			q = p;
-		}
-	}
 
-	if (q != NULL) {
-		return (char*)q;
-	}
+	if (q)
+		return ((char*)q);
 
-	return chr ? NULL : (char*)p;
+	return (c ? 0 : (char*)p);
 }
 
-char* strstr(const char* str, const char* pat)
+void strpbrk(void)
 {
-	const unsigned char* s1 = (const unsigned char*)str - 1;
-	const unsigned char* p1 = (const unsigned char*)pat - 1;
-	unsigned long firstc, c1, c2;
+	// UNUSED FUNCTION
+}
 
-	if ((pat == 0) || (!(firstc = *++p1))) {
-		return (char*)str;
-	}
+void strspn(void)
+{
+	// UNUSED FUNCTION
+}
 
-	while (c1 = *++s1) {
-		if (c1 == firstc) {
-			const unsigned char* s2 = s1 - 1;
-			const unsigned char* p2 = p1 - 1;
+void strcspn(void)
+{
+	// UNUSED FUNCTION
+}
 
-			while ((c1 = *++s2) == (c2 = *++p2) && c1)
-				;
+void strtok(void)
+{
+	// UNUSED FUNCTION
+}
 
-			if (!c2)
-				return (char*)s1;
-		}
-	}
+char* strstr(const char *str, const char *pat) {
+    unsigned char* s1 = (unsigned char*)str - 1;
+    unsigned char* p1 = (unsigned char*)pat - 1;
+    unsigned long firstc, c1, c2;
 
-	return NULL;
+    if ((pat == 0) || (!(firstc = *++p1))) {
+        return ((char*)str);
+    }
+
+    while (c1 = *++s1) {
+        if (c1 == firstc) {
+            const unsigned char* s2 = s1 - 1;
+            const unsigned char* p2 = p1 - 1;
+
+            while ((c1 = *++s2) == (c2 = *++p2) && c1) {
+
+            }
+
+            if (!c2) {
+                return ((char*)s1);
+            }
+        }
+    }
+
+    return NULL;
+}
+
+void strerror(void)
+{
+	// UNUSED FUNCTION
+}
+
+void __strerror(void)
+{
+	// UNUSED FUNCTION
 }

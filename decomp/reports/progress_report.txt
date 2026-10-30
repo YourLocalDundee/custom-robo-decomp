@@ -4,13 +4,13 @@ Code / data bytes are the sizes of the split (target) objects; "of all" = share 
 
 library                      objects from C             code from C             data from C     functions
 dolphin                           75     56   0x015654/0x02235C  62.54%   0x002E84/0x015F24  13.25%    420/  647
-MSL                               48     29   0x002F00/0x00937C  31.87%   0x000718/0x000D20  54.05%     37/   84
+MSL                               48     31   0x0032F4/0x00937C  34.55%   0x000B58/0x001160  65.29%     46/   84
 Runtime                            5      4   0x000924/0x0009DC  92.71%   0x000024/0x00009C  23.08%     18/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
 sysdolphin                        29      9   0x004014/0x0265A4  10.44%   0x0008F4/0x002238  26.16%     88/  471
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
-automatic objects (unsplit)      258      0   0x000000/0x156B94   0.00%   0x000000/0x280048   0.00%      0/ 1860
-main.dol (all units)             734    398   0x0218EC/0x1B342C   7.71%   0x003EE4/0x29C458   0.59%    875/ 3533
+automatic objects (unsplit)      257      0   0x000000/0x156B94   0.00%   0x000000/0x27FC08   0.00%      0/ 1860
+main.dol (all units)             733    400   0x021CE0/0x1B342C   7.77%   0x004324/0x29C458   0.63%    884/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
@@ -18,7 +18,7 @@ game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one
 MSL/FILE_POS.c                                code 0x0/0x3C0  data 0x0/0x0  functions 0/3  not linked: code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision
 MSL/abort_exit.c                              code 0x0/0xF0  data 0x110/0x110  functions 0/1  not linked: code: 1 of 1 functions differ (exit 85%): the reference is another revision
 MSL/alloc.c                                   code 0x444/0x4B4  data 0x18/0x58  functions 3/4  not linked: code: 1 of 4 functions differ (free 86%): the reference is another revision
-MSL/ansi_files.c                              code 0x70/0x118  data 0x0/0x0  functions 1/2  not linked: code: 1 of 2 functions differ (__close_all 90%): the reference is another revision  (C has data the split object lacks: .bss 0x300, .data 0x140)
+MSL/ansi_files.c                              code 0x118/0x118  data 0x440/0x440  functions 2/2  linked from C
 MSL/ansi_fp.c                                 code 0x41C/0x1F54  data 0x8/0xE8  functions 2/4  not linked: code: 2 of 4 functions differ (__two_exp 93%, __num2dec_internal 96%): the reference is another revision  (C has data the split object lacks: .data 0x124)
 MSL/buffer_io.c                               code 0xF8/0xF8  data 0x0/0x0  functions 2/2  linked from C
 MSL/ctype.c                                   code 0x24/0x24  data 0x200/0x200  functions 1/1  linked from C
@@ -48,7 +48,7 @@ MSL/s_ldexp.c                                 code 0x1C4/0x1C4  data 0x28/0x28  
 MSL/s_modf.c                                  code 0xFC/0xFC  data 0x0/0x0  functions 1/1  linked from C
 MSL/s_sin.c                                   code 0xD8/0xD8  data 0x8/0x8  functions 1/1  linked from C
 MSL/s_tan.c                                   code 0x78/0x78  data 0x8/0x8  functions 1/1  linked from C
-MSL/string.c                                  code 0x2B0/0x2DC  data 0x0/0x0  functions 6/7  not linked: code: 1 of 7 functions differ (strcat 14%): the reference is another revision
+MSL/string.c                                  code 0x2DC/0x2DC  data 0x0/0x0  functions 7/7  linked from C
 MSL/w_acos.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_asin.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_atan2.c                                 code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C

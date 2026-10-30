@@ -156,6 +156,8 @@ diff --git a/configure.py b/configure.py
 +    # from BfBB: this revision of the SDK file (step 65)
 +    "dolphin/card/CARDMount.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    "dolphin/exi/EXIUart.c": ["-i include/bfbb", "-i include/bfbb/libc"],
++    "MSL/string.c": ["-i include/bfbb", "-i include/bfbb/libc"],
++    "MSL/ansi_files.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    # from Melee: Mario Party 4's __mem.c has the three functions in another order than ours
 +    "Runtime/__mem.c": ["-i include/melee/MSL", "-i include/melee/dolphin"],
 +    "sysdolphin/baselib/id.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin"],
@@ -290,6 +292,8 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/gx/GXGeometry.c",
 +    "dolphin/card/CARDMount.c",
 +    "dolphin/exi/EXIUart.c",
++    "MSL/string.c",
++    "MSL/ansi_files.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -338,8 +342,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 1 of 1 functions differ (exit 85%): the reference is another revision",
 +    "MSL/alloc.c":
 +        "code: 1 of 4 functions differ (free 86%): the reference is another revision",
-+    "MSL/ansi_files.c":
-+        "code: 1 of 2 functions differ (__close_all 90%): the reference is another revision",
 +    "MSL/ansi_fp.c":
 +        "code: 2 of 4 functions differ (__two_exp 93%, __num2dec_internal 96%): the reference is another revision",
 +    "MSL/direct_io.c":
@@ -352,8 +354,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 1 of 1 functions differ (__ieee754_pow 94%): the reference is another revision",
 +    "MSL/printf.c":
 +        "code: 4 of 11 functions differ (parse_format_801651AC 0%, long2str_80164F54 0%, longlong2str_80164C40 0%, vprintf 82%): the reference is another revision",
-+    "MSL/string.c":
-+        "code: 1 of 7 functions differ (strcat 14%): the reference is another revision",
 +    "MetroTRK/dispatch.c":
 +        "code: 2 of 2 functions differ (TRKInitializeDispatcher 0%, TRKDispatchMessage 24%): the reference is another revision",
 +    "MetroTRK/dolphin_trk.c":
