@@ -781,6 +781,7 @@ dolphin/card/CARDCreate.c                          2 functions
 dolphin/card/CARDDelete.c                          2 functions
 dolphin/card/CARDDir.c                             4 functions (named otherwise in ours: fn_8014DB20 = WriteCallback, fn_8014DBF0 = EraseCallback)
 dolphin/card/CARDFormat.c                          3 functions
+dolphin/card/CARDMount.c                           7 functions
 dolphin/card/CARDNet.c                             1 functions
 dolphin/card/CARDOpen.c                            8 functions
 dolphin/card/CARDStat.c                            4 functions
@@ -794,6 +795,7 @@ dolphin/dvd/dvdidutils.c                           1 functions
 dolphin/dvd/dvdlow.c                              21 functions (named otherwise in ours: fn_8013A5E0 = AlarmHandler)
 dolphin/dvd/dvdqueue.c                             5 functions
 dolphin/dvd/fstload.c                              2 functions
+dolphin/exi/EXIUart.c                              4 functions
 dolphin/gx/GXBump.c                                7 functions
 dolphin/gx/GXDisplayList.c                         1 functions
 dolphin/gx/GXFifo.c                               14 functions
@@ -1111,6 +1113,13 @@ DEF 0x8014E1B0 VerifyDir dolphin/card/CARDCheck.c .text size:0x240 local
 DEF 0x8014E3F0 VerifyFAT dolphin/card/CARDCheck.c .text size:0x284 local
 DEF 0x8014E674 __CARDVerify dolphin/card/CARDCheck.c .text size:0x8C global
 DEF 0x8014E700 CARDCheckExAsync dolphin/card/CARDCheck.c .text size:0x590 global
+DEF 0x8014EC90 IsCard dolphin/card/CARDMount.c .text size:0xCC local
+DEF 0x8014ED5C CARDProbeEx dolphin/card/CARDMount.c .text size:0x17C global
+DEF 0x8014EED8 DoMount dolphin/card/CARDMount.c .text size:0x410 local
+DEF 0x8014F2E8 __CARDMountCallback dolphin/card/CARDMount.c .text size:0x138 global
+DEF 0x8014F420 CARDMountAsync dolphin/card/CARDMount.c .text size:0x1A0 global
+DEF 0x8014F5C0 DoUnmount dolphin/card/CARDMount.c .text size:0x9C local
+DEF 0x8014F65C CARDUnmount dolphin/card/CARDMount.c .text size:0xAC global
 DEF 0x8014F708 FormatCallback dolphin/card/CARDFormat.c .text size:0x144 local
 DEF 0x8014F84C __CARDFormatRegionAsync dolphin/card/CARDFormat.c .text size:0x658 global
 DEF 0x8014FEA4 CARDFormatAsync dolphin/card/CARDFormat.c .text size:0x48 global
@@ -1306,6 +1315,10 @@ DEF 0x801690C8 atan2 MSL/w_atan2.c .text size:0x20 global
 DEF 0x80169108 fmod MSL/w_fmod.c .text size:0x20 global
 DEF 0x80169148 pow MSL/w_pow.c .text size:0x20 global
 DEF 0x80169474 Hu_IsStub dolphin/odenotstub/odenotstub.c .text size:0x8 local
+DEF 0x8016B8D8 ProbeBarnacle dolphin/exi/EXIUart.c .text size:0x18C local
+DEF 0x8016BA64 __OSEnableBarnacle dolphin/exi/EXIUart.c .text size:0x1BC global
+DEF 0x8016BC20 InitializeUART dolphin/exi/EXIUart.c .text size:0x70 global
+DEF 0x8016BC90 WriteUARTN dolphin/exi/EXIUart.c .text size:0x21C global
 DEF 0x8016BEAC SIIsChanBusy dolphin/si/SIBios.c .text size:0x3C global
 DEF 0x8016BEE8 CompleteTransfer dolphin/si/SIBios.c .text size:0x2FC local
 DEF 0x8016C1E4 SIInterruptHandler dolphin/si/SIBios.c .text size:0x344 local
@@ -1558,6 +1571,8 @@ DEF 0x80248D00 @277 dolphin/dsp/dsp_task.c .data size:0x2D local
 DEF 0x80248D30 @278 dolphin/dsp/dsp_task.c .data size:0x2D local
 DEF 0x80248D60 @300 dolphin/dsp/dsp_task.c .data size:0x2B local
 DEF 0x80248E00 CardData dolphin/card/CARDUnlock.c .data size:0x160 local
+DEF 0x80248F60 SectorSizeTable dolphin/card/CARDMount.c .data size:0x20 local
+DEF 0x80248F80 LatencyTable dolphin/card/CARDMount.c .data size:0x20 local
 DEF 0x80248FA0 @17 dolphin/gx/GXInit.c .data size:0x44 local
 DEF 0x80249000 DefaultTexData dolphin/gx/GXInit.c .data size:0x20 local
 DEF 0x80249020 GXDefaultVATList dolphin/gx/GXInit.c .data size:0xD0 local
@@ -1847,6 +1862,10 @@ DEF 0x8044FC9C DrawDoneCB dolphin/gx/GXMisc.c .sbss size:0x4 local
 DEF 0x8044FCA0 DrawDone dolphin/gx/GXMisc.c .sbss size:0x1 local
 DEF 0x8044FCA4 FinishQueue dolphin/gx/GXMisc.c .sbss size:0x8 local
 DEF 0x8044FCC8 __global_destructor_chain Runtime/global_destructor_chain.c .sbss size:0x4 global
+DEF 0x8044FD20 Chan dolphin/exi/EXIUart.c .sbss size:0x4 local
+DEF 0x8044FD24 Dev dolphin/exi/EXIUart.c .sbss size:0x4 local
+DEF 0x8044FD28 Enabled dolphin/exi/EXIUart.c .sbss size:0x4 local
+DEF 0x8044FD2C BarnacleEnabled dolphin/exi/EXIUart.c .sbss size:0x4 local
 DEF 0x8044FD30 cmdTypeAndStatus$79 dolphin/si/SIBios.c .sbss size:0x4 local
 DEF 0x8044FD34 cmdTypeAndStatus$375 dolphin/si/SIBios.c .sbss size:0x4 local
 DEF 0x8044FD38 __PADFixBits dolphin/si/SIBios.c .sbss size:0x4 global
@@ -2040,6 +2059,7 @@ dolphin/ar/ar.c                                  .data   0x802448F0-0x80244934  
 dolphin/ar/arq.c                                 .sdata  0x8044EE08-0x8044EE10   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/ar/arq.c                                 .sbss   0x8044FB28-0x8044FB50  10 sym  of 12 in the C (2 stripped), 10 at a verified use (code)
 dolphin/ar/arq.c                                 .data   0x80244938-0x8024497D   1 sym  of 1 in the C (0 stripped), 1 at a verified use (pointer), bytes = main.dol
+dolphin/card/CARDMount.c                         .data   0x80248F60-0x80248FA0   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 dolphin/card/CARDNet.c                           .sdata  0x8044EE40-0x8044EE48   2 sym  of 2 in the C (0 stripped), 2 at a verified use (C call site), bytes = main.dol
 dolphin/card/CARDUnlock.c                        .data   0x80248E00-0x80248F60   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/card/CARDUnlock.c                        .sdata  0x8044EE38-0x8044EE40   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
@@ -2057,6 +2077,7 @@ dolphin/dvd/fstload.c                            .data   0x80244468-0x802444D8  
 dolphin/dvd/fstload.c                            .bss    0x8041F818-0x8041F888   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
 dolphin/dvd/fstload.c                            .sdata  0x8044EDB8-0x8044EDC3   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 dolphin/dvd/fstload.c                            .sbss   0x8044FA38-0x8044FA44   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
+dolphin/exi/EXIUart.c                            .sbss   0x8044FD20-0x8044FD30   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code)
 dolphin/gx/GXFrameBuf.c                          .data   0x80249458-0x80249588   5 sym  of 32 in the C (27 stripped), 4 at a verified use (C call site, its bytes between two placed runs), bytes = main.dol
 dolphin/gx/GXFrameBuf.c                          .sdata2 0x80451DC0-0x80451DC8   1 sym  of 2 in the C (1 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/gx/GXInit.c                              .data   0x80248FA0-0x802491DC   6 sym  of 6 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
@@ -2420,7 +2441,7 @@ sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x80452940  
 .sdata2 0x804529F8-0x80452A14 size 0x1C
 .sbss2  0x80452A20-0x80452AC0 size 0xA0
 
-== rejected candidates (1159)
+== rejected candidates (1157)
 GALE01:Runtime/__va_arg.c .text: start not proven (__va_arg .. __va_arg; neighbour MWInitializeCriticalSection)
 GALE01:Runtime/Gecko_ExceptionPPC.c .text: none of its functions is (uniquely) named in ours
 GALE01:Runtime/Gecko_setjmp.c .text: none of its functions is (uniquely) named in ours
@@ -3552,9 +3573,7 @@ data from C MetroTRK/serpoll.c: 3 of 5 functions of the object are not verified 
 data from C MetroTRK/targimpl.c: 12 of 29 functions of the object are not verified C functions (another revision): its data is not proven
 data from C Runtime/GCN_mem_alloc.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/ax/AXVPB.c: 2 of 22 functions of the object are not verified C functions (another revision): its data is not proven
-data from C dolphin/card/CARDMount.c: 1 of 7 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/exi/EXIBios.c: 22 of 23 functions of the object are not verified C functions (another revision): its data is not proven
-data from C dolphin/exi/EXIUart.c: 1 of 4 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/gx/GXAttr.c: 2 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/gx/GXFifo.c .sbss: __GXCurrentBP (+0x1C) may be after the piece (no bytes to tell, the neighbour is unproven)
 data from C dolphin/gx/GXLight.c: 3 of 11 functions of the object are not verified C functions (another revision): its data is not proven

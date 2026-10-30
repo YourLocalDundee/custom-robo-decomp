@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,358 @@ def MatchingFor(*versions):
+@@ -284,18 +307,359 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -153,6 +153,9 @@ diff --git a/configure.py b/configure.py
 +}
 +# Per-object header roots, replacing the library's -i ones (an object taken from another reference than its library).
 +CR_OBJECT_INCLUDES: Dict[str, List[str]] = {
++    # from BfBB: this revision of the SDK file (step 65)
++    "dolphin/card/CARDMount.c": ["-i include/bfbb", "-i include/bfbb/libc"],
++    "dolphin/exi/EXIUart.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    # from Melee: Mario Party 4's __mem.c has the three functions in another order than ours
 +    "Runtime/__mem.c": ["-i include/melee/MSL", "-i include/melee/dolphin"],
 +    "sysdolphin/baselib/id.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin"],
@@ -285,6 +288,8 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/gx/GXFrameBuf.c",
 +    "dolphin/gx/GXInit.c",
 +    "dolphin/gx/GXGeometry.c",
++    "dolphin/card/CARDMount.c",
++    "dolphin/exi/EXIUart.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -377,14 +382,10 @@ diff --git a/configure.py b/configure.py
 +        "code: 1 of 1 functions differ (__sys_free 98%): the reference is another revision",
 +    "dolphin/ax/AXVPB.c":
 +        "code: 4 of 22 functions differ (__AXSetPBDefault 89%, fn_80146ED8 0%, fn_801470D8 0%, fn_8014719C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
-+    "dolphin/card/CARDMount.c":
-+        "code: 1 of 7 functions differ (DoMount 93%): the reference is another revision",
 +    "dolphin/card/CARDRdwr.c":
 +        "code: 2 of 4 functions differ (BlockWriteCallback 78%, __CARDWrite 80%): the reference is another revision",
 +    "dolphin/exi/EXIBios.c":
 +        "code: 22 of 23 functions differ (SetExiInterruptMask 90%, EXIImm 44%, EXIImmEx 95%, EXIDma 68% (+18 more)): the reference is another revision",
-+    "dolphin/exi/EXIUart.c":
-+        "code: 1 of 4 functions differ (WriteUARTN 93%): the reference is another revision",
 +    "dolphin/gx/GXAttr.c":
 +        "code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision",
 +    "dolphin/gx/GXLight.c":

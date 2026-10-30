@@ -31,7 +31,7 @@ padding per point: 0x100 bytes; points: 30
   28. 0x80451CA8 .sdata2  inside .sdata2: the data piece of dolphin/os/OSFont.c (a proven object boundary) -> everything from here moves by +0x1C00
   29. 0x80452310 .sdata2  inside .sdata2: the data piece of MSL/k_sin.c (a proven object boundary) -> everything from here moves by +0x1D00
   30. 0x804529E8 .sdata2  inside .sdata2: the data piece of sysdolphin/baselib/texp.c (a proven object boundary) -> everything from here moves by +0x1E00
-objects linked from C (batch 9, configure.py CR_MATCHING): 388 in both links, 387 of them moved by the padding; 8 holding a point, reassembled from asm
+objects linked from C (batch 9, configure.py CR_MATCHING): 390 in both links, 389 of them moved by the padding; 8 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
 shifted main.dol: SHA-1 c2634a7d4bcaec8d335bda14ac1656a6f5fb7e6e (2430848 bytes, retail 2425472)
 sections, unshifted -> shifted:
