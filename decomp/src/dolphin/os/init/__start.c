@@ -20,7 +20,7 @@ static u8 Debug_BBA = 0;
 
 extern void InitMetroTRK();
 
-__declspec(weak) void InitMetroTRK_BBA() {}
+/* Custom Robo: no weak stub here in this revision (dolphin_trk.c defines it, as KAR's __start.c) */ extern void InitMetroTRK_BBA();
 
 __declspec(section ".init") extern char _stack_addr[];
 __declspec(section ".init") extern char _SDA_BASE_[];

@@ -1,5 +1,10 @@
 /* Custom Robo: from doldecomp/kar @ 3ed51a1a008a05c33225cc286c046b8f90fb3d0e, src/sysdolphin/lobj.c */ #include "lobj.h"
+/* Custom Robo: list.h (include/cr_kar override) declares HSD_SListAllocAndPrepend void, as kar's list.c defines it; it
+ * returns the new head (Melee list.h), which HSD_LObjAddCurrent below uses: declared here with Melee's type */
+#define HSD_SListAllocAndPrepend cr_HSD_SListAllocAndPrepend_void
 #include <sysdolphin/list.h> /* Custom Robo: these three and the two inlines for the functions from wowjinxy/KAR below */
+#undef HSD_SListAllocAndPrepend
+HSD_SList* HSD_SListAllocAndPrepend(HSD_SList* list, void* data);
 #include <sysdolphin/wobj.h>
 #include <sysdolphin/aobj.h>
 
@@ -558,6 +563,72 @@ static inline void HSD_LObjDeleteCurrent(HSD_LObj* lobj)
             }
         }
     }
+}
+
+/* wowjinxy/KAR lobj.c HSD_LObjGetPriority (lobj.h; assert line 355 as main.dol passes) */
+static inline u32 HSD_LObjGetPriority(HSD_LObj* lobj)
+{
+    ((lobj) ? ((void) 0) : __assert("lobj.h", 355, "lobj"));
+    return lobj->priority & 0xFF;
+}
+
+/* wowjinxy include/sysdolphin/object.h ref_INC (assert line 93) */
+static inline void lobj_ref_INC(void* o)
+{
+    if (o != NULL) {
+        HSD_OBJ(o)->ref_count++;
+        ((HSD_OBJ(o)->ref_count != HSD_OBJ_NOREF) ? ((void) 0) : __assert("object.h", 93, "HSD_OBJ(o)->ref_count != HSD_OBJ_NOREF"));
+    }
+}
+
+/* wowjinxy/KAR lobj.c HSD_LObjAddCurrent (static inline here: main.dol has no function of its own, its body is in
+ * HSD_LObjSetCurrentAll), with HSD_SListAllocAndPrepend as Melee's lobj.c calls it (wowjinxy: HSD_SListPrepend) */
+static inline void HSD_LObjAddCurrent(HSD_LObj* lobj)
+{
+    HSD_SList* node;
+    HSD_SList** p;
+
+    if (lobj != NULL) {
+        node = LObjCurrentLights;
+        while (node != NULL) {
+            if (node->data == lobj) {
+                HSD_LObjDeleteCurrent(lobj);
+                break;
+            }
+            node = node->next;
+        }
+        lobj_ref_INC(lobj);
+        for (p = &LObjCurrentLights; *p != NULL; p = &(*p)->next) {
+            if (HSD_LObjGetPriority((*p)->data) > HSD_LObjGetPriority(lobj)) {
+                break;
+            }
+        }
+        *p = HSD_SListAllocAndPrepend(*p, lobj);
+    }
+}
+
+/* Melee lobj.c LObjReplaceAll (static inline): wowjinxy/KAR's LObjRemoveAll + its HSD_LObjSetCurrentAll loop */
+static inline void LObjReplaceAll(HSD_LObj* lobj)
+{
+    int i;
+    HSD_LObj* cur;
+    for (i = 0; i < MAX_GXLIGHT; i++) {
+        LObjActiveLights[i] = NULL;
+    }
+    LObjActiveCount = 0;
+    while (LObjCurrentLights != NULL) {
+        HSD_LObjUnrefThis(LObjCurrentLights->data);
+        LObjCurrentLights = HSD_SListRemove(LObjCurrentLights);
+    }
+    for (cur = lobj; cur != NULL; cur = cur->next) {
+        HSD_LObjAddCurrent(cur);
+    }
+}
+
+/* wowjinxy/KAR lobj.c HSD_LObjSetCurrentAll (Melee: HSD_LObj_803668EC, the same body) */
+void HSD_LObjSetCurrentAll(HSD_LObj* lobj)
+{
+    LObjReplaceAll(lobj);
 }
 
 /* wowjinxy/KAR lobj.c HSD_LObjGetCurrentByType */

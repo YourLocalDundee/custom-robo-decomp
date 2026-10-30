@@ -1823,7 +1823,7 @@ void cr_Mtx_Mul(f32* m);
 f32* cr_Mtx_Store(f32* m);
 void cr_Mtx_Push(void);
 void cr_Mtx_Pop(void);
-f64 cr_Sqrt(f64 x);
+f64 sqrt(f64 x); /* MSL w_sqrt.c (was cr_Sqrt, step 65) */
 void cr_Cam_SetMode(u8 mode);
 void cr_Motion_Play(u32 request, u32 frame);
 void cr_Motion_PlayFromFrame1(u32 id);

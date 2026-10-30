@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,368 @@ def MatchingFor(*versions):
+@@ -284,18 +307,410 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -153,9 +153,32 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/exi/EXIBios.c": ["-O3,p"],
 +    "dolphin/card/CARDOpen.c": ["-char signed"],
 +    "dolphin/card/CARDRename.c": ["-char signed"],
++    "dolphin/os/OSFont.c": ["-char signed"],
++    "dolphin/vi/vi.c": ["-DMATCHING"],
++    # its functions are in reverse source order in main.dol (deferred inlining, as BfBB builds OdemuExi2)
++    "dolphin/OdemuExi2/DebuggerDriver.c": ["-inline auto,deferred"],
++    # its two OSReport strings are separate objects in main.dol, not one pool (step 65)
++    "Runtime/GCN_mem_alloc.c": ["-str nopool"],
 +}
 +# Per-object header roots, replacing the library's -i ones (an object taken from another reference than its library).
++# from BfBB (tools/refs/bfbb): the same Apr 17 2003 SDK and the same MSL revision as ours (step 65; docs/compiler.md
++# "Source revisions"); its headers in include/bfbb (dolphin + its include/), include/bfbb/libc (PowerPC_EABI_Support)
++# and include/bfbb/dolphin_src (the SDK's private <gx/__gx.h>-style headers)
++BFBB_INC = ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"]
 +CR_OBJECT_INCLUDES: Dict[str, List[str]] = {
++    "dolphin/card/CARDMount.c": BFBB_INC,
++    "dolphin/exi/EXIUart.c": BFBB_INC,
++    "MSL/alloc.c": BFBB_INC,
++    "MSL/e_pow.c": BFBB_INC,
++    "MSL/string.c": BFBB_INC,
++    "MSL/ansi_files.c": BFBB_INC,
++    "dolphin/card/CARDRdwr.c": BFBB_INC,
++    "dolphin/exi/EXIBios.c": BFBB_INC,
++    "dolphin/os/OSReset.c": BFBB_INC,
++    "MSL/abort_exit.c": BFBB_INC,
++    "MSL/direct_io.c": BFBB_INC,
++    "MSL/e_acos.c": BFBB_INC,
++    "MSL/e_asin.c": BFBB_INC,
 +    # from Melee: Mario Party 4's __mem.c has the three functions in another order than ours
 +    "Runtime/__mem.c": ["-i include/melee/MSL", "-i include/melee/dolphin"],
 +    "sysdolphin/baselib/id.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin"],
@@ -173,6 +196,33 @@ diff --git a/configure.py b/configure.py
 +    # from doldecomp/kar (Kirby Air Ride: the same sysdolphin revision as ours), its headers; include/cr_kar
 +    # holds Custom Robo's overrides of them (step 61)
 +    "sysdolphin/baselib/list.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin"],
++    "dolphin/os/OS.c": BFBB_INC,
++    "dolphin/os/OSFont.c": BFBB_INC,
++    "dolphin/os/OSReboot.c": BFBB_INC,
++    "dolphin/gx/GXLight.c": BFBB_INC,
++    "dolphin/vi/vi.c": BFBB_INC,
++    "dolphin/gx/GXAttr.c": BFBB_INC,
++    "dolphin/ax/AXVPB.c": BFBB_INC,
++    "dolphin/mtx/vec.c": BFBB_INC,
++    "dolphin/ax/AXAlloc.c": BFBB_INC,
++    "dolphin/dsp/dsp.c": BFBB_INC,
++    "dolphin/card/CARDBios.c": BFBB_INC,
++    "dolphin/gx/GXPixel.c": BFBB_INC,
++    "dolphin/gx/GXDraw.c": BFBB_INC,
++    "dolphin/gx/GXPerf.c": BFBB_INC,
++    "dolphin/OdemuExi2/DebuggerDriver.c": BFBB_INC,
++    "MSL/e_exp.c": BFBB_INC,
++    "MSL/e_log.c": BFBB_INC,
++    "MSL/w_exp.c": BFBB_INC,
++    "MSL/w_log.c": BFBB_INC,
++    "MSL/e_sqrt.c": BFBB_INC,
++    "MSL/w_sqrt.c": BFBB_INC,
++    "MSL/PPC_EABI/critical_regions.gamecube.c": BFBB_INC,
++    "MSL/uart_console_io_gcn.c": BFBB_INC,
++    "MSL/ansi_fp.c": BFBB_INC,
++    "dolphin/thp/THPDec.c": BFBB_INC,
++    "dolphin/thp/THPAudio.c": BFBB_INC,
++    "dolphin/si/SISamplingRate.c": BFBB_INC,
 +}
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
@@ -261,6 +311,7 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/os/OSAlloc.c",
 +    "dolphin/os/OSArena.c",
 +    "dolphin/os/OSThread.c",
++    "dolphin/os/OSError.c",
 +    "dolphin/card/CARDOpen.c",
 +    "dolphin/gx/GXTexture.c",
 +    "dolphin/gx/GXTransform.c",
@@ -281,12 +332,72 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/wobj.c",
 +    "sysdolphin/baselib/mobj.c",
 +    "sysdolphin/baselib/spline.c",
++    "dolphin/gx/GXFifo.c",
++    "dolphin/gx/GXMisc.c",
++    "dolphin/os/init/__start.c",
++    "dolphin/gx/GXFrameBuf.c",
++    "dolphin/gx/GXInit.c",
++    "dolphin/gx/GXGeometry.c",
++    "dolphin/card/CARDMount.c",
++    "dolphin/exi/EXIUart.c",
++    "MSL/string.c",
++    "MSL/ansi_files.c",
++    "MSL/alloc.c",
++    "Runtime/GCN_mem_alloc.c",
++    "MSL/e_pow.c",
++    "dolphin/card/CARDRdwr.c",
++    "dolphin/exi/EXIBios.c",
++    "dolphin/gx/GXTev.c",
++    "dolphin/os/OSReset.c",
++    "MSL/abort_exit.c",
++    "MSL/direct_io.c",
++    "MSL/e_acos.c",
++    "MSL/e_asin.c",
++    "dolphin/os/OS.c",
++    "dolphin/os/OSFont.c",
++    "dolphin/os/OSReboot.c",
++    "dolphin/gx/GXLight.c",
++    "dolphin/vi/vi.c",
++    "dolphin/gx/GXAttr.c",
++    "dolphin/ax/AXVPB.c",
++    "dolphin/mtx/vec.c",
++    "dolphin/dsp/dsp.c",
++    "dolphin/gx/GXPerf.c",
++    "dolphin/OdemuExi2/DebuggerDriver.c",
++    "dolphin/card/CARDBios.c",
++    "MSL/e_exp.c",
++    "MSL/e_log.c",
++    "MSL/w_exp.c",
++    "MSL/w_log.c",
++    "MSL/e_sqrt.c",
++    "MSL/w_sqrt.c",
++    "MSL/PPC_EABI/critical_regions.gamecube.c",
++    "dolphin/ax/AXAlloc.c",
++    "dolphin/gx/GXPixel.c",
++    "dolphin/gx/GXDraw.c",
++    "MSL/printf.c",
++    "MSL/ansi_fp.c",
++    "MetroTRK/UDP_Stubs.c",
++    "MetroTRK/MWTrace.c",
++    "dolphin/thp/THPDec.c",
++    "dolphin/thp/THPAudio.c",
++    "dolphin/si/SISamplingRate.c",
++    "dolphin/pad/pad.c",
++    "dolphin/pad/PadClamp.c",
++    "dolphin/ax/AXProf.c",
++    "dolphin/axfx/delay.c",
++    "sysdolphin/baselib/tobj.c",
++    "sysdolphin/baselib/fog.c",
++    "sysdolphin/baselib/perf.c",
++    "sysdolphin/baselib/initialize.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
 +# "data": the C defines data main.dol keeps in a dtk automatic object (the data split must give this object that
 +# piece first); "link": the C calls functions / uses data our symbols do not name yet.
 +CR_NOT_MATCHING = {
++    "MSL/uart_console_io_gcn.c":
++        "link: 100% code and data (BfBB's file), but the C also defines __close_console, which main.dol has at 0x8015EBAC, before MetroTRK/mslsupp.c, far outside this object's range 0x80165A14-0x80165AE4 (MKDD's map puts it in another unit of the same name there): linked from C it is defined twice (step 65)",
 +    "sysdolphin/baselib/bytecode.c":
 +        "code: HSD_ByteCodeEval (0x15C8, the whole object) 97% in objdiff: Melee's saves f30 / f31 and computes a few values differently (another revision; doldecomp/kar has only asm): adapt to this revision",
 +    "sysdolphin/baselib/mtx.c":
@@ -299,8 +410,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 17 of 22 functions equal in objdiff (Melee's tev.c, assert line numbers of this revision, HSD_StateSetNumChans stores prev_num_chans as wowjinxy/KAR's does): HSD_DisableChannelLighting, fn_8018AEA4, fn_8018AFE0, fn_8018B3B8 are not in Melee's C (wowjinxy's HSD_DisableChannelLighting 58%), HSD_SetTevRegAll 83% (another revision): adapt to this revision",
 +    "sysdolphin/baselib/video.c":
 +        "code: 8 of 10 functions equal in objdiff (Melee's video.c; fn_8019DE54 named HSD_VISetConfigure by its bytes): fn_8019DB14 (0x17C) and fn_8019DC90 (0x1C4) have no function of their size in Melee's (HSD_VICopyXFBAsync 0x104 ... HSD_VIGetXFBLastDrawDone 0x170) or KAR's file (wowjinxy map: 0x208 0xD4 0x178 0x16C 0x170) (another revision): adapt to this revision",
-+    "sysdolphin/baselib/tobj.c":
-+        "code: 39 of 39 functions equal in objdiff, .sdata / .sbss / .sdata2 100% (Melee's tobj.c with this revision's assert / HSD_Panic lines; TObjLoad, TObjInit (fn_80189A70, the init method), TObjInfoInit, TObjUpdateFunc, HSD_TObjAnim and HSD_TObjAddAnimAll ported from wowjinxy/KAR's tobj.c, the *Info update method and TObj.id of wowjinxy in tobj.h; step 61 iteration 7): data: the split's .data piece is 0x4D0, the C's .data 0x4C9: the 7 zero bytes after its last string (to the next object's alignment) are in the piece (gen_dtk_splits ends a C piece with dtk's last symbol, which runs on over the padding), so objdiff reports .data 1225/1232; the bytes before are equal",
 +    "sysdolphin/baselib/cobj.c":
 +        "code: 32 of 48 functions equal in objdiff (Melee's cobj.c with this revision's assert lines; HSD_CObjGetUpVector, HSD_CObjGetViewingMtxPtr, CObjInfoInit's update method, CObjResetFlags from wowjinxy/KAR's cobj.c; step 61 iteration 7): unnamed, not in Melee's C: fn_8018F830, fn_8018FA94, fn_8018FD60 (0xCC, HSD_CObjSetupViewingMtx by its caller; 0x13C in KAR), fn_80190BBC, fn_80190EB8, fn_80191424, fn_80191494, fn_801914B0, fn_801914CC, fn_801914F8; HSD_CObjEraseScreen 97% (double tan + frsp here), HSD_CObjSetCurrent 0x504 here 86%, upvec2roll 63%, roll2upvec 84%, HSD_CObjSetRoll 0x428 here 83% (wowjinxy's 46-88%) (another revision): adapt to this revision",
 +    "sysdolphin/baselib/jobj.c":
@@ -309,113 +418,46 @@ diff --git a/configure.py b/configure.py
 +        "code: 7 of 22 functions equal in objdiff (Melee's texp.c, TETev with this revision's a_range byte and assert line numbers): HSD_TExpUnref 0x57C here vs 0x274, TExp2TevDesc 0x400 vs 0x464, HSD_TExpCnst / ColorOp / AlphaOp sizes differ, the other 10 are 2-93 instructions apart (another revision; wowjinxy/KAR has no texp.c): adapt to this revision",
 +    "sysdolphin/baselib/displayfunc.c":
 +        "code: 10 of 16 functions equal in objdiff (Melee's displayfunc.c with this revision's assert lines; zlist_sort from wowjinxy/KAR's displayfunc.c, step 61 iteration 7): mkVBillBoardMtx / mkHBillBoardMtx / mkBillBoardMtx 0x2DC / 0x344 / 0x398 here vs 0x23C / 0x2D4 / 0x2B8 (74 / 78 / 61%; wowjinxy's 80-90%), HSD_EraseRect 98.8% (r7 / r8 / r10 / r11 swapped in the GX FIFO writes; no wowjinxy form matches), fn_8019C86C and fn_8019C918 not in Melee's C (another revision): adapt to this revision",
-+    "sysdolphin/baselib/initialize.c":
-+        "code: 17 of 18 functions equal in objdiff (wowjinxy/KAR's initialize.c: HSD_InitComponent and HSD_GXSetFifoObj in its VERSION_GKYP01 (KAR PAL) form, HSD_AllocateXFB, HSD_GXInit, the memory callbacks, HSD_GetHeap, render pass functions, HSD_ObjInit; this revision's assert / HSD_Panic lines, _HSD_MemClearDefaultCB without the fill-heap loop; the unnamed ones under their fn_ addresses; step 61 iteration 7): HSD_OSInit (fn_8019CFB8, 0x1A4) 99.4%: main.dol reloads HSD_HeapLo / HeapHi before OSCreateHeap in the second branch, the C reuses the register (wowjinxy's form without its fill-heap loops; a shared inline tried); the C also has .data / .sbss the split object lacks",
 +    "sysdolphin/baselib/robj.c":
 +        "code: 15 of 21 functions equal in objdiff (doldecomp/kar's robj.c for its 6; resolveLimits, HSD_RObjLoadDesc, HSD_RObjRemoveAll, HSD_RObjAlloc, HSD_RObjFree, HSD_RvalueRemoveAll, dummy_func (wowjinxy's RObjEvalZero), expLoadDesc, bcexpLoadDesc ported from wowjinxy/KAR's robj.c, include/cr_kar/robj.h with the 8-byte HSD_RvalueList; step 61 iteration 7): HSD_RObjGetGlobalPosition 90% (94% with the JOBJ test as a BOOL inline; main.dol computes the constraint type branch-free with cntlzw of (rp == NULL)), resolveCnsDirUp 91%, HSD_RObjUpdateAll 89%, expEvaluate 97% (registers r28-r30 permuted), HSD_RObjResolveRefsAll / HSD_RvalueResolveRefsAll (their assert strings are addressed from the file's .data base, +0x4C / 0x5C / 0x68 / 0x130: need the whole file's .data): adapt to this revision",
 +    "sysdolphin/baselib/lobj.c":
-+        "code: 23 of 27 functions equal in objdiff, 24 with LObjUpdateFunc (equal but for its jump table's name) (doldecomp/kar's lobj.c for its functions, TryNormalize comparing with the double FLT_MIN as main.dol does; the 13 kar lacks ported from wowjinxy/KAR's lobj.c, provenance per function, with the HSD_LightPoint / Spot desc structs of wowjinxy's lobj.h in include/cr_kar/lobj.h; LObjUpdateFunc, HSD_LObjGetPosition / GetInterest, LObjRelease named by their bytes): HSD_LObjSetupSpecularInit (0x278) and HSD_LObjSetupInit (0xBBC) are asm in kar and 96% / 92% in wowjinxy's C, fn_8018E604 (0x340, between SetupInit and HSD_LObjGetCurrentByType: no reference function of its size, wowjinxy's HSD_LObjAddCurrent / SetCurrentAll differ); the C has .sdata2 the split object lacks",
++        "code: 24 of 27 functions equal in objdiff, 25 with LObjUpdateFunc (equal but for its jump table's name) (doldecomp/kar's lobj.c for its functions, TryNormalize comparing with the double FLT_MIN as main.dol does; the 13 kar lacks ported from wowjinxy/KAR's lobj.c, provenance per function, with the HSD_LightPoint / Spot desc structs of wowjinxy's lobj.h in include/cr_kar/lobj.h; LObjUpdateFunc, HSD_LObjGetPosition / GetInterest, LObjRelease named by their bytes): HSD_LObjSetCurrentAll (0x8018E604, 0x340 = KAR) written as Melee's LObjReplaceAll with wowjinxy's HSD_LObjAddCurrent inline (step 61 iteration 8): HSD_LObjSetupSpecularInit (0x278) and HSD_LObjSetupInit (0xBBC) are asm in kar (KAR's, 0x284 / 0xBC8) and 96% / 92% in wowjinxy's C (not ported yet: it reads its float constants as externs; this file's .sdata2 must come from literals first); the C has .sdata2 the split object lacks (kar's HSD_LObjSetup reads lbl_805E5A34, a KAR address, as an extern)",
 +    "sysdolphin/baselib/pobj.c":
 +        "code: 11 of 23 functions equal in objdiff (doldecomp/kar's pobj.c for HSD_PObjReqAnimAllByFlags; HSD_PObjAddAnimAll, PObjUpdateFunc, HSD_PObjAnimAll, HSD_PObjLoadDesc, HSD_PObjRemoveAll, HSD_PObjAlloc, HSD_ClearVtxDesc, HSD_PObjClearMtxMark, PObjSetupMtx, PObjAmnesia, PObjInfoInit ported from wowjinxy/KAR's pobj.c, include/cr_kar/pobj.h with HSD_A_S_W0 2 and the blend union; step 61 iteration 7): PObjInfoInit 99.9% (its class strings at hsdPObj + 0x318 / 0x330: needs the whole file's .data), get_shape_vertex_xyz / get_shape_normal_xyz 99.8% in wowjinxy's C (assert lines 0x43A / 0x465 here and vertex_desc / comp_type in r5 / r6 swapped), PObjRelease 99.5% (r29 / r31 swapped), PObjLoad 96%, HSD_PObjResolveRefsAll 95%, get_shape_nbt_xyz 94%, interpretShapeAnimDisplayList 98%, drawShapeAnim 96%, SetupSharedVtxModelMtx 96%, SetupEnvelopeModelMtx 93%, HSD_PObjDisp 94% (wowjinxy's C, not ported): adapt to this revision",
 +    "sysdolphin/baselib/fobj.c":
-+        "code: 9 of 11 functions equal in objdiff (doldecomp/kar's fobj.c for its functions; FObjLoadData, HSD_FObjInterpretAnim / InterpretAnimAll, HSD_FObjLoadDesc, HSD_FObjAlloc, HSD_FObjFree ported from wowjinxy/KAR's fobj.c, provenance per function, assert lines of this revision): FObjLoadData 97.3% (the inlined HSD_FObjGetState: main.dol puts the NULL case first, `li r30, 0; b` after the bne; ternary / if-else forms tried) and HSD_FObjInterpretAnim 97.3% (frame 0x60 here vs 0x80: kar's FObjData is a struct of 0x14, wowjinxy's HSD_ObjData a union of 0xC, plus the same GetState order)",
++        "code: 10 of 11 functions equal in objdiff (doldecomp/kar's fobj.c for its functions; FObjLoadData, HSD_FObjInterpretAnim / InterpretAnimAll, HSD_FObjLoadDesc, HSD_FObjAlloc, HSD_FObjFree ported from wowjinxy/KAR's fobj.c, provenance per function, assert lines of this revision; step 61 iteration 8: HSD_FObjGetState as a conditional expression (main.dol puts the NULL case first) -> FObjLoadData equal, the update data as wowjinxy's 0xC union HSD_ObjData -> InterpretAnim's frame 0x60 as main.dol's): HSD_FObjInterpretAnim 99.6%: cases 4 / 5 store the new state with clrlwi / rlwimi from the state register in main.dol, the C folds the constant (ori 3 / ori 4); tried: Melee's MUST_MATCH `state = state = 3`, a non-inline static HSD_FObjSetState, u8 state parameter / return, the operand order of Melee's SetState, a bitfield store, state-- / state++, compilers GC/1.2.5 / 1.3 / 1.3.2r",
 +    "sysdolphin/baselib/aobj.c":
 +        "code: 13 of 15 functions equal in objdiff (doldecomp/kar's aobj.c for its 10 functions, the 9 it lacks ported from wowjinxy/KAR's aobj.c, provenance per function; HSD_AObjSetRate named by its bytes): fn_8018CCDC (0x50) and fn_8018CD2C (0x80), between HSD_AObjInvokeCallBacks and HSD_AObjReqAnim, have no function of their size in Melee's or KAR's file (HSD_AObjSetFObj 0x4C, HSD_AObjStopAnim 0x44 there); the C also has functions this revision inlines (HSD_AObjGetAllocData, Get/Set/ClearFlags, SetFObj, StopAnim)",
-+    "sysdolphin/baselib/fog.c":
-+        "code: 11 of 11 functions equal in objdiff, .sdata 100% (the 11 functions of wowjinxy/KAR's fog.c with the structs of include/cr_kar/fog.h, main.dol's assert lines; kar's two KAR-only functions removed; step 61 iteration 7): data: the split's .data piece is 0x118, the C's .data 0x117: the zero byte after \"hsd_fogadj\" (to the next object's alignment) is in the piece (dtk's lbl_8024CF9C runs on over the padding), so objdiff reports .data 279/280; likewise .sdata2 (0x28 piece, the C's pool 0x24: 4 zero bytes after 255.0F): 36/40; the bytes before are equal",
 +    "MSL/FILE_POS.c":
-+        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision",
-+    "MSL/abort_exit.c":
-+        "code: 1 of 1 functions differ (exit 85%): the reference is another revision",
-+    "MSL/alloc.c":
-+        "code: 1 of 4 functions differ (free 86%): the reference is another revision",
-+    "MSL/ansi_files.c":
-+        "code: 1 of 2 functions differ (__close_all 90%): the reference is another revision",
-+    "MSL/ansi_fp.c":
-+        "code: 2 of 4 functions differ (__two_exp 93%, __num2dec_internal 96%): the reference is another revision",
-+    "MSL/direct_io.c":
-+        "code: 1 of 2 functions differ (fwrite 26%): the reference is another revision",
-+    "MSL/e_acos.c":
-+        "code: 1 of 1 functions differ (__ieee754_acos 38%): the reference is another revision",
-+    "MSL/e_asin.c":
-+        "code: 1 of 1 functions differ (__ieee754_asin 59%): the reference is another revision",
-+    "MSL/e_pow.c":
-+        "code: 1 of 1 functions differ (__ieee754_pow 94%): the reference is another revision",
-+    "MSL/printf.c":
-+        "code: 4 of 11 functions differ (parse_format_801651AC 0%, long2str_80164F54 0%, longlong2str_80164C40 0%, vprintf 82%): the reference is another revision",
-+    "MSL/string.c":
-+        "code: 1 of 7 functions differ (strcat 14%): the reference is another revision",
++        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision; BfBB has no FILE_POS.c and no reference reproduces _fseek (86%) or ftell (46%) (step 66)",
 +    "MetroTRK/dispatch.c":
-+        "code: 2 of 2 functions differ (TRKInitializeDispatcher 0%, TRKDispatchMessage 24%): the reference is another revision",
++        "code: 2 of 2 functions differ (TRKInitializeDispatcher 0%, TRKDispatchMessage 24%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/dolphin_trk.c":
-+        "code: 5 of 8 functions differ (TRKTargetTranslate 73%, __TRK_copy_vectors 85%, fn_8015E288 0%, fn_8015E09C 0% (+1 more)): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
++        "code: 5 of 8 functions differ (TRKTargetTranslate 73%, __TRK_copy_vectors 85%, fn_8015E288 0%, fn_8015E09C 0% (+1 more)): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise); ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/dolphin_trk_glue.c":
-+        "code: 10 of 13 functions differ (InitMetroTRKCommTable 37%, TRKInitializeIntDrivenUART 75%, EnableEXI2Interrupts 67%, TRKPollUART 0% (+6 more)): the reference is another revision",
++        "code: 10 of 13 functions differ (InitMetroTRKCommTable 37%, TRKInitializeIntDrivenUART 75%, EnableEXI2Interrupts 67%, TRKPollUART 0% (+6 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/main_TRK.c":
-+        "code: 1 of 1 functions differ (TRK_main 77%): the reference is another revision",
++        "code: 1 of 1 functions differ (TRK_main 77%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/msg.c":
-+        "code: 1 of 1 functions differ (TRKMessageSend 0%): the reference is another revision",
++        "code: 1 of 1 functions differ (TRKMessageSend 0%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/msgbuf.c":
-+        "code: 3 of 14 functions differ (TRKResetBuffer 92%, TRKAppendBuffer1_ui64 53%, TRKAppendBuffer_ui32 65%): the reference is another revision",
++        "code: 3 of 14 functions differ (TRKResetBuffer 92%, TRKAppendBuffer1_ui64 53%, TRKAppendBuffer_ui32 65%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/msghndlr.c":
-+        "code: 15 of 17 functions differ (OutputData 0%, TRKDoConnect 0%, TRKDoDisconnect 0%, TRKDoReset 0% (+11 more)): the reference is another revision",
++        "code: 15 of 17 functions differ (OutputData 0%, TRKDoConnect 0%, TRKDoDisconnect 0%, TRKDoReset 0% (+11 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/notify.c":
-+        "code: 1 of 1 functions differ (TRKDoNotifyStopped 61%): the reference is another revision",
++        "code: 1 of 1 functions differ (TRKDoNotifyStopped 61%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/nubinit.c":
-+        "code: 1 of 3 functions differ (TRKInitializeNub 73%): the reference is another revision",
++        "code: 1 of 3 functions differ (TRKInitializeNub 73%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/serpoll.c":
-+        "code: 3 of 5 functions differ (TRKTestForPacket 0%, TRKGetInput 38%, TRKInitializeSerialHandler 16%): the reference is another revision",
++        "code: 3 of 5 functions differ (TRKTestForPacket 0%, TRKGetInput 38%, TRKInitializeSerialHandler 16%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/support.c":
-+        "code: 5 of 5 functions differ (TRKSuppAccessFile 39%, TRKRequestSend 77%, HandleOpenFileSupportRequest 24%, HandleCloseFileSupportRequest 51% (+1 more)): the reference is another revision",
++        "code: 5 of 5 functions differ (TRKSuppAccessFile 39%, TRKRequestSend 77%, HandleOpenFileSupportRequest 24%, HandleCloseFileSupportRequest 51% (+1 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +    "MetroTRK/targimpl.c":
-+        "code: 12 of 29 functions differ (TRKValidMemory32 40%, TRKTargetAccessFP 23%, TRKPostInterruptEvent 86%, TRKTargetInterrupt 81% (+8 more)): the reference is another revision",
-+    "Runtime/GCN_mem_alloc.c":
-+        "code: 1 of 1 functions differ (__sys_free 98%): the reference is another revision",
-+    "dolphin/ax/AXVPB.c":
-+        "code: 4 of 22 functions differ (__AXSetPBDefault 89%, fn_80146ED8 0%, fn_801470D8 0%, fn_8014719C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
-+    "dolphin/card/CARDMount.c":
-+        "code: 1 of 7 functions differ (DoMount 93%): the reference is another revision",
-+    "dolphin/card/CARDRdwr.c":
-+        "code: 2 of 4 functions differ (BlockWriteCallback 78%, __CARDWrite 80%): the reference is another revision",
-+    "dolphin/exi/EXIBios.c":
-+        "code: 22 of 23 functions differ (SetExiInterruptMask 90%, EXIImm 44%, EXIImmEx 95%, EXIDma 68% (+18 more)): the reference is another revision",
-+    "dolphin/exi/EXIUart.c":
-+        "code: 1 of 4 functions differ (WriteUARTN 93%): the reference is another revision",
-+    "dolphin/gx/GXAttr.c":
-+        "code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision",
-+    "dolphin/gx/GXFifo.c":
-+        "link: 100% code (every function its own by bytes), but GXGetGPFifo (0x80153070) is the C's too and outside the proven code range (it ends at 0x80153070): that function stays in an automatic object and uses GPFifo, which the C defines",
-+    "dolphin/gx/GXFrameBuf.c":
-+        "data: 100% code, but its .data (the GX render modes) is not proven: the C's symbols at +0x348 are not where they follow from +0xF0 (another revision's table), so the render modes stay in an automatic object and linking defines them twice",
-+    "dolphin/gx/GXGeometry.c":
-+        "code: 1 of 9 functions differ (GXSetCullMode 35%): the reference is another revision",
-+    "dolphin/gx/GXInit.c":
-+        "code: 1 of 5 functions differ (GXInit 79%): the reference is another revision",
-+    "dolphin/gx/GXLight.c":
-+        "code: 3 of 11 functions differ (GXSetChanAmbColor 92%, GXSetChanMatColor 92%, GXSetChanCtrl 81%): the reference is another revision",
-+    "dolphin/gx/GXMisc.c":
-+        "link: 100% code, but __GXAbort calls GXGetGPFifo (0x80153070, c_callsites_report.txt), which is GXFifo.c's and lies outside GXFifo.c's proven code range (it ends at 0x80153070): naming it moves that edge; prove GXFifo.c's end first",
-+    "dolphin/gx/GXTev.c":
-+        "code: 3 of 16 functions differ (GXSetTevColor 29%, GXSetTevColorS10 49%, GXSetTevKColor 22%): the reference is another revision",
-+    "dolphin/os/OS.c":
-+        "code: 2 of 15 functions differ (ClearArena 78%, OSInit 73%): the reference is another revision",
-+    "dolphin/os/OSError.c":
-+        "data: 100% code and data, its data proven by the C (step 56), but linked from C main.dol differs by one relocation: its .bss (__OSErrorTable 0x8041EBD0-0x8041EC14) is followed by 0xC bytes of padding up to the next object at 0x8041EC20, which the asm piece brings and the C object does not (the next object is then placed at 0x8041EC18)",
-+    "dolphin/os/OSFont.c":
-+        "code: 6 of 8 functions differ (GetFontCode 86%, OSGetFontEncode 86%, OSLoadFont 13%, ExpandFontSheet 94% (+2 more)): the reference is another revision",
-+    "dolphin/os/OSReboot.c":
-+        "code: 3 of 3 functions differ (fn_801367D8 0%, fn_801367E8 0%, __OSReboot 12%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
-+    "dolphin/os/OSReset.c":
-+        "code: 2 of 5 functions differ (OSResetSystem 26%, OSGetResetCode 68%): the reference is another revision",
-+    "dolphin/os/init/__start.c":
-+        "code: the C also defines InitMetroTRK_BBA (a 4-byte stub in .text); our main.dol has dolphin_trk.c's 0x94 InitMetroTRK_BBA there, so linked from C the stub replaces it (.text 0x90 shorter): the reference is another revision",
-+    "dolphin/vi/vi.c":
-+        "code: 4 of 22 functions differ (getTiming 95%, __VIInit 81%, VIConfigure 92%, VIGetTvFormat 100%): the reference is another revision",
++        "code: 12 of 29 functions differ (TRKValidMemory32 40%, TRKTargetAccessFP 23%, TRKPostInterruptEvent 86%, TRKTargetInterrupt 81% (+8 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)",
 +}
 +
 +
-+# Game objects (game/ in splits.txt: decomp/src/game, tools/promote_drafts.py, one function per object or a file
-+# object of consecutive functions sharing a constant pool; plan.md steps 58, 63)
++# Game objects (game/ in splits.txt: decomp/src/game, tools/promote_drafts.py, one function per object; plan.md step 58)
 +# are all linked from C unless CR_NOT_MATCHING names one: tools/gen_dtk_splits.py only splits a game object for a file
 +# in decomp/src/game, and batch 9 checks each is 100% in objdiff with the retail SHA-1.
 +def cr_matching(name: str) -> bool:
@@ -430,7 +472,7 @@ diff --git a/configure.py b/configure.py
 +    opts: Dict[str, Any] = {"extra_cflags": extra}
 +    if name in CR_OBJECT_INCLUDES:
 +        _, lib_cflags = CR_LIBS[name.split("/")[0]]
-+        opts["cflags"] = [f for f in lib_cflags if not f.startswith("-i ")] + CR_OBJECT_INCLUDES[name]
++        opts["cflags"] = [f for f in lib_cflags if not f.startswith(("-i ", "-ir "))] + CR_OBJECT_INCLUDES[name]
 +    return Object(Matching if cr_matching(name) else NonMatching, name, **opts)
 +
 +

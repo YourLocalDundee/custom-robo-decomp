@@ -1629,6 +1629,17 @@ void HSD_ImageDescCopyFromEFB(HSD_ImageDesc* idesc, u16 origx, u16 origy,
     }
 }
 
+/* wowjinxy/KAR tobj.c TObjInit (main.dol has it before TObjRelease) */
+int TObjInit(HSD_Class* o)
+{
+    int result = HSD_PARENT_INFO(&hsdTObj)->init(o);
+    if (result >= 0) {
+        result = 0;
+        ((HSD_TObj*) o)->id = (u16) -1;
+    }
+    return result;
+}
+
 static void TObjRelease(HSD_Class* o)
 {
     HSD_TObj* tobj = HSD_TOBJ(o);
@@ -1656,17 +1667,6 @@ static void TObjAmnesia(HSD_ClassInfo* info)
         tobj_head = NULL;
     }
     HSD_PARENT_INFO(&hsdTObj)->amnesia(info);
-}
-
-/* wowjinxy/KAR tobj.c TObjInit */
-int TObjInit(HSD_Class* o)
-{
-    int result = HSD_PARENT_INFO(&hsdTObj)->init(o);
-    if (result >= 0) {
-        result = 0;
-        ((HSD_TObj*) o)->id = (u16) -1;
-    }
-    return result;
 }
 
 /* wowjinxy/KAR tobj.c TObjInfoInit */

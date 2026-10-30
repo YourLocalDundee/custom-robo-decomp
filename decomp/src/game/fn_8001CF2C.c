@@ -6,14 +6,14 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern f32 lbl_804503D0;
-f64 cr_Sqrt(f64 x);
+f64 sqrt(f64 x);
 
 f32 fn_8001CF2C(void *arg0) {
     f32 temp_f31_17;
 
     temp_f31_17 = (M2C_FIELD(arg0, f32 *, 0x28) * M2C_FIELD(arg0, f32 *, 0x28)) + ((M2C_FIELD(arg0, f32 *, 8) * M2C_FIELD(arg0, f32 *, 8)) + (M2C_FIELD(arg0, f32 *, 0x18) * M2C_FIELD(arg0, f32 *, 0x18)));
     if (temp_f31_17 != lbl_804503D0) {
-        return (f32) cr_Sqrt((f64) temp_f31_17);
+        return (f32) sqrt((f64) temp_f31_17);
     }
     return lbl_804503D0;
 }

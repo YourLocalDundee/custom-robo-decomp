@@ -20,7 +20,7 @@
 #ifdef DEBUG
 const char* __GXVersion = "<< Dolphin SDK - GX\tdebug build: "BUILD_DATE" "DBUILD_TIME" (0x2301) >>";
 #else
-const char* __GXVersion = "<< Dolphin SDK - GX\trelease build: "BUILD_DATE" "RBUILD_TIME" (0x2301) >>";
+const char* __GXVersion = "<< Dolphin SDK - GX\trelease build: Jul 23 2003 11:27:39 (0x2301) >>"; /* Custom Robo: the build in main.dol */
 #endif
 
 static GXFifoObj FifoObj;
@@ -28,16 +28,14 @@ static GXFifoObj FifoObj;
 static GXData gxData;
 GXData* const __GXData = &gxData;
 
-// these are supposed to be in-function static, but it messed up sbss order
-u32 resetFuncRegistered;
-u32 calledOnce;
-OSTime time;
-u32 peCount;
+/* Custom Robo: resetFuncRegistered, peCount, time and calledOnce are function-local statics in this revision
+   (BfBB: peCount$35, time$36, calledOnce$37, resetFuncRegistered$70, in this .sbss order here too) */
 
-void* __memReg;
-void* __peReg;
-void* __cpReg;
-void* __piReg;
+/* Custom Robo: initialised and in this order, as this revision (BfBB) */
+void* __piReg = NULL;
+void* __cpReg = NULL;
+void* __peReg = NULL;
+void* __memReg = NULL;
 
 #if DEBUG
 GXBool __GXinBegin;
@@ -144,6 +142,10 @@ static int __GXShutdown(BOOL final) {
     u32 peCountNew;
     OSTime timeNew;
 
+    static u32 peCount;
+    static OSTime time;
+    static u32 calledOnce;
+
     if (!final) {
         if (!calledOnce) {
             peCount = __GXReadMEMCounterU32(0x28, 0x27);
@@ -200,54 +202,14 @@ static int __GXShutdown(BOOL final) {
 		(reg) = (u32)__rlwimi((u32)(reg), (val), (shift), (32 - (shift) - (size)), (31 - (shift))); \
 	} while (0);
 
-void __GXInitRevisionBits(void) {
-    u32 i;
-
-    for (i = 0; i < 8; i++) {
-        s32 regAddr;
-        SOME_SET_REG_MACRO(__GXData->vatA[i], 1, 30, 1);
-        SOME_SET_REG_MACRO(__GXData->vatB[i], 1, 31, 1);
-
-        GX_WRITE_U8(0x8);
-        GX_WRITE_U8(i | 0x80);
-        GX_WRITE_U32(__GXData->vatB[i]);
-        regAddr = i - 12;
-    }
-
-    {
-        u32 reg1 = 0;
-        u32 reg2 = 0;
-
-        SOME_SET_REG_MACRO(reg1, 1, 0, 1);
-        SOME_SET_REG_MACRO(reg1, 1, 1, 1);
-        SOME_SET_REG_MACRO(reg1, 1, 2, 1);
-        SOME_SET_REG_MACRO(reg1, 1, 3, 1);
-        SOME_SET_REG_MACRO(reg1, 1, 4, 1);
-        SOME_SET_REG_MACRO(reg1, 1, 5, 1);
-        GX_WRITE_XF_REG(0, reg1);
-
-        SOME_SET_REG_MACRO(reg2, 1, 0, 1);
-        GX_WRITE_XF_REG(0x12, reg2);
-#if DEBUG
-        __gxVerif->xfRegsDirty[0] = 0;
-#endif
-    }
-
-    {
-        u32 reg = 0;
-        SOME_SET_REG_MACRO(reg, 1, 0, 1);
-        SOME_SET_REG_MACRO(reg, 1, 1, 1);
-        SOME_SET_REG_MACRO(reg, 1, 2, 1);
-        SOME_SET_REG_MACRO(reg, 1, 3, 1);
-        SOME_SET_REG_MACRO(reg, 8, 24, 0x58);
-        GX_WRITE_RAS_REG(reg);
-    }
-}
+/* Custom Robo: no __GXInitRevisionBits in this revision: its code is inline in GXInit (BfBB's GXInit.c) */
 
 GXFifoObj* GXInit(void* base, u32 size) {
     u32 i;
     u32 reg;
     u32 freqBase;
+
+    static u32 resetFuncRegistered;
 
     OSRegisterVersion(__GXVersion);
 
@@ -341,7 +303,39 @@ GXFifoObj* GXInit(void* base, u32 size) {
     reg = (freqBase / 0x1080) | 0x200 | 0x46000000;
     GX_WRITE_RAS_REG(reg);
 
-    __GXInitRevisionBits();
+    for (i = GX_VTXFMT0; i < GX_MAX_VTXFMT; i++) {
+        SET_REG_FIELD(0, __GXData->vatA[i], 1, 30, 1);
+        SET_REG_FIELD(0, __GXData->vatB[i], 1, 31, 1);
+        do {
+            s32 regAddr;
+            GX_WRITE_U8(GX_LOAD_CP_REG);
+            GX_WRITE_U8(i | 0x80);
+            GX_WRITE_U32(__GXData->vatB[i]);
+            regAddr = i - 12;
+        } while (0);
+    }
+    {
+        u32 reg1 = 0;
+        u32 reg2 = 0;
+        SET_REG_FIELD(0, reg1, 1, 0, 1);
+        SET_REG_FIELD(0, reg1, 1, 1, 1);
+        SET_REG_FIELD(0, reg1, 1, 2, 1);
+        SET_REG_FIELD(0, reg1, 1, 3, 1);
+        SET_REG_FIELD(0, reg1, 1, 4, 1);
+        SET_REG_FIELD(0, reg1, 1, 5, 1);
+        GX_WRITE_XF_REG(0, reg1);
+        SET_REG_FIELD(0, reg2, 1, 0, 1);
+        GX_WRITE_XF_REG(0x12, reg2);
+    }
+    {
+        u32 reg = 0;
+        SET_REG_FIELD(0, reg, 1, 0, 1);
+        SET_REG_FIELD(0, reg, 1, 1, 1);
+        SET_REG_FIELD(0, reg, 1, 2, 1);
+        SET_REG_FIELD(0, reg, 1, 3, 1);
+        SET_REG_FIELD(0, reg, 8, 24, 0x58);
+        GX_WRITE_RAS_REG(reg);
+    }
 
     for (i = 0; i < 8; i++) {
         GXInitTexCacheRegion(&__GXData->TexRegions0[i], GX_FALSE, GXTexRegionAddrTable[i],

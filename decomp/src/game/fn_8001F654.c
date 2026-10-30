@@ -6,11 +6,11 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u32 lbl_8031FED8[5];
-void fn_80141A00(s32 arg0, u32 arg1);
+void PADControlMotor(s32 chan, u32 command);
 
 void fn_8001F654(s32 arg0) {
     if (M2C_FIELD((((u32 *) ((u8 *) lbl_8031FED8 + (arg0 * 0xA4)))), u16 *, 0x92) != 0) {
         M2C_FIELD((((u32 *) ((u8 *) lbl_8031FED8 + (arg0 * 0xA4)))), s16 *, 0x92) = 0;
     }
-    fn_80141A00(arg0, 2U);
+    PADControlMotor(arg0, 2U);
 }

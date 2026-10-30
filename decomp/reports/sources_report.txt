@@ -1,22 +1,25 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 937
+files: 1069
 
 src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
-src/MSL/abort_exit.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/abort_exit.c  identical
-src/MSL/alloc.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/alloc.c  identical
-src/MSL/ansi_files.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/ansi_files.c  identical
-src/MSL/ansi_fp.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/ansi_fp.c  identical
+src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
+src/MSL/alloc.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common/alloc.c  identical
+src/MSL/ansi_files.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common/ansi_files.c  identical
+src/MSL/ansi_fp.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/ansi_fp.c  identical
 src/MSL/buffer_io.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/buffer_io.c  identical
 src/MSL/ctype.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/ctype.c  identical
-src/MSL/direct_io.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/direct_io.c  identical
-src/MSL/e_acos.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_acos.c  identical
-src/MSL/e_asin.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_asin.c  identical
+src/MSL/direct_io.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common/direct_io.c  identical
+src/MSL/e_acos.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_acos.c  identical
+src/MSL/e_asin.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_asin.c  identical
 src/MSL/e_atan2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_atan2.c  identical
+src/MSL/e_exp.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_exp.c  identical
 src/MSL/e_fmod.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_fmod.c  identical
-src/MSL/e_pow.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_pow.c  identical
+src/MSL/e_log.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_log.c  identical
+src/MSL/e_pow.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_pow.c  identical
 src/MSL/e_rem_pio2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_rem_pio2.c  identical
+src/MSL/e_sqrt.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_sqrt.c  identical
 src/MSL/file_io.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/file_io.c  identical
 src/MSL/k_cos.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/k_cos.c  identical
 src/MSL/k_rem_pio2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/k_rem_pio2.c  identical
@@ -26,7 +29,7 @@ src/MSL/mbstring.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.ba
 src/MSL/mem.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/mem.c  identical
 src/MSL/mem_funcs.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/mem_funcs.c  identical
 src/MSL/misc_io.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/misc_io.c  identical
-src/MSL/printf.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/printf.c  identical
+src/MSL/printf.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/printf.c  changed (3 lines added / removed)
 src/MSL/s_atan.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/s_atan.c  identical
 src/MSL/s_copysign.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/s_copysign.c  identical
 src/MSL/s_cos.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/s_cos.c  identical
@@ -36,13 +39,20 @@ src/MSL/s_ldexp.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bar
 src/MSL/s_modf.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/s_modf.c  identical
 src/MSL/s_sin.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/s_sin.c  identical
 src/MSL/s_tan.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/s_tan.c  identical
-src/MSL/string.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/string.c  identical
+src/MSL/string.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common/string.c  identical
+src/MSL/uart_console_io_gcn.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/uart_console_io_gcn.c  identical
 src/MSL/w_acos.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_acos.c  identical
 src/MSL/w_asin.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_asin.c  identical
 src/MSL/w_atan2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_atan2.c  identical
+src/MSL/w_exp.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_exp.c  identical
 src/MSL/w_fmod.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_fmod.c  identical
+src/MSL/w_log.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_log.c  identical
 src/MSL/w_pow.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_pow.c  identical
+src/MSL/w_sqrt.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_sqrt.c  identical
 src/MSL/wchar_io.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/wchar_io.c  identical
+src/MSL/PPC_EABI/critical_regions.gamecube.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/critical_regions.gamecube.c  changed (6 lines added / removed)
+src/MetroTRK/MWTrace.c  wowjinxy/KAR @ cb94b157612a src/metrotrk.c  changed (3303 lines added / removed)
+src/MetroTRK/UDP_Stubs.c  wowjinxy/KAR @ cb94b157612a src/metrotrk.c  changed (3305 lines added / removed)
 src/MetroTRK/dispatch.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/TRK_MINNOW_DOLPHIN/dispatch.c  identical
 src/MetroTRK/dolphin_trk.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/TRK_MINNOW_DOLPHIN/dolphin_trk.c  identical
 src/MetroTRK/dolphin_trk_glue.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/TRK_MINNOW_DOLPHIN/dolphin_trk_glue.c  identical
@@ -72,28 +82,35 @@ src/Runtime/__va_arg.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/Runtime.PPCE
 src/Runtime/global_destructor_chain.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/Runtime.PPCEABI.H/global_destructor_chain.c  identical
 src/Runtime/platform.h  doldecomp/melee @ 24e685d57535 src/Runtime/platform.h  identical
 src/Runtime/runtime.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/Runtime.PPCEABI.H/runtime.c  identical
+src/dolphin/OdemuExi2/DebuggerDriver.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/OdemuExi2/DebuggerDriver.c  identical
 src/dolphin/ai/ai.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ai/ai.c  changed (2 lines added / removed)
 src/dolphin/ar/__ar.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/__ar.h  identical
 src/dolphin/ar/ar.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/ar.c  changed (2 lines added / removed)
 src/dolphin/ar/arq.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/arq.c  changed (2 lines added / removed)
-src/dolphin/ax/AXVPB.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ax/AXVPB.c  identical
+src/dolphin/ax/AXAlloc.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/ax/AXAlloc.c  changed (25 lines added / removed)
+src/dolphin/ax/AXProf.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ax/AXProf.c  identical
+src/dolphin/ax/AXVPB.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/ax/AXVPB.c  changed (81 lines added / removed)
 src/dolphin/ax/__ax.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/ax/__ax.h  identical
+src/dolphin/axfx/__axfx.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/axfx/__axfx.h  identical
+src/dolphin/axfx/delay.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/axfx/delay.c  identical
 src/dolphin/base/PPCArch.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/base/PPCArch.c  identical
+src/dolphin/card/CARDBios.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/card/CARDBios.c  identical
 src/dolphin/card/CARDBlock.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDBlock.c  identical
 src/dolphin/card/CARDCheck.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDCheck.c  identical
 src/dolphin/card/CARDCreate.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDCreate.c  identical
 src/dolphin/card/CARDDelete.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDDelete.c  identical
 src/dolphin/card/CARDDir.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDDir.c  identical
 src/dolphin/card/CARDFormat.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDFormat.c  identical
-src/dolphin/card/CARDMount.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDMount.c  identical
+src/dolphin/card/CARDMount.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/card/CARDMount.c  identical
 src/dolphin/card/CARDNet.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDNet.c  identical
 src/dolphin/card/CARDOpen.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDOpen.c  identical
-src/dolphin/card/CARDRdwr.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDRdwr.c  identical
+src/dolphin/card/CARDRdwr.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/card/CARDRdwr.c  identical
 src/dolphin/card/CARDStat.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDStat.c  identical
 src/dolphin/card/CARDUnlock.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDUnlock.c  identical
 src/dolphin/card/__card.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/__card.h  identical
 src/dolphin/db/db.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/db/db.c  identical
 src/dolphin/dsp/__dsp.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/dsp/__dsp.h  identical
+src/dolphin/dsp/dsp.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/dsp/dsp.c  identical
 src/dolphin/dsp/dsp_debug.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/dsp/dsp_debug.c  identical
 src/dolphin/dsp/dsp_task.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/dsp/dsp_task.c  identical
 src/dolphin/dvd/__dvd.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/dvd/__dvd.h  identical
@@ -103,26 +120,30 @@ src/dolphin/dvd/dvdidutils.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/dvd/dvdidu
 src/dolphin/dvd/dvdlow.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/dvd/dvdlow.c  identical
 src/dolphin/dvd/dvdqueue.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/dvd/dvdqueue.c  identical
 src/dolphin/dvd/fstload.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/dvd/fstload.c  identical
-src/dolphin/exi/EXIBios.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/exi/EXIBios.c  identical
-src/dolphin/exi/EXIUart.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/exi/EXIUart.c  identical
-src/dolphin/gx/GXAttr.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXAttr.c  identical
+src/dolphin/exi/EXIBios.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/exi/EXIBios.c  identical
+src/dolphin/exi/EXIUart.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/exi/EXIUart.c  changed (2 lines added / removed)
+src/dolphin/gx/GXAttr.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/gx/GXAttr.c  changed (185 lines added / removed)
 src/dolphin/gx/GXBump.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXBump.c  identical
 src/dolphin/gx/GXDisplayList.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXDisplayList.c  identical
-src/dolphin/gx/GXFifo.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXFifo.c  identical
+src/dolphin/gx/GXDraw.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/gx/GXDraw.c  changed (41 lines added / removed)
+src/dolphin/gx/GXFifo.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXFifo.c  changed (6 lines added / removed)
 src/dolphin/gx/GXFrameBuf.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXFrameBuf.c  identical
-src/dolphin/gx/GXGeometry.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXGeometry.c  identical
-src/dolphin/gx/GXInit.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXInit.c  identical
-src/dolphin/gx/GXLight.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXLight.c  identical
+src/dolphin/gx/GXGeometry.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXGeometry.c  changed (2 lines added / removed)
+src/dolphin/gx/GXInit.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXInit.c  changed (102 lines added / removed)
+src/dolphin/gx/GXLight.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/gx/GXLight.c  identical
 src/dolphin/gx/GXMisc.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXMisc.c  identical
-src/dolphin/gx/GXTev.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXTev.c  identical
+src/dolphin/gx/GXPerf.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/gx/GXPerf.c  identical
+src/dolphin/gx/GXPixel.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/gx/GXPixel.c  changed (55 lines added / removed)
+src/dolphin/gx/GXTev.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXTev.c  changed (62 lines added / removed)
 src/dolphin/gx/GXTexture.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXTexture.c  identical
 src/dolphin/gx/GXTransform.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXTransform.c  identical
 src/dolphin/gx/__gx.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/__gx.h  identical
 src/dolphin/mtx/mtx.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/mtx/mtx.c  identical
 src/dolphin/mtx/mtx44.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/mtx/mtx44.c  identical
 src/dolphin/mtx/mtxvec.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/mtx/mtxvec.c  identical
+src/dolphin/mtx/vec.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/mtx/vec.c  identical
 src/dolphin/odenotstub/odenotstub.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/odenotstub/odenotstub.c  identical
-src/dolphin/os/OS.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OS.c  identical
+src/dolphin/os/OS.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/os/OS.c  changed (4 lines added / removed)
 src/dolphin/os/OSAlarm.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSAlarm.c  identical
 src/dolphin/os/OSAlloc.c  doldecomp/dolsdk2001 @ eb1234c45e6d src/os/OSAlloc.c  identical
 src/dolphin/os/OSArena.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSArena.c  identical
@@ -130,12 +151,12 @@ src/dolphin/os/OSAudioSystem.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSAud
 src/dolphin/os/OSCache.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSCache.c  identical
 src/dolphin/os/OSContext.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSContext.c  identical
 src/dolphin/os/OSError.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSError.c  identical
-src/dolphin/os/OSFont.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSFont.c  identical
+src/dolphin/os/OSFont.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/os/OSFont.c  changed (8 lines added / removed)
 src/dolphin/os/OSInterrupt.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSInterrupt.c  identical
 src/dolphin/os/OSLink.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSLink.c  identical
 src/dolphin/os/OSMutex.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSMutex.c  identical
-src/dolphin/os/OSReboot.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSReboot.c  identical
-src/dolphin/os/OSReset.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSReset.c  identical
+src/dolphin/os/OSReboot.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/os/OSReboot.c  identical
+src/dolphin/os/OSReset.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/os/OSReset.c  identical
 src/dolphin/os/OSResetSW.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSResetSW.c  identical
 src/dolphin/os/OSRtc.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSRtc.c  identical
 src/dolphin/os/OSSync.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSSync.c  identical
@@ -143,10 +164,16 @@ src/dolphin/os/OSThread.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSThread.c
 src/dolphin/os/OSTime.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSTime.c  identical
 src/dolphin/os/__os.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__os.h  identical
 src/dolphin/os/init/__ppc_eabi_init.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__ppc_eabi_init.c  identical
-src/dolphin/os/init/__start.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__start.c  identical
+src/dolphin/os/init/__start.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__start.c  changed (2 lines added / removed)
+src/dolphin/pad/PadClamp.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/pad/Padclamp.c  identical
+src/dolphin/pad/pad.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/pad/Pad.c  identical
 src/dolphin/si/SIBios.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/si/SIBios.c  changed (2 lines added / removed)
+src/dolphin/si/SISamplingRate.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/si/SISamplingRate.c  identical
+src/dolphin/si/__si.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/si/__si.h  identical
+src/dolphin/thp/THPAudio.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/thp/THPAudio.c  identical
+src/dolphin/thp/THPDec.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/thp/THPDec.c  identical
 src/dolphin/vi/__vi.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/vi/__vi.h  identical
-src/dolphin/vi/vi.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/vi/vi.c  identical
+src/dolphin/vi/vi.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/vi/vi.c  changed (15 lines added / removed)
 src/game/cr_Battle_SetCurrentPointers.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CAMMODE_DEBUG_Frame.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CAMMODE_DRAW_Frame.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -502,19 +529,19 @@ src/sysdolphin/baselib/displayfunc.c  doldecomp/melee @ 24e685d57535 src/sysdolp
 src/sysdolphin/baselib/displayfunc.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/displayfunc.h  identical
 src/sysdolphin/baselib/dobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/dobj.c  identical
 src/sysdolphin/baselib/dobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/dobj.h  identical
-src/sysdolphin/baselib/fobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fobj.c  changed (424 lines added / removed)
+src/sysdolphin/baselib/fobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fobj.c  changed (428 lines added / removed)
 src/sysdolphin/baselib/fobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/fobj.h  identical
 src/sysdolphin/baselib/fog.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fog.c  changed (371 lines added / removed)
 src/sysdolphin/baselib/forward.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/forward.h  identical
 src/sysdolphin/baselib/id.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/id.c  identical
 src/sysdolphin/baselib/id.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/id.h  identical
-src/sysdolphin/baselib/initialize.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/initialize.c  changed (383 lines added / removed)
+src/sysdolphin/baselib/initialize.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/initialize.c  changed (432 lines added / removed)
 src/sysdolphin/baselib/initialize.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/initialize.h  identical
 src/sysdolphin/baselib/jobj.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/jobj.c  changed (87 lines added / removed)
 src/sysdolphin/baselib/jobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/jobj.h  changed (143 lines added / removed)
 src/sysdolphin/baselib/list.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/list.c  identical
 src/sysdolphin/baselib/list.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/list.h  identical
-src/sysdolphin/baselib/lobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/lobj.c  changed (433 lines added / removed)
+src/sysdolphin/baselib/lobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/lobj.c  changed (504 lines added / removed)
 src/sysdolphin/baselib/lobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/lobj.h  identical
 src/sysdolphin/baselib/memory.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/memory.h  identical
 src/sysdolphin/baselib/mobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/mobj.c  changed (23 lines added / removed)
@@ -524,7 +551,9 @@ src/sysdolphin/baselib/mtx.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/base
 src/sysdolphin/baselib/objalloc.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/objalloc.h  identical
 src/sysdolphin/baselib/object.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/object.c  identical
 src/sysdolphin/baselib/object.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/object.h  identical
-src/sysdolphin/baselib/pobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/pobj.c  changed (313 lines added / removed)
+src/sysdolphin/baselib/perf.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/perf.c  identical
+src/sysdolphin/baselib/perf.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/perf.h  identical
+src/sysdolphin/baselib/pobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/pobj.c  changed (312 lines added / removed)
 src/sysdolphin/baselib/pobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/pobj.h  identical
 src/sysdolphin/baselib/random.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/random.h  identical
 src/sysdolphin/baselib/robj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/robj.c  changed (331 lines added / removed)
@@ -547,6 +576,108 @@ src/sysdolphin/baselib/video.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/ba
 src/sysdolphin/baselib/video.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/video.h  identical
 src/sysdolphin/baselib/wobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/wobj.c  identical
 src/sysdolphin/baselib/wobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/wobj.h  identical
+include/bfbb/dolphin.h  bfbbdecomp/bfbb @ d8e8eac38dd6 include/dolphin.h  identical
+include/bfbb/fake_tgmath.h  bfbbdecomp/bfbb @ d8e8eac38dd6 include/fake_tgmath.h  identical
+include/bfbb/macros.h  bfbbdecomp/bfbb @ d8e8eac38dd6 include/macros.h  identical
+include/bfbb/types.h  bfbbdecomp/bfbb @ d8e8eac38dd6 include/types.h  identical
+include/bfbb/dolphin/CARDPriv.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/CARDPriv.h  identical
+include/bfbb/dolphin/DVDPriv.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/DVDPriv.h  identical
+include/bfbb/dolphin/OSRtcPriv.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/OSRtcPriv.h  identical
+include/bfbb/dolphin/ai.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/ai.h  identical
+include/bfbb/dolphin/ar.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/ar.h  identical
+include/bfbb/dolphin/ax.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/ax.h  identical
+include/bfbb/dolphin/card.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/card.h  identical
+include/bfbb/dolphin/db.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/db.h  identical
+include/bfbb/dolphin/demo.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/demo.h  identical
+include/bfbb/dolphin/dsp.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/dsp.h  identical
+include/bfbb/dolphin/dtk.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/dtk.h  identical
+include/bfbb/dolphin/dvd.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/dvd.h  identical
+include/bfbb/dolphin/exi.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/exi.h  identical
+include/bfbb/dolphin/gx.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx.h  identical
+include/bfbb/dolphin/hio.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/hio.h  identical
+include/bfbb/dolphin/hw_regs.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/hw_regs.h  identical
+include/bfbb/dolphin/mix.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/mix.h  identical
+include/bfbb/dolphin/mtx.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/mtx.h  identical
+include/bfbb/dolphin/os.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os.h  identical
+include/bfbb/dolphin/pad.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/pad.h  identical
+include/bfbb/dolphin/perf.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/perf.h  identical
+include/bfbb/dolphin/si.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/si.h  identical
+include/bfbb/dolphin/sipriv.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/sipriv.h  identical
+include/bfbb/dolphin/thp.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/thp.h  identical
+include/bfbb/dolphin/types.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/types.h  identical
+include/bfbb/dolphin/vi.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/vi.h  identical
+include/bfbb/dolphin/base/PPCArch.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/base/PPCArch.h  identical
+include/bfbb/dolphin/demo/DEMOAVX.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/demo/DEMOAVX.h  identical
+include/bfbb/dolphin/demo/DEMOInit.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/demo/DEMOInit.h  identical
+include/bfbb/dolphin/demo/DEMOPad.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/demo/DEMOPad.h  identical
+include/bfbb/dolphin/demo/DEMOPuts.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/demo/DEMOPuts.h  identical
+include/bfbb/dolphin/demo/DEMOStats.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/demo/DEMOStats.h  identical
+include/bfbb/dolphin/demo/DEMOWin.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/demo/DEMOWin.h  identical
+include/bfbb/dolphin/dvd/dvd.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/dvd/dvd.h  identical
+include/bfbb/dolphin/dvd/dvdfs.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/dvd/dvdfs.h  identical
+include/bfbb/dolphin/dvd/dvdlow.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/dvd/dvdlow.h  identical
+include/bfbb/dolphin/dvd/dvdqueue.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/dvd/dvdqueue.h  identical
+include/bfbb/dolphin/gx/GXBump.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXBump.h  identical
+include/bfbb/dolphin/gx/GXCommandList.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXCommandList.h  identical
+include/bfbb/dolphin/gx/GXCull.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXCull.h  identical
+include/bfbb/dolphin/gx/GXDispList.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXDispList.h  identical
+include/bfbb/dolphin/gx/GXDraw.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXDraw.h  identical
+include/bfbb/dolphin/gx/GXEnum.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXEnum.h  identical
+include/bfbb/dolphin/gx/GXFifo.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXFifo.h  identical
+include/bfbb/dolphin/gx/GXFrameBuffer.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXFrameBuffer.h  identical
+include/bfbb/dolphin/gx/GXGeometry.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXGeometry.h  identical
+include/bfbb/dolphin/gx/GXGet.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXGet.h  identical
+include/bfbb/dolphin/gx/GXLighting.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXLighting.h  identical
+include/bfbb/dolphin/gx/GXManage.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXManage.h  identical
+include/bfbb/dolphin/gx/GXMisc.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXMisc.h  identical
+include/bfbb/dolphin/gx/GXPerf.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXPerf.h  identical
+include/bfbb/dolphin/gx/GXPixel.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXPixel.h  identical
+include/bfbb/dolphin/gx/GXStruct.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXStruct.h  identical
+include/bfbb/dolphin/gx/GXTev.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXTev.h  identical
+include/bfbb/dolphin/gx/GXTexture.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXTexture.h  identical
+include/bfbb/dolphin/gx/GXTransform.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXTransform.h  identical
+include/bfbb/dolphin/gx/GXVerify.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXVerify.h  identical
+include/bfbb/dolphin/gx/GXVert.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx/GXVert.h  identical
+include/bfbb/dolphin/os/OSAlarm.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSAlarm.h  identical
+include/bfbb/dolphin/os/OSAlloc.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSAlloc.h  identical
+include/bfbb/dolphin/os/OSArena.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSArena.h  identical
+include/bfbb/dolphin/os/OSBootInfo.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSBootInfo.h  identical
+include/bfbb/dolphin/os/OSCache.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSCache.h  identical
+include/bfbb/dolphin/os/OSContext.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSContext.h  identical
+include/bfbb/dolphin/os/OSError.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSError.h  identical
+include/bfbb/dolphin/os/OSException.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSException.h  identical
+include/bfbb/dolphin/os/OSExpansion.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSExpansion.h  identical
+include/bfbb/dolphin/os/OSFastCast.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSFastCast.h  identical
+include/bfbb/dolphin/os/OSFont.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSFont.h  identical
+include/bfbb/dolphin/os/OSFst.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSFst.h  identical
+include/bfbb/dolphin/os/OSInterrupt.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSInterrupt.h  identical
+include/bfbb/dolphin/os/OSMemory.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSMemory.h  identical
+include/bfbb/dolphin/os/OSMessage.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSMessage.h  identical
+include/bfbb/dolphin/os/OSModule.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSModule.h  identical
+include/bfbb/dolphin/os/OSMutex.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSMutex.h  identical
+include/bfbb/dolphin/os/OSReset.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSReset.h  identical
+include/bfbb/dolphin/os/OSResetSW.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSResetSW.h  identical
+include/bfbb/dolphin/os/OSSerial.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSSerial.h  identical
+include/bfbb/dolphin/os/OSThread.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSThread.h  identical
+include/bfbb/dolphin/os/OSTime.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSTime.h  identical
+include/bfbb/dolphin_src/ax/__ax.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/ax/__ax.h  identical
+include/bfbb/dolphin_src/gx/__gx.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/gx/__gx.h  identical
+include/bfbb/libc/ctype.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/ctype.h  identical
+include/bfbb/libc/errno.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/errno.h  identical
+include/bfbb/libc/fdlibm.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/fdlibm.h  identical
+include/bfbb/libc/float.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/float.h  identical
+include/bfbb/libc/limits.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/limits.h  identical
+include/bfbb/libc/locale.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/locale.h  identical
+include/bfbb/libc/math.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/math.h  identical
+include/bfbb/libc/other.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/other.h  identical
+include/bfbb/libc/signal.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/signal.h  identical
+include/bfbb/libc/stdarg.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/stdarg.h  identical
+include/bfbb/libc/stddef.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/stddef.h  identical
+include/bfbb/libc/stdio.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/stdio.h  identical
+include/bfbb/libc/stdlib.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/stdlib.h  identical
+include/bfbb/libc/string.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/string.h  identical
+include/bfbb/libc/wchar.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/wchar.h  identical
+include/bfbb/libc/Runtime/__mem.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/Runtime/__mem.h  identical
 include/cr_kar/dobj.h  ours (no reference)
 include/cr_kar/fog.h  ours (no reference)
 include/cr_kar/lobj.h  ours (no reference)
@@ -651,6 +782,7 @@ include/dolsdk2004/fake_tgmath.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/fa
 include/dolsdk2004/dolphin/ai.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/dolphin/ai.h  identical
 include/dolsdk2004/dolphin/ar.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/dolphin/ar.h  identical
 include/dolsdk2004/dolphin/ax.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/dolphin/ax.h  identical
+include/dolsdk2004/dolphin/axfx.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/dolphin/axfx.h  identical
 include/dolsdk2004/dolphin/card.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/dolphin/card.h  identical
 include/dolsdk2004/dolphin/db.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/dolphin/db.h  identical
 include/dolsdk2004/dolphin/demo.h  doldecomp/dolsdk2004 @ 2328b4164b1a include/dolphin/demo.h  identical

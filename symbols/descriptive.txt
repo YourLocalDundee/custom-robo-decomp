@@ -36,7 +36,6 @@ cr_Mtx_Mul = .text:0x8001E134; // type:function scope:global // why: current mat
 cr_Mtx_Store = .text:0x8001E054; // type:function scope:global // why: copies the 12 floats of the current matrix to the address given, returns its 12th word
 cr_Mtx_Push = .text:0x8001D814; // type:function scope:global // why: copies the current matrix to the stack at DAT_8044f3e0, advances it by 0x30, depth +1 (max kept)
 cr_Mtx_Pop = .text:0x8001D694; // type:function scope:global // why: stack pointer -0x30, depth -1, current matrix reloaded from the stack
-cr_Sqrt = .text:0x80169424; // type:function scope:global // why: thin wrapper (calls FUN_80169168); used as the square root when normalising vectors (x*x + y*y, 1/result), 51 callers
 // ---- Robo limb posing (block A = limb measurements, see docs/formats/model_entry.md)
 cr_Chara_PoseLimbs = .text:0x8005AEE8; // type:function scope:global // why: poses all four limbs: two calls of cr_Chara_PoseLimbA (block A floats 2.. and 8..) and two of cr_Chara_PoseLimbB (0xF.. and 0x15..), with block A [0], [1], [0xE] as offsets between them
 cr_Chara_PoseLimbA = .text:0x8005A09C; // type:function scope:global // why: builds one limb on the matrix stack: translate by block A lengths x limb_scale, rotate to a direction vector and two cos/sin joint angles, stores bone matrices, returns the end position

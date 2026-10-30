@@ -114,6 +114,17 @@ library objects from C, 44 more C files in `decomp/src` compiled for objdiff onl
 `CR_NOT_MATCHING`); provenance of every file: `decomp/reports/sources_report.txt`. Game functions come into
 `decomp/src/game` another way (m2c drafts that match, promoted by script): [drafts.md](drafts.md).
 
+Step 65 (Oct 30, 2026): 444 objects from C, the Dolphin SDK 82 of 82 objects, MSL 46 of 49, Runtime 5 of 5. Which
+reference to take: Custom Robo's SDK is BfBB's Apr 17 2003 build (OS / GX Jul 23 2003, AX Jul 29 2003), so BfBB's
+file (`tools/refs/bfbb`) is the first choice for an SDK or MSL file, with dolsdk2004's functions that BfBB's file lacks
+inserted in main.dol's order ([compiler.md, "Source revisions"](compiler.md)). A BfBB file is imported with
+`--inc src/dolphin/include=include/bfbb --inc include=include/bfbb --inc src/PowerPC_EABI_Support/include=include/bfbb/libc
+--inc src/dolphin/src=include/bfbb/dolphin_src` and gets `BFBB_INC` in `CR_OBJECT_INCLUDES` (an object's own header
+roots replace the library's `-i` and `-ir`). Functions in reverse source order in main.dol come from deferred inlining
+(MSL / TRK flags; `-inline auto,deferred` for OdemuExi2): reverse the source or add the flag. A function only a
+byte match names (not split yet) is named as a `c-define` line of the object it will be in; the object is then split
+from the references and the linked C confirms the name (plan.md step 65).
+
 How to add a C file (one object of `decomp/config/GXCE01/splits.txt`):
 Python tools are named by script only; run them with `python -I` (Windows) or `python3 -I` (Linux / macOS).
 
@@ -141,6 +152,20 @@ Python tools are named by script only; run them with `python -I` (Windows) or `p
    add it in the "Matched-C definitions" block, tagged `// c-define obj:<C file> ref_size:`, with a `why:`.
    The object's data pieces come from the C itself (`tools/gen_dtk_splits.py`, step 56): a C file that matches
    every function of its object proves where its data is, so nothing is placed by hand.
+   **Trailing padding** (step 61 iteration 8): a C piece ends at the C's own last byte. When only zeros follow up to
+   another object's piece that starts at the first address after it aligned to that object's alignment (dtk's split
+   alignment: the largest `align:` of its symbols, else 8; from C, also its .o section's), the zeros are that
+   object's alignment: the linker makes them (asm: its `.balign`; C: its section alignment) and dtk makes no
+   automatic object of a gap shorter than the next split's alignment. Otherwise the zeros stay with the C piece (up
+   to the next piece or the section end), or, before a dtk automatic object, start that object from the next word
+   (an automatic object must start 4-aligned, so a C piece ending at an odd byte keeps up to 3 zeros and objdiff
+   reports its section short: name / split the next object, as perf.c after fog.c). A dtk symbol that runs on over
+   the C's last byte is cut there in config symbols.txt (`trim_symbols`; a split may not end inside a symbol). The
+   zeros after a C piece placed earlier (in path order) also count as that piece's when the next C file asks whether
+   one of its stripped globals could be in front of its piece.
+   Second pass: the relocation users' data pieces are computed again bounded by the C pieces (a symbol next to a
+   candidate range that lies in another object's C piece is that object's, whoever uses it), then the C pieces again
+   (video.c's .data after initialize.c's).
 4. In `CR_MATCHING`: `tools/make_configure_patch.py`, then batch 9. `tools/gen_c_symbols.py` gives the object
    the C's own symbols (objdiff pairs data by name), `tools/check_c_objects.py` must report 100% code + data, main.dol
    must stay retail. Then the full run, and `pwsh tools\checksums.ps1 -Write` / `tools/checksums.sh --write` for the
@@ -236,8 +261,19 @@ links a group it cannot prove, so such a run simply waits until all its function
   VERSION_GKYP01 HSD_Init / HSD_GXSetFifoObj equal ours). New overrides in include/cr_kar: pobj.h (HSD_A_S_W0 2, the
   blend union), robj.h (8-byte HSD_RvalueList), fog.h (wowjinxy's structs), sysdolphin/tobj.h (kar's mobj.c calls
   HSD_TObjAddAnim, the function there is HSD_TObjAddAnimAll). A file whose every function matches gets its data pieces
-  from gen_dtk_splits; tobj.c and fog.c are there, but each .data (fog also .sdata2) piece ends with the zero padding
-  to the next object, which the C object does not have, so objdiff reports the section short by those bytes.
+  from gen_dtk_splits; tobj.c and fog.c are there, but each .data (fog also .sdata2) piece ended with the zero padding
+  to the next object, which the C object does not have, so objdiff reported the section short by those bytes.
+- Iteration 8: the trailing-padding rule (above, "Matching a library file" step 3) links tobj.c; fog.c's .data ends
+  at an odd byte before a dtk automatic object, so perf.c (Melee, one function here: HSD_PerfCountEnvelopeBlending,
+  assert "perf.c" line 164) was named and split; its C proves HSD_PerfCurrentStat's piece, and fog's padding is then
+  perf's alignment: fog.c and perf.c link. Matching notes: a function main.dol keeps in another order than the C file
+  (tobj's TObjInit) matches in objdiff (pairs by name) but breaks the link: order the C as main.dol; kar's list.h
+  override declares HSD_SListAllocAndPrepend void, so a file that uses its result declares Melee's prototype around
+  the include (lobj.c); `x == NULL ? 0 : y` puts the NULL case first where `if (!x) return 0;` does not (fobj's
+  GetState); a store through the address (`*(u32*) &g = v`) makes the compiler reload g later (initialize's
+  HSD_OSInit).
+  initialize.c then linked: its .sdata words defined in the C under their dtk names with main.dol's values, kar's
+  KAR-address names `#define`d to ours, the functions moved into main.dol's order.
 - From C after iteration 3 (plan.md step 61): util.c, object.c, spline.c (Melee), list.c, id.c, class.c, dobj.c,
   wobj.c, mobj.c (kar), 100% code and data, main.dol retail: 9 of 29 HSD objects, 10.44% of their code. What it took:
   the callees by rule R7 (`// c-callsite` lines: HSD_MObjAddAnim, HSD_AObjInterpretAnim, HSD_RObjRemoveAll,

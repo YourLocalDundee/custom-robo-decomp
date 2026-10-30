@@ -108,7 +108,7 @@ void GXSetCullMode(GXCullMode mode) {
     GXCullMode hwMode;
 
     CHECK_GXBEGIN(557, "GXSetCullMode");
-#if DEBUG
+#if 1 /* Custom Robo: the switch in non-debug builds too, as this revision (BfBB / Melee) */
     switch (mode) {
     case GX_CULL_FRONT: hwMode = GX_CULL_BACK;  break;
     case GX_CULL_BACK:  hwMode = GX_CULL_FRONT; break;

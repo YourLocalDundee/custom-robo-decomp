@@ -1,67 +1,77 @@
-/* Custom Robo: from mariopartyrd/marioparty4 @ 5b01c79b4910525e3fc5aa312eddd6d014e7f337, src/MSL_C.PPCEABI.bare.H/abort_exit.c */ #include "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/abort_exit.h"
-#include "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/critical_regions.h"
-#include "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/signal.h"
-#include "stddef.h"
+/* Custom Robo: from bfbbdecomp/bfbb @ d8e8eac38dd617ee72161f4cb2da4498bc89aad6, src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c */ #include "other.h"
+#include "signal.h"
+#include "stdlib.h"
 
-void _ExitProcess();
+void __destroy_global_chain(void);
+void _ExitProcess(void);
 
 extern void (*_dtors[])(void);
 
-int __aborting = 0;
-
-static void (*atexit_funcs[64])(void);
-static int atexit_curr_func = 0;
+static void (*__console_exit)(void);
+void (*__stdio_exit)(void);
+static int __atexit_curr_func;
+int __aborting;
 
 static void (*__atexit_funcs[64])(void);
-static int __atexit_curr_func = 0;
-
-void (*__stdio_exit)(void)   = 0;
-void (*__console_exit)(void) = 0;
 
 void abort(void)
 {
-    void (**var_r31)(void);
-
     raise(1);
     __aborting = 1;
-    var_r31 = &__atexit_funcs[0];
-    while (__atexit_curr_func > 0) {
-        var_r31[--__atexit_curr_func]();
-    }
-    if (__console_exit != 0) {
+    __begin_critical_region(atexit_funcs_access);
+
+    while (__atexit_curr_func > 0)
+        __atexit_funcs[--__atexit_curr_func]();
+
+    __end_critical_region(atexit_funcs_access);
+    __kill_critical_regions();
+
+    if (__console_exit != NULL)
+    {
         __console_exit();
-        __console_exit = 0;
+        __console_exit = NULL;
     }
+
     _ExitProcess();
 }
 
 void exit(int status)
 {
-	int i;
-	void (**dtor)(void);
+    int i;
+    void (**dtor)(void);
 
-	if (!__aborting) {
-		__destroy_global_chain();
+    if (!__aborting)
+    {
+        __begin_critical_region(atexit_funcs_access);
+        __end_critical_region(atexit_funcs_access);
+        __destroy_global_chain();
 
-		dtor = _dtors;
-		while (*dtor != NULL) {
-			(*dtor)();
-			dtor++;
-		}
+        dtor = _dtors;
+        while (*dtor != NULL)
+        {
+            (*dtor)();
+            dtor++;
+        }
 
-		if (__stdio_exit != NULL) {
-			__stdio_exit();
-			__stdio_exit = NULL;
-		}
-	}
+        if (__stdio_exit != NULL)
+        {
+            __stdio_exit();
+            __stdio_exit = NULL;
+        }
+    }
 
-	while (__atexit_curr_func > 0)
-		__atexit_funcs[--__atexit_curr_func]();
+    __begin_critical_region(atexit_funcs_access);
+    while (__atexit_curr_func > 0)
+        __atexit_funcs[--__atexit_curr_func]();
 
-	if (__console_exit != NULL) {
-		__console_exit();
-		__console_exit = NULL;
-	}
+    __end_critical_region(atexit_funcs_access);
+    __kill_critical_regions();
 
-	_ExitProcess();
+    if (__console_exit != NULL)
+    {
+        __console_exit();
+        __console_exit = NULL;
+    }
+
+    _ExitProcess();
 }

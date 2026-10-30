@@ -1,393 +1,781 @@
-/* Custom Robo: from mariopartyrd/marioparty4 @ 5b01c79b4910525e3fc5aa312eddd6d014e7f337, src/MSL_C.PPCEABI.bare.H/ansi_fp.c */ #include "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/ansi_fp.h"
+/* Custom Robo: from bfbbdecomp/bfbb @ d8e8eac38dd617ee72161f4cb2da4498bc89aad6, src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/ansi_fp.c */ #include "other.h"
+#include "float.h"
+#include "math.h"
+#include "ctype.h"
+#include "limits.h"
 
-static int __count_trailing_zerol(unsigned int arg0) {
-    int var_r4;
-    int var_r5;
-    int var_r6;
-    int var_r7;
-    unsigned int var_r8;
+static int __count_trailing_zerol(unsigned long x)
+{
+	int result           = 0;
+	int bits_not_checked = sizeof(unsigned long) * CHAR_BIT;
+	int n                = bits_not_checked / 2;
+	int mask_size        = n;
+	unsigned long mask   = (~0UL) >> (bits_not_checked - n);
 
-    var_r5 = 0x20;
-    var_r8 = 0xFFFF;
-    var_r6 = 0x10;
-    var_r4 = 0;
-    var_r7 = 0x10;
-    while (var_r5 != 0) {
-        if (!(arg0 & var_r8)) {
-            var_r4 += var_r7;
-            arg0 >>= var_r7;
-            var_r5 -= var_r7;
-        } else if (var_r8 == 1) {
-            break;
-        }
-        if (var_r6 > 1) {
-            var_r6 /= 2;
-        }
-        if (var_r8 > 1) {
-            var_r8 >>= var_r6;
-            var_r7 -= var_r6;
-        }
-    }
-    return var_r4;
+	while (bits_not_checked) {
+		if (!(x & mask)) {
+			result += mask_size;
+			x >>= mask_size;
+			bits_not_checked -= mask_size;
+		} else if (mask == 1) {
+			break;
+		}
+
+		if (n > 1) {
+			n /= 2;
+		}
+
+		if (mask > 1) {
+			mask >>= n;
+			mask_size -= n;
+		}
+	}
+	return result;
 }
 
-static inline int __count_trailing_zero(double n){
-    if (__LO(n) != 0U) {
-        return __count_trailing_zerol(__LO(n));
-    } else {
-        return 32 + __count_trailing_zerol(__HI(n) | 0x100000);
-    }
+static int __count_trailing_zero(double x)
+{
+	unsigned long* l = (unsigned long*)&x;
+
+	if (l[1] != 0) {
+		return __count_trailing_zerol(l[1]);
+	}
+
+	return (int)(sizeof(unsigned long) * CHAR_BIT + __count_trailing_zerol(l[0] | 0x00100000));
 }
 
-static void __ull2dec(decimal* result, unsigned long long val) {
-    result->sign = 0;
+static int __must_round(const decimal* d, int digits)
+{
+	u8 const* i = d->sig.text + digits;
 
-    if (val == 0) {
-        result->exp = 0;
-        result->sig.length = 1;
-        result->sig.text[0] = 0;
-        return;
-    }
+	if (*i > 5) {
+		return 1;
+	}
 
-    result->sig.length = 0;
+	if (*i < 5) {
+		return -1;
+	}
 
-    for(; val != 0; val /= 10) {
-        result->sig.text[result->sig.length++] = val % 10;
-    }
+	{
+		u8 const* e = d->sig.text + d->sig.length;
 
-    {
-        unsigned char* i = result->sig.text;
-        unsigned char* j = result->sig.text + result->sig.length;
+		for (i++; i < e; i++) {
+			if (*i != 0) {
+				return 1;
+			}
+		}
+	}
 
-        for (; i < --j; ++i) {
-            unsigned char t = *i;
-            *i = *j;
-            *j = t;
-        }
-    }
+	if (d->sig.text[digits - 1] & 1) {
+		return 1;
+	}
 
-    result->exp = result->sig.length - 1;
+	return -1;
 }
 
-static inline void __dorounddecup(decimal* d, int digits){
-    unsigned char* b = d->sig.text;
-    unsigned char* i = b + digits - 1;
+static void __dorounddecup(decimal* d, int digits)
+{
+	u8* b = d->sig.text;
+	u8* i = b + digits - 1;
 
-    while(1){
-        if (*i < 9) {
-            *i += 1;
-            break;
-        }
-        if (i == b) {
-            *i = 1;
-            d->exp++;
-            break;
-        }
-        *i-- = 0;
-    }
+	while (1) {
+		if (*i < 9) {
+			*i += 1;
+			break;
+		}
+		if (i == b) {
+			*i = 1;
+			d->exp++;
+			break;
+		}
+		*i-- = 0;
+	}
 }
 
-static void __timesdec(decimal* result, const decimal* x, const decimal* y) {
-    unsigned int accumulator = 0;
-    unsigned char mantissa[SIGDIGLEN * 2];
-    int i = x->sig.length + y->sig.length - 1;
-    unsigned char* pDigit;
-    unsigned char* ip = mantissa + i + 1;
-    unsigned char* ep = ip;
+static void __rounddec(decimal* d, int digits)
+{
+	int unkBool;
+	if (digits <= 0 || digits >= d->sig.length)
+		return;
 
-    result->sign = 0;
+	unkBool   = __must_round(d, digits);
+	d->sig.length = digits;
 
-    for(; i > 0; i--) {
-        int k = y->sig.length - 1;
-        int j = i - k - 1;
-        int l;
-        int t;
-        const unsigned char* jp;
-        const unsigned char* kp;
-
-        if (j < 0) {
-            j = 0;
-            k = i - 1;
-        }
-
-        jp = x->sig.text + j;
-        kp = y->sig.text + k;
-        l = k + 1;
-        t = x->sig.length - j;
-
-        if (l > t) l = t;
-
-        for (; l > 0; l--, jp++, kp--) {
-            accumulator += *jp * *kp;
-        }
-
-        *--ip = accumulator % 10;
-        accumulator /= 10;
-    }
-
-    result->exp = (short)(x->exp + y->exp);
-
-    if (accumulator) {
-        *--ip = accumulator;
-        result->exp++;
-    }
-
-    for (i = 0; i < SIGDIGLEN && ip < ep; i++, ip++) {
-        result->sig.text[i] = *ip;
-    }
-    result->sig.length = i;
-
-    if (ip < ep && *ip >= 5){
-        if (*ip == 5){
-            unsigned char* jp = ip + 1;
-            for (; jp < ep; jp++) {
-                if (*jp != 0) goto round;
-            }
-            if ((ip[-1] & 1) == 0) return;
-        }
-    round:
-        __dorounddecup(result, result->sig.length);
-    }
+	if (unkBool >= 0) {
+		__dorounddecup(d, digits);
+	}
+	
+	
 }
 
-static void __str2dec(decimal* d, const signed char* s, short exp) {
-    int i;
+void __ull2dec(decimal* result, u64 val)
+{
+	result->sign = 0;
 
-    d->exp = exp;
-    d->sign = 0;
+	if (val == 0) {
+		result->exp         = 0;
+		result->sig.length  = 1;
+		result->sig.text[0] = 0;
+		return;
+	}
 
-    for (i = 0; i < SIGDIGLEN && *s; ) {
-        d->sig.text[i++] = *s++ - '0';
-    }
-    d->sig.length = i;
+	if (val < 0) {
+		val          = -val;
+		result->sign = 1;
+	}
 
-    if (*s != 0 && *s >= 5) {
-        const signed char* p = s + 1;
+	result->sig.length = 0;
 
-        for (; *p != 0; p++) {
-            if (*p != '0') goto round;
-        }
+	for (; val != 0; val /= 10) {
+		result->sig.text[result->sig.length++] = (u8)(val % 10);
+	}
 
-        if ((d->sig.text[i - 1] & 1) == 0) return;
-    round:
-        __dorounddecup(d, d->sig.length);
-    }
+	{
+		u8* i = result->sig.text;
+		u8* j = result->sig.text + result->sig.length;
+
+		for (; i < --j; ++i) {
+			u8 t = *i;
+			*i   = *j;
+			*j   = t;
+		}
+	}
+
+	result->exp = result->sig.length - 1;
 }
 
-// TODO: ideally, these strings should be used as literals in the function below.
-// However, the first one (179769313486231580793729011405303420, corresponding to
-// 2^1024) is not used in the function and messes up alignment.
+void __timesdec(decimal* result, const decimal* x, const decimal* y)
+{
+	u32 accumulator = 0;
+	u8 mantissa[SIGDIGLEN * 2];
+	int i = x->sig.length + y->sig.length - 1;
+	u8* pDigit;
+	u8* ip = mantissa + i + 1;
+	u8* ep = ip;
 
-const signed char lbl_8011E630[] =
-    "179769313486231580793729011405303420\000" \
-    "542101086242752217003726400434970855712890625\000" \
-    "11102230246251565404236316680908203125\000" \
-    "23283064365386962890625\000" \
-    "152587890625\000" \
-    "390625\000" \
-    "78125\000" \
-    "15625\000" \
-    "3125\000" \
-    "625\000" \
-    "125\000" \
-    "25\000" \
-    "5\000" \
-    "1\000" \
-    "2\000" \
-    "4\000" \
-    "8\000" \
-    "16\000" \
-    "32\000" \
-    "64\000" \
-    "128\000" \
-    "256";
+	result->sign = 0;
 
-static void __two_exp(decimal* result, short exp) {
-    decimal sp8C;
-    decimal sp60;
-    decimal sp34;
-    decimal sp8;
+	for (; i > 0; i--) {
+		int k = y->sig.length - 1;
+		int j = i - k - 1;
+		int l;
+		int t;
+		const u8* jp;
+		const u8* kp;
 
-    switch (exp) {
-        case -64:
-            __str2dec(result, lbl_8011E630 + 0x25, -20);
-            break;
-        case -53:
-            __str2dec(result, lbl_8011E630 + 0x53, -16);
-            break;
-        case -32:
-            __str2dec(result, lbl_8011E630 + 0x7A, -10);
-            break;
-        case -16:
-            __str2dec(result, lbl_8011E630 + 0x92, -5);
-            break;
-        case -8:
-            __str2dec(result, lbl_8011E630 + 0x9F, -3);
-            break;
-        case -7:
-            __str2dec(result, lbl_8011E630 + 0xA6, -3);
-            break;
-        case -6:
-            __str2dec(result, lbl_8011E630 + 0xAC, -2);
-            break;
-        case -5:
-            __str2dec(result, lbl_8011E630 + 0xB2, -2);
-            break;
-        case -4:
-            __str2dec(result, lbl_8011E630 + 0xB7, -2);
-            break;
-        case -3:
-            __str2dec(result, lbl_8011E630 + 0xBB, -1);
-            break;
-        case -2:
-            __str2dec(result, lbl_8011E630 + 0xBF, -1);
-            break;
-        case -1:
-            __str2dec(result, lbl_8011E630 + 0xC2, -1);
-            break;
-        case 0:
-            __str2dec(result, lbl_8011E630 + 0xC4, 0);
-            break;
-        case 1:
-            __str2dec(result, lbl_8011E630 + 0xC6, 0);
-            break;
-        case 2:
-            __str2dec(result, lbl_8011E630 + 0xC8, 0);
-            break;
-        case 3:
-            __str2dec(result, lbl_8011E630 + 0xCA, 0);
-            break;
-        case 4:
-            __str2dec(result, lbl_8011E630 + 0xCC, 1);
-            break;
-        case 5:
-            __str2dec(result, lbl_8011E630 + 0xCF, 1);
-            break;
-        case 6:
-            __str2dec(result, lbl_8011E630 + 0xD2, 1);
-            break;
-        case 7:
-            __str2dec(result, lbl_8011E630 + 0xD5, 2);
-            break;
-        case 8:
-            __str2dec(result, lbl_8011E630 + 0xD9, 2);
-            break;
-        default:
-            __two_exp(&sp8C, exp / 2);
-            __timesdec(result, &sp8C, &sp8C);
-            if (exp & 1) {
-                sp60 = *result;
-                if (exp > 0) {
-                    __str2dec(&sp34, lbl_8011E630 + 0xC6, 0);
-                    __timesdec(result, &sp60, &sp34);
-                } else {
-                    __str2dec(&sp8, lbl_8011E630 + 0xC2, -1);
-                    __timesdec(result, &sp60, &sp8);
-                }
-            }
-            break;
-    }
+		if (j < 0) {
+			j = 0;
+			k = i - 1;
+		}
+
+		jp = x->sig.text + j;
+		kp = y->sig.text + k;
+		l  = k + 1;
+		t  = x->sig.length - j;
+
+		if (l > t)
+			l = t;
+
+		for (; l > 0; --l, ++jp, --kp) {
+			accumulator += *jp * *kp;
+		}
+
+		*--ip = (u8)(accumulator % 10);
+		accumulator /= 10;
+	}
+
+	result->exp = (short)(x->exp + y->exp);
+
+	if (accumulator) {
+		*--ip = (u8)(accumulator);
+		result->exp++;
+	}
+
+	for (i = 0; i < SIGDIGLEN && ip < ep; ++i, ++ip) {
+		result->sig.text[i] = *ip;
+	}
+	result->sig.length = (u8)(i);
+
+	if (ip < ep && *ip >= 5) {
+		if (*ip == 5) {
+			u8* jp = ip + 1;
+			for (; jp < ep; jp++) {
+				if (*jp != 0)
+					goto round;
+			}
+			if ((ip[-1] & 1) == 0)
+				return;
+		}
+	round:
+		__dorounddecup(result, result->sig.length);
+	}
 }
 
-static void __num2dec_internal(decimal* d, double x) {
-    signed char sign = (signbit(x) != 0);
+void __str2dec(decimal* d, const char* s, short exp)
+{
+	int i;
 
-    if (x == 0) {
-        d->sign = sign;
-        d->exp = 0;
-        d->sig.length = 1;
-        d->sig.text[0] = 0;
-        return;
-    }
+	d->exp  = exp;
+	d->sign = 0;
 
-    if (!isfinite(x)) {
-        d->sign = sign;
-        d->exp = 0;
-        d->sig.length = 1;
-        d->sig.text[0] = (fpclassify(x) == 1) ? 'N' : 'I';
-        return;
-    }
+	for (i = 0; i < SIGDIGLEN && *s;) {
+		d->sig.text[i++] = *s++ - '0';
+	}
+	d->sig.length = i;
 
-    if (sign != 0) {
-        x = -x;
-    }
+	if (*s != 0) {
+		if (*s < 5)
+			return;
+		if (*s > 5)
+			goto round;
 
-    {
-        int exp;
-        double frac = frexp(x, &exp);
-        short num_bits_extract = DBL_MANT_DIG - __count_trailing_zero(frac);
-        decimal int_d, pow2_d;
-        double sp30;
+		{
+			const char* p = s + 1;
 
-        __two_exp(&pow2_d, exp - num_bits_extract);
-        modf(ldexp(frac, num_bits_extract), &sp30);
-        __ull2dec(&int_d, sp30);
-        __timesdec(d, &int_d, &pow2_d);
-        d->sign = sign;
-    }
+			for (; *p != 0; p++) {
+				if (*p != '0')
+					goto round;
+			}
+
+			if ((d->sig.text[i - 1] & 1) == 0)
+				return;
+		}
+	round:
+		__dorounddecup(d, d->sig.length);
+	}
 }
 
-static inline int __must_round(const decimal* d, int digits){
-    unsigned char const* i = d->sig.text + digits;
+void __two_exp(decimal* result, long exp)
+{
+	switch (exp) {
+	case -64:
+		__str2dec(result, "542101086242752217003726400434970855712890625", -20);
+		return;
+	case -53:
+		__str2dec(result, "11102230246251565404236316680908203125", -16);
+		return;
+	case -32:
+		__str2dec(result, "23283064365386962890625", -10);
+		return;
+	case -16:
+		__str2dec(result, "152587890625", -5);
+		return;
+	case -8:
+		__str2dec(result, "390625", -3);
+		return;
+	case -7:
+		__str2dec(result, "78125", -3);
+		return;
+	case -6:
+		__str2dec(result, "15625", -2);
+		return;
+	case -5:
+		__str2dec(result, "3125", -2);
+		return;
+	case -4:
+		__str2dec(result, "625", -2);
+		return;
+	case -3:
+		__str2dec(result, "125", -1);
+		return;
+	case -2:
+		__str2dec(result, "25", -1);
+		return;
+	case -1:
+		__str2dec(result, "5", -1);
+		return;
+	case 0:
+		__str2dec(result, "1", 0);
+		return;
+	case 1:
+		__str2dec(result, "2", 0);
+		return;
+	case 2:
+		__str2dec(result, "4", 0);
+		return;
+	case 3:
+		__str2dec(result, "8", 0);
+		return;
+	case 4:
+		__str2dec(result, "16", 1);
+		return;
+	case 5:
+		__str2dec(result, "32", 1);
+		return;
+	case 6:
+		__str2dec(result, "64", 1);
+		return;
+	case 7:
+		__str2dec(result, "128", 2);
+		return;
+	case 8:
+		__str2dec(result, "256", 2);
+		return;
+	}
 
-    if (*i > 5) {
-        return 1;
-    }
+	{
+		decimal x2, temp;
 
-    if (*i < 5) {
-        return -1;
-    }
+		__two_exp(&x2, exp / 2);
+		__timesdec(result, &x2, &x2);
 
-    {
-        unsigned char const* e = d->sig.text + d->sig.length;
-
-        for(i++; i < e; i++){
-            if (*i != 0) {
-                return 1;
-            }
-        }
-    }
-
-    if (d->sig.text[digits - 1] & 1) {
-        return 1;
-    }
-
-    return -1;
+		if (exp & 1) {
+			temp = *result;
+			if (exp > 0) {
+				__str2dec(&x2, "2", 0);
+			} else {
+				__str2dec(&x2, "5", -1);
+			}
+			__timesdec(result, &temp, &x2);
+		}
+	}
 }
 
-static inline void __rounddec(decimal* d, int digits){
-    if (digits > 0 && digits < d->sig.length) {
-        int unkBool = __must_round(d,digits);
-        d->sig.length = digits;
+BOOL __equals_dec(const decimal* x, const decimal* y)
+{
+	if (x->sig.text[0] == 0) {
+		if (y->sig.text[0] == 0)
+			return TRUE;
+		return FALSE;
+	}
+	if (y->sig.text[0] == 0) {
+		if (x->sig.text[0] == 0)
+			return TRUE;
+		return FALSE;
+	}
 
-        if (unkBool >= 0) {
-            __dorounddecup(d, digits);
-        }
-    }
+	if (x->exp == y->exp) {
+		int i;
+		int l = x->sig.length;
+
+		if (l > y->sig.length) {
+			l = y->sig.length;
+		}
+
+		for (i = 0; i < l; i++) {
+			if (x->sig.text[i] != y->sig.text[i]) {
+				return FALSE;
+			}
+		}
+
+		if (l == x->sig.length) {
+			for (; i < y->sig.length; ++i) {
+				if (y->sig.text[i] != 0) {
+					return FALSE;
+				}
+			}
+		} else {
+			for (; i < x->sig.length; ++i) {
+				if (x->sig.text[i] != 0) {
+					return FALSE;
+				}
+			}
+		}
+
+		return TRUE;
+	}
+	return FALSE;
 }
 
-void __num2dec(const decform* form, double x, decimal* d) {
-    short digits = form->digits;
-    int i;
-    __num2dec_internal(d, x);
+BOOL __less_dec(const decimal* x, const decimal* y)
+{
+	if (x->sig.text[0] == 0) {
+		if (y->sig.text[0] != 0)
+			return TRUE;
+		return FALSE;
+	}
 
-    if (d->sig.text[0] > 9) {
-        return;
-    }
+	if (y->sig.text[0] == 0) {
+		return FALSE;
+	}
 
-    if (digits > SIGDIGLEN) {
-        digits = SIGDIGLEN;
-    }
+	if (x->exp == y->exp) {
+		int i;
+		int l = x->sig.length;
 
-    __rounddec(d, digits);
+		if (l > y->sig.length) {
+			l = y->sig.length;
+		}
 
-    while(d->sig.length < digits){
-        d->sig.text[d->sig.length++] = 0;
-    }
+		for (i = 0; i < l; i++) {
+			if (x->sig.text[i] < y->sig.text[i]) {
+				return TRUE;
+			} else if (y->sig.text[i] < x->sig.text[i]) {
+				return FALSE;
+			}
+		}
 
-    d->exp -= d->sig.length - 1;
+		if (l == x->sig.length) {
+			for (; i < y->sig.length; i++) {
+				if (y->sig.text[i] != 0) {
+					return TRUE;
+				}
+			}
+		}
+		return FALSE;
+	}
 
-    for(i = 0; i < d->sig.length; i++) {
-        d->sig.text[i] += '0';
-    }
+	return x->exp < y->exp;
+}
+
+void __minus_dec(decimal* z, const decimal* x, const decimal* y)
+{
+	int zlen, dexp;
+	u8 *ib, *i, *ie;
+	u8 const *jb, *j, *jn;
+
+	*z = *x;
+
+	if (y->sig.text[0] == 0)
+		return;
+
+	zlen = z->sig.length;
+	if (zlen < y->sig.length)
+		zlen = y->sig.length;
+
+	dexp = z->exp - y->exp;
+	zlen += dexp;
+
+	if (zlen > SIGDIGLEN)
+		zlen = SIGDIGLEN;
+
+	while (z->sig.length < zlen) {
+		z->sig.text[z->sig.length++] = 0;
+	}
+
+	ib = z->sig.text;
+	i  = ib + zlen;
+
+	if (y->sig.length + dexp < zlen) {
+		i = ib + (y->sig.length + dexp);
+	}
+
+	jb = y->sig.text;
+	j  = jb + (i - ib - dexp);
+	jn = j;
+
+	while (i > ib && j > jb) {
+		i--;
+		j--;
+		if (*i < *j) {
+			u8* k = i - 1;
+			while (*k == 0)
+				k--;
+			while (k != i) {
+				--*k;
+				*++k += 10;
+			}
+		}
+		*i -= *j;
+	}
+
+	if (jn - jb < y->sig.length) {
+		BOOL round_down = FALSE;
+		if (*jn < 5)
+			round_down = TRUE;
+		else if (*jn == 5) {
+			u8 const* ibPtr = y->sig.text + y->sig.length;
+
+			for (j = jn + 1; j < ibPtr; j++) {
+				if (*j != 0)
+					goto done;
+			}
+			i = ib + (jn - jb) + dexp - 1;
+			if (*i & 1)
+				round_down = 1;
+		}
+		if (round_down) {
+			if (*i < 1) {
+				u8* k = i - 1;
+				while (*k == 0)
+					k--;
+				while (k != i) {
+					--*k;
+					*++k += 10;
+				}
+			}
+			*i -= 1;
+		}
+	}
+done:
+	for (i = ib; *i == 0; ++i) { }
+
+	if (i > ib) {
+		u8 dl = (u8)(i - ib);
+		z->exp -= dl;
+		ie = ib + z->sig.length;
+		for (; i < ie; ++i, ++ib)
+			*ib = *i;
+		z->sig.length -= dl;
+	}
+
+	ib = z->sig.text;
+	for (i = ib + z->sig.length; i > ib;) {
+		i--;
+		if (*i != 0)
+			break;
+	}
+	z->sig.length = (u8)(i - ib + 1);
+}
+
+void __num2dec_internal(decimal* d, double x)
+{
+	s8 sign = (s8)(signbit(x) != 0);
+
+	if (x == 0) {
+		d->sign        = sign;
+		d->exp         = 0;
+		d->sig.length  = 1;
+		d->sig.text[0] = 0;
+		return;
+	}
+
+	if (!isfinite(x)) {
+		d->sign        = sign;
+		d->exp         = 0;
+		d->sig.length  = 1;
+		d->sig.text[0] = fpclassify(x) == 1 ? 'N' : 'I';
+		return;
+	}
+
+	if (sign != 0) {
+		x = -x;
+	}
+
+	{
+		int exp;
+		double frac           = frexp(x, &exp);
+		long num_bits_extract = DBL_MANT_DIG - __count_trailing_zero(frac);
+		double integer;
+		decimal int_d, pow2_d;
+
+		__two_exp(&pow2_d, exp - num_bits_extract);
+		frac = modf(ldexp(frac, num_bits_extract), &integer);
+		__ull2dec(&int_d, (u64)integer);
+		__timesdec(d, &int_d, &pow2_d);
+		d->sign = sign;
+	}
+}
+
+void __num2dec(const decform* form, double x, decimal* d)
+{
+	short digits = form->digits;
+	int i;
+	__num2dec_internal(d, x);
+
+	if (d->sig.text[0] > 9) {
+		return;
+	}
+
+	if (digits > SIGDIGLEN) {
+		digits = SIGDIGLEN;
+	}
+
+	__rounddec(d, digits);
+
+	while (d->sig.length < digits) {
+		d->sig.text[d->sig.length++] = 0;
+	}
+
+	d->exp -= d->sig.length - 1;
+
+	for (i = 0; i < d->sig.length; i++) {
+		d->sig.text[i] += '0';
+	}
+}
+
+double __dec2num(const decimal* d)
+{
+	if (d->sig.length <= 0) {
+		return copysign(0.0, d->sign == 0 ? 1.0 : -1.0);
+	}
+
+	switch (d->sig.text[0]) {
+	case '0':
+		return copysign(0.0, d->sign == 0 ? 1.0 : -1.0);
+	case 'I':
+		return copysign((double)INFINITY, d->sign == 0 ? 1.0 : -1.0);
+	case 'N': {
+		double result;
+		u64* ll = (u64*)&result;
+
+		*ll = 0x7FF0000000000000;
+		if (d->sign)
+			*ll |= 0x8000000000000000;
+
+		if (d->sig.length == 1)
+			*ll |= 0x8000000000000;
+		else {
+			unsigned char* p    = (unsigned char*)&result + 1;
+			int placed_non_zero = 0;
+			int low             = 1;
+			int i;
+			int e = d->sig.length;
+			if (e > 14)
+				e = 14;
+
+			for (i = 1; i < e; ++i) {
+				unsigned char c = d->sig.text[i];
+
+				if (isdigit(c)) {
+					c -= '0';
+				} else {
+					c = (unsigned char)(tolower(c) - 'a' + 10);
+				}
+
+				if (c != 0) {
+					placed_non_zero = 1;
+				}
+
+				if (low) {
+					*p++ |= c;
+				} else {
+					*p = (unsigned char)(c << 4);
+				}
+
+				low = !low;
+			}
+
+			if (!placed_non_zero) {
+				*ll |= 0x0008000000000000;
+			}
+		}
+
+		return result;
+	}
+	}
+
+	{
+		static double pow_10[8] = { 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8 };
+
+		decimal dec = *d;
+		u8* i       = dec.sig.text;
+		u8* e       = i + dec.sig.length;
+		double first_guess;
+		int exponent;
+
+		for (; i < e; ++i)
+			*i -= '0';
+		dec.exp += dec.sig.length - 1;
+		exponent = dec.exp;
+
+		i           = dec.sig.text;
+		first_guess = *i++;
+
+		while (i < e) {
+			u32 ival = 0;
+			int j;
+			double temp1, temp2;
+			int ndig = (int)(e - i) % 8;
+
+			if (ndig == 0)
+				ndig = 8;
+
+			for (j = 0; j < ndig; ++j, ++i) {
+				ival = ival * 10 + *i;
+			}
+
+			temp1 = first_guess * pow_10[ndig - 1];
+			temp2 = temp1 + ival;
+
+			if (ival != 0 && temp1 == temp2)
+				break;
+
+			first_guess = temp2;
+			exponent -= ndig;
+		}
+
+		if (exponent < 0) {
+			first_guess /= pow(5.0, -exponent);
+		} else {
+			first_guess *= pow(5.0, exponent);
+		}
+
+		first_guess = ldexp(first_guess, exponent);
+
+		if (isinf(first_guess)) {
+			decimal max;
+			__str2dec(&max, "179769313486231580793729011405303420", 308);
+			if (__less_dec(&max, &dec))
+				goto done;
+			first_guess = DBL_MAX;
+		}
+
+		{
+			decimal feedback1;
+
+			__num2dec_internal(&feedback1, first_guess);
+
+			if (__equals_dec(&feedback1, &dec)) {
+				goto done;
+			}
+
+			if (__less_dec(&feedback1, &dec)) {
+
+				decimal feedback2, difflow, diffhigh;
+				double next_guess = first_guess;
+				u64* ull          = (u64*)&next_guess;
+				++*ull;
+
+				if (isinf(next_guess)) {
+					first_guess = next_guess;
+					goto done;
+				}
+
+				__num2dec_internal(&feedback2, next_guess);
+
+				while (__less_dec(&feedback2, &dec)) {
+					feedback1   = feedback2;
+					first_guess = next_guess;
+					++*ull;
+					if (isinf(next_guess)) {
+						first_guess = next_guess;
+						goto done;
+					}
+					__num2dec_internal(&feedback2, next_guess);
+				}
+
+				__minus_dec(&difflow, &dec, &feedback1);
+				__minus_dec(&diffhigh, &feedback2, &dec);
+
+				if (__equals_dec(&difflow, &diffhigh)) {
+					if (*(u64*)&first_guess & 1) {
+						first_guess = next_guess;
+					}
+				} else if (!__less_dec(&difflow, &diffhigh)) {
+					first_guess = next_guess;
+				}
+			} else {
+				decimal feedback2, difflow, diffhigh;
+				double next_guess       = first_guess;
+				unsigned long long* ull = (unsigned long long*)&next_guess;
+				--*ull;
+
+				__num2dec_internal(&feedback2, next_guess);
+
+				while (__less_dec(&dec, &feedback2)) {
+					feedback1   = feedback2;
+					first_guess = next_guess;
+					--*ull;
+					__num2dec_internal(&feedback2, next_guess);
+				}
+
+				__minus_dec(&difflow, &dec, &feedback2);
+				__minus_dec(&diffhigh, &feedback1, &dec);
+
+				if (__equals_dec(&difflow, &diffhigh)) {
+					if (*(unsigned long long*)&first_guess & 1) {
+						first_guess = next_guess;
+					}
+				} else if (__less_dec(&difflow, &diffhigh)) {
+					first_guess = next_guess;
+				}
+			}
+		}
+	done:
+		if (dec.sign) {
+			first_guess = -first_guess;
+		}
+		return first_guess;
+	}
 }

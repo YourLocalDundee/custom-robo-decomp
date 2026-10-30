@@ -1946,9 +1946,12 @@ def main():
         step = len(jobs) / a.sample
         jobs = [jobs[int(i * step)] for i in range(a.sample)]
     # the m2c context: headers preprocessed once with the game compiler itself
+    # Melee's MSL math.h (through the HSD headers) declares `float sqrt(double)`; the game's sqrt (MSL w_sqrt.c,
+    # symbols/cr_types.h since step 65) returns a double (its callers round with frsp), so Melee's is renamed away
     base = ('// context of the m2c drafts: m2c macros + every HSD header + our types (symbols/cr_types.h)\n#include "m2c_macros.h"\n'
+            + '#define sqrt melee_math_sqrt\n'
             + ''.join('#include "%s"\n' % h for h in sorted(os.listdir(os.path.join(G, 'tools/melee/src/sysdolphin/baselib'))) if h.endswith('.h'))
-            + '#include "../../symbols/cr_types.h"\n' + SECTION_PRELUDE + globals_decls())
+            + '#undef sqrt\n#include "../../symbols/cr_types.h"\n' + SECTION_PRELUDE + globals_decls())
     open(os.path.join(out, 'm2c_run.py'), 'w', newline='\n').write(
         "import sys\nsys.path.insert(0, %r)\n%sfrom m2c.main import main\nmain()\n" % (M2C.replace('\\', '/'), M2C_WIDTH))
     protos = os.path.join(out, 'ctx_protos.h')

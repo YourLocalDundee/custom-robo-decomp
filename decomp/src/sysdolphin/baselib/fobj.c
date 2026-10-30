@@ -102,7 +102,13 @@ typedef void (*HSD_ObjUpdateFunc)(void* obj, s32 type, FObjData* fval);
 #define FOBJ_LOAD_DATA0 1 /* wowjinxy fobj.h */
 #define FOBJ_LOAD_DATA 2
 #define FOBJ_LOAD_WAIT 3
-#define HSD_ObjData FObjData /* wowjinxy forward.h union HSD_ObjData = kar FObjData (f32 fv / s32 iv / Vec p) */
+/* wowjinxy forward.h union HSD_ObjData (0xC: f32 fv / s32 iv / Vec p); kar's FObjData is a struct of 0x14 with the same
+ * first field, and main.dol's frames hold the union: the callbacks get it as kar's FObjData pointer */
+typedef union _wj_HSD_ObjData {
+    f32 fv;
+    s32 iv;
+    Vec p;
+} HSD_ObjData;
 
 static inline u32 HSD_FObjSetState(HSD_FObj* fobj, u32 state)
 {
@@ -112,12 +118,10 @@ static inline u32 HSD_FObjSetState(HSD_FObj* fobj, u32 state)
     return state;
 }
 
+/* Custom Robo: the NULL test as a conditional expression (main.dol puts the NULL case first) */
 static inline u32 HSD_FObjGetState(HSD_FObj* fobj)
 {
-    if (!fobj) {
-        return 0;
-    }
-    return fobj->flags & 0xF;
+    return fobj == NULL ? 0 : fobj->flags & 0xF;
 }
 
 static inline void HSD_FObjStopAnim(HSD_FObj* fobj, void* obj,
@@ -405,7 +409,7 @@ static inline void FObjUpdateAnim(HSD_FObj* fobj, void* obj,
     default:
         break;
     }
-    obj_update(obj, fobj->obj_type, &fobjdata);
+    obj_update(obj, fobj->obj_type, (FObjData*) &fobjdata);
 }
 
 /* wowjinxy/KAR fobj.c HSD_FObjInterpretAnim */
