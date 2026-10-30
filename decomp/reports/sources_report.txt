@@ -108,7 +108,7 @@ src/dolphin/exi/EXIUart.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/exi/EXIUart.c
 src/dolphin/gx/GXAttr.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXAttr.c  identical
 src/dolphin/gx/GXBump.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXBump.c  identical
 src/dolphin/gx/GXDisplayList.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXDisplayList.c  identical
-src/dolphin/gx/GXFifo.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXFifo.c  identical
+src/dolphin/gx/GXFifo.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXFifo.c  changed (6 lines added / removed)
 src/dolphin/gx/GXFrameBuf.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXFrameBuf.c  identical
 src/dolphin/gx/GXGeometry.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXGeometry.c  identical
 src/dolphin/gx/GXInit.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXInit.c  identical

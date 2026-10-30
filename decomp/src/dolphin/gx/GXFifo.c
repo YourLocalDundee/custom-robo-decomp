@@ -5,7 +5,7 @@
 
 #include "__gx.h"
 
-static OSThread* __GXCurrentThread;
+/* Custom Robo: CPUFifo / GPFifo static and first, as in this revision (BfBB / Melee) */ static __GXFifoObj* CPUFifo; static __GXFifoObj* GPFifo; static OSThread* __GXCurrentThread;
 static GXBool CPGPLinked;
 static BOOL GXOverflowSuspendInProgress;
 static GXBreakPtCallback BreakPointCB;
@@ -15,8 +15,8 @@ static u32 __GXOverflowCount;
 static BOOL IsWGPipeRedirected;
 #endif
 
-__GXFifoObj* CPUFifo;
-__GXFifoObj* GPFifo;
+/* (CPUFifo, GPFifo: above) */
+
 void* __GXCurrentBP;
 
 static void __GXFifoReadEnable(void);

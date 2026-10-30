@@ -3,14 +3,14 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           75     48   0x011644/0x022354  50.84%   0x0023F8/0x015588  10.53%    343/  646
+dolphin                           75     50   0x0122E8/0x02235C  53.15%   0x002430/0x015588  10.60%    376/  647
 MSL                               48     29   0x002F00/0x00937C  31.87%   0x000718/0x000D20  54.05%     37/   84
 Runtime                            5      4   0x000924/0x0009DC  92.71%   0x000024/0x00009C  23.08%     18/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
 sysdolphin                        29      9   0x004014/0x0265A4  10.44%   0x0008F4/0x002238  26.16%     88/  471
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
-automatic objects (unsplit)      258      0   0x000000/0x156B9C   0.00%   0x000000/0x2809E4   0.00%      0/ 1861
-main.dol (all units)             734    390   0x01D8DC/0x1B342C   6.79%   0x003458/0x29C458   0.49%    798/ 3533
+automatic objects (unsplit)      257      0   0x000000/0x156B94   0.00%   0x000000/0x2809E4   0.00%      0/ 1860
+main.dol (all units)             733    392   0x01E580/0x1B342C   6.97%   0x003490/0x29C458   0.49%    831/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
@@ -113,12 +113,12 @@ dolphin/exi/EXIUart.c                         code 0x3B8/0x5D4  data 0x10/0x10  
 dolphin/gx/GXAttr.c                           code 0x13EC/0x1514  data 0x0/0x10  functions 14/16  not linked: code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision  (C has data the split object lacks: .data 0x274)
 dolphin/gx/GXBump.c                           code 0x274/0x274  data 0x0/0x0  functions 7/7  linked from C
 dolphin/gx/GXDisplayList.c                    code 0x70/0x70  data 0x0/0x0  functions 1/1  linked from C
-dolphin/gx/GXFifo.c                           code 0x628/0x628  data 0x0/0x20  functions 13/13  not linked: link: 100% code (every function its own by bytes), but GXGetGPFifo (0x80153070) is the C's too and outside the proven code range (it ends at 0x80153070): that function stays in an automatic object and uses GPFifo, which the C defines
+dolphin/gx/GXFifo.c                           code 0x630/0x630  data 0x20/0x20  functions 14/14  linked from C
 dolphin/gx/GXFrameBuf.c                       code 0x964/0x964  data 0x0/0x8  functions 13/13  not linked: data: 100% code, but its .data (the GX render modes) is not proven: the C's symbols at +0x348 are not where they follow from +0xF0 (another revision's table), so the render modes stay in an automatic object and linking defines them twice  (C has data the split object lacks: .data 0x780)
 dolphin/gx/GXGeometry.c                       code 0x2F8/0x33C  data 0x0/0x0  functions 8/9  not linked: code: 1 of 9 functions differ (GXSetCullMode 35%): the reference is another revision
 dolphin/gx/GXInit.c                           code 0xBE8/0x1380  data 0x0/0x58  functions 4/5  not linked: code: 1 of 5 functions differ (GXInit 79%): the reference is another revision  (C has data the split object lacks: .bss 0x630, .data 0x23C)
 dolphin/gx/GXLight.c                          code 0x36C/0x604  data 0x20/0x50  functions 8/11  not linked: code: 3 of 11 functions differ (GXSetChanAmbColor 92%, GXSetChanMatColor 92%, GXSetChanCtrl 81%): the reference is another revision
-dolphin/gx/GXMisc.c                           code 0x674/0x674  data 0x0/0x18  functions 19/19  not linked: link: 100% code, but __GXAbort calls GXGetGPFifo (0x80153070, c_callsites_report.txt), which is GXFifo.c's and lies outside GXFifo.c's proven code range (it ends at 0x80153070): naming it moves that edge; prove GXFifo.c's end first  (C has data the split object lacks: .data 0x53)
+dolphin/gx/GXMisc.c                           code 0x674/0x674  data 0x18/0x18  functions 19/19  linked from C
 dolphin/gx/GXTev.c                            code 0x5F8/0x764  data 0x0/0x78  functions 13/16  not linked: code: 3 of 16 functions differ (GXSetTevColor 29%, GXSetTevColorS10 49%, GXSetTevKColor 22%): the reference is another revision
 dolphin/gx/GXTexture.c                        code 0xFE8/0xFE8  data 0x290/0x290  functions 19/19  linked from C
 dolphin/gx/GXTransform.c                      code 0x5B8/0x5B8  data 0x10/0x10  functions 15/15  linked from C

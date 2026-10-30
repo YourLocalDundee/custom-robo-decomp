@@ -9,7 +9,8 @@ retail address of that name. So the matched C names what it calls, the way every
 Run by batch 9 after the build (ninja has compiled every decomp/src file, objdiff written build/GXCE01/report.json,
 and main.elf is the retail-SHA-1 link):
   1. For every C object (decomp/build/GXCE01/src/<object>.o), every function objdiff reports at 100% (fuzzy match),
-     and every relocation of it against an undefined symbol NAME (or a global the C file defines) at function offset d: main.elf's relocation at
+     and every relocation of it against an undefined symbol NAME (or a global or named static object the C file
+     defines, step 65) at function offset d: main.elf's relocation at
      <the function's retail address> + d must be of the same type; its target minus the C relocation's addend is
      NAME's address.
   2. Every `// c-callsite` line of symbols/symbols.txt is checked: its name must be derived, at exactly its address
@@ -68,8 +69,10 @@ def obj_relocs(path):
         for o in range(s[4], s[4] + s[5], 12):
             off, info, add = struct.unpack_from('>IIi', d, o)
             sy = syms[info >> 8]
-            if sy[0] and (sy[4] == 0 or (sy[5] == 1 and sy[4] < 0xFF00)):   # undefined, or this file's own global
-                rels.append((s[7], off, info & 255, sy[0], add))
+            # undefined, or this file's own global, or its own named static object (step 65: GXFifo.c's CPUFifo)
+            if sy[0] and (sy[4] == 0 or (sy[4] < 0xFF00 and (sy[5] == 1 or (sy[5] == 0 and sy[3] == 1
+                                                                            and not sy[0].startswith(('@', '.')))))):
+                rels.append((s[7], off, info & 255, sy[0], add, sy[4] != 0 and sy[5] == 0))
     return funcs, rels
 
 
@@ -83,6 +86,7 @@ def main():
         if n and t not in (3, 4) and not n.startswith('...'):   # any name main.elf has there: labels, linker symbols too
             names_at[v].append(n)
     derived = defaultdict(lambda: defaultdict(list))   # name -> address -> [site text]
+    statics = set()   # names derived from a file's own statics (each file has its own: one name, several addresses)
     bad_sites = []
     for u in sorted(rep['units'], key=lambda u: u['name']):
         bp = base.get(u['name'])
@@ -92,7 +96,7 @@ def main():
         full = {f['name']: int(f['metadata']['virtual_address']) for f in u.get('functions', [])
                 if f.get('fuzzy_match_percent') == 100.0 and f.get('metadata', {}).get('virtual_address')}
         funcs, rels = obj_relocs(os.path.join(D, bp))
-        for sec, off, typ, name, add in rels:
+        for sec, off, typ, name, add, static in rels:
             own = [(fn, fo) for fn, (fs, fo, fsz) in funcs.items() if fs == sec and fo <= off < fo + fsz and fn in full]
             if not own:
                 continue
@@ -106,6 +110,8 @@ def main():
                 bad_sites.append(f'{where}: main.elf has {"no relocation" if not r else "type " + str(r[0])} there')
                 continue
             derived[name][(r[1] - add) & 0xFFFFFFFF].append(where)   # the C's addend (a field of NAME) taken off
+            if static:
+                statics.add(name)
     errors, rows = [], []
     lines = [ln for ln in open(SYMBOLS, encoding='utf-8').read().splitlines() if '// c-callsite ' in ln]
     for ln in lines:
@@ -116,6 +122,8 @@ def main():
         name, addr = m[1], int(m[3], 16)
         cite = f'{os.path.splitext(m[4])[0]} {m[5]}+0x{int(m[6], 16):X} '   # as the derived sites are written
         got = derived.get(name, {})
+        if name in statics:   # a static: only the cited file's own sites name it
+            got = {a: v for a, v in ((a, [x for x in v if x.startswith(os.path.splitext(m[4])[0] + ' ')]) for a, v in got.items()) if v}
         if set(got) != {addr}:
             errors.append(f'FAIL {name} 0x{addr:08X}: derived ' + (', '.join(f'0x{a:08X}' for a in sorted(got)) or 'nothing'))
         elif not any(s.startswith(cite) for s in got[addr]):
@@ -151,7 +159,8 @@ def main():
                 continue
             txt = f'{name} 0x{a:08X} (main.elf: {", ".join(have) or "no symbol"}): {len(derived[name][a])} site(s), e.g. {derived[name][a][0]}'
             (proposed if all(DEFAULT.match(h) for h in have) else differ).append(txt)
-    multi = [f'{n}: ' + ', '.join(f'0x{a:08X}' for a in sorted(derived[n])) for n in sorted(derived) if len(derived[n]) > 1]
+    multi = [f'{n}: ' + ', '.join(f'0x{a:08X}' for a in sorted(derived[n])) for n in sorted(derived)
+             if len(derived[n]) > 1 and n not in statics]
     out = [f'c-callsite names (tools/check_c_callsites.py): {len(lines)} lines in symbols/symbols.txt, {len(rows)} OK, '
            f'{len(errors)} FAIL; {sum(len(v) for v in derived.values())} names derived from matched C call sites, '
            f'{len(proposed)} at a dtk default name, {len(differ)} differ from our name, {len(multi)} at two addresses, '

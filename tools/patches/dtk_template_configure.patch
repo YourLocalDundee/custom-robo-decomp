@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,364 @@ def MatchingFor(*versions):
+@@ -284,18 +307,362 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -279,6 +279,8 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/wobj.c",
 +    "sysdolphin/baselib/mobj.c",
 +    "sysdolphin/baselib/spline.c",
++    "dolphin/gx/GXFifo.c",
++    "dolphin/gx/GXMisc.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -381,8 +383,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 1 of 4 functions differ (WriteUARTN 93%): the reference is another revision",
 +    "dolphin/gx/GXAttr.c":
 +        "code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision",
-+    "dolphin/gx/GXFifo.c":
-+        "link: 100% code (every function its own by bytes), but GXGetGPFifo (0x80153070) is the C's too and outside the proven code range (it ends at 0x80153070): that function stays in an automatic object and uses GPFifo, which the C defines",
 +    "dolphin/gx/GXFrameBuf.c":
 +        "data: 100% code, but its .data (the GX render modes) is not proven: the C's symbols at +0x348 are not where they follow from +0xF0 (another revision's table), so the render modes stay in an automatic object and linking defines them twice",
 +    "dolphin/gx/GXGeometry.c":
@@ -391,8 +391,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 1 of 5 functions differ (GXInit 79%): the reference is another revision",
 +    "dolphin/gx/GXLight.c":
 +        "code: 3 of 11 functions differ (GXSetChanAmbColor 92%, GXSetChanMatColor 92%, GXSetChanCtrl 81%): the reference is another revision",
-+    "dolphin/gx/GXMisc.c":
-+        "link: 100% code, but __GXAbort calls GXGetGPFifo (0x80153070, c_callsites_report.txt), which is GXFifo.c's and lies outside GXFifo.c's proven code range (it ends at 0x80153070): naming it moves that edge; prove GXFifo.c's end first",
 +    "dolphin/gx/GXTev.c":
 +        "code: 3 of 16 functions differ (GXSetTevColor 29%, GXSetTevColorS10 49%, GXSetTevKColor 22%): the reference is another revision",
 +    "dolphin/os/OS.c":

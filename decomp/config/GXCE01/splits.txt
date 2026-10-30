@@ -1129,7 +1129,7 @@ dolphin/gx/GXInit.c:
 	.sdata2     start:0x80451D98 end:0x80451DC0
 
 dolphin/gx/GXFifo.c:
-	.text       start:0x80152A48 end:0x80153070
+	.text       start:0x80152A48 end:0x80153078
 	.sbss       start:0x8044FC78 end:0x8044FC98
 
 dolphin/gx/GXAttr.c:
