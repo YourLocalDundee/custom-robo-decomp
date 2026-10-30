@@ -918,6 +918,9 @@ game/fn_800BCC60.c:
 game/cr_C_ACT_JP.c:
 	.text       start:0x800BDB24 end:0x800BDB54
 
+game/cr_C_ACT_WAIT.c:
+	.text       start:0x800BE050 end:0x800BE094
+
 game/cr_C_ACT_MOT.c:
 	.text       start:0x800BE094 end:0x800BE248
 

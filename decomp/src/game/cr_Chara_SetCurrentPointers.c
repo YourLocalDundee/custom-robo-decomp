@@ -415,7 +415,7 @@ typedef struct cr_Chara
   u8 unk_1914[0x20];
   u32 unk_1934;
   s32 unk_1938;
-  s16 id;
+  u16 id;
   u16 build_number;
   u16 built_number;
   u16 flags_1942;
@@ -438,10 +438,10 @@ typedef struct cr_Chara
   u16 countdown_198c;
   u8 unk_198e;
   u8 unk_198f;
-  s16 countdown_1990;
+  u16 countdown_1990;
   u8 unk_1992[0x2];
   u16 unk_1994;
-  s16 target_id;
+  u16 target_id;
   u8 unk_1998[0x1];
   u8 unk_1999;
   u8 unk_199a;
