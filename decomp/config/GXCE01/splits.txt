@@ -1501,6 +1501,9 @@ MSL/e_sqrt.c:
 MSL/exponentialsf.c:
 	.text       start:0x80169394 end:0x801693B8
 
+MSL/w_sqrt.c:
+	.text       start:0x80169424 end:0x80169444
+
 dolphin/odenotstub/odenotstub.c:
 	.text       start:0x80169474 end:0x8016947C
 

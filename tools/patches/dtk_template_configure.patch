@@ -159,6 +159,7 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/card/CARDMount.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    "dolphin/exi/EXIUart.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    "MSL/alloc.c": ["-i include/bfbb", "-i include/bfbb/libc"],
++    "MSL/e_pow.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    "MSL/string.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    "MSL/ansi_files.c": ["-i include/bfbb", "-i include/bfbb/libc"],
 +    # from Melee: Mario Party 4's __mem.c has the three functions in another order than ours
@@ -299,6 +300,7 @@ diff --git a/configure.py b/configure.py
 +    "MSL/ansi_files.c",
 +    "MSL/alloc.c",
 +    "Runtime/GCN_mem_alloc.c",
++    "MSL/e_pow.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -353,8 +355,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 1 of 1 functions differ (__ieee754_acos 38%): the reference is another revision",
 +    "MSL/e_asin.c":
 +        "code: 1 of 1 functions differ (__ieee754_asin 59%): the reference is another revision",
-+    "MSL/e_pow.c":
-+        "code: 1 of 1 functions differ (__ieee754_pow 94%): the reference is another revision",
 +    "MSL/printf.c":
 +        "code: 4 of 11 functions differ (parse_format_801651AC 0%, long2str_80164F54 0%, longlong2str_80164C40 0%, vprintf 82%): the reference is another revision",
 +    "MetroTRK/dispatch.c":

@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 948
+files: 951
 
 src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
 src/MSL/abort_exit.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/abort_exit.c  identical
@@ -15,7 +15,7 @@ src/MSL/e_acos.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare
 src/MSL/e_asin.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_asin.c  identical
 src/MSL/e_atan2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_atan2.c  identical
 src/MSL/e_fmod.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_fmod.c  identical
-src/MSL/e_pow.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_pow.c  identical
+src/MSL/e_pow.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_pow.c  identical
 src/MSL/e_rem_pio2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_rem_pio2.c  identical
 src/MSL/file_io.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/file_io.c  identical
 src/MSL/k_cos.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/k_cos.c  identical
@@ -553,6 +553,9 @@ include/bfbb/dolphin/os/OSResetSW.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/
 include/bfbb/dolphin/os/OSSerial.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSSerial.h  identical
 include/bfbb/dolphin/os/OSThread.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSThread.h  identical
 include/bfbb/dolphin/os/OSTime.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os/OSTime.h  identical
+include/bfbb/libc/errno.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/errno.h  identical
+include/bfbb/libc/fdlibm.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/fdlibm.h  identical
+include/bfbb/libc/math.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/math.h  identical
 include/bfbb/libc/other.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/other.h  identical
 include/bfbb/libc/stdarg.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/stdarg.h  identical
 include/bfbb/libc/stddef.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/include/stddef.h  identical

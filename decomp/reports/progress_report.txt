@@ -4,13 +4,13 @@ Code / data bytes are the sizes of the split (target) objects; "of all" = share 
 
 library                      objects from C             code from C             data from C     functions
 dolphin                           75     56   0x015654/0x02235C  62.54%   0x002E84/0x015F24  13.25%    420/  647
-MSL                               48     32   0x0037A8/0x00937C  37.74%   0x000BB0/0x001160  67.27%     50/   84
+MSL                               49     33   0x003FD8/0x00939C  43.25%   0x000CF0/0x001160  74.46%     51/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
 sysdolphin                        29      9   0x004014/0x0265A4  10.44%   0x0008F4/0x002238  26.16%     88/  471
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
-automatic objects (unsplit)      257      0   0x000000/0x156B94   0.00%   0x000000/0x27FC08   0.00%      0/ 1860
-main.dol (all units)             733    402   0x02224C/0x1B342C   7.84%   0x0043F4/0x29C458   0.64%    889/ 3533
+automatic objects (unsplit)      258      0   0x000000/0x156B74   0.00%   0x000000/0x27FC08   0.00%      0/ 1859
+main.dol (all units)             735    403   0x022A7C/0x1B342C   7.96%   0x004534/0x29C458   0.65%    890/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
@@ -27,7 +27,7 @@ MSL/e_acos.c                                  code 0x0/0x23C  data 0x0/0x88  fun
 MSL/e_asin.c                                  code 0x0/0x238  data 0x0/0x88  functions 0/1  not linked: code: 1 of 1 functions differ (__ieee754_asin 59%): the reference is another revision
 MSL/e_atan2.c                                 code 0x290/0x290  data 0x58/0x58  functions 1/1  linked from C
 MSL/e_fmod.c                                  code 0x33C/0x33C  data 0x10/0x10  functions 1/1  linked from C
-MSL/e_pow.c                                   code 0x0/0x830  data 0x30/0x140  functions 0/1  not linked: code: 1 of 1 functions differ (__ieee754_pow 94%): the reference is another revision
+MSL/e_pow.c                                   code 0x830/0x830  data 0x140/0x140  functions 1/1  linked from C
 MSL/e_rem_pio2.c                              code 0x3A0/0x3A0  data 0x1E0/0x1E0  functions 1/1  linked from C
 MSL/file_io.c                                 code 0x2F4/0x2F4  data 0x0/0x0  functions 2/2  linked from C
 MSL/k_cos.c                                   code 0xF4/0xF4  data 0x48/0x48  functions 1/1  linked from C

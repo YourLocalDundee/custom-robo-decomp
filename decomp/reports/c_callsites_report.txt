@@ -1,4 +1,4 @@
-c-callsite names (tools/check_c_callsites.py): 79 lines in symbols/symbols.txt, 79 OK, 0 FAIL; 1406 names derived from matched C call sites, 128 at a dtk default name, 8 differ from our name, 0 at two addresses, 0 sites without the same relocation
+c-callsite names (tools/check_c_callsites.py): 82 lines in symbols/symbols.txt, 82 OK, 0 FAIL; 1408 names derived from matched C call sites, 128 at a dtk default name, 8 differ from our name, 0 at two addresses, 0 sites without the same relocation
 
 OK   DSPCheckMailToDSP 0x8014A42C: 38 call site(s), all agree; e.g. dolphin/card/CARDUnlock InitCallback+0x3C (0x8014D13C REL24)
 OK   PSVECCrossProduct 0x8013A284: 3 call site(s), all agree; e.g. dolphin/mtx/mtx C_MTXLookAt+0x6C (0x80139BAC REL24)
@@ -58,6 +58,9 @@ OK   __VIVersion 0x8044EDC8: 1 call site(s), all agree; e.g. dolphin/vi/vi VIIni
 OK   IsTRKConnected 0x8043B5F0: 4 call site(s), all agree; e.g. MetroTRK/msghndlr SetTRKConnected+0x2 (0x8015B6D2 ADDR16_HA)
 OK   TRKvalue128_temp 0x8043BB64: 10 call site(s), all agree; e.g. MetroTRK/targimpl TRKTargetAccessExtended2+0xEA (0x8015CCDA ADDR16_HA)
 OK   gTRKMsgBufs 0x80439C28: 8 call site(s), all agree; e.g. MetroTRK/msgbuf TRKReleaseBuffer+0x2E (0x8015A0CA ADDR16_HA)
+OK   sqrt 0x80169424: 3 call site(s), all agree; e.g. MSL/e_pow __ieee754_pow+0x204 (0x80166BC8 REL24)
+OK   __float_nan 0x8044EEA8: 2 call site(s), all agree; e.g. MSL/e_pow __ieee754_pow+0x2AE (0x80166C72 ADDR16_HA)
+OK   errno 0x8044FCE8: 1 call site(s), all agree; e.g. MSL/e_pow __ieee754_pow+0x2B4 (0x80166C78 EMB_SDA21)
 OK   AIGetDMAStartAddr 0x80142088: defined there by dolphin/ai/ai.c (.text, size 0x1C)
 OK   GXWaitDrawDone 0x801547E8: defined there by dolphin/gx/GXMisc.c (.text, size 0x4C)
 OK   __DSP_tmp_task 0x8044FC38: defined there by dolphin/dsp/dsp_task.c (.sbss, size 0x4)
