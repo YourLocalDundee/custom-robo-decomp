@@ -102,7 +102,7 @@ extracts the disc, decompiles and names everything, rebuilds `main.dol` from spl
 your result is **byte-identical to ours**, and checks the archive/model tools round-trip. It ends with PASS or FAIL.
 The first run takes longer than a rerun (downloads, and two Ghidra rebuilds on a fresh setup). The last timed run from
 an empty folder (Windows, Oct 27, 2026: 10–15 minutes) was before the Phase 4 batches existed, so expect more now; the
-Ubuntu run of Oct 30, 2026 (PASS) has no recorded time.
+Ubuntu run of Oct 30, 2026 (PASS) took 90 minutes on a 4-core machine with the tools already downloaded.
 
 After that, one command reruns everything. Windows:
 

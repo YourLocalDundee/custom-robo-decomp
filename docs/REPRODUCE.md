@@ -34,8 +34,8 @@ tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
 
 `tools\from_scratch.ps1` / `tools/from_scratch.sh` runs sections 1–4 below in order, stops at the first failure, and
 ends with a PASS / FAIL table. Tested from an empty folder on Windows (Oct 27, 2026: **PASS**, 10–15 minutes, mostly
-downloads; that was before the Phase 4 batches, which add to it) and on Ubuntu 26.04 (Oct 30, 2026: **PASS**, time not
-recorded). The sections explain what each part does, so you can also run them one by one.
+downloads; that was before the Phase 4 batches, which add to it) and on Ubuntu 26.04 (Oct 30, 2026: **PASS**, 90 minutes on
+4 cores with the tools already downloaded). The sections explain what each part does, so you can also run them one by one.
 
 ## 1. Setup — `tools\setup.ps1` / `tools/setup.sh`
 
