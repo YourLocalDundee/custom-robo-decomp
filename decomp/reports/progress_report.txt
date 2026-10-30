@@ -3,14 +3,14 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           75     50   0x0122E8/0x02235C  53.15%   0x002430/0x015588  10.60%    376/  647
+dolphin                           75     51   0x0125E8/0x02235C  53.70%   0x002438/0x015588  10.60%    382/  647
 MSL                               48     29   0x002F00/0x00937C  31.87%   0x000718/0x000D20  54.05%     37/   84
 Runtime                            5      4   0x000924/0x0009DC  92.71%   0x000024/0x00009C  23.08%     18/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
 sysdolphin                        29      9   0x004014/0x0265A4  10.44%   0x0008F4/0x002238  26.16%     88/  471
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
 automatic objects (unsplit)      257      0   0x000000/0x156B94   0.00%   0x000000/0x2809E4   0.00%      0/ 1860
-main.dol (all units)             733    392   0x01E580/0x1B342C   6.97%   0x003490/0x29C458   0.49%    831/ 3533
+main.dol (all units)             733    393   0x01E880/0x1B342C   7.01%   0x003498/0x29C458   0.49%    837/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
@@ -146,7 +146,7 @@ dolphin/os/OSSync.c                           code 0x84/0x84  data 0x0/0x0  func
 dolphin/os/OSThread.c                         code 0xF04/0xF04  data 0xA10/0xA10  functions 17/17  linked from C
 dolphin/os/OSTime.c                           code 0x424/0x424  data 0x60/0x60  functions 5/5  linked from C
 dolphin/os/init/__ppc_eabi_init.c             code 0xEC/0xEC  data 0x0/0x0  functions 5/5  linked from C
-dolphin/os/init/__start.c                     code 0x300/0x300  data 0x8/0x8  functions 6/6  not linked: code: the C also defines InitMetroTRK_BBA (a 4-byte stub in .text); our main.dol has dolphin_trk.c's 0x94 InitMetroTRK_BBA there, so linked from C the stub replaces it (.text 0x90 shorter): the reference is another revision
+dolphin/os/init/__start.c                     code 0x300/0x300  data 0x8/0x8  functions 6/6  linked from C
 dolphin/si/SIBios.c                           code 0x1478/0x1478  data 0x32C/0x32C  functions 18/18  linked from C
 dolphin/vi/vi.c                               code 0x1324/0x1E54  data 0x10/0x588  functions 18/22  not linked: code: 4 of 22 functions differ (getTiming 95%, __VIInit 81%, VIConfigure 92%, VIGetTvFormat 100%): the reference is another revision
 game/cr_Battle_SetCurrentPointers.c           code 0x88/0x88  data 0x0/0x0  functions 1/1  linked from C

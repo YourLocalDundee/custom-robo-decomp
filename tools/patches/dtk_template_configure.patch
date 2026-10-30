@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,362 @@ def MatchingFor(*versions):
+@@ -284,18 +307,361 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -281,6 +281,7 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/spline.c",
 +    "dolphin/gx/GXFifo.c",
 +    "dolphin/gx/GXMisc.c",
++    "dolphin/os/init/__start.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -401,8 +402,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 3 of 3 functions differ (fn_801367D8 0%, fn_801367E8 0%, __OSReboot 12%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
 +    "dolphin/os/OSReset.c":
 +        "code: 2 of 5 functions differ (OSResetSystem 26%, OSGetResetCode 68%): the reference is another revision",
-+    "dolphin/os/init/__start.c":
-+        "code: the C also defines InitMetroTRK_BBA (a 4-byte stub in .text); our main.dol has dolphin_trk.c's 0x94 InitMetroTRK_BBA there, so linked from C the stub replaces it (.text 0x90 shorter): the reference is another revision",
 +    "dolphin/vi/vi.c":
 +        "code: 4 of 22 functions differ (getTiming 95%, __VIInit 81%, VIConfigure 92%, VIGetTvFormat 100%): the reference is another revision",
 +}

@@ -143,7 +143,7 @@ src/dolphin/os/OSThread.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSThread.c
 src/dolphin/os/OSTime.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSTime.c  identical
 src/dolphin/os/__os.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__os.h  identical
 src/dolphin/os/init/__ppc_eabi_init.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__ppc_eabi_init.c  identical
-src/dolphin/os/init/__start.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__start.c  identical
+src/dolphin/os/init/__start.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__start.c  changed (2 lines added / removed)
 src/dolphin/si/SIBios.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/si/SIBios.c  changed (2 lines added / removed)
 src/dolphin/vi/__vi.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/vi/__vi.h  identical
 src/dolphin/vi/vi.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/vi/vi.c  identical
