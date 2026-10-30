@@ -316,9 +316,11 @@ means that; nothing here was built or linked (no build directory in this worktre
 
 Rerun (each about a minute; outputs gitignored in `tools/compiler_probe/out/`):
 
-- `python -I tools/compiler_probe/sources.py --fetch` clones the two references the library hunt needs, shallow and
-  sparse, into the gitignored `tools/refs_new/`: zeldaret/tp **c8fa8c9** (`libs/TRK_MINNOW_DOLPHIN`,
-  `libs/PowerPC_EABI_Support`, `libs/dolphin`, `include`) and doldecomp/pikmin2 **999140f** (`src/Dolphin`, `include`).
+- `python -I tools/compiler_probe/sources.py --fetch` makes sure the two references the library hunt needs have their
+  sources: the pinned clones `tools/refs/tp` (zeldaret/tp **c8fa8c9**: `libs/TRK_MINNOW_DOLPHIN`,
+  `libs/PowerPC_EABI_Support`, `libs/dolphin`, `include`) and `tools/refs/pikmin2` (doldecomp/pikmin2 **999140f**:
+  `src/Dolphin`, `include`); since step 68 tools/setup.ps1 / setup.sh check these folders out (tools/pins.txt), and
+  `--fetch` only widens an older clone (until step 67 they were separate clones in the gitignored `tools/refs_new/`).
   It writes `sources.txt`: the SDK sweep (every function in the SDK address ranges against every file of BfBB, dolsdk2004,
   dolsdk2001 and TP's SDK, by name, and by bytes for unnamed ones), MetroTRK and MSL / Runtime per function and per object
   (the references that reproduce every function of the object, with the extra flags they need).
@@ -362,7 +364,7 @@ unnamed `fn_` against every compiled function of its size. Step 66's per-object 
 
 **TP's and Pikmin 2's TRK is C (not asm-only) and is v2.6's**: compiled with GC/2.6 and our MetroTRK flags they
 reproduce all 162 TRK functions (targsupp is assembler in both: four `twi 31, r0, 0; blr` stubs, equal to ours).
-Per object, import from TP (`tools/refs_new/tp/`, zeldaret/tp c8fa8c9; Pikmin 2's `src/Dolphin/TRK_MINNOW_DOLPHIN/`
+Per object, import from TP (`tools/refs/tp/`, zeldaret/tp c8fa8c9; Pikmin 2's `src/Dolphin/TRK_MINNOW_DOLPHIN/`
 is equal wherever TP is, and is the only exact one for targimpl.c):
 
 | Object | Functions | Exact references (file; extra flags) | Import from |
@@ -402,6 +404,12 @@ The 12 TRK objects in CR_NOT_MATCHING (dispatch, dolphin_trk, dolphin_trk_glue, 
 notify, nubinit, serpoll, support, targimpl) and the 7 not imported (UDP_Stubs, ddh / gdev main.c, CircleBuffer, MWTrace,
 MWCriticalSection_gc, targsupp) all become exact. The header roots are TP's (`include`, `libs/dolphin/include`,
 `libs/PowerPC_EABI_Support/...`, `-DVERSION=0`), so the import needs those headers next to the MP4 ones (CR_OBJECT_INCLUDES).
+
+Applied in step 68 (plan.md): all 29 MetroTRK objects are linked from C as this table says; two findings on the way:
+InitMetroTRK is 0x98 here too (TP's file as it is: the `blr` after its last branch is part of it; dtk's signature size
+0x94 left it out), and serpoll.c needs TP's `-sdata 8` as well (gTRKInputPendingPtr is in .sbss). The 0x84
+`__close_console` before mslsupp.c's two functions is Pikmin 2's mslsupp.c function (TP has none there), so mslsupp.c
+is Pikmin 2's file.
 
 ### MSL and Runtime
 

@@ -15,6 +15,9 @@ object <-> object / label). It is NOT applied, and the dtk default name is kept,
   - it is not a valid linker identifier (a C name, or CodeWarrior's local-static form name$123);
   - two of our files give the same address different names, or the same name to different addresses;
   - another dtk symbol (one we do not rename) already has that name;
+  (except for statics: a name every one of our lines gives as scope:local may be on several symbols, as dtk's own
+  AlarmHandler is; the renamed symbols are then written scope:local, so the all-asm link does not define it twice:
+  step 68, reverb_hi.c's and reverb_std.c's HandleReverb)
   - dtk has no symbol of that kind at that address (e.g. a name for a field inside a larger dtk object).
 Every such case is listed in decomp/reports/symbols_report.txt. At one address, labels are written after the
 sized symbol (see the comment at the end: mwld hangs otherwise). Output is byte-identical on every run (LF, as dtk

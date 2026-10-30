@@ -21,7 +21,12 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
        that no reference or pinned source puts in O's file, counts as an unnamed one (naming it loses no proof; HSD
        objects only, step 61: elsewhere it would change two SDK / MSL ranges, critical_regions and SISamplingRate,
        which are not reviewed under this rule yet). A named neighbour that the pinned sources define only in another
-       library (SDK / MSL / TRK / HSD) proves the end too (step 65: HSD_Panic before THPDec.c).
+       library (SDK / MSL / TRK / HSD) proves the end too (step 65: HSD_Panic before THPDec.c), and (step 68, not in
+       HSD objects) one that the pinned sources of this library define only in other files (AXCL.c's AXSetMode before
+       AXOut.c). Before the end tests, the range grows over a neighbour that R has in O at our size although the
+       name is on several of our functions (a static several files use: CARDWrite.c's WriteCallback /
+       EraseCallback, OSMemory.c's OnReset), and over a named neighbour that no reference places and the pinned
+       sources define only in O's file (texPalette.c's TEXGetGXTexObjFromPaletteCI, which TTYD does not link).
        When unnamed functions sit between our end function and the next named function P (in another object of R), the
        end is still proven
          - by a size run: R has exactly as many functions between the two, with our sizes one to one (the same
@@ -42,6 +47,10 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
   object's last function belongs to that object, as the linker puts it there.
   Agreement: several references can prove the same object. When their ranges differ (different SDK / MSL / TRK
   revisions, or a decomp's own guess), each section is settled
+    0. BY THE FUNCTION ITSELF (step 68): when every function inside some ranges but not all is placed by the
+       references at our size in exactly one file, and one of those names has another size elsewhere (two revisions
+       give the name to different functions: Pikmin 2's mslsupp.c __close_console, 0x84, vs MSL's 8-byte one), the
+       range that holds exactly the ones placed in O wins;
     1. BY SOURCE: our named functions inside some of the candidate ranges but not all are looked up in the pinned
        library sources (dolsdk2001, dolsdk2004, Melee's MSL / Runtime / MetroTRK / sysdolphin, Mario Party 4's SDK /
        MSL / Runtime / TRK): which file DEFINES each one (a body, not a prototype; the object's own library first,
@@ -57,7 +66,9 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
   only if doldecomp/kar (refs/kar: asm/sysdolphin/<file>.s + src/sysdolphin/<file>.c, the same GKYE01 DOL) has that
   file with the same first and last function address and the same names on both anchor functions (the naming rule:
   a wowjinxy name counts only when another reference agrees). Reference file names that are addresses (Melee's
-  hsd_3910.c, ..._8004a648.c) are placeholders, never used.
+  hsd_3910.c, ..._8004a648.c) are placeholders, never used. MusyX files of the references (musyx/...) are not
+  read (step 68: this game does not link MusyX, and its reverb / chorus names are the SDK AXFX files' too); TTYD's
+  sdk/ folder is (its texPalette.c), and a library of one file named as it maps to dolphin/<name>/<name>.c.
   The object's path is Melee's path for a file of the same name (lower-case match), else the first reference's file
   name in Melee's folder layout (dolphin/<lib>/, MSL/, Runtime/, MetroTRK/, sysdolphin/baselib/).
 
@@ -792,6 +803,10 @@ def verdict(defs, name, fam):
 def settle(path, key, lst, funcs, defs, rejected, notes):
     """candidates of one object -> the ones to use, or None (rejected). Agreeing ranges are kept as they are; when the
     references disagree (SDK / MSL / TRK revisions, or a decomp's guess), each section is settled
+      0. (step 68) by the function itself: every function in some candidate range but not all is placed by the
+         references at our size in exactly one file, and some reference has the name at another size elsewhere (a name
+         two revisions give to different functions: MetroTRK mslsupp.c's 0x84 __close_console in Pikmin 2 vs MSL's
+         8-byte one): the one range that holds exactly those placed in this object wins;
       1. by source: our named functions inside some candidate range but not all are looked up in the pinned library
          sources (which file defines each); the one range whose membership matches the defining file for every such
          function (in the range iff defined in this file) wins;

@@ -125,6 +125,41 @@ roots replace the library's `-i` and `-ir`). Functions in reverse source order i
 byte match names (not split yet) is named as a `c-define` line of the object it will be in; the object is then split
 from the references and the linked C confirms the name (plan.md step 65).
 
+Step 68 (Oct 30, 2026): MetroTRK 29 of 29, the SDK 97 of 98 (all split objects but reverb_std.c), MSL 48 of 49
+(exponentialsf.c left), HSD 18 of 30 objects from C.
+- **MetroTRK v2.6** comes from Twilight Princess (`tools/refs/tp`, zeldaret/tp; tools/setup.ps1 / setup.sh check out its
+  `libs/TRK_MINNOW_DOLPHIN`, `libs/PowerPC_EABI_Support`, `libs/dolphin` and `include`) and Pikmin 2 (`tools/refs/pikmin2`,
+  `src/Dolphin`, `include`). A TP file is imported with `--inc include=include/tp
+  --inc libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Include=include/tp/msl_common
+  --inc libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common_Embedded/Math/Include=include/tp/msl_math
+  --inc libs/PowerPC_EABI_Support/MetroTRK=include/tp/metrotrk --inc libs/dolphin/include=include/tp/dolphin
+  --inc libs/dolphin/include/dolphin=include/tp/dolphin/dolphin` and gets `TP_INC` in `CR_OBJECT_INCLUDES`; a Pikmin 2
+  file `--inc include=include/pikmin2` and `PIKMIN2_INC` (targimpl.c, mslsupp.c, MWCriticalSection_gc.cpp). TP's
+  per-file `-sdata 8` (serpoll.c, ddh / gdev main.c) goes into `CR_OBJECT_CFLAGS`.
+- **An assembler source** (TP's targsupp.s) is linked through dtk-template's `source`: configure.py `CR_OBJECT_SOURCE`
+  maps the split's name (`MetroTRK/targsupp.c`) to the file in decomp/src (`MetroTRK/targsupp.s`, imported unchanged);
+  shift_test.py compares its FILE symbol (`targsupp.o (asm)`) by stem.
+- **One function, two names**: a name two revisions give to different functions is settled by the references that have
+  it at our size (gen_dtk_splits.py rule 0 of the settlement): main.dol's `__close_console` (0x84) is Pikmin 2's
+  mslsupp.c function, so mslsupp.c is Pikmin 2's file and BfBB's uart_console_io_gcn.c leaves its own 8-byte
+  `__close_console` out (`#if 0`).
+- **Statics of the same name in several files** (two `HandleReverb`, `OnReset`, `WriteCallback`): give each a line with
+  `scope:local`; gen_dtk_symbols.py then allows the duplicate and writes the symbols local, and gen_dtk_splits.py lets an
+  object's range grow over such a neighbour when the reference has it at our size.
+- **Writing a function from main.dol** where no reference has this revision's C (HSD: compare with doldecomp/kar's asm,
+  tools/compiler_probe/hsd_hunt.py says which are equal): start from the closest C (wowjinxy/KAR, Melee), keep Melee's
+  names, `#define` a function no source names to its `fn_` address, and diff instruction by instruction (objdump of the
+  .o against main.elf, relocation operands masked). What made the differences go away in step 68: file statics, not
+  globals, when main.dol addresses several of them from one base register (state.c's channel templates); a switch
+  where main.dol compares a range with `cmpwi 6` then `cmpwi 4` (tev.c HSD_DisableChannelLighting); values read once
+  into locals when main.dol keeps them in the argument registers; an inline in a call's argument list when main.dol
+  evaluates another argument first (MWCC evaluates arguments right to left: tev.c HSD_SetTevRegAll); `(data->align - 1)`
+  written out instead of a mask local (objalloc.c, register allocation); `#pragma dont_inline on` where main.dol calls a
+  function the file defines above (HSD_ObjAlloc). Data: the C's .sbss is laid out in reverse order of definition, so
+  define the statics in the reverse of main.dol's order (state.c, tev.c); a function main.dol does not have is put in
+  `#if 0` (its jump table or its statics would stay in the object's data: tev.c HSD_TevStage2Index, state.c
+  HSD_StateSetLineWidth / PointSize); a table main.dol initialises differently gets main.dol's values (tev.c prev_ch).
+
 How to add a C file (one object of `decomp/config/GXCE01/splits.txt`):
 Python tools are named by script only; run them with `python -I` (Windows) or `python3 -I` (Linux / macOS).
 
