@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u16 lbl_803BF914[434];
 
-s32 fn_800BA770(void) {
+s8 fn_800BA770(void) {
     if (!(*lbl_803BF914 & 8)) {
         *lbl_803BF914 |= 1;
         *lbl_803BF914 |= 8;

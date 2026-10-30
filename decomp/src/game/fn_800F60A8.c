@@ -4,7 +4,8 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-u8 fn_80099538(M2C_UNK);                            /* extern */
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+u8 fn_80099538(s32 arg0);
 
 s32 fn_800F60A8(void) {
     s32 var_r31_10;

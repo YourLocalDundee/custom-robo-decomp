@@ -5,5 +5,5 @@
 #include "game/cr_game.h"
 
 s32 fn_80020A40(void *arg0) {
-    return (s8) M2C_FIELD(arg0, u8 *, 1) == 3;
+    return M2C_FIELD(arg0, s8 *, 1) == 3;
 }

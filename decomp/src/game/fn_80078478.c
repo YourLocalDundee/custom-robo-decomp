@@ -9,6 +9,7 @@ typedef struct cr_FileSlot cr_FileSlot;
 extern cr_FileSlot *lbl_8044F600;
 cr_FileSlot *cr_Archive_OpenEntry(s32 archive, u16 entry);
 void cr_FileSlot_QueueRead(cr_FileSlot *slot, void *buffer);
+
 extern u8 *lbl_8044F2C0;
 
 void fn_80078478(void) {

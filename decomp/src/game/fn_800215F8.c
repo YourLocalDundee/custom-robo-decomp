@@ -10,7 +10,7 @@ BOOL DVDClose(DVDFileInfo *fileInfo);
 struct DVDFileInfo;
 
 void fn_800215F8(u8 *arg0) {
-    if (((s8) M2C_FIELD(arg0, u8 *, 0) != -1) && ((s8) M2C_FIELD(arg0, u8 *, 0) != 0)) {
+    if ((M2C_FIELD(arg0, s8 *, 0) != -1) && (M2C_FIELD(arg0, s8 *, 0) != 0)) {
         DVDClose((struct DVDFileInfo *) (arg0 + 0x3C));
         M2C_FIELD(arg0, u8 *, 0) = 0U;
         M2C_FIELD(arg0, s8 *, 2) = 0;

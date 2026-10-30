@@ -14,16 +14,17 @@ extern f32 lbl_80451304;
 extern f32 lbl_80451280;
 void fn_800B1544(void);
 s32 fn_800231B4(s32 arg0, u32 arg1);
-extern u8 *lbl_8044F794;
+
+extern s32 lbl_8044F794;
 
 void fn_800A4C38(void) {
-    if ((s8) M2C_FIELD(lbl_803BE358, u8 *, 0x467) != 0) {
+    if (M2C_FIELD(lbl_803BE358, s8 *, 0x467) != 0) {
         M2C_FIELD(lbl_8044F748, f32 *, 0xC) = (f32) (lbl_804512BC + fn_8006207C(M2C_FIELD(lbl_8044F748, f32 *, 8), lbl_80451388, M2C_FIELD(lbl_8044F748, f32 *, 0x10), lbl_80451304));
     } else {
         M2C_FIELD(lbl_8044F748, f32 *, 0xC) = (f32) lbl_80451280;
     }
     fn_800B1544();
-    if (fn_800231B4((s32) (lbl_8044F794 + 0xB4), M2C_FIELD(lbl_8044F748, u16 *, 0x14E) - 0x36) != 0U) {
+    if (fn_800231B4(lbl_8044F794 + 0xB4, M2C_FIELD(lbl_8044F748, u16 *, 0x14E) - 0x36) != 0U) {
         M2C_FIELD(lbl_8044F748, u8 *, 0x156) &= 0xFFFFFFFB;
         return;
     }
