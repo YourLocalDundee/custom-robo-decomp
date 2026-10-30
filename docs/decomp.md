@@ -152,6 +152,9 @@ Python tools are named by script only; run them with `python -I` (Windows) or `p
    the C's last byte is cut there in config symbols.txt (`trim_symbols`; a split may not end inside a symbol). The
    zeros after a C piece placed earlier (in path order) also count as that piece's when the next C file asks whether
    one of its stripped globals could be in front of its piece.
+   Second pass: the relocation users' data pieces are computed again bounded by the C pieces (a symbol next to a
+   candidate range that lies in another object's C piece is that object's, whoever uses it), then the C pieces again
+   (video.c's .data after initialize.c's).
 4. In `CR_MATCHING`: `tools/make_configure_patch.py`, then batch 9. `tools/gen_c_symbols.py` gives the object
    the C's own symbols (objdiff pairs data by name), `tools/check_c_objects.py` must report 100% code + data, main.dol
    must stay retail. Then the full run, and `pwsh tools\checksums.ps1 -Write` / `tools/checksums.sh --write` for the
@@ -258,6 +261,8 @@ links a group it cannot prove, so such a run simply waits until all its function
   the include (lobj.c); `x == NULL ? 0 : y` puts the NULL case first where `if (!x) return 0;` does not (fobj's
   GetState); a store through the address (`*(u32*) &g = v`) makes the compiler reload g later (initialize's
   HSD_OSInit).
+  initialize.c then linked: its .sdata words defined in the C under their dtk names with main.dol's values, kar's
+  KAR-address names `#define`d to ours, the functions moved into main.dol's order.
 - From C after iteration 3 (plan.md step 61): util.c, object.c, spline.c (Melee), list.c, id.c, class.c, dobj.c,
   wobj.c, mobj.c (kar), 100% code and data, main.dol retail: 9 of 29 HSD objects, 10.44% of their code. What it took:
   the callees by rule R7 (`// c-callsite` lines: HSD_MObjAddAnim, HSD_AObjInterpretAnim, HSD_RObjRemoveAll,
