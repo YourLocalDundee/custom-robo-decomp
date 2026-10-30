@@ -8,11 +8,11 @@ MSL                               49     46   0x008EE8/0x00939C  96.81%   0x0014
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     12   0x000AD8/0x006220  11.05%   0x000030/0x0034F8   0.35%     32/  162
 sysdolphin                        30     13   0x0081F4/0x026600  21.17%   0x0010AE/0x00247E  45.71%    157/  472
-game                             406    406   0x00AB10/0x00AB10 100.00%   0x000008/0x000008 100.00%    406/  406
-automatic objects (unsplit)      292      0   0x000000/0x1468CC   0.00%   0x000000/0x27E830   0.00%      0/ 1699
-main.dol (all units)             893    564   0x048B58/0x1B342C  16.70%   0x019364/0x29C434   3.77%   1384/ 3533
+game                             407    407   0x00ABF4/0x00ABF4 100.00%   0x000008/0x000008 100.00%    407/  407
+automatic objects (unsplit)      292      0   0x000000/0x1467E8   0.00%   0x000000/0x27E830   0.00%      0/ 1698
+main.dol (all units)             894    565   0x048C3C/0x1B342C  16.72%   0x019364/0x29C434   3.77%   1385/ 3533
 
-game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 406 objects from C (one function each, tools/promote_drafts.py), 0xAB10 bytes = 3.56% of the game code, 2.46% of all code
+game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 407 objects from C (one function each, tools/promote_drafts.py), 0xABF4 bytes = 3.58% of the game code, 2.47% of all code
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
 MSL/FILE_POS.c                                code 0x0/0x3C0  data 0x0/0x0  functions 0/3  not linked: code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision; BfBB has no FILE_POS.c and no reference reproduces _fseek (86%) or ftell (46%) (step 66)
@@ -182,6 +182,7 @@ game/cr_CAMMODE_PEAK_Frame.c                  code 0xCC/0xCC  data 0x0/0x0  func
 game/cr_CAMMODE_SNR_AUTO_MOVE_Frame.c         code 0x1C/0x1C  data 0x0/0x0  functions 1/1  linked from C
 game/cr_C_ACT_JP.c                            code 0x30/0x30  data 0x0/0x0  functions 1/1  linked from C
 game/cr_C_ACT_MOT.c                           code 0x1B4/0x1B4  data 0x0/0x0  functions 1/1  linked from C
+game/cr_C_ACT_TURN_POINT.c                    code 0xE4/0xE4  data 0x0/0x0  functions 1/1  linked from C
 game/cr_C_ACT_WAIT.c                          code 0x44/0x44  data 0x0/0x0  functions 1/1  linked from C
 game/cr_Cam_SetMode.c                         code 0x18/0x18  data 0x0/0x0  functions 1/1  linked from C
 game/cr_Chara_SetCurrentPointers.c            code 0x94/0x94  data 0x0/0x0  functions 1/1  linked from C

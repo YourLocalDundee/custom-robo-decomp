@@ -924,6 +924,9 @@ game/cr_C_ACT_WAIT.c:
 game/cr_C_ACT_MOT.c:
 	.text       start:0x800BE094 end:0x800BE248
 
+game/cr_C_ACT_TURN_POINT.c:
+	.text       start:0x800BE248 end:0x800BE32C
+
 game/fn_800D9A0C.c:
 	.text       start:0x800D9A0C end:0x800D9C88
 

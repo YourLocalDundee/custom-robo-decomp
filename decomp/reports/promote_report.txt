@@ -2,9 +2,9 @@ m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its doc
 one object per function, or one per file of consecutive functions that share their constant pool (file objects); batch 9 links them and checks the SHA-1
 
 drafts at 100% MATCH: 439
-promoted: 404 (43368 bytes = 0xA968)
+promoted: 405 (43596 bytes = 0xAA4C)
 file objects: 1 (1 functions, 344 bytes = 0x158)
-left out: 34
+left out: 33
 kept from earlier runs (draft no longer 100%): 1
 removed (function name no longer ours): 0
 
@@ -311,6 +311,7 @@ removed (function name no longer ours): 0
 800BDB24  cr_C_ACT_JP                                     48
 800BE050  cr_C_ACT_WAIT                                   68
 800BE094  cr_C_ACT_MOT                                   436
+800BE248  cr_C_ACT_TURN_POINT                            228
 800D9A0C  fn_800D9A0C                                    636
 800DEFBC  fn_800DEFBC                                      4
 800DEFC0  fn_800DEFC0                                      4
@@ -499,7 +500,6 @@ fn_8012481C: the users of the entries its draft owns span fn_8012093C..fn_80124F
 800A5638  fn_800A5638                                    404  has data of its own (.sdata2 0x8): needs the data piece split too
 800AA130  fn_800AA130                                     76  has data of its own (.data 0xD4): needs the data piece split too
 800B7B18  fn_800B7B18                                    628  has data of its own (.sdata2 0x14): needs the data piece split too
-800BE248  cr_C_ACT_TURN_POINT                            228  the promoted file does not compile: illegal use of incomplete struct/union/class '*'
 800BE32C  cr_C_ACT_TURN                                  352  has data of its own (.sdata2 0x8): needs the data piece split too
 800BE48C  cr_C_ACT_MOVE_LENG                             384  has data of its own (.sdata2 0x8): needs the data piece split too
 800BE60C  cr_C_ACT_MOVE                                  336  has data of its own (.sdata2 0x8): needs the data piece split too
