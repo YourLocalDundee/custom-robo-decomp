@@ -1650,9 +1650,14 @@ sysdolphin/baselib/wobj.c:
 
 sysdolphin/baselib/fog.c:
 	.text       start:0x801A33E4 end:0x801A3C9C
-	.data       start:0x8024CEA8 end:0x8024CFC0
+	.data       start:0x8024CEA8 end:0x8024CFBF
 	.sdata      start:0x8044F1B8 end:0x8044F1D4
 	.sdata2     start:0x80452940 end:0x80452964
+
+sysdolphin/baselib/perf.c:
+	.text       start:0x801A3C9C end:0x801A3CF8
+	.data       start:0x8024CFC0 end:0x8024D050
+	.sdata      start:0x8044F1D8 end:0x8044F1E7
 
 sysdolphin/baselib/list.c:
 	.text       start:0x801A3CF8 end:0x801A3FA8

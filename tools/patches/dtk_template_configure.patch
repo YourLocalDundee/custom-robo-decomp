@@ -279,6 +279,8 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/mobj.c",
 +    "sysdolphin/baselib/spline.c",
 +    "sysdolphin/baselib/tobj.c",
++    "sysdolphin/baselib/fog.c",
++    "sysdolphin/baselib/perf.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -317,8 +319,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 9 of 11 functions equal in objdiff (doldecomp/kar's fobj.c for its functions; FObjLoadData, HSD_FObjInterpretAnim / InterpretAnimAll, HSD_FObjLoadDesc, HSD_FObjAlloc, HSD_FObjFree ported from wowjinxy/KAR's fobj.c, provenance per function, assert lines of this revision): FObjLoadData 97.3% (the inlined HSD_FObjGetState: main.dol puts the NULL case first, `li r30, 0; b` after the bne; ternary / if-else forms tried) and HSD_FObjInterpretAnim 97.3% (frame 0x60 here vs 0x80: kar's FObjData is a struct of 0x14, wowjinxy's HSD_ObjData a union of 0xC, plus the same GetState order)",
 +    "sysdolphin/baselib/aobj.c":
 +        "code: 13 of 15 functions equal in objdiff (doldecomp/kar's aobj.c for its 10 functions, the 9 it lacks ported from wowjinxy/KAR's aobj.c, provenance per function; HSD_AObjSetRate named by its bytes): fn_8018CCDC (0x50) and fn_8018CD2C (0x80), between HSD_AObjInvokeCallBacks and HSD_AObjReqAnim, have no function of their size in Melee's or KAR's file (HSD_AObjSetFObj 0x4C, HSD_AObjStopAnim 0x44 there); the C also has functions this revision inlines (HSD_AObjGetAllocData, Get/Set/ClearFlags, SetFObj, StopAnim)",
-+    "sysdolphin/baselib/fog.c":
-+        "code: 11 of 11 functions equal in objdiff, .sdata 100% (the 11 functions of wowjinxy/KAR's fog.c with the structs of include/cr_kar/fog.h, main.dol's assert lines; kar's two KAR-only functions removed; step 61 iteration 7): data: the split's .data piece is 0x118, the C's .data 0x117: the zero byte after \"hsd_fogadj\" (to the next object's alignment) is in the piece (dtk's lbl_8024CF9C runs on over the padding), so objdiff reports .data 279/280; likewise .sdata2 (0x28 piece, the C's pool 0x24: 4 zero bytes after 255.0F): 36/40; the bytes before are equal",
 +    "MSL/FILE_POS.c":
 +        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision",
 +    "MSL/abort_exit.c":

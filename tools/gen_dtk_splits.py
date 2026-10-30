@@ -1342,8 +1342,11 @@ def c_data(elf, ours, objs, data, rejected):
         maybe = {si for si, (n, v, sz, t, b, shn) in enumerate(syms) if shn in dsyms and b == 1 and sz} - live
 
         def owner(a):
-            """the other object whose proven piece holds address a (None: unproven)"""
-            return next((p for p, s in data.items() if p != path and any(x <= a < y for x, y in s.values())), None)
+            """the other object whose proven piece holds address a (None: unproven); also another C file's piece placed
+            before this one (in path order), with the zeros after its last byte up to the next 8-byte boundary (its
+            alignment padding: no symbol of a third object can be there)"""
+            return next((p for p, s in data.items() if p != path and any(x <= a < y for x, y in s.values())), None) or \
+                next((p for p, s in out.items() if p != path and any(x <= a < (y + 7) & ~7 for x, y in s.values())), None)
 
         def expect(si, add):
             """the retail address a data relocation (symbol si + add) of this file must point at, None = unknown"""
