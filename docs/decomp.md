@@ -196,6 +196,12 @@ Python tools are named by script only; run them with `python -I` (Windows) or `p
   older form (each file's CR_NOT_MATCHING reason lists them). Port per function into our copy with a
   `/* wowjinxy/KAR x.c NAME */` comment and the commit in a block comment (aobj.c is the example), using our copy's global
   names; it is not matching everywhere (texpdag.c, bytecode.c, video.c's callbacks are 88-99%).
+- Porting wowjinxy into a kar copy (step 61 iteration 6, lobj.c / fobj.c): kar's headers stay; what differs is bridged
+  in the port's block comment or an override in include/cr_kar: object.h's HSD_OBJ_NOREF is 0xFFFF in wowjinxy, -1 in kar
+  (never equal to the u16 ref_count, so ref_DEC must use wowjinxy's), MAX_GXLIGHT 9 (kar gxtypes.h: 10), wowjinxy's
+  static inline helpers that kar's headers declare as globals with other types are renamed `wj_*` in the port, the light
+  desc structs are wowjinxy's (include/cr_kar/lobj.h), and a function main.dol has no copy of (HSD_LObjDeleteCurrent,
+  HSD_LObjGetPositionWObj ...) is made static inline. Assert lines are wowjinxy's minus a constant per file (fobj.c 0xF).
 - From C after iteration 3 (plan.md step 61): util.c, object.c, spline.c (Melee), list.c, id.c, class.c, dobj.c,
   wobj.c, mobj.c (kar), 100% code and data, main.dol retail: 9 of 29 HSD objects, 10.44% of their code. What it took:
   the callees by rule R7 (`// c-callsite` lines: HSD_MObjAddAnim, HSD_AObjInterpretAnim, HSD_RObjRemoveAll,

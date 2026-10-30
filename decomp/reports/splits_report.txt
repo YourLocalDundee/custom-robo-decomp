@@ -3310,11 +3310,11 @@ data from C sysdolphin/baselib/aobj.c: 2 of 15 functions of the object are not v
 data from C sysdolphin/baselib/bytecode.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/cobj.c: 13 of 48 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/displayfunc.c: 5 of 16 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/fobj.c: 6 of 11 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/fobj.c: 2 of 11 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/fog.c: 11 of 11 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/initialize.c: 17 of 18 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/jobj.c: 23 of 48 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/lobj.c: 18 of 27 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/lobj.c: 4 of 27 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/mtx.c: 10 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/state.c: 1 of 18 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/tev.c: 3 of 22 functions of the object are not verified C functions (another revision): its data is not proven
