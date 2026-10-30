@@ -1,19 +1,20 @@
 """Draft and check the game code: m2c C draft -> compile with the game compiler -> compare with the original.
 
-For every function of the game object (decomp/config/GXCE01/splits.txt: the automatic object that starts at
-0x800055E0, ~1,751 functions; everything not in a library object):
-  1. its asm comes from dtk's split (decomp/build/GXCE01/asm/auto_01_800055E0_text.s, read only; copied once);
+For every function of the game code (0x800055E0 up to the first library object of decomp/config/GXCE01/splits.txt,
+~1,751 functions; dtk's automatic objects there and the game objects linked from C, decomp/src/game):
+  1. its asm comes from dtk's split (the asm of every object of decomp/build/GXCE01/config.json in that range, read
+     only; dtk writes asm for the objects linked from C too);
   2. m2c (tools/m2c, pinned in tools/pins.txt) writes a C draft, with our names (they are already in the asm) and
      our types as context: the HSD headers + symbols/cr_types.h, preprocessed once with the game compiler's own -E;
   3. the draft is compiled with the game-code compiler and flags (docs/compiler.md; the flags are read from
      decomp/configure.py CR_LIBS["game"] and cflags_cr, so they cannot drift);
   4. the compiled function is compared with the original function in dtk's split object (decomp/build/GXCE01/obj/
-     auto_01_800055E0_text.o) word by word. Fields a relocation fills in (call targets, @ha / @l halves, small-data
+     <object>.o, the object that holds it) word by word. Fields a relocation fills in (call targets, @ha / @l halves, small-data
      offsets) are masked on both sides, the rest must be equal. match % = equal words / max(words of both).
      (This is the same comparison docs/compiler.md "Method" uses; objdiff-cli is not needed.)
 Everything goes into decomp/drafts/ (gitignored: decompiled output must never be committed):
   c/<name>.c  the drafts      asm/<name>.s  the input   obj/  compiled objects   log/  m2c / compiler messages of failures
-  draft_report.txt  one line per function + totals     ctx_pp.c  the m2c context
+  draft_report.txt  one line per function + totals     ctx_pp.c  the m2c context     orig/  copies of the original objects
 Also writes decomp/reports/draft_summary.txt (counts only, no code; committed).
 Deterministic: functions in address order, m2c --deterministic-vars, no times or paths in the reports.
 Reads decomp/build as input only and never runs ninja. Usage:
@@ -24,8 +25,7 @@ import argparse, collections, concurrent.futures as cf, os, re, shutil, struct, 
 G = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = os.path.join(G, 'decomp')
 GAME_START = 0x800055E0
-ASM = os.path.join(D, 'build/GXCE01/asm/auto_01_800055E0_text.s')
-OBJ = os.path.join(D, 'build/GXCE01/obj/auto_01_800055E0_text.o')
+B = os.path.join(D, 'build/GXCE01')
 MWCC = None
 M2C = os.path.join(G, 'tools/m2c')
 MELEE = '../tools/melee'
@@ -37,6 +37,66 @@ CTX_INC = [MELEE + '/src', MELEE + '/src/sysdolphin/baselib', MELEE + '/src/MSL'
 FN = re.compile(r'^\.fn (\S+), \w+')
 ENDFN = re.compile(r'^\.endfn (\S+)')
 HDR = re.compile(r'^# \.text:0x[0-9A-Fa-f]+ \| 0x([0-9A-F]{8}) \| size: 0x([0-9A-F]+)')
+
+
+def game_end():
+    """the end of the game code: the first .text of a library object (not game/) of splits.txt after GAME_START"""
+    end, path = None, None
+    for l in open(os.path.join(D, 'config/GXCE01/splits.txt'), encoding='utf-8'):
+        if l.strip() and not l[0].isspace():
+            path = l.split(':')[0].strip()
+        m = re.match(r'^\s+\.text\s+start:0x([0-9A-Fa-f]+)', l)
+        if m and path and not path.startswith('game/') and not path.startswith('Sections'):
+            a = int(m.group(1), 16)
+            if a >= GAME_START and (end is None or a < end):
+                end = a
+    return end
+
+
+def unit_files():
+    """[(asm path, object path)] of every object dtk split (decomp/build/GXCE01/config.json), in its order"""
+    import json
+    out = []
+    for u in json.load(open(os.path.join(B, 'config.json')))['units']:
+        o = os.path.join(D, u['object'])
+        a = os.path.join(B, 'asm', os.path.relpath(o, os.path.join(B, 'obj')))[:-2] + '.s'
+        if os.path.exists(a):
+            out.append((a, o))
+    return out
+
+
+def game_functions():
+    """[(name, address, size, asm lines, original object)] of every game function, in address order, and the jump
+    tables {name: lines} of the whole split (from dtk's asm of every object)"""
+    end = game_end()
+    funcs, jt = [], {}
+    for asm, obj in unit_files():
+        cur, buf, addr, size, blk = None, [], 0, 0, None
+        for l in open(asm, encoding='utf-8', errors='replace').read().split(chr(10)):
+            m = HDR.match(l)
+            if m:
+                addr, size = int(m.group(1), 16), int(m.group(2), 16)
+            m = FN.match(l)
+            if m:
+                cur, buf = m.group(1), [l]
+                continue
+            if cur:
+                buf.append(l)
+                if ENDFN.match(l):
+                    if GAME_START <= addr < end:
+                        funcs.append((cur, addr, size, buf, obj))
+                    cur = None
+                continue
+            m = re.match(r'^\.obj (jumptable_[0-9A-F]{8}),', l)
+            if m:
+                blk = [m.group(1), []]
+            elif blk and l.startswith('.endobj'):
+                jt[blk[0]] = blk[1]
+                blk = None
+            elif blk:
+                blk[1].append(l)
+    funcs.sort(key=lambda f: f[1])
+    return funcs, jt
 
 
 def game_flags():
@@ -143,7 +203,13 @@ W = {}   # per-process state
 
 
 def init(out, ver, flags):
-    W.update(out=out, ver=ver, flags=flags, orig=Elf(open(os.path.join(out, 'orig.o'), 'rb').read()))
+    W.update(out=out, ver=ver, flags=flags, orig={})
+
+
+def orig_elf(path):
+    if path not in W['orig']:
+        W['orig'][path] = Elf(open(path, 'rb').read())
+    return W['orig'][path]
 
 
 def run(cmd, timeout, cwd=None, env=None):
@@ -174,7 +240,7 @@ def compile_error(text):
 
 
 def one(job):
-    name, addr, size = job
+    name, addr, size, orig_obj = job
     out = W['out']
     a = os.path.join(out, 'asm', name + '.s')
     c = os.path.join(out, 'c', name + '.c')
@@ -202,7 +268,7 @@ def one(job):
         mine = None
     if mine is None:
         return name, 'compile failed', 'no function symbol in the object'
-    orig = W['orig'].func(name)
+    orig = orig_elf(orig_obj).func(name)
     if orig is None:
         return name, 'compile failed', 'function not in the original object'
     p = compare(orig, mine)
@@ -225,39 +291,17 @@ def main():
         os.makedirs(os.path.join(out, s))
     ver, flags = game_flags()
     # inputs, copied once: the other builds may rewrite decomp/build while this runs
-    shutil.copyfile(OBJ, os.path.join(out, 'orig.o'))
-    text = open(ASM, encoding='utf-8', errors='replace').read().split('\n')
-    # game range: from GAME_START to the next library object's .text in splits.txt (the file is exactly that object)
-    funcs, cur, buf, addr, size = [], None, [], 0, 0
-    for l in text:
-        m = HDR.match(l)
-        if m:
-            addr, size = int(m.group(1), 16), int(m.group(2), 16)
-        m = FN.match(l)
-        if m:
-            cur, buf = m.group(1), [l]
-            continue
-        if cur:
-            buf.append(l)
-            if ENDFN.match(l):
-                funcs.append((cur, addr, size, buf))
-                cur = None
-    assert funcs and funcs[0][1] == GAME_START, 'game object asm not as expected'
-    # jump tables (dtk: .obj jumptable_X ... .4byte fn+0xOFF): m2c needs them next to the function, with .L_ labels
-    jt, asmdir = {}, os.path.dirname(ASM)
-    for fn in sorted(os.listdir(asmdir)):
-        if fn.startswith(('auto_04_', 'auto_05_')) and fn.endswith('.s'):
-            blk = None
-            for l in open(os.path.join(asmdir, fn), encoding='utf-8', errors='replace').read().split(chr(10)):
-                m = re.match(r'^\.obj (jumptable_[0-9A-F]{8}),', l)
-                if m:
-                    blk = [m.group(1), []]
-                elif blk and l.startswith('.endobj'):
-                    jt[blk[0]] = blk[1]
-                    blk = None
-                elif blk:
-                    blk[1].append(l)
-    starts = {n: ad for n, ad, _, _ in funcs}
+    funcs, jt = game_functions()
+    assert funcs and funcs[0][1] == GAME_START, 'game code asm not as expected (run batch 9 first)'
+    shutil.rmtree(os.path.join(out, 'orig'), ignore_errors=True)
+    os.makedirs(os.path.join(out, 'orig'))
+    copies = {}
+    for f in funcs:
+        if f[4] not in copies:
+            copies[f[4]] = os.path.join(out, 'orig', '%03d.o' % len(copies))
+            shutil.copyfile(f[4], copies[f[4]])
+    funcs = [(n, ad, sz, b, copies[o]) for n, ad, sz, b, o in funcs]
+    starts = {n: ad for n, ad, _, _, _ in funcs}
 
     def jtext(name):
         out = []
@@ -267,7 +311,7 @@ def main():
                 l = '	.4byte .L_%08X' % (starts[m.group(1)] + int(m.group(2), 16))
             out.append(l)
         return ['.obj %s, local' % name] + out + ['.endobj %s' % name]
-    for name, ad, sz, b in funcs:
+    for name, ad, sz, b, _ in funcs:
         for t in sorted(set(re.findall(r'jumptable_[0-9A-F]{8}', chr(10).join(b)))):
             if t in jt:
                 tx = jtext(t)
@@ -281,7 +325,7 @@ def main():
                     nb.append(l)
                 b = nb + [''] + tx
         open(os.path.join(out, 'asm', name + '.s'), 'w', encoding='utf-8', newline='\n').write('\n'.join(b) + '\n')
-    jobs = [(n, ad, sz) for n, ad, sz, _ in funcs]
+    jobs = [(n, ad, sz, o) for n, ad, sz, _, o in funcs]
     if a.only:
         jobs = [j for j in jobs if j[0] in a.only]
     elif a.sample:
@@ -315,7 +359,7 @@ def main():
     hist = collections.Counter()
     errs = collections.Counter()
     lines = []
-    for name, ad, sz in jobs:
+    for name, ad, sz, _ in jobs:
         status, note = res[name]
         if status == 'm2c failed':
             cnt['m2c failed'] += 1

@@ -2,7 +2,7 @@ shift test (tools/shift_test.py, method: its docstring): padding inserted into a
 build, relinked, and checked against the unshifted build.
 padding per point: 0x100 bytes; points: 30
    1. 0x800055E0 .text    start of .text -> everything from here moves by +0x100
-   2. 0x8009D620 .text    inside the game code (auto_01_800055E0_text), the first function after its middle -> everything from here moves by +0x200
+   2. 0x8009D620 .text    inside the game code (auto_01_80098F8C_text), the first function after its middle -> everything from here moves by +0x200
    3. 0x80131C08 .text    between library objects: the start of dolphin/base/PPCArch.c -> everything from here moves by +0x300
    4. 0x801B6620 .rodata  start of .rodata -> everything from here moves by +0x400
    5. 0x801C09F8 .rodata  inside .rodata: the start of the glue span 0x801C09F8.. (a file's statics base) -> everything from here moves by +0x500
@@ -31,7 +31,7 @@ padding per point: 0x100 bytes; points: 30
   28. 0x80451CA8 .sdata2  inside .sdata2: the data piece of dolphin/os/OSFont.c (a proven object boundary) -> everything from here moves by +0x1C00
   29. 0x804520A0 .sdata2  inside .sdata2: the data piece of MSL/e_log.c (a proven object boundary) -> everything from here moves by +0x1D00
   30. 0x804529E8 .sdata2  inside .sdata2: the data piece of sysdolphin/baselib/texp.c (a proven object boundary) -> everything from here moves by +0x1E00
-objects linked from C (batch 9, configure.py CR_MATCHING): 86 in both links, 85 of them moved by the padding; 6 holding a point, reassembled from asm
+objects linked from C (batch 9, configure.py CR_MATCHING): 237 in both links, 236 of them moved by the padding; 7 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
 shifted main.dol: SHA-1 2a340bd61d48819a065cad06368215d0a9f8401f (2430848 bytes, retail 2425472)
 sections, unshifted -> shifted:

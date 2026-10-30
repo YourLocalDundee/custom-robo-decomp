@@ -97,10 +97,19 @@ DATA FROM THE MATCHED C (Phase 4 Milestone 4, step 56): a C file that matches it
   call otherwise (an object linked from C needs every name another object uses), and every C definition ("DEF"
   lines: rule R8, the // c-define lines of symbols/symbols.txt are checked against them by check_c_callsites.py).
 
-GAME code: no reference exists. tools/match_game_names.py's G3 module notes (assert .c names) say which file a
-  function is in, but not where a file starts or ends; a game object is split only where both ends are proven: its
-  first and last function have a G3 note for it, and the functions right outside have G3 notes for OTHER files.
-  (On the current data this proves none; the game code stays one dtk automatic object, listed in the report.)
+GAME code: no reference exists. Two ways a game object is split:
+  1. FROM ITS C FILE (plan.md step 58): every file decomp/src/game/<path>.c is an object game/<path>.c. Its range is
+     taken from the functions it defines (a definition = a line at column 0 that ends in "{" and names the
+     function before its "("): each must be one function of ours (decomp/config/GXCE01/symbols.txt) in the game code
+     (before the first library object), they must be consecutive functions of ours, and the range is [first's
+     address, the start of the next function / symbol after the last) - the padding after it belongs to it. Today
+     these are tools/promote_drafts.py's one-function files (a matching m2c draft each, no data of their own); a
+     file that does not resolve stops the run. Configure.py links every game object from C (cr_matching).
+  2. by tools/match_game_names.py's G3 module notes (assert .c names), which say which file a function is in, but
+     not where a file starts or ends: only where both ends are proven: its first and last function have a G3 note
+     for it, and the functions right outside have G3 notes for OTHER files (on the current data this proves none);
+     a G3 object that overlaps a C file's object is dropped.
+  Everything else of the game code stays in dtk automatic objects (listed in the report).
 
 Output is byte-identical on every run (LF, as dtk writes it; the batch checks dtk leaves it unchanged).
 Report: decomp/reports/splits_report.txt (every object with its proof, every rejected candidate, unproven ranges).
@@ -1556,6 +1565,40 @@ def read_g3():
     return g3
 
 
+GAME_SRC = G / "decomp/src/game"
+CDEF = re.compile(r"^[A-Za-z_][^;(]*?\b(\w+)\s*\([^;]*\)\s*\{\s*$")
+
+
+def game_c_objects(funcs, game_end):
+    """game objects from the files in decomp/src/game (method 1 of the docstring): [(path, {".text": (a, b)})]"""
+    out = []
+    if not GAME_SRC.exists():
+        return out
+    idx = defaultdict(list)
+    for i, f in enumerate(funcs):
+        idx[f[0]].append(i)
+    for p in sorted(GAME_SRC.rglob("*.c")):
+        rel = "game/" + p.relative_to(GAME_SRC).as_posix()
+        names = [m.group(1) for m in map(CDEF.match, p.read_text(encoding="utf-8").splitlines()) if m]
+        if not names:
+            raise SystemExit(f"decomp/src/{rel}: no function definition found")
+        ii = []
+        for n in names:
+            if len(idx.get(n, [])) != 1:
+                raise SystemExit(f"decomp/src/{rel} defines {n}, which is not exactly one function of ours "
+                                 "(renamed? rerun tools/promote_drafts.py)")
+            ii.append(idx[n][0])
+        ii.sort()
+        if ii != list(range(ii[0], ii[-1] + 1)) or funcs[ii[0]][1] != ".text":
+            raise SystemExit(f"decomp/src/{rel}: its functions are not consecutive functions of ours in .text")
+        a = funcs[ii[0]][2]
+        b = funcs[ii[-1] + 1][2] if ii[-1] + 1 < len(funcs) else None
+        if b is None or b > game_end or a < 0x80005000:
+            raise SystemExit(f"decomp/src/{rel}: not inside the game code")
+        out.append((rel, {".text": (a, b)}))
+    return out
+
+
 def game_splits(funcs, chosen, rejected):
     g3 = read_g3()
     idx_of = {s[2]: i for i, s in enumerate(funcs)}
@@ -1581,7 +1624,14 @@ def game_splits(funcs, chosen, rejected):
             rejected.append(f"game {f}: G3 functions 0x{funcs[i][2]:08X}..0x{funcs[j][2]:08X} ({len(idx)} of {j - i + 1} "
                             f"functions in between), {why}: the functions before 0x{funcs[i][2]:08X} and after "
                             f"0x{funcs[j][2]:08X} carry no file note")
-    return game_objs
+    cobjs = game_c_objects(funcs, game_end)
+    taken = [r for _, secs in cobjs for r in secs.values()]
+    for o in game_objs[:]:
+        a, b = o[1][".text"]
+        if any(a < y and x < b for x, y in taken):
+            rejected.append(f"game {o[0]}: G3 range 0x{a:08X}-0x{b:08X} overlaps a C file's object (decomp/src/game)")
+            game_objs.remove(o)
+    return game_objs + cobjs
 
 
 SEC_ORDER = {s: i for i, s in enumerate(CODE + DATA)}
@@ -1672,7 +1722,8 @@ def main(argv) -> int:
         for s, (a, b) in secs.items():
             proofs = [c for c in by_path[path][2] if c["sec"] == s] if path in by_path else []
             pr = "; ".join(f"{c['ref']} {c['first']}..{c['last']} {c['n']}/{c['nref']} [{c['e1']} | {c['e2']}]"
-                           + (f" [{c['kar']}]" if c.get("kar") else "") for c in proofs) or "G3 neighbours"
+                           + (f" [{c['kar']}]" if c.get("kar") else "") for c in proofs) or \
+                ("its C file's functions (decomp/src/" + path + ")" if (GAME_SRC.parent / path).exists() else "G3 neighbours")
             head.append(f"{path:<48} {s:<6} 0x{a:08X}-0x{b:08X} {nf(a, b):>3} fn  {pr}")
     head += ["", "== settled disagreements (references gave different ranges: settled by the defining source file, else by "
                  "the revision whose function sizes equal ours)"] + notes

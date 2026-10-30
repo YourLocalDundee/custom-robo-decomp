@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,299 @@ def MatchingFor(*versions):
+@@ -284,18 +307,306 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -142,7 +142,7 @@ diff --git a/configure.py b/configure.py
 +                           "-common off", "-fp_contract on", *inc_mp4]),
 +    "MetroTRK": ("GC/2.6", [*cflags_cr, "-O4,p", "-inline auto,deferred", "-use_lmw_stmw on", "-str reuse,readonly",
 +                            "-common off", "-sdata 0", "-sdata2 0", "-fp_contract on", *inc_mp4]),
-+    "game": ("GC/2.6", [*cflags_cr, "-opt level=0,peephole,schedule,speed", "-fp_contract on"]),
++    "game": ("GC/2.6", [*cflags_cr, "-opt level=0,peephole,schedule,speed", "-fp_contract on", "-i include"]),
 +}
 +# Per-object additions (appended, so they override: mwcc takes the last setting). dolsdk2004's Makefile: EXIBios.c
 +# -O3,p; dvd, mtx, CARDOpen.c, CARDRename.c -char signed.
@@ -353,6 +353,13 @@ diff --git a/configure.py b/configure.py
 +}
 +
 +
++# Game objects (game/ in splits.txt: decomp/src/game, tools/promote_drafts.py, one function per object; plan.md step 58)
++# are all linked from C unless CR_NOT_MATCHING names one: tools/gen_dtk_splits.py only splits a game object for a file
++# in decomp/src/game, and batch 9 checks each is 100% in objdiff with the retail SHA-1.
++def cr_matching(name: str) -> bool:
++    return name in CR_MATCHING or (name.startswith("game/") and name not in CR_NOT_MATCHING)
++
++
 +def cr_object(name: str) -> Object:
 +    extra = list(CR_OBJECT_CFLAGS.get(name, []))
 +    for d, f in CR_DIR_CFLAGS.items():
@@ -362,7 +369,7 @@ diff --git a/configure.py b/configure.py
 +    if name in CR_OBJECT_INCLUDES:
 +        _, lib_cflags = CR_LIBS[name.split("/")[0]]
 +        opts["cflags"] = [f for f in lib_cflags if not f.startswith("-i ")] + CR_OBJECT_INCLUDES[name]
-+    return Object(Matching if name in CR_MATCHING else NonMatching, name, **opts)
++    return Object(Matching if cr_matching(name) else NonMatching, name, **opts)
 +
 +
 +def libs_from_splits(path: Path) -> List[Dict[str, Any]]:

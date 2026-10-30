@@ -75,7 +75,9 @@ type the globals that hold it in `symbols/cr_globals.txt`.
 
 - **Commit all project work**: scripts, batches, symbols, types, reports, docs and findings, plus what is needed to
   rebuild them from a clean ISO (pins, expected checksums).
-- **Never commit game data**: no ISO, extracted files, models, textures, audio, or decompiled C.
+- **Never commit game data**: no ISO, extracted files, models, textures, audio, or raw decompiler output (Ghidra's C,
+  m2c drafts in decomp/drafts/). Matched C in decomp/src IS the decomp and is committed (the game files there are
+  written by tools/promote_drafts.py from drafts that compile to the retail bytes; docs/drafts.md).
   `.gitignore` blocks the usual paths; double-check `git status` before you commit.
 - Tools should be rerunnable and keep working from a fresh `tools\setup.ps1`.
 - Python scripts run with `python -I`; keep them standard-library only where possible.

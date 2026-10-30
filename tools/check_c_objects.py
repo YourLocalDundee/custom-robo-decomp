@@ -1,7 +1,8 @@
 """Check the objects built from C and write the progress / provenance reports (plan.md Phase 4 Milestone 4).
 
 Run by batch 9 after ninja (ninja has compiled every decomp/src file and written objdiff's build/GXCE01/report.json):
-  1. Every object in configure.py's CR_MATCHING (the objects linked from C) has its source and objdiff reports 100%
+  1. Every object in configure.py's CR_MATCHING (the objects linked from C), and every game/ object of splits.txt
+     (configure.py cr_matching(): decomp/src/game, tools/promote_drafts.py), has its source and objdiff reports 100%
      code AND data for it, every function matched. (The retail SHA-1 of the main.dol linked WITH them is batch 9's
      own check.)
   2. Every other C file in decomp/src is an object of splits.txt listed in CR_NOT_MATCHING with the reason it is not
@@ -42,7 +43,10 @@ def configure_lists():
         tgt = node.targets[0] if isinstance(node, ast.Assign) else node.target if isinstance(node, ast.AnnAssign) else None
         if isinstance(tgt, ast.Name) and tgt.id in ('CR_MATCHING', 'CR_NOT_MATCHING'):
             out[tgt.id] = ast.literal_eval(node.value)
-    return out.get('CR_MATCHING', []), out.get('CR_NOT_MATCHING', {})
+    matching, not_matching = out.get('CR_MATCHING', []), out.get('CR_NOT_MATCHING', {})
+    # configure.py cr_matching(): every game/ object of splits.txt (decomp/src/game) is linked unless CR_NOT_MATCHING has it
+    matching = matching + [o for o in split_objects() if o.startswith('game/') and o not in not_matching and o not in matching]
+    return matching, not_matching
 
 
 def split_objects():
@@ -93,7 +97,10 @@ def sources_report():
                 data = open(path, 'rb').read()
                 m = TAG.match(data)
                 if not m:
-                    rows.append(f'{rel}  ours (no reference)')
+                    if data.startswith(b'/* Custom Robo game code, promoted by tools/promote_drafts.py'):
+                        rows.append(f'{rel}  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py')
+                    else:
+                        rows.append(f'{rel}  ours (no reference)')
                     continue
                 repo, commit, refpath = m[1].decode(), m[2].decode(), m[3].decode()
                 if repo not in p:
@@ -117,7 +124,8 @@ def sources_report():
                 rows.append(f'{rel}  {repo} @ {commit[:12]} {refpath}  {state}')
     head = ['C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)',
             'Each file is copied from a pinned reference decomp (the community\'s matching C; never decompiler '
-            'output) by tools/import_ref_source.py, which puts the provenance on its first line.',
+            'output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files '
+            '(decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).',
             'Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state '
             '(identical = byte for byte the reference file after the provenance comment).',
             f'files: {len(rows)}', '']
@@ -244,6 +252,19 @@ def main(argv):
     out.append(f'{"main.dol (all units)":28} {tot["objects"]:7} {tot["c"]:6}   0x{tot["ccode"]:06X}/0x{tot["code"]:06X} '
                f'{pc(tot["ccode"], tot["code"])}   0x{tot["cdata"]:06X}/0x{tot["data"]:06X} {pc(tot["cdata"], tot["data"])}'
                f'   {tot["cfn"]:4}/{tot["fn"]:5}')
+    # the game code: .text from 0x800055E0 up to the first library object (its objects: game/ and the automatic ones there)
+    gstart, gend, cur = 0x800055E0, None, None
+    for ln in open(os.path.join(D, 'config', 'GXCE01', 'splits.txt'), encoding='utf-8'):
+        if ln.strip() and not ln[0].isspace():
+            cur = ln.split(':')[0].strip()
+        mm = re.match(r'^\s+\.text\s+start:0x([0-9A-Fa-f]+)', ln)
+        if mm and cur and not cur.startswith('game/') and int(mm.group(1), 16) >= gstart:
+            gend = min(gend or 1 << 32, int(mm.group(1), 16))
+    gl = libs.get('game', dict(c=0, ccode=0))
+    if gend:
+        out += ['', f'game code (.text 0x{gstart:08X}-0x{gend:08X}, 0x{gend - gstart:X} bytes): {gl["c"]} objects from C '
+                    f'(one function each, tools/promote_drafts.py), 0x{gl["ccode"]:X} bytes = '
+                    f'{pc(gl["ccode"], gend - gstart).strip()} of the game code, {pc(gl["ccode"], tot["code"]).strip()} of all code']
     out += ['', '== C objects (decomp/src): objdiff matched bytes, and whether linked']
     out += [r for _, r in sorted(rows)]
     srows, serr = sources_report()

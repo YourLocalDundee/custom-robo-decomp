@@ -91,13 +91,15 @@ def points(elf, objs, c, units, pad):
     for sec in SECTIONS:
         lo, hi = secs[sec]
         pts.append((lo, sec, unit_at(sec, lo)[1], f'start of {sec}'))
-    game = unit_at('.text', secs['.text'][0])
-    gstart = game[0]
-    gend = min(a for a, s, n in where if s == '.text' and a > gstart)
+    # the game code: from the start of .text to the first library object (its units: dtk's automatic objects and
+    # the game objects linked from C, game/)
+    gstart = unit_at('.text', secs['.text'][0])[0]
+    gend = min(a for a, s, n in where if s == '.text' and a > gstart and not n.startswith(('auto_', 'game/')))
     fstarts = sorted(v for n, v, sz, t, b, shn in elf.syms if t == 2 and gstart <= v < gend)
     mid = fstarts[bisect.bisect_left(fstarts, (gstart + gend) // 2)]
+    game = unit_at('.text', mid)
     pts.append((mid, '.text', game[1], f'inside the game code ({game[1]}), the first function after its middle'))
-    lib = next((a, n) for a, s, n in where if s == '.text' and a >= gend and not n.startswith('auto_'))
+    lib = next((a, n) for a, s, n in where if s == '.text' and a >= gend and not n.startswith(('auto_', 'game/')))
     pts.append((lib[0], '.text', lib[1], f'between library objects: the start of {lib[1]}'))
     for sec in ('.rodata', '.data', '.bss'):
         lo, hi = secs[sec]
