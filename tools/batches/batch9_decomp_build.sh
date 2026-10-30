@@ -31,6 +31,9 @@ hashes() { echo "$(sha256_of "$cfg/symbols.txt") $(sha256_of "$cfg/splits.txt") 
     # always link afresh, so the SHA-1 below is of this run's main.dol
     rm -f build/GXCE01/main.elf build/GXCE01/main.dol
     "$PY" configure.py || die 'configure.py failed'
+    # the objects compiled from decomp/src are rebuilt every run: a new override header (decomp/include/cr_*) changes
+    # which header an #include finds, and ninja's dependency file of an object compiled before it does not list it
+    find build/GXCE01/src -name '*.o' -delete 2>/dev/null || true
     "$ninja" || die 'ninja failed (see above; dtk rejects a bad split here)'
     # the objects linked from C (configure.py CR_MATCHING) give their own symbols to symbols.txt (main.elf has them at
     # the retail addresses): then split again, so objdiff pairs their data by name

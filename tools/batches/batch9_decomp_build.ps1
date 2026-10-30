@@ -52,6 +52,9 @@ try {
     Remove-Item -LiteralPath build/GXCE01/main.elf, build/GXCE01/main.dol -ErrorAction SilentlyContinue
     python configure.py
     if ($LASTEXITCODE) { throw 'configure.py failed' }
+    # the objects compiled from decomp/src are rebuilt every run: a new override header (decomp/include/cr_*) changes
+    # which header an #include finds, and ninja's dependency file of an object compiled before it does not list it
+    Get-ChildItem -LiteralPath build/GXCE01/src -Recurse -Filter *.o -ErrorAction SilentlyContinue | Remove-Item -Force
     & $ninja
     if ($LASTEXITCODE) { throw 'ninja failed (see above; dtk rejects a bad split here)' }
     # the objects linked from C (configure.py CR_MATCHING) give their own symbols to symbols.txt (main.elf has them at
