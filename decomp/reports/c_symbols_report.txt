@@ -1,6 +1,6 @@
 symbols from the objects built from C (tools/gen_c_symbols.py): main.elf's symbols inside each object's
 ranges replace those of decomp/config/GXCE01/symbols.txt there (same bytes; the C's names, sizes, scopes).
-objects: 418; symbols written: 1797
+objects: 433; symbols written: 1970
 functions and globals the C names differently from symbols.txt before it (a dtk default name: the matched C
 is the proof of the real name; one of our own names: the two disagree):
   .bss     0x80439BF8  lbl_80439BF8 -> gTRKEventQueue
@@ -8,6 +8,8 @@ is the proof of the real name; one of our own names: the two disagree):
   .sdata   0x8044EDF8  lbl_8044EDF8 -> __AIVersion
   .sdata   0x8044EE00  lbl_8044EE00 -> __ARVersion
   .sdata   0x8044EE08  lbl_8044EE08 -> __ARQVersion
+  .sdata   0x8044EE28  lbl_8044EE28 -> __DSPVersion
+  .sdata   0x8044EE30  lbl_8044EE30 -> __CARDVersion
   .sdata   0x8044EE60  lbl_8044EE60 -> GXTexMode0Ids
   .sdata   0x8044EE68  lbl_8044EE68 -> GXTexMode1Ids
   .sdata   0x8044EE70  lbl_8044EE70 -> GXTexImage0Ids
@@ -24,9 +26,11 @@ is the proof of the real name; one of our own names: the two disagree):
   .text    0x801367E8  fn_801367E8 -> Callback
   .text    0x8013A5E0  fn_8013A5E0 -> AlarmHandler
   .text    0x80142B28  fn_80142B28 -> __ARHandler
+  .text    0x8014C1E4  fn_8014C1E4 -> OnReset
   .text    0x8014C234  fn_8014C234 -> bitrev
   .text    0x8014D71C  fn_8014D71C -> WriteCallback
   .text    0x8014D7F0  fn_8014D7F0 -> EraseCallback
   .text    0x8014DB20  fn_8014DB20 -> WriteCallback
   .text    0x8014DBF0  fn_8014DBF0 -> EraseCallback
+  .text    0x8015805C  fn_8015805C -> GXDrawCubeFace
   .text    0x8016CB94  fn_8016CB94 -> AlarmHandler

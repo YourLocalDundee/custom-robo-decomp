@@ -1,4 +1,4 @@
-/* Custom Robo: from bfbbdecomp/bfbb @ d8e8eac38dd617ee72161f4cb2da4498bc89aad6, src/dolphin/include/dolphin/hw_regs.h */ #ifndef _DOLPHIN_HW_REGS
+/* Custom Robo: from bfbbdecomp/bfbb @ d8e8eac38dd617ee72161f4cb2da4498bc89aad6, src/dolphin/include/Dolphin/hw_regs.h */ #ifndef _DOLPHIN_HW_REGS
 #define _DOLPHIN_HW_REGS
 
 #include "types.h"

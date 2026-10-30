@@ -3,19 +3,20 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           75     67   0x01E8D4/0x02235C  89.31%   0x016034/0x0162C4  99.28%    565/  647
-MSL                               49     37   0x0048C4/0x00939C  49.30%   0x000F10/0x001160  86.69%     56/   85
+dolphin                           75     75   0x02235C/0x02235C 100.00%   0x0168B8/0x0168B8 100.00%    647/  647
+MSL                               49     44   0x004FF4/0x00939C  54.17%   0x001048/0x001168  93.54%     65/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
 sysdolphin                        29      9   0x004014/0x0265A4  10.44%   0x0008F4/0x002238  26.16%     88/  471
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
-automatic objects (unsplit)      258      0   0x000000/0x156B74   0.00%   0x000000/0x27F868   0.00%      0/ 1859
-main.dol (all units)             735    418   0x02C5E8/0x1B342C  10.19%   0x017904/0x29C458   3.53%   1040/ 3533
+automatic objects (unsplit)      255      0   0x000000/0x156B74   0.00%   0x000000/0x27F26C   0.00%      0/ 1859
+main.dol (all units)             732    433   0x0307A0/0x1B342C  11.14%   0x0182C0/0x29C458   3.62%   1131/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
 MSL/FILE_POS.c                                code 0x0/0x3C0  data 0x0/0x0  functions 0/3  not linked: code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision
+MSL/PPC_EABI/critical_regions.gamecube.c      code 0xC/0xC  data 0x0/0x0  functions 3/3  linked from C
 MSL/abort_exit.c                              code 0xF0/0xF0  data 0x110/0x110  functions 1/1  linked from C
 MSL/alloc.c                                   code 0x4B4/0x4B4  data 0x58/0x58  functions 4/4  linked from C
 MSL/ansi_files.c                              code 0x118/0x118  data 0x440/0x440  functions 2/2  linked from C
@@ -26,9 +27,12 @@ MSL/direct_io.c                               code 0x388/0x388  data 0x0/0x0  fu
 MSL/e_acos.c                                  code 0x23C/0x23C  data 0x88/0x88  functions 1/1  linked from C
 MSL/e_asin.c                                  code 0x238/0x238  data 0x88/0x88  functions 1/1  linked from C
 MSL/e_atan2.c                                 code 0x290/0x290  data 0x58/0x58  functions 1/1  linked from C
+MSL/e_exp.c                                   code 0x224/0x224  data 0xA8/0xA8  functions 1/1  linked from C
 MSL/e_fmod.c                                  code 0x33C/0x33C  data 0x10/0x10  functions 1/1  linked from C
+MSL/e_log.c                                   code 0x27C/0x27C  data 0x88/0x88  functions 1/1  linked from C
 MSL/e_pow.c                                   code 0x830/0x830  data 0x140/0x140  functions 1/1  linked from C
 MSL/e_rem_pio2.c                              code 0x3A0/0x3A0  data 0x1E0/0x1E0  functions 1/1  linked from C
+MSL/e_sqrt.c                                  code 0x224/0x224  data 0x8/0x8  functions 1/1  linked from C
 MSL/file_io.c                                 code 0x2F4/0x2F4  data 0x0/0x0  functions 2/2  linked from C
 MSL/k_cos.c                                   code 0xF4/0xF4  data 0x48/0x48  functions 1/1  linked from C
 MSL/k_rem_pio2.c                              code 0xE54/0xE54  data 0x90/0x90  functions 1/1  linked from C
@@ -49,11 +53,15 @@ MSL/s_modf.c                                  code 0xFC/0xFC  data 0x0/0x0  func
 MSL/s_sin.c                                   code 0xD8/0xD8  data 0x8/0x8  functions 1/1  linked from C
 MSL/s_tan.c                                   code 0x78/0x78  data 0x8/0x8  functions 1/1  linked from C
 MSL/string.c                                  code 0x2DC/0x2DC  data 0x0/0x0  functions 7/7  linked from C
+MSL/uart_console_io_gcn.c                     code 0xD0/0xD0  data 0x8/0x8  functions 1/1  not linked: link: 100% code and data (BfBB's file), but the C also defines __close_console, which main.dol has at 0x8015EBAC, before MetroTRK/mslsupp.c, far outside this object's range 0x80165A14-0x80165AE4 (MKDD's map puts it in another unit of the same name there): linked from C it is defined twice (step 65)
 MSL/w_acos.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_asin.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_atan2.c                                 code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
+MSL/w_exp.c                                   code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_fmod.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
+MSL/w_log.c                                   code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_pow.c                                   code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
+MSL/w_sqrt.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/wchar_io.c                                code 0x88/0x88  data 0x0/0x0  functions 1/1  linked from C
 MetroTRK/dispatch.c                           code 0x0/0x178  data 0x0/0x40  functions 0/2  not linked: code: 2 of 2 functions differ (TRKInitializeDispatcher 0%, TRKDispatchMessage 24%): the reference is another revision  (C has data the split object lacks: .bss 0x4, .data 0x84)
 MetroTRK/dolphin_trk.c                        code 0x100/0x638  data 0x0/0x48  functions 3/8  not linked: code: 5 of 8 functions differ (TRKTargetTranslate 73%, __TRK_copy_vectors 85%, fn_8015E288 0%, fn_8015E09C 0% (+1 more)): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)  (C has data the split object lacks: .init 0x104)
@@ -82,11 +90,14 @@ Runtime/__mem.c                               code 0x138/0x138  data 0x0/0x0  fu
 Runtime/__va_arg.c                            code 0xC8/0xC8  data 0x0/0x0  functions 1/1  linked from C
 Runtime/global_destructor_chain.c             code 0x48/0x48  data 0xC/0xC  functions 1/1  linked from C
 Runtime/runtime.c                             code 0x6DC/0x6DC  data 0x18/0x18  functions 13/13  linked from C
+dolphin/OdemuExi2/DebuggerDriver.c            code 0xA80/0xA80  data 0x20/0x20  functions 14/14  linked from C
 dolphin/ai/ai.c                               code 0x8E8/0x8E8  data 0x90/0x90  functions 19/19  linked from C
 dolphin/ar/ar.c                               code 0x1B38/0x1B38  data 0x70/0x70  functions 9/9  linked from C
 dolphin/ar/arq.c                              code 0x39C/0x39C  data 0x78/0x78  functions 5/5  linked from C
+dolphin/ax/AXAlloc.c                          code 0x4BC/0x4BC  data 0x108/0x108  functions 10/10  linked from C
 dolphin/ax/AXVPB.c                            code 0x1588/0x1588  data 0x118F0/0x118F0  functions 22/22  linked from C
 dolphin/base/PPCArch.c                        code 0x114/0x114  data 0x0/0x0  functions 22/22  linked from C
+dolphin/card/CARDBios.c                       code 0x12E4/0x12E4  data 0x2C0/0x2C0  functions 25/25  linked from C
 dolphin/card/CARDBlock.c                      code 0x404/0x404  data 0x0/0x0  functions 6/6  linked from C
 dolphin/card/CARDCheck.c                      code 0xF14/0xF14  data 0x0/0x0  functions 6/6  linked from C
 dolphin/card/CARDCreate.c                     code 0x350/0x350  data 0x0/0x0  functions 2/2  linked from C
@@ -100,6 +111,7 @@ dolphin/card/CARDRdwr.c                       code 0x280/0x280  data 0x0/0x0  fu
 dolphin/card/CARDStat.c                       code 0x4C8/0x4C8  data 0x0/0x0  functions 4/4  linked from C
 dolphin/card/CARDUnlock.c                     code 0x1260/0x1260  data 0x168/0x168  functions 6/6  linked from C
 dolphin/db/db.c                               code 0xEC/0xEC  data 0x20/0x20  functions 5/5  linked from C
+dolphin/dsp/dsp.c                             code 0x250/0x250  data 0x90/0x90  functions 8/8  linked from C
 dolphin/dsp/dsp_debug.c                       code 0x50/0x50  data 0x0/0x0  functions 1/1  linked from C
 dolphin/dsp/dsp_task.c                        code 0x884/0x884  data 0x158/0x158  functions 5/5  linked from C
 dolphin/dvd/dvdFatal.c                        code 0x30/0x30  data 0x8/0x8  functions 1/1  linked from C
@@ -113,18 +125,22 @@ dolphin/exi/EXIUart.c                         code 0x5D4/0x5D4  data 0x10/0x10  
 dolphin/gx/GXAttr.c                           code 0x1514/0x1514  data 0x288/0x288  functions 16/16  linked from C
 dolphin/gx/GXBump.c                           code 0x274/0x274  data 0x0/0x0  functions 7/7  linked from C
 dolphin/gx/GXDisplayList.c                    code 0x70/0x70  data 0x0/0x0  functions 1/1  linked from C
+dolphin/gx/GXDraw.c                           code 0x468/0x468  data 0x298/0x298  functions 2/2  linked from C
 dolphin/gx/GXFifo.c                           code 0x630/0x630  data 0x20/0x20  functions 14/14  linked from C
 dolphin/gx/GXFrameBuf.c                       code 0x964/0x964  data 0x138/0x138  functions 13/13  linked from C
 dolphin/gx/GXGeometry.c                       code 0x33C/0x33C  data 0x0/0x0  functions 9/9  linked from C
 dolphin/gx/GXInit.c                           code 0x1380/0x1380  data 0x8C8/0x8C8  functions 5/5  linked from C
 dolphin/gx/GXLight.c                          code 0x604/0x604  data 0x50/0x50  functions 11/11  linked from C
 dolphin/gx/GXMisc.c                           code 0x674/0x674  data 0x18/0x18  functions 19/19  linked from C
+dolphin/gx/GXPerf.c                           code 0x858/0x858  data 0xEC/0xEC  functions 2/2  linked from C
+dolphin/gx/GXPixel.c                          code 0x7F8/0x7F8  data 0x80/0x80  functions 13/13  linked from C
 dolphin/gx/GXTev.c                            code 0x764/0x764  data 0x78/0x78  functions 16/16  linked from C
 dolphin/gx/GXTexture.c                        code 0xFE8/0xFE8  data 0x290/0x290  functions 19/19  linked from C
 dolphin/gx/GXTransform.c                      code 0x5B8/0x5B8  data 0x10/0x10  functions 15/15  linked from C
 dolphin/mtx/mtx.c                             code 0x9F0/0x9F0  data 0x28/0x28  functions 17/17  linked from C
 dolphin/mtx/mtx44.c                           code 0x204/0x204  data 0x18/0x18  functions 3/3  linked from C
 dolphin/mtx/mtxvec.c                          code 0xA8/0xA8  data 0x0/0x0  functions 2/2  linked from C
+dolphin/mtx/vec.c                             code 0x160/0x160  data 0x8/0x8  functions 8/8  linked from C
 dolphin/odenotstub/odenotstub.c               code 0x8/0x8  data 0x0/0x0  functions 1/1  linked from C
 dolphin/os/OS.c                               code 0xAEC/0xAEC  data 0x298/0x298  functions 15/15  linked from C
 dolphin/os/OSAlarm.c                          code 0x75C/0x75C  data 0x18/0x18  functions 8/8  linked from C

@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 978
+files: 995
 
 src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
@@ -14,9 +14,12 @@ src/MSL/direct_io.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src
 src/MSL/e_acos.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_acos.c  identical
 src/MSL/e_asin.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_asin.c  identical
 src/MSL/e_atan2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_atan2.c  identical
+src/MSL/e_exp.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_exp.c  identical
 src/MSL/e_fmod.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_fmod.c  identical
+src/MSL/e_log.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_log.c  identical
 src/MSL/e_pow.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_pow.c  identical
 src/MSL/e_rem_pio2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_rem_pio2.c  identical
+src/MSL/e_sqrt.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_sqrt.c  identical
 src/MSL/file_io.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/file_io.c  identical
 src/MSL/k_cos.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/k_cos.c  identical
 src/MSL/k_rem_pio2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/k_rem_pio2.c  identical
@@ -37,12 +40,17 @@ src/MSL/s_modf.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare
 src/MSL/s_sin.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/s_sin.c  identical
 src/MSL/s_tan.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/s_tan.c  identical
 src/MSL/string.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common/string.c  identical
+src/MSL/uart_console_io_gcn.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/uart_console_io_gcn.c  identical
 src/MSL/w_acos.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_acos.c  identical
 src/MSL/w_asin.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_asin.c  identical
 src/MSL/w_atan2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_atan2.c  identical
+src/MSL/w_exp.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_exp.c  identical
 src/MSL/w_fmod.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_fmod.c  identical
+src/MSL/w_log.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_log.c  identical
 src/MSL/w_pow.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/w_pow.c  identical
+src/MSL/w_sqrt.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_sqrt.c  identical
 src/MSL/wchar_io.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/wchar_io.c  identical
+src/MSL/PPC_EABI/critical_regions.gamecube.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/critical_regions.gamecube.c  changed (6 lines added / removed)
 src/MetroTRK/dispatch.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/TRK_MINNOW_DOLPHIN/dispatch.c  identical
 src/MetroTRK/dolphin_trk.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/TRK_MINNOW_DOLPHIN/dolphin_trk.c  identical
 src/MetroTRK/dolphin_trk_glue.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/TRK_MINNOW_DOLPHIN/dolphin_trk_glue.c  identical
@@ -72,13 +80,16 @@ src/Runtime/__va_arg.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/Runtime.PPCE
 src/Runtime/global_destructor_chain.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/Runtime.PPCEABI.H/global_destructor_chain.c  identical
 src/Runtime/platform.h  doldecomp/melee @ 24e685d57535 src/Runtime/platform.h  identical
 src/Runtime/runtime.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/Runtime.PPCEABI.H/runtime.c  identical
+src/dolphin/OdemuExi2/DebuggerDriver.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/OdemuExi2/DebuggerDriver.c  identical
 src/dolphin/ai/ai.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ai/ai.c  changed (2 lines added / removed)
 src/dolphin/ar/__ar.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/__ar.h  identical
 src/dolphin/ar/ar.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/ar.c  changed (2 lines added / removed)
 src/dolphin/ar/arq.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/ar/arq.c  changed (2 lines added / removed)
+src/dolphin/ax/AXAlloc.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/ax/AXAlloc.c  changed (25 lines added / removed)
 src/dolphin/ax/AXVPB.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/ax/AXVPB.c  changed (81 lines added / removed)
 src/dolphin/ax/__ax.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/ax/__ax.h  identical
 src/dolphin/base/PPCArch.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/base/PPCArch.c  identical
+src/dolphin/card/CARDBios.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/card/CARDBios.c  identical
 src/dolphin/card/CARDBlock.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDBlock.c  identical
 src/dolphin/card/CARDCheck.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDCheck.c  identical
 src/dolphin/card/CARDCreate.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDCreate.c  identical
@@ -94,6 +105,7 @@ src/dolphin/card/CARDUnlock.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARD
 src/dolphin/card/__card.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/__card.h  identical
 src/dolphin/db/db.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/db/db.c  identical
 src/dolphin/dsp/__dsp.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/dsp/__dsp.h  identical
+src/dolphin/dsp/dsp.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/dsp/dsp.c  identical
 src/dolphin/dsp/dsp_debug.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/dsp/dsp_debug.c  identical
 src/dolphin/dsp/dsp_task.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/dsp/dsp_task.c  identical
 src/dolphin/dvd/__dvd.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/dvd/__dvd.h  identical
@@ -108,12 +120,15 @@ src/dolphin/exi/EXIUart.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/exi/EX
 src/dolphin/gx/GXAttr.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/gx/GXAttr.c  changed (185 lines added / removed)
 src/dolphin/gx/GXBump.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXBump.c  identical
 src/dolphin/gx/GXDisplayList.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXDisplayList.c  identical
+src/dolphin/gx/GXDraw.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/gx/GXDraw.c  changed (41 lines added / removed)
 src/dolphin/gx/GXFifo.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXFifo.c  changed (6 lines added / removed)
 src/dolphin/gx/GXFrameBuf.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXFrameBuf.c  identical
 src/dolphin/gx/GXGeometry.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXGeometry.c  changed (2 lines added / removed)
 src/dolphin/gx/GXInit.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXInit.c  changed (102 lines added / removed)
 src/dolphin/gx/GXLight.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/gx/GXLight.c  identical
 src/dolphin/gx/GXMisc.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXMisc.c  identical
+src/dolphin/gx/GXPerf.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/gx/GXPerf.c  identical
+src/dolphin/gx/GXPixel.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/gx/GXPixel.c  changed (55 lines added / removed)
 src/dolphin/gx/GXTev.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXTev.c  changed (62 lines added / removed)
 src/dolphin/gx/GXTexture.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXTexture.c  identical
 src/dolphin/gx/GXTransform.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/GXTransform.c  identical
@@ -121,6 +136,7 @@ src/dolphin/gx/__gx.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/gx/__gx.h  identi
 src/dolphin/mtx/mtx.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/mtx/mtx.c  identical
 src/dolphin/mtx/mtx44.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/mtx/mtx44.c  identical
 src/dolphin/mtx/mtxvec.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/mtx/mtxvec.c  identical
+src/dolphin/mtx/vec.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/mtx/vec.c  identical
 src/dolphin/odenotstub/odenotstub.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/odenotstub/odenotstub.c  identical
 src/dolphin/os/OS.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/os/OS.c  changed (4 lines added / removed)
 src/dolphin/os/OSAlarm.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/OSAlarm.c  identical
@@ -496,6 +512,7 @@ src/sysdolphin/baselib/video.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/ba
 src/sysdolphin/baselib/wobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/wobj.c  identical
 src/sysdolphin/baselib/wobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/wobj.h  identical
 include/bfbb/dolphin.h  bfbbdecomp/bfbb @ d8e8eac38dd6 include/dolphin.h  identical
+include/bfbb/fake_tgmath.h  bfbbdecomp/bfbb @ d8e8eac38dd6 include/fake_tgmath.h  identical
 include/bfbb/macros.h  bfbbdecomp/bfbb @ d8e8eac38dd6 include/macros.h  identical
 include/bfbb/types.h  bfbbdecomp/bfbb @ d8e8eac38dd6 include/types.h  identical
 include/bfbb/dolphin/CARDPriv.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/CARDPriv.h  identical
@@ -513,7 +530,7 @@ include/bfbb/dolphin/dvd.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/d
 include/bfbb/dolphin/exi.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/exi.h  identical
 include/bfbb/dolphin/gx.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx.h  identical
 include/bfbb/dolphin/hio.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/hio.h  identical
-include/bfbb/dolphin/hw_regs.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/hw_regs.h  identical
+include/bfbb/dolphin/hw_regs.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/Dolphin/hw_regs.h  identical
 include/bfbb/dolphin/mix.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/mix.h  identical
 include/bfbb/dolphin/mtx.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/mtx.h  identical
 include/bfbb/dolphin/os.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os.h  identical

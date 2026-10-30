@@ -1057,6 +1057,7 @@ dolphin/ar/arq.c:
 
 dolphin/ax/AXAlloc.c:
 	.text       start:0x801447D0 end:0x80144C8C
+	.bss        start:0x8041FA20 end:0x8041FB20
 	.sbss       start:0x8044FB50 end:0x8044FB58
 
 dolphin/ax/AXVPB.c:
@@ -1070,6 +1071,7 @@ dolphin/dsp/dsp.c:
 	.text       start:0x8014A42C end:0x8014A67C
 	.data       start:0x80248BD0 end:0x80248C50
 	.sdata      start:0x8044EE28 end:0x8044EE30
+	.sbss       start:0x8044FC28 end:0x8044FC30
 
 dolphin/dsp/dsp_debug.c:
 	.text       start:0x8014A67C end:0x8014A6CC
@@ -1082,6 +1084,7 @@ dolphin/dsp/dsp_task.c:
 dolphin/card/CARDBios.c:
 	.text       start:0x8014AF50 end:0x8014C234
 	.data       start:0x80248D90 end:0x80248E00
+	.bss        start:0x80439100 end:0x80439340
 	.sdata      start:0x8044EE30 end:0x8044EE38
 	.sbss       start:0x8044FC48 end:0x8044FC50
 
@@ -1179,6 +1182,8 @@ dolphin/gx/GXPixel.c:
 
 dolphin/gx/GXDraw.c:
 	.text       start:0x8015805C end:0x801584C4
+	.bss        start:0x80439970 end:0x80439BF8
+	.sdata2     start:0x80451E80 end:0x80451E90
 
 dolphin/gx/GXDisplayList.c:
 	.text       start:0x801584C4 end:0x80158534
@@ -1189,7 +1194,7 @@ dolphin/gx/GXTransform.c:
 
 dolphin/gx/GXPerf.c:
 	.text       start:0x80158AEC end:0x80159344
-	.data       start:0x80249868 end:0x80249958
+	.data       start:0x80249868 end:0x80249954
 
 MetroTRK/mainloop.c:
 	.text       start:0x80159530 end:0x80159628
@@ -1387,6 +1392,7 @@ MSL/wchar_io.c:
 
 MSL/uart_console_io_gcn.c:
 	.text       start:0x80165A14 end:0x80165AE4
+	.sbss       start:0x8044FCF0 end:0x8044FCF8
 
 MSL/e_acos.c:
 	.text       start:0x80165AE4 end:0x80165D20
@@ -1514,6 +1520,7 @@ dolphin/odenotstub/odenotstub.c:
 dolphin/OdemuExi2/DebuggerDriver.c:
 	.text       start:0x8016947C end:0x80169EFC
 	.sdata      start:0x8044EEB8 end:0x8044EEC0
+	.sbss       start:0x8044FD00 end:0x8044FD18
 
 dolphin/exi/EXIBios.c:
 	.text       start:0x80169EFC end:0x8016B8D8

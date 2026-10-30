@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,364 @@ def MatchingFor(*versions):
+@@ -284,18 +307,399 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -152,6 +152,8 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/card/CARDRename.c": ["-char signed"],
 +    "dolphin/os/OSFont.c": ["-char signed"],
 +    "dolphin/vi/vi.c": ["-DMATCHING"],
++    # its functions are in reverse source order in main.dol (deferred inlining, as BfBB builds OdemuExi2)
++    "dolphin/OdemuExi2/DebuggerDriver.c": ["-inline auto,deferred"],
 +    # its two OSReport strings are separate objects in main.dol, not one pool (step 65)
 +    "Runtime/GCN_mem_alloc.c": ["-str nopool"],
 +}
@@ -198,6 +200,22 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/vi/vi.c": BFBB_INC,
 +    "dolphin/gx/GXAttr.c": BFBB_INC,
 +    "dolphin/ax/AXVPB.c": BFBB_INC,
++    "dolphin/mtx/vec.c": BFBB_INC,
++    "dolphin/ax/AXAlloc.c": BFBB_INC,
++    "dolphin/dsp/dsp.c": BFBB_INC,
++    "dolphin/card/CARDBios.c": BFBB_INC,
++    "dolphin/gx/GXPixel.c": BFBB_INC,
++    "dolphin/gx/GXDraw.c": BFBB_INC,
++    "dolphin/gx/GXPerf.c": BFBB_INC,
++    "dolphin/OdemuExi2/DebuggerDriver.c": BFBB_INC,
++    "MSL/e_exp.c": BFBB_INC,
++    "MSL/e_log.c": BFBB_INC,
++    "MSL/w_exp.c": BFBB_INC,
++    "MSL/w_log.c": BFBB_INC,
++    "MSL/e_sqrt.c": BFBB_INC,
++    "MSL/w_sqrt.c": BFBB_INC,
++    "MSL/PPC_EABI/critical_regions.gamecube.c": BFBB_INC,
++    "MSL/uart_console_io_gcn.c": BFBB_INC,
 +}
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
@@ -335,12 +353,29 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/vi/vi.c",
 +    "dolphin/gx/GXAttr.c",
 +    "dolphin/ax/AXVPB.c",
++    "dolphin/mtx/vec.c",
++    "dolphin/dsp/dsp.c",
++    "dolphin/gx/GXPerf.c",
++    "dolphin/OdemuExi2/DebuggerDriver.c",
++    "dolphin/card/CARDBios.c",
++    "MSL/e_exp.c",
++    "MSL/e_log.c",
++    "MSL/w_exp.c",
++    "MSL/w_log.c",
++    "MSL/e_sqrt.c",
++    "MSL/w_sqrt.c",
++    "MSL/PPC_EABI/critical_regions.gamecube.c",
++    "dolphin/ax/AXAlloc.c",
++    "dolphin/gx/GXPixel.c",
++    "dolphin/gx/GXDraw.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
 +# "data": the C defines data main.dol keeps in a dtk automatic object (the data split must give this object that
 +# piece first); "link": the C calls functions / uses data our symbols do not name yet.
 +CR_NOT_MATCHING = {
++    "MSL/uart_console_io_gcn.c":
++        "link: 100% code and data (BfBB's file), but the C also defines __close_console, which main.dol has at 0x8015EBAC, before MetroTRK/mslsupp.c, far outside this object's range 0x80165A14-0x80165AE4 (MKDD's map puts it in another unit of the same name there): linked from C it is defined twice (step 65)",
 +    "sysdolphin/baselib/bytecode.c":
 +        "code: HSD_ByteCodeEval (0x15C8, the whole object) 97% in objdiff: Melee's saves f30 / f31 and computes a few values differently (another revision; doldecomp/kar has only asm): adapt to this revision",
 +    "sysdolphin/baselib/mtx.c":
