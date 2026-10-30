@@ -3834,7 +3834,6 @@ sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x8045293C  
 0x8024D61C unused5 (ours: no symbol)
 0x80427870 __AXLocalProfile (ours: no symbol)
 0x80439BF8 gTRKEventQueue (ours: lbl_80439BF8)
-0x80449D30 render_alloc_data (ours: lbl_80449D30)
 0x80449D5C tevreg_alloc_data (ours: no symbol)
 0x80449D88 chan_alloc_data (ours: no symbol)
 0x8044EDF8 __AIVersion (ours: lbl_8044EDF8)
@@ -4785,5 +4784,5 @@ data from C sysdolphin/baselib/lobj.c: 3 of 27 functions of the object are not v
 data from C sysdolphin/baselib/mtx.c: 7 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/pobj.c: 12 of 23 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/robj.c: 6 of 21 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/texp.c: 15 of 22 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/texp.c: 4 of 22 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/texpdag.c: 8 of 11 functions of the object are not verified C functions (another revision): its data is not proven

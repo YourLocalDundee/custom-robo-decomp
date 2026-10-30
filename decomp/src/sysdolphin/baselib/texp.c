@@ -32,7 +32,8 @@ static HSD_TExp* TevAlloc(void)
 static HSD_TExp* CnstAlloc(void)
 {
     HSD_TExp* texp = hsdAllocMemPiece(sizeof(HSD_TECnst));
-    HSD_ASSERT(70, texp);
+    /* Custom Robo: the assert lines in this file are the ones main.dol passes (this revision's file, step 68) */
+    HSD_ASSERT(71, texp);
     return texp;
 }
 
@@ -126,7 +127,7 @@ HSD_TExp* HSD_TExpFreeList(HSD_TExp* texp_list, HSD_TExpType type, s32 all)
                     *handle = next;
                     continue;
                 default:
-                    HSD_ASSERT(219, 0);
+                    HSD_ASSERT(220, 0);
                 }
             }
             handle = &(*handle)->tev.next;
@@ -168,7 +169,7 @@ HSD_TExp* HSD_TExpFreeList(HSD_TExp* texp_list, HSD_TExpType type, s32 all)
                     *handle = next;
                     continue;
                 default:
-                    HSD_ASSERT(267, 0);
+                    HSD_ASSERT(268, 0);
                 }
             }
             handle = &(*handle)->tev.next;
@@ -204,7 +205,7 @@ HSD_TExp* HSD_TExpCnst(void* val, HSD_TEInput comp, HSD_TEType type,
 {
     HSD_TExp* texp;
 
-    HSD_ASSERT(361, texp_list);
+    HSD_ASSERT(362, texp_list);
 
     texp = *texp_list;
     do {
@@ -212,7 +213,7 @@ HSD_TExp* HSD_TExpCnst(void* val, HSD_TEInput comp, HSD_TEType type,
             if (texp->type == HSD_TE_CNST && texp->cnst.val == val &&
                 texp->cnst.comp == comp)
             {
-                HSD_ASSERT(368, texp->cnst.ctype == type);
+                HSD_ASSERT(369, texp->cnst.ctype == type);
                 return texp;
             }
             texp = texp->cnst.next;
@@ -231,6 +232,7 @@ HSD_TExp* HSD_TExpCnst(void* val, HSD_TEInput comp, HSD_TEType type,
         texp->cnst.ctype = type;
         texp->cnst.reg = 0xFF;
         texp->cnst.idx = 0xFF;
+        texp->cnst.range = 0; /* Custom Robo: this revision clears it */
         return texp;
     } while (true);
 
@@ -240,12 +242,12 @@ HSD_TExp* HSD_TExpCnst(void* val, HSD_TEInput comp, HSD_TEType type,
 void HSD_TExpColorOp(HSD_TExp* texp, GXTevOp op, GXTevBias bias,
                      GXTevScale scale, u8 clamp)
 {
-    HSD_ASSERT(408, texp);
-    HSD_ASSERT(409, HSD_TExpGetType(texp) == HSD_TE_TEV);
+    HSD_ASSERT(410, texp);
+    HSD_ASSERT(411, HSD_TExpGetType(texp) == HSD_TE_TEV);
 
     texp->tev.c_op = op;
     texp->tev.c_clamp = (clamp ? GX_ENABLE : GX_DISABLE);
-    if ((u32) op <= GX_TEV_SUB) {
+    if (op == GX_TEV_ADD || op == GX_TEV_SUB) { /* Custom Robo: two compares in main.dol */
         texp->tev.c_bias = bias;
         texp->tev.c_scale = scale;
     } else {
@@ -257,12 +259,12 @@ void HSD_TExpColorOp(HSD_TExp* texp, GXTevOp op, GXTevBias bias,
 void HSD_TExpAlphaOp(HSD_TExp* texp, GXTevOp op, GXTevBias bias,
                      GXTevScale scale, u8 clamp)
 {
-    HSD_ASSERT(434, texp);
-    HSD_ASSERT(435, HSD_TExpGetType(texp) == HSD_TE_TEV);
+    HSD_ASSERT(436, texp);
+    HSD_ASSERT(437, HSD_TExpGetType(texp) == HSD_TE_TEV);
 
     texp->tev.a_op = op;
     texp->tev.a_clamp = (clamp ? GX_ENABLE : GX_DISABLE);
-    if ((u32) op <= GX_TEV_SUB) {
+    if (op == GX_TEV_ADD || op == GX_TEV_SUB) { /* Custom Robo: two compares in main.dol */
         texp->tev.a_bias = bias;
         texp->tev.a_scale = scale;
     } else {
@@ -326,14 +328,14 @@ static void HSD_TExpColorInSub(HSD_TETev* tev, HSD_TEInput sel, HSD_TExp* exp,
             ksel = GX_TEV_KCSEL_7_8;
             break;
         default:
-            HSD_ASSERT(498, 0);
+            HSD_ASSERT(500, 0);
             break;
         }
 
         if (tev->kcsel == HSD_TE_UNDEF) {
             tev->kcsel = ksel;
         } else if (tev->kcsel == ksel) {
-            HSD_Panic(__FILE__, 503,
+            HSD_Panic(__FILE__, 505,
                       "tev can't select multiple konst input.\n");
         }
         tev->c_in[idx].type = HSD_TE_KONST;
@@ -348,11 +350,11 @@ static void HSD_TExpColorInSub(HSD_TETev* tev, HSD_TEInput sel, HSD_TExp* exp,
             break;
         case HSD_TE_TEV: {
             u8 swap;
-            HSD_ASSERT(519,
-                        sel == HSD_TE_RGB || sel == HSD_TE_A);
             HSD_ASSERT(521,
+                        sel == HSD_TE_RGB || sel == HSD_TE_A);
+            HSD_ASSERT(523,
                         idx == 3 || sel != HSD_TE_RGB || exp->tev.c_clamp);
-            HSD_ASSERT(522,
+            HSD_ASSERT(524,
                         idx == 3 || sel != HSD_TE_A || exp->tev.a_clamp);
             swap = tev->c_in[idx].sel;
             switch (HSD_TExpGetType(tev->c_in[idx].exp)) {
@@ -412,13 +414,13 @@ static void HSD_TExpColorInSub(HSD_TETev* tev, HSD_TEInput sel, HSD_TExp* exp,
                 tev->c_in[idx].arg = GX_CC_TEXA;
                 break;
             default:
-                HSD_ASSERT(557, 0);
+                HSD_ASSERT(559, 0);
                 break;
             }
             if (tev->tex_swap == HSD_TE_UNDEF) {
                 tev->tex_swap = swap;
             } else {
-                HSD_ASSERT(562,
+                HSD_ASSERT(564,
                             swap == HSD_TE_UNDEF || tev->tex_swap == swap);
             }
         } break;
@@ -445,18 +447,18 @@ static void HSD_TExpColorInSub(HSD_TETev* tev, HSD_TEInput sel, HSD_TExp* exp,
                 tev->c_in[idx].arg = GX_CC_RASA;
                 break;
             default:
-                HSD_ASSERT(605, 0);
+                HSD_ASSERT(607, 0);
                 break;
             }
             if (tev->ras_swap == HSD_TE_UNDEF) {
                 tev->ras_swap = swap;
             } else {
-                HSD_ASSERT(610,
+                HSD_ASSERT(612,
                             swap == HSD_TE_UNDEF || tev->ras_swap == swap);
             }
         } break;
         default:
-            HSD_ASSERT(628, 0);
+            HSD_ASSERT(630, 0);
             break;
         }
     }
@@ -539,7 +541,7 @@ static void HSD_TExpAlphaInSub(HSD_TETev* tev, HSD_TEInput sel, HSD_TExp* exp,
         if (tev->kasel == HSD_TE_UNDEF) {
             tev->kasel = ksel;
         } else {
-            HSD_ASSERT(748, tev->kasel == ksel);
+            HSD_ASSERT(750, tev->kasel == ksel);
         }
         tev->a_in[idx].type = HSD_TE_KONST;
         break;
@@ -553,27 +555,27 @@ static void HSD_TExpAlphaInSub(HSD_TETev* tev, HSD_TEInput sel, HSD_TExp* exp,
             tev->a_in[idx].arg = GX_CA_ZERO;
             break;
         case HSD_TE_TEV:
-            HSD_ASSERT(771, sel == HSD_TE_A);
-            HSD_ASSERT(772, idx == 3 || exp->tev.a_clamp);
+            HSD_ASSERT(773, sel == HSD_TE_A);
+            HSD_ASSERT(774, idx == 3 || exp->tev.a_clamp);
             HSD_TExpRef(tev->a_in[idx].exp, tev->a_in[idx].sel);
             break;
         case HSD_TE_CNST:
-            HSD_ASSERT(776,
+            HSD_ASSERT(778,
                         sel == HSD_TE_A || sel == HSD_TE_X);
-            HSD_ASSERT(777, exp->cnst.comp == HSD_TE_X);
+            HSD_ASSERT(779, exp->cnst.comp == HSD_TE_X);
             tev->a_in[idx].sel = HSD_TE_X;
             HSD_TExpRef(tev->a_in[idx].exp, tev->a_in[idx].sel);
             break;
         case HSD_TE_TEX:
-            HSD_ASSERT(782, sel == HSD_TE_A);
+            HSD_ASSERT(784, sel == HSD_TE_A);
             tev->a_in[idx].arg = GX_CA_TEXA;
             break;
         case HSD_TE_RAS:
-            HSD_ASSERT(786, sel == HSD_TE_A);
+            HSD_ASSERT(788, sel == HSD_TE_A);
             tev->a_in[idx].arg = GX_CA_RASA;
             break;
         default:
-            HSD_ASSERT(790, 0);
+            HSD_ASSERT(792, 0);
             break;
         }
     }
@@ -828,7 +830,7 @@ static int TExpAssignReg(HSD_TExp* texp, HSD_TExpRes* res)
                 if (tev->c_in[i].type == HSD_TE_CNST) {
                     val = AssignColorReg(tev, i, res);
                     if (val < 0) {
-                        HSD_ASSERT(0x47B, val >= 0);
+                        HSD_ASSERT(0x47D, val >= 0);
                         return val;
                     }
                 }
@@ -839,7 +841,7 @@ static int TExpAssignReg(HSD_TExp* texp, HSD_TExpRes* res)
             if (AssignColorKonst(tev, 3, res) < 0) {
                 val = AssignColorReg(tev, 3, res);
                 if (val < 0) {
-                    HSD_ASSERT(0x488, val >= 0);
+                    HSD_ASSERT(0x489, val >= 0);
                     return val;
                 }
             }
@@ -849,7 +851,7 @@ static int TExpAssignReg(HSD_TExp* texp, HSD_TExpRes* res)
                     if (AssignColorKonst(tev, i, res) < 0) {
                         val = AssignColorReg(tev, i, res);
                         if (val < 0) {
-                            HSD_ASSERT(0x49D, val >= 0);
+                            HSD_ASSERT(0x496, val >= 0);
                             return val;
                         }
                     }
@@ -859,7 +861,7 @@ static int TExpAssignReg(HSD_TExp* texp, HSD_TExpRes* res)
                 if (tev->c_in[i].type == HSD_TE_CNST) {
                     val = AssignColorReg(tev, i, res);
                     if (val < 0) {
-                        HSD_ASSERT(0x4A6, val >= 0);
+                        HSD_ASSERT(0x49F, val >= 0);
                         return val;
                     }
                 }
@@ -873,7 +875,7 @@ static int TExpAssignReg(HSD_TExp* texp, HSD_TExpRes* res)
                 if (tev->a_in[i].type == HSD_TE_CNST) {
                     val = AssignAlphaReg(tev, i, res);
                     if (val < 0) {
-                        HSD_ASSERT(0x4B6, val >= 0);
+                        HSD_ASSERT(0x4AF, val >= 0);
                         return val;
                     }
                 }
@@ -885,7 +887,7 @@ static int TExpAssignReg(HSD_TExp* texp, HSD_TExpRes* res)
                 if (AssignAlphaReg(tev, 3, res) < 0) {
                     val = AssignAlphaKonst(tev, 3, res);
                     if (val < 0) {
-                        HSD_ASSERT(0x4C2, val >= 0);
+                        HSD_ASSERT(0x4BB, val >= 0);
                         return val;
                     }
                 }
@@ -895,7 +897,7 @@ static int TExpAssignReg(HSD_TExp* texp, HSD_TExpRes* res)
                         if (AssignAlphaKonst(tev, i, res) < 0) {
                             val = AssignAlphaReg(tev, i, res);
                             if (val < 0) {
-                                HSD_ASSERT(0x4CF, val >= 0);
+                                HSD_ASSERT(0x4C8, val >= 0);
                                 return val;
                             }
                         }
@@ -905,7 +907,7 @@ static int TExpAssignReg(HSD_TExp* texp, HSD_TExpRes* res)
                     if (tev->a_in[i].type == HSD_TE_CNST) {
                         val = AssignAlphaReg(tev, i, res);
                         if (val < 0) {
-                            HSD_ASSERT(0x4D8, val >= 0);
+                            HSD_ASSERT(0x4D1, val >= 0);
                             return val;
                         }
                     }
@@ -925,9 +927,9 @@ static void TExp2TevDesc(HSD_TExp* texp, HSD_TExpTevDesc* desc,
     HSD_TETev* tev;
     HSD_TevDesc* tevdesc;
 
-    HSD_ASSERT(1296, texp);
-    HSD_ASSERT(1297, desc);
-    HSD_ASSERT(1298, HSD_TExpGetType(texp) == HSD_TE_TEV);
+    HSD_ASSERT(1289, texp);
+    HSD_ASSERT(1290, desc);
+    HSD_ASSERT(1291, HSD_TExpGetType(texp) == HSD_TE_TEV);
 
     tev = &texp->tev;
     tevdesc = &desc->desc;
@@ -982,7 +984,7 @@ static void TExp2TevDesc(HSD_TExp* texp, HSD_TExpTevDesc* desc,
             tev->c_bias == HSD_TE_UNDEF ? 0 : tev->c_bias;
         tevdesc->u.tevconf.clr_clamp = tev->c_clamp != 0 ? GX_TRUE : GX_FALSE;
 
-        HSD_ASSERT(1361, tev->c_dst != HSD_TE_UNDEF);
+        HSD_ASSERT(1354, tev->c_dst != HSD_TE_UNDEF);
         tevdesc->u.tevconf.clr_out_reg = dst[tev->c_dst];
         if (tevdesc->u.tevconf.clr_out_reg == 0) {
             *init_cprev = 0;
@@ -1021,7 +1023,7 @@ static void TExp2TevDesc(HSD_TExp* texp, HSD_TExpTevDesc* desc,
         tevdesc->u.tevconf.alpha_clamp =
             tev->a_clamp != 0 ? GX_TRUE : GX_FALSE;
 
-        HSD_ASSERT(1397, tev->a_dst != HSD_TE_UNDEF);
+        HSD_ASSERT(1390, tev->a_dst != HSD_TE_UNDEF);
         tevdesc->u.tevconf.alpha_out_reg = dst[tev->a_dst];
         if (tevdesc->u.tevconf.alpha_out_reg == 0) {
             *init_aprev = 0;
@@ -1045,7 +1047,7 @@ void HSD_TExpSetReg(HSD_TExp* texp)
     changed = 0;
 
     while (clist != NULL) {
-        HSD_ASSERT(0x591, clist->type == HSD_TE_CNST);
+        HSD_ASSERT(0x586, clist->type == HSD_TE_CNST);
         if (clist->reg < 8) {
             changed |= 1 << clist->reg;
             if (clist->comp == HSD_TE_RGB) {
@@ -1188,8 +1190,8 @@ int HSD_TExpCompile(HSD_TExp* texp, HSD_TExpTevDesc** tevdesc,
     int init_cprev = 1;
     int init_aprev = 1;
 
-    HSD_ASSERT(1627, tevdesc);
-    HSD_ASSERT(1628, texp_list);
+    HSD_ASSERT(1616, tevdesc);
+    HSD_ASSERT(1617, texp_list);
 
     memset(&res, 0, sizeof(HSD_TExpRes));
 
@@ -1201,7 +1203,7 @@ int HSD_TExpCompile(HSD_TExp* texp, HSD_TExpTevDesc** tevdesc,
     HSD_TExpSchedule(num, list, order, &res);
     for (i = 0; i < num; ++i) {
         val = TExpAssignReg(order[i], &res);
-        HSD_ASSERT(1660, val >= 0);
+        HSD_ASSERT(1649, val >= 0);
     }
 
     for (i = num - 1; i >= 0; --i) {

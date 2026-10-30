@@ -4,7 +4,6 @@ objects: 487; symbols written: 2888
 functions and globals the C names differently from symbols.txt before it (a dtk default name: the matched C
 is the proof of the real name; one of our own names: the two disagree):
   .bss     0x80439BF8  lbl_80439BF8 -> gTRKEventQueue
-  .bss     0x80449D30  lbl_80449D30 -> render_alloc_data
   .data    0x8024BC08  lbl_8024BC08 -> invalidate_funcs
   .rodata  0x801C45C0  lbl_801C45C0 -> gTRKMemMap
   .sbss    0x8044FA2C  lbl_8044FA2C -> LastState
