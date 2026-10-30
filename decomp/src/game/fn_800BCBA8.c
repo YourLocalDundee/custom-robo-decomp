@@ -11,6 +11,6 @@ void fn_8006E690(HSD_JObj *arg0);
 void fn_800BCBA8(void *arg0) {
     if ((M2C_FIELD(arg0, u16 *, 0x1942) & 0x10) && ((HSD_JObj *) M2C_FIELD(arg0, HSD_JObj **, 0xB40) != NULL)) {
         fn_8006E690(M2C_FIELD(arg0, HSD_JObj **, 0xB40));
-        M2C_FIELD(arg0, u16 *, 0x1942) = (u16) (M2C_FIELD(arg0, u16 *, 0x1942) & 0xFFFFFFEF);
+        M2C_FIELD(arg0, u16 *, 0x1942) &= 0xFFFFFFEF;
     }
 }

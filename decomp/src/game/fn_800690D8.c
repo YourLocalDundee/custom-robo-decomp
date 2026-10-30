@@ -5,7 +5,7 @@
 #include "game/cr_game.h"
 
 s32 fn_800690D8(void *arg0, void *arg1, s32 arg2) {
-    M2C_FIELD(arg1, u8 *, 0) = (u8) (M2C_FIELD(arg1, u8 *, 0) | 4);
+    M2C_FIELD(arg1, u8 *, 0) |= 4;
     M2C_FIELD(arg1, s32 *, 0x20) = (s32) M2C_FIELD(arg0, u8 *, 5);
     return arg2;
 }

@@ -110,6 +110,9 @@ class Unknown(Exception):
     pass
 
 
+SECTIONS = db.decl_sections()   # {data object: section} of the context's CR_SECTION declarations
+
+
 class Emitter:
     """the declarations a draft needs out of the context, dependencies first"""
 
@@ -176,6 +179,9 @@ class Emitter:
         if isinstance(item, ca.FuncDef):
             self.walk(item.body)
             self.out.append(self.text(item))
+        elif isinstance(item, ca.Decl) and not isinstance(item.type, ca.FuncDecl) and item.name in SECTIONS:
+            # the data object's section, as the drafts' context declares it (draft_batch.py data_decls: CR_SECTION)
+            self.out.append('__declspec(section "%s") %s;' % (SECTIONS[item.name], self.text(item)))
         else:
             self.out.append(self.text(item) + ";")
 

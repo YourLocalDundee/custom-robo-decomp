@@ -5,7 +5,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 *cr_g_CurrentCam;
+__declspec(section ".sdata") extern u8 *cr_g_CurrentCam;
 
 void cr_Cam_SetMode(u8 mode) {
     M2C_FIELD(cr_g_CurrentCam, u8 *, 0) = mode;

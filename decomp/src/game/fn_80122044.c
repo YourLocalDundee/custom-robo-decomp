@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 s32 fn_800EB158(void);
 void fn_8008B930(u8 arg0);
-extern u8 lbl_8044F885[8];
+__declspec(section ".sdata") extern u8 lbl_8044F885[11];
 
 void fn_80122044(void) {
     if (fn_800EB158() == 0) {

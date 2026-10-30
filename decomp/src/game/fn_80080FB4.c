@@ -10,5 +10,5 @@ extern f32 lbl_80450E78;
 void fn_80080FB4(void *arg0) {
     *M2C_FIELD(arg0, f32 **, 0x5C) = lbl_80450E78;
     M2C_FIELD(arg0, s8 *, 0x57) = 0;
-    M2C_FIELD(arg0, s32 *, 0) = (s32) (M2C_FIELD(arg0, s32 *, 0) & 0xFFFFFFFE);
+    M2C_FIELD(arg0, s32 *, 0) &= 0xFFFFFFFE;
 }

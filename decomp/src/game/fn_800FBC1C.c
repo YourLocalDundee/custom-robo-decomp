@@ -10,7 +10,7 @@ extern u8 lbl_8044F7F1;
 /* nothing in main.dol references it: keep it (mwld strips unreferenced C functions) */
 #pragma force_active on
 void fn_800FBC1C(s32 *arg0) {
-    if ((u8) lbl_8044F7F1 == 3) {
+    if (lbl_8044F7F1 == 3) {
         *arg0 |= 1;
         return;
     }

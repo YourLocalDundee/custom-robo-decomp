@@ -5,7 +5,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern f32 cr_g_CurrentMtx[12];
+__declspec(section ".data") extern f32 cr_g_CurrentMtx[12];
 extern f32 lbl_804503D0;
 
 void fn_8001DE38(void) {

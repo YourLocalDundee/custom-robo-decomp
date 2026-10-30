@@ -126,6 +126,6 @@ so they win): `dolphin/exi/EXIBios.c` `-O3,p`; `dolphin/card/CARDOpen.c`, `CARDR
 roots for a file taken from another reference (`Runtime/__mem.c`: Melee's). The linker stays GC/1.3.2.
 Confirmed by the 66 objects matched in step 54 (dolphin, MSL, Runtime and MetroTRK all have objects at 100% with these
 flags; sysdolphin's two tried files, util.c and object.c, are 100% code too), and since then by every object linked
-from C: 92 library objects and 232 game functions (`decomp/reports/progress_report.txt`, plan.md step 59).
+from C: 92 library objects and 289 game functions (`decomp/reports/progress_report.txt`, plan.md step 62).
 
 The Milestone 3 proposal that the table above replaced (plan.md step 50) is in this file's git history.

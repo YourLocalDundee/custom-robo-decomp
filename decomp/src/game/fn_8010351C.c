@@ -9,11 +9,11 @@ void fn_80098290(s32 arg0);
 extern u32 lbl_8023B8D0[17];
 
 s32 fn_8010351C(void *arg0) {
-    if ((u8) M2C_FIELD(arg0, u8 *, 0x4855) != 3) {
+    if (M2C_FIELD(arg0, u8 *, 0x4855) != 3) {
         if (M2C_FIELD(arg0, s32 *, 0x498C) & 0x40) {
-            M2C_FIELD(arg0, s32 *, 0x498C) = (s32) (M2C_FIELD(arg0, s32 *, 0x498C) & 0xFFFFFFBF);
+            M2C_FIELD(arg0, s32 *, 0x498C) &= 0xFFFFFFBF;
         } else {
-            M2C_FIELD(arg0, s32 *, 0x498C) = (s32) (M2C_FIELD(arg0, s32 *, 0x498C) | 0x40);
+            M2C_FIELD(arg0, s32 *, 0x498C) |= 0x40;
         }
         fn_80098290((s32) lbl_8023B8D0[8]);
         M2C_FIELD(arg0, s8 *, 0x4852) = 1;

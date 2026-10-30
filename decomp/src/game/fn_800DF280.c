@@ -5,5 +5,5 @@
 #include "game/cr_game.h"
 
 void fn_800DF280(void *arg0) {
-    M2C_FIELD(arg0, s32 *, 0xC) = (s32) (M2C_FIELD(arg0, s32 *, 0xC) | 0x20);
+    M2C_FIELD(arg0, s32 *, 0xC) |= 0x20;
 }

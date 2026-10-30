@@ -1,0 +1,21 @@
+/* Custom Robo game code, promoted by tools/promote_drafts.py; edit by hand only after removing this line.
+ * fn_800A57CC: .text 0x800A57CC-0x800A5844 (120 bytes), linked from this file (batch 9: retail SHA-1, objdiff 100%).
+ * One function per object: the game's own source files are not known yet, so this is not the original file.
+ * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
+#include "game/cr_game.h"
+
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+extern u8 *lbl_8044F748;
+void fn_80098104(s32 arg0, s8 arg1);
+void fn_8001F6BC(s32 arg0, s16 arg1);
+
+void fn_800A57CC(void) {
+    if (M2C_FIELD(lbl_8044F748, u16 *, 0x16C) < 0x1EU) {
+        M2C_FIELD(lbl_8044F748, u16 *, 0x16C) += 1;
+        return;
+    }
+    fn_80098104(0x40078, 0x7F);
+    M2C_FIELD(lbl_8044F748, u16 *, 0x16C) = 0U;
+    M2C_FIELD(lbl_8044F748, s32 *, 4) += 1;
+    fn_8001F6BC(0, 0xF0);
+}

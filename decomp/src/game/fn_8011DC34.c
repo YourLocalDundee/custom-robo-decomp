@@ -25,7 +25,7 @@ void fn_8011DC34(void) {
     if (M2C_FIELD(lbl_8031FED8, s32 *, 0x14) & 0x100) {
         var_r31_8 = 2;
         fn_8008C8A8();
-        if ((s32) M2C_FIELD(lbl_8041CBC0, s32 *, 8) == 0) {
+        if (M2C_FIELD(lbl_8041CBC0, s32 *, 8) == 0) {
             lbl_8041CBC0[3] = 1;
             lbl_8041CBC0[4] = 1;
             M2C_FIELD(lbl_8041CBC0, u8 *, 0) = 2;

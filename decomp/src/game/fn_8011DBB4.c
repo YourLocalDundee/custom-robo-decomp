@@ -8,7 +8,7 @@
 s32 fn_800EB158(void);
 void fn_8009760C(s32 arg0);
 void fn_8008B930(u8 arg0);
-extern u8 lbl_8044F885[8];
+__declspec(section ".sdata") extern u8 lbl_8044F885[11];
 
 void fn_8011DBB4(void) {
     if (fn_800EB158() == 0) {

@@ -5,7 +5,7 @@
 #include "game/cr_game.h"
 
 void cr_CAMMODE_SNR_AUTO_MOVE_Frame(void *arg0) {
-    if ((s32) M2C_FIELD(arg0, s32 *, 0xFC) == 0) {
-        M2C_FIELD(arg0, u8 *, 0x168) = (u8) (M2C_FIELD(arg0, u8 *, 0x168) & 0xFFFFFFFB);
+    if (M2C_FIELD(arg0, s32 *, 0xFC) == 0) {
+        M2C_FIELD(arg0, u8 *, 0x168) &= 0xFFFFFFFB;
     }
 }

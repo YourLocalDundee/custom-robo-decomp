@@ -6,7 +6,7 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern f32 lbl_8044F3E8[2];
-extern u8 *cr_g_CurrentChara_06dc;
+__declspec(section ".sdata") extern u8 *cr_g_CurrentChara_06dc;
 extern u8 *lbl_8044F57C;
 void fn_800527D4(void);
 void cr_Chara_PoseLimbs(void);

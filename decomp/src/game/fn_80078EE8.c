@@ -5,7 +5,7 @@
 #include "game/cr_game.h"
 
 void fn_80078EE8(void *arg0) {
-    if ((u32) M2C_FIELD(arg0, u32 *, 0) != 0U) {
+    if (M2C_FIELD(arg0, u32 *, 0) != 0U) {
         M2C_FIELD(arg0, s32 *, 8) = 1;
     }
 }

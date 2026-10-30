@@ -5,7 +5,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 lbl_8044F885[8];
+__declspec(section ".sdata") extern u8 lbl_8044F885[11];
 
 void fn_80124808(s8 arg0) {
     M2C_FIELD(lbl_8044F885, u8 *, 0) = (u8) arg0;

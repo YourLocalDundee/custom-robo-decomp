@@ -9,8 +9,8 @@ extern u32 lbl_80321D40[18];
 
 void fn_800DEFC4(void *arg0) {
     if ((s32) lbl_80321D40[4] == 2) {
-        M2C_FIELD(arg0, s32 *, 0xC) = (s32) (M2C_FIELD(arg0, s32 *, 0xC) | 0x80);
+        M2C_FIELD(arg0, s32 *, 0xC) |= 0x80;
         return;
     }
-    M2C_FIELD(arg0, s32 *, 0xC) = (s32) (M2C_FIELD(arg0, s32 *, 0xC) | 0x100);
+    M2C_FIELD(arg0, s32 *, 0xC) |= 0x100;
 }
