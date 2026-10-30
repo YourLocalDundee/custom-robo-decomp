@@ -56,6 +56,7 @@ sudo apt install -y git curl unzip python3 python3-venv openjdk-21-jdk
 
 ```bash
 sudo pacman -S --needed git curl unzip python jdk21-openjdk
+yay -S --needed jdk21-temurin        # optional: Temurin instead of the repo JDK; nothing else needs the AUR
 ```
 
 **Fedora (dnf)**
@@ -107,6 +108,10 @@ After that, one command reruns everything. Windows:
 
 ```powershell
 pwsh tools\batches\run_all.ps1
+```
+
+```bash
+tools/batches/run_all.sh                 # Linux / macOS
 ```
 
 Linux / macOS:

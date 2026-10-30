@@ -254,7 +254,7 @@ class Emitter:
 # ---- tools -----------------------------------------------------------------------------------------------------------
 def mwcc():
     ver, flags = db.game_flags()
-    return str(D / "build/compilers" / ver / "mwcceppc.exe"), flags
+    return db.mwcc_cmd(ver), flags   # the command prefix: mwcceppc.exe, through wibo / wine off Windows
 
 
 def run(cmd):
@@ -396,7 +396,7 @@ def main(argv):
         try:
             pp = WORK / "src" / f"{name}.pp.c"
             pp.write_text(f'#include "{HEADER}"\n' + body, encoding="utf-8", newline="\n")
-            rc, txt = run([cc, "-E", "-nodefaults", "-proc", "gekko", "-nosyspath", "-i", "include",
+            rc, txt = run(cc + ["-E", "-nodefaults", "-proc", "gekko", "-nosyspath", "-i", "include",
                            str(pp.relative_to(D)).replace("\\", "/")])
             if rc:
                 return "does not preprocess with the committed header: " + txt.strip().splitlines()[-1][:80]
@@ -420,7 +420,7 @@ def main(argv):
         src = WORK / "src" / f"{name}.c"
         src.write_text(text, encoding="utf-8", newline="\n")
         obj = WORK / f"{name}.o"
-        rc, txt = run([cc, "-c"] + flags + ["-o", str(obj.relative_to(D)).replace("\\", "/"),
+        rc, txt = run(cc + ["-c"] + flags + ["-o", str(obj.relative_to(D)).replace("\\", "/"),
                                             str(src.relative_to(D)).replace("\\", "/")])
         if rc or not obj.exists():
             return "the promoted file does not compile: " + db.compile_error(txt)

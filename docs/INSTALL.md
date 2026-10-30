@@ -77,6 +77,8 @@ and install the packages with pacman:
 
 ```bash
 sudo pacman -S --needed git curl unzip python jdk21-openjdk
+# optional, from the AUR with yay: Temurin's JDK 21 instead of the repo's OpenJDK (either one runs Ghidra)
+yay -S --needed jdk21-temurin
 ```
 
 or, if you use the AUR helper **yay**, the same packages through it (yay hands repository packages to pacman, so the
