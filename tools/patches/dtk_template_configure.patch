@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,306 @@ def MatchingFor(*versions):
+@@ -284,18 +307,345 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -155,6 +155,21 @@ diff --git a/configure.py b/configure.py
 +CR_OBJECT_INCLUDES: Dict[str, List[str]] = {
 +    # from Melee: Mario Party 4's __mem.c has the three functions in another order than ours
 +    "Runtime/__mem.c": ["-i include/melee/MSL", "-i include/melee/dolphin"],
++    "sysdolphin/baselib/id.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    "sysdolphin/baselib/wobj.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    "sysdolphin/baselib/fog.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    "sysdolphin/baselib/dobj.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    "sysdolphin/baselib/aobj.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    "sysdolphin/baselib/fobj.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    "sysdolphin/baselib/pobj.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    "sysdolphin/baselib/lobj.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    "sysdolphin/baselib/robj.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    "sysdolphin/baselib/class.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    "sysdolphin/baselib/initialize.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    "sysdolphin/baselib/mobj.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
++    # from doldecomp/kar (Kirby Air Ride: the same sysdolphin revision as ours), its headers; include/cr_kar
++    # holds Custom Robo's overrides of them (step 61)
++    "sysdolphin/baselib/list.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin", "-i src/sysdolphin/baselib"],
 +}
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
@@ -256,12 +271,36 @@ diff --git a/configure.py b/configure.py
 +    "MSL/mbstring.c",
 +    "sysdolphin/baselib/util.c",
 +    "sysdolphin/baselib/object.c",
++    "sysdolphin/baselib/id.c",
++    "sysdolphin/baselib/list.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
 +# "data": the C defines data main.dol keeps in a dtk automatic object (the data split must give this object that
 +# piece first); "link": the C calls functions / uses data our symbols do not name yet.
 +CR_NOT_MATCHING = {
++    "sysdolphin/baselib/dobj.c":
++        "link: 100% code (every function its own by bytes, from doldecomp/kar), but it uses _OSReport, HSD_PObjRemoveAnimAll, HSD_MObjAddAnim and HSD_AObjInterpretAnim, which our symbols do not name yet: name them from the call sites (rule R7) to link it",
++    "sysdolphin/baselib/wobj.c":
++        "link: 100% code (every function its own by bytes, from doldecomp/kar), but it uses HSD_RObjRemoveAll and the parent class info objInfo, which our symbols do not name yet: name them from the call sites (rule R7) to link it",
++    "sysdolphin/baselib/class.c":
++        "link: 100% code (every function its own by bytes, from doldecomp/kar), but GetMemoryEntry uses memory_list, nb_memory_list and _HSD_MemAlloc, which our symbols do not name yet (memory.c, not split): name them from the call sites (rule R7) to link it",
++    "sysdolphin/baselib/mobj.c":
++        "code: 19 of 26 functions equal in objdiff (0x16D4 of 0x17F8 bytes; doldecomp/kar's mobj.c) and the C has .data (0x169) the split object lacks",
++    "sysdolphin/baselib/initialize.c":
++        "code: 1 of 18 functions equal in objdiff (doldecomp/kar's initialize.c) and the C has data the split object lacks (.data 0xD, .sbss2 0x4)",
++    "sysdolphin/baselib/robj.c":
++        "code: 5 of 21 functions equal in objdiff (0x1CC of 0x1F18 bytes; doldecomp/kar's robj.c)",
++    "sysdolphin/baselib/lobj.c":
++        "code: 8 of 27 functions equal in objdiff (0x200 of 0x22E8 bytes; doldecomp/kar's lobj.c) and the C has .sdata2 (0x14) the split object lacks",
++    "sysdolphin/baselib/pobj.c":
++        "code: 1 of 23 functions equal in objdiff (0x74 of 0x2AD4 bytes; doldecomp/kar's pobj.c)",
++    "sysdolphin/baselib/fobj.c":
++        "code: 5 of 11 functions equal in objdiff (0x2B8 of 0x1D7C bytes; doldecomp/kar's fobj.c): adapt or match the rest",
++    "sysdolphin/baselib/aobj.c":
++        "code: 2 of 15 functions equal in objdiff (0x70 of 0x620 bytes; doldecomp/kar's aobj.c, not finished there for every function): adapt or match the rest",
++    "sysdolphin/baselib/fog.c":
++        "code: 0 of 11 functions equal in objdiff (doldecomp/kar's fog.c) and the C has .data (0x7C) the split object lacks",
 +    "MSL/FILE_POS.c":
 +        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision",
 +    "MSL/abort_exit.c":

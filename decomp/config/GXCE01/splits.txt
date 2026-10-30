@@ -1466,7 +1466,7 @@ sysdolphin/baselib/id.c:
 sysdolphin/baselib/wobj.c:
 	.text       start:0x801A2C08 end:0x801A33E4
 	.data       start:0x8024CE00 end:0x8024CEA8
-	.sdata      start:0x8044F190 end:0x8044F1B8
+	.sdata      start:0x8044F190 end:0x8044F1B4
 	.sbss       start:0x80450050 end:0x80450058
 	.sdata2     start:0x80452920 end:0x80452940
 
@@ -1492,6 +1492,7 @@ sysdolphin/baselib/bytecode.c:
 sysdolphin/baselib/class.c:
 	.text       start:0x801A74D8 end:0x801A7CE4
 	.data       start:0x8024D4D8 end:0x8024D668
+	.sdata      start:0x8044F248 end:0x8044F250
 	.sbss       start:0x80450058 end:0x80450068
 
 sysdolphin/baselib/hash.c:
