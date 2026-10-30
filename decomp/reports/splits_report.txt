@@ -2150,7 +2150,7 @@ sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x80452940  
 .sdata2 0x804529F8-0x80452A14 size 0x1C
 .sbss2  0x80452A20-0x80452AC0 size 0xA0
 
-== rejected candidates (1162)
+== rejected candidates (1170)
 GALE01:Runtime/__va_arg.c .text: start not proven (__va_arg .. __va_arg; neighbour MWInitializeCriticalSection)
 GALE01:Runtime/Gecko_ExceptionPPC.c .text: none of its functions is (uniquely) named in ours
 GALE01:Runtime/Gecko_setjmp.c .text: none of its functions is (uniquely) named in ours
@@ -2240,7 +2240,7 @@ GALE01:sysdolphin/baselib/controller.c .text: none of its functions is (uniquely
 GALE01:sysdolphin/baselib/rumble.c .text: none of its functions is (uniquely) named in ours
 GALE01:sysdolphin/baselib/perf.c .text: none of its functions is (uniquely) named in ours
 GALE01:sysdolphin/baselib/quatlib.c .text: none of its functions is (uniquely) named in ours
-GALE01:sysdolphin/baselib/memory.c .text: none of its functions is (uniquely) named in ours
+GALE01:sysdolphin/baselib/memory.c .text: end not proven (HSD_Free .. HSD_Free; neighbour HSD_Alloc)
 GALE01:sysdolphin/baselib/shadow.c .text: start not proven (HSD_ShadowInitAllocData .. HSD_ViewingRectAddRect; neighbour HSD_Alloc)
 GALE01:sysdolphin/baselib/archive.c .text: end not proven (HSD_ArchiveGetPublicAddress .. HSD_ArchiveGetExtern; neighbour fn_801A5634)
 GALE01:sysdolphin/baselib/random.c .text: none of its functions is (uniquely) named in ours
@@ -3307,9 +3307,17 @@ data from C dolphin/os/OSReboot.c: 3 of 3 functions of the object are not verifi
 data from C dolphin/os/OSReset.c: 2 of 5 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/vi/vi.c: 4 of 22 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/bytecode.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/cobj.c: 23 of 48 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/displayfunc.c: 8 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/fobj.c: 6 of 11 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/fog.c: 11 of 11 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/initialize.c: 17 of 18 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/jobj.c: 31 of 48 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/lobj.c: 18 of 27 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/mtx.c: 10 of 16 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/texpdag.c: 11 of 11 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/state.c: 3 of 18 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/tev.c: 8 of 22 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/texp.c: 19 of 22 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/texpdag.c: 9 of 11 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/tobj.c: 26 of 39 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/video.c: 2 of 10 functions of the object are not verified C functions (another revision): its data is not proven

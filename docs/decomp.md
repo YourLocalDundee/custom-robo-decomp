@@ -176,13 +176,16 @@ Python tools are named by script only; run them with `python -I` (Windows) or `p
   unblock shadow.c / archive.c / debug.c yet, see plan.md).
 - C from Kirby Air Ride (doldecomp/kar, `REF=kar`): its sources include `<sysdolphin/x.h>` and bare `"x.h"`, so a kar
   object is imported with `--inc src=include/kar --inc include=include/kar` and compiled with its own search path
-  (decomp/configure.py `CR_OBJECT_INCLUDES`: `-cwd explicit -i include/cr_kar -i include/kar -i include/kar/sysdolphin
-  -i src/sysdolphin/baselib`): `-cwd explicit` keeps the Melee headers next to util.c / object.c in
-  src/sysdolphin/baselib from shadowing kar's of the same name. `decomp/include/cr_kar/` holds the Custom Robo
+  (decomp/configure.py `CR_OBJECT_INCLUDES`: `-cwd explicit -i include/cr_kar -i include/kar -i include/kar/sysdolphin`):
+  `-cwd explicit` keeps the Melee headers in src/sysdolphin/baselib from shadowing kar's of the same name. Every kar
+  header is in include/kar (its provenance line unchanged), none in src/sysdolphin/baselib (step 61 iteration 4: kar's
+  `"x.h"` headers dobj, fog, initialize, lobj, pobj moved to include/kar/sysdolphin, the five others there already as
+  byte-equal copies), so a Melee file next to them finds Melee's headers; after importing a kar file, move any header
+  the tool copies next to it into include/kar/sysdolphin. `decomp/include/cr_kar/` holds the Custom Robo
   overrides (found first; the kar copy stays unchanged): sysdolphin/list.h (kar's list.c defines HSD_SListAppend /
   Prepend, our names are Melee's HSD_SListAllocAndAppend / AllocAndPrepend), sysdolphin/wobj.h (kar's class info
   `lbl_805041C8` is `hsdWObj`, its parent `objInfo` is `hsdObj`), dobj.h (for kar's `#include "dobj.h"`: `_OSReport` /
-  `HSD_PObjRemoveAnimAll` are OSReport / HSD_PObjAddAnimAll, then the kar copy in src/sysdolphin/baselib). A new override header does not rebuild an object compiled before it (ninja's .d file
+  `HSD_PObjRemoveAnimAll` are OSReport / HSD_PObjAddAnimAll, then the kar copy in include/kar/sysdolphin). A new override header does not rebuild an object compiled before it (ninja's .d file
   does not list it): delete that .o once.
 - From C after iteration 3 (plan.md step 61): util.c, object.c, spline.c (Melee), list.c, id.c, class.c, dobj.c,
   wobj.c, mobj.c (kar), 100% code and data, main.dol retail: 9 of 29 HSD objects, 10.44% of their code. What it took:
@@ -196,9 +199,20 @@ Python tools are named by script only; run them with `python -I` (Windows) or `p
   of its own and the inline sqrtf of math_ppc.h, as this revision does. gen_dtk_splits.py rule 3: in an HSD object a
   named function no reference places and no pinned source defines counts as unnamed (HSD_MObjGetFlags).
 - Not linked (reasons in `CR_NOT_MATCHING`): kar's aobj, fobj, fog, initialize, lobj, pobj, robj have C for part of
-  their functions only (port the rest from Melee); Melee's mtx.c, texpdag.c, bytecode.c are another revision
-  (objdiff only). kar's objalloc.c is an unfinished stub (does not compile), not imported. Melee's state.c and
-  displayfunc.c are not imported: kar's src headers (dobj.h, fobj.h, fog.h, id.h, initialize.h, jobj.h, lobj.h,
-  mobj.h, pobj.h, robj.h) sit in src/sysdolphin/baselib next to Melee's and shadow the Melee ones those files need;
-  moving them to their own folder comes first.
+  their functions only (port the rest from Melee); kar's objalloc.c is an unfinished stub (does not compile), not
+  imported. Melee files of another revision, compiled for objdiff only (step 61 iteration 4; functions equal in objdiff):
+  state.c 15/18, video.c 7/10, tev.c 12/22, displayfunc.c 6/16, tobj.c 13/39, cobj.c 19/48, jobj.c 14/48, texp.c 3/22,
+  texpdag.c 2/11, mtx.c 6/16, bytecode.c 0/1 (97%). Adaptations so far, each with a `Custom Robo` comment: texp.h's
+  HSD_TETev has this revision's `a_range` byte after `a_scale` (main.dol reads tex_swap / ras_swap / kcsel / kasel one
+  byte later than Melee; the wowjinxy KAR texp.h has the field), texpdag.c reads `a_dst` for alpha inputs, state.c takes
+  u32 where main.dol compares unsigned and clamps the material alpha. Many of the rest differ only in an assert's line
+  number (this revision's files have other line numbers: tobj.c 17 functions, cobj.c 10, jobj.c 9, texp.c 4, tev.c 3,
+  displayfunc.c 3); a `#line` before the function is the way to adapt those once the file is otherwise close.
+  Their 100% callers named 7 functions by rule R7 (`// c-callsite`, iteration 4): HSD_AObjInitEndCallBack,
+  HSD_AObjInvokeCallBacks, HSD_RObjAddAnimAll, JObjSortAnim (jobj.c), HSD_CObjSetEyePosition, HSD_CObjSetRoll
+  (cobj.c), HSD_Free (tobj.c); aobj.c is now 4/15, robj.c 6/21.
+- Per-function triage of a file compiled for objdiff: `objdiff-cli diff -p decomp -u main/sysdolphin/baselib/<file>
+  -o out.json [<symbol>]` (decomp/build/tools/objdiff-cli.exe) writes both sides' instructions with a `diff_kind`;
+  an `ARG_MISMATCH` where both sides have a relocation is only the data name (the split object's data is not the C's
+  yet), everything else is a real difference.
 

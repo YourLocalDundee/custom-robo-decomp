@@ -154,7 +154,7 @@ typedef struct _HSD_TETev {
     u8 a_op;
     u8 a_clamp;
     u8 a_bias;
-    u8 a_scale;
+    u8 a_scale; u8 a_range; /* Custom Robo: this revision has a_range (kcsel at 0x20, kasel 0x21, tex_swap 0x1E in main.dol; wowjinxy KAR texp.h has the same field) */
     u8 tex_swap;
     u8 ras_swap;
     u8 kcsel;

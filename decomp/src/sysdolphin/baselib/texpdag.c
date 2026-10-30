@@ -366,7 +366,7 @@ void HSD_TExpSchedule(int num, HSD_TExpDag* list, HSD_TExp** result,
                             c_in[result[i]->tev.c_in[j].exp->tev.c_dst];
                     } else {
                         result[i]->tev.c_in[j].arg =
-                            a_in[result[i]->tev.c_in[j].exp->tev.c_dst];
+                            a_in[result[i]->tev.c_in[j].exp->tev.a_dst]; /* Custom Robo: a_dst here (Melee: c_dst), main.dol reads +0x18 */
                     }
                 }
             }

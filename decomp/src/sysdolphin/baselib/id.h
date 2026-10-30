@@ -1,13 +1,15 @@
-/* Custom Robo: from doldecomp/kar @ 3ed51a1a008a05c33225cc286c046b8f90fb3d0e, src/sysdolphin/id.h */ #ifndef _id_h_
+/* Custom Robo: from doldecomp/melee @ 24e685d57535c478a2e94802c85b31c2ba54ee67, src/sysdolphin/baselib/id.h */ #ifndef _id_h_
 #define _id_h_
 
-#include "global.h"
+#include <Runtime/platform.h>
 
-#include "objalloc.h"
+#include <sysdolphin/baselib/forward.h>
+
+#include <sysdolphin/baselib/objalloc.h>
 
 typedef struct _IDEntry {
     struct _IDEntry* next;
-    u32 id;
+    HSD_IDKey id;
     void* data;
 } IDEntry;
 
@@ -18,9 +20,14 @@ typedef struct _HSD_IDTable {
 HSD_ObjAllocData* HSD_IDGetAllocData(void);
 void HSD_IDInitAllocData(void);
 void HSD_IDSetup(void);
-void HSD_IDInsertToTable(HSD_IDTable* table, u32 id, void* data);
-void HSD_IDRemoveByIDFromTable(HSD_IDTable* table, u32 id);
-void* HSD_IDGetDataFromTable(HSD_IDTable* table, u32 id, s32* success);
-void _HSD_IDForgetMemory(void);
+void HSD_IDInsertToTable(HSD_IDTable* table, HSD_IDKey id, void* data);
+void HSD_IDRemoveByIDFromTable(HSD_IDTable* table, HSD_IDKey id);
+void* HSD_IDGetDataFromTable(HSD_IDTable* table, HSD_IDKey id, s32* success);
+void _HSD_IDForgetMemory(void* low, void* high);
+
+static inline void* HSD_IDGetData(HSD_IDKey id, s32* success)
+{
+    return HSD_IDGetDataFromTable(NULL, id, success);
+}
 
 #endif

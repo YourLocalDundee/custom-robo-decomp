@@ -1,94 +1,153 @@
-/* Custom Robo: from doldecomp/kar @ 3ed51a1a008a05c33225cc286c046b8f90fb3d0e, src/sysdolphin/robj.h */ #ifndef _robj_h_
+/* Custom Robo: from doldecomp/melee @ 24e685d57535c478a2e94802c85b31c2ba54ee67, src/sysdolphin/baselib/robj.h */ #ifndef _robj_h_
 #define _robj_h_
 
-#include "global.h"
+#include <Runtime/platform.h>
 
-#include "objalloc.h"
+#include <sysdolphin/baselib/forward.h> // IWYU pragma: export
 
-#include "aobj.h"
-#include "jobj.h"
+#include <dat_macros.h>
 
-#define TYPE_MASK 0x70000000
+#include <dolphin/mtx.h>
+#include <sysdolphin/baselib/objalloc.h>
+
+#define ROBJ_TYPE_MASK 0x70000000
+#define REFTYPE_EXP 0x00000000
 #define REFTYPE_JOBJ 0x10000000
+#define REFTYPE_LIMIT 0x20000000
+#define REFTYPE_BYTECODE 0x30000000
 #define REFTYPE_IKHINT 0x40000000
 
-typedef struct _HSD_Rvalue {
-    struct _HSD_Rvalue* next;
+struct HSD_Rvalue {
+    HSD_Rvalue* next;
     u32 flags;
-    struct _HSD_JObj* jobj;
-} HSD_Rvalue;
+    HSD_JObj* jobj;
+};
 
-typedef struct _HSD_RvalueList {
+struct HSD_RvalueList {
     u32 flags;
-    struct _HSD_JObjDesc* joint;
-    struct _HSD_RvalueList* next;
-} HSD_RvalueList;
+    HSD_Joint* joint;
+};
 
-typedef struct _HSD_IKHint {
+struct HSD_IKHint {
     f32 bone_length;
     f32 rotate_x;
-} HSD_IKHint;
+};
 
-typedef struct _HSD_IKHintDesc {
+struct HSD_IKHintDesc {
     f32 bone_length;
     f32 rotate_x;
-} HSD_IKHintDesc;
+};
 
-typedef struct _HSD_Exp {
-    union {
-        f32 (*func)(void);
+struct HSD_Exp {
+    union HSD_Exp_expr {
+        f32 (*func)(void*);
         u8* bytecode;
     } expr;
-    struct _HSD_Rvalue* rvalue;
+    HSD_Rvalue* rvalue;
     u32 nb_args;
     u8 is_bytecode;
-} HSD_Exp;
+};
 
-typedef struct _HSD_ExpDesc {
-    f32 (*func)(void);
-    struct _HSD_RvalueList* rvalue;
-} HSD_ExpDesc;
+struct HSD_ExpDesc {
+    f32 (*func)(void*);
+    HSD_RvalueList* rvalue;
+};
 
-typedef struct _HSD_ByteCodeExpDesc {
+struct HSD_ByteCodeExpDesc {
     u8* bytecode;
-    struct _HSD_RvalueList* rvalue;
-} HSD_ByteCodeExpDesc;
+    HSD_RvalueList* rvalue;
+};
 
-typedef struct _HSD_RObj {
-    struct _HSD_RObj* next;
+struct HSD_RObj {
+    HSD_RObj* next;
     u32 flags;
-    union {
-        struct _HSD_JObj* jobj;
-        struct _HSD_Exp exp;
+    union HSD_RObj_u {
+        HSD_JObj* jobj;
+        HSD_Exp exp;
         f32 limit;
-        struct _HSD_IKHint ik_hint;
+        HSD_IKHint ik_hint;
     } u;
-    struct _HSD_AObj* aobj;
-} HSD_RObj;
+    HSD_AObj* aobj;
+};
 
-typedef struct _HSD_RObjDesc {
-    struct _HSD_RObjDesc* next;
-    u32 flags; //0x04
-    union {
-        u32 i;
-        struct _HSD_ExpDesc* exp;
-        struct _HSD_ByteCodeExpDesc* bcexp;
-        struct _HSD_IKHintDesc* ik_hint;
-        struct _HSD_JObjDesc* joint;
-        f32 limit;
+struct HSD_RObjDesc {
+    HSD_RObjDesc* next;
+    u32 flags; // 0x04
+    union HSD_RObjDesc_u {
+        u32 i DAT_IF(false);
+        HSD_ExpDesc* exp DAT_IF((flags & ROBJ_TYPE_MASK) == REFTYPE_EXP);
+        HSD_ByteCodeExpDesc* bcexp DAT_IF((flags & ROBJ_TYPE_MASK) ==
+                                          REFTYPE_BYTECODE);
+        HSD_IKHintDesc* ik_hint DAT_IF((flags & ROBJ_TYPE_MASK) ==
+                                       REFTYPE_IKHINT);
+        HSD_Joint* joint DAT_IF((flags & ROBJ_TYPE_MASK) == REFTYPE_JOBJ);
+        f32 limit DAT_IF((flags & ROBJ_TYPE_MASK) == REFTYPE_LIMIT);
     } u;
-} HSD_RObjDesc;
+};
 
-typedef struct _HSD_RObjAnimJoint {
-    struct _HSD_RObjAnimJoint* next;
-    struct _HSD_AObjDesc* aobjdesc;
-} HSD_RObjAnimJoint;
+struct HSD_RObjAnimJoint {
+    HSD_RObjAnimJoint* next;
+    HSD_AObjDesc* aobjdesc;
+};
 
-
+void _HSD_RObjForgetMemory(void* low, void* high);
 void HSD_RObjInitAllocData(void);
 HSD_ObjAllocData* HSD_RObjGetAllocData(void);
 HSD_ObjAllocData* HSD_RvalueObjGetAllocData(void);
+HSD_RObj* HSD_RObjAlloc(void);
+void HSD_RObjFree(HSD_RObj* robj);
+
 void HSD_RObjSetFlags(HSD_RObj* robj, u32 flags);
+HSD_RObj* HSD_RObjGetByType(HSD_RObj* robj, u32 type, u32 subtype);
+void HSD_RObjAnimAll(HSD_RObj* robj);
+void HSD_RObjRemoveAnimAllByFlags(HSD_RObj* robj, u32 flags);
+void HSD_RObjRemoveAnimAll(HSD_RObj* robj);
+void HSD_RObjReqAnimAllByFlags(HSD_RObj* robj, f32 startframe, u32 flags);
+void HSD_RObjReqAnimAll(HSD_RObj* robj, f32 startframe);
+void HSD_RObjAddAnimAll(HSD_RObj* robj, HSD_RObjAnimJoint* anim);
+
+void HSD_RObjRemove(HSD_RObj*);
+void HSD_RObjRemoveAll(HSD_RObj*);
+void HSD_RObjResolveRefs(HSD_RObj*, HSD_RObjDesc*);
+void HSD_RObjResolveRefsAll(HSD_RObj*, HSD_RObjDesc*);
 HSD_RObj* HSD_RObjLoadDesc(HSD_RObjDesc*);
+void HSD_RObjSetConstraintObj(HSD_RObj* robj, void* obj);
+void HSD_RObjUpdateAll(HSD_RObj* robj, void* obj, HSD_ObjUpdateFunc);
+int HSD_RObjGetGlobalPosition(HSD_RObj* robj, int, Vec3* translate);
+
+void HSD_RObjRemoveAnimByFlags(HSD_RObj* robj, u32 flags);
+void HSD_RObjReqAnimByFlags(HSD_RObj* robj, f32 startframe, u32 flags);
+void HSD_RObjAddAnim(HSD_RObj* robj, HSD_RObjAnimJoint* anim);
+void HSD_RObjAnim(HSD_RObj* robj);
+
+HSD_Rvalue* HSD_RvalueAlloc(void);
+void HSD_RvalueRemove(HSD_Rvalue* rvalue);
+void HSD_RvalueRemoveAll(HSD_Rvalue* rvalue);
+void HSD_RvalueResolveRefs(HSD_Rvalue* rvalue, HSD_RvalueList* list);
+void HSD_RvalueResolveRefsAll(HSD_Rvalue* rvalue, HSD_RvalueList* list);
+
+static inline bool RObjHasFlags(HSD_RObj* robj)
+{
+    if ((robj->flags & ROBJ_TYPE_MASK) == 0) {
+        return true;
+    }
+    return false;
+}
+
+static inline bool RObjHasFlags2(HSD_RObj* robj)
+{
+    if ((robj->flags & 0x80000000) != 0) {
+        return true;
+    }
+    return false;
+}
+
+static inline bool RObjHasLimitReftype(HSD_RObj* robj)
+{
+    if ((robj->flags & ROBJ_TYPE_MASK) == REFTYPE_LIMIT) {
+        return true;
+    }
+    return false;
+}
 
 #endif

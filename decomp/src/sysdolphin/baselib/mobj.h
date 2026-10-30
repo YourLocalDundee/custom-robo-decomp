@@ -1,14 +1,14 @@
-/* Custom Robo: from doldecomp/kar @ 3ed51a1a008a05c33225cc286c046b8f90fb3d0e, src/sysdolphin/mobj.h */ #ifndef _mobj_h_
+/* Custom Robo: from doldecomp/melee @ 24e685d57535c478a2e94802c85b31c2ba54ee67, src/sysdolphin/baselib/mobj.h */ #ifndef _mobj_h_
 #define _mobj_h_
 
-#include <global.h>
+#include <Runtime/platform.h>
 
-#include <dolphin/types.h>
+#include <sysdolphin/baselib/forward.h> // IWYU pragma: export
 
-#include <sysdolphin/class.h>
-#include <sysdolphin/aobj.h>
-#include <sysdolphin/texp.h>
-#include <sysdolphin/tobj.h>
+#include <dolphin/gx.h>
+#include <sysdolphin/baselib/class.h>
+#include <sysdolphin/baselib/texp.h>
+#include <sysdolphin/baselib/tobj.h>
 
 #define MOBJ_ANIM 0x4
 #define TOBJ_ANIM 0x10
@@ -39,7 +39,8 @@
 #define RENDER_VERTEX (1 << 1)
 #define RENDER_DIFFUSE (1 << 2)
 #define RENDER_SPECULAR (1 << 3)
-#define CHANNEL_FIELD (RENDER_CONSTANT | RENDER_VERTEX | RENDER_DIFFUSE | RENDER_SPECULAR)
+#define CHANNEL_FIELD                                                         \
+    (RENDER_CONSTANT | RENDER_VERTEX | RENDER_DIFFUSE | RENDER_SPECULAR)
 #define RENDER_TEX0 (1 << 4)
 #define RENDER_TEX1 (1 << 5)
 #define RENDER_TEX2 (1 << 6)
@@ -48,7 +49,9 @@
 #define RENDER_TEX5 (1 << 9)
 #define RENDER_TEX6 (1 << 10)
 #define RENDER_TEX7 (1 << 11)
-#define RENDER_TEXTURES (RENDER_TEX0 | RENDER_TEX1 | RENDER_TEX2 | RENDER_TEX3 | RENDER_TEX4 | RENDER_TEX5 | RENDER_TEX6 | RENDER_TEX7)
+#define RENDER_TEXTURES                                                       \
+    (RENDER_TEX0 | RENDER_TEX1 | RENDER_TEX2 | RENDER_TEX3 | RENDER_TEX4 |    \
+     RENDER_TEX5 | RENDER_TEX6 | RENDER_TEX7)
 #define RENDER_TOON (1 << 12)
 
 #define RENDER_ALPHA_SHIFT 13
@@ -63,26 +66,28 @@
 #define RENDER_NO_ZUPDATE (1 << 29)
 #define RENDER_XLU (1 << 30)
 
-typedef struct _HSD_MObj {
+#define RENDER_BLENDING (RENDER_XLU | RENDER_NO_ZUPDATE)
+
+struct HSD_MObj {
     HSD_Class parent;
     u32 rendermode;
-    struct _HSD_TObj* tobj;
-    struct _HSD_Material* mat;
-    struct _HSD_PEDesc* pe;
-    struct _HSD_AObj* aobj;
+    HSD_TObj* tobj;
+    HSD_Material* mat;
+    HSD_PEDesc* pe;
+    HSD_AObj* aobj;
     struct _HSD_TExpTevDesc* tevdesc;
-    union _HSD_TExp* texp;
-} HSD_MObj;
+    HSD_TExp* texp;
+};
 
-typedef struct _HSD_Material {
+struct HSD_Material {
     GXColor ambient;
     GXColor diffuse;
     GXColor specular;
     f32 alpha;
     f32 shininess;
-} HSD_Material;
+};
 
-typedef struct _HSD_PEDesc {
+struct HSD_PEDesc {
     u8 flags;
     u8 ref0;
     u8 ref1;
@@ -95,25 +100,25 @@ typedef struct _HSD_PEDesc {
     u8 alpha_comp0;
     u8 alpha_op;
     u8 alpha_comp1;
-} HSD_PEDesc;
+};
 
 typedef struct _HSD_MObjDesc {
     char* class_name;
     u32 rendermode;
     struct _HSD_TObjDesc* texdesc;
-    struct _HSD_Material* mat;
+    HSD_Material* mat;
     void* renderdesc;
-    struct _HSD_PEDesc* pedesc;
+    HSD_PEDesc* pedesc;
 } HSD_MObjDesc;
 
 typedef struct _HSD_ChanAnim {
     struct _HSD_ChanAnim* next;
-    struct _HSD_AObjDesc* aobjdesc;
+    HSD_AObjDesc* aobjdesc;
 } HSD_ChanAnim;
 
 typedef struct _HSD_TevRegAnim {
     struct _HSD_TevRegAnim* next;
-    struct _HSD_AObjDesc* aobjdesc;
+    HSD_AObjDesc* aobjdesc;
 } HSD_TevRegAnim;
 
 typedef struct _HSD_RenderAnim {
@@ -123,29 +128,30 @@ typedef struct _HSD_RenderAnim {
 
 typedef struct _HSD_MatAnim {
     struct _HSD_MatAnim* next;
-    struct _HSD_AObjDesc* aobjdesc;
+    HSD_AObjDesc* aobjdesc;
     struct _HSD_TexAnim* texanim;
     struct _HSD_RenderAnim* renderanim;
 } HSD_MatAnim;
 
-typedef struct _HSD_MatAnimJoint {
-    struct _HSD_MatAnimJoint* child;
-    struct _HSD_MatAnimJoint* next;
-    struct _HSD_MatAnim* matanim;
-} HSD_MatAnimJoint;
+struct HSD_MatAnimJoint {
+    HSD_MatAnimJoint* child;
+    HSD_MatAnimJoint* next;
+    HSD_MatAnim* matanim;
+};
 
-typedef struct _HSD_MObjInfo {
-    HSD_ClassInfo parent;
-    void (*setup)(HSD_MObj* mobj, u32 rendermode);
-    int (*load)(HSD_MObj* mobj, HSD_MObjDesc* desc);
-    HSD_TExp* (*make_texp)(HSD_MObj* mobj, HSD_TObj* tobj_top, HSD_TExp** list);
-    void (*setup_tev)(HSD_MObj* mobj, HSD_TObj* tobj, u32 rendermode);
-    void (*update)();
-    void (*unset)(HSD_MObj* mobj, u32 rendermode);
-} HSD_MObjInfo;
+struct HSD_MObjInfo {
+    /*  +0 */ HSD_ClassInfo parent;
+    /* +3C */ HSD_MObjSetupFunc setup;
+    /* +40 */ int (*load)(HSD_MObj* mobj, HSD_MObjDesc* desc);
+    /* +44 */ HSD_TExp* (*make_texp)(HSD_MObj* mobj, HSD_TObj* tobj_top,
+                                     HSD_TExp** list);
+    /* +48 */ void (*setup_tev)(HSD_MObj* mobj, HSD_TObj* tobj,
+                                u32 rendermode);
+    /* +4C */ void (*unset)(HSD_MObj* mobj, u32 rendermode);
+};
 
-#define HSD_MOBJ(o) ((HSD_MObj*)(o))
-#define HSD_MOBJ_INFO(i) ((HSD_MObjInfo*)(i))
+#define HSD_MOBJ(o) ((HSD_MObj*) (o))
+#define HSD_MOBJ_INFO(i) ((HSD_MObjInfo*) (i))
 #define HSD_MOBJ_METHOD(o) HSD_MOBJ_INFO(HSD_CLASS_METHOD(o))
 
 extern HSD_MObjInfo hsdMObj;
@@ -156,18 +162,25 @@ void HSD_MObjClearFlags(HSD_MObj* mobj, u32 flags);
 void HSD_MObjRemoveAnimByFlags(HSD_MObj* mobj, u32 flags);
 void HSD_MObjAddAnim(HSD_MObj* mobj, HSD_MatAnim* matanim);
 void HSD_MObjReqAnimByFlags(HSD_MObj* mobj, f32 startframe, u32 flags);
-void HSD_MObjReqAnim(HSD_MObj *mobj, f32 startframe);
-
-void MObjUpdateFunc(void* obj, u32 type, FObjData* val);
-
+void HSD_MObjReqAnim(HSD_MObj* mobj, f32 startframe);
 void HSD_MObjAnim(HSD_MObj* mobj);
-
-int MObjLoad(HSD_MObj* mobj, HSD_MObjDesc* desc);
 HSD_MObj* HSD_MObjLoadDesc(HSD_MObjDesc* mobjdesc);
+HSD_TObj* HSD_MObjGetTObj(HSD_MObj* mobj);
+void HSD_MObjRemove(HSD_MObj* mobj);
+HSD_MObj* HSD_MObjAlloc(void);
+HSD_Material* HSD_MaterialAlloc(void);
+void HSD_MObjCompileTev(HSD_MObj* mobj);
+void HSD_MObjDeleteShadowTexture(HSD_TObj* tobj);
+HSD_TExp* MObjMakeTExp(HSD_MObj* mobj, HSD_TObj* tobj_top, HSD_TExp** list);
+void MObjSetupTev(HSD_MObj* mobj, HSD_TObj* tobj, u32 arg2);
 
-HSD_MObj* HSD_MObjAlloc();
-HSD_Material* HSD_MaterialAlloc();
-
-void HSD_MObjCompileTev(HSD_MObj *mobj);
+void HSD_MObjSetup(HSD_MObj* mobj, u32 rendermode);
+void HSD_MObjUnset(HSD_MObj* mobj, u32 rendermode);
+void HSD_MObjSetToonTextureImage(HSD_ImageDesc* imagedesc);
+void HSD_MObjSetDiffuseColor(HSD_MObj* mobj, u8 r, u8 g, u8 b);
+void HSD_MObjSetAlpha(HSD_MObj* mobj, f32 alpha);
+void HSD_MObjAddShadowTexture(HSD_TObj* tobj);
+extern HSD_TObj* tobj_shadows;
+extern HSD_TObj* tobj_toon;
 
 #endif

@@ -1,151 +1,162 @@
-/* Custom Robo: from doldecomp/kar @ 3ed51a1a008a05c33225cc286c046b8f90fb3d0e, src/sysdolphin/pobj.h */ #ifndef _pobj_h_
+/* Custom Robo: from doldecomp/melee @ 24e685d57535c478a2e94802c85b31c2ba54ee67, src/sysdolphin/baselib/pobj.h */ #ifndef _pobj_h_
 #define _pobj_h_
 
-#include <dolphin/types.h>
+#include <Runtime/platform.h>
 
-#include "sysdolphin/object.h"
+#include <sysdolphin/baselib/forward.h> // IWYU pragma: export
 
-#include "sysdolphin/aobj.h"
-#include "sysdolphin/fobj.h"
+#include <dat_macros.h>
 
-#define HSD_A_S_W0 8
-#define HSD_DEFAULT_MAX_SHAPE_VERTICES 2000
-#define HSD_DEFAULT_MAX_SHAPE_NORMALS 2000
+#include <dolphin/gx/GXEnum.h>
+#include <dolphin/mtx.h>
+#include <sysdolphin/baselib/aobj.h>
+#include <sysdolphin/baselib/class.h>
+#include <sysdolphin/baselib/list.h>
 
-#define POBJ_ANIM (1 << 3)
-#define POBJ_SKIN (0 << 12)
-#define POBJ_SHAPEANIM (1 << 12)
-#define POBJ_ENVELOPE (2 << 12)
+#define HSD_MTX_RIGID 1
+#define HSD_MTX_ENVELOPE 2
 
-#define pobj_type(o) (o->flags & 0x3000)
-
-#define POBJ_CULLFRONT (1 << 14)
-#define POBJ_CULLBACK (1 << 15)
-
-#define SHAPESET_AVERAGE 1
-#define SHAPESET_ADDITIVE 1 << 1
-
-#define GX_NOP 0
-#define GX_VAT_MASK 0x7
-#define GX_OPCODE_MASK 0xF8
-
-typedef enum _PObjSetupFlag {
-    SETUP_NORMAL = 1,
-    SETUP_REFLECTION = 2,
-    SETUP_HIGHLIGHT = 4,
-    SETUP_NORMAL_PROJECTION = 6,
-    SETUP_JOINT0 = 1,
-    SETUP_JOINT1 = 2,
-    SETUP_NONE = 0
-} PObjSetupFlag;
-
-typedef struct _unk_struct_pobj {
-    u32 data[8];
-    struct _HSD_AObj* aobj; // 0x20
+struct HSD_PObj {
+    HSD_Class parent;
+    HSD_PObj* next;
+    HSD_VtxDescList* verts;
+    u16 flags;
+    u16 n_display;
+    /// #u8 primitive, #u16 vtxcnt, #u16* indices
+    u8* display;
+    union HSD_PObjUnion {
+        HSD_JObj* jobj;
+        HSD_ShapeSet* shape_set;
+        HSD_SList* envelope_list;
+    } u;
 };
 
-typedef struct _HSD_PObj {
-    HSD_Class parent;
-    struct _HSD_PObj* next;
-    struct _HSD_VtxDescList* verts;
-    u16 flags;
-    u16 n_display;
-    u8* display; //u8 primitive, u8 vtxcnt, u16* indices
-    union {
-        struct _HSD_JObj* jobj;
-        struct _HSD_ShapeSet* shape_set;
-        struct _HSD_SList* envelope_list;
-        struct _unk_struct_pobj* x14_unk;
-    } u;
-    struct _HSD_AObj* aobj;
-} HSD_PObj;
+/// Envelopes of one vertex matrix, up to one with a null joint.
+typedef HSD_EnvelopeDesc* HSD_EnvelopeList DAT_TERMINATED(0);
 
-typedef struct _HSD_PObjDesc {
+/// GX commands: primitives indexing a shape's vertex arrays, in 32-byte
+/// blocks.
+typedef u8 HSD_DisplayList DAT_BLOB;
+
+/// One attribute's vertex data, as #GXSetArray takes it: elements of
+/// `stride` bytes, which a shape's display lists index.
+typedef u8 HSD_VertexArray DAT_BLOB;
+
+struct HSD_PObjDesc {
     char* class_name;
-    struct _HSD_PObjDesc* next;
-    struct _HSD_VtxDescList* verts;
+    HSD_PObjDesc* next;
+    HSD_VtxDescList* verts DAT_TERMINATED(GX_VA_NULL);
     u16 flags;
     u16 n_display;
-    u8* display;
-    union {
-        struct _HSD_JObjDesc* joint;
-        struct _HSD_ShapeSetDesc* shape_set;
-        struct _HSD_EnvelopeDesc** envelope_p;
+    /// As #GXCallDisplayList takes it (#PObjDispSimplePrimitive).
+    HSD_DisplayList* display DAT_COUNT(n_display << 5);
+    union HSD_PObjDesc_u {
+        HSD_Joint* joint DAT_IF((flags & 0x3000) == POBJ_SKIN);
+        HSD_ShapeSetDesc* shape_set DAT_IF((flags & 0x3000) == POBJ_SHAPEANIM);
+        HSD_EnvelopeList* envelope_p DAT_TERMINATED(0)
+            DAT_IF((flags & 0x3000) == POBJ_ENVELOPE);
     } u;
-} HSD_PObjDesc;
+};
 
-typedef struct _HSD_VtxDescList {
-    u32 attr;
-    u32 attr_type;
-    u32 comp_cnt;
-    u32 comp_type;
+struct HSD_VtxDescList {
+    GXAttr attr;
+    GXAttrType attr_type;
+    GXCompCnt comp_cnt;
+    GXCompType comp_type;
     u8 frac;
     u16 stride;
-    void* vertex;
-} HSD_VtxDescList;
+    /// @todo Its length is the largest index the display lists use.
+    HSD_VertexArray* vertex;
+};
 
-typedef struct _HSD_Envelope {
-    struct _HSD_Envelope* next;
-    struct _HSD_JObj* jobj;
+struct HSD_Envelope {
+    HSD_Envelope* next;
+    HSD_JObj* jobj;
     f32 weight;
-} HSD_Envelope;
+};
 
-typedef struct _HSD_EnvelopeDesc {
-    struct _HSD_JObjDesc* joint;
+struct HSD_EnvelopeDesc {
+    HSD_Joint* joint;
     f32 weight;
-} HSD_EnvelopeDesc;
+};
 
-typedef struct _HSD_ShapeSet {
+struct HSD_ShapeSet {
     u16 flags;
     u16 nb_shape;
-    u32 nb_vertex_index;
-    struct _HSD_VtxDescList* vertex_desc;
-    u8** vertex_idx_list;
-    u32 nb_normal_index;
-    struct _HSD_VtxDescList* normal_desc;
-    u8** normal_idx_list;
-    struct {
+    int nb_vertex_index;
+    HSD_VtxDescList* vertex_desc;
+    u8** vertex_idx_list DAT_COUNT(nb_shape);
+    s32 nb_normal_index;
+    HSD_VtxDescList* normal_desc;
+    u8** normal_idx_list DAT_COUNT(nb_shape);
+    union HSD_ShapeSet_blend {
         f32* bp;
         f32 bl;
     } blend;
-} HSD_ShapeSet;
+    HSD_AObj* aobj;
+};
 
-typedef struct _HSD_ShapeSetDesc {
+struct HSD_ShapeSetDesc {
     u16 flags;
     u16 nb_shape;
-    u32 nb_vertex_index;
-    struct _HSD_VtxDescList* vertex_desc;
-    u8** vertex_idx_list;
-    u32 nb_normal_index;
-    struct _HSD_VtxDescList* normal_desc;
-    u8** normal_idx_list;
-} HSD_ShapeSetDesc;
+    s32 nb_vertex_index;
+    HSD_VtxDescList* vertex_desc;
+    u8** vertex_idx_list DAT_COUNT(nb_shape);
+    s32 nb_normal_index;
+    HSD_VtxDescList* normal_desc;
+    u8** normal_idx_list DAT_COUNT(nb_shape);
+};
 
-typedef struct _HSD_ShapeAnim {
-    struct _HSD_ShapeAnim* next;
+struct HSD_ShapeAnim {
+    HSD_ShapeAnim* next;
     HSD_AObjDesc* aobjdesc;
-} HSD_ShapeAnim;
+};
 
-typedef struct _HSD_ShapeAnimJoint {
-    struct _HSD_ShapeAnimJoint* child;
-    struct _HSD_ShapeAnimJoint* next;
-    struct _HSD_ShapeAnimDObj* shapeanimdobj;
-} HSD_ShapeAnimJoint;
+struct HSD_ShapeAnimJoint {
+    HSD_ShapeAnimJoint* child;
+    HSD_ShapeAnimJoint* next;
+    HSD_ShapeAnimDObj* shapeanimdobj;
+};
 
-typedef struct _HSD_PObjInfo {
+struct HSD_PObjInfo {
     HSD_ClassInfo parent;
     void (*disp)(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode);
     void (*setup_mtx)(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode);
     s32 (*load)(HSD_PObj* pobj, HSD_PObjDesc* desc);
-    void (*update)(void* obj, u32 type, FObjData* val);
-} HSD_PObjInfo;
+};
 
-#define HSD_POBJ(o) ((HSD_PObj*)(o))
-#define HSD_POBJ_INFO(i) ((HSD_PObjInfo*)(i))
+extern HSD_PObjInfo hsdPObj;
+
+#define HSD_POBJ(o) ((HSD_PObj*) (o))
+#define HSD_POBJ_INFO(i) ((HSD_PObjInfo*) (i))
 #define HSD_POBJ_METHOD(o) HSD_POBJ_INFO(HSD_CLASS_METHOD(o))
+
+HSD_PObjInfo* HSD_PObjGetDefaultClass(void);
+void HSD_PObjSetDefaultClass(HSD_PObjInfo* info);
+HSD_PObj* HSD_PObjAlloc(void);
+void HSD_PObjFree(HSD_PObj*);
 
 u32 HSD_PObjGetFlags(HSD_PObj* pobj);
 void HSD_PObjRemoveAnimAllByFlags(HSD_PObj* pobj, u32 flags);
+void HSD_PObjReqAnimByFlags(HSD_PObj* pobj, f32 startframe, u32 flags);
 void HSD_PObjReqAnimAllByFlags(HSD_PObj* pobj, f32 startframe, u32 flags);
+void HSD_ClearVtxDesc(void);
+HSD_PObj* HSD_PObjLoadDesc(HSD_PObjDesc*);
+
+void HSD_PObjClearMtxMark(void* obj, u32 mark);
+void HSD_PObjSetMtxMark(int idx, void* obj, u32 mark);
+void HSD_PObjGetMtxMark(int idx, void** obj, u32* mark);
+void HSD_PObjAddAnim(HSD_PObj*, HSD_ShapeAnim*);
+void HSD_PObjAddAnimAll(HSD_PObj*, HSD_ShapeAnim*);
+void HSD_PObjAnim(HSD_PObj* pobj);
+void HSD_PObjAnimAll(HSD_PObj*);
+void HSD_PObjResolveRefs(HSD_PObj*, HSD_PObjDesc*);
+void HSD_PObjResolveRefsAll(HSD_PObj*, HSD_PObjDesc*);
+void HSD_PObjRemove(HSD_PObj*);
+void HSD_PObjRemoveAll(HSD_PObj*);
+
+void HSD_PObjRemoveAnimByFlags(HSD_PObj* pobj, u32 flags);
+
+void HSD_PObjDisp(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode);
 
 #endif
