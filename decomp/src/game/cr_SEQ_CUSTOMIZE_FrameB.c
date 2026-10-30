@@ -4,7 +4,8 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-M2C_UNK fn_80101284();                              /* extern */
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+void fn_80101284(void);
 
 void cr_SEQ_CUSTOMIZE_FrameB(void) {
     fn_80101284();

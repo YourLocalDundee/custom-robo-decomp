@@ -4,14 +4,15 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-M2C_UNK fn_8002E2A0();                              /* extern */
-M2C_UNK fn_8002E564(s32);                           /* extern */
-M2C_UNK fn_8002E944(s32);                           /* extern */
-M2C_UNK fn_8002EBB0(s32);                           /* extern */
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+void fn_8002E2A0(void *arg0);
+void fn_8002E564(void *arg0);
+void fn_8002EBB0(void *arg0);
+void fn_8002E944(void *arg0);
 
 void cr_CAMMODE_DEBUG_Frame(s32 arg0) {
-    fn_8002E2A0();
-    fn_8002E564(arg0);
-    fn_8002EBB0(arg0);
-    fn_8002E944(arg0);
+    fn_8002E2A0((void *) arg0);
+    fn_8002E564((void *) arg0);
+    fn_8002EBB0((void *) arg0);
+    fn_8002E944((void *) arg0);
 }

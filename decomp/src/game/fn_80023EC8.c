@@ -4,15 +4,16 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-M2C_UNK fn_80007A30();                              /* extern */
-M2C_UNK fn_8001B424(M2C_UNK);                       /* extern */
-M2C_UNK fn_80036FB0();                              /* extern */
-M2C_UNK fn_8006FE38();                              /* extern */
-M2C_UNK fn_80075CA4();                              /* extern */
-M2C_UNK fn_80099124();                              /* extern */
-M2C_UNK fn_800EB100();                              /* extern */
-M2C_UNK fn_800EF290();                              /* extern */
-M2C_UNK fn_800F1860();                              /* extern */
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+void fn_8001B424(s32 arg0);
+void fn_80099124(void);
+void fn_800EB100(void);
+void fn_800EF290(void);
+void fn_80036FB0(void);
+void fn_8006FE38(void);
+void fn_80007A30(void);
+void fn_80075CA4(void);
+void fn_800F1860(void);
 
 void fn_80023EC8(void) {
     fn_8001B424(0x64);

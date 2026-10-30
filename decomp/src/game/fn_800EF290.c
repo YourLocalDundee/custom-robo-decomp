@@ -4,7 +4,7 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-/* used from the HSD / SDK headers and symbols/cr_types.h (generated from the drafts' context) */
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void CARDInit(void);
 
 void fn_800EF290(void) {

@@ -4,16 +4,15 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-/* used from the HSD / SDK headers and symbols/cr_types.h (generated from the drafts' context) */
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+extern u8 *lbl_8044F2A4;
+extern u8 *lbl_8044F2E4;
 typedef struct OSFontHeader OSFontHeader;
 BOOL OSInitFont(OSFontHeader *fontData);
 
-extern OSFontHeader *lbl_8044F2A4;
-extern OSFontHeader *lbl_8044F2E4;
-
 void fn_8002312C(void) {
     lbl_8044F2A4 = lbl_8044F2E4;
-    if (OSInitFont(lbl_8044F2A4) == 0) {
+    if (OSInitFont((OSFontHeader *) lbl_8044F2A4) == 0) {
 loop_1:
         goto loop_1;
     }

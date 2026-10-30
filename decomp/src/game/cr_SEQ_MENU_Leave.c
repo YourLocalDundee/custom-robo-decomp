@@ -4,8 +4,9 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-M2C_UNK fn_8008F6E8(M2C_UNK);                       /* extern */
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+void fn_8008F6E8(u32 arg0);
 
 void cr_SEQ_MENU_Leave(void) {
-    fn_8008F6E8(6);
+    fn_8008F6E8(6U);
 }

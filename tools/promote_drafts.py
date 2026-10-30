@@ -275,8 +275,11 @@ def header_names():
 def draft_body(name):
     t = (DRAFTS / "c" / f"{name}.c").read_text(encoding="utf-8")
     lines = t.split("\n")
-    assert lines[0].startswith("// m2c draft of ") and lines[1] == '#include "ctx.h"', name
-    return "\n".join(lines[2:]).lstrip("\n")
+    assert lines[0].startswith("// m2c draft of ") and '#include "ctx.h"' in lines[1:4], name
+    i = 1
+    while lines[i].startswith("#"):   # the draft's own context lines (#define / #include "ctx.h" / #undef)
+        i += 1
+    return "\n".join(lines[i:]).lstrip("\n")
 
 
 def marked(path):
@@ -296,7 +299,7 @@ def file_text(name, a, b, decls, body):
         "",
     ]
     if decls:
-        head += ["/* used from the HSD / SDK headers and symbols/cr_types.h (generated from the drafts' context) */"] + decls + [""]
+        head += ["/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */"] + decls + [""]
     return "\n".join(head) + "\n" + body.rstrip("\n") + "\n"
 
 

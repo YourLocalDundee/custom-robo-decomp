@@ -4,9 +4,10 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-M2C_UNK cr_MotionFile_Register(s32);                /* extern */
-extern s32 lbl_8044F33C;
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+void cr_MotionFile_Register(u32 *arg0);
+extern u8 *lbl_8044F33C;
 
 void fn_800A0204(void) {
-    cr_MotionFile_Register(lbl_8044F33C);
+    cr_MotionFile_Register((u32 *) lbl_8044F33C);
 }

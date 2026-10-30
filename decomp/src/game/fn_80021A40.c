@@ -4,7 +4,10 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-/* used from the HSD / SDK headers and symbols/cr_types.h (generated from the drafts' context) */
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+extern u32 lbl_8044F3F8;
+void fn_800EAC48(void);
+void fn_80023164(void);
 typedef enum _HSD_RenderPass
 {
   HSD_RP_SCREEN,
@@ -14,19 +17,16 @@ typedef enum _HSD_RenderPass
   HSD_RP_NUM
 } HSD_RenderPass;
 void HSD_StartRender(HSD_RenderPass pass);
+void fn_80091518(u32 arg0);
+void fn_800373AC(void);
+void fn_800055E0(void);
+void fn_80021AB0(void);
+void fn_80098410(void);
 
 M2C_UNK VIWaitForRetrace();                         /* extern */
-M2C_UNK fn_800055E0();                              /* extern */
-M2C_UNK fn_80021AB0();                              /* extern */
-M2C_UNK fn_80023164();                              /* extern */
-M2C_UNK fn_800373AC();                              /* extern */
-M2C_UNK fn_80091518(M2C_UNK);                       /* extern */
-M2C_UNK fn_80098410();                              /* extern */
-M2C_UNK fn_800EAC48();                              /* extern */
 M2C_UNK fn_8019D38C();                              /* extern */
 M2C_UNK fn_8019DB14(M2C_UNK);                       /* extern */
 M2C_UNK fn_8019DC90();                              /* extern */
-extern u32 lbl_8044F3F8;
 
 void fn_80021A40(void) {
     do {
@@ -37,10 +37,10 @@ void fn_80021A40(void) {
         VIWaitForRetrace();
         fn_80023164();
         HSD_StartRender(HSD_RP_SCREEN);
-        fn_80091518(0);
+        fn_80091518(0U);
         fn_800373AC();
         fn_800055E0();
         fn_80021AB0();
         fn_80098410();
-    } while ((u32) lbl_8044F3F8 == 0U);
+    } while ((u32) lbl_8044F3F8 == 0);
 }

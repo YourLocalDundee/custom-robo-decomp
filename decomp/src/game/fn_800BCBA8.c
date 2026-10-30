@@ -4,11 +4,13 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-M2C_UNK fn_8006E690(u32);                           /* extern */
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+typedef struct HSD_JObj HSD_JObj;
+void fn_8006E690(HSD_JObj *arg0);
 
 void fn_800BCBA8(void *arg0) {
-    if ((M2C_FIELD(arg0, u16 *, 0x1942) & 0x10) && ((u32) M2C_FIELD(arg0, u32 *, 0xB40) != 0U)) {
-        fn_8006E690(M2C_FIELD(arg0, u32 *, 0xB40));
+    if ((M2C_FIELD(arg0, u16 *, 0x1942) & 0x10) && ((HSD_JObj *) M2C_FIELD(arg0, HSD_JObj **, 0xB40) != NULL)) {
+        fn_8006E690(M2C_FIELD(arg0, HSD_JObj **, 0xB40));
         M2C_FIELD(arg0, u16 *, 0x1942) = (u16) (M2C_FIELD(arg0, u16 *, 0x1942) & 0xFFFFFFEF);
     }
 }

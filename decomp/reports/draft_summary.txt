@@ -5,42 +5,38 @@ counts only; the drafts themselves are decompiled output and are never committed
 functions 1751
 m2c ok 1749
 m2c failed 2
-compile failed 858
-compiled 891
-100% MATCH 153
+compile failed 303
+compiled 1446
+100% MATCH 236
+bytes matched 279816 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
 
-match % histogram of the 891 compiled drafts (100% = every word equal, relocation fields masked):
-    0- 9%  541
-   10-19%  100
-   20-29%  39
-   30-39%  13
-   40-49%  11
-   50-59%  12
-   60-69%  8
-   70-79%  5
-   80-89%  5
-   90-99%  4
-  100%     153
+match % histogram of the 1446 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
+    0- 9%  57
+   10-19%  106
+   20-29%  128
+   30-39%  281
+   40-49%  178
+   50-59%  156
+   60-69%  93
+   70-79%  92
+   80-89%  81
+   90-99%  38
+  100%     236
 
 most common failures:
-    309  compile: illegal type
-    213  compile: illegal implicit conversion from '*' to
-    105  compile: undefined identifier '*'
-     99  compile: pointer/array required
-     46  compile: function call '*' does not match
-     31  compile: call of non-function
-     24  compile: illegal explicit conversion from '*' to
-     10  compile: illegal operand
-      3  compile: function call '*' does
-      3  compile: function call '*' does not
-      3  compile: illegal implicit conversion from 'void (long, unsigned long, void *,
-      3  compile: type mismatch
-      2  compile: function call 'fn_8001F350(long, float *, float *, float, float, float,
+     68  compile: pointer/array required
+     63  compile: illegal explicit conversion from '*' to
+     57  compile: illegal implicit conversion from '*' to
+     36  compile: illegal operand
+     21  compile: illegal struct/union/enum/class definition
+     13  compile: function call '*' does not match
+      9  compile: call of non-function
+      9  compile: type mismatch
+      9  compile: undefined identifier '*'
+      7  compile: illegal type
+      6  compile: function call '*' does not
+      2  compile: illegal use of keyword
       2  m2c: */
       1  compile: function call '*'
-      1  compile: function call 'fn_80019AF0(void *, unsigned char *, unsigned char,
-      1  compile: function call 'fn_8001CA84(float *, float *, float *, float *, float,
-      1  compile: function call 'fn_8001E3B8(float *, float *, float *, float *, float,
-      1  compile: function call 'fn_8001F060(void (*)(...), void (*)(...), long, long, long,
-      1  compile: function call 'fn_80098104(long, long, long *, long *, long *, long *,
-      1  compile: illegal implicit conversion from 'void (long, long, long, struct HSD_JObj
+      1  compile: function call '*' does
+      1  compile: function call 'fn_8018C854(long, unsigned char, unsigned char, unsigned

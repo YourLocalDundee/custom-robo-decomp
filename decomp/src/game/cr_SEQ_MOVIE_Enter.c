@@ -4,7 +4,7 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-/* used from the HSD / SDK headers and symbols/cr_types.h (generated from the drafts' context) */
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void HSD_StateInvalidate(int mask);
 typedef enum _GXCompare
 {
@@ -26,9 +26,8 @@ typedef enum _GXAlphaOp
   GX_MAX_ALPHAOP
 } GXAlphaOp;
 void GXSetAlphaCompare(GXCompare comp0, u8 ref0, GXAlphaOp op, GXCompare comp1, u8 ref1);
-
-M2C_UNK fn_80096F54();                              /* extern */
-M2C_UNK fn_80097530();                              /* extern */
+void fn_80096F54(void);
+void fn_80097530(void);
 
 void cr_SEQ_MOVIE_Enter(void) {
     HSD_StateInvalidate(-1);

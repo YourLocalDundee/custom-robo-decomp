@@ -4,14 +4,16 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-M2C_UNK fn_800208F0(u32);                           /* extern */
-M2C_UNK fn_800215F8(u32);                           /* extern */
-extern u32 lbl_8044F600;
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+typedef struct cr_FileSlot cr_FileSlot;
+extern cr_FileSlot *lbl_8044F600;
+void fn_800208F0(void *arg0);
+void fn_800215F8(void *arg0);
 
 void fn_80078438(void) {
-    if ((u32) lbl_8044F600 != 0U) {
+    if ((cr_FileSlot *) lbl_8044F600 != NULL) {
         fn_800208F0(lbl_8044F600);
         fn_800215F8(lbl_8044F600);
-        lbl_8044F600 = 0U;
+        lbl_8044F600 = NULL;
     }
 }

@@ -1,10 +1,10 @@
 m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md step 58)
 one object per function (the game's own source files are not known); batch 9 links them and checks the SHA-1
 
-drafts at 100% MATCH: 153
-promoted: 152 (3800 bytes = 0xED8)
-left out: 1
-kept from earlier runs (draft no longer 100%): 0
+drafts at 100% MATCH: 236
+promoted: 230 (9308 bytes = 0x245C)
+left out: 6
+kept from earlier runs (draft no longer 100%): 2
 removed (function name no longer ours): 0
 
 == promoted (address, function, bytes)
@@ -19,7 +19,11 @@ removed (function name no longer ours): 0
 80008C20  cr_SEQ_ILLUSTRATED_BOOK_Enter                    4
 80008C24  cr_SEQ_ILLUSTRATED_BOOK_FrameC                   4
 80008C28  cr_SEQ_ILLUSTRATED_BOOK_FrameB                   4
+80008E30  fn_80008E30                                     80
 80008F88  fn_80008F88                                      4
+8000956C  fn_8000956C                                     72
+800095B4  fn_800095B4                                     52
+800095E8  fn_800095E8                                     12
 8000A9B8  cr_SEQ_ENDING_Leave                              4
 8000A9BC  cr_SEQ_ENDING_Enter                              4
 8000A9C0  cr_SEQ_ENDING_FrameC                             4
@@ -34,6 +38,7 @@ removed (function name no longer ours): 0
 8000AAE4  cr_SEQ_NAME_ENTRY_FrameB                         4
 8000B254  fn_8000B254                                      4
 8000B428  fn_8000B428                                      4
+8000CF80  fn_8000CF80                                     44
 8000D944  cr_SEQ_MODE_SELECTOR_Enter                       4
 8000D948  cr_SEQ_MODE_SELECTOR_FrameC                      4
 8000D94C  cr_SEQ_MODE_SELECTOR_FrameB                     32
@@ -58,6 +63,7 @@ removed (function name no longer ours): 0
 80016080  cr_SEQ_FIELD_FrameB                              4
 80016084  cr_SEQ_FIELD_FrameA                              4
 80016304  cr_SEQ_TITLE_FrameB                              4
+800165D4  fn_800165D4                                     44
 80016820  cr_SEQ_MOVIE_Leave                               4
 80016824  cr_SEQ_MOVIE_Enter                              68
 80019824  cr_SEQ_LOGO_Enter                                4
@@ -80,50 +86,78 @@ removed (function name no longer ours): 0
 8001D03C  fn_8001D03C                                     16
 8001D04C  fn_8001D04C                                     16
 8001D630  fn_8001D630                                    100
+8001DE38  fn_8001DE38                                     52
 8001E360  fn_8001E360                                     88
 8001E5E4  fn_8001E5E4                                     40
 8001E684  fn_8001E684                                     44
 80020A40  fn_80020A40                                     32
+800215F8  fn_800215F8                                    124
 80021A40  fn_80021A40                                    100
 80021AA4  fn_80021AA4                                     12
 8002312C  fn_8002312C                                     56
+80023570  fn_80023570                                    120
+80023780  fn_80023780                                    120
+80023990  fn_80023990                                    116
 80023EC8  fn_80023EC8                                     68
+80024578  fn_80024578                                     24
+80024830  cr_Cam_SetMode                                  24
 8002FAB4  cr_CAMMODE_SNR_AUTO_MOVE_Frame                  28
 80035ED4  cr_CAMMODE_DEBUG_Frame                          68
 80035F18  cr_CAMMODE_NOMOVE_Frame                          4
+8003D4C4  fn_8003D4C4                                     60
 800450DC  fn_800450DC                                     16
 800498FC  fn_800498FC                                      8
 80049904  fn_80049904                                     32
+80050F08  cr_Battle_SetCurrentPointers                   136
 8005CD8C  fn_8005CD8C                                      4
 8005CE70  fn_8005CE70                                      4
+80061B38  fn_80061B38                                     88
+80061B90  fn_80061B90                                     88
+800668CC  fn_800668CC                                     16
+80068358  fn_80068358                                     76
 800683A4  fn_800683A4                                      8
 800683AC  fn_800683AC                                      8
 80068978  fn_80068978                                     16
 800690D8  fn_800690D8                                     28
 8006B140  fn_8006B140                                      4
+8006FB74  fn_8006FB74                                     20
+8006FB88  fn_8006FB88                                     20
+80071960  fn_80071960                                     20
+800750F8  fn_800750F8                                     40
 80075718  fn_80075718                                      4
 80075CA4  fn_80075CA4                                      4
 80078438  fn_80078438                                     64
 80078478  fn_80078478                                     56
 80078EE8  fn_80078EE8                                     24
+8007D17C  fn_8007D17C                                    168
+8007D224  fn_8007D224                                    148
 8007DD14  fn_8007DD14                                     76
 80080FB4  fn_80080FB4                                     36
+800811E8  fn_800811E8                                    188
 80081430  fn_80081430                                      8
 80081438  fn_80081438                                      8
+8008B930  fn_8008B930                                     44
 8008C640  fn_8008C640                                     16
 8008C650  fn_8008C650                                     16
 8008C660  fn_8008C660                                      4
 8008CBE4  fn_8008CBE4                                      4
 8008E108  fn_8008E108                                     28
 8008E124  fn_8008E124                                     52
+8008EDA8  fn_8008EDA8                                     48
+8008EDD8  fn_8008EDD8                                     44
+8008FDEC  fn_8008FDEC                                    112
+80090008  fn_80090008                                     80
+800920D0  fn_800920D0                                     56
+80092108  fn_80092108                                     48
 80093818  fn_80093818                                      4
 80093C30  fn_80093C30                                     44
 800944B8  fn_800944B8                                     44
 80096528  fn_80096528                                     28
 800965EC  fn_800965EC                                      8
 80098F4C  fn_80098F4C                                     64
+80099D24  fn_80099D24                                     44
+80099D50  fn_80099D50                                    144
 800A0204  fn_800A0204                                     36
-800A0804  fn_800A0804                                     80
 800A0E14  fn_800A0E14                                     40
 800A0E3C  fn_800A0E3C                                     40
 800A5890  fn_800A5890                                      4
@@ -132,38 +166,89 @@ removed (function name no longer ours): 0
 800AD610  fn_800AD610                                      4
 800B1B18  fn_800B1B18                                      4
 800B1B1C  fn_800B1B1C                                     16
+800BA770  fn_800BA770                                    112
 800BCBA8  fn_800BCBA8                                     84
+800BCBFC  fn_800BCBFC                                    100
+800BDB24  cr_C_ACT_JP                                     48
 800DEFBC  fn_800DEFBC                                      4
 800DEFC0  fn_800DEFC0                                      4
+800DEFC4  fn_800DEFC4                                     52
 800DEFF8  fn_800DEFF8                                     16
 800DF008  fn_800DF008                                     16
 800DF280  fn_800DF280                                     16
 800DF290  fn_800DF290                                     16
 800EAC38  fn_800EAC38                                     16
 800EB0D4  fn_800EB0D4                                     12
+800EC9F0  fn_800EC9F0                                     56
 800EF290  fn_800EF290                                     32
-800F60A8  fn_800F60A8                                     68
+800EF2B0  fn_800EF2B0                                     48
+800F18B8  fn_800F18B8                                    156
+800F6A1C  fn_800F6A1C                                     20
+800F6A30  fn_800F6A30                                     20
+800F6F54  fn_800F6F54                                     24
+800F6F6C  fn_800F6F6C                                     24
+800FAE54  fn_800FAE54                                     52
 800FAE88  fn_800FAE88                                      4
 800FBC1C  fn_800FBC1C                                     44
 80101DF8  fn_80101DF8                                      8
+8010351C  fn_8010351C                                    120
 80105E70  fn_80105E70                                      4
 8010DBA0  fn_8010DBA0                                      8
 8010E478  fn_8010E478                                      4
 80110FE4  fn_80110FE4                                      8
+80110FEC  fn_80110FEC                                     84
 80112848  fn_80112848                                      4
+8011290C  fn_8011290C                                     52
 80112AB8  fn_80112AB8                                     32
+80112CD0  fn_80112CD0                                     52
+80112D04  fn_80112D04                                     44
+8011413C  fn_8011413C                                     36
+80114160  fn_80114160                                    180
 801142B0  fn_801142B0                                      4
+801143D0  fn_801143D0                                     80
+8011449C  fn_8011449C                                    160
+8011B168  fn_8011B168                                     68
 8011B1AC  fn_8011B1AC                                      4
+8011DBB4  fn_8011DBB4                                     76
+8011DC00  fn_8011DC00                                     52
+8011DC34  fn_8011DC34                                    288
+8011DD54  fn_8011DD54                                     36
+80122044  fn_80122044                                     68
+80122088  fn_80122088                                     52
 80124808  fn_80124808                                     20
+80124BCC  fn_80124BCC                                     48
+80124BFC  fn_80124BFC                                     44
 80124C28  fn_80124C28                                      4
+80124C2C  fn_80124C2C                                     44
+80124C58  fn_80124C58                                     72
+80125884  fn_80125884                                     52
+801259E4  fn_801259E4                                     72
+80125A60  fn_80125A60                                     32
+80125A80  fn_80125A80                                     72
+80125AC8  fn_80125AC8                                     72
+80125B10  fn_80125B10                                     72
+8012BA00  fn_8012BA00                                     36
 8012F250  fn_8012F250                                      4
 8012F254  fn_8012F254                                      4
+8012F258  fn_8012F258                                     52
+8012F318  fn_8012F318                                     48
+8012F348  fn_8012F348                                     68
+8012F38C  fn_8012F38C                                     52
 8012F3C0  fn_8012F3C0                                      4
+80130710  fn_80130710                                     52
+8013079C  fn_8013079C                                     36
 80130988  fn_80130988                                      4
 
 == left out (address, function, bytes, why)
+80008F8C  fn_80008F8C                                    140  has data of its own (.sdata2 0x8): needs the data piece split too
+80050E74  cr_Chara_SetCurrentPointers                    148  the promoted file does not compile: illegal use of incomplete struct/union/class '*'
 800694C4  fn_800694C4                                     64  has data of its own (.sdata2 0x8): needs the data piece split too
+800BE48C  cr_C_ACT_MOVE_LENG                             384  has data of its own (.sdata2 0x8): needs the data piece split too
+800BE60C  cr_C_ACT_MOVE                                  336  has data of its own (.sdata2 0x8): needs the data piece split too
+80112A0C  fn_80112A0C                                    172  has data of its own (.sdata2 0x8): needs the data piece split too
 
 == kept (function, its draft's status now)
+fn_800A0804                                  85%
+fn_800F60A8                                  94%
 
 == removed

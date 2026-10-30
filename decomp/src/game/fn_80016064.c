@@ -4,7 +4,8 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-extern s16 lbl_8044C3F2;
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+extern u16 lbl_8044C3F2;
 
 s32 fn_80016064(void) {
     lbl_8044C3F2 = 0xE;

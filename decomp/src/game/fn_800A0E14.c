@@ -4,9 +4,10 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-M2C_UNK fn_800735C8(s32);                           /* extern */
-extern void *lbl_8044F40C;
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+void fn_800735C8(s32 *arg0);
+extern u8 *lbl_8044F40C;
 
 void fn_800A0E14(void) {
-    fn_800735C8(M2C_FIELD(lbl_8044F40C, s32 *, 8));
+    fn_800735C8(M2C_FIELD(lbl_8044F40C, s32 **, 8));
 }

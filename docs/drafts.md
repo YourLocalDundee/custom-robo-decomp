@@ -1,9 +1,10 @@
 # Game-code drafts: m2c, compile, compare (batch 12)
 
 Milestone 5 (game code to matching C, about 1,750 functions) needs a first C version of every function. This batch makes
-one for all of them, checks each against the original, and says where to start. The drafts took about 2 minutes, parallel, in
-the first full run (plan.md step 57); after them the batch promotes the linkable matches into `decomp/src/game` and, when
-that folder changed, runs batch 9 again, which adds that build's time (with `-Sample` there is no promotion):
+one for all of them, checks each against the original, and says where to start. The drafts take about 6.5 minutes, parallel
+(two m2c passes and the repair loop, plan.md step 59; 2 minutes in the first version, step 57); after them the batch promotes
+the linkable matches into `decomp/src/game` and, when that folder changed, runs batch 9 again, which adds that build's time
+(with `-Sample` there is no promotion):
 
     pwsh tools\batches\batch12_drafts.ps1 [-Sample 50] [-Jobs 8]      # or: python -I tools\draft_batch.py [--only NAME ...]
 
@@ -21,14 +22,38 @@ so the drafts do not depend on how the game code is split.
 
 1. **Asm**: the function is cut out of dtk's asm of the object that holds it (names are already ours). A `jumptable_*` it uses is
    copied next to it with `.L_` targets (and a label where nothing branches), because m2c wants the table beside the code.
-2. **Draft**: m2c (`-t ppc-mwcc-c --valid-syntax --deterministic-vars`) with a context: every HSD header of Melee's
-   baselib + `symbols/cr_types.h` + an `extern` for each global of `symbols/cr_globals.txt`, preprocessed once by the game
-   compiler's own `-E` (`decomp/drafts/ctx_pp.c`, defines as `ParseHeaders.java`: `M2CTX`, no `__MWERKS__`).
-3. **Compile**: `GC/2.6` with `cflags_cr` + the `game` set of `decomp/configure.py` (read from that file, so the flags cannot
+2. **Draft**: m2c (`-t ppc-mwcc-c --valid-syntax --deterministic-vars --stack-structs`) with a context: every HSD header of
+   Melee's baselib + `symbols/cr_types.h` + an `extern` for each global of `symbols/cr_globals.txt` + **every `lbl_` data
+   object of `decomp/config/GXCE01/symbols.txt` with its real size and section** (`data_decls`: dtk's element type, the
+   size as the array length; an object of a small section stays at most 8 bytes, one of a large section is never smaller
+   than 9 or an array of unknown size, because the compiler decides small vs large data by the size alone with
+   `-sdata 8 -sdata2 8`: without a size it took every unknown global for small data, one `sda21` load where the original
+   has `lis`/`addi`) + **the prototypes of the game functions from their own drafts** (`ctx_protos.h`: a first m2c pass
+   over all functions without the data declarations gives each function's signature and the pointer types m2c infers
+   for 4-byte objects; the second pass, the one kept, then sees the callee's real parameters), preprocessed once by the
+   game compiler's own `-E` (`decomp/drafts/ctx_pp.c`, defines as `ParseHeaders.java`: `M2CTX`, no `__MWERKS__`).
+   `--only` / `--sample` reuse the `ctx_protos.h` of the last full run (a full run always rewrites it).
+3. **Post-process** (all of it in `draft_batch.py`, so a rerun reproduces it; no draft is edited by hand): a stack array m2c
+   names but does not declare is declared from its `--stack-structs` template (length up to the next field); `sp8 = arg0;`
+   with `sp8` used nowhere else is dropped (the compiler's own store of a parameter to its stack home at level 0; the draft
+   must not write it) and so is `var = saved_reg_rN;` (a read of a register nothing wrote); `*(void *)ADDR = x` gets the
+   value's type. The draft defines the function with its own signature: the context's prototype of the function itself is
+   renamed away (`#define NAME NAME__proto` around `#include "ctx.h"`).
+4. **Compile**: `GC/2.6` with `cflags_cr` + the `game` set of `decomp/configure.py` (read from that file, so the flags cannot
    drift): `-opt level=0,peephole,schedule,speed -fp_contract on`, see `docs/compiler.md`. Draft + `ctx.h` (the same headers).
-4. **Compare** with the function in dtk's split object that holds it (`decomp/build/GXCE01/obj/...`, copied at the start
+   **Repair loop**: the compiler's first message is placed in the draft (its printed window of the line, matched without
+   spaces, with `M2C_FIELD` expanded when the compiler expanded it) and one mechanical fix is applied, then it compiles
+   again, until it compiles, no rule applies, or 300 fixes: `illegal implicit conversion from A to B` casts the expression
+   to B (for a call's argument, the last one not cast yet); `illegal type` / `illegal operand` on `void *` arithmetic turns
+   the `void *` locals and parameters of that line into `u8 *`; `pointer/array required` on `*(x + 8)` loads through the
+   type of the cast in front of it (else `s32 *`); `call of non-function` on `*(table + i * 4)(args)` calls through an
+   unprototyped function pointer. The report's note says how many fixes a draft took.
+5. **Compare** with the function in dtk's split object that holds it (`decomp/build/GXCE01/obj/...`, copied at the start
    to `decomp/drafts/orig/`), word by word. Fields a relocation fills in (call targets, `@ha` / `@l` halves, small-data offsets) are masked on both sides
-   by relocation type; the rest must be equal. match % = equal words / the longer of the two. **This is the same test as
+   by relocation type. **100% MATCH** = the same number of words and every word equal (the only meaning `promote_drafts.py`
+   relies on); below that, match % = equal words after an alignment (difflib's matching blocks over the masked words) /
+   the longer of the two, at most 99, so one inserted or dropped instruction costs one word, not the rest of the function
+   (the first version compared position by position, which scored 541 near-exact drafts 0-9%). **This is the same test as
    the compiler probe, not objdiff**: it does not check that a relocation points to the same symbol, so "100% MATCH" means
    "code identical modulo relocations". Confirm with objdiff once a function is moved into `decomp/src`.
 
@@ -39,8 +64,8 @@ so the drafts do not depend on how the game code is split.
 | `c/<name>.c` | the draft (m2c's text behind `#include "ctx.h"`) |
 | `asm/<name>.s`, `obj/<name>.o` | its input and its compiled object |
 | `log/<name>.txt` | m2c or compiler messages of the failures |
-| `draft_report.txt` | one line per function: address, name, bytes, status (`m2c failed`, `compile failed`, `N%`, `100% MATCH`) and the first error; totals; match % histogram; the most common errors |
-| `ctx_pp.c`, `ctx.h`, `orig/` | m2c context, compile header, copies of the original objects |
+| `draft_report.txt` | one line per function: address, name, bytes, status (`m2c failed`, `compile failed`, `N%`, `100% MATCH`) and a note (the first error, `M2C_ERROR`, `N fixes`); totals incl. bytes matched; match % histogram; the most common errors |
+| `ctx_pp.c`, `ctx.h`, `ctx_protos.h`, `orig/` | m2c context, compile header, the game functions' prototypes from the first pass, copies of the original objects |
 
 `decomp/reports/draft_summary.txt` is the committed part: the same totals, histogram and error counts, no code.
 
@@ -53,6 +78,20 @@ arithmetic on `void *` / `M2C_FIELD` forms), `illegal implicit conversion` (poin
 (stack arrays like `sp64` that m2c names but does not declare), `pointer/array required`. The low percentages are mostly
 the same story: with unknown global types the compiler picks small-data (`sda21`) access where the original loads the
 address with `lis`/`addi`, and m2c's temporaries change register allocation. A draft is a start, not a match.
+
+## Second generator (plan.md step 59, Oct 29, 2026)
+
+The three generator changes above (sized data declarations, the drafts' own prototypes, the post-processing and repair
+loop) and the aligned score, same m2c and compiler: **1,446 compile (891 before), 236 match 100% (153), 279,816 of the
+1,230,376 game-code bytes equal after alignment**; histogram of the 1,446 compiled: 0-9% 57, 10-19% 106, 20-29% 128,
+30-39% 281, 40-49% 178, 50-59% 156, 60-69% 93, 70-79% 92, 80-89% 81, 90-99% 38, 100% 236. The 303 compile failures left
+(`draft_summary.txt`): `pointer/array required` on `**x` / `***x` chains and `x[i]` of integers (m2c's own typing, 68),
+`illegal explicit conversion` from a struct or a float to a pointer (63), conversions the loop cannot place (57), the
+rest are a struct used by value, prototypes of the library (`PSMTXRotRad` with 3 args: m2c's guess vs the header) and
+m2c's own errors. Below 100%, the typical gaps now are m2c's temporaries (one more store / load pair), a wrong width
+(`u8` where the original loads a `u16`) and the few functions compiled with optimisation (register pointer walks with
+`lfsu`: cr_Mtx_Store): the next step is types in `cr_types.h` / `cr_globals.txt` (the drafts' context sizes every `lbl_`
+already; naming and typing one fixes every draft that touches it).
 
 ## Promoted to decomp/src/game (plan.md step 58)
 
@@ -70,20 +109,25 @@ objdiff 100%; when decomp/src/game changed, batch 12 runs batch 9 again. **These
 original files** (those are not known); merging functions into real files later only changes the ranges.
 `decomp/reports/promote_report.txt` lists what was promoted and every 100% draft left out with the reason. First run
 (Oct 29, 2026): **152 of the 153 promoted** (3,800 bytes, 0.31% of the game code); left out fn_800694C4 (an .sdata2
-constant of its own: the shared int-to-float constant, needs that data piece split first). Files carry a marker line:
-only marked files are rewritten; remove it before editing one by hand.
+constant of its own: the shared int-to-float constant, needs that data piece split first). After step 59: **230 of the
+236 promoted (9,308 bytes) + 2 kept = 232 objects, 0.77% of the game code**; left out 5 with an .sdata2 constant of their
+own and cr_Chara_SetCurrentPointers (its generated declarations leave a struct incomplete that the draft uses by value);
+the 2 kept (fn_800A0804, fn_800F60A8) matched in the first version and still link, their new drafts are at 85 / 94%.
+Files carry a marker line: only marked files are rewritten; remove it before editing one by hand.
 
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.
 - Then the 60-99% ones: usually one wrong type or a missing cast. Fix the type in `symbols/cr_types.h` / `cr_globals.txt`
-  (a proven fix helps every draft that touches it) and rerun; `--only NAME` reruns single functions in seconds.
+  (a proven fix helps every draft that touches it) and rerun; `--only NAME` reruns single functions in seconds (it reuses
+  `ctx_protos.h`; delete it to redo the first pass, about 100 s). Never edit a draft: every fix goes into the generator.
 - The report is the work list; the error histogram says which m2c patterns to fix generally (e.g. a post-pass on drafts).
 
 ## Determinism
 
 Functions are processed in address order, m2c runs with `--deterministic-vars`, the reports contain no times or paths, and
-the output only depends on the pinned m2c, the asm / object of batch 9, the headers and the types files. Two consecutive
+the output only depends on the pinned m2c, the asm / object of batch 9, the headers, the types files and
+`decomp/config/GXCE01/symbols.txt` (the data sizes; a full run also rebuilds `ctx_protos.h` from the first pass). Two consecutive
 full runs gave byte-identical `draft_report.txt` and `draft_summary.txt`. It changes legitimately whenever a name, a type or
 `cr_globals.txt` changes, so it is not in `tools/checksums.ps1` (which would then fail after every naming step); the
 summary is committed instead so a diff shows progress.
