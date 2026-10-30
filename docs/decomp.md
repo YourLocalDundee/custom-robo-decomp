@@ -228,6 +228,16 @@ links a group it cannot prove, so such a run simply waits until all its function
   static inline helpers that kar's headers declare as globals with other types are renamed `wj_*` in the port, the light
   desc structs are wowjinxy's (include/cr_kar/lobj.h), and a function main.dol has no copy of (HSD_LObjDeleteCurrent,
   HSD_LObjGetPositionWObj ...) is made static inline. Assert lines are wowjinxy's minus a constant per file (fobj.c 0xF).
+- Iteration 7 (plan.md step 61): the same port for pobj, robj, initialize, fog, tobj, jobj, cobj, displayfunc, mtx.
+  wowjinxy's globals and functions that symbols/symbols.txt leaves unnamed are `#define`d to main.dol's `lbl_` / `fn_`
+  name (comment: the instruction that reads it), so objdiff pairs them and nothing is named by the C alone; objdiff's
+  report counts a function equal with relocation targets ignored (`-c functionRelocDiffs=none` in a one-shot
+  `objdiff-cli diff` gives the same count). Custom Robo's sysdolphin is the KAR PAL build's (wowjinxy's
+  VERSION_GKYP01 HSD_Init / HSD_GXSetFifoObj equal ours). New overrides in include/cr_kar: pobj.h (HSD_A_S_W0 2, the
+  blend union), robj.h (8-byte HSD_RvalueList), fog.h (wowjinxy's structs), sysdolphin/tobj.h (kar's mobj.c calls
+  HSD_TObjAddAnim, the function there is HSD_TObjAddAnimAll). A file whose every function matches gets its data pieces
+  from gen_dtk_splits; tobj.c and fog.c are there, but each .data (fog also .sdata2) piece ends with the zero padding
+  to the next object, which the C object does not have, so objdiff reports the section short by those bytes.
 - From C after iteration 3 (plan.md step 61): util.c, object.c, spline.c (Melee), list.c, id.c, class.c, dobj.c,
   wobj.c, mobj.c (kar), 100% code and data, main.dol retail: 9 of 29 HSD objects, 10.44% of their code. What it took:
   the callees by rule R7 (`// c-callsite` lines: HSD_MObjAddAnim, HSD_AObjInterpretAnim, HSD_RObjRemoveAll,

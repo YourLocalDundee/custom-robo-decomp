@@ -366,50 +366,52 @@ void HSD_JObjDispDObj(HSD_JObj* jobj, MtxPtr vmtx, HSD_TrspMask trsp_mask,
     }
 }
 
-static HSD_ZList* zlist_sort(HSD_ZList* list, s32 nb, s32 offset)
+/* wowjinxy/KAR displayfunc.c zlist_sort (Custom Robo: from wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57,
+ * src/sysdolphin/displayfunc.c, the same HSD revision as main.dol; Melee's form above differs in its register
+ * allocation; adapted: HSD_ZLIST_NEXT = this file's ZLIST_NEXT, HSD_ZLIST_DEPTH(x) = x->pmtx[2][3] (offset 0x2C)) */
+HSD_ZList* zlist_sort(HSD_ZList* list, s32 count, s32 next_offset)
 {
-    HSD_ZList *fore, *hind, **ptr;
-    int nb_fore, nb_hind;
-    int i;
+    HSD_ZList* left;
+    HSD_ZList* right;
+    HSD_ZList** tail;
+    s32 left_count;
+    s32 right_count;
+    s32 i;
 
-    if (nb <= 1) {
+    if (count <= 1) {
         if (list != NULL) {
-            ZLIST_NEXT(list, offset) = NULL;
+            ZLIST_NEXT(list, next_offset) = NULL;
         }
         return list;
     }
 
-    nb_fore = nb / 2;
-    nb_hind = nb - nb_fore;
-
-    hind = list;
-    for (i = 0; i < nb_fore; i++) {
-        hind = ZLIST_NEXT(hind, offset);
+    left_count = count / 2;
+    right_count = count - left_count;
+    right = list;
+    for (i = 0; i < left_count; i++) {
+        right = ZLIST_NEXT(right, next_offset);
     }
 
-    fore = zlist_sort(list, nb_fore, offset);
-    hind = zlist_sort(hind, nb_hind, offset);
+    left = zlist_sort(list, left_count, next_offset);
+    right = zlist_sort(right, right_count, next_offset);
 
     list = NULL;
-    ptr = &list;
-
-    while (fore != NULL && hind != NULL) {
-        if (fore->pmtx[2][3] <= hind->pmtx[2][3]) {
-            *ptr = fore;
-            fore = ZLIST_NEXT(fore, offset);
+    tail = &list;
+    while (left != NULL && right != NULL) {
+        if (left->pmtx[2][3] <= right->pmtx[2][3]) {
+            *tail = left;
+            left = ZLIST_NEXT(left, next_offset);
         } else {
-            *ptr = hind;
-            hind = ZLIST_NEXT(hind, offset);
+            *tail = right;
+            right = ZLIST_NEXT(right, next_offset);
         }
-        ptr = &ZLIST_NEXT(*ptr, offset);
+        tail = &ZLIST_NEXT(*tail, next_offset);
     }
-
-    if (fore != NULL) {
-        *ptr = fore;
-    } else if (hind != NULL) {
-        *ptr = hind;
+    if (left != NULL) {
+        *tail = left;
+    } else if (right != NULL) {
+        *tail = right;
     }
-
     return list;
 }
 

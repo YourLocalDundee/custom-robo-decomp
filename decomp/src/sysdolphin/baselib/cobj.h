@@ -136,6 +136,9 @@ ASSERT_SIZE(HSD_CObjDesc, 0x40);
 struct HSD_CObjInfo {
     HSD_ObjInfo parent;
     int (*load)(HSD_CObj* cobj, HSD_CObjDesc* desc);
+    /* Custom Robo: one more method, as in wowjinxy/KAR @ cb94b157 include/sysdolphin/cobj.h: main.dol's CObjInfoInit
+     * passes info size 0x44 and stores CObjUpdateFunc after load */
+    HSD_ObjUpdateFunc update;
 };
 
 struct HSD_CameraAnim {

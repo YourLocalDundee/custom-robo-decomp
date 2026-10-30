@@ -1529,8 +1529,10 @@ sysdolphin/baselib/dobj.c:
 
 sysdolphin/baselib/tobj.c:
 	.text       start:0x80186B44 end:0x80189C88
+	.data       start:0x8024B618 end:0x8024BAE8
 	.sdata      start:0x8044EFA0 end:0x8044EFD8
 	.sbss       start:0x8044FF00 end:0x8044FF08
+	.sdata2     start:0x80452670 end:0x804526A0
 
 sysdolphin/baselib/state.c:
 	.text       start:0x80189C88 end:0x8018A728
@@ -1642,12 +1644,14 @@ sysdolphin/baselib/id.c:
 sysdolphin/baselib/wobj.c:
 	.text       start:0x801A2C08 end:0x801A33E4
 	.data       start:0x8024CE00 end:0x8024CEA8
-	.sdata      start:0x8044F190 end:0x8044F1B4
+	.sdata      start:0x8044F190 end:0x8044F1B8
 	.sbss       start:0x80450050 end:0x80450058
 	.sdata2     start:0x80452920 end:0x80452940
 
 sysdolphin/baselib/fog.c:
 	.text       start:0x801A33E4 end:0x801A3C9C
+	.data       start:0x8024CEA8 end:0x8024CFC0
+	.sdata      start:0x8044F1B8 end:0x8044F1D4
 	.sdata2     start:0x80452940 end:0x80452968
 
 sysdolphin/baselib/list.c:

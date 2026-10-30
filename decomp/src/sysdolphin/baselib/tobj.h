@@ -134,7 +134,7 @@ struct HSD_TObj;
 struct HSD_TObj {
     HSD_Obj parent;
     HSD_TObj* next;
-    GXTexMapID id;
+    GXTexMapID map_id; /* Custom Robo: Melee's id; wowjinxy/KAR's name (the GX texture map) */
     GXTexGenSrc src;
     u32 mtxid;
     Quaternion rotate;
@@ -144,6 +144,10 @@ struct HSD_TObj {
     GXTexWrapMode wrap_t;
     u8 repeat_s;
     u8 repeat_t;
+    /* Custom Robo: wowjinxy/KAR @ cb94b157 tobj.h's u16 id (the desc's id, matched against the texture anims), in
+     * Melee's padding: main.dol's TObjLoad stores it with `sth r3, 0x4a(r30)` and fn_80189A70 (TObjInit) sets it to
+     * 0xFFFF */
+    u16 id;
     u32 flags;
     f32 blending;
     GXTexFilter magFilt;
@@ -256,6 +260,9 @@ typedef struct _HSD_TObjInfo {
     int (*load)(HSD_TObj* tobj, HSD_TObjDesc* desc);
     void (*make_texp)(HSD_TObj* tobj, u32 lightmap, u32 lightmap_done,
                       HSD_TExp** c, HSD_TExp** a, HSD_TExp** list);
+    /* Custom Robo: one more method, as in wowjinxy/KAR @ cb94b157 include/sysdolphin/tobj.h: main.dol's TObjInfoInit
+     * passes info size 0x4C (li r7, 0x4c at 0x80189BF8) and stores TObjUpdateFunc at 0x48 */
+    HSD_ObjUpdateFunc update;
 } HSD_TObjInfo;
 
 typedef struct _HSD_TexAnim {
