@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,341 @@ def MatchingFor(*versions):
+@@ -284,18 +307,348 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -277,12 +277,19 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/dobj.c",
 +    "sysdolphin/baselib/wobj.c",
 +    "sysdolphin/baselib/mobj.c",
++    "sysdolphin/baselib/spline.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
 +# "data": the C defines data main.dol keeps in a dtk automatic object (the data split must give this object that
 +# piece first); "link": the C calls functions / uses data our symbols do not name yet.
 +CR_NOT_MATCHING = {
++    "sysdolphin/baselib/bytecode.c":
++        "code: HSD_ByteCodeEval (0x15C8, the whole object) 97% in objdiff: Melee's saves f30 / f31 and computes a few values differently (another revision; doldecomp/kar has only asm): adapt to this revision",
++    "sysdolphin/baselib/mtx.c":
++        "code: 6 of 16 functions equal in objdiff (Melee's mtx.c: HSD_MtxGetTranslate, HSD_MtxScaledAdd, HSD_VecFree, HSD_MtxFree, HSD_VecInitAllocData, HSD_MtxInitAllocData); our first five functions (0x8019EB5C..0x8019FC14, sizes 0x430 0x320 0x338 0x13C 0x2D8) are unnamed and none has the size of Melee's HSD_MtxInverse / InverseConcat / InverseTranspose / GetRotation / MkRotationMtx, HSD_MtxGetScale is 0x4D8 here vs 0x198, HSD_MtxSRTQuat 0x1AC vs 0x110, HSD_VecGetOrthogonal is not in Melee's file, HSD_VecAlloc / HSD_MtxAlloc 99.95% (another revision; doldecomp/kar has only asm): adapt to this revision",
++    "sysdolphin/baselib/texpdag.c":
++        "code: 1 of 11 functions equal in objdiff (HSD_TExpSchedule; Melee's texpdag.c): order_dag 99.8%, HSD_TExpSimplify2 99.9%, CalcDistance 99.1%, assign_reg 97.9%, HSD_TExpMakeDag 97.1% (an instruction or a register apart), SimplifyThis 95.7%, HSD_TExpSimplify 90.1%, SimplifySrc 87.8%, SimplifyByMerge 33.4%, CalcTevRange 0% (another revision; doldecomp/kar has only asm): adapt to this revision",
 +    "sysdolphin/baselib/initialize.c":
 +        "code: 1 of 18 functions equal in objdiff (doldecomp/kar's initialize.c) and the C has data the split object lacks (.data 0xD, .sbss2 0x4)",
 +    "sysdolphin/baselib/robj.c":
