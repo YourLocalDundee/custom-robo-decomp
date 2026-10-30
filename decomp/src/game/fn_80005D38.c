@@ -15,7 +15,7 @@ void fn_80005D38(void) {
 
     if (!(M2C_FIELD(lbl_8044F348, s32 *, 0x1D8) & 0x10000000)) {
         fn_8006E778(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x860));
-        *(u16 *) (lbl_80386378 + (M2C_FIELD(lbl_8044F348, u8 *, 0x8C) * 0x34)) |= 2;
+        *((u16 *) (lbl_80386378 + (M2C_FIELD(lbl_8044F348, u8 *, 0x8C) * 0x34))) |= 2;
         M2C_FIELD(lbl_8044F348, s32 *, 4) += 1;
     }
 }

@@ -15,7 +15,7 @@ void fn_8007A130(void *arg0) {
     if (M2C_FIELD((lbl_80386378 + (temp_r4_11 * 0x34)), u16 *, 0) & 0x20) {
         M2C_FIELD(arg0, s32 *, 0) |= 0x4000;
         M2C_FIELD((lbl_80386378 + (temp_r4_11 * 0x34)), u8 *, 2) |= 0x20;
-        *(u16 *) (lbl_80386378 + (temp_r4_11 * 0x34)) &= 0xFFFFFFDF;
+        *((u16 *) (lbl_80386378 + (temp_r4_11 * 0x34))) &= 0xFFFFFFDF;
         M2C_FIELD(arg0, s8 *, 0x58) = 1;
     }
 }

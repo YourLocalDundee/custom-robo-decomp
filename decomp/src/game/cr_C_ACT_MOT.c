@@ -10,7 +10,8 @@ typedef struct
   f32 x;
   f32 y;
   f32 z;
-} Vec3;
+} Vec;
+typedef Vec Vec3;
 typedef struct cr_MotionSet cr_MotionSet;
 typedef struct HSD_JObj HSD_JObj;
 typedef struct HSD_MObj HSD_MObj;

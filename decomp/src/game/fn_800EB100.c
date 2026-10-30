@@ -15,7 +15,7 @@ void fn_800EB100(void) {
     *lbl_8044F7D0 = ARAlloc(0x600000U);
     var_r31_9 = 0;
     while (var_r31_9 < 0x20) {
-        *(u8 *) (&lbl_803F63E8[var_r31_9]) = 0;
+        *((u8 *) (&lbl_803F63E8[var_r31_9])) = 0;
         var_r31_9 += 1;
     }
 }

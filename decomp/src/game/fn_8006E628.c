@@ -15,7 +15,7 @@ void fn_8006E628(void) {
     var_r31_6 = 0;
     while (var_r31_6 < 1) {
         HSD_ShadowRemove((HSD_Shadow *) lbl_80354100[var_r31_6]);
-        *(u32 *) (&lbl_80354100[var_r31_6]) = 0;
+        *((u32 *) (&lbl_80354100[var_r31_6])) = 0;
         var_r31_6 += 1;
     }
 }

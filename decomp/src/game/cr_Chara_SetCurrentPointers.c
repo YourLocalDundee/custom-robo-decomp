@@ -5,13 +5,15 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-__declspec(section ".sdata") extern u8 *cr_g_CurrentChara_0e4c;
 typedef struct 
 {
   f32 x;
   f32 y;
   f32 z;
-} Vec3;
+} Vec;
+typedef Vec Point3d;
+__declspec(section ".sdata") extern u8 *cr_g_CurrentChara_0e4c;
+typedef Vec Vec3;
 typedef struct cr_MotionSet cr_MotionSet;
 typedef struct HSD_JObj HSD_JObj;
 typedef struct HSD_MObj HSD_MObj;
@@ -463,9 +465,10 @@ __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_154c;
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_0678;
 __declspec(section ".sdata") extern f32 *cr_g_CurrentCharaLimbParams;
 extern f32 lbl_8044F540;
-extern u8 *lbl_8044F53C;
-extern u8 *lbl_8044F534;
 extern u32 lbl_8044F538;
+
+extern u8 *lbl_8044F534;
+extern Point3d *lbl_8044F53C;
 
 void cr_Chara_SetCurrentPointers(void) {
     cr_g_CurrentChara_0e4c = &cr_g_CurrentChara->unk_0e18[0x34];
@@ -477,7 +480,7 @@ void cr_Chara_SetCurrentPointers(void) {
     cr_g_CurrentChara_0678 = &cr_g_CurrentChara->unk_0402[0x276];
     cr_g_CurrentCharaLimbParams = cr_g_CurrentChara->limb_params;
     lbl_8044F540 = cr_g_CurrentChara->y_offset;
-    lbl_8044F53C = (u8 *) &cr_g_CurrentChara->pos;
+    lbl_8044F53C = &cr_g_CurrentChara->pos;
     lbl_8044F534 = &cr_g_CurrentChara->unk_0050[4];
     lbl_8044F538 = (u32) cr_g_CurrentChara->build_number;
 }

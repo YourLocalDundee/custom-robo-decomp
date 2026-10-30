@@ -9,5 +9,5 @@ extern u32 lbl_803B72E8[228];
 
 void fn_80097468(s32 arg0) {
 
-    *(s32 *) ((u32 *) ((u8 *) lbl_803B72E8 + ((arg0 * 0x10) & 0xFF0))) &= 0xFFFFFFFD;
+    *((s32 *) ((u32 *) ((u8 *) lbl_803B72E8 + ((arg0 * 0x10) & 0xFF0)))) &= 0xFFFFFFFD;
 }

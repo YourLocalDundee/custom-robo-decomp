@@ -14,7 +14,7 @@ void fn_8011EFB8(void) {
 
     var_r31_4 = 0;
     while (var_r31_4 < 6U) {
-        M2C_FIELD((u8 *) (&lbl_8041CBEE[var_r31_4]), s8 *, 1) = 0;
+        M2C_FIELD(((u8 *) (&lbl_8041CBEE[var_r31_4])), s8 *, 1) = 0;
         var_r31_4 += 1;
     }
     if (!(lbl_80321D40[1] & 0x40)) {
