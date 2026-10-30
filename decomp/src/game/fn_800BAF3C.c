@@ -34,5 +34,5 @@ void fn_800BAF3C(void) {
             var_r29_12 += 1;
         }
     }
-    lbl_803BE358[0x115] = -1U;
+    lbl_803BE358[0x115] = -1;
 }
