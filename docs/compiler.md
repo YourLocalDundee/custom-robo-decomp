@@ -305,3 +305,385 @@ revision**:
 | MetroTRK | **partly**: v2.6, the CodeWarrior for GameCube 2.6 era; same sizes as XD / TP / TTYD / Pikmin 2 | banner; 160/160 sizes vs XD | KAR `src/metrotrk.c` (28 functions: UDP_Stubs.c, ddh / gdev main.c parts, MWTrace.c, dolphin_trk / glue parts), BfBB / SMS targimpl.c (2) | 51 + 17 functions: no v2.6 source in tools/refs. A TRK from the TP / Pikmin 2 / XD decomps (same sizes) would very likely be exact: worth pinning one |
 | MSL / Runtime | **partly**: the library of XD / TP (sizes); CodeWarrior for GameCube 2.6 by the TRK banner | sizes 83/83 vs XD; BfBB's code reproduces 22 | BfBB `src/PowerPC_EABI_Support/src` (MSL_Common, MSL_Common_Embedded/Math, PPC_EABI) for the 22 functions | _fseek, ftell, __sys_free (a TP / XD source would decide) |
 | HSD | **no exact release**: descends from KAR's PAL revision (both PAL-only edits), later than it | sizes vs KAR E / J / P; 267 + 65 of 504 identical with KAR's asm | nothing beyond step 61's KAR / Melee files; KAR's asm stays the template | ~172 core + ~80 audio / particle functions: written from our asm |
+
+## Source hunt (Oct 30, 2026)
+
+For every library function that had no exact reference source after step 66: which public source compiles to
+main.dol's bytes. Every claim below was compiled with the library's pinned compiler and flags ("Flags as applied"
+above) plus the per-file variants the reference itself uses, and compared with the retail bytes by probe.py's masked
+compare (same size, every word equal once call targets, address halves and small-data offsets are masked). "Exact"
+means that; nothing here was built or linked (no build directory in this worktree). Plan step 67.
+
+Rerun (each about a minute; outputs gitignored in `tools/compiler_probe/out/`):
+
+- `python -I tools/compiler_probe/sources.py --fetch` clones the two references the library hunt needs, shallow and
+  sparse, into the gitignored `tools/refs_new/`: zeldaret/tp **c8fa8c9** (`libs/TRK_MINNOW_DOLPHIN`,
+  `libs/PowerPC_EABI_Support`, `libs/dolphin`, `include`) and doldecomp/pikmin2 **999140f** (`src/Dolphin`, `include`).
+  It writes `sources.txt`: the SDK sweep (every function in the SDK address ranges against every file of BfBB, dolsdk2004,
+  dolsdk2001 and TP's SDK, by name, and by bytes for unnamed ones), MetroTRK and MSL / Runtime per function and per object
+  (the references that reproduce every function of the object, with the extra flags they need).
+- `python -I tools/compiler_probe/hsd_hunt.py` writes `hsd_hunt.txt` / `hsd_hunt.tsv`: every HSD function against our
+  own C (decomp/src/sysdolphin), Melee's C (tools/melee 24e685d, plus the 7 sysdolphin files changed up to doldecomp/melee
+  598987c, fetched raw into tools/refs_new/melee_latest), wowjinxy/KAR's C (main cb94b15; its older `testing` branch too,
+  `git archive` into tools/refs_new/kar_wj_testing), doldecomp/kar's C and asm (3ed51a1), with a classified diff against
+  the closest one.
+
+### Result per library
+
+| Library | Functions | Exact source now | New in this step | Still without an exact source |
+|---|---|---|---|---|
+| Dolphin SDK (all of 0x80003100-0x80003458, 0x80131C08-0x80159530, 0x801AEB40-, split or not) | 761 | 760: 676 compiled by name, 81 unnamed by bytes, 3 with a one-line edit (GXInit, dvd.c's two) | dvd.c's stateReadingFST / cbForStateCheckID2 (BfBB with `#line 650`); the sweep confirms step 66's list for every other function | 1: fn_80148998 (AXFX ReverbSTDCreate) |
+| MetroTRK | 163 (162 split + `__TRK_reset` in .init) | **163** | 69: every function step 66 left (51 + 17), and fn_800053E0 | 0 |
+| MSL + Runtime | 103 | **103** | _fseek, ftell (TP / Pikmin 2), __sys_free (a flag) | 0 |
+| HSD (sysdolphin, audio, particle) | 678 | 392 (358 by our C, 34 new) | 34 (list below) | 286: 137 identical to KAR asm, 30 KAR asm but for assert lines, 37 small edits, 23 moderate, 18 rewrites, 41 with no reference |
+
+### Dolphin SDK
+
+The sweep compiles every .c of BfBB (`src/dolphin/src`), dolsdk2004, dolsdk2001 and Twilight Princess's SDK
+(`libs/dolphin/src`) with GC/1.2.5n and the three SDK flag sets of revisions.py; each of our functions in the SDK ranges
+is compared under its own name (duplicate static names such as the three `AlarmHandler` are each compared), and every
+unnamed `fn_` against every compiled function of its size. Step 66's per-object table stands; in addition:
+
+- **OSAlloc.c OSDestroyHeap / OSCheckHeap**: dolsdk2001 (what decomp/src already uses; dolsdk2004 is 43% / 91%).
+- **dvd.c stateReadingFST (0x8013BE00), cbForStateCheckID2 (0x8013C8F8)** (DVD is the Sep 16 2003 build): BfBB's dvd.c
+  with `#line 644` changed to `#line 650` (the OSHalt line of the "FST in the new disc is too big" message, inlined
+  in both) compiles every one of our 45 dvd.c functions exact (tested; BfBB as it is: 97% / 98%, `li r4, 0x284` vs 0x28A).
+- **GXInit**: step 66's BfBB + `__GXSetIndirectMask(0);` (BfBB as it is 99%).
+- **fn_80148998** (0x47C, the first function of reverb_std.c = `ReverbSTDCreate` by position): dolsdk2004 63%, dolsdk2001
+  49%, TP 47%; the same instructions with other registers (`rv` in r31 here, r23 in dolsdk2004) and the delay-line loop
+  counters set up in another order; GC/1.2.5 / 1.2.5n / 1.3 / 1.3.2 / 2.0 / 2.6 with -O4,p / -O4,s / -O3,p / -O2 and
+  char / inline / fp_contract variants tried, best 63%. No reference: write from our asm starting from dolsdk2004.
+- 81 unnamed functions equal one compiled function byte for byte (68 to exactly one name: the THP / AXFX / Pad / CARD /
+  texPalette names of step 66 and more; 13 to several names, e.g. fn_80153070 = `GXGetCPUFifo` or one of three other
+  one-line getters). Every other SDK function therefore has C; the THP / AXFX / Pad files are BfBB `thp/`, dolsdk2004
+  `axfx/`, `pad/`.
+
+### MetroTRK v2.6: Twilight Princess / Pikmin 2
+
+**TP's and Pikmin 2's TRK is C (not asm-only) and is v2.6's**: compiled with GC/2.6 and our MetroTRK flags they
+reproduce all 162 TRK functions (targsupp is assembler in both: four `twi 31, r0, 0; blr` stubs, equal to ours).
+Per object, import from TP (`tools/refs_new/tp/`, zeldaret/tp c8fa8c9; Pikmin 2's `src/Dolphin/TRK_MINNOW_DOLPHIN/`
+is equal wherever TP is, and is the only exact one for targimpl.c):
+
+| Object | Functions | Exact references (file; extra flags) | Import from |
+|---|---|---|---|
+| MetroTRK/mem_TRK.c | 3 | mp4 (mem_TRK.c), melee (mem_TRK.c), ac (mem_TRK.c), pikmin (mem_TRK.c), bfbb (mem_TRK.c), pikmin2 (mem_TRK.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/mem_TRK.c` |
+| fn_800053E0 (.init, automatic object) | 1 | tp (dolphin_trk.c), pikmin2 (dolphin_trk.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Os/dolphin/dolphin_trk.c`: `__TRK_reset` = `OSResetSystem(FALSE, 0, FALSE)` (MP4 / Melee / AC: `__TRK_copy_vectors()`, 8%) |
+| MetroTRK/mainloop.c | 1 | mp4 (mainloop.c), sms (mainloop.c), tp (mainloop.c), pikmin2 (mainloop.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/mainloop.c` |
+| MetroTRK/nubevent.c | 5 | mp4 (nubevent.c), sms (nubevent.c), tp (nubevent.c), pikmin2 (nubevent.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/nubevent.c` |
+| MetroTRK/nubinit.c | 3 | tp (nubinit.c), pikmin2 (nubinit.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/nubinit.c` |
+| MetroTRK/msg.c | 1 | tp (msg.c), pikmin2 (msg.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/msg.c` |
+| MetroTRK/msgbuf.c | 14 | tp (msgbuf.c), pikmin2 (msgbuf.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/msgbuf.c` |
+| MetroTRK/serpoll.c | 5 | tp (serpoll.c), pikmin2 (serpoll.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/serpoll.c` |
+| MetroTRK/usr_put.c | 2 | mp4 (usr_put.c), ac (usr_put.c), tp (usr_put.c), pikmin2 (usr_put.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Os/dolphin/usr_put.c` |
+| MetroTRK/dispatch.c | 2 | tp (dispatch.c), pikmin2 (dispatch.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/dispatch.c` |
+| MetroTRK/msghndlr.c | 17 | tp (msghndlr.c), pikmin2 (msghndlr.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/msghndlr.c` |
+| MetroTRK/support.c | 5 | tp (support.c), pikmin2 (support.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/support.c` |
+| MetroTRK/mutex_TRK.c | 3 | mp4 (mutex_TRK.c), melee (mutex_TRK.c), ac (mutex_TRK.c), pikmin (mutex_TRK.c), sms (mutex_TRK.c), bfbb (mutex_TRK.c)... | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/mutex_TRK.c` |
+| MetroTRK/notify.c | 1 | tp (notify.c), pikmin2 (notify.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/notify.c` |
+| MetroTRK/flush_cache.c | 1 | mp4 (flush_cache.c), melee (flush_cache.c), ac (flush_cache.c), pikmin (flush_cache.c), sms (flush_cache.c), bfbb (fl... | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Processor/ppc/Generic/flush_cache.c` |
+| MetroTRK/targimpl.c | 29 | pikmin2 (targimpl.c) | pikmin2 `src/Dolphin/TRK_MINNOW_DOLPHIN/targimpl.c` (the only file exact for all 29: ReadFPSCR, WriteFPSCR, TRKTargetAccessARAM, TRKTargetSupportRequest ...) |
+| MetroTRK/targsupp.c | 4 | tp/pikmin2 targsupp.s | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Processor/ppc/Export/targsupp.s` |
+| MetroTRK/mpc_7xx_603e.c | 2 | mp4 (mpc_7xx_603e.c), melee (mpc_7xx_603e.c), ac (mpc_7xx_603e.c), pikmin (mpc_7xx_603e.c), sms (mpc_7xx_603e.c), bfb... | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Processor/ppc/Generic/mpc_7xx_603e.c` |
+| MetroTRK/dolphin_trk.c | 8 | tp / pikmin2 for 7 of 8, mp4 / melee / ac / bfbb / kar for InitMetroTRK | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Os/dolphin/dolphin_trk.c` with InitMetroTRK from MP4 / BfBB (TP / Pikmin 2: 0x98, ours and XD 0x94); fn_8015E09C = TRK__write_aram, fn_8015E288 = TRK__read_aram (exact under those names) |
+| MetroTRK/main_TRK.c | 1 | tp (main_TRK.c), pikmin2 (main_TRK.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Portable/main_TRK.c` |
+| MetroTRK/dolphin_trk_glue.c | 13 | tp (dolphin_trk_glue.c), pikmin2 (dolphin_trk_glue.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Os/dolphin/dolphin_trk_glue.c` |
+| MetroTRK/targcont.c | 1 | mp4 (targcont.c), melee (targcont.c), ac (targcont.c), pikmin (targcont.c), sms (targcont.c), bfbb (targcont.c), kar ... | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Os/dolphin/targcont.c` |
+| MetroTRK/target_options.c | 2 | mp4 (target_options.c), ac (target_options.c), tp (target_options.c), pikmin2 (target_options.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Os/dolphin/target_options.c` |
+| MetroTRK/mslsupp.c | 2 | mp4 (mslsupp.c), ac (mslsupp.c), tp (mslsupp.c), pikmin2 (mslsupp.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Export/mslsupp.c` |
+| MetroTRK/UDP_Stubs.c | 9 | kar (metrotrk.c), tp (UDP_Stubs.c), pikmin2 (UDP_Stubs.c) | tp `libs/TRK_MINNOW_DOLPHIN/debugger/embedded/MetroTRK/Os/dolphin/UDP_Stubs.c` |
+| MetroTRK/ddh/main.c | 10 | tp (main.c; -sdata 8), pikmin2 (main.c; -sdata 8) | tp `libs/TRK_MINNOW_DOLPHIN/gamedev/cust_connection/cc/exi2/GCN/EXI2_DDH_GCN/main.c`, with `-sdata 8` (CR_OBJECT_CFLAGS; TP / Pikmin 2 set it for this file) |
+| MetroTRK/CircleBuffer.c | 4 | tp (CircleBuffer.c), pikmin2 (CircleBuffer.c) | tp `libs/TRK_MINNOW_DOLPHIN/gamedev/cust_connection/utils/common/CircleBuffer.c` |
+| MetroTRK/gdev/main.c | 10 | tp (main.c; -sdata 8), pikmin2 (main.c; -sdata 8) | tp `libs/TRK_MINNOW_DOLPHIN/gamedev/cust_connection/cc/exi2/GCN/EXI2_GDEV_GCN/main.c`, with `-sdata 8` (CR_OBJECT_CFLAGS; TP / Pikmin 2 set it for this file) |
+| MetroTRK/MWTrace.c | 1 | kar (metrotrk.c), tp (MWTrace.c), pikmin2 (MWTrace.c) | tp `libs/TRK_MINNOW_DOLPHIN/gamedev/cust_connection/utils/common/MWTrace.c` |
+| MetroTRK/MWCriticalSection_gc.cpp | 3 | tp (MWCriticalSection_gc.c), pikmin2 (MWCriticalSection_gc.cpp) | tp `libs/TRK_MINNOW_DOLPHIN/gamedev/cust_connection/utils/gc/MWCriticalSection_gc.c` |
+
+The 12 TRK objects in CR_NOT_MATCHING (dispatch, dolphin_trk, dolphin_trk_glue, main_TRK, msg, msgbuf, msghndlr,
+notify, nubinit, serpoll, support, targimpl) and the 7 not imported (UDP_Stubs, ddh / gdev main.c, CircleBuffer, MWTrace,
+MWCriticalSection_gc, targsupp) all become exact. The header roots are TP's (`include`, `libs/dolphin/include`,
+`libs/PowerPC_EABI_Support/...`, `-DVERSION=0`), so the import needs those headers next to the MP4 ones (CR_OBJECT_INCLUDES).
+
+### MSL and Runtime
+
+All 103 functions have an exact source. For the objects not linked yet (CR_NOT_MATCHING) and the files not imported:
+
+| Object (functions) | Exact references | Import from |
+|---|---|---|
+| MSL/FILE_POS.c (3) | tp (FILE_POS.c), pikmin2 (FILE_POS.C) | tp `libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/FILE_POS.c` (_fseek, ftell, fseek: only TP / Pikmin 2) |
+| MSL/abort_exit.c (1) | bfbb (abort_exit.c), kar (runtime_libc.c), tp (abort_exit.c), pikmin2 (abort_exit.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/alloc.c (4) | bfbb (alloc.c), tp (alloc.c), pikmin2 (alloc.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/ansi_files.c (2) | bfbb (ansi_files.c), tp (ansi_files.c), pikmin2 (ansi_files.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/ansi_fp.c (4) | bfbb (ansi_fp.c), tp (ansi_fp.c), pikmin2 (ansi_fp.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/direct_io.c (2) | bfbb (direct_io.c), tp (direct_io.c), pikmin2 (direct_io.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/e_acos.c (1) | bfbb (e_acos.c), tp (e_acos.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/e_asin.c (1) | bfbb (e_asin.c), tp (e_asin.c), pikmin2 (e_asin.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/e_pow.c (1) | bfbb (e_pow.c), tp (e_pow.c), pikmin2 (e_pow.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/printf.c (11) | pikmin2 (printf.c) | pikmin2 `src/Dolphin/MSL_C/MSL_Common/printf.c` (the only file exact for all 11; MP4's 7 + BfBB's vprintf also work; the 0% of parse_format / long2str / longlong2str in objdiff is its local-symbol pairing, step 66) |
+| MSL/string.c (7) | ac (string.c), bfbb (string.c), tp (string.c), pikmin2 (string.c) | bfbb `src/PowerPC_EABI_Support/src/MSL_C/MSL_Common/string.c` or tp `.../MSL_Common/Src/string.c` (strcat) |
+| Runtime/GCN_mem_alloc.c (1) | mp4 (GCN_Mem_Alloc.c; runtime -str reuse,nopool,readonly), bfbb (GCN_mem_alloc.c; runtime -str reuse,nopool,readonly), tp (GCN_mem_alloc.... | the C already in decomp/src (MP4's) with `-str reuse,nopool,readonly` (CR_OBJECT_CFLAGS, as TP's configure.py): __sys_free exact; with our Runtime flags 98% |
+| MSL/e_exp.c (1) | bfbb (e_exp.c), tp (e_exp.c), pikmin2 (e_exp.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/e_log.c (1) | bfbb (e_log.c), tp (e_log.c), pikmin2 (e_log.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/e_sqrt.c (1) | bfbb (e_sqrt.c), tp (e_sqrt.c), pikmin2 (e_sqrt.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/w_exp.c (1) | bfbb (w_exp.c), tp (w_exp.c), pikmin2 (w_exp.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/w_log.c (1) | bfbb (w_log.c) | bfbb `src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/w_log.c` (only BfBB has it) |
+| MSL/exponentialsf.c (1) | bfbb (math_ppc.c), tp (math_double.c) | bfbb `src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/math_ppc.c` (powf) or tp `.../MSL_Common/Src/math_double.c` |
+| MSL/PPC_EABI/critical_regions.gamecube.c (3) | bfbb (critical_regions.gamecube.c), kar (runtime_libc.c), tp (critical_regions.gamecube.c), pikmin2 (critical_regions.gamecube.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+| MSL/uart_console_io_gcn.c (1) | bfbb (uart_console_io_gcn.c), tp (uart_console_io_gcn.c), pikmin2 (uart_console_io_gcn.c) | bfbb `src/PowerPC_EABI_Support/src/` (step 66) or tp `libs/PowerPC_EABI_Support/` (same file name) |
+
+### HSD (sysdolphin, HSD audio, particle)
+
+No public HSD source is this revision. Checked: tools/melee (24e685d) and doldecomp/melee's newest sysdolphin (598987c: 7
+files changed since, only .c files; no function changes its score), doldecomp/kar (3ed51a1 = its head), wowjinxy/KAR main
+(cb94b15 = its head; branch `long-auto-test` has the same sysdolphin, `testing` (066a737) is older: no function exact
+there that main lacks; `master` and the `agent/*` branches have less), HSDLib (file-format structs only: particle
+groups, FOBJ; no runtime structs such as the voice / particle records the diffs below are about). KAR stays the closest by
+far; Melee's C is the closest for only a handful.
+
+Per part (functions; exact C; how far the rest is from the closest reference):
+
+| Part | Functions | Exact C (new) | KAR asm identical, no C | assert lines only | small edit (>=90% aligned) | moderate (70-90%) | rewrite (<70%) | no reference |
+|---|---|---|---|---|---|---|---|---|
+| axdriver | 34 | 0 (0) | 14 | 1 | 6 | 5 | 2 | 6 |
+| devcom | 16 | 2 (2) | 5 | 4 | 0 | 0 | 4 | 1 |
+| synth | 53 | 1 (1) | 26 | 6 | 4 | 1 | 3 | 12 |
+| particle+ | 68 | 0 (0) | 32 | 3 | 14 | 5 | 4 | 10 |
+| core | 507 | 389 (31) | 60 | 16 | 13 | 12 | 5 | 12 |
+
+Address ranges: axdriver 0x8016D42C-0x80170ECC, devcom -0x80172DD8, synth -0x80179C14, particle and the rest up to the
+core -0x80186490, core -0x801AEB40. KAR asm partners: by name (our name = the name in wowjinxy's GKYE01 map at that
+KAR address); for our unnamed functions, the KAR function with equal masked bytes ("bytes") or else the most similar
+one in the same file / size band ("similar"; under 50% aligned it counts as no reference). KAR names quoted here come
+from wowjinxy's map and include its invented `kar_*` names: they locate the code, they are not names for us.
+
+**New exact C (34)**, not in our C yet (every exact reference listed; `wowjinxy` = tools/refs/kar_wowjinxy/src/sysdolphin,
+`melee` = tools/melee/src/sysdolphin/baselib, `kar` = tools/refs/kar/src/sysdolphin):
+
+| Function | Address | Size | Our object | Exact in |
+|---|---|---|---|---|
+| HSD_DevComDVDStdCallback | 801715C4 | 0x78 | (unsplit devcom) | wowjinxy:devcom.c |
+| HSD_DevComDVDMemCallback | 801717DC | 0x198 | (unsplit devcom) | wowjinxy:devcom.c |
+| HSD_SynthSFXLoadNewProc | 801733F0 | 0x7C | (unsplit synth) | melee:synth.c, wowjinxy:dvdsche.c |
+| LObjInfoInit | 8018F4C8 | 0x80 | lobj.c | wowjinxy-testing:lobj.c, wowjinxy:lobj.c |
+| interpretShapeAnimDisplayList | 80194BD8 | 0x324 | pobj.c | melee:pobj.c, melee_latest:pobj.c |
+| PObjInfoInit | 801963A4 | 0x98 | pobj.c | wowjinxy-testing:pobj.c, wowjinxy:pobj.c |
+| HSD_ObjSetHeap | 801A0568 | 0x1C | objalloc.c | melee:objalloc.c, wowjinxy-testing:util.c, wowjinxy:util.c |
+| HSD_ObjAlloc | 801A07D4 | 0x150 | objalloc.c | wowjinxy-testing:objalloc.c, wowjinxy:objalloc.c |
+| HSD_ObjFree | 801A0924 | 0x28 | objalloc.c | melee:objalloc.c, wowjinxy-testing:objalloc.c, wowjinxy:objalloc.c |
+| _HSD_MemAlloc | 801A4060 | 0x2C | (unsplit core) | wowjinxy-testing:memory.c, wowjinxy:memory.c |
+| HSD_Free | 801A40EC | 0x30 | (unsplit core) | wowjinxy-testing:memory.c, wowjinxy:memory.c |
+| HSD_Alloc | 801A411C | 0x38 | (unsplit core) | wowjinxy-testing:memory.c, wowjinxy:memory.c |
+| HSD_ShadowInitAllocData | 801A4154 | 0x30 | (unsplit core) | kar:shadow.c, melee:shadow.c, wowjinxy-testing:memory.c, wowjinxy:memory.c |
+| HSD_ShadowAlloc | 801A4184 | 0xFC | (unsplit core) | kar:shadow.c, melee:shadow.c, wowjinxy-testing:memory.c, wowjinxy:memory.c |
+| HSD_ShadowRemove | 801A4280 | 0x108 | (unsplit core) | melee:shadow.c, wowjinxy-testing:memory.c, wowjinxy:memory.c |
+| HSD_ShadowInit | 801A4388 | 0x70 | (unsplit core) | kar:shadow.c, melee:shadow.c, wowjinxy-testing:shadow.c, wowjinxy:shadow.c |
+| HSD_ShadowSetSize | 801A43F8 | 0x160 | (unsplit core) | kar:shadow.c, melee:shadow.c, wowjinxy-testing:shadow.c, wowjinxy:shadow.c |
+| HSD_ShadowAddObject | 801A4C84 | 0xAC | (unsplit core) | kar:shadow.c, melee:shadow.c, wowjinxy-testing:shadow.c, wowjinxy:shadow.c |
+| HSD_ShadowDeleteObject | 801A4D30 | 0x94 | (unsplit core) | kar:shadow.c, melee:shadow.c, wowjinxy-testing:shadow.c, wowjinxy:shadow.c |
+| HSD_ViewingRectCheck | 801A52CC | 0x7C | (unsplit core) | wowjinxy-testing:shadow.c, wowjinxy:shadow.c |
+| HSD_ViewingRectAddRect | 801A5348 | 0x210 | (unsplit core) | wowjinxy-testing:shadow.c, wowjinxy:shadow.c |
+| HSD_ArchiveGetPublicAddress | 801A5558 | 0xA4 | (unsplit core) | kar:archive.c, melee:archive.c, wowjinxy-testing:archive.c, wowjinxy:archive.c |
+| HSD_ArchiveGetExtern | 801A55FC | 0x38 | (unsplit core) | kar:archive.c, melee:archive.c, wowjinxy-testing:archive.c, wowjinxy:archive.c |
+| HSD_TExpRef | 801A7E20 | 0x88 | texp.c | wowjinxy-testing:texpdag.c, wowjinxy:texpdag.c |
+| HSD_TExpFreeList | 801A8424 | 0x320 | texp.c | wowjinxy-testing:texpdag.c, wowjinxy:texpdag.c |
+| HSD_TExpCnst | 801A8804 | 0x120 | texp.c | wowjinxy-testing:texpdag.c, wowjinxy:texpdag.c |
+| HSD_TExpColorOp | 801A8924 | 0xE8 | texp.c | wowjinxy-testing:texpdag.c, wowjinxy:texpdag.c |
+| HSD_TExpAlphaOp | 801A8A0C | 0xE8 | texp.c | wowjinxy-testing:texpdag.c, wowjinxy:texpdag.c |
+| AssignColorReg | 801A9778 | 0x178 | texp.c | wowjinxy-testing:texpdag.c, wowjinxy:texpdag.c |
+| AssignColorKonst | 801A98F0 | 0x22C | texp.c | wowjinxy-testing:texpdag.c, wowjinxy:texpdag.c |
+| AssignAlphaKonst | 801A9B1C | 0x164 | texp.c | wowjinxy-testing:texpdag.c, wowjinxy:texpdag.c |
+| HSD_SaveContext | 801AE9B4 | 0x98 | (unsplit core) | wowjinxy-testing:gobjproc.c, wowjinxy:gobjproc.c |
+| __assert | 801AEA4C | 0x5C | (unsplit core) | wowjinxy-testing:gobjproc.c, wowjinxy:gobjproc.c |
+| HSD_Panic | 801AEAA8 | 0x98 | (unsplit core) | wowjinxy-testing:gobjproc.c, wowjinxy:gobjproc.c |
+
+**KAR asm equal, no C anywhere** (C to write to KAR's asm: the instructions are the same) and **KAR asm equal but for
+assert line numbers** (li immediates; the C needs our line numbers):
+
+| Our object | Kind | Count | Functions (address; = KAR function where ours is unnamed) |
+|---|---|---|---|
+| (unsplit axdriver) | asm identical | 14 | fn_8016D48C (8016D48C = KAR fn_80347C40), fn_8016F294 (8016F294 = KAR kar_axdriver_dispatch_play_sequence_voice), fn_8016FA5C (8016FA5C = KAR kar_axdriver_bind_sound_archive), fn_8016FBC8 (8016FBC8 = KAR kar_axdriver_set_channel_mix_override_enable), fn_8016FF44 (8016FF44 = KAR kar_axdriver_calc_effect_work_size), fn_8017004C (8017004C = KAR kar_axdriver_configure_output_effect), fn_801700BC (801700BC = KAR kar_axdriver_init_effect_params), fn_80170708 (80170708 = KAR kar_axdriver_play_file_in_slot), fn_80170C70 (80170C70 = KAR kar_axdriver_stop_slot), fn_80170CD8 (80170CD8 = KAR kar_axdriver_set_slot_volume_ramp), fn_80170D4C (80170D4C = KAR kar_axdriver_set_backend_master_mix), fn_80170D7C (80170D7C = KAR kar_axdriver_pause_all_slots), fn_80170DEC (80170DEC = KAR kar_axdriver_pause_all_slots), fn_80170EAC (80170EAC = KAR kar_a2d_bg8000__near_80343a74) |
+| (unsplit axdriver) | assert lines only | 1 | AXDriverSetupAux (8016FC38) |
+| (unsplit devcom) | asm identical | 5 | HSD_DevComDVDWakeUp (80171C18), HSD_DevComRequest (80171EC4), fn_80172134 (80172134 = KAR kar_dvdsche_configure_stream_scheduler), fn_8017277C (8017277C = KAR kar_dvdsche_dispatch_stream_scheduler_callbacks), fn_80172DCC (80172DCC = KAR fn_803EC99C) |
+| (unsplit devcom) | assert lines only | 4 | fn_80172178 (80172178 = KAR kar_dvdsche_alloc_stream_scheduler_slot), fn_801723E4 (801723E4 = KAR kar_dvdsche_free_stream_scheduler_slot), fn_801725D0 (801725D0 = KAR kar_dvdsche_set_stream_scheduler_slot_key), fn_801726B0 (801726B0 = KAR kar_dvdsche_set_stream_scheduler_slot_callback) |
+| (unsplit synth) | asm identical | 26 | HSD_AudioMalloc (80172DD8), fn_801735EC (801735EC = KAR HSD_SynthSFXGetPendingLoadCount), fn_801735FC (801735FC = KAR HSD_SynthSFXNewBank), fn_80173654 (80173654 = KAR HSD_SynthSFXBankClear), fn_80173774 (80173774 = KAR HSD_SynthVolToDBx), fn_801737E4 (801737E4 = KAR HSD_SynthDBxToVol), fn_80173850 (80173850 = KAR HSD_SynthSetSoundMode), fn_80173F64 (80173F64 = KAR HSD_SynthSFXStart), fn_801746A4 (801746A4 = KAR HSD_SynthSFXKeyOff), fn_80174928 (80174928 = KAR HSD_SynthSFXStopRange), fn_801749B4 (801749B4 = KAR HSD_SynthSFXStopBank), fn_801749F4 (801749F4 = KAR HSD_SynthSFXPause), fn_80174A9C (80174A9C = KAR HSD_SynthSFXResume), fn_80174B40 (80174B40 = KAR HSD_SynthSFXCheck), fn_80174FBC (80174FBC = KAR HSD_SynthSFXSetMix), fn_801753A0 (801753A0 = KAR HSD_SynthSFXSetPriority), fn_80175E10 (80175E10 = KAR HSD_SynthSFXUpdateVolume), fn_80175E6C (80175E6C = KAR HSD_SynthSFXMixEnvelope), fn_801760BC (801760BC = KAR HSD_SynthSFXMixShort), fn_80176250 (80176250 = KAR HSD_SynthSFXInitMix), fn_801772E0 (801772E0 = KAR HSD_SynthSFXUpdateAllVolume), fn_8017755C (8017755C = KAR HSD_SynthSFXSetMasterVolume), fn_8017776C (8017776C = KAR fn_803ED76C), fn_80177774 (80177774 = KAR fn_803ED76C), fn_8017777C (8017777C = KAR fn_803ED76C), fn_8017933C (8017933C = KAR HSD_SynthPStreamStart) |
+| (unsplit synth) | assert lines only | 6 | fn_80174BFC (80174BFC = KAR HSD_SynthSetVolFader), fn_80174E1C (80174E1C = KAR HSD_SynthSFXSetPan), fn_80174EF4 (80174EF4 = KAR HSD_SynthSFXSetSPan), fn_8017506C (8017506C = KAR HSD_SynthSFXLinkUpdateRearPitch), fn_801750DC (801750DC = KAR HSD_SynthSFXUpdatePitch), HSD_SynthSFXSetPitchRatio (801752AC) |
+| (unsplit particle+) | asm identical | 32 | fn_80179C14 (80179C14 = KAR kar_particle__near_8042a874), fn_8017A638 (8017A638 = KAR psGenerateParticle), fn_8017A96C (8017A96C = KAR psDeletePntJObjwithParticle), fn_8017A9C8 (8017A9C8 = KAR psKillGeneratorChild), fn_8017AADC (8017AADC = KAR kar_particle__near_8042ba68), fn_8017AC4C (8017AC4C = KAR kar_particle__near_8042bbd8), fn_8017AC84 (8017AC84 = KAR kar_particle__near_8042bc10), fn_8017B1B8 (8017B1B8 = KAR kar_particle__near_8042c9fc), fn_8017B360 (8017B360 = KAR kar_particle__near_8042cba4), fn_8017E3D4 (8017E3D4 = KAR kar_particle__near_8042fe34), fn_8017E484 (8017E484 = KAR kar_particle__near_8042fee4), fn_8017E534 (8017E534 = KAR kar_particle__near_8042ff94), fn_8017E5E4 (8017E5E4 = KAR HSD_JObjSetupMatrix), fn_8017E654 (8017E654 = KAR fn_803BD490), fn_8017E6B8 (8017E6B8 = KAR kar_particle__near_804300b4), fn_8017E710 (8017E710 = KAR kar_a2d_bg8000__near_80343a74), fn_8017E730 (8017E730 = KAR kar_particle__near_8043012c), fn_8017E794 (8017E794 = KAR kar_particle__near_80430190), fn_8017E874 (8017E874 = KAR kar_psinterpret__near_80430270), fn_8017F1AC (8017F1AC = KAR HSD_TObjGetNext), fn_8017F1C4 (8017F1C4 = KAR kar_gmlanmenu__near_80053758), fn_8017F1DC (8017F1DC = KAR kar_psinterpret__near_8043070c), fn_80180AC8 (80180AC8 = KAR kar_generator__near_804328a0), fn_801812A4 (801812A4 = KAR kar_generator__near_80433098), fn_80181360 (80181360 = KAR kar_generator__near_80433154), fn_80184B44 (80184B44 = KAR kar_psdisp__near_80436d4c), fn_80184F60 (80184F60 = KAR kar_psdisp__near_80437168), fn_801851D4 (801851D4 = KAR kar_psdisp__near_804373dc), fn_80185304 (80185304 = KAR kar_lbkdcoll__near_80076a84), fn_80185310 (80185310 = KAR kar_psdisp__near_80437518), fn_801859E8 (801859E8 = KAR kar_psdisp__near_80437bf0), fn_80186010 (80186010 = KAR _psListDelete) |
+| (unsplit particle+) | assert lines only | 3 | psInitDataBankLoad (80179F88), fn_80185E28 (80185E28 = KAR kar_psdisp__near_80438084), fn_80185F34 (80185F34 = KAR kar_psdisp__near_80438238) |
+| state.c | asm identical | 1 | HSD_SetupChannelMode (80189C88) |
+| tev.c | asm identical | 1 | HSD_DisableChannelLighting (8018AB28) |
+| tev.c | assert lines only | 1 | fn_8018AFE0 (8018AFE0 = KAR HSD_Channel2Num) |
+| lobj.c | asm identical | 1 | fn_8018E604 (8018E604 = KAR HSD_LObjSetCurrentAll) |
+| cobj.c | asm identical | 9 | HSD_CObjEraseScreen (8018F548), fn_8018F830 (8018F830 = KAR setupTopHalfCamera), fn_8018FA94 (8018FA94 = KAR setupBottomHalfCamera), fn_80190EB8 (80190EB8 = KAR HSD_CObjSetMtxDirty), fn_80191424 (80191424 = KAR HSD_CObjSetAspect), fn_80191494 (80191494 = KAR HSD_CObjSetScissor), fn_801914B0 (801914B0 = KAR HSD_CObjSetScissorx4), fn_801914CC (801914CC = KAR HSD_CObjSetViewportf), fn_801914F8 (801914F8 = KAR HSD_CObjSetViewportfx4) |
+| cobj.c | assert lines only | 1 | CObjInfoInit (80191B60) |
+| fobj.c | assert lines only | 2 | FObjLoadData (80191EA4), HSD_FObjInterpretAnim (80192F74) |
+| pobj.c | assert lines only | 6 | PObjLoad (80193B14), HSD_PObjResolveRefsAll (80193EB8), get_shape_vertex_xyz (801940B8), get_shape_normal_xyz (80194444), get_shape_nbt_xyz (801947D0), HSD_PObjDisp (80195EE4) |
+| pobj.c | asm identical | 2 | SetupSharedVtxModelMtx (80195650), PObjRelease (801961CC) |
+| jobj.c | asm identical | 15 | fn_80196568 (80196568 = KAR HSD_JObjMtxIsDirty), HSD_JObjSetMtxDirty (801965C0), HSD_JObjReqAnimAllByFlags (80196988), fn_80196C50 (80196C50 = KAR HSD_JObjRemoveAnimAll), fn_80198014 (80198014 = KAR setupInstanceMtx), fn_80198144 (80198144 = KAR HSD_JObjDispAll), fn_80198690 (80198690 = KAR HSD_JObjSetupMatrix), HSD_IDGetData (80198DC4), ref_INC (80198DF0), fn_80199178 (80199178 = KAR HSD_JObjGetDObj), fn_801991A4 (801991A4 = KAR HSD_JObjGetFlags), HSD_JObjSetFlagsAll (80199258), fn_801995CC (801995CC = KAR HSD_JObjClearFlagsAll), HSD_JObjSetMtxDirtySub (8019AA60), JObjInfoInit (8019B3D8) |
+| jobj.c | assert lines only | 3 | HSD_JObjResolveRefsAll (80198A9C), resolveIKJoint1 (80199A9C), resolveIKJoint2 (8019A28C) |
+| displayfunc.c | asm identical | 2 | fn_8019C918 (8019C918 = KAR fn_803ED76C), HSD_EraseRect (8019C920) |
+| mtx.c | asm identical | 2 | fn_8019F2AC (8019F2AC = KAR HSD_MtxGetRotationMtx), HSD_VecGetOrthogonal (801A015C) |
+| objalloc.c | asm identical | 2 | HSD_ObjAllocAddFree (801A0584), HSD_ObjAllocInit (801A094C) |
+| robj.c | asm identical | 5 | HSD_RObjGetGlobalPosition (801A0CCC), resolveCnsDirUp (801A0E80), HSD_RObjUpdateAll (801A1670), HSD_RObjResolveRefsAll (801A1AF4), HSD_RvalueResolveRefsAll (801A28A0) |
+| (unsplit core) | asm identical | 8 | fn_801A3C9C (801A3C9C = KAR HSD_PerfCountEnvelopeBlending), fn_801A3FEC (801A3FEC = KAR _HSD_MemSetCallbacks), fn_801A408C (801A408C = KAR UnreserveEXI2Port), fn_801A40BC (801A40BC = KAR _HSD_MemCheckOwn), fn_801A5A48 (801A5A48 = KAR HSD_ArchiveFree), fn_801A5AE8 (801A5AE8 = KAR kar_a2d_bg8000__near_80343a74), fn_801A5E7C (801A5E7C = KAR HSD_Randf), fn_801A5ED4 (801A5ED4 = KAR HSD_Randi) |
+| hash.c | asm identical | 1 | HSD_HashSearch (801A7CE4) |
+| texp.c | asm identical | 3 | HSD_TExpUnref (801A7EA8), HSD_TExpColorInSub (801A8AF4), HSD_TExpAlphaInSub (801A91B4) |
+| texp.c | assert lines only | 3 | TExpAssignReg (801A9C80), TExp2TevDesc (801AA34C), HSD_TExpSetReg (801AA74C) |
+| texpdag.c | asm identical | 8 | assign_reg (801AAF9C), CalcDistance (801AB384), HSD_TExpMakeDag (801AB7BC), SimplifySrc (801ABFD4), SimplifyThis (801AC46C), SimplifyByMerge (801ACCAC), CalcTevRange (801AE474), HSD_TExpSimplify (801AE728) |
+
+**The rest (119)**: closest reference, kinds of difference against it and the share of aligned instructions, then
+what to do. Kinds: `lines` li immediates (assert lines), `regs` register numbers only (allocation: declaration /
+expression order), `offsets` same load / store with another displacement (struct layout; first pairs shown as
+reference->ours), `consts` other immediates (constants, flag masks, stack sizes), `+check` / `-check` compare-and-branch
+only in ours / only in the reference (an added / dropped NULL or range check), `+call` / `-call` calls only in ours /
+the reference (helper not inlined / inlined), `branches` branch displacements (follow from inserted code), `+N` / `-N`
+other instructions only in ours / the reference, `rewrite` under half aligned. "start from" = the best C over 50%.
+
+| Function | Address | Size | Our object | Closest reference | Difference | Suggested edit |
+|---|---|---|---|---|---|---|
+| AXDriverAlloc | 8016D42C | 0x60 | (unsplit axdriver) | melee:axdriver.c | lines regs(4) 79% C size 0x60; kar asm 92% lines -N | the C, then: assert lines, declaration / expression order (register allocation) |
+| fn_8016D490 | 8016D490 | 0x14C | (unsplit axdriver) | KAR asm kar_axdriver_stop_voice 80440844 (similar) | lines other 98%  | C written from the KAR asm, then: assert lines, code changes |
+| fn_8016D5DC | 8016D5DC | 0x4C4 | (unsplit axdriver) | KAR asm kar_axdriver_try_start_hardware_voice 80440CD4 (similar) | lines(2) offsets(20) consts other(2) 92% ld +0x1C->+0x1B imm 0xBFC->0xDFC ld +0x30->+0x2E ld +0x3A->+ | C written from the KAR asm, then: assert lines, struct layout (field offsets), constants / flag masks, code changes |
+| fn_8016DAA0 | 8016DAA0 | 0x590 | (unsplit axdriver) | KAR asm kar_axdriver_apply_voice_pending_flags 80441198 (similar) | lines(3) offsets(14) branches(13) +N(2) -N(16) 87% ld +0x24->+0x22 ld +0x26->+0x24 ld +0x20->+0x1F st +0x18->+0 | C written from the KAR asm, then: assert lines, struct layout (field offsets), code changes |
+| fn_8016E030 | 8016E030 | 0xB4C | (unsplit axdriver) | - | no reference 0%  | write from our asm |
+| fn_8016EB7C | 8016EB7C | 0x208 | (unsplit axdriver) | - | no reference 20%  | write from our asm |
+| fn_8016ED84 | 8016ED84 | 0xD4 | (unsplit axdriver) | - | no reference 43%  | write from our asm |
+| fn_8016EE58 | 8016EE58 | 0xA4 | (unsplit axdriver) | - | no reference 49%  | write from our asm |
+| HSD_AudioSFXStartParam | 8016EEFC | 0x398 | (unsplit axdriver) | KAR asm kar_axdriver_play_sequence_voice 80442674 (similar) | lines(3) offsets(7) consts +N -N(2) other 85% st +0x44->+0x40 st +0x1C->+0x1B ld +0x1C->+0x1B st +0x3D->+0 | C written from the KAR asm, then: assert lines, struct layout (field offsets), constants / flag masks, code changes |
+| fn_8016F2D8 | 8016F2D8 | 0x164 | (unsplit axdriver) | - | no reference 34%  | write from our asm |
+| fn_8016F43C | 8016F43C | 0x158 | (unsplit axdriver) | KAR asm kar_axdriver_set_voice_pitch_bend 80443398 (similar) | lines regs(14) offsets consts +call(2) +N(3) -N(22) other(2) 51% st +0xFFE0->+0xFFD0 imm 0x20->0x30 | C written from the KAR asm, then: assert lines, declaration / expression order (register allocation), struct layout (field offsets), constants / flag masks, call / inline changes, code changes |
+| fn_8016F594 | 8016F594 | 0x350 | (unsplit axdriver) | KAR asm kar_axdriver_set_voice_channel_mix_level 804438C4 (similar) | lines offsets(6) other 96% st +0x38->+0x34 ld +0x3A->+0x36 ld +0x38->+0x34 ld +0x3B->+0 | C written from the KAR asm, then: assert lines, struct layout (field offsets), code changes |
+| fn_8016F8E4 | 8016F8E4 | 0xC8 | (unsplit axdriver) | KAR asm kar_axdriver_set_owner_channel_mix_level 80443C14 (similar) | offsets 98% ld +0x3D->+0x39 | C written from the KAR asm, then: struct layout (field offsets) |
+| fn_8016F9AC | 8016F9AC | 0xB0 | (unsplit axdriver) | KAR asm kar_axdriver_is_voice_playing 80443CDC (similar) | other 98%  | C written from the KAR asm, then: code changes |
+| fn_801701D8 | 801701D8 | 0x2F0 | (unsplit axdriver) | KAR asm kar_axdriver_initialize 804449C4 (similar) | lines(2) consts other 98% imm 0x48->0x44 | C written from the KAR asm, then: assert lines, constants / flag masks, code changes |
+| fn_801704C8 | 801704C8 | 0x120 | (unsplit axdriver) | KAR asm kar_axdriver_pause_owner_voices 80444CC4 (similar) | lines -check +N(2) -N(9) other(2) 84%  | C written from the KAR asm, then: assert lines, drop a check, code changes |
+| fn_801705E8 | 801705E8 | 0x120 | (unsplit axdriver) | KAR asm kar_axdriver_resume_owner_voices 80444FE0 (similar) | lines -check +N(2) -N(9) other(2) 84%  | C written from the KAR asm, then: assert lines, drop a check, code changes |
+| fn_80170B28 | 80170B28 | 0x148 | (unsplit axdriver) | - | no reference 24%  | write from our asm |
+| fn_80170E5C | 80170E5C | 0x50 | (unsplit axdriver) | KAR asm HVQM4DecSoundClose 80465D18 (similar) | +N(7) other 55%  | C written from the KAR asm, then: code changes |
+| fn_80170ECC | 80170ECC | 0x7C | (unsplit devcom) | KAR asm kar_lbaudio_alloc_vehicle_track_subtype_2 8005D1B0 (similar) | lines +check +call(2) -call(2) +N(9) -N(10) 53%  | C written from the KAR asm, then: assert lines, add the extra check, call / inline changes, code changes |
+| fn_80170F48 | 80170F48 | 0x1A4 | (unsplit devcom) | KAR asm kar_axdriver_is_slot_playing 80445A84 (similar) | -call(4) -N(51) 67%  | C written from the KAR asm, then: call / inline changes, code changes |
+| fn_801710EC | 801710EC | 0x4D8 | (unsplit devcom) | - | no reference 0%  | write from our asm |
+| HSD_DevComDVDARAMEndCallback | 8017163C | 0x1A0 | (unsplit devcom) | wowjinxy:devcom.c | lines(3) regs(22) +call branches(2) +N(10) -N(9) 60% C size 0x19C; kar asm 47% rewrite | the C, then: assert lines, declaration / expression order (register allocation), call / inline changes, code changes |
+| HSD_DevComDVDCallback | 80171974 | 0x2A4 | (unsplit devcom) | melee:devcom.c | lines(6) regs(16) -call(5) branches(2) +N -N(44) 67% C size 0x350; kar asm 31% rewrite | the C, then: assert lines, declaration / expression order (register allocation), call / inline changes, code changes |
+| HSD_SynthSFXSampleLoadCallback | 80172E44 | 0x430 | (unsplit synth) | KAR asm HSD_SynthSFXSampleLoadCallback 80447A74 | -call(9) -N(95) 74%  | C written from the KAR asm, then: call / inline changes, code changes |
+| HSD_SynthSFXHeaderLoadCallback | 80173274 | 0x17C | (unsplit synth) | wowjinxy:dvdsche.c | lines(4) regs(16) branches +N(6) other(11) 53% C size 0x164; kar asm 23% rewrite | the C, then: assert lines, declaration / expression order (register allocation), code changes |
+| HSD_SynthSFXLoad | 8017346C | 0x180 | (unsplit synth) | KAR asm HSD_SynthSFXLoad 8044809C | branches -N other 96%  | C written from the KAR asm (start from melee:synth.c 61%), then: code changes |
+| fn_80173918 | 80173918 | 0x368 | (unsplit synth) | - | no reference 48%  | write from our asm |
+| fn_80173C80 | 80173C80 | 0x2E4 | (unsplit synth) | - | no reference 17%  | write from our asm |
+| fn_80175458 | 80175458 | 0x9B8 | (unsplit synth) | KAR asm HSD_SynthSFXVolFaderProc 8044A3FC (similar) | lines(4) consts(4) 99% imm 0x670->0x668 imm 0x640->0x638 imm 0x6A0->0x698 imm 0x6D4 | C written from the KAR asm, then: assert lines, constants / flag masks |
+| fn_8017631C | 8017631C | 0xFC4 | (unsplit synth) | KAR asm HSD_SynthSFXUpdateMix 8044B2C0 (similar) | lines(4) consts(8) 99% imm 0x1B0->0x1A8 imm 0x640->0x638 imm 0x788->0x780 imm 0x708 | C written from the KAR asm, then: assert lines, constants / flag masks |
+| fn_80177784 | 80177784 | 0x1A8 | (unsplit synth) | - | no reference 24%  | write from our asm |
+| fn_8017792C | 8017792C | 0x10C | (unsplit synth) | - | no reference 25%  | write from our asm |
+| fn_80177A38 | 80177A38 | 0x2EC | (unsplit synth) | - | no reference 0%  | write from our asm |
+| fn_80177D24 | 80177D24 | 0x140 | (unsplit synth) | - | no reference 0%  | write from our asm |
+| fn_80177E64 | 80177E64 | 0x16C | (unsplit synth) | - | no reference 22%  | write from our asm |
+| fn_80177FD0 | 80177FD0 | 0x828 | (unsplit synth) | - | no reference 0%  | write from our asm |
+| fn_801787F8 | 801787F8 | 0x408 | (unsplit synth) | - | no reference 0%  | write from our asm |
+| fn_80178C00 | 80178C00 | 0x2D0 | (unsplit synth) | - | no reference 0%  | write from our asm |
+| fn_80178ED0 | 80178ED0 | 0x100 | (unsplit synth) | - | no reference 28%  | write from our asm |
+| HSD_SynthPStreamHeaderCallback | 80178FD0 | 0x2CC | (unsplit synth) | melee:synth.c | rewrite 20% C size 0x1C4 | write from our asm (no close reference) |
+| fn_8017929C | 8017929C | 0xA0 | (unsplit synth) | - | no reference 42%  | write from our asm |
+| fn_801796F4 | 801796F4 | 0x4C | (unsplit synth) | KAR asm kar_gcpmemcard__near_8045daa4 8045DAA4 (similar) | +N(5) other 63%  | C written from the KAR asm, then: code changes |
+| fn_80179740 | 80179740 | 0x4D4 | (unsplit synth) | KAR asm HSD_SynthInit 8044E7F8 (similar) | lines(2) consts(4) 98% imm 0x868->0x860 imm 0x890->0x888 imm 0x8C0->0x8B8 imm 0x8EC | C written from the KAR asm, then: assert lines, constants / flag masks |
+| fn_8017A0E4 | 8017A0E4 | 0x164 | (unsplit particle+) | KAR asm kar_particle__near_8042af18 8042AF18 (similar) | regs(2) -call(3) +N(21) -N(11) 67%  | C written from the KAR asm, then: declaration / expression order (register allocation), call / inline changes, code changes |
+| fn_8017A248 | 8017A248 | 0x2F8 | (unsplit particle+) | KAR asm psGenerateParticle0 8042B054 (similar) | -N 100%  | C written from the KAR asm, then: code changes |
+| fn_8017A540 | 8017A540 | 0xF8 | (unsplit particle+) | KAR asm psGenerateParticleID0 8042B350 (similar) | consts 98% imm 0x20->0x8 | C written from the KAR asm, then: constants / flag masks |
+| fn_8017A69C | 8017A69C | 0xFC | (unsplit particle+) | KAR asm psKillParticle 8042B4AC (similar) | consts 98% imm 0x20->0x10 | C written from the KAR asm, then: constants / flag masks |
+| fn_8017A798 | 8017A798 | 0xF8 | (unsplit particle+) | KAR asm kar_particle__near_8042b5a8 8042B5A8 (similar) | consts(2) 97% imm 0x100->0x8 | C written from the KAR asm, then: constants / flag masks |
+| fn_8017A890 | 8017A890 | 0xDC | (unsplit particle+) | KAR asm kar_particle__near_8042b6a0 8042B6A0 (similar) | consts(2) 96% imm 0x100->0x8 | C written from the KAR asm, then: constants / flag masks |
+| fn_8017ACB4 | 8017ACB4 | 0x294 | (unsplit particle+) | - | no reference 35%  | write from our asm |
+| fn_8017AF48 | 8017AF48 | 0x270 | (unsplit particle+) | - | no reference 45%  | write from our asm |
+| fn_8017B4A4 | 8017B4A4 | 0x2F30 | (unsplit particle+) | - | no reference 0%  | write from our asm |
+| fn_8017E79C | 8017E79C | 0xD8 | (unsplit particle+) | KAR asm psInterpretParticles 80430198 (similar) | lines consts 96% imm 0x20->0x10 | C written from the KAR asm, then: assert lines, constants / flag masks |
+| fn_8017E89C | 8017E89C | 0x98 | (unsplit particle+) | KAR asm kar_psinterpret__near_80430298 80430298 (similar) | branches +N(6) -N(9) 73%  | C written from the KAR asm, then: code changes |
+| fn_8017E934 | 8017E934 | 0x140 | (unsplit particle+) | - | no reference 49%  | write from our asm |
+| fn_8017EA74 | 8017EA74 | 0x1BC | (unsplit particle+) | KAR asm kar_psinterpret__near_8043051c 8043051C (similar) | regs(4) offsets(2) consts -call +N(10) -N(23) 72% st +0xFFE0->+0xFFF0 ld +0x3E->+0x32 imm 0x20->0x10 | C written from the KAR asm, then: declaration / expression order (register allocation), struct layout (field offsets), constants / flag masks, call / inline changes, code changes |
+| fn_8017EC30 | 8017EC30 | 0x1F0 | (unsplit particle+) | KAR asm kar_psinterpret__near_8043051c 8043051C (similar) | offsets +N(7) -N(7) 94% ld +0x3E->+0x32 | C written from the KAR asm, then: struct layout (field offsets), code changes |
+| fn_8017EE20 | 8017EE20 | 0x38C | (unsplit particle+) | - | no reference 35%  | write from our asm |
+| fn_8017F4B8 | 8017F4B8 | 0x1270 | (unsplit particle+) | - | no reference 0%  | write from our asm |
+| fn_80180728 | 80180728 | 0x3A0 | (unsplit particle+) | KAR asm kar_generator__near_804324ec 804324EC (similar) | offsets branches +N(7) -N(12) 94% ld +0x3E->+0x32 | C written from the KAR asm, then: struct layout (field offsets), code changes |
+| fn_80180B74 | 80180B74 | 0x730 | (unsplit particle+) | - | no reference 0%  | write from our asm |
+| fn_8018144C | 8018144C | 0xE84 | (unsplit particle+) | KAR asm kar_psdisp__80433f00 80433F00 (similar) | lines regs(6) consts branches(4) +N(5) -N(5) 98% imm 0x20->0x10 | C written from the KAR asm, then: assert lines, declaration / expression order (register allocation), constants / flag masks, code changes |
+| fn_801822D0 | 801822D0 | 0x700 | (unsplit particle+) | - | no reference 25%  | write from our asm |
+| fn_801829D0 | 801829D0 | 0xBE0 | (unsplit particle+) | KAR asm kar_psdisp__near_80435268 80435268 (similar) | regs(58) offsets(23) consts +check(2) +call(14) branches(4) +N(159) -N(16) other(15) 56% st +0xFEC0->+0xFE60 st +0x1C->+0x10 st +0x1D->+0x11 st +0x1E | C written from the KAR asm, then: declaration / expression order (register allocation), struct layout (field offsets), constants / flag masks, add the extra check, call / inline changes, code changes |
+| fn_801835B0 | 801835B0 | 0xA3C | (unsplit particle+) | - | no reference 35%  | write from our asm |
+| fn_80183FEC | 80183FEC | 0x464 | (unsplit particle+) | KAR asm kar_psdisp__near_80436460 80436460 (similar) | regs(2) offsets(3) consts +check +call(6) +N(96) -N(12) other(3) 57% st +0xFFD0->+0xFF60 st +0x18->+0x10 ld +0x1C->+0x14 imm 0x30 | C written from the KAR asm, then: declaration / expression order (register allocation), struct layout (field offsets), constants / flag masks, add the extra check, call / inline changes, code changes |
+| fn_80184450 | 80184450 | 0x6F4 | (unsplit particle+) | - | no reference 50%  | write from our asm |
+| fn_80185A88 | 80185A88 | 0xF8 | (unsplit particle+) | KAR asm kar_psdisp__near_80437cd8 80437CD8 (similar) | offsets(4) branches -N(3) 85% st +0x3E->+0x32 st +0x3D->+0x31 st +0x3C->+0x30 st +0x7C->+0 | C written from the KAR asm, then: struct layout (field offsets), code changes |
+| fn_80185B80 | 80185B80 | 0x3C | (unsplit particle+) | KAR asm kar_psdisp__near_80437ddc 80437DDC (similar) | offsets(2) 87% ld +0x3E->+0x32 st +0x3E->+0x32 | C written from the KAR asm, then: struct layout (field offsets) |
+| fn_80185BBC | 80185BBC | 0x3C | (unsplit particle+) | KAR asm kar_psdisp__near_80437e18 80437E18 (similar) | offsets(2) 87% ld +0x3E->+0x32 st +0x3E->+0x32 | C written from the KAR asm, then: struct layout (field offsets) |
+| fn_80185BF8 | 80185BF8 | 0x6C | (unsplit particle+) | KAR asm kar_psdisp__near_80437e54 80437E54 (similar) | offsets(2) 93% ld +0x3E->+0x32 st +0x3E->+0x32 | C written from the KAR asm, then: struct layout (field offsets) |
+| fn_80185C64 | 80185C64 | 0x6C | (unsplit particle+) | KAR asm kar_psdisp__near_80437ec0 80437EC0 (similar) | offsets(2) 93% ld +0x3E->+0x32 st +0x3E->+0x32 | C written from the KAR asm, then: struct layout (field offsets) |
+| fn_80185CD0 | 80185CD0 | 0xA0 | (unsplit particle+) | KAR asm psRemoveParticleAppSRT 80437F2C (similar) | offsets(3) 92% ld +0x3E->+0x32 st +0x3E->+0x32 ld +0x78->+0x6C | C written from the KAR asm, then: struct layout (field offsets) |
+| fn_80185D70 | 80185D70 | 0xB8 | (unsplit particle+) | KAR asm kar_psdisp__near_80437fcc 80437FCC (similar) | offsets(3) 94% ld +0x3E->+0x32 st +0x3E->+0x32 ld +0x78->+0x6C | C written from the KAR asm, then: struct layout (field offsets) |
+| fn_801860EC | 801860EC | 0x6C | (unsplit particle+) | KAR asm HSD_AllocateFIFO 8040FE90 (similar) | lines -call +N(11) -N(4) 56%  | C written from the KAR asm, then: assert lines, call / inline changes, code changes |
+| fn_80186158 | 80186158 | 0x338 | (unsplit particle+) | KAR asm kar_pslist__near_8043845c 8043845C (similar) | consts(4) 98% imm 0x80->0x40 imm 0x100->0x80 | C written from the KAR asm, then: constants / flag masks |
+| fn_8018AEA4 | 8018AEA4 | 0x13C | tev.c | - | no reference 32%  | write from our asm |
+| HSD_SetTevRegAll | 8018B230 | 0xC0 | tev.c | ours:tev.c | +N(4) -N(4) 92% C size 0xC0; kar asm 2% rewrite | the C, then: code changes |
+| fn_8018B3B8 | 8018B3B8 | 0x58 | tev.c | - | no reference 46%  | write from our asm |
+| fn_8018CCDC | 8018CCDC | 0x50 | aobj.c | KAR asm kar_grlib2__near_800d51fc 800D51FC (similar) | lines regs +N -N(2) other 71%  | C written from the KAR asm, then: assert lines, declaration / expression order (register allocation), code changes |
+| fn_8018CD2C | 8018CD2C | 0x80 | aobj.c | KAR asm kar_lbaudio__near_800628a0 800628A0 (similar) | +check(3) -call(3) +N(9) -N 50%  | C written from the KAR asm, then: add the extra check, call / inline changes, code changes |
+| HSD_LObjSetupSpecularInit | 8018D7D0 | 0x278 | lobj.c | wowjinxy:lobj.c | lines(2) regs(11) branches(5) -N(3) other 80% C size 0x284; kar asm 29% rewrite | the C, then: assert lines, declaration / expression order (register allocation), code changes |
+| HSD_LObjSetupInit | 8018DA48 | 0xBBC | lobj.c | KAR asm HSD_LObjSetupInit 803FE4B8 | regs(2) branches(22) +N(2) -N(5) 96%  | C written from the KAR asm (start from wowjinxy:lobj.c 53%), then: declaration / expression order (register allocation), code changes |
+| fn_8018FD60 | 8018FD60 | 0xCC | cobj.c | KAR asm HSD_CObjSetupViewingMtx 80401014 (similar) | -call(2) branches(2) -N(28) 62%  | C written from the KAR asm, then: call / inline changes, code changes |
+| HSD_CObjSetCurrent | 8018FE2C | 0x504 | cobj.c | KAR asm HSD_CObjSetCurrent 80401150 | lines -call(2) branches(2) -N(28) 91%  | C written from the KAR asm (start from ours:cobj.c 68%), then: assert lines, call / inline changes, code changes |
+| upvec2roll | 80190688 | 0x1E8 | cobj.c | KAR asm upvec2roll 80401BA0 | lines(4) regs(3) -call -N(13) 84%  | C written from the KAR asm, then: assert lines, declaration / expression order (register allocation), call / inline changes, code changes |
+| roll2upvec | 80190870 | 0x2E4 | cobj.c | KAR asm roll2upvec 80401DBC | lines(4) regs(2) -call -N(12) 90%  | C written from the KAR asm (start from wowjinxy:cobj.c 59%), then: assert lines, declaration / expression order (register allocation), call / inline changes, code changes |
+| fn_80190BBC | 80190BBC | 0x2FC | cobj.c | KAR asm HSD_CObjSetUpVector 80402138 (similar) | lines(5) regs(3) -call branches(2) +N(2) -N(16) 85%  | C written from the KAR asm, then: assert lines, declaration / expression order (register allocation), call / inline changes, code changes |
+| HSD_CObjSetRoll | 80190FDC | 0x428 | cobj.c | KAR asm HSD_CObjSetRoll 804027CC | lines regs(4) offsets(6) consts +check +call(7) -call branches(6) +N(32) -N(12) other(9) 73% imm 0x34->0x1C ld +0x34->+0x1C ld +0x38->+0x20 ld +0x3C->+0x | C written from the KAR asm (start from ours:cobj.c 61%), then: assert lines, declaration / expression order (register allocation), struct layout (field offsets), constants / flag masks, add the extra check, call / inline changes, code changes |
+| drawShapeAnim | 80194EFC | 0x73C | pobj.c | KAR asm drawShapeAnim 804069AC | lines(3) branches +N(5) 97%  | C written from the KAR asm, then: assert lines, code changes |
+| SetupEnvelopeModelMtx | 801958D0 | 0x380 | pobj.c | wowjinxy:pobj.c | lines(13) regs(38) consts +check -check +call(2) -call +N(8) -N(10) 67% imm 0x58->0x4C C size 0x388; kar asm 63% lines(4) regs(50) o | the C, then: assert lines, declaration / expression order (register allocation), constants / flag masks, add the extra check, drop a check, call / inline changes, code changes |
+| fn_80198700 | 80198700 | 0x1FC | jobj.c | KAR asm HSD_JObjSetJSoundCallback 8040ADCC (similar) | +check -check -N(8) 87%  | C written from the KAR asm, then: add the extra check, drop a check, code changes |
+| mkVBillBoardMtx | 8019B4C4 | 0x2DC | displayfunc.c | KAR asm mkVBillBoardMtx 8040E424 | branches(2) +N(2) -N(8) 93%  | C written from the KAR asm, then: code changes |
+| mkHBillBoardMtx | 8019B7A0 | 0x344 | displayfunc.c | KAR asm mkHBillBoardMtx 8040E718 | branches(2) +N(3) -N(8) other 94%  | C written from the KAR asm (start from wowjinxy:displayfunc.c 64%), then: code changes |
+| mkBillBoardMtx | 8019BAE4 | 0x398 | displayfunc.c | KAR asm mkBillBoardMtx 8040EA70 | regs branches(2) +N(3) -N(10) other(3) 90%  | C written from the KAR asm, then: declaration / expression order (register allocation), code changes |
+| fn_8019C86C | 8019C86C | 0xAC | displayfunc.c | - | no reference 35%  | write from our asm |
+| fn_8019CFB8 | 8019CFB8 | 0x1A4 | initialize.c | ours:initialize.c | regs(22) other 78% C size 0x1A4; kar asm 22% rewrite | the C, then: declaration / expression order (register allocation), code changes |
+| fn_8019DB14 | 8019DB14 | 0x17C | video.c | KAR asm HSD_VICopyXFBAsync 804112B4 (similar) | regs(19) -call(3) branches +N -N(36) other 55%  | C written from the KAR asm, then: declaration / expression order (register allocation), call / inline changes, code changes |
+| fn_8019DC90 | 8019DC90 | 0x1C4 | video.c | - | no reference 36%  | write from our asm |
+| fn_8019EB5C | 8019EB5C | 0x430 | mtx.c | - | no reference 0%  | write from our asm |
+| fn_8019EF8C | 8019EF8C | 0x320 | mtx.c | KAR asm HSD_MtxGetRotation 80416048 (similar) | regs branches(2) -N(3) other 95%  | C written from the KAR asm, then: declaration / expression order (register allocation), code changes |
+| fn_8019FAD8 | 8019FAD8 | 0x13C | mtx.c | KAR asm HSD_MkRotationMtx 80416FFC (similar) | regs +N(4) -N(3) other(12) 72%  | C written from the KAR asm, then: declaration / expression order (register allocation), code changes |
+| fn_8019FC14 | 8019FC14 | 0x2D8 | mtx.c | KAR asm HSD_MtxSRT 80417580 (similar) | regs(9) branches(4) +N -N(6) other(17) 79%  | C written from the KAR asm, then: declaration / expression order (register allocation), code changes |
+| HSD_MtxSRTQuat | 8019FEEC | 0x1AC | mtx.c | KAR asm HSD_MtxSRTQuat 8041786C | branches(4) -N(6) other(6) 83%  | C written from the KAR asm (start from wowjinxy:mtx.c 54%), then: code changes |
+| expEvaluate | 801A21A0 | 0x49C | robj.c | KAR asm expEvaluate 80419C50 | -N(2) 99%  | C written from the KAR asm (start from wowjinxy:robj.c 73%), then: code changes |
+| HSD_ShadowStartRender | 801A4558 | 0x2A8 | (unsplit core) | wowjinxy:shadow.c | lines regs(6) branches(2) -N 94% C size 0x2AC; kar asm 23% rewrite | the C, then: assert lines, declaration / expression order (register allocation), code changes |
+| fn_801A4800 | 801A4800 | 0x198 | (unsplit core) | - | no reference 22%  | write from our asm |
+| fn_801A4998 | 801A4998 | 0x124 | (unsplit core) | - | no reference 34%  | write from our asm |
+| fn_801A4ABC | 801A4ABC | 0x1C8 | (unsplit core) | - | no reference 22%  | write from our asm |
+| makeMatrix | 801A4DC4 | 0x13C | (unsplit core) | KAR asm makeMatrix 8041DA78 | -N 98%  | C written from the KAR asm (start from wowjinxy:shadow.c 72%), then: code changes |
+| HSD_ShadowSetViewingRect | 801A4F00 | 0x1C0 | (unsplit core) | KAR asm HSD_ShadowSetViewingRect 8041DBB8 | regs branches(3) -N(3) other 91%  | C written from the KAR asm (start from wowjinxy:shadow.c 62%), then: declaration / expression order (register allocation), code changes |
+| HSD_ViewingRectInit | 801A50C0 | 0x20C | (unsplit core) | KAR asm HSD_ViewingRectInit 8041DD84 | regs(39) -N(2) 66%  | C written from the KAR asm (start from wowjinxy:shadow.c 54%), then: declaration / expression order (register allocation), code changes |
+| fn_801A5634 | 801A5634 | 0xD4 | (unsplit core) | - | no reference 38%  | write from our asm |
+| fn_801A5708 | 801A5708 | 0x340 | (unsplit core) | - | no reference 18%  | write from our asm |
+| fn_801A5B08 | 801A5B08 | 0x160 | (unsplit core) | - | no reference 23%  | write from our asm |
+| fn_801A5C68 | 801A5C68 | 0x214 | (unsplit core) | - | no reference 0%  | write from our asm |
+| HSD_ByteCodeEval | 801A5F10 | 0x15C8 | bytecode.c | KAR asm HSD_ByteCodeEval 8041E6D8 | branches(41) +N(2) 97%  | C written from the KAR asm (start from wowjinxy:bytecode.c 58%), then: code changes |
+| HSD_TExpCompile | 801AACB4 | 0x2A8 | texp.c | ours:texp.c | lines(7) offsets(4) 94% ld +0x16->+0x10 st +0x16->+0x10 C size 0x2A8; kar asm 82% li | the C, then: assert lines, struct layout (field offsets) |
+
+What the HSD diffs show, by part:
+
+- **core**: 60 functions identical to KAR asm and 16 with only assert lines are transcription (most are unnamed here:
+  their KAR names above locate the Melee / KAR C to start from). The real changes are few: cobj's HSD_CObjSetRoll (camera
+  fields moved: +0x34 / +0x38 / +0x3C -> +0x1C / +0x20 / +0x24), HSD_CObjSetCurrent / upvec2roll / roll2upvec (a helper
+  call inlined here), the billboard matrices (a few instructions fewer), texp's HSD_TExpCompile (TETev field +0x16 ->
+  +0x10), HSD_ByteCodeEval (branch displacements + 2 instructions). 12 have no reference (mtx.c fn_8019EB5C, the shadow /
+  archive neighbours, tev.c fn_8018AEA4 / fn_8018B3B8, video.c fn_8019DC90, displayfunc.c fn_8019C86C).
+- **axdriver**: KAR's driver with a re-packed voice record: the same code reads +0x1C / +0x30 / +0x38..+0x3D in KAR and
+  +0x1B / +0x2E / +0x34..+0x39 here (byte fields shifted by 1-4); 14 functions identical. 6 have no reference
+  (fn_8016E030, 0xB4C, the largest).
+- **synth**: 26 identical, 6 assert lines; the SFX mixer's two big functions differ only in a work-area offset 8 bytes
+  smaller (imm 0x670 -> 0x668 ...) and assert lines; 12 (0x80177784-0x8017929C, the PStream / stream part) have no reference.
+- **devcom**: 5 identical, 4 assert lines, the 2 new exact callbacks from wowjinxy; HSD_DevComDVDCallback /
+  HSD_DevComDVDARAMEndCallback are 60-67% to Melee / wowjinxy: rewrite.
+- **particle**: 32 identical; the psdisp / generator group reads the particle record's +0x3E / +0x78 at +0x32 / +0x6C
+  (a record 0xC bytes shorter) and some allocation sizes halve (imm 0x20 -> 0x10, 0x100 -> 0x8): struct edits, then KAR's
+  code; 10 have no reference, among them fn_8017B4A4 (0x2F30) and fn_8017F4B8 (0x1270).
+
+### What remains unknown
+
+- SDK: fn_80148998 (AXFX ReverbSTDCreate, Jul 2003 AX build): no reference above 63%; register allocation differs.
+- HSD: 41 functions with no reference ("-" above) and 18 rewrites; the HSD revision itself has no public source.
+  Everything else in every library has an exact reference or is KAR asm to transcribe.
+- Names not applied: fn_8015E09C TRK__write_aram, fn_8015E288 TRK__read_aram, fn_800053E0 __TRK_reset (all exact under
+  those names in TP / Pikmin 2's C), and the SDK by-bytes names. No configure.py change was made: the CR_OBJECT_CFLAGS
+  needed (`-sdata 8` for MetroTRK/ddh/main.c and gdev/main.c, `-str reuse,nopool,readonly` for Runtime/GCN_mem_alloc.c)
+  and the imports go with a build.
