@@ -6,11 +6,11 @@ library                      objects from C             code from C             
 dolphin                           75     75   0x02235C/0x02235C 100.00%   0x0168B8/0x0168B8 100.00%    647/  647
 MSL                               49     46   0x008EE8/0x00939C  96.81%   0x0014BC/0x0014C4  99.85%     80/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
-MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
+MetroTRK                          29     12   0x000AD8/0x006220  11.05%   0x000030/0x0034F8   0.35%     32/  162
 sysdolphin                        29      9   0x004014/0x0265A4  10.44%   0x0008F4/0x002238  26.16%     88/  471
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
 automatic objects (unsplit)      253      0   0x000000/0x156B74   0.00%   0x000000/0x27EF10   0.00%      0/ 1859
-main.dol (all units)             730    435   0x034694/0x1B342C  12.04%   0x018734/0x29C458   3.66%   1146/ 3533
+main.dol (all units)             730    437   0x03472C/0x1B342C  12.05%   0x018734/0x29C458   3.66%   1156/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
@@ -63,6 +63,8 @@ MSL/w_log.c                                   code 0x20/0x20  data 0x0/0x0  func
 MSL/w_pow.c                                   code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_sqrt.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/wchar_io.c                                code 0x88/0x88  data 0x0/0x0  functions 1/1  linked from C
+MetroTRK/MWTrace.c                            code 0x50/0x50  data 0x0/0x0  functions 1/1  linked from C
+MetroTRK/UDP_Stubs.c                          code 0x48/0x48  data 0x0/0x0  functions 9/9  linked from C
 MetroTRK/dispatch.c                           code 0x0/0x178  data 0x0/0x40  functions 0/2  not linked: code: 2 of 2 functions differ (TRKInitializeDispatcher 0%, TRKDispatchMessage 24%): the reference is another revision  (C has data the split object lacks: .bss 0x4, .data 0x84)
 MetroTRK/dolphin_trk.c                        code 0x100/0x638  data 0x0/0x48  functions 3/8  not linked: code: 5 of 8 functions differ (TRKTargetTranslate 73%, __TRK_copy_vectors 85%, fn_8015E288 0%, fn_8015E09C 0% (+1 more)): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)  (C has data the split object lacks: .init 0x104)
 MetroTRK/dolphin_trk_glue.c                   code 0xC4/0x558  data 0x0/0x138  functions 3/13  not linked: code: 10 of 13 functions differ (InitMetroTRKCommTable 37%, TRKInitializeIntDrivenUART 75%, EnableEXI2Interrupts 67%, TRKPollUART 0% (+6 more)): the reference is another revision

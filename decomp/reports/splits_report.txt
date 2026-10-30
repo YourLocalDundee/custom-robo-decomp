@@ -776,6 +776,8 @@ MSL/w_log.c                                        1 functions
 MSL/w_pow.c                                        1 functions
 MSL/w_sqrt.c                                       1 functions
 MSL/wchar_io.c                                     1 functions
+MetroTRK/MWTrace.c                                 1 functions
+MetroTRK/UDP_Stubs.c                               9 functions
 MetroTRK/flush_cache.c                             1 functions
 MetroTRK/mainloop.c                                1 functions
 MetroTRK/mem_TRK.c                                 3 functions
@@ -1491,6 +1493,16 @@ DEF 0x8015EB90 GetUseSerialIO MetroTRK/target_options.c .text size:0x10 global
 DEF 0x8015EBA0 SetUseSerialIO MetroTRK/target_options.c .text size:0xC global
 DEF 0x8015EC30 __TRK_write_console MetroTRK/mslsupp.c .text size:0xBC global
 DEF 0x8015ECEC __read_console MetroTRK/mslsupp.c .text size:0xBC global
+DEF 0x8015EDA8 udp_cc_post_stop MetroTRK/UDP_Stubs.c .text size:0x8 local
+DEF 0x8015EDB0 udp_cc_pre_continue MetroTRK/UDP_Stubs.c .text size:0x8 local
+DEF 0x8015EDB8 udp_cc_peek MetroTRK/UDP_Stubs.c .text size:0x8 local
+DEF 0x8015EDC0 udp_cc_write MetroTRK/UDP_Stubs.c .text size:0x8 local
+DEF 0x8015EDC8 udp_cc_read MetroTRK/UDP_Stubs.c .text size:0x8 local
+DEF 0x8015EDD0 udp_cc_close MetroTRK/UDP_Stubs.c .text size:0x8 local
+DEF 0x8015EDD8 udp_cc_open MetroTRK/UDP_Stubs.c .text size:0x8 local
+DEF 0x8015EDE0 udp_cc_shutdown MetroTRK/UDP_Stubs.c .text size:0x8 local
+DEF 0x8015EDE8 udp_cc_initialize MetroTRK/UDP_Stubs.c .text size:0x8 local
+DEF 0x8015F6E8 MWTRACE MetroTRK/MWTrace.c .text size:0x50 global
 DEF 0x8015F790 __va_arg Runtime/__va_arg.c .text size:0xC8 global
 DEF 0x8015F858 __destroy_global_chain Runtime/global_destructor_chain.c .text size:0x48 global
 DEF 0x8015F8A0 __cvt_fp2unsigned Runtime/runtime.c .text size:0x5C global

@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,398 @@ def MatchingFor(*versions):
+@@ -284,18 +307,400 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -371,6 +371,8 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/gx/GXDraw.c",
 +    "MSL/printf.c",
 +    "MSL/ansi_fp.c",
++    "MetroTRK/UDP_Stubs.c",
++    "MetroTRK/MWTrace.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
