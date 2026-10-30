@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 1003
+files: 1008
 
 src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
@@ -163,6 +163,9 @@ src/dolphin/os/__os.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__os.h  identi
 src/dolphin/os/init/__ppc_eabi_init.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__ppc_eabi_init.c  identical
 src/dolphin/os/init/__start.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/os/__start.c  changed (2 lines added / removed)
 src/dolphin/si/SIBios.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/si/SIBios.c  changed (2 lines added / removed)
+src/dolphin/si/SISamplingRate.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/si/SISamplingRate.c  identical
+src/dolphin/thp/THPAudio.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/thp/THPAudio.c  identical
+src/dolphin/thp/THPDec.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/thp/THPDec.c  identical
 src/dolphin/vi/__vi.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/vi/__vi.h  identical
 src/dolphin/vi/vi.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/vi/vi.c  changed (15 lines added / removed)
 src/game/cr_Battle_SetCurrentPointers.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -532,13 +535,15 @@ include/bfbb/dolphin/dvd.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/d
 include/bfbb/dolphin/exi.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/exi.h  identical
 include/bfbb/dolphin/gx.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/gx.h  identical
 include/bfbb/dolphin/hio.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/hio.h  identical
-include/bfbb/dolphin/hw_regs.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/Dolphin/hw_regs.h  identical
+include/bfbb/dolphin/hw_regs.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/hw_regs.h  identical
 include/bfbb/dolphin/mix.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/mix.h  identical
 include/bfbb/dolphin/mtx.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/mtx.h  identical
 include/bfbb/dolphin/os.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/os.h  identical
 include/bfbb/dolphin/pad.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/pad.h  identical
 include/bfbb/dolphin/perf.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/perf.h  identical
 include/bfbb/dolphin/si.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/si.h  identical
+include/bfbb/dolphin/sipriv.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/sipriv.h  identical
+include/bfbb/dolphin/thp.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/thp.h  identical
 include/bfbb/dolphin/types.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/types.h  identical
 include/bfbb/dolphin/vi.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/vi.h  identical
 include/bfbb/dolphin/base/PPCArch.h  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/include/dolphin/base/PPCArch.h  identical

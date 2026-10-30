@@ -111,7 +111,10 @@ def points(elf, objs, c, units, pad):
     # (tools/gen_dtk_splits.py proved them): the first, the middle and the last one after the section start
     for sec in DATA_SPLIT:
         lo, hi = secs[sec]
-        b = sorted({a for a, s, n in where if s == sec and lo < a < hi and not n.startswith('auto_')})
+        # (not one inside a glue span: a piece whose code addresses its first symbol with a negative offset, step 65
+        # THPDec.c's __THPIDCTWorkspace - 8, has its span start before the piece)
+        b = sorted({a for a, s, n in where if s == sec and lo < a < hi and not n.startswith('auto_')
+                    and not any(g0 < a <= g1 for g0, g1 in c['glue'])})
         pick = b if ALL_DATA else (sorted({b[0], b[len(b) // 2], b[-1]}) if b else [])
         for a in pick:
             pts.append((a, sec, unit_at(sec, a)[1],

@@ -1543,6 +1543,11 @@ dolphin/si/SIBios.c:
 	.sdata      start:0x8044EEC8 end:0x8044EECC
 	.sbss       start:0x8044FD30 end:0x8044FD40
 
+dolphin/si/SISamplingRate.c:
+	.text       start:0x8016D324 end:0x8016D42C
+	.data       start:0x8024A358 end:0x8024A3F0
+	.sbss       start:0x8044FD40 end:0x8044FD44
+
 sysdolphin/baselib/dobj.c:
 	.text       start:0x80186490 end:0x80186B44
 	.data       start:0x8024B4F8 end:0x8024B618
@@ -1712,6 +1717,18 @@ sysdolphin/baselib/texpdag.c:
 	.text       start:0x801AAF9C end:0x801AE9B4
 	.data       start:0x8024D9E8 end:0x8024DAA0
 	.sdata      start:0x8044F280 end:0x8044F290
+
+dolphin/thp/THPDec.c:
+	.text       start:0x801AEB40 end:0x801B60A8
+	.rodata     start:0x801C4EE0 end:0x801C4F70
+	.data       start:0x8024DAD0 end:0x8024DB0C
+	.bss        start:0x8044C280 end:0x8044C3B0
+	.sdata      start:0x8044F298 end:0x8044F29C
+	.sbss       start:0x80450080 end:0x80450198
+	.sdata2     start:0x804529F8 end:0x80452A14
+
+dolphin/thp/THPAudio.c:
+	.text       start:0x801B60A8 end:0x801B65D8
 
 Runtime/__mem.c:
 	.init       start:0x8000540C end:0x80005544

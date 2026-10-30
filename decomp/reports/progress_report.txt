@@ -3,14 +3,14 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           75     75   0x02235C/0x02235C 100.00%   0x0168B8/0x0168B8 100.00%    647/  647
+dolphin                           78     78   0x029EFC/0x029EFC 100.00%   0x016C88/0x016C88 100.00%    671/  671
 MSL                               49     46   0x008EE8/0x00939C  96.81%   0x0014BC/0x0014C4  99.85%     80/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     12   0x000AD8/0x006220  11.05%   0x000030/0x0034F8   0.35%     32/  162
 sysdolphin                        29      9   0x004014/0x0265A4  10.44%   0x0008F4/0x002238  26.16%     88/  471
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
-automatic objects (unsplit)      253      0   0x000000/0x156B74   0.00%   0x000000/0x27EF10   0.00%      0/ 1859
-main.dol (all units)             730    437   0x03472C/0x1B342C  12.05%   0x018734/0x29C458   3.66%   1156/ 3533
+automatic objects (unsplit)      251      0   0x000000/0x14EFD4   0.00%   0x000000/0x27EB40   0.00%      0/ 1835
+main.dol (all units)             731    440   0x03C2CC/0x1B342C  13.83%   0x018B04/0x29C458   3.69%   1180/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
@@ -166,6 +166,9 @@ dolphin/os/OSTime.c                           code 0x424/0x424  data 0x60/0x60  
 dolphin/os/init/__ppc_eabi_init.c             code 0xEC/0xEC  data 0x0/0x0  functions 5/5  linked from C
 dolphin/os/init/__start.c                     code 0x300/0x300  data 0x8/0x8  functions 6/6  linked from C
 dolphin/si/SIBios.c                           code 0x1478/0x1478  data 0x32C/0x32C  functions 18/18  linked from C
+dolphin/si/SISamplingRate.c                   code 0x108/0x108  data 0x9C/0x9C  functions 2/2  linked from C
+dolphin/thp/THPAudio.c                        code 0x530/0x530  data 0x0/0x0  functions 3/3  linked from C
+dolphin/thp/THPDec.c                          code 0x7568/0x7568  data 0x334/0x334  functions 19/19  linked from C
 dolphin/vi/vi.c                               code 0x1E54/0x1E54  data 0x584/0x584  functions 22/22  linked from C
 game/cr_Battle_SetCurrentPointers.c           code 0x88/0x88  data 0x0/0x0  functions 1/1  linked from C
 game/cr_CAMMODE_DEBUG_Frame.c                 code 0x44/0x44  data 0x0/0x0  functions 1/1  linked from C

@@ -20,7 +20,8 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
        neighbour whose assert names ANOTHER file proves the end. A named neighbour this reference does not have, and
        that no reference or pinned source puts in O's file, counts as an unnamed one (naming it loses no proof; HSD
        objects only, step 61: elsewhere it would change two SDK / MSL ranges, critical_regions and SISamplingRate,
-       which are not reviewed under this rule yet).
+       which are not reviewed under this rule yet). A named neighbour that the pinned sources define only in another
+       library (SDK / MSL / TRK / HSD) proves the end too (step 65: HSD_Panic before THPDec.c).
        When unnamed functions sit between our end function and the next named function P (in another object of R), the
        end is still proven
          - by a size run: R has exactly as many functions between the two, with our sizes one to one (the same
@@ -571,6 +572,10 @@ def code_splits(ours, rejected, notes, audit=None):
                         return f"reference's own {'first' if ref_end is F[0] else 'last'} function" if funcs[i if ref_end is F[0] else j][0] == ref_end[0] else None
                     if where.get(nb) and name not in where[nb]:
                         return f"{nb} is in {sorted(where[nb])[0]}"
+                    if defs.get(nb) and all(f != family(path) for f, _ in defs[nb]):
+                        # the pinned sources define it only in another library (step 65: HSD_Panic, sysdolphin's, before
+                        # the SDK's THPDec.c): no file of this library holds it, so it is another object's
+                        return f"{nb} is in another library's sources"
                     if family(path) == "hsd" and not where.get(nb) and objkey(path) not in placed.get(nb, ()) \
                             and verdict(defs, nb, family(path)) != Path(name).stem.lower():
                         # a name this reference does not have (a newer revision's function), that no reference and

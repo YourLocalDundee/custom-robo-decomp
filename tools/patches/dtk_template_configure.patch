@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,400 @@ def MatchingFor(*versions):
+@@ -284,18 +307,406 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -217,6 +217,9 @@ diff --git a/configure.py b/configure.py
 +    "MSL/PPC_EABI/critical_regions.gamecube.c": BFBB_INC,
 +    "MSL/uart_console_io_gcn.c": BFBB_INC,
 +    "MSL/ansi_fp.c": BFBB_INC,
++    "dolphin/thp/THPDec.c": BFBB_INC,
++    "dolphin/thp/THPAudio.c": BFBB_INC,
++    "dolphin/si/SISamplingRate.c": BFBB_INC,
 +}
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
@@ -373,6 +376,9 @@ diff --git a/configure.py b/configure.py
 +    "MSL/ansi_fp.c",
 +    "MetroTRK/UDP_Stubs.c",
 +    "MetroTRK/MWTrace.c",
++    "dolphin/thp/THPDec.c",
++    "dolphin/thp/THPAudio.c",
++    "dolphin/si/SISamplingRate.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
