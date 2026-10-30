@@ -27,9 +27,10 @@ Tools, file-format docs, a named symbol map and a growing matching-C decompilati
 ## Install the tools
 
 Nothing prebuilt is shipped: everything comes from your package manager, or from the pinned, hash-checked downloads in
-[tools/pins.txt](tools/pins.txt) that the setup script fetches. You need **git, Python 3.11+, PowerShell 7 (`pwsh`), a Java 21+ JDK**,
-Dolphin (for its disc tool), on Windows the **.NET SDK 8+**, and your own *Custom Robo (USA)* disc image. Copy the block for your
-system, in order (details, versions and notes: [docs/INSTALL.md](docs/INSTALL.md)):
+[tools/pins.txt](tools/pins.txt) that the setup script fetches. You need **git, Python 3.11+ and a Java 21+ JDK**; on Windows also
+**PowerShell 7 (`pwsh`)** and the **.NET SDK 8+** (Dolphin's disc tool is downloaded for you); on Linux / macOS `bash`, `curl` and
+`unzip` (the pinned decomp-toolkit extracts the disc, no PowerShell and no Dolphin); and your own *Custom Robo (USA)* disc image.
+Copy the block for your system, in order (details, versions and notes: [docs/INSTALL.md](docs/INSTALL.md)):
 
 **Windows 10/11 (winget)**
 
@@ -45,45 +46,41 @@ winget install --id EclipseAdoptium.Temurin.21.JDK -e
 
 ```bash
 sudo apt update
-sudo apt install -y git curl unzip python3 python3-venv python-is-python3 openjdk-21-jdk dolphin-emu
-# PowerShell comes from Microsoft's repo (Ubuntu: use ubuntu/24.04 instead of debian/12)
-curl -fsSLO https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb
-sudo dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
-sudo apt update && sudo apt install -y powershell
+sudo apt install -y git curl unzip python3 python3-venv openjdk-21-jdk
 ```
 
-**Arch (pacman, then yay for AUR-only packages)**
+(No root? A JDK from the Temurin tarball under `~/.local` works too: [docs/INSTALL.md](docs/INSTALL.md#debian--ubuntu-apt).)
+
+**Arch (pacman)**
 
 ```bash
-sudo pacman -S --needed git unzip python jdk21-openjdk dolphin-emu
-yay -S --needed powershell-bin
+sudo pacman -S --needed git curl unzip python jdk21-openjdk
 ```
 
 **Fedora (dnf)**
 
 ```bash
-sudo dnf install -y git unzip python3 python-unversioned-command java-21-openjdk-devel dolphin-emu dolphin-emu-tool
-sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-curl -fsSL https://packages.microsoft.com/config/rhel/9/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
-sudo dnf install -y powershell
+sudo dnf install -y git curl unzip python3 java-21-openjdk-devel
 ```
 
 **macOS (Homebrew, best effort)**
 
 ```bash
-brew install git python@3.12 openjdk@21 unzip
-brew install --cask powershell dolphin
+brew install git python@3.12 openjdk@21 bash
 ```
 
 **Anything else:** install the tools in the list above with your package manager.
 
-> Windows is the tested system. On Linux / macOS everything runs except the glTF model export (HSDRawViewer is a Windows
-> program); that part is skipped. The Linux / macOS packages and scripts are not tested end to end yet, see
+> Tested end to end on Windows and on Ubuntu 26.04 (`tools/from_scratch.sh`: PASS, every output byte-identical to the
+> Windows run, Oct 30, 2026). On Linux / macOS everything runs except the glTF model export (HSDRawViewer is a Windows
+> program) and batch 11 (Dolphin boot check); those are skipped. Arch, Fedora and macOS are not yet run, see
 > [docs/INSTALL.md](docs/INSTALL.md#limits-and-status).
 
 ## Quick start
 
 Clone, set up, run. The first thing the setup does is print each tool's version and stop with a list if one is missing.
+
+Windows:
 
 ```powershell
 git clone https://github.com/YourLocalDundee/custom-robo-decomp.git
@@ -91,7 +88,13 @@ cd custom-robo-decomp
 pwsh tools/from_scratch.ps1 -Iso "D:\Games\Custom Robo (USA).iso"
 ```
 
-(Linux / macOS: the same, with a path like `"$HOME/Games/Custom Robo (USA).iso"`.)
+Linux / macOS (bash; the `.sh` scripts are the `.ps1` ones step for step):
+
+```bash
+git clone https://github.com/YourLocalDundee/custom-robo-decomp.git
+cd custom-robo-decomp
+tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
+```
 
 That one command checks your ISO is the clean retail dump (SHA-1 `fff6e745…0bcb16`), downloads the tools,
 extracts the disc, decompiles and names everything, rebuilds `main.dol` from split objects and the matched C with the retail SHA-1, checks
@@ -102,10 +105,10 @@ empty folder (Oct 27, 2026: 10–15 minutes) was before the Phase 4 batches exis
 After that, one command reruns everything:
 
 ```powershell
-pwsh tools\batches\run_all.ps1
+pwsh tools\batches\run_all.ps1          # Linux / macOS:  tools/batches/run_all.sh
 ```
 
-It runs batches 1–12 in order and ends with `tools\checksums.ps1 -Compare` by itself (about 17 minutes), stopping
+It runs batches 1–12 in order and ends with `tools\checksums.ps1 -Compare` (`tools/checksums.sh --compare`) by itself (about 17 minutes), stopping
 at the first failure. **During batch 11 Dolphin opens by itself, twice, for about a minute: don't type or click**
 (a key mapped to Start moves the game past the title screen and the check fails). Batch 11 uses the pinned Dolphin
 that `setup.ps1` downloads (`tools\dolphin\Dolphin-x64`), or the folder in `CR_DOLPHIN_DIR`; it is Windows-only and
@@ -153,7 +156,7 @@ your ISO ──DolphinTool──► Custom Robo extracted\ ──sfd.py──►
                                                     ──mwcceppc + mwldeppc (decomp\, ninja)──► decomp\build\GXCE01\main.dol == retail SHA-1
 ```
 
-`tools\batches\run_all.ps1` is the one script that runs everything, in order, stopping at the first failure:
+`tools\batches\run_all.ps1` (Linux / macOS: `tools/batches/run_all.sh`) is the one script that runs everything, in order, stopping at the first failure:
 
 1. **Names ↔ Ghidra fixpoint**: batch 1 (library names by layout proof), batch 6 (the remaining library names),
    batch 7 (the game's own names from its tables and strings) and the lint, then a Ghidra rebuild with the names and

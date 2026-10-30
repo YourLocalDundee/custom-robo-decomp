@@ -69,7 +69,7 @@ def main():
             for h in hints: hint_count[h.lstrip('~')] += 1
         rows.append((a, n, body.count('\n'), len(callers[n]), len(callees[n]), hints, srcs, fns, strs))
 
-    with open(os.path.join(G, 'symbols', 'game_map.tsv'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(G, 'symbols', 'game_map.tsv'), 'w', encoding='utf-8', newline='\r\n') as f:   # CRLF on every OS (checksummed)
         f.write('addr\tname\tlines\tcallers\tcallees\thints\tsource_files\tfile_names\tstrings\n')
         for a, n, ln, cr, ce, h, s, fn, st in rows:
             f.write(f'{a:08X}\t{n}\t{ln}\t{cr}\t{ce}\t{",".join(h)}\t{",".join(s)}\t{",".join(fn)}\t{",".join(st[:12])}\n')
@@ -108,7 +108,7 @@ def main():
     for r in sorted(unnamed, key=lambda r: -r[2])[:40]:
         md.append(f'| {r[0]:08X} | {r[2]} | {r[3]} | {",".join(r[5])} |')
 
-    open(os.path.join(G, 'docs', 'game_map.md'), 'w', encoding='utf-8').write('\n'.join(md) + '\n')
+    open(os.path.join(G, 'docs', 'game_map.md'), 'w', encoding='utf-8', newline='\r\n').write('\n'.join(md) + '\n')
     print(f'game_map: {len(rows)} functions, {len(game)} game, {len(unnamed)} unnamed game; '
           f'{len(by_file)} source files cited; wrote symbols/game_map.tsv, docs/game_map.md')
 

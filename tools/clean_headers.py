@@ -82,7 +82,7 @@ def main():
                 text = re.sub(r'typedef\s+(\w+)\s+\(\*\s*(\w+)\)\s*\[(\w+)\]\s*;',
                               r'typedef \1 \2_Row[\3]; typedef \2_Row* \2;', text)
                 text = re.sub(r'\b(\w+)\s+\(\*\s*(\w+)\)\s*\[\w+\]', r'\1* \2', text)
-                open(q, 'w', encoding='utf-8').write(text)
+                open(q, 'w', encoding='utf-8', newline='\r\n').write(text)   # CRLF on every OS, as the Windows runs wrote them
                 count += 1
     print(f'clean_headers: {count} headers -> {dst}')
 

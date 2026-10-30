@@ -1,6 +1,9 @@
 # Tools
 
-All in `tools\`. Python tools run with the system Python (3.11+) in isolated mode (`python -I`); `render_preview.py` needs `tools\pyenv` (trimesh, matplotlib). Run commands from the repo root.
+All in `tools\`. Python tools run with the system Python (3.11+) in isolated mode (`python -I`; Linux / macOS `python3 -I`); `render_preview.py` needs `tools\pyenv` (trimesh, matplotlib). Run commands from the repo root.
+The orchestration scripts exist twice: `.ps1` for Windows (PowerShell 7) and `.sh` for Linux / macOS (bash), same steps, same
+arguments, same output files; `tools/common.sh` holds the helpers the `.sh` scripts share (pinned downloads, SHA checks, CRLF
+output, the PowerShell-order sort).
 
 ## Our tools
 
@@ -14,13 +17,15 @@ All in `tools\`. Python tools run with the system Python (3.11+) in isolated mod
 | `boot_test.ps1` | Boots a build folder in Dolphin (the path set in the script), captures the window, closes Dolphin. Capture currently comes out black. | `pwsh tools\boot_test.ps1 -Build test_build -Out shot.png -Seconds 40` |
 | `render_preview.py` | Front + side flat-shaded PNG of a `.glb` (sanity check) | `tools\pyenv\Scripts\python tools\render_preview.py <model.glb> <out.png>` |
 | `cr_model_explore.py` | Prints a model entry's header, reloc stats and pointer graph (research) | `python -I tools\cr_model_explore.py unpacked\chara\000.bin 5` |
-| `rebuild_decomp.ps1` | Fresh Ghidra import + GameCube analyzer + names + strings + C export ([decomp](decomp.md)) | `pwsh tools\rebuild_decomp.ps1` |
+| `rebuild_decomp.ps1` / `rebuild_decomp.sh` | Fresh Ghidra import + GameCube analyzer + names + strings + C export ([decomp](decomp.md)) | `pwsh tools\rebuild_decomp.ps1` / `tools/rebuild_decomp.sh` |
 | `match_hsd_asserts.py` | Matches `__assert` (file, expression) calls against the Melee decomp to propose HSD function names | `python -I tools\match_hsd_asserts.py decompiled\main_dol.c "Custom Robo extracted\sys\main.dol" tools\melee\src\sysdolphin symbols\melee_matches.txt` |
 | `verify_symbols.py` | Checks every name in `symbols\symbols.txt` against Melee's verified symbols (existence + size) | `python -I tools\verify_symbols.py symbols\symbols.txt tools\dtk\proj\symbols.txt tools\melee\config\GALE01\symbols.txt > symbols\verify_report.txt` |
-| `from_scratch.ps1` | Everything from a fresh clone + your ISO, PASS/FAIL table, writes `BUILD_REPORT.md` ([REPRODUCE](REPRODUCE.md)) |
-| `setup.ps1` | Downloads every tool at the version in `pins.txt` (SHA-256 checked), extracts the disc |
-| `checksums.ps1` | SHA-256 of every output vs `docs\expected_checksums.txt` (`-Compare`, `-Write`) |
-| `batches\run_all.ps1` | Runs every batch in order (1-12) and ends with `checksums.ps1 -Compare`; see "Batches" below |
+| `from_scratch.ps1` / `from_scratch.sh` | Everything from a fresh clone + your ISO, PASS/FAIL table, writes `BUILD_REPORT.md` ([REPRODUCE](REPRODUCE.md)) |
+| `setup.ps1` / `setup.sh` | Downloads every tool at the version in `pins.txt` (SHA-256 checked), extracts the disc (`.sh`: with the pinned dtk) |
+| `checksums.ps1` / `checksums.sh` | SHA-256 of every output vs `docs\expected_checksums.txt` (`-Compare`, `-Write` / `--compare`, `--write`) |
+| `batches\run_all.ps1` / `run_all.sh` | Runs every batch in order (1-12) and ends with `checksums.ps1 -Compare` / `checksums.sh --compare`; see "Batches" below |
+| `common.sh` | Helpers sourced by every `.sh` script: `pinned_file` / `pinned_clone` (tools/pins.txt), SHA-1/256, `crlf`, `ps_sort`, the reference-file order |
+| `ps_sort.py` | Sorts lines like PowerShell's `Sort-Object` on Windows (culture order), so the `.sh` batches write the same report files as the `.ps1` ones | `python -I tools\ps_sort.py [-u] < lines` |
 | `layout_match.py` | Library names by layout proof against Melee, TP, TWW, MKDD, Pikmin 2, TTYD |
 | `clean_headers.py` | Declarations-only copy of Melee's HSD/SDK headers for Ghidra's parser; Custom Robo overrides (`HSD_PObj`) |
 | `check_class_sizes.py` | Parsed HSD struct sizes vs the sizes Custom Robo registers for each class |
@@ -57,7 +62,7 @@ All in `tools\`. Python tools run with the system Python (3.11+) in isolated mod
 
 | Tool | Purpose | Usage |
 |---|---|---|
-| `setup_decomp.ps1` | Phase 4 build setup (setup step 8): the pinned `encounter/dtk-template` -> `decomp\` with our configure patch, the pinned build tools, your `main.dol` | run by `setup.ps1` |
+| `setup_decomp.ps1` / `setup_decomp.sh` | Phase 4 build setup (setup step 8): the pinned `encounter/dtk-template` -> `decomp\` with our configure patch, the pinned build tools, your `main.dol` | run by `setup.ps1` / `setup.sh` |
 | `gen_dtk_symbols.py` | Batch 9: `decomp\config\GXCE01\symbols.txt` = dtk's analysis of main.dol with our verified names -> `decomp\reports\symbols_report.txt` | run by batch 9 |
 | `gen_dtk_splits.py` | Batch 9: `decomp\config\GXCE01\splits.txt`, object (`.c` file) boundaries only where proven, incl. data placed by the matched C and the `game/` objects of `decomp\src\game` (method: its docstring) -> `decomp\reports\splits_report.txt` | run by batch 9 |
 | `gen_c_symbols.py` | Batch 9: gives the objects built from C their own symbols in the config `symbols.txt` (objdiff pairs data by name) -> `decomp\reports\c_symbols_report.txt` | run by batch 9 |
@@ -71,7 +76,10 @@ All in `tools\`. Python tools run with the system Python (3.11+) in isolated mod
 
 ## Batches (`tools\batches`)
 
-Each can run alone (`pwsh tools\batches\<name>.ps1`); `run_all.ps1` runs all of them in order ([REPRODUCE](REPRODUCE.md)).
+Each can run alone (`pwsh tools\batches\<name>.ps1`; Linux / macOS `tools/batches/<name>.sh`, every batch except 11, which is
+Windows-only and reported as skipped by `run_all.sh`); `run_all.ps1` / `run_all.sh` run all of them in order ([REPRODUCE](REPRODUCE.md)).
+Options are the PowerShell ones in bash spelling: `run_all.sh [--skip-rebuild] [--max-passes N]`, `batch10_compiler_probe.sh [--jobs N]`,
+`batch12_drafts.sh [--sample N] [--jobs N]`.
 
 | Batch | Purpose |
 |---|---|
@@ -105,10 +113,10 @@ Each can run alone (`pwsh tools\batches\<name>.ps1`); `run_all.ps1` runs all of 
 
 | Tool | Version | Notes |
 |---|---|---|
-| Ghidra | 12.1.4 (`ghidra_12.1.4_PUBLIC`) | needs Java 21 (installed system-wide) |
+| Ghidra | 12.1.4 (`ghidra_12.1.4_PUBLIC`) | needs Java 21 (system-wide, or a JDK on `PATH`); headless via `support\analyzeHeadless.bat` / `support/analyzeHeadless` |
 | Ghidra GameCube Loader | 1.3.1 (built for 12.1) | `extension.properties` version patched 12.1 → 12.1.4. Headless needs `-loader-autoloadMaps false` or it hangs on a hidden dialog. |
 | HSDLib / HSDRawViewer | built from source (`tools\HSDLib`, base commit in `tools\patches\hsdlib_base_commit.txt`) | targets .NET 8; runtimeconfig set to `rollForward: Major` to run on the installed .NET 10. Our patch (`tools\patches\hsdlib_headless_export_resave.patch`) adds `--export <out_dir> <glb|dae|smd> <files…>` and `--resave <in.dat> <out.dat>`. After every rebuild the runtimeconfig roll-forward line must be re-added. |
-| decomp-toolkit (dtk) | 1.8.4 (`tools\dtk\dtk.exe`) | analysis project in `tools\dtk\proj` (`symbols.txt`, `splits.txt`) |
+| decomp-toolkit (dtk) | 1.8.4 (`tools\dtk\dtk.exe`; Linux / macOS `tools/dtk/dtk`) | analysis project in `tools\dtk\proj` (`symbols.txt`, `splits.txt`); on Linux / macOS also extracts the disc (`dtk disc extract`, byte-identical to DolphinTool) |
 | Melee decomp | sparse clone (`tools\melee`) | `config`, `src\sysdolphin`, `src\MSL`, `src\Runtime`, `src\MetroTRK` and the SDK headers (docs/REPRODUCE.md, setup step 3) |
 | Other reference decomps | sparse clones (`tools\refs\`) | MKDD, Pikmin 2, TP, TTYD, TWW, KAR (doldecomp and wowjinxy), XD, dolsdk2001 / 2004, AC, SMS, Mario Party 4, Pikmin, BfBB: commits in `tools\pins.txt` |
 | m2c | pinned commit (`tools\m2c`) | batch 12 drafts; plain Python |

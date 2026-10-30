@@ -36,7 +36,7 @@ MANGLED = re.compile(r'^[^_].*__\w')
 GENERIC = ('fn_', 'lbl_', 'jumptable_', '@', 'gap_', 'FUN_', 'func_', 'sub_', 'zz_', 'kar_', 'xd_', 'DAT_', 'LAB_')
 PLACEHOLDER = re.compile(r'[0-9A-Fa-f]{6,8}$')  # map names that end in an address are placeholders
 REFS = [os.path.join(G, 'tools/melee/config/GALE01/symbols.txt')] + sorted(
-    glob.glob(os.path.join(G, 'tools/refs/*/config/*/symbols.txt')))
+    glob.glob(os.path.join(G, 'tools/refs/*/config/*/symbols.txt')), key=lambda p: p.replace('/', '\\'))   # Windows path order on every OS (ties -> the same reference)
 
 
 def load(p):
@@ -213,8 +213,8 @@ def r3_local():
 # C sources: matching decomps and the SDK source decomps (dolsdk2001/2004). Not kar_wowjinxy / kar: their SDK
 # code is lumped into one file per library (src/Dolphin/ax.c, card.c, gx.c), so file = translation unit fails.
 SRC_SKIP = ('kar_wowjinxy', 'kar')
-SRC_ROOTS = [os.path.join(G, 'tools/melee/src')] + [p for p in sorted(glob.glob(os.path.join(G, 'tools/refs/*/src'))) + sorted(
-    glob.glob(os.path.join(G, 'tools/refs/*/libs'))) if os.path.basename(os.path.dirname(p)) not in SRC_SKIP]
+SRC_ROOTS = [os.path.join(G, 'tools/melee/src')] + [p for p in sorted(glob.glob(os.path.join(G, 'tools/refs/*/src')), key=lambda p: p.replace('/', '\\')) + sorted(
+    glob.glob(os.path.join(G, 'tools/refs/*/libs')), key=lambda p: p.replace('/', '\\')) if os.path.basename(os.path.dirname(p)) not in SRC_SKIP]   # Windows path order on every OS (ties -> the same reference)
 HEAD = re.compile(r'(\w+)\s*\(([^;{}]*)\)\s*$')
 KEYW = {'if', 'for', 'while', 'switch', 'return', 'sizeof', 'do', 'else'}
 STR = re.compile(r'"((?:[^"\\\n]|\\.)*)"')

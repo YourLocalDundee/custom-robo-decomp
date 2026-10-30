@@ -49,7 +49,8 @@ def main():
     rep += ['', '## name not applied (name, addr, ghidra has)'] + [f'{n} {a:08X} {g}' for n, a, g in wrong]
     rep += ['', '## unaff_r2 functions'] + [f'{a:08X} {n}' for a, n in r2]
     rep += ['', '## small-data labels unseen in C'] + [f'{s} {a:08X} {n}' for n, s, a in unseen]
-    open(os.path.join(G, 'symbols/crosscheck_report.txt'), 'w', encoding='utf-8').write('\n'.join(rep) + '\n')
+    # CRLF on every OS (checksummed; the Windows default)
+    open(os.path.join(G, 'symbols/crosscheck_report.txt'), 'w', encoding='utf-8', newline='\r\n').write('\n'.join(rep) + '\n')
     print('crosscheck: ' + ' | '.join(rep[:4]))
 
 

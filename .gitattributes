@@ -1,2 +1,4 @@
 # Store every file byte-for-byte (no line-ending conversion), so checkouts and checksums match on every machine.
 * -text
+# Shell scripts must be LF on every machine (bash refuses CRLF).
+*.sh text eol=lf

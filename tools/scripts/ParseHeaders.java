@@ -147,25 +147,38 @@ public class ParseHeaders extends GhidraScript {
 			", not parsed " + sizeMissing + "; field offsets ok " + offOk + ", wrong " + offBad +
 			" (structs not found: " + offNoStruct + "); prototypes applied " + applied + ", failed " + failed +
 			"; globals typed " + globals + ", failed " + globalsBad;
+		// CRLF line ends on every OS (the report is checksummed: tools/checksums.ps1 / .sh); the parser messages keep
+		// their own line ends
 		try (PrintWriter w = new PrintWriter(reportFile, "UTF-8")) {
-			w.println(summary);
-			for (String l : lines) w.println(l);
+			w.print(summary + "\r\n");
+			for (String l : lines) w.print(l + "\r\n");
 			// sizes of every parsed HSD struct, for tools/check_class_sizes.py
 			for (Map.Entry<String, DataType> e : new TreeMap<>(byName).entrySet()) {
 				DataType dt = e.getValue() instanceof TypeDef td ? td.getBaseDataType() : e.getValue();
 				if (e.getKey().startsWith("HSD_") && dt instanceof Composite) {
-					w.println("STRUCTSIZE " + e.getKey() + " 0x" + Integer.toHexString(dt.getLength()));
+					w.print("STRUCTSIZE " + e.getKey() + " 0x" + Integer.toHexString(dt.getLength()) + "\r\n");
 				}
 			}
-			w.println();
+			w.print("\r\n");
 			// machine-independent paths, so the report is byte-identical on every machine (tools\checksums.ps1)
 			String hdr = new File(melee).getAbsolutePath(), sym = Path.of(crTypes).toAbsolutePath().getParent().toString();
-			w.println("---- C parser messages");
-			w.println(res.cParseMessages().replace(hdr, "<headers>").replace(sym, "<symbols>"));
-			w.println("---- preprocessor messages");
-			w.println(res.cppParseMessages().replace(hdr, "<headers>").replace(sym, "<symbols>"));
+			w.print("---- C parser messages\r\n");
+			w.print(portable(res.cParseMessages().replace(hdr, "<headers>").replace(sym, "<symbols>")) + "\r\n");
+			w.print("---- preprocessor messages\r\n");
+			w.print(portable(res.cppParseMessages().replace(hdr, "<headers>").replace(sym, "<symbols>")) + "\r\n");
 		}
 		println(summary);
+	}
+
+	// the parser messages list the headers as paths: written with the Windows separator on every OS, so the report
+	// is the same everywhere (only lines that are such a path are touched)
+	private static String portable(String messages) {
+		StringBuilder b = new StringBuilder();
+		for (String l : messages.split("\n", -1)) {
+			String t = l.trim();
+			b.append(t.startsWith("<headers>") || t.startsWith("<symbols>") ? l.replace('/', '\\') : l).append('\n');
+		}
+		return b.substring(0, b.length() - 1);
 	}
 
 	private static final Pattern STRUCT_OPEN = Pattern.compile("struct\\s+(\\w+)\\s*\\{");

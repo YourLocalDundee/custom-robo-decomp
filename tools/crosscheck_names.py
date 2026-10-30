@@ -412,7 +412,7 @@ def parse_asm(text, defs, rel, root):
 class Refs:
     def __init__(self):
         self.maps = []   # (tag, {name: [sizes]})
-        paths = [P('tools/melee/config/GALE01/symbols.txt')] + sorted(glob.glob(P('tools/refs/*/config/*/symbols.txt')))
+        paths = [P('tools/melee/config/GALE01/symbols.txt')] + sorted(glob.glob(P('tools/refs/*/config/*/symbols.txt')), key=lambda p: p.replace('/', '\\'))   # Windows path order on every OS (ties -> the same reference)
         for p in paths:
             if not os.path.exists(p): continue
             game, cfg = os.path.relpath(p, G).replace(os.sep, '/').split('/config/')
