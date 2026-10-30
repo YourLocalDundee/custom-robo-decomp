@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,443 @@ def MatchingFor(*versions):
+@@ -284,18 +307,445 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -250,6 +250,8 @@ diff --git a/configure.py b/configure.py
 +CR_OBJECT_INCLUDES["dolphin/dvd/dvd.c"] = BFBB_INC
 +CR_OBJECT_INCLUDES["dolphin/ax/AX.c"] = BFBB_INC
 +CR_OBJECT_CFLAGS["sysdolphin/baselib/aobj.c"] = ["-DCR_LIST_PREPEND_RETURNS"]
++# this revision's texp.c is built with -O3 (HSD_TExpSetReg's register allocation; every other function the same: step 68)
++CR_OBJECT_CFLAGS["sysdolphin/baselib/texp.c"] = ["-O3"]
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
 +    "dolphin/mtx/": ["-char signed"],
@@ -474,7 +476,7 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/jobj.c":
 +        "code: 29 of 48 functions equal in objdiff (Melee's jobj.c with this revision's assert lines, jobj.h's set inlines too; JObjUpdateFunc, JObjInfoInit, HSD_JObjSetupMatrixSub's / HSD_JObjAnim's update method, HSD_JObjSetPtclTargetCallback from wowjinxy/KAR's jobj.c; step 61 iteration 7): unnamed, no C: fn_80196568 (0x58), fn_80196C50, fn_80198014, fn_80198144, fn_80198690, fn_80198700 (0x1FC, the load method; wowjinxy's JObjLoad 0x214), fn_80199178, fn_801991A4, fn_801995CC; HSD_JObjSetMtxDirty and HSD_IDGetData have no C in any reference; HSD_JObjReqAnimAllByFlags 82%, HSD_JObjResolveRefsAll 98% (an extra NULL check), ref_INC 90% (no NULL check here), HSD_JObjSetFlagsAll 87%, resolveIKJoint1 99.6% (one fmuls register), resolveIKJoint2 99.2% (frsp before fneg here), HSD_JObjSetMtxDirtySub 85% (another revision): adapt to this revision",
 +    "sysdolphin/baselib/texp.c":
-+        "code: 19 of 22 functions equal in objdiff (Melee's texp.c, TETev with this revision's a_range byte; step 68: TECnst's comp / ctype as u8 (wowjinxy/KAR texp.h: ref at +0x10), main.dol's assert lines throughout, HSD_TExpCnst clears range, HSD_TExpColorOp / AlphaOp compare op with ADD and SUB): HSD_TExpSetReg 97.9% (the same instructions, other registers throughout; declaration orders and an index local tried; wowjinxy/KAR's C 71%), TExp2TevDesc 70.5% (0x400 here vs 0x464; doldecomp/kar's asm equal but for its assert lines), HSD_TExpUnref 40.6% (0x57C here vs 0x274; wowjinxy's C 84%): adapt to this revision",
++        "code: 19 of 22 functions equal in objdiff (Melee's texp.c, TETev with this revision's a_range byte; step 68: TECnst's comp / ctype as u8 (wowjinxy/KAR texp.h: ref at +0x10), main.dol's assert lines throughout, HSD_TExpCnst clears range, HSD_TExpColorOp / AlphaOp compare op with ADD and SUB, the file built with -O3 (HSD_TExpSetReg's registers)): HSD_TExpSetReg 99.6% (one instruction scheduled elsewhere: the .data base address before / after `changed = 0`; init orders tried), TExp2TevDesc (0x400) has main.dol's instructions (each UNDEF default as a u32 temporary and an if) but other saved registers for its parameters (texp / desc in r30 / r31 there, r27 / r28 here; locals, the static table's place, -O levels and compilers tried), HSD_TExpUnref 40.6% (0x57C here vs Melee's 0x274; wowjinxy/KAR's C 84%): adapt to this revision",
 +    "sysdolphin/baselib/displayfunc.c":
 +        "code: 10 of 16 functions equal in objdiff (Melee's displayfunc.c with this revision's assert lines; zlist_sort from wowjinxy/KAR's displayfunc.c, step 61 iteration 7): mkVBillBoardMtx / mkHBillBoardMtx / mkBillBoardMtx 0x2DC / 0x344 / 0x398 here vs 0x23C / 0x2D4 / 0x2B8 (74 / 78 / 61%; wowjinxy's 80-90%), HSD_EraseRect 98.8% (r7 / r8 / r10 / r11 swapped in the GX FIFO writes; no wowjinxy form matches), fn_8019C86C and fn_8019C918 not in Melee's C (another revision): adapt to this revision",
 +    "sysdolphin/baselib/robj.c":
