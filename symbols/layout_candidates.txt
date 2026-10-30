@@ -378,22 +378,22 @@ __CARDIsReadable = .text:0x8015011C; // type:function size:0xF4 ref:ac-decomp/GA
 CARDOpen = .text:0x80150360; // type:function size:0x11C ref:ttyd/G8MJ01 ref_size:0x11C anchors:0x80150210-0x801504D0
 // evidence CARDClose 0x8015047C: callees __CARDGetControlBlock,__CARDPutControlBlock
 CARDClose = .text:0x8015047C; // type:function size:0x54 ref:ttyd/G8MJ01 ref_size:0x54 anchors:0x80150210-0x801504D0
-__CARDIsOpened = .text:0x801504D0; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x80150210-0x8018678C
+__CARDIsOpened = .text:0x801504D0; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x80150210-0x80186490
 // evidence CreateCallbackFat 0x801504D8: callees OSGetTime,__CARDGetDirBlock,__CARDUpdateDir
-CreateCallbackFat = .text:0x801504D8; // type:function size:0x130 ref:melee/GALE01 ref_size:0x130 anchors:0x80150210-0x8018678C
+CreateCallbackFat = .text:0x801504D8; // type:function size:0x130 ref:melee/GALE01 ref_size:0x130 anchors:0x80150210-0x80186490
 // evidence CARDCreateAsync 0x80150608: callees __CARDCompareFileName,__CARDDefaultApiCallback,__CARDGetDirBlock,__CARDGetFatBlock,strlen,strncpy
-CARDCreateAsync = .text:0x80150608; // type:function size:0x220 ref:melee/GALE01 ref_size:0x220 anchors:0x80150210-0x8018678C
+CARDCreateAsync = .text:0x80150608; // type:function size:0x220 ref:melee/GALE01 ref_size:0x220 anchors:0x80150210-0x80186490
 // evidence __CARDSeek 0x80150828: callees __CARDGetDirBlock,__CARDGetFatBlock
-__CARDSeek = .text:0x80150828; // type:function size:0x1B8 ref:melee/GALE01 ref_size:0x1B8 anchors:0x80150210-0x8018678C
+__CARDSeek = .text:0x80150828; // type:function size:0x1B8 ref:melee/GALE01 ref_size:0x1B8 anchors:0x80150210-0x80186490
 // evidence ReadCallback 0x801509E0: callees __CARDGetFatBlock
-ReadCallback = .text:0x801509E0; // type:function size:0x130 ref:melee/GALE01 ref_size:0x130 anchors:0x80150210-0x8018678C
+ReadCallback = .text:0x801509E0; // type:function size:0x130 ref:melee/GALE01 ref_size:0x130 anchors:0x80150210-0x80186490
 // evidence DeleteCallback 0x80150F88: callees __CARDFreeBlock,__CARDPutControlBlock
 DeleteCallback = .text:0x80150F88; // type:function size:0xA4 ref:ttyd/G8MJ01 ref_size:0xA4 anchors:0x801509E0-0x8015102C
 // evidence CARDDeleteAsync 0x8015102C: callees __CARDDefaultApiCallback,__CARDGetDirBlock,__CARDGetFileNo,__CARDIsOpened,__CARDUpdateDir
-CARDDeleteAsync = .text:0x8015102C; // type:function size:0x110 ref:melee/GALE01 ref_size:0x110 anchors:0x80150210-0x8018678C
-UpdateIconOffsets = .text:0x8015113C; // type:function size:0x1F8 ref:melee/GALE01 ref_size:0x1F8 anchors:0x80150210-0x8018678C
+CARDDeleteAsync = .text:0x8015102C; // type:function size:0x110 ref:melee/GALE01 ref_size:0x110 anchors:0x80150210-0x80186490
+UpdateIconOffsets = .text:0x8015113C; // type:function size:0x1F8 ref:melee/GALE01 ref_size:0x1F8 anchors:0x80150210-0x80186490
 // evidence CARDGetStatus 0x80151334: callees UpdateIconOffsets,__CARDGetDirBlock,__CARDIsReadable
-CARDGetStatus = .text:0x80151334; // type:function size:0x114 ref:melee/GALE01 ref_size:0x12C anchors:0x80150210-0x8018678C
+CARDGetStatus = .text:0x80151334; // type:function size:0x114 ref:melee/GALE01 ref_size:0x12C anchors:0x80150210-0x80186490
 // evidence CARDSetStatusAsync 0x80151448: callees OSGetTime,UpdateIconOffsets,__CARDGetControlBlock,__CARDGetDirBlock,__CARDIsWritable,__CARDUpdateDir
 CARDSetStatusAsync = .text:0x80151448; // type:function size:0x174 ref:ac-decomp/GAFE01_00 ref_size:0x174 anchors:0x80151334-0x80151978
 // evidence CARDSetStatus 0x801515BC: callees CARDSetStatusAsync,__CARDSync,__CARDSyncCallback
@@ -483,6 +483,7 @@ GXLoadLightObjImm = .text:0x80155B54; // type:function size:0x7C ref:ac-decomp/G
 GXSetChanAmbColor = .text:0x80155BD0; // type:function size:0xF0 ref:ac-decomp/GAFU01_00 ref_size:0xF0 anchors:0x80155868-0x801560C8
 GXSetChanMatColor = .text:0x80155CC0; // type:function size:0xF0 ref:ac-decomp/GAFU01_00 ref_size:0xF0 anchors:0x80155868-0x801560C8
 GXSetNumChans = .text:0x80155DB0; // type:function size:0x3C ref:ac-decomp/GAFU01_00 ref_size:0x3C anchors:0x80155868-0x801560C8
+// evidence GXSetChanCtrl 0x80155DEC: caller __GXInitGX; caller HSD_SetupChannel
 GXSetChanCtrl = .text:0x80155DEC; // type:function size:0xB8 ref:bfbb/GQPE78 ref_size:0xB8 anchors:0x80155DB0-0x801560C8
 GXGetTexBufferSize = .text:0x80155EA4; // type:function size:0x15C ref:bfbb/GQPE78 ref_size:0x15C anchors:0x80155DB0-0x801560C8
 __GetImageTileCount = .text:0x80156000; // type:function size:0xC8 ref:bfbb/GQPE78 ref_size:0xC8 anchors:0x80155DB0-0x801560C8
@@ -774,9 +775,9 @@ EXIGetState = .text:0x8016B4E8; // type:function size:0x18 ref:kar_wowjinxy/GKYE
 // evidence ProbeBarnacle 0x8016B8D8: callees EXIAttach,EXIDeselect,EXIDetach,EXIImm,EXILock,EXISelect,EXISync,EXIUnlock; caller __OSEnableBarnacle
 ProbeBarnacle = .text:0x8016B8D8; // type:function size:0x18C ref:xd/GXXE01 ref_size:0x18C anchors:0x8016B528-0x8016BA64
 // evidence InitializeUART 0x8016BC20: callees OSGetConsoleType; caller __write_console
-InitializeUART = .text:0x8016BC20; // type:function size:0x70 ref:kar_wowjinxy/GKYE01 ref_size:0x70 anchors:0x8016BA64-0x80186498
+InitializeUART = .text:0x8016BC20; // type:function size:0x70 ref:kar_wowjinxy/GKYE01 ref_size:0x70 anchors:0x8016BA64-0x80186490
 // evidence WriteUARTN 0x8016BC90: callees EXIDeselect,EXIImm,EXILock,EXISelect,EXISync,EXIUnlock,OSDisableInterrupts,OSRestoreInterrupts; caller __write_console
-WriteUARTN = .text:0x8016BC90; // type:function size:0x21C ref:kar_wowjinxy/GKYE01 ref_size:0x21C anchors:0x8016BA64-0x80186498
+WriteUARTN = .text:0x8016BC90; // type:function size:0x21C ref:kar_wowjinxy/GKYE01 ref_size:0x21C anchors:0x8016BA64-0x80186490
 // evidence CompleteTransfer 0x8016BEE8: callees __OSGetSystemTime; caller SIInterruptHandler
 CompleteTransfer = .text:0x8016BEE8; // type:function size:0x2FC ref:ttyd/G8MJ01 ref_size:0x2FC anchors:0x8016BC90-0x8016C1E4
 // evidence __SITransfer 0x8016C5DC: callees OSDisableInterrupts,OSRestoreInterrupts; caller SIInterruptHandler; caller SITransfer
@@ -790,9 +791,9 @@ SIEnablePolling = .text:0x8016C8F4; // type:function size:0x9C ref:pikmin2/GPVE0
 SIDisablePolling = .text:0x8016C990; // type:function size:0x6C ref:pikmin2/GPVE01 ref_size:0x6C anchors:0x8016C888-0x8016CC20
 // evidence SIGetResponseRaw 0x8016C9FC: callees OSDisableInterrupts,OSRestoreInterrupts; caller SIInterruptHandler
 SIGetResponseRaw = .text:0x8016C9FC; // type:function size:0xD4 ref:pikmin2/GPVE01 ref_size:0xD4 anchors:0x8016C888-0x8016CC20
-HSD_DObjGetFlags = .text:0x80186498; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x80150210-0x8018678C
-HSD_DObjSetFlags = .text:0x801864B0; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x80150210-0x8018678C
-HSD_DObjReqAnimAllByFlags = .text:0x80186590; // type:function size:0x80 ref:melee/GALE01 ref_size:0x80 anchors:0x80150210-0x8018678C
+HSD_DObjGetFlags = .text:0x80186498; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x80186490-0x8018678C
+HSD_DObjSetFlags = .text:0x801864B0; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x80186490-0x8018678C
+HSD_DObjReqAnimAllByFlags = .text:0x80186590; // type:function size:0x80 ref:melee/GALE01 ref_size:0x80 anchors:0x80186490-0x8018678C
 // evidence HSD_DObjAnimAll 0x80186610: callees HSD_MObjAnim,HSD_PObjAnimAll
 HSD_DObjAnimAll = .text:0x80186610; // type:function size:0x6C ref:kar_wowjinxy/GKYE01 ref_size:0x6C anchors:0x80186590-0x8018678C
 HSD_DObjRemoveAll = .text:0x80186824; // type:function size:0x74 ref:melee/GALE01 ref_size:0x74 anchors:0x8018678C-0x80186898
@@ -835,7 +836,7 @@ TObjRelease = .text:0x80189AC8; // type:function size:0xBC ref:kar_wowjinxy/GKYE
 TObjAmnesia = .text:0x80189B84; // type:function size:0x60 ref:kar_wowjinxy/GKYE01 ref_size:0x60 anchors:0x801899F4-0x8018A670
 // evidence TObjInfoInit 0x80189BE4: callees MakeTextureMtx,TObjAmnesia,TObjMakeTExp; string "hsd_tobj"; string "sysdolphin_base_library"
 TObjInfoInit = .text:0x80189BE4; // type:function size:0xA4 ref:kar_wowjinxy/GKYE01 ref_size:0xA4 anchors:0x801899F4-0x8018A670
-// evidence HSD_SetupChannelMode 0x80189C88: callees HSD_LObjGetActiveByID,HSD_LObjGetActiveByIndex,HSD_LObjGetLightMaskAlpha,HSD_LObjGetLightMaskSpecular,HSD_LObjGetNbActive,HSD_LObjSetup,HSD_MulColor
+// evidence HSD_SetupChannelMode 0x80189C88: callees HSD_LObjGetActiveByID,HSD_LObjGetActiveByIndex,HSD_LObjGetLightMaskAlpha,HSD_LObjGetLightMaskSpecular,HSD_LObjGetNbActive,HSD_LObjSetup,HSD_MulColor,HSD_SetupChannel
 HSD_SetupChannelMode = .text:0x80189C88; // type:function size:0x23C ref:kar_wowjinxy/GKYE01 ref_size:0x23C anchors:0x801899F4-0x8018A670
 HSD_SetupPEMode = .text:0x80189EC4; // type:function size:0x174 ref:kar_wowjinxy/GKYE01 ref_size:0x174 anchors:0x801899F4-0x8018A670
 // evidence HSD_StateSetBlendMode 0x8018A2C8: callees GXSetBlendMode; caller HSD_SetupPEMode
@@ -853,20 +854,20 @@ HSD_StateSetDither = .text:0x8018A5EC; // type:function size:0x48 ref:kar_wowjin
 _HSD_StateInvalidatePrimitive = .text:0x8018A634; // type:function size:0x1C ref:kar_wowjinxy/GKYE01 ref_size:0x1C anchors:0x801899F4-0x8018A670
 // evidence _HSD_StateInvalidateVtxAttr 0x8018A650: callees HSD_ClearVtxDesc
 _HSD_StateInvalidateVtxAttr = .text:0x8018A650; // type:function size:0x20 ref:kar_wowjinxy/GKYE01 ref_size:0x20 anchors:0x801899F4-0x8018A670
-_HSD_StateInvalidateRenderMode = .text:0x8018A670; // type:function size:0x58 ref:melee/GALE01 ref_size:0x58 anchors:0x801899F4-0x8018B160
-HSD_StateInvalidate = .text:0x8018A6C8; // type:function size:0x60 ref:melee/GALE01 ref_size:0x60 anchors:0x801899F4-0x8018B160
+_HSD_StateInvalidateRenderMode = .text:0x8018A670; // type:function size:0x58 ref:melee/GALE01 ref_size:0x58 anchors:0x801899F4-0x8018A728
+HSD_StateInvalidate = .text:0x8018A6C8; // type:function size:0x60 ref:melee/GALE01 ref_size:0x60 anchors:0x801899F4-0x8018A728
 // evidence HSD_DisableChannelLighting 0x8018AB28: callees GXSetChanCtrl
-HSD_DisableChannelLighting = .text:0x8018AB28; // type:function size:0xF8 ref:kar_wowjinxy/GKYE01 ref_size:0xF8 anchors:0x8018A6C8-0x8018AD0C
+HSD_DisableChannelLighting = .text:0x8018AB28; // type:function size:0xF8 ref:kar_wowjinxy/GKYE01 ref_size:0xF8 anchors:0x8018A784-0x8018AD0C
 // evidence HSD_StateSetNumChans 0x8018AC20: callees GXSetNumChans
-HSD_StateSetNumChans = .text:0x8018AC20; // type:function size:0x40 ref:kar_wowjinxy/GKYE01 ref_size:0x40 anchors:0x8018A6C8-0x8018AD0C
-HSD_SetupChannelAll = .text:0x8018AC60; // type:function size:0x7C ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x8018A6C8-0x8018AD0C
+HSD_StateSetNumChans = .text:0x8018AC20; // type:function size:0x40 ref:kar_wowjinxy/GKYE01 ref_size:0x40 anchors:0x8018A784-0x8018AD0C
+HSD_SetupChannelAll = .text:0x8018AC60; // type:function size:0x7C ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x8018A784-0x8018AD0C
 // evidence HSD_StateRegisterTexGen 0x8018ACDC: callees HSD_TexCoordID2Num; caller HSD_TObjSetup
-HSD_StateRegisterTexGen = .text:0x8018ACDC; // type:function size:0x30 ref:melee/GALE01 ref_size:0x30 anchors:0x801899F4-0x8018B160
-HSD_StateSetNumTexGens = .text:0x8018AD0C; // type:function size:0x30 ref:melee/GALE01 ref_size:0x30 anchors:0x801899F4-0x8018B160
-HSD_StateInitTev = .text:0x8018AD3C; // type:function size:0xC ref:melee/GALE01 ref_size:0xC anchors:0x801899F4-0x8018B160
-HSD_StateGetNumTevStages = .text:0x8018AD48; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x801899F4-0x8018B160
-HSD_StateAssignTev = .text:0x8018AD50; // type:function size:0x2C ref:melee/GALE01 ref_size:0x2C anchors:0x801899F4-0x8018B160
-HSD_StateSetNumTevStages = .text:0x8018AD7C; // type:function size:0x30 ref:melee/GALE01 ref_size:0x30 anchors:0x801899F4-0x8018B160
+HSD_StateRegisterTexGen = .text:0x8018ACDC; // type:function size:0x30 ref:melee/GALE01 ref_size:0x30 anchors:0x8018A784-0x8018B160
+HSD_StateSetNumTexGens = .text:0x8018AD0C; // type:function size:0x30 ref:melee/GALE01 ref_size:0x30 anchors:0x8018A784-0x8018B160
+HSD_StateInitTev = .text:0x8018AD3C; // type:function size:0xC ref:melee/GALE01 ref_size:0xC anchors:0x8018A784-0x8018B160
+HSD_StateGetNumTevStages = .text:0x8018AD48; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x8018A784-0x8018B160
+HSD_StateAssignTev = .text:0x8018AD50; // type:function size:0x2C ref:melee/GALE01 ref_size:0x2C anchors:0x8018A784-0x8018B160
+HSD_StateSetNumTevStages = .text:0x8018AD7C; // type:function size:0x30 ref:melee/GALE01 ref_size:0x30 anchors:0x8018A784-0x8018B160
 // evidence HSD_SetTevRegAll 0x8018B230: callees GXSetTevColorS10
 HSD_SetTevRegAll = .text:0x8018B230; // type:function size:0xC0 ref:melee/GALE01 ref_size:0xCC anchors:0x8018B160-0x8018B2F0
 _HSD_StateInvalidateTevStage = .text:0x8018B410; // type:function size:0xC ref:melee/GALE01 ref_size:0xC anchors:0x8018B2F0-0x8018BAE8
@@ -881,33 +882,33 @@ MObjMakeTExp = .text:0x8018BB88; // type:function size:0x9CC ref:kar_wowjinxy/GK
 // evidence HSD_MObjCompileTev 0x8018C554: callees HSD_TExpCompile,HSD_TExpFreeList,HSD_TExpFreeTevDesc,HSD_TObjAssignResources; caller HSD_MObjLoadDesc
 HSD_MObjCompileTev = .text:0x8018C554; // type:function size:0x120 ref:kar_wowjinxy/GKYE01 ref_size:0x120 anchors:0x8018BAE8-0x8018C674
 // evidence MObjSetupTev 0x8018C674: callees HSD_TObjSetupVolatileTev; string "mobj->tevdesc"
-MObjSetupTev = .text:0x8018C674; // type:function size:0x78 ref:melee/GALE01 ref_size:0x78 anchors:0x8018BAE8-0x8018D13C
+MObjSetupTev = .text:0x8018C674; // type:function size:0x78 ref:melee/GALE01 ref_size:0x78 anchors:0x8018BAE8-0x8018CC40
 // evidence HSD_MObjSetup 0x8018C6EC: callees HSD_StateInitTev,HSD_TObjSetup,HSD_TObjSetupTextureCoordGen
-HSD_MObjSetup = .text:0x8018C6EC; // type:function size:0x144 ref:melee/GALE01 ref_size:0x144 anchors:0x8018BAE8-0x8018D13C
+HSD_MObjSetup = .text:0x8018C6EC; // type:function size:0x144 ref:melee/GALE01 ref_size:0x144 anchors:0x8018BAE8-0x8018CC40
 HSD_MObjGetTObj = .text:0x8018C8A4; // type:function size:0x18 ref:kar_wowjinxy/GKYE01 ref_size:0x18 anchors:0x8018C6EC-0x8018C8BC
-HSD_MObjRemove = .text:0x8018C8BC; // type:function size:0x50 ref:melee/GALE01 ref_size:0x54 anchors:0x8018BAE8-0x8018D13C
+HSD_MObjRemove = .text:0x8018C8BC; // type:function size:0x50 ref:melee/GALE01 ref_size:0x54 anchors:0x8018BAE8-0x8018CC40
 // evidence HSD_MObjAlloc 0x8018C90C: caller HSD_MObjLoadDesc; string "mobj"
-HSD_MObjAlloc = .text:0x8018C90C; // type:function size:0x5C ref:melee/GALE01 ref_size:0x5C anchors:0x8018BAE8-0x8018D13C
-HSD_MaterialAlloc = .text:0x8018C968; // type:function size:0x60 ref:melee/GALE01 ref_size:0x60 anchors:0x8018BAE8-0x8018D13C
+HSD_MObjAlloc = .text:0x8018C90C; // type:function size:0x5C ref:melee/GALE01 ref_size:0x5C anchors:0x8018BAE8-0x8018CC40
+HSD_MaterialAlloc = .text:0x8018C968; // type:function size:0x60 ref:melee/GALE01 ref_size:0x60 anchors:0x8018BAE8-0x8018CC40
 // evidence HSD_MObjAddShadowTexture 0x8018C9C8: string "tobj"
-HSD_MObjAddShadowTexture = .text:0x8018C9C8; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x8018BAE8-0x8018D13C
-HSD_MObjDeleteShadowTexture = .text:0x8018CA2C; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x8018BAE8-0x8018D13C
+HSD_MObjAddShadowTexture = .text:0x8018C9C8; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x8018BAE8-0x8018CC40
+HSD_MObjDeleteShadowTexture = .text:0x8018CA2C; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x8018BAE8-0x8018CC40
 // evidence MObjRelease 0x8018CA90: callees HSD_TExpFreeList,HSD_TObjRemoveAll
-MObjRelease = .text:0x8018CA90; // type:function size:0x9C ref:melee/GALE01 ref_size:0x9C anchors:0x8018BAE8-0x8018D13C
-MObjAmnesia = .text:0x8018CB2C; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x8018BAE8-0x8018D13C
+MObjRelease = .text:0x8018CA90; // type:function size:0x9C ref:melee/GALE01 ref_size:0x9C anchors:0x8018BAE8-0x8018CC40
+MObjAmnesia = .text:0x8018CB2C; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x8018BAE8-0x8018CC40
 // evidence MObjInfoInit 0x8018CB90: callees MObjAmnesia; string "hsd_mobj"; string "sysdolphin_base_library"
-MObjInfoInit = .text:0x8018CB90; // type:function size:0xB0 ref:melee/GALE01 ref_size:0xA0 anchors:0x8018BAE8-0x8018D13C
-// evidence HSD_AObjLoadDesc 0x8018CFA4: callees HSD_AObjAlloc,HSD_AObjSetEndFrame,HSD_AObjSetRewindFrame,HSD_JObjLoadJoint
-HSD_AObjLoadDesc = .text:0x8018CFA4; // type:function size:0x128 ref:kar_wowjinxy/GKYE01 ref_size:0x128 anchors:0x8018CB90-0x8018D0CC
-HSD_AObjRemove = .text:0x8018D0CC; // type:function size:0x70 ref:melee/GALE01 ref_size:0x70 anchors:0x8018BAE8-0x8018D13C
-HSD_AObjSetRewindFrame = .text:0x8018D1EC; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x8018D13C-0x8018E978
-HSD_AObjSetEndFrame = .text:0x8018D1FC; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x8018D13C-0x8018E978
-HSD_LObjGetLightMaskAttnFunc = .text:0x8018D268; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x8018D13C-0x8018E978
-HSD_LObjGetLightMaskAlpha = .text:0x8018D270; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x8018D13C-0x8018E978
-HSD_LObjGetLightMaskSpecular = .text:0x8018D278; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x8018D13C-0x8018E978
-HSD_LObjGetNbActive = .text:0x8018D280; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x8018D13C-0x8018E978
+MObjInfoInit = .text:0x8018CB90; // type:function size:0xB0 ref:melee/GALE01 ref_size:0xA0 anchors:0x8018BAE8-0x8018CC40
+HSD_AObjLoadDesc = .text:0x8018CFA4; // type:function size:0x128 ref:kar_wowjinxy/GKYE01 ref_size:0x128 anchors:0x8018CC40-0x8018D0CC
+// evidence HSD_AObjRemove 0x8018D0CC: callees HSD_FObjRemoveAll
+HSD_AObjRemove = .text:0x8018D0CC; // type:function size:0x70 ref:melee/GALE01 ref_size:0x70 anchors:0x8018CC40-0x8018D13C
+HSD_AObjSetRewindFrame = .text:0x8018D1EC; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x8018D13C-0x8018D20C
+HSD_AObjSetEndFrame = .text:0x8018D1FC; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x8018D13C-0x8018D20C
+HSD_LObjGetLightMaskAttnFunc = .text:0x8018D268; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x8018D20C-0x8018E978
+HSD_LObjGetLightMaskAlpha = .text:0x8018D270; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x8018D20C-0x8018E978
+HSD_LObjGetLightMaskSpecular = .text:0x8018D278; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x8018D20C-0x8018E978
+HSD_LObjGetNbActive = .text:0x8018D280; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x8018D20C-0x8018E978
 // evidence HSD_LObjGetActiveByID 0x8018D288: callees HSD_LightID2Index
-HSD_LObjGetActiveByID = .text:0x8018D288; // type:function size:0x48 ref:melee/GALE01 ref_size:0x4C anchors:0x8018D13C-0x8018E978
+HSD_LObjGetActiveByID = .text:0x8018D288; // type:function size:0x48 ref:melee/GALE01 ref_size:0x4C anchors:0x8018D20C-0x8018E978
 HSD_LObjGetActiveByIndex = .text:0x8018D2D0; // type:function size:0x2C ref:kar_wowjinxy/GKYE01 ref_size:0x2C anchors:0x8018D288-0x8018E978
 // evidence HSD_LObjSetup 0x8018D66C: callees GXInitLightAttn,GXInitLightColor,GXLoadLightObjImm
 HSD_LObjSetup = .text:0x8018D66C; // type:function size:0x164 ref:kar_wowjinxy/GKYE01 ref_size:0x164 anchors:0x8018D288-0x8018E978
@@ -924,11 +925,11 @@ LObjAmnesia = .text:0x8018F468; // type:function size:0x60 ref:kar_wowjinxy/GKYE
 LObjInfoInit = .text:0x8018F4C8; // type:function size:0x80 ref:kar_wowjinxy/GKYE01 ref_size:0x80 anchors:0x8018E978-0x80190354
 // evidence HSD_CObjEndCurrent 0x80190330: callees _HSD_ZListDisp,_HSD_ZListSort
 HSD_CObjEndCurrent = .text:0x80190330; // type:function size:0x24 ref:kar_wowjinxy/GKYE01 ref_size:0x24 anchors:0x8018E978-0x80190354
-HSD_CObjGetInterestWObj = .text:0x80190354; // type:function size:0x40 ref:melee/GALE01 ref_size:0x40 anchors:0x8018E978-0x801938E0
-HSD_CObjGetEyePositionWObj = .text:0x80190394; // type:function size:0x40 ref:melee/GALE01 ref_size:0x40 anchors:0x8018E978-0x801938E0
-HSD_CObjGetInterest = .text:0x801903D4; // type:function size:0x6C ref:melee/GALE01 ref_size:0x6C anchors:0x8018E978-0x801938E0
-HSD_CObjSetInterest = .text:0x80190440; // type:function size:0x6C ref:melee/GALE01 ref_size:0x6C anchors:0x8018E978-0x801938E0
-HSD_CObjGetEyePosition = .text:0x801904AC; // type:function size:0x6C ref:melee/GALE01 ref_size:0x6C anchors:0x8018E978-0x801938E0
+HSD_CObjGetInterestWObj = .text:0x80190354; // type:function size:0x40 ref:melee/GALE01 ref_size:0x40 anchors:0x8018E978-0x80191BEC
+HSD_CObjGetEyePositionWObj = .text:0x80190394; // type:function size:0x40 ref:melee/GALE01 ref_size:0x40 anchors:0x8018E978-0x80191BEC
+HSD_CObjGetInterest = .text:0x801903D4; // type:function size:0x6C ref:melee/GALE01 ref_size:0x6C anchors:0x8018E978-0x80191BEC
+HSD_CObjSetInterest = .text:0x80190440; // type:function size:0x6C ref:melee/GALE01 ref_size:0x6C anchors:0x8018E978-0x80191BEC
+HSD_CObjGetEyePosition = .text:0x801904AC; // type:function size:0x6C ref:melee/GALE01 ref_size:0x6C anchors:0x8018E978-0x80191BEC
 upvec2roll = .text:0x80190688; // type:function size:0x1E8 ref:kar_wowjinxy/GKYE01 ref_size:0x21C anchors:0x801904AC-0x8019145C
 roll2upvec = .text:0x80190870; // type:function size:0x2E4 ref:kar_wowjinxy/GKYE01 ref_size:0x314 anchors:0x801904AC-0x8019145C
 // evidence HSD_CObjGetUpVector 0x80190B54: callees roll2upvec
@@ -940,40 +941,40 @@ HSD_CObjGetViewingMtx = .text:0x80190F14; // type:function size:0x34 ref:kar_wow
 HSD_CObjGetInvViewingMtxPtrDirect = .text:0x80190F48; // type:function size:0x64 ref:kar_wowjinxy/GKYE01 ref_size:0x64 anchors:0x801904AC-0x8019145C
 HSD_CObjGetViewingMtxPtr = .text:0x80190FAC; // type:function size:0x30 ref:kar_wowjinxy/GKYE01 ref_size:0x30 anchors:0x801904AC-0x8019145C
 HSD_CObjGetNear = .text:0x80191444; // type:function size:0x18 ref:kar_wowjinxy/GKYE01 ref_size:0x18 anchors:0x801904AC-0x8019145C
-HSD_CObjSetNear = .text:0x8019145C; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x8018E978-0x801938E0
-HSD_CObjGetFar = .text:0x8019146C; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x8018E978-0x801938E0
-HSD_CObjSetFar = .text:0x80191484; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x8018E978-0x801938E0
-HSD_CObjGetProjectionType = .text:0x80191514; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x8018E978-0x801938E0
+HSD_CObjSetNear = .text:0x8019145C; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x8018E978-0x80191BEC
+HSD_CObjGetFar = .text:0x8019146C; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x8018E978-0x80191BEC
+HSD_CObjSetFar = .text:0x80191484; // type:function size:0x10 ref:melee/GALE01 ref_size:0x10 anchors:0x8018E978-0x80191BEC
+HSD_CObjGetProjectionType = .text:0x80191514; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x8018E978-0x80191BEC
 HSD_CObjSetProjectionType = .text:0x8019152C; // type:function size:0x10 ref:kar_wowjinxy/GKYE01 ref_size:0x10 anchors:0x80191514-0x8019159C
 HSD_CObjSetFrustum = .text:0x8019153C; // type:function size:0x24 ref:kar_wowjinxy/GKYE01 ref_size:0x24 anchors:0x80191514-0x8019159C
 HSD_CObjSetOrtho = .text:0x80191560; // type:function size:0x24 ref:kar_wowjinxy/GKYE01 ref_size:0x24 anchors:0x80191514-0x8019159C
 HSD_CObjSetFlags = .text:0x80191584; // type:function size:0x18 ref:kar_wowjinxy/GKYE01 ref_size:0x18 anchors:0x80191514-0x8019159C
-HSD_CObjClearFlags = .text:0x8019159C; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x8018E978-0x801938E0
-HSD_CObjGetCurrent = .text:0x801915B4; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x8018E978-0x801938E0
+HSD_CObjClearFlags = .text:0x8019159C; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x8018E978-0x80191BEC
+HSD_CObjGetCurrent = .text:0x801915B4; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x8018E978-0x80191BEC
 HSD_CObjAlloc = .text:0x801915BC; // type:function size:0x5C ref:kar_wowjinxy/GKYE01 ref_size:0x5C anchors:0x801915B4-0x80191908
 // evidence CObjLoad 0x80191618: callees HSD_WObjInit; string "cobj.c"
 CObjLoad = .text:0x80191618; // type:function size:0x22C ref:kar_wowjinxy/GKYE01 ref_size:0x22C anchors:0x801915B4-0x80191908
 HSD_CObjLoadDesc = .text:0x80191844; // type:function size:0xC4 ref:kar_wowjinxy/GKYE01 ref_size:0xC4 anchors:0x801915B4-0x80191908
 // evidence CObjInit 0x80191908: callees HSD_WObjAlloc
-CObjInit = .text:0x80191908; // type:function size:0x74 ref:melee/GALE01 ref_size:0x74 anchors:0x8018E978-0x801938E0
-CObjRelease = .text:0x8019197C; // type:function size:0x184 ref:melee/GALE01 ref_size:0x194 anchors:0x8018E978-0x801938E0
-CObjAmnesia = .text:0x80191B00; // type:function size:0x60 ref:kar_wowjinxy/GKYE01 ref_size:0x60 anchors:0x8019197C-0x801938E0
-HSD_FObjRemove = .text:0x80191C1C; // type:function size:0x28 ref:kar_wowjinxy/GKYE01 ref_size:0x28 anchors:0x8019197C-0x801938E0
-// evidence HSD_FObjRemoveAll 0x80191C44: callees HSD_FObjRemove; caller HSD_AObjRemove
-HSD_FObjRemoveAll = .text:0x80191C44; // type:function size:0x124 ref:kar_wowjinxy/GKYE01 ref_size:0x124 anchors:0x8019197C-0x801938E0
-HSD_FObjReqAnimAll = .text:0x80191D68; // type:function size:0xA4 ref:kar_wowjinxy/GKYE01 ref_size:0xA4 anchors:0x8019197C-0x801938E0
-HSD_FObjStopAnimAll = .text:0x80191E0C; // type:function size:0x98 ref:kar_wowjinxy/GKYE01 ref_size:0x98 anchors:0x8019197C-0x801938E0
-FObjLoadData = .text:0x80191EA4; // type:function size:0x10D0 ref:kar_wowjinxy/GKYE01 ref_size:0x10D0 anchors:0x8019197C-0x801938E0
-HSD_FObjInterpretAnim = .text:0x80192F74; // type:function size:0x6D4 ref:kar_wowjinxy/GKYE01 ref_size:0x6D4 anchors:0x8019197C-0x801938E0
+CObjInit = .text:0x80191908; // type:function size:0x74 ref:melee/GALE01 ref_size:0x74 anchors:0x8018E978-0x80191BEC
+CObjRelease = .text:0x8019197C; // type:function size:0x184 ref:melee/GALE01 ref_size:0x194 anchors:0x8018E978-0x80191BEC
+CObjAmnesia = .text:0x80191B00; // type:function size:0x60 ref:kar_wowjinxy/GKYE01 ref_size:0x60 anchors:0x8019197C-0x80191BEC
+// evidence HSD_FObjRemove 0x80191C1C: callees HSD_FObjFree; caller HSD_FObjRemoveAll
+HSD_FObjRemove = .text:0x80191C1C; // type:function size:0x28 ref:kar_wowjinxy/GKYE01 ref_size:0x28 anchors:0x80191BEC-0x801938E0
+HSD_FObjRemoveAll = .text:0x80191C44; // type:function size:0x124 ref:kar_wowjinxy/GKYE01 ref_size:0x124 anchors:0x80191BEC-0x801938E0
+HSD_FObjReqAnimAll = .text:0x80191D68; // type:function size:0xA4 ref:kar_wowjinxy/GKYE01 ref_size:0xA4 anchors:0x80191BEC-0x801938E0
+HSD_FObjStopAnimAll = .text:0x80191E0C; // type:function size:0x98 ref:kar_wowjinxy/GKYE01 ref_size:0x98 anchors:0x80191BEC-0x801938E0
+FObjLoadData = .text:0x80191EA4; // type:function size:0x10D0 ref:kar_wowjinxy/GKYE01 ref_size:0x10D0 anchors:0x80191BEC-0x801938E0
+HSD_FObjInterpretAnim = .text:0x80192F74; // type:function size:0x6D4 ref:kar_wowjinxy/GKYE01 ref_size:0x6D4 anchors:0x80191BEC-0x801938E0
 // evidence HSD_FObjInterpretAnimAll 0x80193648: callees HSD_FObjInterpretAnim
-HSD_FObjInterpretAnimAll = .text:0x80193648; // type:function size:0x70 ref:kar_wowjinxy/GKYE01 ref_size:0x70 anchors:0x8019197C-0x801938E0
+HSD_FObjInterpretAnimAll = .text:0x80193648; // type:function size:0x70 ref:kar_wowjinxy/GKYE01 ref_size:0x70 anchors:0x80191BEC-0x801938E0
 // evidence HSD_FObjLoadDesc 0x801936B8: callees HSD_FObjAlloc; caller HSD_AObjLoadDesc
-HSD_FObjLoadDesc = .text:0x801936B8; // type:function size:0x228 ref:kar_wowjinxy/GKYE01 ref_size:0x228 anchors:0x8019197C-0x801938E0
-HSD_PObjReqAnimAllByFlags = .text:0x801939F8; // type:function size:0x74 ref:kar_wowjinxy/GKYE01 ref_size:0x74 anchors:0x801938E0-0x80193D50
-PObjUpdateFunc = .text:0x80193A6C; // type:function size:0x4C ref:kar_wowjinxy/GKYE01 ref_size:0x4C anchors:0x801938E0-0x80193D50
-HSD_PObjAnimAll = .text:0x80193AB8; // type:function size:0x5C ref:kar_wowjinxy/GKYE01 ref_size:0x5C anchors:0x801938E0-0x80193D50
+HSD_FObjLoadDesc = .text:0x801936B8; // type:function size:0x228 ref:kar_wowjinxy/GKYE01 ref_size:0x228 anchors:0x80191BEC-0x801938E0
+HSD_PObjReqAnimAllByFlags = .text:0x801939F8; // type:function size:0x74 ref:kar_wowjinxy/GKYE01 ref_size:0x74 anchors:0x80193968-0x80193D50
+PObjUpdateFunc = .text:0x80193A6C; // type:function size:0x4C ref:kar_wowjinxy/GKYE01 ref_size:0x4C anchors:0x80193968-0x80193D50
+HSD_PObjAnimAll = .text:0x80193AB8; // type:function size:0x5C ref:kar_wowjinxy/GKYE01 ref_size:0x5C anchors:0x80193968-0x80193D50
 // evidence PObjLoad 0x80193B14: callees HSD_PObjLoadDesc,hsdAllocMemPiece
-PObjLoad = .text:0x80193B14; // type:function size:0x23C ref:kar_wowjinxy/GKYE01 ref_size:0x23C anchors:0x801938E0-0x80193D50
+PObjLoad = .text:0x80193B14; // type:function size:0x23C ref:kar_wowjinxy/GKYE01 ref_size:0x23C anchors:0x80193968-0x80193D50
 HSD_PObjRemoveAll = .text:0x80193DE8; // type:function size:0x74 ref:melee/GALE01 ref_size:0x74 anchors:0x80193D50-0x801958D0
 HSD_ClearVtxDesc = .text:0x8019408C; // type:function size:0x2C ref:kar_wowjinxy/GKYE01 ref_size:0x2C anchors:0x80193DE8-0x801958D0
 // evidence get_shape_vertex_xyz 0x801940B8: caller drawShapeAnim; string "pobj.c"; string "shape_set->vertex_desc->comp_cnt == GX_P" (best alternative 2)
@@ -996,8 +997,6 @@ PObjAmnesia = .text:0x801962F8; // type:function size:0xAC ref:kar_wowjinxy/GKYE
 // evidence PObjInfoInit 0x801963A4: callees PObjAmnesia,PObjSetupMtx,PObjUpdateFunc; string "hsd_pobj"; string "sysdolphin_base_library"
 PObjInfoInit = .text:0x801963A4; // type:function size:0x98 ref:kar_wowjinxy/GKYE01 ref_size:0x98 anchors:0x801958D0-0x801971E8
 HSD_JObjCheckDepend = .text:0x8019643C; // type:function size:0x12C ref:kar_wowjinxy/GKYE01 ref_size:0x12C anchors:0x801958D0-0x801971E8
-// evidence HSD_JObjSetMtxDirty 0x801965C0: callees HSD_JObjSetMtxDirtySub
-HSD_JObjSetMtxDirty = .text:0x801965C0; // type:function size:0x70 ref:xd/GXXE01 ref_size:0x70 anchors:0x801938E0-0x80198A9C
 // evidence HSD_JObjAddAnim 0x80196CCC: callees HSD_AObjLoadDesc,HSD_AObjRemove,HSD_JObjClearFlags; caller HSD_JObjAddAnimAll
 HSD_JObjAddAnim = .text:0x80196CCC; // type:function size:0x140 ref:kar_wowjinxy/GKYE01 ref_size:0x140 anchors:0x801958D0-0x801971E8
 HSD_JObjAddAnimAll = .text:0x80196E0C; // type:function size:0x3DC ref:kar_wowjinxy/GKYE01 ref_size:0x3DC anchors:0x801958D0-0x801971E8
@@ -1034,32 +1033,33 @@ JObjInit = .text:0x8019ADA4; // type:function size:0x64 ref:kar_wowjinxy/GKYE01 
 JObjReleaseChild = .text:0x8019AE08; // type:function size:0x4D4 ref:kar_wowjinxy/GKYE01 ref_size:0x4D4 anchors:0x8019A28C-0x8019B374
 // evidence JObjRelease 0x8019B2DC: callees HSD_IDRemoveByIDFromTable,HSD_VecFree
 JObjRelease = .text:0x8019B2DC; // type:function size:0x98 ref:kar_wowjinxy/GKYE01 ref_size:0x98 anchors:0x8019A28C-0x8019B374
-JObjAmnesia = .text:0x8019B374; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x8019A28C-0x8019D3EC
+JObjAmnesia = .text:0x8019B374; // type:function size:0x64 ref:melee/GALE01 ref_size:0x64 anchors:0x8019A28C-0x8019B494
 // evidence JObjInfoInit 0x8019B3D8: callees JObjAmnesia,JObjInit,JObjUpdateFunc; string "hsd_jobj"; string "sysdolphin_base_library"
-JObjInfoInit = .text:0x8019B3D8; // type:function size:0xBC ref:melee/GALE01 ref_size:0xAC anchors:0x8019A28C-0x8019D3EC
+JObjInfoInit = .text:0x8019B3D8; // type:function size:0xBC ref:melee/GALE01 ref_size:0xAC anchors:0x8019A28C-0x8019B494
 // evidence mkHBillBoardMtx 0x8019B7A0: callees PSMTXCopy,PSVECCrossProduct
-mkHBillBoardMtx = .text:0x8019B7A0; // type:function size:0x344 ref:kar_wowjinxy/GKYE01 ref_size:0x358 anchors:0x8019B3D8-0x8019C340
-mkBillBoardMtx = .text:0x8019BAE4; // type:function size:0x398 ref:kar_wowjinxy/GKYE01 ref_size:0x3B4 anchors:0x8019B3D8-0x8019C340
-mkRBillBoardMtx = .text:0x8019BE7C; // type:function size:0x1E8 ref:kar_wowjinxy/GKYE01 ref_size:0x1E8 anchors:0x8019B3D8-0x8019C340
+mkHBillBoardMtx = .text:0x8019B7A0; // type:function size:0x344 ref:kar_wowjinxy/GKYE01 ref_size:0x358 anchors:0x8019B494-0x8019C340
+mkBillBoardMtx = .text:0x8019BAE4; // type:function size:0x398 ref:kar_wowjinxy/GKYE01 ref_size:0x3B4 anchors:0x8019B494-0x8019C340
+mkRBillBoardMtx = .text:0x8019BE7C; // type:function size:0x1E8 ref:kar_wowjinxy/GKYE01 ref_size:0x1E8 anchors:0x8019B494-0x8019C340
 // evidence HSD_JObjMakePositionMtx 0x8019C064: callees mkBillBoardMtx; string "displayfunc.c"
-HSD_JObjMakePositionMtx = .text:0x8019C064; // type:function size:0x100 ref:kar_wowjinxy/GKYE01 ref_size:0x100 anchors:0x8019B3D8-0x8019C340
+HSD_JObjMakePositionMtx = .text:0x8019C064; // type:function size:0x100 ref:kar_wowjinxy/GKYE01 ref_size:0x100 anchors:0x8019B494-0x8019C340
 // evidence _HSD_mkEnvelopeModelNodeMtx 0x8019C164: caller SetupEnvelopeModelMtx; string "displayfunc.c"
-_HSD_mkEnvelopeModelNodeMtx = .text:0x8019C164; // type:function size:0x10C ref:kar_wowjinxy/GKYE01 ref_size:0x10C anchors:0x8019B3D8-0x8019C340
-// evidence HSD_JObjDispSub 0x8019C270: callees HSD_JObjSetCurrent,HSD_PObjClearMtxMark
-HSD_JObjDispSub = .text:0x8019C270; // type:function size:0xD0 ref:kar_wowjinxy/GKYE01 ref_size:0xD0 anchors:0x8019B3D8-0x8019C340
+_HSD_mkEnvelopeModelNodeMtx = .text:0x8019C164; // type:function size:0x10C ref:kar_wowjinxy/GKYE01 ref_size:0x10C anchors:0x8019B494-0x8019C340
+// evidence HSD_JObjDispSub 0x8019C270: callees HSD_DObjSetCurrent,HSD_JObjSetCurrent,HSD_PObjClearMtxMark
+HSD_JObjDispSub = .text:0x8019C270; // type:function size:0xD0 ref:kar_wowjinxy/GKYE01 ref_size:0xD0 anchors:0x8019B494-0x8019C340
 // evidence HSD_JObjDispDObj 0x8019C340: callees HSD_JObjSetupMatrixSub,HSD_MtxAlloc,HSD_ObjAlloc
-HSD_JObjDispDObj = .text:0x8019C340; // type:function size:0x208 ref:melee/GALE01 ref_size:0x200 anchors:0x8019A28C-0x8019D3EC
-zlist_sort = .text:0x8019C548; // type:function size:0x16C ref:melee/GALE01 ref_size:0x178 anchors:0x8019A28C-0x8019D3EC
+HSD_JObjDispDObj = .text:0x8019C340; // type:function size:0x208 ref:melee/GALE01 ref_size:0x200 anchors:0x8019B494-0x8019D2E4
+zlist_sort = .text:0x8019C548; // type:function size:0x16C ref:melee/GALE01 ref_size:0x178 anchors:0x8019B494-0x8019D2E4
 // evidence _HSD_ZListSort 0x8019C6B4: callees zlist_sort
-_HSD_ZListSort = .text:0x8019C6B4; // type:function size:0x50 ref:melee/GALE01 ref_size:0x50 anchors:0x8019A28C-0x8019D3EC
-_HSD_ZListDisp = .text:0x8019C704; // type:function size:0xC8 ref:melee/GALE01 ref_size:0xC8 anchors:0x8019A28C-0x8019D3EC
-HSD_GXSetFifoObj = .text:0x8019CD6C; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x8019A28C-0x8019D3EC
+_HSD_ZListSort = .text:0x8019C6B4; // type:function size:0x50 ref:melee/GALE01 ref_size:0x50 anchors:0x8019B494-0x8019D2E4
+_HSD_ZListDisp = .text:0x8019C704; // type:function size:0xC8 ref:melee/GALE01 ref_size:0xC8 anchors:0x8019B494-0x8019D2E4
+HSD_GXSetFifoObj = .text:0x8019CD6C; // type:function size:0x18 ref:melee/GALE01 ref_size:0x18 anchors:0x8019B494-0x8019D2E4
 HSD_DVDInit = .text:0x8019CD84; // type:function size:0x4 ref:kar_wowjinxy/GKYP01 ref_size:0x4 anchors:0x8019CD6C-0x8019CD88
 // evidence HSD_AllocateXFB 0x8019CD88: callees OSAllocFromArenaLo; string "initialize.c"
-HSD_AllocateXFB = .text:0x8019CD88; // type:function size:0x134 ref:kar_wowjinxy/GKYE01 ref_size:0x134 anchors:0x8019C704-0x8019D3EC
-// evidence _HSD_MemFreeDefaultCB 0x8019D1BC: callees HSD_GetHeap,OSFreeToHeap
-_HSD_MemFreeDefaultCB = .text:0x8019D1BC; // type:function size:0x34 ref:kar_wowjinxy/GKYE01 ref_size:0x34 anchors:0x8019C704-0x8019D3EC
-HSD_GetHeap = .text:0x8019D2A0; // type:function size:0x44 ref:kar_wowjinxy/GKYE01 ref_size:0x44 anchors:0x8019C704-0x8019D3EC
+HSD_AllocateXFB = .text:0x8019CD88; // type:function size:0x134 ref:kar_wowjinxy/GKYE01 ref_size:0x134 anchors:0x8019C704-0x8019D2E4
+// evidence _HSD_MemFreeDefaultCB 0x8019D1BC: callees OSFreeToHeap
+_HSD_MemFreeDefaultCB = .text:0x8019D1BC; // type:function size:0x34 ref:kar_wowjinxy/GKYE01 ref_size:0x34 anchors:0x8019C704-0x8019D2E4
+// evidence HSD_StartRender 0x8019D2EC: callees GXInvalidateTexAll,GXInvalidateVtxCache,GXSetFieldMode,GXSetPixelFmt
+HSD_StartRender = .text:0x8019D2EC; // type:function size:0xA0 ref:kar_wowjinxy/GKYE01 ref_size:0xA0 anchors:0x8019D2E4-0x8019D3A8
 HSD_VIPostRetraceCB = .text:0x8019D65C; // type:function size:0x20C ref:melee/GALE01 ref_size:0x1E8 anchors:0x8019D3EC-0x801A023C
 HSD_VIGXDrawDoneCB = .text:0x8019D868; // type:function size:0x44 ref:melee/GALE01 ref_size:0x44 anchors:0x8019D3EC-0x801A023C
 HSD_VIGetDrawDoneWaitingFlag = .text:0x8019D8AC; // type:function size:0x10 ref:kar_wowjinxy/GKYE01 ref_size:0x10 anchors:0x8019D868-0x801A023C
@@ -1075,21 +1075,22 @@ HSD_MtxScaledAdd = .text:0x801A0098; // type:function size:0xC4 ref:kar_wowjinxy
 // evidence HSD_VecGetOrthogonal 0x801A015C: callees PSVECCrossProduct
 HSD_VecGetOrthogonal = .text:0x801A015C; // type:function size:0xE0 ref:kar_wowjinxy/GKYE01 ref_size:0xE0 anchors:0x8019D868-0x801A023C
 HSD_VecFree = .text:0x801A0288; // type:function size:0x34 ref:melee/GALE01 ref_size:0x30 anchors:0x801A023C-0x801A02BC
-HSD_MulColor = .text:0x801A039C; // type:function size:0x6C ref:melee/GALE01 ref_size:0x6C anchors:0x801A02BC-0x801A04C8
-HSD_GetNbBits = .text:0x801A0408; // type:function size:0xC0 ref:melee/GALE01 ref_size:0xC0 anchors:0x801A02BC-0x801A04C8
+HSD_MulColor = .text:0x801A039C; // type:function size:0x6C ref:melee/GALE01 ref_size:0x6C anchors:0x801A036C-0x801A04C8
+// evidence HSD_GetNbBits 0x801A0408: caller HSD_ObjAllocInit; caller expEvaluate
+HSD_GetNbBits = .text:0x801A0408; // type:function size:0xC0 ref:melee/GALE01 ref_size:0xC0 anchors:0x801A036C-0x801A04C8
 HSD_ObjSetHeap = .text:0x801A0568; // type:function size:0x1C ref:melee/GALE01 ref_size:0x1C anchors:0x801A04C8-0x801A0584
-HSD_ObjAlloc = .text:0x801A07D4; // type:function size:0x150 ref:melee/GALE01 ref_size:0x158 anchors:0x801A0584-0x801A1468
-// evidence HSD_ObjFree 0x801A0924: caller HSD_VecFree; caller HSD_RObjFree; caller HSD_ShadowRemove
-HSD_ObjFree = .text:0x801A0924; // type:function size:0x28 ref:kar_wowjinxy/GKYE01 ref_size:0x28 anchors:0x801A07D4-0x801A1468
-HSD_RObjAnimAll = .text:0x801A0B50; // type:function size:0x68 ref:kar_wowjinxy/GKYE01 ref_size:0x68 anchors:0x801A07D4-0x801A1468
-resolveCnsDirUp = .text:0x801A0E80; // type:function size:0x5E8 ref:kar_wowjinxy/GKYE01 ref_size:0x5E8 anchors:0x801A07D4-0x801A1468
+HSD_ObjAlloc = .text:0x801A07D4; // type:function size:0x150 ref:melee/GALE01 ref_size:0x158 anchors:0x801A0584-0x801A094C
+// evidence HSD_ObjFree 0x801A0924: caller HSD_FObjFree; caller HSD_VecFree
+HSD_ObjFree = .text:0x801A0924; // type:function size:0x28 ref:melee/GALE01 ref_size:0x28 anchors:0x801A0584-0x801A094C
+HSD_RObjAnimAll = .text:0x801A0B50; // type:function size:0x68 ref:kar_wowjinxy/GKYE01 ref_size:0x68 anchors:0x801A0A70-0x801A1468
+resolveCnsDirUp = .text:0x801A0E80; // type:function size:0x5E8 ref:kar_wowjinxy/GKYE01 ref_size:0x5E8 anchors:0x801A0A70-0x801A1468
 HSD_RObjUpdateAll = .text:0x801A1670; // type:function size:0x484 ref:kar_wowjinxy/GKYE01 ref_size:0x484 anchors:0x801A1468-0x801A2118
 HSD_RObjResolveRefsAll = .text:0x801A1AF4; // type:function size:0x114 ref:kar_wowjinxy/GKYE01 ref_size:0x114 anchors:0x801A1468-0x801A2118
 HSD_RObjFree = .text:0x801A2174; // type:function size:0x2C ref:melee/GALE01 ref_size:0x2C anchors:0x801A2118-0x801A21A0
-dummy_func = .text:0x801A263C; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x801A21A0-0x801A29E8
-HSD_RvalueRemoveAll = .text:0x801A2644; // type:function size:0x70 ref:melee/GALE01 ref_size:0x70 anchors:0x801A21A0-0x801A29E8
-bcexpLoadDesc = .text:0x801A27A8; // type:function size:0xF8 ref:melee/GALE01 ref_size:0xF0 anchors:0x801A21A0-0x801A29E8
-HSD_IDSetup = .text:0x801A29B8; // type:function size:0x30 ref:melee/GALE01 ref_size:0x30 anchors:0x801A21A0-0x801A29E8
+dummy_func = .text:0x801A263C; // type:function size:0x8 ref:melee/GALE01 ref_size:0x8 anchors:0x801A21A0-0x801A2988
+HSD_RvalueRemoveAll = .text:0x801A2644; // type:function size:0x70 ref:melee/GALE01 ref_size:0x70 anchors:0x801A21A0-0x801A2988
+bcexpLoadDesc = .text:0x801A27A8; // type:function size:0xF8 ref:melee/GALE01 ref_size:0xF0 anchors:0x801A21A0-0x801A2988
+HSD_IDSetup = .text:0x801A29B8; // type:function size:0x30 ref:melee/GALE01 ref_size:0x30 anchors:0x801A2988-0x801A29E8
 HSD_IDRemoveByIDFromTable = .text:0x801A2AD4; // type:function size:0xAC ref:melee/GALE01 ref_size:0xB0 anchors:0x801A29E8-0x801A2C08
 // evidence HSD_WObjInit 0x801A2DB4: callees HSD_RObjResolveRefsAll
 HSD_WObjInit = .text:0x801A2DB4; // type:function size:0x74 ref:melee/GALE01 ref_size:0x78 anchors:0x801A2C08-0x801A2E28
@@ -1099,29 +1100,30 @@ HSD_WObjSetPositionX = .text:0x801A2F08; // type:function size:0xD4 ref:melee/GA
 HSD_WObjSetPositionY = .text:0x801A2FDC; // type:function size:0xD4 ref:melee/GALE01 ref_size:0xD4 anchors:0x801A2E28-0x801A326C
 HSD_WObjSetPositionZ = .text:0x801A30B0; // type:function size:0xD4 ref:melee/GALE01 ref_size:0xD4 anchors:0x801A2E28-0x801A326C
 HSD_WObjGetPosition = .text:0x801A3184; // type:function size:0xE8 ref:melee/GALE01 ref_size:0xE8 anchors:0x801A2E28-0x801A326C
-WObjRelease = .text:0x801A32C8; // type:function size:0x54 ref:melee/GALE01 ref_size:0x54 anchors:0x801A326C-0x801A3E98
-WObjAmnesia = .text:0x801A331C; // type:function size:0x48 ref:kar_wowjinxy/GKYE01 ref_size:0x48 anchors:0x801A32C8-0x801A3E98
-HSD_FogLoadDesc = .text:0x801A36A0; // type:function size:0x90 ref:kar_wowjinxy/GKYE01 ref_size:0x90 anchors:0x801A32C8-0x801A3E98
+WObjRelease = .text:0x801A32C8; // type:function size:0x54 ref:melee/GALE01 ref_size:0x54 anchors:0x801A326C-0x801A3CF8
+WObjAmnesia = .text:0x801A331C; // type:function size:0x48 ref:kar_wowjinxy/GKYE01 ref_size:0x48 anchors:0x801A32C8-0x801A3CF8
+HSD_FogLoadDesc = .text:0x801A36A0; // type:function size:0x90 ref:kar_wowjinxy/GKYE01 ref_size:0x90 anchors:0x801A32C8-0x801A3CF8
 // evidence HSD_FogInit 0x801A3730: callees GXGetViewportv
-HSD_FogInit = .text:0x801A3730; // type:function size:0x8C ref:kar_wowjinxy/GKYE01 ref_size:0x94 anchors:0x801A32C8-0x801A3E98
+HSD_FogInit = .text:0x801A3730; // type:function size:0x8C ref:kar_wowjinxy/GKYE01 ref_size:0x94 anchors:0x801A32C8-0x801A3CF8
 // evidence HSD_FogAdjLoadDesc 0x801A37E8: callees HSD_FogAdjInit
-HSD_FogAdjLoadDesc = .text:0x801A37E8; // type:function size:0x7C ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A32C8-0x801A3E98
-HSD_FogAdjInit = .text:0x801A3864; // type:function size:0x7C ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A32C8-0x801A3E98
-FogUpdateFunc = .text:0x801A38F8; // type:function size:0x230 ref:kar_wowjinxy/GKYE01 ref_size:0x230 anchors:0x801A32C8-0x801A3E98
+HSD_FogAdjLoadDesc = .text:0x801A37E8; // type:function size:0x7C ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A32C8-0x801A3CF8
+HSD_FogAdjInit = .text:0x801A3864; // type:function size:0x7C ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A32C8-0x801A3CF8
+FogUpdateFunc = .text:0x801A38F8; // type:function size:0x230 ref:kar_wowjinxy/GKYE01 ref_size:0x230 anchors:0x801A32C8-0x801A3CF8
 // evidence FogRelease 0x801A3B28: callees HSD_AObjRemove
-FogRelease = .text:0x801A3B28; // type:function size:0xCC ref:kar_wowjinxy/GKYE01 ref_size:0xCC anchors:0x801A32C8-0x801A3E98
+FogRelease = .text:0x801A3B28; // type:function size:0xCC ref:kar_wowjinxy/GKYE01 ref_size:0xCC anchors:0x801A32C8-0x801A3CF8
 // evidence FogInfoInit 0x801A3BF4: callees FogUpdateFunc; string "hsd_fog"; string "sysdolphin_base_library"
-FogInfoInit = .text:0x801A3BF4; // type:function size:0x64 ref:kar_wowjinxy/GKYE01 ref_size:0x64 anchors:0x801A32C8-0x801A3E98
+FogInfoInit = .text:0x801A3BF4; // type:function size:0x64 ref:kar_wowjinxy/GKYE01 ref_size:0x64 anchors:0x801A32C8-0x801A3CF8
 // evidence FogAdjInfoInit 0x801A3C58: string "hsd_fogadj"; string "sysdolphin_base_library"
-FogAdjInfoInit = .text:0x801A3C58; // type:function size:0x44 ref:kar_wowjinxy/GKYE01 ref_size:0x44 anchors:0x801A32C8-0x801A3E98
-HSD_SListAllocAndPrepend = .text:0x801A3E18; // type:function size:0x80 ref:melee/GALE01 ref_size:0x84 anchors:0x801A326C-0x801A3E98
-HSD_SListRemove = .text:0x801A3F58; // type:function size:0x50 ref:kar_wowjinxy/GKYE01 ref_size:0x50 anchors:0x801A3F08-0x801A4184
+FogAdjInfoInit = .text:0x801A3C58; // type:function size:0x44 ref:kar_wowjinxy/GKYE01 ref_size:0x44 anchors:0x801A32C8-0x801A3CF8
+HSD_SListAllocAndPrepend = .text:0x801A3E18; // type:function size:0x80 ref:melee/GALE01 ref_size:0x84 anchors:0x801A3CF8-0x801A3E98
+// evidence HSD_SListRemove 0x801A3F58: callees HSD_ObjFree; caller HSD_ByteCodeEval
+HSD_SListRemove = .text:0x801A3F58; // type:function size:0x50 ref:kar_wowjinxy/GKYE01 ref_size:0x50 anchors:0x801A3F08-0x801A4154
 // evidence HSD_ShadowAlloc 0x801A4184: callees HSD_CObjAlloc,HSD_ImageDescAlloc,HSD_ObjAlloc,HSD_TObjAlloc
-HSD_ShadowAlloc = .text:0x801A4184; // type:function size:0xFC ref:melee/GALE01 ref_size:0x100 anchors:0x801A3F08-0x801A5F10
+HSD_ShadowAlloc = .text:0x801A4184; // type:function size:0xFC ref:melee/GALE01 ref_size:0x100 anchors:0x801A4154-0x801A5F10
 // evidence HSD_ShadowRemove 0x801A4280: callees HSD_MObjDeleteShadowTexture,HSD_TObjFree
-HSD_ShadowRemove = .text:0x801A4280; // type:function size:0x108 ref:melee/GALE01 ref_size:0x110 anchors:0x801A3F08-0x801A5F10
+HSD_ShadowRemove = .text:0x801A4280; // type:function size:0x108 ref:melee/GALE01 ref_size:0x110 anchors:0x801A4154-0x801A5F10
 // evidence HSD_ShadowInit 0x801A4388: callees GXSetTexCopySrc
-HSD_ShadowInit = .text:0x801A4388; // type:function size:0x70 ref:melee/GALE01 ref_size:0x70 anchors:0x801A3F08-0x801A5F10
+HSD_ShadowInit = .text:0x801A4388; // type:function size:0x70 ref:melee/GALE01 ref_size:0x70 anchors:0x801A4154-0x801A5F10
 // evidence HSD_ShadowSetSize 0x801A43F8: callees GXGetTexBufferSize
 HSD_ShadowSetSize = .text:0x801A43F8; // type:function size:0x160 ref:kar_wowjinxy/GKYE01 ref_size:0x160 anchors:0x801A4388-0x801A55FC
 // evidence HSD_ShadowStartRender 0x801A4558: callees C_MTXOrtho,GXBegin,GXLoadPosMtxImm,GXSetCurrentMtx,GXSetProjection,GXSetVtxAttrFmt,HSD_ClearVtxDesc,HSD_SetupChannelAll,HSD_SetupPEMode,HSD_StateInitTev,HSD_StateSetNumTexGens
@@ -1136,7 +1138,7 @@ HSD_ShadowSetViewingRect = .text:0x801A4F00; // type:function size:0x1C0 ref:kar
 // evidence HSD_ViewingRectInit 0x801A50C0: callees PSVECCrossProduct
 HSD_ViewingRectInit = .text:0x801A50C0; // type:function size:0x20C ref:kar_wowjinxy/GKYE01 ref_size:0x214 anchors:0x801A4388-0x801A55FC
 HSD_ViewingRectCheck = .text:0x801A52CC; // type:function size:0x7C ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A4388-0x801A55FC
-HSD_ArchiveGetExtern = .text:0x801A55FC; // type:function size:0x38 ref:melee/GALE01 ref_size:0x38 anchors:0x801A3F08-0x801A5F10
+HSD_ArchiveGetExtern = .text:0x801A55FC; // type:function size:0x38 ref:melee/GALE01 ref_size:0x38 anchors:0x801A4154-0x801A5F10
 // evidence hsdAllocMemPiece 0x801A7824: caller HSD_TlutAlloc; caller HSD_TObjTevAlloc; caller HSD_ImageDescAlloc; caller HSD_MaterialAlloc; caller _hsdClassAlloc; caller HSD_TExpCompile
 hsdAllocMemPiece = .text:0x801A7824; // type:function size:0x1C8 ref:melee/GALE01 ref_size:0x1C4 anchors:0x801A5F10-0x801A8424
 hsdFreeMemPiece = .text:0x801A79EC; // type:function size:0x58 ref:melee/GALE01 ref_size:0x58 anchors:0x801A5F10-0x801A8424

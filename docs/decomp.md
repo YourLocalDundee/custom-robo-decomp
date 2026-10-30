@@ -163,3 +163,20 @@ How to add a C file (one object of `decomp/config/GXCE01/splits.txt`):
 4. In `CR_MATCHING`: `python -I tools\make_configure_patch.py`, then batch 9. `tools/gen_c_symbols.py` gives the object
    the C's own symbols (objdiff pairs data by name), `tools/check_c_objects.py` must report 100% code + data, main.dol
    must stay retail. Then the full `run_all.ps1`, and `checksums.ps1 -Write` for the intended changes.
+
+### HSD (sysdolphin) notes (step 61, Oct 30, 2026)
+
+- Custom Robo links the Kirby Air Ride revision of sysdolphin (tools/refs/kar, kar_wowjinxy: the same function sizes),
+  newer than Melee's. Differences that matter for importing Melee's C: every `*Info` class struct has one more
+  method than Melee's (`tools/check_class_sizes.py`: HSD_JObjInfo 0x54 vs 0x50 ...), the `*GetAllocData` and flag
+  accessors are inlined or absent (dobj.c 16 functions here vs 19 in Melee), some functions are larger
+  (HSD_SetupChannel 0x3A4 vs 0x32C, HSD_ObjAllocInit 0x124 vs 0xE0).
+- Object edges (`tools/gen_dtk_splits.py`): the HSD objects are split from Melee's splits.txt once their first / last
+  function and the neighbour across the edge are named. `HSD_ObjInit` (initialize.c) calls the ten `*InitAllocData`
+  functions, the first function of list.c, aobj.c, robj.c, tev.c, displayfunc.c and the last of mtx.c, so it named
+  nine edges at once (symbols/symbols.txt, "HSD object edges" block). A named function another reference places in
+  the same file (a header inline's out-of-line copy such as HSD_JObjRef, or a function of the newer revision) does
+  not break a range. What still blocks each file is listed in `decomp/reports/splits_report.txt`
+  (`GALE01:sysdolphin/...` lines): mostly the function-count check (this revision has fewer functions) and one
+  unnamed neighbour per file.
+
