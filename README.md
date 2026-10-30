@@ -114,12 +114,6 @@ pwsh tools\batches\run_all.ps1
 tools/batches/run_all.sh                 # Linux / macOS
 ```
 
-Linux / macOS:
-
-```bash
-tools/batches/run_all.sh
-```
-
 It runs batches 1–12 in order, stopping at the first failure, and ends by comparing every output with
 [docs/expected_checksums.txt](docs/expected_checksums.txt). The last timed full run took 831 s (plan.md step 58);
 step 59 made batch 12 about 4.5 minutes longer. **On Windows, during batch 11 Dolphin opens by itself, twice, for
