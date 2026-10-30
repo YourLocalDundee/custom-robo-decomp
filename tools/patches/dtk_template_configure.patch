@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,365 @@ def MatchingFor(*versions):
+@@ -284,18 +307,363 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -278,6 +278,7 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/wobj.c",
 +    "sysdolphin/baselib/mobj.c",
 +    "sysdolphin/baselib/spline.c",
++    "sysdolphin/baselib/tobj.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -296,8 +297,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 17 of 22 functions equal in objdiff (Melee's tev.c, assert line numbers of this revision, HSD_StateSetNumChans stores prev_num_chans as wowjinxy/KAR's does): HSD_DisableChannelLighting, fn_8018AEA4, fn_8018AFE0, fn_8018B3B8 are not in Melee's C (wowjinxy's HSD_DisableChannelLighting 58%), HSD_SetTevRegAll 83% (another revision): adapt to this revision",
 +    "sysdolphin/baselib/video.c":
 +        "code: 8 of 10 functions equal in objdiff (Melee's video.c; fn_8019DE54 named HSD_VISetConfigure by its bytes): fn_8019DB14 (0x17C) and fn_8019DC90 (0x1C4) have no function of their size in Melee's (HSD_VICopyXFBAsync 0x104 ... HSD_VIGetXFBLastDrawDone 0x170) or KAR's file (wowjinxy map: 0x208 0xD4 0x178 0x16C 0x170) (another revision): adapt to this revision",
-+    "sysdolphin/baselib/tobj.c":
-+        "code: 39 of 39 functions equal in objdiff, .sdata / .sbss / .sdata2 100% (Melee's tobj.c with this revision's assert / HSD_Panic lines; TObjLoad, TObjInit (fn_80189A70, the init method), TObjInfoInit, TObjUpdateFunc, HSD_TObjAnim and HSD_TObjAddAnimAll ported from wowjinxy/KAR's tobj.c, the *Info update method and TObj.id of wowjinxy in tobj.h; step 61 iteration 7): data: the split's .data piece is 0x4D0, the C's .data 0x4C9: the 7 zero bytes after its last string (to the next object's alignment) are in the piece (gen_dtk_splits ends a C piece with dtk's last symbol, which runs on over the padding), so objdiff reports .data 1225/1232; the bytes before are equal",
 +    "sysdolphin/baselib/cobj.c":
 +        "code: 32 of 48 functions equal in objdiff (Melee's cobj.c with this revision's assert lines; HSD_CObjGetUpVector, HSD_CObjGetViewingMtxPtr, CObjInfoInit's update method, CObjResetFlags from wowjinxy/KAR's cobj.c; step 61 iteration 7): unnamed, not in Melee's C: fn_8018F830, fn_8018FA94, fn_8018FD60 (0xCC, HSD_CObjSetupViewingMtx by its caller; 0x13C in KAR), fn_80190BBC, fn_80190EB8, fn_80191424, fn_80191494, fn_801914B0, fn_801914CC, fn_801914F8; HSD_CObjEraseScreen 97% (double tan + frsp here), HSD_CObjSetCurrent 0x504 here 86%, upvec2roll 63%, roll2upvec 84%, HSD_CObjSetRoll 0x428 here 83% (wowjinxy's 46-88%) (another revision): adapt to this revision",
 +    "sysdolphin/baselib/jobj.c":
@@ -411,8 +410,7 @@ diff --git a/configure.py b/configure.py
 +}
 +
 +
-+# Game objects (game/ in splits.txt: decomp/src/game, tools/promote_drafts.py, one function per object or a file
-+# object of consecutive functions sharing a constant pool; plan.md steps 58, 63)
++# Game objects (game/ in splits.txt: decomp/src/game, tools/promote_drafts.py, one function per object; plan.md step 58)
 +# are all linked from C unless CR_NOT_MATCHING names one: tools/gen_dtk_splits.py only splits a game object for a file
 +# in decomp/src/game, and batch 9 checks each is 100% in objdiff with the retail SHA-1.
 +def cr_matching(name: str) -> bool:

@@ -101,11 +101,15 @@ DATA FROM THE MATCHED C (Phase 4 Milestone 4, step 56): a C file that matches it
        not next to the piece, or the neighbour is another object's piece); between two runs exactly as far apart as
        in the .o, a global main.elf uses is at its offset.
     3. every placed symbol's bytes equal main.dol's, every pointer in it is main.elf's relocation to its target; the
-       piece starts aligned and on no dtk symbol's inside, and ends with its last symbol (to the end of a dtk symbol
-       that runs on over the padding). The zeros after it go with it up to another object's piece (as dtk splits);
-       when an automatic object follows, it starts that object from the next word on (from C, the object brings no
-       padding). A C piece replaces the relocation users' piece of the same object; another object's piece it
-       overlaps is dropped.
+       piece starts aligned and on no dtk symbol's inside, and ends at the C's last byte. THE TRAILING-PADDING RULE
+       (step 61 iteration 8): when only zeros follow up to another object's piece that starts at the first address
+       after it aligned to that object's alignment (dtk's: the largest align: of its symbols, else 8; from C, also its
+       .o section's), the piece ends there and the padding is that object's alignment (the linker makes it, dtk makes
+       no automatic object of it). Else the zeros go with it up to another object's piece / the section end (as dtk
+       splits), or, before an automatic object, start that object from the next word on (an automatic object must
+       start 4-aligned). A dtk symbol that runs on over the C's last byte is cut where the piece ends (symbols.txt,
+       trim_symbols: a split may not end inside a symbol). A C piece replaces the relocation users' piece of the same
+       object; another object's piece it overlaps is dropped.
   Report: the whole matches (with the functions our names call otherwise), the pieces, the global symbols our names
   call otherwise (an object linked from C needs every name another object uses), and every C definition ("DEF"
   lines: rule R8, the // c-define lines of symbols/symbols.txt are checked against them by check_c_callsites.py).
@@ -1135,6 +1139,9 @@ def read_obj(path):
 
 
 C_DEFS = []   # (address, name, C file, section, size, binding): what a C file that matches its whole object defines where
+C_OVERHANG = {}   # (C file, section) -> (name, address, size) of the dtk symbol that runs on over the zeros after the C's last byte
+C_SALIGN = {}     # (C file, section) -> the section's alignment in the compiled .o
+SYM_TRIM = {}     # (section, address) -> new size: a dtk symbol cut at the end of a C piece (written to symbols.txt by main)
 
 
 def c_data(elf, ours, objs, data, rejected):
@@ -1385,6 +1392,7 @@ def c_data(elf, ours, objs, data, rejected):
         def place_section(shn, final):
             """-> None (placed), 'wait' (an address may still come from another section of the file), or why not"""
             sname, styp, ssz, salign, sbytes = secs[shn]
+            C_SALIGN[(path, sname)] = salign or 1
             lo_s, hi_s = secr.get(sname, (0, 0))
             # runs of live symbols with no stripped symbol between: fixed distances inside a run
             runs, cur = [], []
@@ -1492,10 +1500,9 @@ def c_data(elf, ours, objs, data, rejected):
                     return why
             last = place[-1]
             end = last[0] + last[1][-1][0] + last[1][-1][1] - last[1][0][0]
-            # the alignment padding after the last symbol goes with the object, as in the code split and as dtk
-            # splits (it makes the zeros up to the next symbol one gap_ symbol, which a split may not cut): up to the
-            # next symbol / another object's piece / the section end when that is near and only zeros lie between
-            # (merge_c_data then gives it the padding after it, when another object's piece follows)
+            # the piece ends at the C's last byte; the zeros after it (alignment padding) are placed by merge_c_data:
+            # proven as the next object's alignment, or given to the next object / to this one (C_OVERHANG: a dtk
+            # symbol that runs on over them is cut where the piece ends)
             for n_, s_, a_, z_, f_ in ours:
                 if s_ == sname and a_ < start < a_ + z_:
                     for x in mine:
@@ -1503,7 +1510,9 @@ def c_data(elf, ours, objs, data, rejected):
                     return f"starts at 0x{start:08X}, inside dtk's symbol {n_} (0x{a_:08X}+0x{z_:X})"
                 if s_ == sname and a_ < end < a_ + z_:
                     if a_ + z_ - end < C_PAD and (sbytes is None or rbytes(end, a_ + z_ - end) == bytes(a_ + z_ - end)):
-                        end = a_ + z_
+                        # dtk's symbol runs on over the padding: the piece still ends at the C's last byte here;
+                        # merge_c_data decides where the padding goes (C_OVERHANG) and cuts the symbol there
+                        C_OVERHANG[(path, sname)] = (n_, a_, z_)
                     else:
                         for x in mine:
                             pos.pop(x)
@@ -1577,18 +1586,53 @@ def merge_c_data(objs, data, cdata, dlines, clines, rejected, elf):
             if s[3] <= a and a + n <= s[3] + s[4]:
                 return s[2] != 1 or elf.d[s[5] + a - s[3]: s[5] + a - s[3] + n] == bytes(n)
         return False
+    # THE TRAILING-PADDING RULE (step 61 iteration 8): a C piece ends at the C's last byte when only zeros follow
+    # up to another object's piece that starts at the first address after it aligned to that object's alignment
+    # (dtk's split alignment: the largest align: of its symbols, else 8; from C, also its .o section's): the linker
+    # puts the padding there (from asm, its .balign; from C, its section alignment), and dtk makes no automatic
+    # object of zeros shorter than the next split's alignment. Else as before: the padding goes to the next piece's
+    # start / to the section end (this object keeps it), or, before an automatic object, starts that object from
+    # the next word on (an automatic object must start 4-aligned). A dtk symbol that runs on over the C's last byte
+    # is cut where the piece ends (SYM_TRIM -> symbols.txt), as a split may not end inside a symbol.
+    align = {}
+    for ln in OURS.read_text(encoding="utf-8", errors="replace").splitlines():
+        m = SYM.match(ln)
+        al = re.search(r"align:(\d+)", ln)
+        if m and al:
+            align[(m.group(2), int(m.group(3), 16))] = int(al.group(1))
+    owner = {(sec, v[sec][0]): p for p, v in data.items() for sec in v}
     for path, secs in sorted(cdata.items()):
         for sec, (a, b) in sorted(secs.items()):
             if sec in (".ctors", ".dtors"):
                 continue
             hi = secr[sec][1]
+            ov = C_OVERHANG.get((path, sec))
             pieces = [s[sec][0] for p, s in data.items() if p != path and sec in s and s[sec][0] >= b]
             k = bisect.bisect_left(starts, b)
             nxt = min([hi] + pieces + ([starts[k]] if k < len(starts) else []))
-            if nxt not in pieces and nxt != hi:
-                nxt = (b + 3) & ~3
-            if b < nxt and nxt - b < C_PAD and zeros(b, nxt - b):
-                data[path][sec] = cdata[path][sec] = (a, nxt)
+            e = b
+            if nxt in pieces:
+                p2 = owner[(sec, nxt)]
+                n_end = data[p2][sec][1]
+                al = max([v for (s_, x), v in align.items() if s_ == sec and nxt <= x < n_end] or [8])
+                if p2 in cdata and sec in cdata[p2]:
+                    al = min(al, C_SALIGN.get((p2, sec), 1))
+                if not (b < nxt and (b + al - 1) & -al == nxt and zeros(b, nxt - b)):
+                    e = max(b, ov[1] + ov[2]) if ov else b   # not proven: the padding stays with this object
+                    if e < nxt and nxt - e < C_PAD and zeros(e, nxt - e):
+                        e = nxt
+            elif nxt == hi:
+                e = max(b, ov[1] + ov[2]) if ov else b
+                if e < nxt and nxt - e < C_PAD and zeros(e, nxt - e):
+                    e = nxt
+            else:
+                w = (b + 3) & ~3
+                if b < w and zeros(b, w - b):
+                    e = w
+            if ov and ov[1] + ov[2] > e:
+                SYM_TRIM[(sec, ov[1])] = e - ov[1]
+            if e != b:
+                data[path][sec] = cdata[path][sec] = (a, e)
     # link order = .text order (an object with .init code only, __start.c, is linked where its data says: dtk checks)
     order = {p: secs[".text"][0] for p, secs in objs if ".text" in secs}
     for sec in DATA:
@@ -1801,6 +1845,20 @@ def splits_text(objs, data=None):
     return "\n".join(lines) + "\n"
 
 
+def trim_symbols():
+    """cut the dtk symbols that run on over the end of a C piece (SYM_TRIM, merge_c_data) in symbols.txt: dtk
+    rejects a split that ends inside a symbol; the bytes cut off are the zeros after the C's last byte"""
+    if not SYM_TRIM:
+        return
+    out = []
+    for ln in OURS.read_text(encoding="utf-8").split("\n"):
+        m = SYM.match(ln)
+        if m and (m.group(2), int(m.group(3), 16)) in SYM_TRIM:
+            ln = re.sub(r"size:0x[0-9A-Fa-f]+", f"size:0x{SYM_TRIM[(m.group(2), int(m.group(3), 16))]:X}", ln)
+        out.append(ln)
+    OURS.write_bytes("\n".join(out).encode("utf-8"))
+
+
 def main(argv) -> int:
     ours = read_syms(OURS)
     rejected, notes = [], []
@@ -1825,6 +1883,7 @@ def main(argv) -> int:
             cnames = [f"0x{a:08X} {n} (ours: {', '.join(at.get(a, [])) or 'no symbol'})"
                       for a, n in sorted(need.items()) if n not in at.get(a, [])]
     OUT.write_bytes(splits_text(objs, data).encode("utf-8"))
+    trim_symbols()
 
     # unproven code ranges: the parts of .init / .text not inside an object
     covered = sorted((a, b) for _, secs in objs for (a, b) in secs.values())

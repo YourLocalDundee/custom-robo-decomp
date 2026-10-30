@@ -1979,59 +1979,59 @@ MSL/s_ldexp.c                                    .sdata2 0x804523C8-0x804523F0  
 MSL/s_sin.c                                      .sdata2 0x804523F0-0x804523F8   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 MSL/s_tan.c                                      .sdata2 0x804523F8-0x80452400   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 MetroTRK/nubevent.c                              .bss    0x80439BF8-0x80439C20   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
-MetroTRK/target_options.c                        .bss    0x8043BB90-0x8043BB98   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
+MetroTRK/target_options.c                        .bss    0x8043BB90-0x8043BB91   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
 Runtime/global_destructor_chain.c                .sbss   0x8044FCC8-0x8044FCCC   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
 Runtime/global_destructor_chain.c                .dtors  0x801B6600-0x801B6604   1 sym  of 1 in the C (0 stripped), 0 at a verified use (pointer content), bytes = main.dol
 Runtime/runtime.c                                .rodata 0x801C4930-0x801C4948   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
-dolphin/ai/ai.c                                  .sdata  0x8044EDF8-0x8044EE00   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/ai/ai.c                                  .sdata  0x8044EDF8-0x8044EDFC   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/ai/ai.c                                  .sbss   0x8044FAC8-0x8044FB08  11 sym  of 13 in the C (2 stripped), 11 at a verified use (code)
 dolphin/ai/ai.c                                  .data   0x802448A8-0x802448EC   1 sym  of 1 in the C (0 stripped), 1 at a verified use (pointer), bytes = main.dol
-dolphin/ar/ar.c                                  .sdata  0x8044EE00-0x8044EE08   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/ar/ar.c                                  .sdata  0x8044EE00-0x8044EE04   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/ar/ar.c                                  .sbss   0x8044FB08-0x8044FB28   8 sym  of 8 in the C (0 stripped), 8 at a verified use (code)
 dolphin/ar/ar.c                                  .data   0x802448F0-0x80244934   1 sym  of 1 in the C (0 stripped), 1 at a verified use (pointer), bytes = main.dol
-dolphin/ar/arq.c                                 .sdata  0x8044EE08-0x8044EE10   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/ar/arq.c                                 .sdata  0x8044EE08-0x8044EE0C   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/ar/arq.c                                 .sbss   0x8044FB28-0x8044FB50  10 sym  of 12 in the C (2 stripped), 10 at a verified use (code)
 dolphin/ar/arq.c                                 .data   0x80244938-0x8024497D   1 sym  of 1 in the C (0 stripped), 1 at a verified use (pointer), bytes = main.dol
-dolphin/card/CARDNet.c                           .sdata  0x8044EE40-0x8044EE48   2 sym  of 2 in the C (0 stripped), 2 at a verified use (C call site), bytes = main.dol
+dolphin/card/CARDNet.c                           .sdata  0x8044EE40-0x8044EE43   2 sym  of 2 in the C (0 stripped), 2 at a verified use (C call site), bytes = main.dol
 dolphin/card/CARDUnlock.c                        .data   0x80248E00-0x80248F60   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
-dolphin/card/CARDUnlock.c                        .sdata  0x8044EE38-0x8044EE40   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/card/CARDUnlock.c                        .sdata  0x8044EE38-0x8044EE3C   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/db/db.c                                  .data   0x802440E8-0x80244100   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/db/db.c                                  .sbss   0x8044F978-0x8044F980   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
-dolphin/dsp/dsp_task.c                           .data   0x80248C50-0x80248D90   7 sym  of 7 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/dsp/dsp_task.c                           .data   0x80248C50-0x80248D8B   7 sym  of 7 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/dsp/dsp_task.c                           .sbss   0x8044FC30-0x8044FC48   6 sym  of 9 in the C (3 stripped), 5 at a verified use (code, used at its offset)
-dolphin/dvd/dvdFatal.c                           .sbss   0x8044FA30-0x8044FA38   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
+dolphin/dvd/dvdFatal.c                           .sbss   0x8044FA30-0x8044FA34   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
 dolphin/dvd/dvderror.c                           .data   0x80244420-0x80244468   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/dvd/dvdlow.c                             .bss    0x8041F690-0x8041F760   6 sym  of 6 in the C (0 stripped), 3 at a verified use (code)
-dolphin/dvd/dvdlow.c                             .sdata  0x8044ED90-0x8044ED98   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/dvd/dvdlow.c                             .sdata  0x8044ED90-0x8044ED94   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/dvd/dvdlow.c                             .sbss   0x8044F980-0x8044F9C8  14 sym  of 14 in the C (0 stripped), 14 at a verified use (code)
 dolphin/dvd/dvdqueue.c                           .bss    0x8041F7F8-0x8041F818   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
 dolphin/dvd/fstload.c                            .data   0x80244468-0x802444D8   5 sym  of 5 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/dvd/fstload.c                            .bss    0x8041F818-0x8041F888   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
 dolphin/dvd/fstload.c                            .sdata  0x8044EDB8-0x8044EDC3   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 dolphin/dvd/fstload.c                            .sbss   0x8044FA38-0x8044FA44   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
-dolphin/gx/GXFrameBuf.c                          .sdata2 0x80451DC0-0x80451DC8   1 sym  of 2 in the C (1 stripped), 1 at a verified use (code), bytes = main.dol
-dolphin/gx/GXMisc.c                              .sbss   0x8044FC98-0x8044FCB0   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code)
+dolphin/gx/GXFrameBuf.c                          .sdata2 0x80451DC0-0x80451DC4   1 sym  of 2 in the C (1 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/gx/GXMisc.c                              .sbss   0x8044FC98-0x8044FCAC   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code)
 dolphin/gx/GXTexture.c                           .data   0x802495A8-0x802497CC   3 sym  of 4 in the C (1 stripped), 3 at a verified use (code), bytes = main.dol
-dolphin/gx/GXTexture.c                           .sdata  0x8044EE60-0x8044EEA0   8 sym  of 9 in the C (1 stripped), 8 at a verified use (code), bytes = main.dol
+dolphin/gx/GXTexture.c                           .sdata  0x8044EE60-0x8044EE9E   8 sym  of 9 in the C (1 stripped), 8 at a verified use (code), bytes = main.dol
 dolphin/gx/GXTexture.c                           .sdata2 0x80451DF8-0x80451E20   8 sym  of 11 in the C (3 stripped), 8 at a verified use (code), bytes = main.dol
 dolphin/gx/GXTransform.c                         .sdata2 0x80451E90-0x80451EA0   4 sym  of 5 in the C (1 stripped), 4 at a verified use (code), bytes = main.dol
 dolphin/mtx/mtx.c                                .sdata  0x8044ED88-0x8044ED90   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
-dolphin/mtx/mtx.c                                .sdata2 0x80451CB0-0x80451CD0   7 sym  of 12 in the C (5 stripped), 7 at a verified use (code), bytes = main.dol
+dolphin/mtx/mtx.c                                .sdata2 0x80451CB0-0x80451CCC   7 sym  of 12 in the C (5 stripped), 7 at a verified use (code), bytes = main.dol
 dolphin/mtx/mtx44.c                              .sdata2 0x80451CD0-0x80451CE8   6 sym  of 11 in the C (5 stripped), 6 at a verified use (code), bytes = main.dol
 dolphin/os/OSAlarm.c                             .data   0x802429E8-0x802429F8   1 sym  of 6 in the C (5 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/os/OSAlarm.c                             .sbss   0x8044F8D8-0x8044F8E0   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
-dolphin/os/OSAlloc.c                             .data   0x802429F8-0x80242D90  19 sym  of 19 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
-dolphin/os/OSAlloc.c                             .sdata  0x8044ED60-0x8044ED68   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/os/OSAlloc.c                             .data   0x802429F8-0x80242D8A  19 sym  of 19 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/os/OSAlloc.c                             .sdata  0x8044ED60-0x8044ED64   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/os/OSAlloc.c                             .sbss   0x8044F8E0-0x8044F8F0   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code)
 dolphin/os/OSArena.c                             .sdata  0x8044ED68-0x8044ED6C   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/os/OSArena.c                             .sbss   0x8044F8F0-0x8044F8F4   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
 dolphin/os/OSAudioSystem.c                       .data   0x80242D90-0x80242E10   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
-dolphin/os/OSCache.c                             .data   0x80242E10-0x80243040  14 sym  of 14 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/os/OSCache.c                             .data   0x80242E10-0x8024303A  14 sym  of 14 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/os/OSContext.c                           .data   0x80243040-0x80243217  13 sym  of 13 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 dolphin/os/OSError.c                             .data   0x80243218-0x80243534  16 sym  of 16 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 dolphin/os/OSError.c                             .bss    0x8041EBD0-0x8041EC14   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
 dolphin/os/OSError.c                             .sdata  0x8044ED70-0x8044ED76   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
-dolphin/os/OSInterrupt.c                         .data   0x80244048-0x80244078   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/os/OSInterrupt.c                         .data   0x80244048-0x80244074   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/os/OSInterrupt.c                         .sbss   0x8044F908-0x8044F920   4 sym  of 4 in the C (0 stripped), 4 at a verified use (C call site, code)
 dolphin/os/OSResetSW.c                           .sbss   0x8044F940-0x8044F960   5 sym  of 5 in the C (0 stripped), 5 at a verified use (code)
 dolphin/os/OSRtc.c                               .bss    0x8041EC40-0x8041EC94   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
@@ -2040,43 +2040,42 @@ dolphin/os/OSThread.c                            .sdata  0x8044ED80-0x8044ED84  
 dolphin/os/OSThread.c                            .sbss   0x8044F960-0x8044F96C   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
 dolphin/os/OSTime.c                              .data   0x80244088-0x802440E8   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 dolphin/os/init/__start.c                        .sbss   0x8044F970-0x8044F971   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
-dolphin/si/SIBios.c                              .data   0x8024A240-0x8024A358  14 sym  of 14 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
+dolphin/si/SIBios.c                              .data   0x8024A240-0x8024A351  14 sym  of 14 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 dolphin/si/SIBios.c                              .bss    0x8043CDD0-0x8043CFD0  10 sym  of 10 in the C (0 stripped), 5 at a verified use (code)
 dolphin/si/SIBios.c                              .sdata  0x8044EEC8-0x8044EECC   1 sym  of 3 in the C (2 stripped), 1 at a verified use (code), bytes = main.dol
-dolphin/si/SIBios.c                              .sbss   0x8044FD30-0x8044FD40   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
-sysdolphin/baselib/class.c                       .data   0x8024D4D8-0x8024D668  14 sym  of 14 in the C (0 stripped), 4 at a verified use (C call site, code), bytes = main.dol
+dolphin/si/SIBios.c                              .sbss   0x8044FD30-0x8044FD3C   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
+sysdolphin/baselib/class.c                       .data   0x8024D4D8-0x8024D662  14 sym  of 14 in the C (0 stripped), 4 at a verified use (C call site, code), bytes = main.dol
 sysdolphin/baselib/class.c                       .sdata  0x8044F248-0x8044F250   1 sym  of 3 in the C (2 stripped), 1 at a verified use (code), bytes = main.dol
-sysdolphin/baselib/class.c                       .sbss   0x80450058-0x80450068   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
-sysdolphin/baselib/dobj.c                        .data   0x8024B4F8-0x8024B618   8 sym  of 8 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/class.c                       .sbss   0x80450058-0x80450064   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
+sysdolphin/baselib/dobj.c                        .data   0x8024B4F8-0x8024B615   8 sym  of 8 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/dobj.c                        .sdata  0x8044EF88-0x8044EF99   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/dobj.c                        .sbss   0x8044FEF8-0x8044FF00   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
-sysdolphin/baselib/fog.c                         .data   0x8024CEA8-0x8024CFC0   6 sym  of 6 in the C (0 stripped), 5 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/fog.c                         .data   0x8024CEA8-0x8024CFBF   6 sym  of 6 in the C (0 stripped), 5 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/fog.c                         .sdata  0x8044F1B8-0x8044F1D4   5 sym  of 5 in the C (0 stripped), 5 at a verified use (code), bytes = main.dol
-sysdolphin/baselib/fog.c                         .sdata2 0x80452940-0x80452968   7 sym  of 7 in the C (0 stripped), 7 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/fog.c                         .sdata2 0x80452940-0x80452964   7 sym  of 7 in the C (0 stripped), 7 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/id.c                          .bss    0x8044B550-0x8044B710   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
 sysdolphin/baselib/id.c                          .sdata  0x8044F180-0x8044F18E   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/list.c                        .bss    0x8044B710-0x8044B768   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
 sysdolphin/baselib/list.c                        .sdata  0x8044F1E8-0x8044F205   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code), bytes = main.dol
-sysdolphin/baselib/mobj.c                        .data   0x8024BE78-0x8024BFE8   9 sym  of 9 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/mobj.c                        .data   0x8024BE78-0x8024BFE1   9 sym  of 9 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/mobj.c                        .sdata  0x8044EFF0-0x8044F011   6 sym  of 6 in the C (0 stripped), 6 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/mobj.c                        .sbss   0x8044FF68-0x8044FF78   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code)
-sysdolphin/baselib/mobj.c                        .sdata2 0x804526B0-0x804526C0   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/mobj.c                        .sdata2 0x804526B0-0x804526BC   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/object.c                      .data   0x8024D050-0x8024D0A4   2 sym  of 2 in the C (0 stripped), 2 at a verified use (C call site, code), bytes = main.dol
 sysdolphin/baselib/object.c                      .sdata  0x8044F208-0x8044F210   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
-sysdolphin/baselib/spline.c                      .sdata2 0x80452850-0x804528A0  14 sym  of 14 in the C (0 stripped), 14 at a verified use (code), bytes = main.dol
-sysdolphin/baselib/tobj.c                        .data   0x8024B618-0x8024BAE8  28 sym  of 28 in the C (0 stripped), 22 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/spline.c                      .sdata2 0x80452850-0x8045289C  14 sym  of 14 in the C (0 stripped), 14 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/tobj.c                        .data   0x8024B618-0x8024BAE1  28 sym  of 28 in the C (0 stripped), 22 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/tobj.c                        .sdata  0x8044EFA0-0x8044EFD6   9 sym  of 9 in the C (0 stripped), 9 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/tobj.c                        .sbss   0x8044FF00-0x8044FF08   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
 sysdolphin/baselib/tobj.c                        .sdata2 0x80452670-0x804526A0   9 sym  of 9 in the C (0 stripped), 9 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/util.c                        .data   0x8024CBF8-0x8024CC50   2 sym  of 2 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/util.c                        .sdata  0x8044F138-0x8044F142   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
-sysdolphin/baselib/wobj.c                        .data   0x8024CE00-0x8024CEA8   6 sym  of 6 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/wobj.c                        .data   0x8024CE00-0x8024CEA5   6 sym  of 6 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/wobj.c                        .sdata  0x8044F190-0x8044F1B1   5 sym  of 5 in the C (0 stripped), 5 at a verified use (code), bytes = main.dol
-sysdolphin/baselib/wobj.c                        .sbss   0x80450050-0x80450058   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
-sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x80452940   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/wobj.c                        .sbss   0x80450050-0x80450054   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
+sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x8045293C   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code), bytes = main.dol
 
 == global symbols of those pieces that our symbols name otherwise (an object linked from C needs every name another object uses)
-0x8024B618 hsdTObj (ours: lbl_8024B618)
 0x8024CEA8 hsdFog (ours: lbl_8024CEA8)
 0x8024CEE8 hsdFogAdj (ours: lbl_8024CEE8)
 0x8024D588 unused1 (ours: no symbol)
@@ -2100,7 +2099,6 @@ sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x80452940  
 0x8044EFFD lbl_805DCAAD (ours: lbl_8044EFFD)
 0x8044F000 lbl_805DCAB0 (ours: lbl_8044F000)
 0x8044FD38 __PADFixBits (ours: lbl_8044FD38)
-0x8044FF04 tobj_head (ours: lbl_8044FF04)
 
 == unproven code ranges (one dtk automatic object each)
 .init  0x800034AC-0x8000540C    1 functions
@@ -2300,68 +2298,108 @@ sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x80452940  
 .rodata 0x801C4EA8-0x801C4EB8 size 0x10
 .rodata 0x801C4EE0-0x801C4F70 size 0x90
 .data   0x801C4F80-0x802427F0 size 0x7D870
-.data   0x80244078-0x80244088 size 0x10
+.data   0x80242D8A-0x80242D90 size 0x6
+.data   0x8024303A-0x80243040 size 0x6
+.data   0x80243217-0x80243218 size 0x1
+.data   0x80243534-0x80243538 size 0x4
+.data   0x80244074-0x80244088 size 0x14
 .data   0x80244100-0x80244420 size 0x320
+.data   0x802448EC-0x802448F0 size 0x4
+.data   0x80244934-0x80244938 size 0x4
 .data   0x80244980-0x80248BD0 size 0x4250
+.data   0x80248D8B-0x80248D90 size 0x5
 .data   0x80248FA0-0x80249588 size 0x5E8
+.data   0x802497CC-0x802497D0 size 0x4
 .data   0x80249958-0x802499C8 size 0x70
 .data   0x80249A98-0x80249D00 size 0x268
 .data   0x80249F00-0x8024A130 size 0x230
-.data   0x8024A358-0x8024B4F8 size 0x11A0
+.data   0x8024A354-0x8024B4F8 size 0x11A4
+.data   0x8024B615-0x8024B618 size 0x3
+.data   0x8024BAE1-0x8024BAE8 size 0x7
 .data   0x8024BC48-0x8024BE78 size 0x230
-.data   0x8024BFE8-0x8024C028 size 0x40
+.data   0x8024BFE4-0x8024C028 size 0x44
 .data   0x8024C188-0x8024C2E0 size 0x158
 .data   0x8024C328-0x8024C668 size 0x340
 .data   0x8024CA40-0x8024CBF8 size 0x1B8
 .data   0x8024CC50-0x8024CC98 size 0x48
+.data   0x8024CEA5-0x8024CEA8 size 0x3
 .data   0x8024CFC0-0x8024D050 size 0x90
 .data   0x8024D0A4-0x8024D4D8 size 0x434
+.data   0x8024D662-0x8024D668 size 0x6
 .data   0x8024DAA0-0x8024DB0C size 0x6C
 .bss    0x8024DB20-0x8041EB80 size 0x1D1060
+.bss    0x8041EC94-0x8041EC98 size 0x4
 .bss    0x8041F760-0x8041F7F8 size 0x98
 .bss    0x8041F9D0-0x80427900 size 0x7F30
 .bss    0x80439100-0x80439BF8 size 0xAF8
 .bss    0x80439C20-0x80439C28 size 0x8
+.bss    0x8043BB91-0x8043BB98 size 0x7
 .bss    0x8043CA10-0x8043CD10 size 0x300
 .bss    0x8043CFD0-0x80449D18 size 0xCD48
 .bss    0x80449E80-0x8044B4A0 size 0x1620
 .bss    0x8044B768-0x8044C3B0 size 0xC48
 .sdata  0x8044C3C0-0x8044ED60 size 0x29A0
-.sdata  0x8044ED98-0x8044EDB8 size 0x20
+.sdata  0x8044ED64-0x8044ED68 size 0x4
+.sdata  0x8044ED6C-0x8044ED70 size 0x4
+.sdata  0x8044ED76-0x8044ED78 size 0x2
+.sdata  0x8044ED84-0x8044ED88 size 0x4
+.sdata  0x8044ED94-0x8044EDB8 size 0x24
+.sdata  0x8044EDC3-0x8044EDC8 size 0x5
 .sdata  0x8044EDD8-0x8044EDF8 size 0x20
-.sdata  0x8044EE10-0x8044EE28 size 0x18
+.sdata  0x8044EDFC-0x8044EE00 size 0x4
+.sdata  0x8044EE04-0x8044EE08 size 0x4
+.sdata  0x8044EE0C-0x8044EE28 size 0x1C
+.sdata  0x8044EE3C-0x8044EE40 size 0x4
+.sdata  0x8044EE43-0x8044EE48 size 0x5
 .sdata  0x8044EEA0-0x8044EEB8 size 0x18
 .sdata  0x8044EECC-0x8044EF88 size 0xBC
+.sdata  0x8044EF99-0x8044EFA0 size 0x7
+.sdata  0x8044EFD6-0x8044EFD8 size 0x2
+.sdata  0x8044F011-0x8044F018 size 0x7
 .sdata  0x8044F050-0x8044F070 size 0x20
 .sdata  0x8044F080-0x8044F0D8 size 0x58
 .sdata  0x8044F100-0x8044F120 size 0x20
+.sdata  0x8044F142-0x8044F148 size 0x6
+.sdata  0x8044F18E-0x8044F190 size 0x2
+.sdata  0x8044F1B1-0x8044F1B8 size 0x7
 .sdata  0x8044F1D4-0x8044F1E8 size 0x14
+.sdata  0x8044F205-0x8044F208 size 0x3
 .sdata  0x8044F210-0x8044F238 size 0x28
 .sdata  0x8044F290-0x8044F29C size 0xC
 .sbss   0x8044F2A0-0x8044F8D8 size 0x638
+.sbss   0x8044F8F4-0x8044F8F8 size 0x4
+.sbss   0x8044F96C-0x8044F970 size 0x4
+.sbss   0x8044F971-0x8044F978 size 0x7
 .sbss   0x8044F9C8-0x8044FA30 size 0x68
+.sbss   0x8044FA34-0x8044FA38 size 0x4
+.sbss   0x8044FA44-0x8044FA48 size 0x4
 .sbss   0x8044FAA8-0x8044FAC8 size 0x20
 .sbss   0x8044FB58-0x8044FC08 size 0xB0
 .sbss   0x8044FC18-0x8044FC30 size 0x18
-.sbss   0x8044FCB0-0x8044FCB8 size 0x8
+.sbss   0x8044FCAC-0x8044FCB8 size 0xC
 .sbss   0x8044FCC0-0x8044FCC8 size 0x8
+.sbss   0x8044FCCC-0x8044FCD0 size 0x4
 .sbss   0x8044FCE8-0x8044FCF8 size 0x10
 .sbss   0x8044FD00-0x8044FD18 size 0x18
-.sbss   0x8044FD40-0x8044FEF8 size 0x1B8
+.sbss   0x8044FD3C-0x8044FEF8 size 0x1BC
 .sbss   0x8044FF08-0x8044FF48 size 0x40
 .sbss   0x80450008-0x80450038 size 0x30
-.sbss   0x80450068-0x80450198 size 0x130
+.sbss   0x80450054-0x80450058 size 0x4
+.sbss   0x80450064-0x80450198 size 0x134
 .sdata2 0x804501A0-0x80451CA8 size 0x1B08
 .sdata2 0x80451CF0-0x80451D10 size 0x20
 .sdata2 0x80451D18-0x80451D98 size 0x80
 .sdata2 0x80451E80-0x80451E90 size 0x10
 .sdata2 0x80451EA0-0x80451EA8 size 0x8
+.sdata2 0x80451EB4-0x80451EB8 size 0x4
 .sdata2 0x80452408-0x80452670 size 0x268
 .sdata2 0x804526A0-0x804526B0 size 0x10
 .sdata2 0x804526C8-0x80452700 size 0x38
 .sdata2 0x80452810-0x80452840 size 0x30
+.sdata2 0x8045289C-0x804528A0 size 0x4
 .sdata2 0x804528E8-0x80452920 size 0x38
-.sdata2 0x80452968-0x804529B0 size 0x48
+.sdata2 0x8045293C-0x80452940 size 0x4
+.sdata2 0x80452964-0x804529B0 size 0x4C
 .sdata2 0x804529F8-0x80452A14 size 0x1C
 .sbss2  0x80452A20-0x80452AC0 size 0xA0
 

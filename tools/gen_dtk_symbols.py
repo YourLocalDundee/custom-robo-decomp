@@ -8,6 +8,8 @@ Inputs (all committed or made by tools/setup.ps1):
 
 Rule: only the NAME of an existing dtk symbol changes. Section, address, size, type, scope and data attributes stay
 exactly dtk's, and no symbol is added or removed, so dtk's analysis (and the linked main.dol) cannot change.
+(Afterwards tools/gen_dtk_splits.py cuts a dtk symbol that runs on over the zero padding after a C-proven data piece
+where that piece ends: its trailing-padding rule, step 61 iteration 8; the bytes are unchanged.)
 A name is applied to the dtk symbol at the same address and of the same kind (function <-> function,
 object <-> object / label). It is NOT applied, and the dtk default name is kept, when:
   - it is not a valid linker identifier (a C name, or CodeWarrior's local-static form name$123);
