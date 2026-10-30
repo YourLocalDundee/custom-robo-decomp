@@ -1755,7 +1755,8 @@ sysdolphin/baselib/util.c:
 
 sysdolphin/baselib/objalloc.c:
 	.text       start:0x801A0568 end:0x801A0A70
-	.sdata      start:0x8044F148 end:0x8044F150
+	.data       start:0x8024CC50 end:0x8024CC98
+	.sdata      start:0x8044F148 end:0x8044F14D
 	.sbss       start:0x80450040 end:0x80450048
 
 sysdolphin/baselib/robj.c:

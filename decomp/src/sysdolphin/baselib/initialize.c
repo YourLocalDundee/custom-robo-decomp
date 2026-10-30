@@ -140,7 +140,7 @@ s32 OSSetCurrentHeap(s32 heap);
  * _HSD_MemSetCallbacks fn_801A3FEC (main.dol's calls here, in wowjinxy's order) */
 #define HSD_HeapMaxSize lbl_80450024
 // (OSGetPhysicalMemSize: named, step 68)
-#define _HSD_MemSetCallbacks fn_801A3FEC
+/* (_HSD_MemSetCallbacks: named, step 68) */
 #define OSRoundDown32B(x) (((u32) (x)) & ~(32 - 1))
 #define OSRoundUp32B(x) (((u32) (x) + 32 - 1) & ~(32 - 1))
 extern s32 HSD_HeapMaxSize;
