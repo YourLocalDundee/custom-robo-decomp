@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,360 @@ def MatchingFor(*versions):
+@@ -284,18 +307,359 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -179,6 +179,13 @@ diff --git a/configure.py b/configure.py
 +    # from doldecomp/kar (Kirby Air Ride: the same sysdolphin revision as ours), its headers; include/cr_kar
 +    # holds Custom Robo's overrides of them (step 61)
 +    "sysdolphin/baselib/list.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin"],
++    "dolphin/card/CARDRdwr.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
++    "dolphin/exi/EXIBios.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
++    "dolphin/os/OSReset.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
++    "MSL/abort_exit.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
++    "MSL/direct_io.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
++    "MSL/e_acos.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
++    "MSL/e_asin.c": ["-i include/bfbb", "-i include/bfbb/libc", "-i include/bfbb/dolphin_src"],
 +}
 +CR_DIR_CFLAGS: Dict[str, List[str]] = {
 +    "dolphin/dvd/": ["-char signed"],
@@ -301,6 +308,14 @@ diff --git a/configure.py b/configure.py
 +    "MSL/alloc.c",
 +    "Runtime/GCN_mem_alloc.c",
 +    "MSL/e_pow.c",
++    "dolphin/card/CARDRdwr.c",
++    "dolphin/exi/EXIBios.c",
++    "dolphin/gx/GXTev.c",
++    "dolphin/os/OSReset.c",
++    "MSL/abort_exit.c",
++    "MSL/direct_io.c",
++    "MSL/e_acos.c",
++    "MSL/e_asin.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -345,16 +360,8 @@ diff --git a/configure.py b/configure.py
 +        "code: 11 of 11 functions equal in objdiff, .sdata 100% (the 11 functions of wowjinxy/KAR's fog.c with the structs of include/cr_kar/fog.h, main.dol's assert lines; kar's two KAR-only functions removed; step 61 iteration 7): data: the split's .data piece is 0x118, the C's .data 0x117: the zero byte after \"hsd_fogadj\" (to the next object's alignment) is in the piece (dtk's lbl_8024CF9C runs on over the padding), so objdiff reports .data 279/280; likewise .sdata2 (0x28 piece, the C's pool 0x24: 4 zero bytes after 255.0F): 36/40; the bytes before are equal",
 +    "MSL/FILE_POS.c":
 +        "code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision",
-+    "MSL/abort_exit.c":
-+        "code: 1 of 1 functions differ (exit 85%): the reference is another revision",
 +    "MSL/ansi_fp.c":
 +        "code: 2 of 4 functions differ (__two_exp 93%, __num2dec_internal 96%): the reference is another revision",
-+    "MSL/direct_io.c":
-+        "code: 1 of 2 functions differ (fwrite 26%): the reference is another revision",
-+    "MSL/e_acos.c":
-+        "code: 1 of 1 functions differ (__ieee754_acos 38%): the reference is another revision",
-+    "MSL/e_asin.c":
-+        "code: 1 of 1 functions differ (__ieee754_asin 59%): the reference is another revision",
 +    "MSL/printf.c":
 +        "code: 4 of 11 functions differ (parse_format_801651AC 0%, long2str_80164F54 0%, longlong2str_80164C40 0%, vprintf 82%): the reference is another revision",
 +    "MetroTRK/dispatch.c":
@@ -383,24 +390,16 @@ diff --git a/configure.py b/configure.py
 +        "code: 12 of 29 functions differ (TRKValidMemory32 40%, TRKTargetAccessFP 23%, TRKPostInterruptEvent 86%, TRKTargetInterrupt 81% (+8 more)): the reference is another revision",
 +    "dolphin/ax/AXVPB.c":
 +        "code: 4 of 22 functions differ (__AXSetPBDefault 89%, fn_80146ED8 0%, fn_801470D8 0%, fn_8014719C 0%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
-+    "dolphin/card/CARDRdwr.c":
-+        "code: 2 of 4 functions differ (BlockWriteCallback 78%, __CARDWrite 80%): the reference is another revision",
-+    "dolphin/exi/EXIBios.c":
-+        "code: 22 of 23 functions differ (SetExiInterruptMask 90%, EXIImm 44%, EXIImmEx 95%, EXIDma 68% (+18 more)): the reference is another revision",
 +    "dolphin/gx/GXAttr.c":
 +        "code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision",
 +    "dolphin/gx/GXLight.c":
 +        "code: 3 of 11 functions differ (GXSetChanAmbColor 92%, GXSetChanMatColor 92%, GXSetChanCtrl 81%): the reference is another revision",
-+    "dolphin/gx/GXTev.c":
-+        "code: 3 of 16 functions differ (GXSetTevColor 29%, GXSetTevColorS10 49%, GXSetTevKColor 22%): the reference is another revision",
 +    "dolphin/os/OS.c":
 +        "code: 2 of 15 functions differ (ClearArena 78%, OSInit 73%): the reference is another revision",
 +    "dolphin/os/OSFont.c":
 +        "code: 6 of 8 functions differ (GetFontCode 86%, OSGetFontEncode 86%, OSLoadFont 13%, ExpandFontSheet 94% (+2 more)): the reference is another revision",
 +    "dolphin/os/OSReboot.c":
 +        "code: 3 of 3 functions differ (fn_801367D8 0%, fn_801367E8 0%, __OSReboot 12%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)",
-+    "dolphin/os/OSReset.c":
-+        "code: 2 of 5 functions differ (OSResetSystem 26%, OSGetResetCode 68%): the reference is another revision",
 +    "dolphin/vi/vi.c":
 +        "code: 4 of 22 functions differ (getTiming 95%, __VIInit 81%, VIConfigure 92%, VIGetTvFormat 100%): the reference is another revision",
 +}

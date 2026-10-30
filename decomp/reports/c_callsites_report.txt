@@ -1,4 +1,4 @@
-c-callsite names (tools/check_c_callsites.py): 82 lines in symbols/symbols.txt, 82 OK, 0 FAIL; 1408 names derived from matched C call sites, 128 at a dtk default name, 8 differ from our name, 0 at two addresses, 0 sites without the same relocation
+c-callsite names (tools/check_c_callsites.py): 82 lines in symbols/symbols.txt, 82 OK, 0 FAIL; 1435 names derived from matched C call sites, 127 at a dtk default name, 8 differ from our name, 0 at two addresses, 0 sites without the same relocation
 
 OK   DSPCheckMailToDSP 0x8014A42C: 38 call site(s), all agree; e.g. dolphin/card/CARDUnlock InitCallback+0x3C (0x8014D13C REL24)
 OK   PSVECCrossProduct 0x8013A284: 3 call site(s), all agree; e.g. dolphin/mtx/mtx C_MTXLookAt+0x6C (0x80139BAC REL24)
@@ -9,7 +9,7 @@ OK   __CARDGetDirBlock 0x8014DB18: 8 call site(s), all agree; e.g. dolphin/card/
 OK   __CARDGetFileNo 0x80150210: 1 call site(s), all agree; e.g. dolphin/card/CARDDelete CARDDeleteAsync+0x44 (0x80151070 REL24)
 OK   __CARDCheckSum 0x8014DD7C: 5 call site(s), all agree; e.g. dolphin/card/CARDBlock __CARDUpdateFatBlock+0x54 (0x8014DAC0 REL24)
 OK   hsdClass 0x8024D4D8: 8 call site(s), all agree; e.g. sysdolphin/baselib/class _hsdClassAmnesia+0x6 (0x801A7B1A ADDR16_HA)
-OK   __CARDBlock 0x80439100: 48 call site(s), all agree; e.g. dolphin/card/CARDBlock WriteCallback+0x26 (0x8014D742 ADDR16_HA)
+OK   __CARDBlock 0x80439100: 52 call site(s), all agree; e.g. dolphin/card/CARDBlock WriteCallback+0x26 (0x8014D742 ADDR16_HA)
 OK   __CARDDiskNone 0x80439320: 14 call site(s), all agree; e.g. dolphin/card/CARDOpen __CARDAccess+0x32 (0x8014FF86 ADDR16_HA)
 OK   GXClearGPMetric 0x80159334: 1 call site(s), all agree; e.g. dolphin/gx/GXInit __GXInitGX+0x918 (0x80152A28 REL24)
 OK   GXNtsc480IntDf 0x80249458: 4 call site(s), all agree; e.g. dolphin/gx/GXInit __GXInitGX+0x66 (0x80152176 ADDR16_HA)
@@ -58,8 +58,8 @@ OK   __VIVersion 0x8044EDC8: 1 call site(s), all agree; e.g. dolphin/vi/vi VIIni
 OK   IsTRKConnected 0x8043B5F0: 4 call site(s), all agree; e.g. MetroTRK/msghndlr SetTRKConnected+0x2 (0x8015B6D2 ADDR16_HA)
 OK   TRKvalue128_temp 0x8043BB64: 10 call site(s), all agree; e.g. MetroTRK/targimpl TRKTargetAccessExtended2+0xEA (0x8015CCDA ADDR16_HA)
 OK   gTRKMsgBufs 0x80439C28: 8 call site(s), all agree; e.g. MetroTRK/msgbuf TRKReleaseBuffer+0x2E (0x8015A0CA ADDR16_HA)
-OK   sqrt 0x80169424: 3 call site(s), all agree; e.g. MSL/e_pow __ieee754_pow+0x204 (0x80166BC8 REL24)
-OK   __float_nan 0x8044EEA8: 2 call site(s), all agree; e.g. MSL/e_pow __ieee754_pow+0x2AE (0x80166C72 ADDR16_HA)
+OK   sqrt 0x80169424: 6 call site(s), all agree; e.g. MSL/e_acos __ieee754_acos+0x110 (0x80165BF4 REL24)
+OK   __float_nan 0x8044EEA8: 6 call site(s), all agree; e.g. MSL/e_acos __ieee754_acos+0x56 (0x80165B3A ADDR16_HA)
 OK   errno 0x8044FCE8: 1 call site(s), all agree; e.g. MSL/e_pow __ieee754_pow+0x2B4 (0x80166C78 EMB_SDA21)
 OK   AIGetDMAStartAddr 0x80142088: defined there by dolphin/ai/ai.c (.text, size 0x1C)
 OK   GXWaitDrawDone 0x801547E8: defined there by dolphin/gx/GXMisc.c (.text, size 0x4C)
@@ -111,7 +111,6 @@ UNNAMED __AXPB 0x80427900 (main.elf: lbl_80427900): 2 site(s), e.g. dolphin/ax/A
 UNNAMED __AXRecDspCycles 0x8044FC0C (main.elf: lbl_8044FC0C): 1 site(s), e.g. dolphin/ax/AXVPB __AXSyncPBs+0x19E (0x80146DB2 EMB_SDA21)
 UNNAMED active_lights 0x80449DE8 (main.elf: lbl_80449DE8): 6 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjGetActiveByID+0x22 (0x8018D2AA ADDR16_HA)
 UNNAMED aobj_alloc_data 0x80449DB8 (main.elf: lbl_80449DB8): 6 site(s), e.g. sysdolphin/baselib/aobj HSD_AObjInitAllocData+0xA (0x8018CC4A ADDR16_HA)
-UNNAMED c2r$431 0x80249820 (main.elf: lbl_80249820): 4 site(s), e.g. dolphin/gx/GXTev GXSetTevOrder+0xBA (0x8015775A ADDR16_HA)
 UNNAMED changeMode 0x8044FA70 (main.elf: lbl_8044FA70): 3 site(s), e.g. dolphin/vi/vi VIInit+0x8E (0x8013F186 EMB_SDA21)
 UNNAMED changed 0x8044FA78 (main.elf: lbl_8044FA78): 64 site(s), e.g. dolphin/vi/vi VIInit+0x7A (0x8013F172 EMB_SDA21)
 UNNAMED current 0x8044FFAC (main.elf: lbl_8044FFAC): 2 site(s), e.g. sysdolphin/baselib/cobj HSD_CObjGetCurrent+0x0 (0x801915B4 EMB_SDA21)

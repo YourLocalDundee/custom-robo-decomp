@@ -729,10 +729,14 @@ sysdolphin/baselib/texpdag.c                     .data   0x8024D9E8-0x8024DAA0  
 sysdolphin/baselib/texpdag.c                     .sdata  0x8044F280-0x8044F290   3 sym  core 3, edge zone 1/0, size 0x10 = GALE01
 
 == objects whose every function is a function of their C file (bytes and relocations = main.dol's; the C proves their data)
+MSL/abort_exit.c                                   1 functions
 MSL/alloc.c                                        4 functions
 MSL/ansi_files.c                                   2 functions
 MSL/buffer_io.c                                    2 functions
 MSL/ctype.c                                        1 functions
+MSL/direct_io.c                                    2 functions
+MSL/e_acos.c                                       1 functions
+MSL/e_asin.c                                       1 functions
 MSL/e_atan2.c                                      1 functions
 MSL/e_fmod.c                                       1 functions
 MSL/e_pow.c                                        1 functions
@@ -790,6 +794,7 @@ dolphin/card/CARDFormat.c                          3 functions
 dolphin/card/CARDMount.c                           7 functions
 dolphin/card/CARDNet.c                             1 functions
 dolphin/card/CARDOpen.c                            8 functions
+dolphin/card/CARDRdwr.c                            4 functions
 dolphin/card/CARDStat.c                            4 functions
 dolphin/card/CARDUnlock.c                          6 functions (named otherwise in ours: fn_8014C234 = bitrev)
 dolphin/db/db.c                                    5 functions
@@ -801,6 +806,7 @@ dolphin/dvd/dvdidutils.c                           1 functions
 dolphin/dvd/dvdlow.c                              21 functions (named otherwise in ours: fn_8013A5E0 = AlarmHandler)
 dolphin/dvd/dvdqueue.c                             5 functions
 dolphin/dvd/fstload.c                              2 functions
+dolphin/exi/EXIBios.c                             23 functions
 dolphin/exi/EXIUart.c                              4 functions
 dolphin/gx/GXBump.c                                7 functions
 dolphin/gx/GXDisplayList.c                         1 functions
@@ -809,6 +815,7 @@ dolphin/gx/GXFrameBuf.c                           13 functions
 dolphin/gx/GXGeometry.c                            9 functions
 dolphin/gx/GXInit.c                                5 functions
 dolphin/gx/GXMisc.c                               19 functions
+dolphin/gx/GXTev.c                                16 functions
 dolphin/gx/GXTexture.c                            19 functions
 dolphin/gx/GXTransform.c                          15 functions
 dolphin/mtx/mtx.c                                 17 functions
@@ -825,6 +832,7 @@ dolphin/os/OSError.c                               4 functions
 dolphin/os/OSInterrupt.c                          11 functions
 dolphin/os/OSLink.c                                1 functions
 dolphin/os/OSMutex.c                               1 functions
+dolphin/os/OSReset.c                               5 functions
 dolphin/os/OSResetSW.c                             2 functions
 dolphin/os/OSRtc.c                                18 functions
 dolphin/os/OSSync.c                                2 functions
@@ -952,6 +960,11 @@ DEF 0x801360D8 __OSDispatchInterrupt dolphin/os/OSInterrupt.c .text size:0x344 g
 DEF 0x8013641C ExternalInterruptHandler dolphin/os/OSInterrupt.c .text size:0x50 local
 DEF 0x8013646C __OSModuleInit dolphin/os/OSLink.c .text size:0x18 global
 DEF 0x80136768 __OSUnlockAllMutex dolphin/os/OSMutex.c .text size:0x70 global
+DEF 0x80136B34 OSRegisterResetFunction dolphin/os/OSReset.c .text size:0x84 global
+DEF 0x80136BB8 Reset dolphin/os/OSReset.c .text size:0x70 global
+DEF 0x80136C28 __OSDoHotReset dolphin/os/OSReset.c .text size:0x48 global
+DEF 0x80136C70 OSResetSystem dolphin/os/OSReset.c .text size:0x2B8 global
+DEF 0x80136F28 OSGetResetCode dolphin/os/OSReset.c .text size:0x30 global
 DEF 0x80136F58 __OSResetSWInterruptHandler dolphin/os/OSResetSW.c .text size:0xF4 global
 DEF 0x8013704C OSGetResetButtonState dolphin/os/OSResetSW.c .text size:0x298 global
 DEF 0x801372E4 WriteSramCallback dolphin/os/OSRtc.c .text size:0x60 local
@@ -1103,6 +1116,10 @@ DEF 0x8014C4E4 DummyLen dolphin/card/CARDUnlock.c .text size:0xC4 local
 DEF 0x8014C5A8 __CARDUnlock dolphin/card/CARDUnlock.c .text size:0xB58 global
 DEF 0x8014D100 InitCallback dolphin/card/CARDUnlock.c .text size:0x70 local
 DEF 0x8014D170 DoneCallback dolphin/card/CARDUnlock.c .text size:0x324 local
+DEF 0x8014D494 BlockReadCallback dolphin/card/CARDRdwr.c .text size:0xDC local
+DEF 0x8014D570 __CARDRead dolphin/card/CARDRdwr.c .text size:0x64 global
+DEF 0x8014D5D4 BlockWriteCallback dolphin/card/CARDRdwr.c .text size:0xDC local
+DEF 0x8014D6B0 __CARDWrite dolphin/card/CARDRdwr.c .text size:0x64 global
 DEF 0x8014D714 __CARDGetFatBlock dolphin/card/CARDBlock.c .text size:0x8 global
 DEF 0x8014D71C WriteCallback dolphin/card/CARDBlock.c .text size:0xD4 local
 DEF 0x8014D7F0 EraseCallback dolphin/card/CARDBlock.c .text size:0xC8 local
@@ -1232,6 +1249,22 @@ DEF 0x80157060 GXSetTevDirect dolphin/gx/GXBump.c .text size:0x48 global
 DEF 0x801570A8 __GXUpdateBPMask dolphin/gx/GXBump.c .text size:0x4 global
 DEF 0x801570AC __GXSetIndirectMask dolphin/gx/GXBump.c .text size:0x30 global
 DEF 0x801570DC __GXFlushTextureState dolphin/gx/GXBump.c .text size:0x24 global
+DEF 0x80157100 GXSetTevOp dolphin/gx/GXTev.c .text size:0x8C global
+DEF 0x8015718C GXSetTevColorIn dolphin/gx/GXTev.c .text size:0x44 global
+DEF 0x801571D0 GXSetTevAlphaIn dolphin/gx/GXTev.c .text size:0x44 global
+DEF 0x80157214 GXSetTevColorOp dolphin/gx/GXTev.c .text size:0x68 global
+DEF 0x8015727C GXSetTevAlphaOp dolphin/gx/GXTev.c .text size:0x68 global
+DEF 0x801572E4 GXSetTevColor dolphin/gx/GXTev.c .text size:0x7C global
+DEF 0x80157360 GXSetTevColorS10 dolphin/gx/GXTev.c .text size:0x7C global
+DEF 0x801573DC GXSetTevKColor dolphin/gx/GXTev.c .text size:0x74 global
+DEF 0x80157450 GXSetTevKColorSel dolphin/gx/GXTev.c .text size:0x5C global
+DEF 0x801574AC GXSetTevKAlphaSel dolphin/gx/GXTev.c .text size:0x5C global
+DEF 0x80157508 GXSetTevSwapMode dolphin/gx/GXTev.c .text size:0x48 global
+DEF 0x80157550 GXSetTevSwapModeTable dolphin/gx/GXTev.c .text size:0x80 global
+DEF 0x801575D0 GXSetAlphaCompare dolphin/gx/GXTev.c .text size:0x44 global
+DEF 0x80157614 GXSetZTexture dolphin/gx/GXTev.c .text size:0x8C global
+DEF 0x801576A0 GXSetTevOrder dolphin/gx/GXTev.c .text size:0x19C global
+DEF 0x8015783C GXSetNumTevStages dolphin/gx/GXTev.c .text size:0x28 global
 DEF 0x801584C4 GXCallDisplayList dolphin/gx/GXDisplayList.c .text size:0x70 global
 DEF 0x80158534 GXSetProjection dolphin/gx/GXTransform.c .text size:0xA4 global
 DEF 0x801585D8 GXSetProjectionv dolphin/gx/GXTransform.c .text size:0x8C global
@@ -1284,6 +1317,7 @@ DEF 0x8015FE64 __shr2u Runtime/runtime.c .text size:0x24 global
 DEF 0x8015FE88 __shr2i Runtime/runtime.c .text size:0x28 global
 DEF 0x8015FEB0 __cvt_dbl_usll Runtime/runtime.c .text size:0xCC global
 DEF 0x8015FF7C __sys_free Runtime/GCN_mem_alloc.c .text size:0xB8 global
+DEF 0x80160034 exit MSL/abort_exit.c .text size:0xF0 global
 DEF 0x80160124 free MSL/alloc.c .text size:0x70 global
 DEF 0x80160194 __pool_free MSL/alloc.c .text size:0x58 global
 DEF 0x801601EC deallocate_from_fixed_pools MSL/alloc.c .text size:0x158 global
@@ -1293,6 +1327,8 @@ DEF 0x80160648 __close_all MSL/ansi_files.c .text size:0xA8 global
 DEF 0x80162644 __flush_buffer MSL/buffer_io.c .text size:0xC4 global
 DEF 0x80162708 __prep_buffer MSL/buffer_io.c .text size:0x34 global
 DEF 0x80162748 tolower MSL/ctype.c .text size:0x24 global
+DEF 0x8016276C __fwrite MSL/direct_io.c .text size:0x30C global
+DEF 0x80162A78 fwrite MSL/direct_io.c .text size:0x7C global
 DEF 0x80162AF4 fflush MSL/file_io.c .text size:0x138 global
 DEF 0x80162C2C fclose MSL/file_io.c .text size:0x1BC global
 DEF 0x801631A8 wcstombs MSL/mbstring.c .text size:0x118 global
@@ -1313,6 +1349,8 @@ DEF 0x80165874 strncpy MSL/string.c .text size:0x44 global
 DEF 0x801658B8 strcpy MSL/string.c .text size:0xB8 global
 DEF 0x80165970 strlen MSL/string.c .text size:0x1C global
 DEF 0x8016598C fwide MSL/wchar_io.c .text size:0x88 global
+DEF 0x80165AE4 __ieee754_acos MSL/e_acos.c .text size:0x23C global
+DEF 0x80165D20 __ieee754_asin MSL/e_asin.c .text size:0x238 global
 DEF 0x80165F58 __ieee754_atan2 MSL/e_atan2.c .text size:0x290 global
 DEF 0x8016640C __ieee754_fmod MSL/e_fmod.c .text size:0x33C global
 DEF 0x801669C4 __ieee754_pow MSL/e_pow.c .text size:0x830 global
@@ -1336,6 +1374,29 @@ DEF 0x801690C8 atan2 MSL/w_atan2.c .text size:0x20 global
 DEF 0x80169108 fmod MSL/w_fmod.c .text size:0x20 global
 DEF 0x80169148 pow MSL/w_pow.c .text size:0x20 global
 DEF 0x80169474 Hu_IsStub dolphin/odenotstub/odenotstub.c .text size:0x8 local
+DEF 0x80169EFC SetExiInterruptMask dolphin/exi/EXIBios.c .text size:0xF4 local
+DEF 0x80169FF0 EXIImm dolphin/exi/EXIBios.c .text size:0x25C global
+DEF 0x8016A24C EXIImmEx dolphin/exi/EXIBios.c .text size:0xA0 global
+DEF 0x8016A2EC EXIDma dolphin/exi/EXIBios.c .text size:0xEC global
+DEF 0x8016A3D8 EXISync dolphin/exi/EXIBios.c .text size:0x24C global
+DEF 0x8016A624 EXIClearInterrupts dolphin/exi/EXIBios.c .text size:0x48 global
+DEF 0x8016A66C EXISetExiCallback dolphin/exi/EXIBios.c .text size:0x7C global
+DEF 0x8016A6E8 __EXIProbe dolphin/exi/EXIBios.c .text size:0x174 local
+DEF 0x8016A85C EXIProbe dolphin/exi/EXIBios.c .text size:0x80 global
+DEF 0x8016A8DC EXIProbeEx dolphin/exi/EXIBios.c .text size:0xB4 global
+DEF 0x8016A990 EXIAttach dolphin/exi/EXIBios.c .text size:0x10C global
+DEF 0x8016AA9C EXIDetach dolphin/exi/EXIBios.c .text size:0xBC global
+DEF 0x8016AB58 EXISelect dolphin/exi/EXIBios.c .text size:0x12C global
+DEF 0x8016AC84 EXIDeselect dolphin/exi/EXIBios.c .text size:0x110 global
+DEF 0x8016AD94 EXIIntrruptHandler dolphin/exi/EXIBios.c .text size:0xC8 local
+DEF 0x8016AE5C TCIntrruptHandler dolphin/exi/EXIBios.c .text size:0x218 local
+DEF 0x8016B074 EXTIntrruptHandler dolphin/exi/EXIBios.c .text size:0xD0 local
+DEF 0x8016B144 EXIInit dolphin/exi/EXIBios.c .text size:0x1D4 global
+DEF 0x8016B318 EXILock dolphin/exi/EXIBios.c .text size:0xF4 global
+DEF 0x8016B40C EXIUnlock dolphin/exi/EXIBios.c .text size:0xDC global
+DEF 0x8016B4E8 EXIGetState dolphin/exi/EXIBios.c .text size:0x18 global
+DEF 0x8016B500 UnlockedHandler dolphin/exi/EXIBios.c .text size:0x28 local
+DEF 0x8016B528 EXIGetID dolphin/exi/EXIBios.c .text size:0x3B0 global
 DEF 0x8016B8D8 ProbeBarnacle dolphin/exi/EXIUart.c .text size:0x18C local
 DEF 0x8016BA64 __OSEnableBarnacle dolphin/exi/EXIUart.c .text size:0x1BC global
 DEF 0x8016BC20 InitializeUART dolphin/exi/EXIUart.c .text size:0x70 global
@@ -1614,9 +1675,27 @@ DEF 0x80249548 GXEurgb60Hz480IntDf dolphin/gx/GXFrameBuf.c .data size:0x3C globa
 DEF 0x802495A8 @105 dolphin/gx/GXTexture.c .data size:0xF4 local
 DEF 0x8024969C @146 dolphin/gx/GXTexture.c .data size:0xF4 local
 DEF 0x80249790 @225 dolphin/gx/GXTexture.c .data size:0x3C local
+DEF 0x802497D0 TEVCOpTableST0 dolphin/gx/GXTev.c .data size:0x14 local
+DEF 0x802497E4 TEVCOpTableST1 dolphin/gx/GXTev.c .data size:0x14 local
+DEF 0x802497F8 TEVAOpTableST0 dolphin/gx/GXTev.c .data size:0x14 local
+DEF 0x8024980C TEVAOpTableST1 dolphin/gx/GXTev.c .data size:0x14 local
+DEF 0x80249820 c2r$461 dolphin/gx/GXTev.c .data size:0x24 local
 DEF 0x80249A98 __files MSL/ansi_files.c .data size:0x140 global
 DEF 0x80249D00 __ctype_map MSL/ctype.c .data size:0x100 global
 DEF 0x80249E00 __lower_map MSL/ctype.c .data size:0x100 global
+DEF 0x8024A130 @3 dolphin/exi/EXIBios.c .data size:0x45 local
+DEF 0x8024A178 @394 dolphin/exi/EXIBios.c .data size:0xF local
+DEF 0x8024A188 @395 dolphin/exi/EXIBios.c .data size:0x10 local
+DEF 0x8024A198 @396 dolphin/exi/EXIBios.c .data size:0x10 local
+DEF 0x8024A1A8 @397 dolphin/exi/EXIBios.c .data size:0x10 local
+DEF 0x8024A1B8 @398 dolphin/exi/EXIBios.c .data size:0x11 local
+DEF 0x8024A1CC @399 dolphin/exi/EXIBios.c .data size:0x11 local
+DEF 0x8024A1E0 @400 dolphin/exi/EXIBios.c .data size:0xC local
+DEF 0x8024A1EC @401 dolphin/exi/EXIBios.c .data size:0x9 local
+DEF 0x8024A1F8 @402 dolphin/exi/EXIBios.c .data size:0xD local
+DEF 0x8024A208 @403 dolphin/exi/EXIBios.c .data size:0x12 local
+DEF 0x8024A21C @404 dolphin/exi/EXIBios.c .data size:0xE local
+DEF 0x8024A22C @405 dolphin/exi/EXIBios.c .data size:0xE local
 DEF 0x8024A240 @3 dolphin/si/SIBios.c .data size:0x44 local
 DEF 0x8024A284 Si dolphin/si/SIBios.c .data size:0x14 local
 DEF 0x8024A298 Type dolphin/si/SIBios.c .data size:0x10 local
@@ -1725,9 +1804,11 @@ DEF 0x80439340 FifoObj dolphin/gx/GXInit.c .bss size:0x80 local
 DEF 0x804393C0 gxData dolphin/gx/GXInit.c .bss size:0x5B0 local
 DEF 0x80439BF8 gTRKEventQueue MetroTRK/nubevent.c .bss size:0x28 global
 DEF 0x8043BB90 bUseSerialIO MetroTRK/target_options.c .bss size:0x1 local
+DEF 0x8043C8D8 __atexit_funcs MSL/abort_exit.c .bss size:0x100 local
 DEF 0x8043CA10 stderr_buff MSL/ansi_files.c .bss size:0x100 local
 DEF 0x8043CB10 stdout_buff MSL/ansi_files.c .bss size:0x100 local
 DEF 0x8043CC10 stdin_buff MSL/ansi_files.c .bss size:0x100 local
+DEF 0x8043CD10 Ecb dolphin/exi/EXIBios.c .bss size:0xC0 local
 DEF 0x8043CDD0 Packet dolphin/si/SIBios.c .bss size:0x80 local
 DEF 0x8043CE50 Alarm dolphin/si/SIBios.c .bss size:0xA0 local
 DEF 0x8043CEF0 TypeTime dolphin/si/SIBios.c .bss size:0x20 local
@@ -1767,6 +1848,7 @@ DEF 0x8044EE80 GXTexImage2Ids dolphin/gx/GXTexture.c .sdata size:0x8 global
 DEF 0x8044EE88 GXTexImage3Ids dolphin/gx/GXTexture.c .sdata size:0x8 global
 DEF 0x8044EE90 GXTexTlutIds dolphin/gx/GXTexture.c .sdata size:0x8 global
 DEF 0x8044EE98 GX2HWFiltConv dolphin/gx/GXTexture.c .sdata size:0x6 local
+DEF 0x8044EEC0 __EXIVersion dolphin/exi/EXIBios.c .sdata size:0x4 local
 DEF 0x8044EEC8 __SIVersion dolphin/si/SIBios.c .sdata size:0x4 global
 DEF 0x8044EF88 @126 sysdolphin/baselib/dobj.c .sdata size:0x7 local
 DEF 0x8044EF90 @127 sysdolphin/baselib/dobj.c .sdata size:0x1 local
@@ -1816,6 +1898,8 @@ DEF 0x8044F908 InterruptHandlerTable dolphin/os/OSInterrupt.c .sbss size:0x4 loc
 DEF 0x8044F90C __OSLastInterruptSrr0 dolphin/os/OSInterrupt.c .sbss size:0x4 global
 DEF 0x8044F910 __OSLastInterrupt dolphin/os/OSInterrupt.c .sbss size:0x2 global
 DEF 0x8044F918 __OSLastInterruptTime dolphin/os/OSInterrupt.c .sbss size:0x8 global
+DEF 0x8044F930 ResetFunctionQueue dolphin/os/OSReset.c .sbss size:0x8 local
+DEF 0x8044F938 bootThisDol dolphin/os/OSReset.c .sbss size:0x4 local
 DEF 0x8044F940 ResetCallback dolphin/os/OSResetSW.c .sbss size:0x4 local
 DEF 0x8044F944 Down dolphin/os/OSResetSW.c .sbss size:0x4 local
 DEF 0x8044F948 LastState dolphin/os/OSResetSW.c .sbss size:0x4 local
@@ -1893,7 +1977,12 @@ DEF 0x8044FC9C DrawDoneCB dolphin/gx/GXMisc.c .sbss size:0x4 local
 DEF 0x8044FCA0 DrawDone dolphin/gx/GXMisc.c .sbss size:0x1 local
 DEF 0x8044FCA4 FinishQueue dolphin/gx/GXMisc.c .sbss size:0x8 local
 DEF 0x8044FCC8 __global_destructor_chain Runtime/global_destructor_chain.c .sbss size:0x4 global
+DEF 0x8044FCD0 __aborting MSL/abort_exit.c .sbss size:0x4 global
+DEF 0x8044FCD4 __atexit_curr_func MSL/abort_exit.c .sbss size:0x4 local
+DEF 0x8044FCD8 __stdio_exit MSL/abort_exit.c .sbss size:0x4 global
+DEF 0x8044FCDC __console_exit MSL/abort_exit.c .sbss size:0x4 local
 DEF 0x8044FCE0 init$91 MSL/alloc.c .sbss size:0x1 local
+DEF 0x8044FD18 IDSerialPort1 dolphin/exi/EXIBios.c .sbss size:0x4 local
 DEF 0x8044FD20 Chan dolphin/exi/EXIUart.c .sbss size:0x4 local
 DEF 0x8044FD24 Dev dolphin/exi/EXIUart.c .sbss size:0x4 local
 DEF 0x8044FD28 Enabled dolphin/exi/EXIUart.c .sbss size:0x4 local
@@ -1949,6 +2038,40 @@ DEF 0x80451E94 @28 dolphin/gx/GXTransform.c .sdata2 size:0x4 local
 DEF 0x80451E98 @29 dolphin/gx/GXTransform.c .sdata2 size:0x4 local
 DEF 0x80451E9C @226 dolphin/gx/GXTransform.c .sdata2 size:0x4 local
 DEF 0x80451EB0 @4 MSL/mbstring.c .sdata2 size:0x4 local
+DEF 0x80451EC0 @60 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451EC8 @61 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451ED0 @62 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451ED8 @63 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451EE0 @64 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451EE8 @65 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451EF0 @66 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451EF8 @67 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451F00 @68 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451F08 @69 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451F10 @70 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451F18 @71 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451F20 @72 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451F28 @73 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451F30 @74 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451F38 @75 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451F40 @76 MSL/e_acos.c .sdata2 size:0x8 local
+DEF 0x80451F48 @71 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451F50 @72 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451F58 @73 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451F60 @74 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451F68 @75 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451F70 @76 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451F78 @77 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451F80 @78 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451F88 @79 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451F90 @80 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451F98 @81 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451FA0 @82 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451FA8 @83 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451FB0 @84 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451FB8 @85 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451FC0 @86 MSL/e_asin.c .sdata2 size:0x8 local
+DEF 0x80451FC8 @87 MSL/e_asin.c .sdata2 size:0x8 local
 DEF 0x80451FD0 @105 MSL/e_atan2.c .sdata2 size:0x8 local
 DEF 0x80451FD8 @106 MSL/e_atan2.c .sdata2 size:0x8 local
 DEF 0x80451FE0 @107 MSL/e_atan2.c .sdata2 size:0x8 local
@@ -2091,11 +2214,15 @@ DEF 0x80452958 @51 sysdolphin/baselib/fog.c .sdata2 size:0x8 local
 DEF 0x80452960 @183 sysdolphin/baselib/fog.c .sdata2 size:0x4 local
 
 == data pieces proven by the matched C (path, section, range, the C's symbols there, how their address is known)
+MSL/abort_exit.c                                 .bss    0x8043C8D8-0x8043C9D8   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
+MSL/abort_exit.c                                 .sbss   0x8044FCD0-0x8044FCE0   4 sym  of 4 in the C (0 stripped), 4 at a verified use (C call site, code)
 MSL/alloc.c                                      .rodata 0x801C49C0-0x801C49D8   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 MSL/alloc.c                                      .sbss   0x8044FCE0-0x8044FCE8   1 sym  of 2 in the C (1 stripped), 1 at a verified use (code)
 MSL/ansi_files.c                                 .data   0x80249A98-0x80249BD8   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 MSL/ansi_files.c                                 .bss    0x8043CA10-0x8043CD10   3 sym  of 3 in the C (0 stripped), 3 at a verified use (pointer)
 MSL/ctype.c                                      .data   0x80249D00-0x80249F00   2 sym  of 3 in the C (1 stripped), 2 at a verified use (C call site, code), bytes = main.dol
+MSL/e_acos.c                                     .sdata2 0x80451EC0-0x80451F48  17 sym  of 17 in the C (0 stripped), 17 at a verified use (code), bytes = main.dol
+MSL/e_asin.c                                     .sdata2 0x80451F48-0x80451FD0  17 sym  of 17 in the C (0 stripped), 17 at a verified use (code), bytes = main.dol
 MSL/e_atan2.c                                    .sdata2 0x80451FD0-0x80452028  11 sym  of 11 in the C (0 stripped), 11 at a verified use (code), bytes = main.dol
 MSL/e_fmod.c                                     .rodata 0x801C4B10-0x801C4B20   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 MSL/e_pow.c                                      .rodata 0x801C4B20-0x801C4B50   3 sym  of 3 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
@@ -2150,6 +2277,10 @@ dolphin/dvd/fstload.c                            .data   0x80244468-0x802444D8  
 dolphin/dvd/fstload.c                            .bss    0x8041F818-0x8041F888   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
 dolphin/dvd/fstload.c                            .sdata  0x8044EDB8-0x8044EDC3   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 dolphin/dvd/fstload.c                            .sbss   0x8044FA38-0x8044FA44   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
+dolphin/exi/EXIBios.c                            .bss    0x8043CD10-0x8043CDD0   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
+dolphin/exi/EXIBios.c                            .sdata  0x8044EEC0-0x8044EEC4   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+dolphin/exi/EXIBios.c                            .sbss   0x8044FD18-0x8044FD1C   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
+dolphin/exi/EXIBios.c                            .data   0x8024A130-0x8024A240  13 sym  of 13 in the C (0 stripped), 1 at a verified use (pointer), bytes = main.dol
 dolphin/exi/EXIUart.c                            .sbss   0x8044FD20-0x8044FD30   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code)
 dolphin/gx/GXFrameBuf.c                          .data   0x80249458-0x80249588   5 sym  of 32 in the C (27 stripped), 4 at a verified use (C call site, its bytes between two placed runs), bytes = main.dol
 dolphin/gx/GXFrameBuf.c                          .sdata2 0x80451DC0-0x80451DC8   1 sym  of 2 in the C (1 stripped), 1 at a verified use (code), bytes = main.dol
@@ -2159,6 +2290,7 @@ dolphin/gx/GXInit.c                              .sdata  0x8044EE48-0x8044EE4C  
 dolphin/gx/GXInit.c                              .sbss   0x8044FC50-0x8044FC78   8 sym  of 8 in the C (0 stripped), 8 at a verified use (C call site, code)
 dolphin/gx/GXInit.c                              .sdata2 0x80451D98-0x80451DC0   9 sym  of 9 in the C (0 stripped), 9 at a verified use (C call site, code), bytes = main.dol
 dolphin/gx/GXMisc.c                              .sbss   0x8044FC98-0x8044FCB0   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code)
+dolphin/gx/GXTev.c                               .data   0x802497D0-0x80249848   5 sym  of 5 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 dolphin/gx/GXTexture.c                           .data   0x802495A8-0x802497CC   3 sym  of 4 in the C (1 stripped), 3 at a verified use (code), bytes = main.dol
 dolphin/gx/GXTexture.c                           .sdata  0x8044EE60-0x8044EEA0   8 sym  of 9 in the C (1 stripped), 8 at a verified use (code), bytes = main.dol
 dolphin/gx/GXTexture.c                           .sdata2 0x80451DF8-0x80451E20   8 sym  of 11 in the C (3 stripped), 8 at a verified use (code), bytes = main.dol
@@ -2181,6 +2313,7 @@ dolphin/os/OSError.c                             .bss    0x8041EBD0-0x8041EC14  
 dolphin/os/OSError.c                             .sdata  0x8044ED70-0x8044ED76   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 dolphin/os/OSInterrupt.c                         .data   0x80244048-0x80244078   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 dolphin/os/OSInterrupt.c                         .sbss   0x8044F908-0x8044F920   4 sym  of 4 in the C (0 stripped), 4 at a verified use (C call site, code)
+dolphin/os/OSReset.c                             .sbss   0x8044F930-0x8044F93C   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
 dolphin/os/OSResetSW.c                           .sbss   0x8044F940-0x8044F960   5 sym  of 5 in the C (0 stripped), 5 at a verified use (code)
 dolphin/os/OSRtc.c                               .bss    0x8041EC40-0x8041EC94   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
 dolphin/os/OSThread.c                            .bss    0x8041EC98-0x8041F690   4 sym  of 4 in the C (0 stripped), 1 at a verified use (code)
@@ -2514,7 +2647,7 @@ sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x80452940  
 .sdata2 0x804529F8-0x80452A14 size 0x1C
 .sbss2  0x80452A20-0x80452AC0 size 0xA0
 
-== rejected candidates (1150)
+== rejected candidates (1144)
 GALE01:Runtime/__va_arg.c .text: start not proven (__va_arg .. __va_arg; neighbour MWInitializeCriticalSection)
 GALE01:Runtime/Gecko_ExceptionPPC.c .text: none of its functions is (uniquely) named in ours
 GALE01:Runtime/Gecko_setjmp.c .text: none of its functions is (uniquely) named in ours
@@ -3623,11 +3756,8 @@ data sysdolphin/baselib/bytecode.c .data: the symbol after, 0x8024D4D8, is used 
 data sysdolphin/baselib/class.c .sdata: no candidate range(s) with a reference size (candidate sizes [8,E], references GALE01 0x18)
 data sysdolphin/baselib/texpdag.c .sdata2: no symbol used only by this object (references: GALE01 0x8)
 data sysdolphin/baselib/texpdag.c .sbss2: 0x80452AB8.. is used only by this object, but no proving reference has a .sbss2 piece
-data from C MSL/abort_exit.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven
 data from C MSL/alloc.c .bss: __malloc_pool (+0x38) may be after the piece (no bytes to tell, the neighbour is unproven)
 data from C MSL/ansi_fp.c: 2 of 4 functions of the object are not verified C functions (another revision): its data is not proven
-data from C MSL/e_acos.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven
-data from C MSL/e_asin.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven
 data from C MSL/printf.c: 1 of 11 functions of the object are not verified C functions (another revision): its data is not proven
 data from C MetroTRK/dispatch.c: 2 of 2 functions of the object are not verified C functions (another revision): its data is not proven
 data from C MetroTRK/dolphin_trk.c: 5 of 8 functions of the object are not verified C functions (another revision): its data is not proven
@@ -3639,15 +3769,12 @@ data from C MetroTRK/nubinit.c: 1 of 3 functions of the object are not verified 
 data from C MetroTRK/serpoll.c: 3 of 5 functions of the object are not verified C functions (another revision): its data is not proven
 data from C MetroTRK/targimpl.c: 12 of 29 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/ax/AXVPB.c: 2 of 22 functions of the object are not verified C functions (another revision): its data is not proven
-data from C dolphin/exi/EXIBios.c: 22 of 23 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/gx/GXAttr.c: 2 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/gx/GXFifo.c .sbss: __GXCurrentBP (+0x1C) may be after the piece (no bytes to tell, the neighbour is unproven)
 data from C dolphin/gx/GXLight.c: 3 of 11 functions of the object are not verified C functions (another revision): its data is not proven
-data from C dolphin/gx/GXTev.c: 3 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/os/OS.c: 2 of 15 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/os/OSFont.c: 6 of 8 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/os/OSReboot.c: 3 of 3 functions of the object are not verified C functions (another revision): its data is not proven
-data from C dolphin/os/OSReset.c: 2 of 5 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/vi/vi.c: 4 of 22 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/aobj.c: 2 of 15 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/bytecode.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven

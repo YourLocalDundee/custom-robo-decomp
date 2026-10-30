@@ -3,28 +3,28 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           75     56   0x015654/0x02235C  62.54%   0x002E84/0x015F24  13.25%    420/  647
-MSL                               49     33   0x003FD8/0x00939C  43.25%   0x000CF0/0x001160  74.46%     51/   85
+dolphin                           75     60   0x017E38/0x02235C  69.83%   0x0030EC/0x015F24  13.93%    468/  647
+MSL                               49     37   0x0048C4/0x00939C  49.30%   0x000F10/0x001160  86.69%     56/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
 sysdolphin                        29      9   0x004014/0x0265A4  10.44%   0x0008F4/0x002238  26.16%     88/  471
 game                             290    290   0x004020/0x004020 100.00%   0x000000/0x000000    -       290/  290
 automatic objects (unsplit)      258      0   0x000000/0x156B74   0.00%   0x000000/0x27FC08   0.00%      0/ 1859
-main.dol (all units)             735    403   0x022A7C/0x1B342C   7.96%   0x004534/0x29C458   0.65%    890/ 3533
+main.dol (all units)             735    411   0x025B4C/0x1B342C   8.66%   0x0049BC/0x29C458   0.69%    943/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 290 objects from C (one function each, tools/promote_drafts.py), 0x4020 bytes = 1.33% of the game code, 0.92% of all code
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
 MSL/FILE_POS.c                                code 0x0/0x3C0  data 0x0/0x0  functions 0/3  not linked: code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision
-MSL/abort_exit.c                              code 0x0/0xF0  data 0x110/0x110  functions 0/1  not linked: code: 1 of 1 functions differ (exit 85%): the reference is another revision
+MSL/abort_exit.c                              code 0xF0/0xF0  data 0x110/0x110  functions 1/1  linked from C
 MSL/alloc.c                                   code 0x4B4/0x4B4  data 0x58/0x58  functions 4/4  linked from C
 MSL/ansi_files.c                              code 0x118/0x118  data 0x440/0x440  functions 2/2  linked from C
 MSL/ansi_fp.c                                 code 0x41C/0x1F54  data 0x8/0xE8  functions 2/4  not linked: code: 2 of 4 functions differ (__two_exp 93%, __num2dec_internal 96%): the reference is another revision  (C has data the split object lacks: .data 0x124)
 MSL/buffer_io.c                               code 0xF8/0xF8  data 0x0/0x0  functions 2/2  linked from C
 MSL/ctype.c                                   code 0x24/0x24  data 0x200/0x200  functions 1/1  linked from C
-MSL/direct_io.c                               code 0x30C/0x388  data 0x0/0x0  functions 1/2  not linked: code: 1 of 2 functions differ (fwrite 26%): the reference is another revision
-MSL/e_acos.c                                  code 0x0/0x23C  data 0x0/0x88  functions 0/1  not linked: code: 1 of 1 functions differ (__ieee754_acos 38%): the reference is another revision
-MSL/e_asin.c                                  code 0x0/0x238  data 0x0/0x88  functions 0/1  not linked: code: 1 of 1 functions differ (__ieee754_asin 59%): the reference is another revision
+MSL/direct_io.c                               code 0x388/0x388  data 0x0/0x0  functions 2/2  linked from C
+MSL/e_acos.c                                  code 0x23C/0x23C  data 0x88/0x88  functions 1/1  linked from C
+MSL/e_asin.c                                  code 0x238/0x238  data 0x88/0x88  functions 1/1  linked from C
 MSL/e_atan2.c                                 code 0x290/0x290  data 0x58/0x58  functions 1/1  linked from C
 MSL/e_fmod.c                                  code 0x33C/0x33C  data 0x10/0x10  functions 1/1  linked from C
 MSL/e_pow.c                                   code 0x830/0x830  data 0x140/0x140  functions 1/1  linked from C
@@ -96,7 +96,7 @@ dolphin/card/CARDFormat.c                     code 0x7E4/0x7E4  data 0x0/0x0  fu
 dolphin/card/CARDMount.c                      code 0xA78/0xA78  data 0x40/0x40  functions 7/7  linked from C
 dolphin/card/CARDNet.c                        code 0xC4/0xC4  data 0x8/0x8  functions 1/1  linked from C
 dolphin/card/CARDOpen.c                       code 0x5EC/0x5EC  data 0x0/0x0  functions 8/8  linked from C
-dolphin/card/CARDRdwr.c                       code 0x140/0x280  data 0x0/0x0  functions 2/4  not linked: code: 2 of 4 functions differ (BlockWriteCallback 78%, __CARDWrite 80%): the reference is another revision
+dolphin/card/CARDRdwr.c                       code 0x280/0x280  data 0x0/0x0  functions 4/4  linked from C
 dolphin/card/CARDStat.c                       code 0x4C8/0x4C8  data 0x0/0x0  functions 4/4  linked from C
 dolphin/card/CARDUnlock.c                     code 0x1260/0x1260  data 0x168/0x168  functions 6/6  linked from C
 dolphin/db/db.c                               code 0xEC/0xEC  data 0x20/0x20  functions 5/5  linked from C
@@ -108,7 +108,7 @@ dolphin/dvd/dvdidutils.c                      code 0xF8/0xF8  data 0x0/0x0  func
 dolphin/dvd/dvdlow.c                          code 0xE7C/0xE7C  data 0x120/0x120  functions 21/21  linked from C
 dolphin/dvd/dvdqueue.c                        code 0x1F8/0x1F8  data 0x20/0x20  functions 5/5  linked from C
 dolphin/dvd/fstload.c                         code 0x240/0x240  data 0x100/0x100  functions 2/2  linked from C
-dolphin/exi/EXIBios.c                         code 0x48/0x19DC  data 0xD0/0x1E0  functions 1/23  not linked: code: 22 of 23 functions differ (SetExiInterruptMask 90%, EXIImm 44%, EXIImmEx 95%, EXIDma 68% (+18 more)): the reference is another revision
+dolphin/exi/EXIBios.c                         code 0x19DC/0x19DC  data 0x1E0/0x1E0  functions 23/23  linked from C
 dolphin/exi/EXIUart.c                         code 0x5D4/0x5D4  data 0x10/0x10  functions 4/4  linked from C
 dolphin/gx/GXAttr.c                           code 0x13EC/0x1514  data 0x0/0x10  functions 14/16  not linked: code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision  (C has data the split object lacks: .data 0x274)
 dolphin/gx/GXBump.c                           code 0x274/0x274  data 0x0/0x0  functions 7/7  linked from C
@@ -119,7 +119,7 @@ dolphin/gx/GXGeometry.c                       code 0x33C/0x33C  data 0x0/0x0  fu
 dolphin/gx/GXInit.c                           code 0x1380/0x1380  data 0x8C4/0x8C4  functions 5/5  linked from C
 dolphin/gx/GXLight.c                          code 0x36C/0x604  data 0x20/0x50  functions 8/11  not linked: code: 3 of 11 functions differ (GXSetChanAmbColor 92%, GXSetChanMatColor 92%, GXSetChanCtrl 81%): the reference is another revision
 dolphin/gx/GXMisc.c                           code 0x674/0x674  data 0x18/0x18  functions 19/19  linked from C
-dolphin/gx/GXTev.c                            code 0x5F8/0x764  data 0x0/0x78  functions 13/16  not linked: code: 3 of 16 functions differ (GXSetTevColor 29%, GXSetTevColorS10 49%, GXSetTevKColor 22%): the reference is another revision
+dolphin/gx/GXTev.c                            code 0x764/0x764  data 0x78/0x78  functions 16/16  linked from C
 dolphin/gx/GXTexture.c                        code 0xFE8/0xFE8  data 0x290/0x290  functions 19/19  linked from C
 dolphin/gx/GXTransform.c                      code 0x5B8/0x5B8  data 0x10/0x10  functions 15/15  linked from C
 dolphin/mtx/mtx.c                             code 0x9F0/0x9F0  data 0x28/0x28  functions 17/17  linked from C
@@ -139,7 +139,7 @@ dolphin/os/OSInterrupt.c                      code 0x86C/0x86C  data 0x48/0x48  
 dolphin/os/OSLink.c                           code 0x18/0x18  data 0x0/0x0  functions 1/1  linked from C
 dolphin/os/OSMutex.c                          code 0x70/0x70  data 0x0/0x0  functions 1/1  linked from C
 dolphin/os/OSReboot.c                         code 0x0/0x35C  data 0x0/0x30  functions 0/3  not linked: code: 3 of 3 functions differ (fn_801367D8 0%, fn_801367E8 0%, __OSReboot 12%): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise)
-dolphin/os/OSReset.c                          code 0x13C/0x424  data 0x10/0x10  functions 3/5  not linked: code: 2 of 5 functions differ (OSResetSystem 26%, OSGetResetCode 68%): the reference is another revision  (C has data the split object lacks: .data 0x4E)
+dolphin/os/OSReset.c                          code 0x424/0x424  data 0x10/0x10  functions 5/5  linked from C
 dolphin/os/OSResetSW.c                        code 0x38C/0x38C  data 0x20/0x20  functions 2/2  linked from C
 dolphin/os/OSRtc.c                            code 0xCB4/0xCB4  data 0x58/0x58  functions 18/18  linked from C
 dolphin/os/OSSync.c                           code 0x84/0x84  data 0x0/0x0  functions 2/2  linked from C

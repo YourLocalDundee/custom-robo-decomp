@@ -1,5 +1,41 @@
-/* Custom Robo: from mariopartyrd/marioparty4 @ 5b01c79b4910525e3fc5aa312eddd6d014e7f337, src/MSL_C.PPCEABI.bare.H/e_acos.c */ #include "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common_Embedded/Math/fdlibm.h"
-#include "PowerPC_EABI_Support/Msl/MSL_C/MSL_Common/math.h"
+/* Custom Robo: from bfbbdecomp/bfbb @ d8e8eac38dd617ee72161f4cb2da4498bc89aad6, src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_acos.c */ 
+/* @(#)e_acos.c 1.3 95/01/18 */
+/*
+ * ====================================================
+ * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+ *
+ * Developed at SunSoft, a Sun Microsystems, Inc. business.
+ * Permission to use, copy, modify, and distribute this
+ * software is freely granted, provided that this notice 
+ * is preserved.
+ * ====================================================
+ */
+
+/* __ieee754_acos(x)
+ * Method :                  
+ *	acos(x)  = pi/2 - asin(x)
+ *	acos(-x) = pi/2 + asin(x)
+ * For |x|<=0.5
+ *	acos(x) = pi/2 - (x + x*x^2*R(x^2))	(see asin.c)
+ * For x>0.5
+ * 	acos(x) = pi/2 - (pi/2 - 2asin(sqrt((1-x)/2)))
+ *		= 2asin(sqrt((1-x)/2))  
+ *		= 2s + 2s*z*R(z) 	...z=(1-x)/2, s=sqrt(z)
+ *		= 2f + (2c + 2s*z*R(z))
+ *     where f=hi part of s, and c = (z-f*f)/(s+f) is the correction term
+ *     for f so that f+c ~ sqrt(z).
+ * For x<-0.5
+ *	acos(x) = pi - 2asin(sqrt((1-|x|)/2))
+ *		= pi - 0.5*(s+s*z*R(z)), where z=(1-|x|)/2,s=sqrt(z)
+ *
+ * Special cases:
+ *	if x is NaN, return x itself;
+ *	if |x|>1, return NaN with invalid signal.
+ *
+ * Function needed: sqrt
+ */
+
+#include "math.h"
 
 #ifdef __STDC__
 static const double 
