@@ -52,12 +52,14 @@ sudo apt install -y git curl unzip python3 python3-venv openjdk-21-jdk
 
 (No root? A JDK from the Temurin tarball under `~/.local` works too: [docs/INSTALL.md](docs/INSTALL.md#debian--ubuntu-apt).)
 
-**Arch (KDE: in Konsole, with pacman or yay)**
+**Arch (KDE: in Konsole, with yay; bash, zsh or fish all work)**
 
 ```bash
-sudo pacman -S --needed git curl unzip python jdk21-openjdk
-yay -S --needed jdk21-temurin        # optional: Temurin instead of the repo JDK; nothing else needs the AUR
+yay -S --needed git curl unzip python jdk21-openjdk
 ```
+
+(Without yay: `sudo pacman -S --needed git curl unzip python jdk21-openjdk`. Repository packages only, nothing from the
+AUR; the JDK note and the shell note: [docs/INSTALL.md](docs/INSTALL.md#arch-kde-konsole-yay--pacman).)
 
 **Fedora (dnf)**
 
@@ -74,8 +76,9 @@ brew install git python@3.12 openjdk@21 bash
 **Anything else:** install the tools in the list above with your package manager.
 
 > Tested end to end on Windows and on Ubuntu 26.04 (Oct 30, 2026). On Linux / macOS everything runs except the glTF
-> model export and batch 11 (Dolphin boot check), which are skipped; Arch, Fedora and macOS are not yet run
-> ([docs/INSTALL.md](docs/INSTALL.md#limits-and-status)).
+> model export and batch 11 (Dolphin boot check), which are skipped. Arch: the install block is verified in an Arch
+> container (the yay line from bash, zsh and fish, the pacman line from bash), the pipeline is not yet run there;
+> Fedora and macOS are not yet run ([docs/INSTALL.md](docs/INSTALL.md#limits-and-status)).
 
 ## Quick start
 
@@ -89,12 +92,12 @@ cd custom-robo-decomp
 pwsh tools\from_scratch.ps1 -Iso "D:\Games\Custom Robo (USA).iso"
 ```
 
-Linux / macOS (bash; the `.sh` scripts are the `.ps1` ones step for step):
+Linux / macOS (from any shell: the scripts run in bash; the `.sh` scripts are the `.ps1` ones step for step):
 
 ```bash
 git clone https://github.com/YourLocalDundee/custom-robo-decomp.git
 cd custom-robo-decomp
-tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
+bash tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
 ```
 
 That one command checks your ISO is the clean retail dump (SHA-1 `fff6e745…0bcb16`), downloads the tools,
