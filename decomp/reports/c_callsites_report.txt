@@ -1,4 +1,4 @@
-c-callsite names (tools/check_c_callsites.py): 69 lines in symbols/symbols.txt, 69 OK, 0 FAIL; 1016 names derived from matched C call sites, 42 at a dtk default name, 6 differ from our name, 0 at two addresses, 0 sites without the same relocation
+c-callsite names (tools/check_c_callsites.py): 71 lines in symbols/symbols.txt, 71 OK, 0 FAIL; 1016 names derived from matched C call sites, 42 at a dtk default name, 6 differ from our name, 0 at two addresses, 0 sites without the same relocation
 
 OK   DSPCheckMailToDSP 0x8014A42C: 38 call site(s), all agree; e.g. dolphin/card/CARDUnlock InitCallback+0x3C (0x8014D13C REL24)
 OK   PSVECCrossProduct 0x8013A284: 2 call site(s), all agree; e.g. dolphin/mtx/mtx C_MTXLookAt+0x6C (0x80139BAC REL24)
@@ -40,6 +40,7 @@ OK   JObjSortAnim 0x80196C74: 1 call site(s), all agree; e.g. sysdolphin/baselib
 OK   HSD_AObjInterpretAnim 0x8018CDEC: 3 call site(s), all agree; e.g. sysdolphin/baselib/dobj HSD_DObjAnimAll+0x38 (0x80186648 REL24)
 OK   HSD_RObjRemoveAll 0x801A207C: 3 call site(s), all agree; e.g. sysdolphin/baselib/wobj WObjLoad+0x30 (0x801A2D7C REL24)
 OK   _HSD_MemAlloc 0x801A4060: 4 call site(s), all agree; e.g. sysdolphin/baselib/class GetMemoryEntry+0x70 (0x801A7630 REL24)
+OK   HSD_TObjAddAnim 0x80186B44: 1 call site(s), all agree; e.g. sysdolphin/baselib/mobj HSD_MObjAddAnim+0x4C (0x8018B4E4 REL24)
 OK   HSD_TObjAnimAll 0x801872D8: 1 call site(s), all agree; e.g. sysdolphin/baselib/mobj HSD_MObjAnim+0x30 (0x8018BA30 REL24)
 OK   HSD_SetMaterialColor 0x8018A208: 1 call site(s), all agree; e.g. sysdolphin/baselib/mobj HSD_MObjSetup+0x5C (0x8018C748 REL24)
 OK   HSD_SetMaterialShininess 0x8018A27C: 1 call site(s), all agree; e.g. sysdolphin/baselib/mobj HSD_MObjSetup+0x70 (0x8018C75C REL24)
@@ -60,6 +61,7 @@ OK   HSD_DObjClearFlags 0x801864C8: defined there by sysdolphin/baselib/dobj.c (
 OK   HSD_DObjAddAnimAll 0x801864E0: defined there by sysdolphin/baselib/dobj.c (.text, size 0xB0)
 OK   hsdDObj 0x8024B4F8: defined there by sysdolphin/baselib/dobj.c (.data, size 0x48)
 OK   hsdWObj 0x8024CE00: defined there by sysdolphin/baselib/wobj.c (.data, size 0x44)
+OK   HSD_MObjSetCurrent 0x8018B448: defined there by sysdolphin/baselib/mobj.c (.text, size 0x8)
 OK   HSD_MObjGetFlags 0x8018B450: defined there by sysdolphin/baselib/mobj.c (.text, size 0x18)
 OK   HSD_MObjSetFlags 0x8018B468: defined there by sysdolphin/baselib/mobj.c (.text, size 0x18)
 OK   HSD_MObjClearFlags 0x8018B480: defined there by sysdolphin/baselib/mobj.c (.text, size 0x18)

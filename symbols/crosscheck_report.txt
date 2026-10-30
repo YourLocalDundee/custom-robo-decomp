@@ -123,7 +123,7 @@ __restore_gpr 8015F9E0 _restgpr_14
 801A5F10 HSD_ByteCodeEval
 801A8AF4 HSD_TExpColorInSub
 801ACCAC SimplifyByMerge
-801AE9B4 FUN_801ae9b4
+801AE9B4 HSD_SaveContext
 
 ## small-data labels unseen in C
 .sbss 8044F8B0 ZeroPS

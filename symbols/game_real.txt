@@ -418,12 +418,12 @@
 // G3 0x801903D4 cobj.c (passed to an assert/panic call, string 0x8044F058) - HSD_CObjGetInterest
 // G3 0x80190440 cobj.c (passed to an assert/panic call, string 0x8044F058) - HSD_CObjSetInterest
 // G3 0x801904AC cobj.c (passed to an assert/panic call, string 0x8044F058) - HSD_CObjGetEyePosition
-// G3 0x80190518 cobj.c (passed to an assert/panic call, string 0x8044F058) - fn_80190518
+// G3 0x80190518 cobj.c (passed to an assert/panic call, string 0x8044F058) - HSD_CObjSetEyePosition
 // G3 0x80190584 cobj.c (passed to an assert/panic call, string 0x8044F058) - HSD_CObjGetEyeDistance
 // G3 0x80190688 cobj.c (passed to an assert/panic call, string 0x8044F058) - upvec2roll
 // G3 0x80190870 cobj.c (passed to an assert/panic call, string 0x8044F058) - roll2upvec
 // G3 0x80190BBC cobj.c (passed to an assert/panic call, string 0x8044F058) - fn_80190BBC
-// G3 0x80190FDC cobj.c (passed to an assert/panic call, string 0x8044F058) - fn_80190FDC
+// G3 0x80190FDC cobj.c (passed to an assert/panic call, string 0x8044F058) - HSD_CObjSetRoll
 // G3 0x801915BC cobj.c (passed to an assert/panic call, string 0x8044F058) - HSD_CObjAlloc
 // G3 0x80191618 cobj.c (passed to an assert/panic call, string 0x8044F058) - CObjLoad
 // G3 0x80191844 cobj.c (passed to an assert/panic call, string 0x8044F058) - HSD_CObjLoadDesc
@@ -456,7 +456,7 @@
 // G3 0x8019CD88 initialize.c (passed to an assert/panic call, string 0x8024CB00) - HSD_AllocateXFB
 // G3 0x8019CEBC initialize.c (passed to an assert/panic call, string 0x8024CB00) - fn_8019CEBC
 // G3 0x8019D15C initialize.c (passed to an assert/panic call, string 0x8024CB00) - fn_8019D15C
-// G3 0x8019D2A0 initialize.c (passed to an assert/panic call, string 0x8024CB00) - HSD_GetHeap
+// G3 0x8019D2A0 initialize.c (passed to an assert/panic call, string 0x8024CB00) - fn_8019D2A0
 // G3 0x8019D3EC video.c (passed to an assert/panic call, string 0x8044F120) - HSD_VIPreRetraceCB
 // G3 0x8019D8BC video.c (passed to an assert/panic call, string 0x8044F120) - HSD_VICopyEFB2XFBPtr
 // G3 0x8019DC90 video.c (passed to an assert/panic call, string 0x8044F120) - fn_8019DC90
@@ -464,7 +464,7 @@
 // G3 0x801A02BC mtx.c (passed to an assert/panic call, string 0x8044F128) - HSD_MtxAlloc
 // G3 0x801A04C8 util.c (passed to an assert/panic call, string 0x8044F138) - HSD_Index2PosNrmMtx
 // G3 0x801A0584 objalloc.c (passed to an assert/panic call, string 0x8024CC60) - HSD_ObjAllocAddFree
-// G3 0x801A094C objalloc.c (passed to an assert/panic call, string 0x8024CC60) - fn_801A094C
+// G3 0x801A094C objalloc.c (passed to an assert/panic call, string 0x8024CC60) - HSD_ObjAllocInit
 // G3 0x801A0CCC robj.c (passed to an assert/panic call, string 0x8044F150) - HSD_RObjGetGlobalPosition
 // G3 0x801A0E80 robj.c (passed to an assert/panic call, string 0x8044F150) - resolveCnsDirUp
 // G3 0x801A1468 robj.c (passed to an assert/panic call, string 0x8044F150) - resolveLimits
@@ -484,8 +484,8 @@
 // G3 0x801A36A0 fog.c (passed to an assert/panic call, string 0x8044F1B8) - HSD_FogLoadDesc
 // G3 0x801A37E8 fog.c (passed to an assert/panic call, string 0x8044F1B8) - HSD_FogAdjLoadDesc
 // G3 0x801A3C9C perf.c (passed to an assert/panic call, string 0x8044F1D8) - fn_801A3C9C
-// G3 0x801A3D3C list.c (passed to an assert/panic call, string 0x8044F1E8) - fn_801A3D3C
-// G3 0x801A3D98 list.c (passed to an assert/panic call, string 0x8044F1E8) - fn_801A3D98
+// G3 0x801A3D3C list.c (passed to an assert/panic call, string 0x8044F1E8) - HSD_SListAlloc
+// G3 0x801A3D98 list.c (passed to an assert/panic call, string 0x8044F1E8) - HSD_SListAllocAndAppend
 // G3 0x801A3E18 list.c (passed to an assert/panic call, string 0x8044F1E8) - HSD_SListAllocAndPrepend
 // G3 0x801A3E98 list.c (passed to an assert/panic call, string 0x8044F1E8) - HSD_SListAppendList
 // G3 0x801A3F08 list.c (passed to an assert/panic call, string 0x8044F1E8) - HSD_SListPrependList
@@ -504,7 +504,7 @@
 // G3 0x801A5F10 bytecode.c (passed to an assert/panic call, string 0x8024D438) - HSD_ByteCodeEval
 // G3 0x801A74D8 class.c (passed to an assert/panic call, string 0x8044F248) - hsdInitClassInfo
 // G3 0x801A75C0 class.c (passed to an assert/panic call, string 0x8044F248) - GetMemoryEntry
-// G3 0x801A7CE4 hash.c (passed to an assert/panic call, string 0x8044F250) - fn_801A7CE4
+// G3 0x801A7CE4 hash.c (passed to an assert/panic call, string 0x8044F250) - HSD_HashSearch
 // G3 0x801A8424 texp.c (passed to an assert/panic call, string 0x8044F258) - HSD_TExpFreeList
 // G3 0x801A8744 texp.c (passed to an assert/panic call, string 0x8044F258) - HSD_TExpTev
 // G3 0x801A8804 texp.c (passed to an assert/panic call, string 0x8044F258) - HSD_TExpCnst

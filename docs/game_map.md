@@ -14,9 +14,9 @@ Functions below 0x80131000: 1761 (1315 still `FUN_`). All functions in the expor
 | light | 45 |
 | memory | 40 |
 | video | 33 |
+| anim | 29 |
 | memcard | 16 |
 | audio | 8 |
-| anim | 7 |
 | input | 6 |
 | debug-print | 4 |
 
@@ -117,8 +117,8 @@ Functions below 0x80131000: 1761 (1315 still `FUN_`). All functions in the expor
 | 800DF4C8 | 787 | 1 |  |
 | 8002745C | 697 | 1 | math |
 | 80049924 | 675 | 0 | ~math,~model |
-| 80070170 | 634 | 0 | math,model |
-| 80042AB8 | 607 | 1 | math,~model |
+| 80070170 | 634 | 0 | math,model,~anim |
+| 80042AB8 | 607 | 1 | math,~anim,~model |
 | 8003FE98 | 579 | 1 | model,~math |
 | 8005ED28 | 572 | 3 |  |
 | 8003DD38 | 554 | 1 | math,model |
@@ -134,7 +134,7 @@ Functions below 0x80131000: 1761 (1315 still `FUN_`). All functions in the expor
 | 80109314 | 403 | 1 |  |
 | 80060284 | 380 | 1 |  |
 | 8012F3C4 | 374 | 1 |  |
-| 8003B528 | 358 | 1 | ~math,~model |
+| 8003B528 | 358 | 1 | ~anim,~math,~model |
 | 80006658 | 350 | 1 |  |
 | 800E6348 | 349 | 1 | ~math |
 | 800AFE3C | 348 | 12 |  |

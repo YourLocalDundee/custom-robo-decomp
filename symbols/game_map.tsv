@@ -21,7 +21,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80005B88	FUN_80005b88	10	0	0				
 80005BC8	FUN_80005bc8	43	0	3	~math			
 80005D38	FUN_80005d38	18	0	1				
-80005DA4	FUN_80005da4	242	0	18	~math,~model			s_dddddddd_801ca557
+80005DA4	FUN_80005da4	242	0	18	~anim,~math,~model			s_dddddddd_801ca557
 80006658	FUN_80006658	350	1	0				
 8000766C	FUN_8000766c	10	2	1	~file-io,~video			
 8000768C	FUN_8000768c	48	2	5	model			
@@ -119,7 +119,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80012074	cr_SEQ_MEMORY_CARD_FrameB	9	0	0				
 80012078	cr_SEQ_MEMORY_CARD_FrameA	9	0	0				
 8001207C	cr_SEQ_SCENARIO_Leave	19	0	6	~model			
-800120D8	cr_SEQ_SCENARIO_Enter	202	0	25	~audio,~camera,~light,~math,~model,~render,~video			
+800120D8	cr_SEQ_SCENARIO_Enter	202	0	25	~anim,~audio,~camera,~light,~math,~model,~render,~video			
 800129F8	cr_SEQ_SCENARIO_FrameC	605	0	24	camera,light,math,render,~model	cobj.h		s_cobj_8045032f,s_cobj_h_80450328
 80014A64	cr_SEQ_SCENARIO_FrameB	237	0	12	math,model,~anim,~camera	jobj.h		s_jobj_80450393,s_jobj_h_8045038c
 80015388	FUN_80015388	99	1	8	camera,math,model	jobj.h		s_jobj_80450393,s_jobj_h_8045038c
@@ -384,35 +384,35 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80037FBC	cr_Motion_PlayFromFrame1	11	28	1				
 80037FF0	FUN_80037ff0	59	7	4				
 800381D0	FUN_800381d0	246	1	16	~math			
-800389C8	FUN_800389c8	56	1	6	~camera,~light,~math,~model,~render			
+800389C8	FUN_800389c8	56	1	6	~anim,~camera,~light,~math,~model,~render			
 80038BD8	FUN_80038bd8	45	1	2	~camera,~light,~math,~model,~render			
 80038CF8	FUN_80038cf8	140	2	3	model,~camera,~light,~math,~render			
-800392B0	FUN_800392b0	299	1	22	math,model	jobj.h		s_jobj_80450677,s_jobj_h_80450670
+800392B0	FUN_800392b0	299	1	22	math,model,~anim	jobj.h		s_jobj_80450677,s_jobj_h_80450670
 80039FAC	FUN_80039fac	309	3	10	math,model,~anim	jobj.h		s_jobj_80450677,s_jobj_h_80450670
 8003ABA0	FUN_8003aba0	107	1	1				
 8003AFF0	FUN_8003aff0	56	1	1				
 8003B1BC	FUN_8003b1bc	67	1	0				
 8003B37C	FUN_8003b37c	60	1	1				
-8003B528	FUN_8003b528	358	1	25	~math,~model			
+8003B528	FUN_8003b528	358	1	25	~anim,~math,~model			
 8003C4F0	FUN_8003c4f0	417	1	6	~math,~model			
 8003D4C4	FUN_8003d4c4	13	7	2				
 8003D500	FUN_8003d500	82	1	6	math,model	jobj.h		s_jobj_80450677,s_jobj_h_80450670
 8003D7E0	FUN_8003d7e0	147	2	11	~math,~model			
 8003DD38	FUN_8003dd38	554	1	24	math,model			
 8003F000	FUN_8003f000	16	1	0				
-8003F048	FUN_8003f048	62	1	3	~model			
+8003F048	FUN_8003f048	62	1	3	~anim,~model			
 8003F1E8	FUN_8003f1e8	18	1	2	model			
 8003F248	FUN_8003f248	265	5	17	~math,~model			
-8003FB00	FUN_8003fb00	114	1	13	math,model,~camera,~light,~render	jobj.h		s_jobj_80450677,s_jobj_h_80450670
+8003FB00	FUN_8003fb00	114	1	13	math,model,~anim,~camera,~light,~render	jobj.h		s_jobj_80450677,s_jobj_h_80450670
 8003FE98	FUN_8003fe98	579	1	21	model,~math			
 800410C0	FUN_800410c0	23	1	1				
-80041140	FUN_80041140	64	1	4	~model			
+80041140	FUN_80041140	64	1	4	~anim,~model			
 800412F8	FUN_800412f8	18	1	2	model			
 80041358	FUN_80041358	454	1	15	~math,~model			
-800426D4	FUN_800426d4	109	1	13	math,model,~camera,~light,~render	jobj.h		s_jobj_80450677,s_jobj_h_80450670
-80042AB8	FUN_80042ab8	607	1	32	math,~model			
+800426D4	FUN_800426d4	109	1	13	math,model,~anim,~camera,~light,~render	jobj.h		s_jobj_80450677,s_jobj_h_80450670
+80042AB8	FUN_80042ab8	607	1	32	math,~anim,~model			
 800440BC	FUN_800440bc	34	1	2	~model			
-80044174	FUN_80044174	50	1	4	~model			
+80044174	FUN_80044174	50	1	4	~anim,~model			
 800442EC	FUN_800442ec	24	1	1	model			
 80044374	FUN_80044374	17	1	0				
 800443A0	FUN_800443a0	19	3	0				
@@ -627,9 +627,9 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8006FDD0	FUN_8006fdd0	14	1	0				
 8006FE38	FUN_8006fe38	62	6	2	model			
 80070130	FUN_80070130	10	0	0				
-80070170	FUN_80070170	634	0	17	math,model	jobj.h		s_jobj_80450bd7,s_jobj_h_80450bd0
+80070170	FUN_80070170	634	0	17	math,model,~anim	jobj.h		s_jobj_80450bd7,s_jobj_h_80450bd0
 80071960	FUN_80071960	10	0	0				
-80071974	FUN_80071974	187	3	17	model,render,~camera,~math			
+80071974	FUN_80071974	192	3	17	model,render,~camera,~math			
 80072064	FUN_80072064	243	2	23	camera,light,model,render,~math	background.c,jobj.h,lobj.h,shadow.h		s_background_c_801c0b08,s_jobj_80450bd7,s_jobj_h_80450bd0,s_lobj_80450c13,s_lobj_h_80450c0c,s_scene_data_801c0b62,s_shadow_80450b78,s_shadow_h_801c0b4f
 80072A58	FUN_80072a58	54	2	0				
 80072B90	FUN_80072b90	73	1	4	math,model	jobj.h		s_jobj_80450bd7,s_jobj_h_80450bd0
@@ -642,17 +642,17 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80074110	cr_Chara_BuildModel	229	6	4	model			
 800746C4	FUN_800746c4	39	2	0				
 800747B0	cr_CharaEntry_OnLoaded	35	0	0				
-800748A8	cr_ModelEntry_LoadAndBuild	140	1	4	model			
+800748A8	cr_ModelEntry_LoadAndBuild	140	1	4	model,~anim			
 80074DCC	cr_MotionFile_Register	65	5	0				
 80074FBC	FUN_80074fbc	44	8	1				
 800750F8	FUN_800750f8	10	9	1	~model			
 80075120	FUN_80075120	40	3	5	math,model,~camera	jobj.h		s_jobj_80450c4f,s_jobj_h_80450c48
-80075258	FUN_80075258	35	1	3	model			
-80075388	FUN_80075388	35	1	3	model			
-800754B8	FUN_800754b8	35	1	3	model			
-800755E8	FUN_800755e8	35	1	3	model			
+80075258	FUN_80075258	35	1	3	model,~anim			
+80075388	FUN_80075388	35	1	3	model,~anim			
+800754B8	FUN_800754b8	35	1	3	model,~anim			
+800755E8	FUN_800755e8	35	1	3	model,~anim			
 80075718	FUN_80075718	9	1	0				
-8007571C	FUN_8007571c	41	1	4	~file-io,~render,~video			s_scene_data_801c0b80
+8007571C	FUN_8007571c	45	1	4	~file-io,~render,~video			s_scene_data_801c0b80
 80075950	FUN_80075950	50	2	2				
 80075BBC	FUN_80075bbc	18	3	5	~camera,~math,~model			
 80075C14	FUN_80075c14	13	2	2	~camera,~math,~model			
@@ -676,8 +676,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80077888	FUN_80077888	34	1	2	model			
 800779A8	FUN_800779a8	90	1	3	model			
 80077C5C	FUN_80077c5c	92	1	3	model			
-80077F38	FUN_80077f38	25	2	6	model,~file-io,~render,~video			s_scene_data_801c0b90
-80078000	FUN_80078000	80	1	6				s_scene_data_801c0b90
+80077F38	FUN_80077f38	26	2	6	model,~file-io,~render,~video			s_scene_data_801c0b90
+80078000	FUN_80078000	85	1	6				s_scene_data_801c0b90
 80078438	FUN_80078438	14	2	2	~file-io			
 80078478	FUN_80078478	11	1	2				
 800784B0	FUN_800784b0	228	3	4	model	jobj.h		s___jobj_,s_jobj_80450cc3,s_jobj_h_80450cbc,s_scale_80450ce4,s_translate_801c0b9b
@@ -758,12 +758,12 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80081D9C	FUN_80081d9c	158	1	10	math,~model			
 80082364	FUN_80082364	139	0	0				
 80082A00	FUN_80082a00	118	3	3	model			
-80082F84	FUN_80082f84	288	1	9	light,model			s_lobj_80450f4b,s_scene_data_801c0cd0
-80083C78	FUN_80083c78	292	1	15	math,model,render,~camera	5jobj.h		s_5jobj_h_80450f5b,s_jobj_80450f63
+80082F84	FUN_80082f84	297	1	9	light,model			s_lobj_80450f4b,s_scene_data_801c0cd0
+80083C78	FUN_80083c78	293	1	15	math,model,render,~camera	5jobj.h		s_5jobj_h_80450f5b,s_jobj_80450f63
 80084908	FUN_80084908	79	2	3	math			
 80084CFC	FUN_80084cfc	117	3	1				
 80085280	FUN_80085280	41	2	2	~math			
-8008538C	FUN_8008538c	110	3	4	model			
+8008538C	FUN_8008538c	115	3	4	model			
 8008578C	FUN_8008578c	56	1	6	math			
 800858B0	FUN_800858b0	93	1	2	math			
 80085CE4	FUN_80085ce4	223	1	1				
@@ -880,10 +880,10 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800943D8	FUN_800943d8	35	1	3	render			
 800944B8	FUN_800944b8	17	4	0				
 800944E4	FUN_800944e4	149	1	3				
-8009496C	FUN_8009496c	146	2	6	model			
-80094DD8	FUN_80094dd8	138	9	4				
-80095224	FUN_80095224	154	2	7	model,~anim			
-80095700	FUN_80095700	108	3	2	model,~anim			
+8009496C	FUN_8009496c	146	2	6	anim,model			
+80094DD8	FUN_80094dd8	145	9	4	anim			
+80095224	FUN_80095224	154	2	7	anim,model			
+80095700	FUN_80095700	111	3	2	anim,model			
 80095A30	FUN_80095a30	135	15	4	model	jobj.h		s_jobj_80451097,s_jobj_h_80451090
 80095D7C	FUN_80095d7c	26	2	2	model	jobj.h		s_jobj_80451097,s_jobj_h_80451090
 80095E00	FUN_80095e00	18	1	1		jobj.h		s_jobj_80451097,s_jobj_h_80451090
@@ -927,7 +927,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80099D24	FUN_80099d24	10	1	1				
 80099D50	FUN_80099d50	19	1	6	~math,~render			
 80099DE0	FUN_80099de0	33	1	0				
-80099EAC	cr_Chara_UpdateAll	486	1	34	~file-io,~light,~math,~memory,~model,~video			
+80099EAC	cr_Chara_UpdateAll	486	1	34	~anim,~file-io,~light,~math,~memory,~model,~video			
 8009AEC4	FUN_8009aec4	884	1	22	model,~camera,~file-io,~math,~render,~video			
 8009D620	FUN_8009d620	120	1	1				s_train_rst_801c3aa0
 8009DAD8	FUN_8009dad8	187	1	9	model,~camera,~math,~render			
@@ -968,11 +968,11 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800A57CC	FUN_800a57cc	18	0	2				
 800A5844	FUN_800a5844	15	0	0				
 800A5890	FUN_800a5890	9	0	0				
-800A5894	FUN_800a5894	32	0	4	~math,~model			
+800A5894	FUN_800a5894	32	0	4	~anim,~math,~model			
 800A59D8	FUN_800a59d8	63	1	5				
 800A5C60	FUN_800a5c60	47	1	1	math			
 800A5F3C	FUN_800a5f3c	45	0	5				
-800A6068	FUN_800a6068	69	1	10	light,math,model,~camera,~render	jobj.h		s_jobj_804513c3,s_jobj_h_804513bc
+800A6068	FUN_800a6068	69	1	10	camera,light,math,model,~render	jobj.h		s_jobj_804513c3,s_jobj_h_804513bc
 800A63C0	FUN_800a63c0	1410	1	57	light,model,~anim,~file-io,~math			s__333_8022a0f8,s___ff__8022a0ec,s_m_tk_b2d_r_01_801bfffb
 800A9FEC	FUN_800a9fec	10	0	0				
 800AA024	FUN_800aa024	38	0	3	~math,~model			
@@ -1545,7 +1545,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80100C30	FUN_80100c30	74	1	0				
 80100F68	FUN_80100f68	37	1	3	light,model	lobj.h		s_lobj_804517ff,s_lobj_h_804517f8
 801010A8	FUN_801010a8	60	1	9	light,math,model,~camera,~render	jobj.h		s_jobj_804517f3,s_jobj_h_804517ec
-80101284	FUN_80101284	133	1	5	~math,~model			
+80101284	FUN_80101284	133	1	5	~anim,~math,~model			
 80101730	FUN_80101730	60	1	6				
 80101950	FUN_80101950	19	1	4				
 801019D8	FUN_801019d8	144	2	1				
@@ -3022,7 +3022,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801851D4	FUN_801851d4	21	1	4	render			
 80185304	FUN_80185304	10	1	0				
 80185310	FUN_80185310	170	1	6	render			
-801859E8	FUN_801859e8	24	1	2	memory			
+801859E8	FUN_801859e8	23	1	2	memory			
 80185A88	FUN_80185a88	51	1	2	memory			
 80185B80	FUN_80185b80	17	2	0				
 80185BBC	FUN_80185bbc	17	1	0				
@@ -3035,13 +3035,13 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80186010	FUN_80186010	25	3	1		pslist.c		s_activeParticle_pp_,s_parent_,s_pslist_c_8024b490
 801860EC	FUN_801860ec	18	4	1		pslist.c		s_linkNo_,s_pslist_c_8024b490
 80186158	FUN_80186158	176	1	3	memory			
-80186490	FUN_80186490	10	1	0				
+80186490	HSD_DObjSetCurrent	13	1	0				
 80186498	HSD_DObjGetFlags	15	1	0				
 801864B0	HSD_DObjSetFlags	16	1	0				
-801864C8	FUN_801864c8	13	1	0				
-801864E0	FUN_801864e0	38	2	2	~anim,~model			
+801864C8	HSD_DObjClearFlags	16	1	0				
+801864E0	HSD_DObjAddAnimAll	41	2	2	model			
 80186590	HSD_DObjReqAnimAllByFlags	20	2	2	model			
-80186610	HSD_DObjAnimAll	21	2	3	model,~anim			
+80186610	HSD_DObjAnimAll	23	2	3	anim,model			
 8018667C	DObjLoad	51	0	5	debug-print,model	dobj.c		s_dobj_c_8044ef88,s_mobj_has_unexpected_blending_fla_8024b540
 8018678C	HSD_DObjLoadDesc	29	2	4	model	dobj.c		s_dobj_8044ef94,s_dobj_c_8044ef88
 80186824	HSD_DObjRemoveAll	21	1	0				
@@ -3052,9 +3052,9 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80186A7C	DObjAmnesia	13	0	0				
 80186AC4	DObjInfoInit	18	0	1				s_hsd_dobj_8024b60c,s_sysdolphin_base_library_8024b5f4
 80186B44	HSD_TObjAddAnim	69	1	8	anim			
-80186C98	HSD_TObjReqAnimAllByFlags	23	1	1	~anim			
+80186C98	HSD_TObjReqAnimAllByFlags	19	1	1	anim			
 80186D0C	TObjUpdateFunc	195	0	1		tobj.c		s_tobj_,s_tobj_c_8044efa0
-801872D8	FUN_801872d8	16	1	1	~anim			
+801872D8	HSD_TObjAnimAll	21	1	1	anim			
 80187334	TObjLoad	50	0	4	model			
 8018745C	HSD_TObjLoadDesc	29	2	4	model	tobj.c		s_tobj_8044efa8,s_tobj_c_8044efa0
 801874F4	HSD_TlutLoadDesc	18	2	2	memory			
@@ -3093,8 +3093,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80189C88	HSD_SetupChannelMode	103	1	13	light,render			
 80189EC4	HSD_SetupPEMode	43	1	8	render			
 8018A038	HSD_SetupRenderModeWithCustomPE	58	1	15	render			
-8018A208	FUN_8018a208	19	1	0				
-8018A27C	FUN_8018a27c	10	1	0				
+8018A208	HSD_SetMaterialColor	22	1	0				
+8018A27C	HSD_SetMaterialShininess	12	1	0				
 8018A28C	HSD_StateSetCullMode	13	2	1	render			
 8018A2C8	HSD_StateSetBlendMode	17	2	1	render			
 8018A368	HSD_StateSetZMode	21	3	1	render			
@@ -3108,8 +3108,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8018A650	_HSD_StateInvalidateVtxAttr	10	0	1				
 8018A670	_HSD_StateInvalidateRenderMode	27	0	0				
 8018A6C8	HSD_StateInvalidate	19	16	0				
-8018A728	FUN_8018a728	12	1	1	~memory			
-8018A784	FUN_8018a784	109	2	3	render			
+8018A728	HSD_RenderInitAllocData	12	1	1	memory			
+8018A784	HSD_SetupChannel	115	2	3	render			
 8018AB28	HSD_DisableChannelLighting	37	1	1	render			
 8018AC20	HSD_StateSetNumChans	13	1	1	render			
 8018AC60	HSD_SetupChannelAll	27	1	3	render			
@@ -3131,22 +3131,22 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8018B41C	_HSD_StateInvalidateTevRegister	13	0	0				
 8018B43C	_HSD_StateInvalidateTexCoordGen	10	0	0				
 8018B448	HSD_MObjSetCurrent	13	1	0				
-8018B450	FUN_8018b450	12	2	0				
-8018B468	FUN_8018b468	13	1	0				
-8018B480	FUN_8018b480	13	1	0				
-8018B498	FUN_8018b498	22	1	3	anim,model			
-8018B500	HSD_MObjReqAnimByFlags	19	1	2	model,~anim			
+8018B450	HSD_MObjGetFlags	12	2	0				
+8018B468	HSD_MObjSetFlags	16	1	0				
+8018B480	HSD_MObjClearFlags	16	1	0				
+8018B498	HSD_MObjAddAnim	22	1	3	anim,model			
+8018B500	HSD_MObjReqAnimByFlags	18	1	2	anim,model			
 8018B564	MObjUpdateFunc	145	0	0				
-8018BA00	HSD_MObjAnim	22	1	2	~anim			
+8018BA00	HSD_MObjAnim	17	1	2	anim,model			
 8018BA48	MObjLoad	29	0	4	memory,model			
 8018BAE8	HSD_MObjLoadDesc	30	1	5	model	mobj.c		s_mobj_8044eff8,s_mobj_c_8044eff0
 8018BB88	MObjMakeTExp	218	0	11		mobj.c		s_list_8044f000,s_mobj_c_8044eff0
 8018C554	HSD_MObjCompileTev	49	1	4	model			
 8018C674	MObjSetupTev	17	0	3	model	mobj.c		s_mobj_,s_mobj_c_8044eff0
-8018C6EC	HSD_MObjSetup	52	6	6	model,render			
-8018C830	FUN_8018c830	13	0	1	model			
-8018C854	FUN_8018c854	18	2	0				
-8018C884	FUN_8018c884	16	5	0				
+8018C6EC	HSD_MObjSetup	54	6	6	model,render			
+8018C830	HSD_MObjUnset	13	0	1	model			
+8018C854	HSD_MObjSetDiffuseColor	18	2	0				
+8018C884	HSD_MObjSetAlpha	21	5	0				
 8018C8A4	HSD_MObjGetTObj	15	6	0				
 8018C8BC	HSD_MObjRemove	16	1	0				
 8018C90C	HSD_MObjAlloc	23	1	2		mobj.c		s_mobj_8044eff8,s_mobj_c_8044eff0
@@ -3156,21 +3156,21 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8018CA90	MObjRelease	25	0	5	anim,model			
 8018CB2C	MObjAmnesia	17	0	0				
 8018CB90	MObjInfoInit	22	0	1				s_hsd_mobj_8024bfd8,s_sysdolphin_base_library_8024bfc0
-8018CC40	FUN_8018cc40	10	1	1	~memory			
-8018CC70	FUN_8018cc70	11	1	0				
-8018CC80	FUN_8018cc80	16	1	0				
+8018CC40	HSD_AObjInitAllocData	10	1	1	memory			
+8018CC70	HSD_AObjInitEndCallBack	11	1	0				
+8018CC80	HSD_AObjInvokeCallBacks	16	1	0				
 8018CCDC	FUN_8018ccdc	13	1	2		aobj.c		s_aobj_c_8044f018,s_callback_8024bfe8
 8018CD2C	FUN_8018cd2c	26	1	1				
-8018CDAC	FUN_8018cdac	14	6	1	anim			
-8018CDEC	FUN_8018cdec	61	7	4	anim			
+8018CDAC	HSD_AObjReqAnim	19	6	1	anim			
+8018CDEC	HSD_AObjInterpretAnim	63	7	4	anim			
 8018CFA4	HSD_AObjLoadDesc	52	6	9	anim,model	object.h		s_HSD_OBJ_o__,s_object_h_8024bff4
 8018D0CC	HSD_AObjRemove	25	16	3	anim,model			
 8018D13C	HSD_AObjAlloc	23	1	3	memory	aobj.c		s_aobj_c_8044f018
 8018D1A8	HSD_AObjFree	15	1	1				
-8018D1DC	FUN_8018d1dc	13	2	0				
+8018D1DC	HSD_AObjSetRate	18	2	0				
 8018D1EC	HSD_AObjSetRewindFrame	18	1	0				
 8018D1FC	HSD_AObjSetEndFrame	18	1	0				
-8018D20C	FUN_8018d20c	14	2	1	anim			
+8018D20C	HSD_AObjSetCurrentFrame	20	2	1	anim			
 8018D260	HSD_LObjGetLightMaskDiffuse	9	3	0				
 8018D268	HSD_LObjGetLightMaskAttnFunc	9	1	0				
 8018D270	HSD_LObjGetLightMaskAlpha	9	1	0				
@@ -3178,11 +3178,11 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8018D280	HSD_LObjGetNbActive	9	2	0				
 8018D288	HSD_LObjGetActiveByID	22	2	1				
 8018D2D0	HSD_LObjGetActiveByIndex	15	2	0				
-8018D2FC	FUN_8018d2fc	97	0	0				
-8018D548	HSD_LObjGetLightVector	47	1	4	math			
+8018D2FC	LObjUpdateFunc	97	0	0				
+8018D548	HSD_LObjGetLightVector	47	1	4	light,math			
 8018D66C	HSD_LObjSetup	59	1	3	render			
 8018D7D0	HSD_LObjSetupSpecularInit	99	2	5	math,render	lobj.c		s_lobj_c_8044f028
-8018DA48	HSD_LObjSetupInit	494	6	18	math,render	lobj.c		s_lobj_c_8044f028
+8018DA48	HSD_LObjSetupInit	491	6	18	light,math,render	lobj.c		s_lobj_c_8044f028
 8018E604	FUN_8018e604	132	6	3		lobj.h,object.h		s_HSD_OBJ_o__,s_lobj_8044f03c,s_lobj_h_8044f034,s_object_h_8024c0a4
 8018E944	HSD_LObjGetCurrentByType	22	1	0				
 8018E978	HSD_LightID2Index	47	2	1		lobj.c		s_lobj_c_8044f028
@@ -3191,37 +3191,37 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8018ECE0	HSD_LObjSetColor	13	1	0				
 8018ECEC	HSD_LObjGetColor	13	1	0				
 8018ECF8	HSD_LObjSetPosition	25	4	3		lobj.c		s_lobj_,s_lobj_8044f03c,s_lobj_c_8044f028
-8018ED80	FUN_8018ed80	21	4	1				
-8018EDC0	FUN_8018edc0	21	2	1				
+8018ED80	HSD_LObjGetPosition	21	4	1				
+8018EDC0	HSD_LObjGetInterest	21	2	1				
 8018EE00	LObjLoad	173	0	3	debug-print	lobj.c		s_lobj_c_8044f028,s_unexpected_lightdesc_flags___x__8024c140
 8018F214	HSD_LObjLoadDesc	43	7	3		lobj.c		s_lobj_c_8044f028
-8018F304	FUN_8018f304	58	0	1	anim			
+8018F304	LObjRelease	58	0	1	anim			
 8018F468	LObjAmnesia	16	0	0				
 8018F4C8	LObjInfoInit	15	0	1				s_hsd_lobj_8024c17c,s_sysdolphin_base_library_8024c164
-8018F548	FUN_8018f548	71	1	5	camera			
-8018F6EC	CObjUpdateFunc	59	0	8	camera,~debug-print,~math			
+8018F548	HSD_CObjEraseScreen	71	1	5	camera			
+8018F6EC	CObjUpdateFunc	59	0	8	camera			
 8018F830	FUN_8018f830	132	1	9	render			
 8018FA94	FUN_8018fa94	155	1	9	render			
 8018FD60	FUN_8018fd60	33	1	7	camera			
-8018FE2C	HSD_CObjSetCurrent	256	6	23	camera,render,video	cobj.c		s_cobj_c_8044f058,s_unkown_type_of_render_pass__8024c220
+8018FE2C	HSD_CObjSetCurrent	257	6	23	camera,render,video	cobj.c		s_cobj_c_8044f058,s_unkown_type_of_render_pass__8024c220
 80190330	HSD_CObjEndCurrent	11	6	2				
 80190354	HSD_CObjGetInterestWObj	15	1	1		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 80190394	HSD_CObjGetEyePositionWObj	15	1	1		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 801903D4	HSD_CObjGetInterest	17	4	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 80190440	HSD_CObjSetInterest	17	2	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 801904AC	HSD_CObjGetEyePosition	17	4	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
-80190518	FUN_80190518	17	2	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
+80190518	HSD_CObjSetEyePosition	17	2	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 80190584	HSD_CObjGetEyeDistance	38	3	4	math	cobj.c		s_cobj_,s_cobj_8044f060,s_cobj_c_8044f058
 80190688	upvec2roll	73	1	8	math	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 80190870	roll2upvec	88	2	6	math	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 80190B54	HSD_CObjGetUpVector	26	4	1				
-80190BBC	FUN_80190bbc	106	2	11	debug-print,math,~camera	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058,s_illegal_up_vector__8024c278
+80190BBC	FUN_80190bbc	107	2	11	camera,debug-print,math	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058,s_illegal_up_vector__8024c278
 80190EB8	FUN_80190eb8	10	2	0				
 80190EC8	HSD_CObjMtxIsDirty	21	2	0				
 80190F14	HSD_CObjGetViewingMtx	16	1	2	camera,math			
 80190F48	HSD_CObjGetInvViewingMtxPtrDirect	22	1	3	camera,math			
 80190FAC	HSD_CObjGetViewingMtxPtr	13	1	1	~camera			
-80190FDC	FUN_80190fdc	142	3	14	camera,debug-print,math	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058,s_illegal_up_vector__8024c278
+80190FDC	HSD_CObjSetRoll	145	3	14	camera,debug-print,math	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058,s_illegal_up_vector__8024c278
 80191404	HSD_CObjSetFov	21	6	0				
 80191424	FUN_80191424	16	5	0				
 80191444	HSD_CObjGetNear	15	3	0				
@@ -3240,32 +3240,32 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8019159C	HSD_CObjClearFlags	16	3	0				
 801915B4	HSD_CObjGetCurrent	12	10	0				
 801915BC	HSD_CObjAlloc	23	1	2		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
-80191618	CObjLoad	98	0	4	~camera,~debug-print,~math	cobj.c		s_cobj_c_8044f058
+80191618	CObjLoad	103	0	4	camera,~debug-print,~math	cobj.c		s_cobj_c_8044f058
 80191844	HSD_CObjLoadDesc	39	1	3		cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 80191908	CObjInit	26	0	1				
 8019197C	CObjRelease	57	0	3	anim	cobj.c		s_cobj_8044f060,s_cobj_c_8044f058
 80191B00	CObjAmnesia	16	0	0				
 80191B60	CObjInfoInit	16	0	1				s_hsd_cobj_8024c2d4,s_sysdolphin_base_library_8024c2bc
-80191BEC	FUN_80191bec	10	1	1	~memory			
-80191C1C	HSD_FObjRemove	12	1	1				
+80191BEC	HSD_FObjInitAllocData	10	1	1	memory			
+80191C1C	HSD_FObjRemove	12	1	1	anim			
 80191C44	HSD_FObjRemoveAll	73	2	4	anim			
 80191D68	HSD_FObjReqAnimAll	34	3	0				
 80191E0C	HSD_FObjStopAnimAll	19	1	1	anim			
 80191EA4	FObjLoadData	576	1	1		fobj.c		s_fobj_c_8044f070,s_st____FOBJ_LOAD_DATA0____st____F_8024c2f8
-80192F74	HSD_FObjInterpretAnim	291	2	3		fobj.c		s_fobj_c_8044f070,s_st____FOBJ_LOAD_WAIT_8024c2e0
+80192F74	HSD_FObjInterpretAnim	301	2	3		fobj.c		s_fobj_c_8044f070,s_st____FOBJ_LOAD_WAIT_8024c2e0
 80193648	HSD_FObjInterpretAnimAll	12	1	1	anim			
 801936B8	HSD_FObjLoadDesc	98	1	3	anim			
 801938E0	HSD_FObjAlloc	16	1	3	memory	fobj.c		s_fobj_c_8044f070
-8019393C	FUN_8019393c	10	2	1				
-80193968	FUN_80193968	32	1	2	anim			
-801939F8	HSD_PObjReqAnimAllByFlags	23	1	1	~anim			
+8019393C	HSD_FObjFree	10	2	1				
+80193968	HSD_PObjAddAnimAll	32	1	2	anim			
+801939F8	HSD_PObjReqAnimAllByFlags	19	1	1	anim			
 80193A6C	PObjUpdateFunc	23	0	0				
-80193AB8	HSD_PObjAnimAll	19	1	1	~anim			
-80193B14	PObjLoad	106	0	10	memory,model	pobj.c		s_envelope_8024c374,s_pobj__unexected_type__8024c38c,s_pobj_c_8044f080,s_shape_set_8024c380
+80193AB8	HSD_PObjAnimAll	21	1	1	anim			
+80193B14	PObjLoad	107	0	10	memory,model	pobj.c		s_envelope_8024c374,s_pobj__unexected_type__8024c38c,s_pobj_c_8044f080,s_shape_set_8024c380
 80193D50	HSD_PObjLoadDesc	29	2	4	model	pobj.c		s_pobj_8044f088,s_pobj_c_8044f080
 80193DE8	HSD_PObjRemoveAll	21	1	0				
 80193E5C	HSD_PObjAlloc	23	1	2		pobj.c		s_pobj_8044f088,s_pobj_c_8044f080
-80193EB8	HSD_PObjResolveRefsAll	75	1	5	model	object.h,pobj.c		s_HSD_OBJ_o__,s_env_,s_object_h_8024c3d4,s_pobj_,s_pobj_c_8044f080
+80193EB8	HSD_PObjResolveRefsAll	77	1	5	model	object.h,pobj.c		s_HSD_OBJ_o__,s_env_,s_object_h_8024c3d4,s_pobj_,s_pobj_c_8044f080
 8019408C	HSD_ClearVtxDesc	12	3	1	render			
 801940B8	get_shape_vertex_xyz	84	1	3	memory	pobj.c		s_pobj_c_8044f080,s_shape_set_,s_unexpected_vertex_type__8024c448
 80194444	get_shape_normal_xyz	84	1	3	memory	pobj.c		s_pobj_c_8044f080,s_shape_set_,s_unexpected_normal_type__8024c494
@@ -3284,16 +3284,16 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80196568	FUN_80196568	18	4	1		jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
 801965C0	HSD_JObjSetMtxDirty	26	2	2	model	jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
 80196630	HSD_JObjMakeMatrix	111	1	7	math,model			
-80196900	HSD_JObjReqAnimByFlags	25	1	3	model,~anim			
-80196988	HSD_JObjReqAnimAllByFlags	125	1	6	model,~anim			
+80196900	HSD_JObjReqAnimByFlags	24	1	3	anim,model			
+80196988	HSD_JObjReqAnimAllByFlags	127	1	6	anim,model			
 80196C50	FUN_80196c50	13	35	1	model			
-80196C74	FUN_80196c74	29	1	0				
+80196C74	JObjSortAnim	32	1	0				
 80196CCC	HSD_JObjAddAnim	65	1	6	anim,model			
 80196E0C	HSD_JObjAddAnimAll	244	27	10	anim,model			
 801971E8	JObjUpdateFunc	373	0	15	math,model	jobj.c,jobj.h		s___jobj_,s_jobj_,s_jobj_8044f0b0,s_jobj_c_8044f0b8,s_jobj_h_8044f0a8,s_jp_
-80197B2C	HSD_JObjAnim	49	4	3	model,~anim			
-80197C90	JObjAnimAll	108	1	6	model,~anim			
-80197FD8	HSD_JObjAnimAll	17	11	3				
+80197B2C	HSD_JObjAnim	50	4	3	anim,model			
+80197C90	JObjAnimAll	111	1	6	anim,model			
+80197FD8	HSD_JObjAnimAll	17	11	3	anim			
 80198014	FUN_80198014	50	1	5	camera,math,model	jobj.h		s_jobj_8044f0b0,s_jobj_h_8044f0a8
 80198144	FUN_80198144	202	15	10	camera,math,model			
 80198688	HSD_CObjGetViewingMtxPtrDirect	12	1	0				
@@ -3328,7 +3328,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8019B2DC	JObjRelease	23	0	4				
 8019B374	JObjAmnesia	17	0	0				
 8019B3D8	JObjInfoInit	23	0	1				s_hsd_jobj_8024ca1c,s_sysdolphin_base_library_8024ca04
-8019B494	FUN_8019b494	10	1	1	~memory			
+8019B494	HSD_ZListInitAllocData	10	1	1	memory			
 8019B4C4	mkVBillBoardMtx	94	1	4	math			
 8019B7A0	mkHBillBoardMtx	110	1	5	math			
 8019BAE4	mkBillBoardMtx	100	1	3	math			
@@ -3356,12 +3356,12 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8019D1F0	FUN_8019d1f0	13	0	2				
 8019D214	FUN_8019d214	18	0	3				
 8019D278	FUN_8019d278	15	0	0				
-8019D2A0	HSD_GetHeap	12	3	1		initialize.c		s__iparam_memory_callbacks_8024cb54,s_initialize_c_8024cb00
-8019D2E4	FUN_8019d2e4	9	1	0				
+8019D2A0	FUN_8019d2a0	12	3	1		initialize.c		s__iparam_memory_callbacks_8024cb54,s_initialize_c_8024cb00
+8019D2E4	HSD_GetCurrentRenderPass	9	1	0				
 8019D2EC	HSD_StartRender	26	11	4	render			
 8019D38C	FUN_8019d38c	9	11	0				
 8019D398	FUN_8019d398	10	2	0				
-8019D3A8	FUN_8019d3a8	19	1	10	~memory			
+8019D3A8	HSD_ObjInit	19	1	10	anim			
 8019D3EC	HSD_VIPreRetraceCB	93	0	5	video	video.c		s_idx_____1_8024cb70,s_video_c_8044f120
 8019D65C	HSD_VIPostRetraceCB	80	0	1				
 8019D868	HSD_VIGXDrawDoneCB	13	0	0				
@@ -3369,12 +3369,12 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 8019D8BC	HSD_VICopyEFB2XFBPtr	69	3	13	render	video.c		s_unexpected_type_of_render_pass__8024cb7c,s_video_c_8044f120
 8019DB14	FUN_8019db14	61	10	7	render,video			
 8019DC90	FUN_8019dc90	82	10	5		video.c		s__p_,s_idx_____1_8024cb70,s_video_c_8044f120
-8019DE54	FUN_8019de54	27	3	0				
+8019DE54	HSD_VISetConfigure	33	3	0				
 8019DEDC	HSD_VISetBlack	11	3	0				
 8019DEF4	HSD_VIInit	107	1	9	render,video			
-8019E11C	FUN_8019e11c	28	1	0				
-8019E17C	FUN_8019e17c	156	1	0				
-8019E60C	FUN_8019e60c	99	1	0				
+8019E11C	splGetHelmite	37	1	0				
+8019E17C	splGetSplinePoint	162	1	0				
+8019E60C	splArcLength	99	1	0				
 8019E914	splArcLengthGetParameter	79	1	1				
 8019EB14	splArcLengthPoint	13	2	2				
 8019EB5C	FUN_8019eb5c	204	2	1	math			
@@ -3391,8 +3391,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A0288	HSD_VecFree	12	2	1				
 801A02BC	HSD_MtxAlloc	15	3	2	memory	mtx.c		s_mtx_c_8044f128
 801A0308	HSD_MtxFree	12	3	1				
-801A033C	FUN_801a033c	10	1	1	~memory			
-801A036C	FUN_801a036c	10	1	1	~memory			
+801A033C	HSD_VecInitAllocData	10	1	1	memory			
+801A036C	HSD_MtxInitAllocData	10	1	1	memory			
 801A039C	HSD_MulColor	13	2	0				
 801A0408	HSD_GetNbBits	44	2	0				
 801A04C8	HSD_Index2PosNrmMtx	46	1	1		util.c		s_util_c_8044f138
@@ -3400,20 +3400,20 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A0584	HSD_ObjAllocAddFree	100	1	2		objalloc.c		s_data_8044f148,s_objalloc_c_8024cc60
 801A07D4	HSD_ObjAlloc	52	13	2	memory			
 801A0924	HSD_ObjFree	13	10	0				
-801A094C	FUN_801a094c	45	10	3	memory	objalloc.c		s_HSD_GetNbBits_align_____1_8024cc78,s_align_,s_data_8044f148,s_objalloc_c_8024cc60
-801A0A70	FUN_801a0a70	11	1	1	~memory			
+801A094C	HSD_ObjAllocInit	45	10	3	memory	objalloc.c		s_HSD_GetNbBits_align_____1_8024cc78,s_align_,s_data_8044f148,s_objalloc_c_8024cc60
+801A0A70	HSD_RObjInitAllocData	11	1	1	memory			
 801A0AB4	HSD_RObjGetByType	31	4	0				
 801A0B0C	RObjUpdateFunc	20	0	0				
-801A0B50	HSD_RObjAnimAll	19	2	1	~anim			
-801A0BB8	HSD_RObjReqAnimAllByFlags	23	2	1	~anim			
-801A0C3C	FUN_801a0c3c	27	2	2	anim			
+801A0B50	HSD_RObjAnimAll	19	2	1	anim			
+801A0BB8	HSD_RObjReqAnimAllByFlags	19	2	1	anim			
+801A0C3C	HSD_RObjAddAnimAll	26	2	2	anim			
 801A0CCC	HSD_RObjGetGlobalPosition	71	1	4	model	robj.c		s_robj_c_8044f150,s_rp_
 801A0E80	resolveCnsDirUp	196	1	8	math,model	robj.c		s_robj_c_8044f150,s_rp_
 801A1468	resolveLimits	99	1	2	model	robj.c		s_jobj_8044f160,s_robj_c_8044f150
 801A1670	HSD_RObjUpdateAll	187	2	9	math,model	jobj.h,robj.c		s_jobj_8044f160,s_jobj_h_8044f158,s_robj_c_8044f150,s_rp_
 801A1AF4	HSD_RObjResolveRefsAll	39	4	4	model	object.h,robj.c		s_HSD_OBJ_o__,s_object_h_8024ccf4,s_robj_,s_robj_c_8044f150
 801A1C08	HSD_RObjLoadDesc	182	3	6		robj.c		s_robj_c_8044f150,s_unexpected_type_of_robj__8024cd28
-801A207C	FUN_801a207c	29	4	4	anim,model			
+801A207C	HSD_RObjRemoveAll	29	4	4	anim,model			
 801A2118	HSD_RObjAlloc	19	1	3	memory	robj.c		s_robj_c_8044f150
 801A2174	HSD_RObjFree	13	1	1				
 801A21A0	expEvaluate	182	1	11	debug-print,model,~math	robj.c		s_Number_of_argment_of_expression_e_8024cd5c,s_jobj_8044f160,s_robj_c_8044f150
@@ -3422,14 +3422,14 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A26B4	expLoadDesc	46	1	5	memory	robj.c		s_robj_c_8044f150,s_rvalue_8044f174
 801A27A8	bcexpLoadDesc	47	1	5	memory	robj.c		s_robj_c_8044f150,s_rvalue_8044f174
 801A28A0	HSD_RvalueResolveRefsAll	33	1	3	model	object.h,robj.c		s_HSD_OBJ_o__,s_object_h_8024ccf4,s_robj_c_8044f150,s_rvalue_
-801A2988	FUN_801a2988	10	1	1	~memory			
+801A2988	HSD_IDInitAllocData	10	1	1	memory			
 801A29B8	HSD_IDSetup	10	1	1	memory			
 801A29E8	HSD_IDInsertToTable	41	1	5	memory	id.c		s_entry_8044f188,s_id_c_8044f180
 801A2AD4	HSD_IDRemoveByIDFromTable	34	1	1				
-801A2B80	FUN_801a2b80	28	8	0				
+801A2B80	HSD_IDGetDataFromTable	28	8	0				
 801A2C08	WObjUpdateFunc	49	0	6		wobj.c		s_jp_,s_wobj_,s_wobj_c_8044f190
-801A2D4C	WObjLoad	21	0	4	~anim,~model			
-801A2DB4	HSD_WObjInit	23	1	4	~anim,~model			
+801A2D4C	WObjLoad	21	0	4				
+801A2DB4	HSD_WObjInit	23	1	4				
 801A2E28	HSD_WObjLoadDesc	29	1	4		wobj.c		s_wobj_8044f19c,s_wobj_c_8044f190
 801A2EC0	HSD_WObjSetPosition	26	6	0				
 801A2F08	HSD_WObjSetPositionX	37	1	2	math,model			
@@ -3437,7 +3437,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A30B0	HSD_WObjSetPositionZ	37	1	2	math,model			
 801A3184	HSD_WObjGetPosition	37	9	2	math,model			
 801A326C	HSD_WObjAlloc	23	3	2		wobj.c		s_wobj_8044f19c,s_wobj_c_8044f190
-801A32C8	WObjRelease	15	0	2	anim,~model			
+801A32C8	WObjRelease	15	0	2	anim			
 801A331C	WObjAmnesia	13	0	0				
 801A3364	WObjInfoInit	15	0	1				s_had_wobj_8024ce9c,s_sysdolphin_base_library_8024ce84
 801A33E4	HSD_FogSet	153	1	11	camera,memory,render	fog.c		s_You_must_specify_CObj_first__8024cf24,s_fog_c_8044f1b8
@@ -3452,29 +3452,29 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A3BF4	FogInfoInit	13	0	1				s_hsd_fog_8044f1cc,s_sysdolphin_base_library_8024cf9c
 801A3C58	FogAdjInfoInit	11	0	1				s_hsd_fogadj_8024cfb4,s_sysdolphin_base_library_8024cf9c
 801A3C9C	FUN_801a3c9c	13	1	1		perf.c		s_n_,s_perf_c_8044f1d8
-801A3CF8	FUN_801a3cf8	11	1	1	~memory			
-801A3D3C	FUN_801a3d3c	16	1	3	memory	list.c		s_list_8044f1f0,s_list_c_8044f1e8
-801A3D98	FUN_801a3d98	18	1	4	memory	list.c		s_list_8044f1f0,s_list_c_8044f1e8
+801A3CF8	HSD_ListInitAllocData	11	1	1	memory			
+801A3D3C	HSD_SListAlloc	16	1	3	memory	list.c		s_list_8044f1f0,s_list_c_8044f1e8
+801A3D98	HSD_SListAllocAndAppend	18	1	4	memory	list.c		s_list_8044f1f0,s_list_c_8044f1e8
 801A3E18	HSD_SListAllocAndPrepend	18	4	4	memory	list.c		s_list_8044f1f0,s_list_c_8044f1e8
 801A3E98	HSD_SListAppendList	20	1	1		list.c		s_list_c_8044f1e8,s_next_8044f1f8
 801A3F08	HSD_SListPrependList	13	1	1		list.c		s_list_c_8044f1e8,s_prev_8044f200
 801A3F58	HSD_SListRemove	18	8	1				
 801A3FA8	ObjInfoInit	11	0	1				s_hsd_obj_8044f208,s_sysdolphin_base_library_8024d08c
 801A3FEC	FUN_801a3fec	17	1	1		memory.c		s_memory_c_8024d0a8,s_size____sizeof___mem_cb__8024d0b4
-801A4060	FUN_801a4060	10	3	0				
+801A4060	_HSD_MemAlloc	10	3	0				
 801A408C	FUN_801a408c	10	1	0				
 801A40BC	FUN_801a40bc	10	1	0				
-801A40EC	FUN_801a40ec	10	8	0				
-801A411C	FUN_801a411c	10	14	0				
-801A4154	FUN_801a4154	10	1	1	~memory			
+801A40EC	HSD_Free	10	8	0				
+801A411C	HSD_Alloc	10	14	0				
+801A4154	HSD_ShadowInitAllocData	10	1	1	memory			
 801A4184	HSD_ShadowAlloc	47	2	7	camera,memory,model			
-801A4280	HSD_ShadowRemove	45	4	6	model			
+801A4280	HSD_ShadowRemove	47	4	6	model			
 801A4388	HSD_ShadowInit	20	1	3	render	shadow.c		s_shadow_8044f210,s_shadow_c_8024d0d0
-801A43F8	HSD_ShadowSetSize	58	2	8	render	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
+801A43F8	HSD_ShadowSetSize	60	2	8	render	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
 801A4558	HSD_ShadowStartRender	99	1	23	camera,render,~math,~model	shadow.c		s_shadow_,s_shadow_8044f210,s_shadow_c_8024d0d0
-801A4800	FUN_801a4800	67	1	12	render	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
-801A4998	FUN_801a4998	44	1	7	camera,math	shadow.c		s_lobj_8044f218,s_shadow_8044f210,s_shadow_c_8024d0d0
-801A4ABC	FUN_801a4abc	78	3	10	model,render	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
+801A4800	FUN_801a4800	69	1	12	render	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
+801A4998	FUN_801a4998	44	1	7	camera,light,math	shadow.c		s_lobj_8044f218,s_shadow_8044f210,s_shadow_c_8024d0d0
+801A4ABC	FUN_801a4abc	82	3	10	model,render	shadow.c		s_height_,s_shadow_8044f210,s_shadow_c_8024d0d0,s_size_,s_width_
 801A4C84	HSD_ShadowAddObject	28	3	2		object.h		s_HSD_OBJ_o__,s_object_h_8024d1ec
 801A4D30	HSD_ShadowDeleteObject	36	2	2	model			
 801A4DC4	makeMatrix	56	1	8	camera,math	shadow.c		s_shadow_c_8024d0d0
@@ -3482,7 +3482,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A50C0	HSD_ViewingRectInit	77	1	8	math	shadow.c		s_rect_8044f224,s_shadow_c_8024d0d0
 801A52CC	HSD_ViewingRectCheck	20	1	1		shadow.c		s_rect_8044f224,s_shadow_c_8024d0d0
 801A5348	HSD_ViewingRectAddRect	88	1	4	math	shadow.c		s_position_8024d250,s_rect_8044f224,s_shadow_c_8024d0d0
-801A5558	FUN_801a5558	25	10	1				
+801A5558	HSD_ArchiveGetPublicAddress	24	10	1				
 801A55FC	HSD_ArchiveGetExtern	12	1	0				
 801A5634	FUN_801a5634	42	1	3				
 801A5708	FUN_801a5708	144	1	11	debug-print,file-io,memory			s_Cannot_open_file__8024d2c4,s_Error_occured_when_reading_file___8024d2d8,s_Error_occured_when_reading_file___8024d348,s_Error_occured_when_reading_file___8024d378,s_Error_occured_when_reading_file___8024d3a8,s_Error_occured_when_reading_file___8024d3d8,s_Error_occured_when_reading_file___8024d408,s_Trying_to_open_file__s_8024d2ac,s_Unexpected_binary_file_size__Bro_8024d304
@@ -3505,7 +3505,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801A7B40	_hsdClassInfoInit	24	0	0				s_hsd_class_8024d604,s_sysdolphin_base_library_8024d5ec
 801A7BDC	hsdNew	31	18	1	memory			
 801A7CA4	hsdSearchClassInfo	17	9	1				
-801A7CE4	FUN_801a7ce4	39	1	1		hash.c		s_hash_c_8044f250,s_idx_
+801A7CE4	HSD_HashSearch	39	1	1		hash.c		s_hash_c_8044f250,s_idx_
 801A7DE4	HSD_TExpGetType	21	7	0				
 801A7E20	HSD_TExpRef	41	3	0				
 801A7EA8	HSD_TExpUnref	238	7	3				
@@ -3539,7 +3539,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801AE474	CalcTevRange	133	1	1				
 801AE728	HSD_TExpSimplify	33	2	5				
 801AE7B8	HSD_TExpSimplify2	88	1	4				
-801AE9B4	FUN_801ae9b4	96	1	1				
+801AE9B4	HSD_SaveContext	96	1	1				
 801AEA4C	__assert	11	257	2	debug-print			s_assertion___s__failed_8024daa0
 801AEAA8	HSD_Panic	15	22	3	debug-print			s__s_in__s_on_line__d__8024dab8
 801AEB40	FUN_801aeb40	106	1	9				

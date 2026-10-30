@@ -1025,6 +1025,8 @@ EVIDENCE  80179F88 psInitDataBankLoad                       ours=0x15c ref=0x120
 VERIFIED  80186490 HSD_DObjSetCurrent                       ours=0x8 ref=0x8 melee
 VERIFIED  80186498 HSD_DObjGetFlags                         ours=0x18 ref=0x18 melee
 VERIFIED  801864B0 HSD_DObjSetFlags                         ours=0x18 ref=0x18 melee
+VERIFIED  801864C8 HSD_DObjClearFlags                       ours=0x18 ref=0x18 melee
+VERIFIED  801864E0 HSD_DObjAddAnimAll                       ours=0xb0 ref=0xb0 kar_wowjinxy
 VERIFIED  80186590 HSD_DObjReqAnimAllByFlags                ours=0x80 ref=0x80 melee
 VERIFIED  80186610 HSD_DObjAnimAll                          ours=0x6c ref=0x6c kar_wowjinxy
 VERIFIED  8018667C DObjLoad                                 ours=0x110 ref=0x110 melee
@@ -1039,6 +1041,7 @@ VERIFIED  80186AC4 DObjInfoInit                             ours=0x80 ref=0x80 k
 CLOSE     80186B44 HSD_TObjAddAnim                          ours=0x154 ref=0x148 melee
 VERIFIED  80186C98 HSD_TObjReqAnimAllByFlags                ours=0x74 ref=0x74 melee
 VERIFIED  80186D0C TObjUpdateFunc                           ours=0x5cc ref=0x5cc kar_wowjinxy
+VERIFIED  801872D8 HSD_TObjAnimAll                          ours=0x5c ref=0x5c kar_wowjinxy
 VERIFIED  80187334 TObjLoad                                 ours=0x128 ref=0x128 kar_wowjinxy
 VERIFIED  8018745C HSD_TObjLoadDesc                         ours=0x98 ref=0x98 melee
 VERIFIED  801874F4 HSD_TlutLoadDesc                         ours=0x4c ref=0x4c kar_wowjinxy
@@ -1076,6 +1079,8 @@ VERIFIED  80189BE4 TObjInfoInit                             ours=0xa4 ref=0xa4 k
 VERIFIED  80189C88 HSD_SetupChannelMode                     ours=0x23c ref=0x23c kar_wowjinxy
 VERIFIED  80189EC4 HSD_SetupPEMode                          ours=0x174 ref=0x174 kar_wowjinxy
 VERIFIED  8018A038 HSD_SetupRenderModeWithCustomPE          ours=0x1d0 ref=0x1d0 kar_wowjinxy
+VERIFIED  8018A208 HSD_SetMaterialColor                     ours=0x74 ref=0x74 kar_wowjinxy
+VERIFIED  8018A27C HSD_SetMaterialShininess                 ours=0x10 ref=0x10 melee
 VERIFIED  8018A28C HSD_StateSetCullMode                     ours=0x3c ref=0x3c kar_wowjinxy
 VERIFIED  8018A2C8 HSD_StateSetBlendMode                    ours=0xa0 ref=0xa0 melee
 VERIFIED  8018A368 HSD_StateSetZMode                        ours=0x90 ref=0x90 kar_wowjinxy
@@ -1109,6 +1114,10 @@ VERIFIED  8018B410 _HSD_StateInvalidateTevStage             ours=0xc ref=0xc mel
 VERIFIED  8018B41C _HSD_StateInvalidateTevRegister          ours=0x20 ref=0x20 melee
 VERIFIED  8018B43C _HSD_StateInvalidateTexCoordGen          ours=0xc ref=0xc melee
 VERIFIED  8018B448 HSD_MObjSetCurrent                       ours=0x8 ref=0x8 melee
+VERIFIED  8018B450 HSD_MObjGetFlags                         ours=0x18 ref=0x18 xd
+VERIFIED  8018B468 HSD_MObjSetFlags                         ours=0x18 ref=0x18 melee
+VERIFIED  8018B480 HSD_MObjClearFlags                       ours=0x18 ref=0x18 melee
+VERIFIED  8018B498 HSD_MObjAddAnim                          ours=0x68 ref=0x68 melee
 VERIFIED  8018B500 HSD_MObjReqAnimByFlags                   ours=0x64 ref=0x64 kar_wowjinxy
 VERIFIED  8018B564 MObjUpdateFunc                           ours=0x49c ref=0x49c kar_wowjinxy
 VERIFIED  8018BA00 HSD_MObjAnim                             ours=0x48 ref=0x48 melee
@@ -1118,6 +1127,9 @@ VERIFIED  8018BB88 MObjMakeTExp                             ours=0x9cc ref=0x9cc
 VERIFIED  8018C554 HSD_MObjCompileTev                       ours=0x120 ref=0x120 melee
 VERIFIED  8018C674 MObjSetupTev                             ours=0x78 ref=0x78 melee
 VERIFIED  8018C6EC HSD_MObjSetup                            ours=0x144 ref=0x144 melee
+VERIFIED  8018C830 HSD_MObjUnset                            ours=0x24 ref=0x24 melee
+MISMATCH  8018C854 HSD_MObjSetDiffuseColor                  ours=0x30 ref=0x1c melee
+VERIFIED  8018C884 HSD_MObjSetAlpha                         ours=0x20 ref=0x20 kar_wowjinxy
 VERIFIED  8018C8A4 HSD_MObjGetTObj                          ours=0x18 ref=0x18 melee
 VERIFIED  8018C8BC HSD_MObjRemove                           ours=0x50 ref=0x50 kar_wowjinxy
 VERIFIED  8018C90C HSD_MObjAlloc                            ours=0x5c ref=0x5c melee
@@ -1128,11 +1140,15 @@ VERIFIED  8018CA90 MObjRelease                              ours=0x9c ref=0x9c m
 VERIFIED  8018CB2C MObjAmnesia                              ours=0x64 ref=0x64 melee
 VERIFIED  8018CB90 MObjInfoInit                             ours=0xb0 ref=0xb0 kar_wowjinxy
 VERIFIED  8018CC40 HSD_AObjInitAllocData                    ours=0x30 ref=0x30 melee
+VERIFIED  8018CC70 HSD_AObjInitEndCallBack                  ours=0x10 ref=0x10 melee
+VERIFIED  8018CC80 HSD_AObjInvokeCallBacks                  ours=0x5c ref=0x5c melee
 VERIFIED  8018CDAC HSD_AObjReqAnim                          ours=0x40 ref=0x40 melee
+VERIFIED  8018CDEC HSD_AObjInterpretAnim                    ours=0x1b8 ref=0x1b8 kar_wowjinxy
 VERIFIED  8018CFA4 HSD_AObjLoadDesc                         ours=0x128 ref=0x128 kar_wowjinxy
 VERIFIED  8018D0CC HSD_AObjRemove                           ours=0x70 ref=0x70 melee
 VERIFIED  8018D13C HSD_AObjAlloc                            ours=0x6c ref=0x6c melee
 VERIFIED  8018D1A8 HSD_AObjFree                             ours=0x34 ref=0x34 kar_wowjinxy
+VERIFIED  8018D1DC HSD_AObjSetRate                          ours=0x10 ref=0x10 melee
 VERIFIED  8018D1EC HSD_AObjSetRewindFrame                   ours=0x10 ref=0x10 melee
 VERIFIED  8018D1FC HSD_AObjSetEndFrame                      ours=0x10 ref=0x10 melee
 VERIFIED  8018D20C HSD_AObjSetCurrentFrame                  ours=0x54 ref=0x54 melee
@@ -1143,6 +1159,7 @@ VERIFIED  8018D278 HSD_LObjGetLightMaskSpecular             ours=0x8 ref=0x8 mel
 VERIFIED  8018D280 HSD_LObjGetNbActive                      ours=0x8 ref=0x8 melee
 VERIFIED  8018D288 HSD_LObjGetActiveByID                    ours=0x48 ref=0x48 kar_wowjinxy
 VERIFIED  8018D2D0 HSD_LObjGetActiveByIndex                 ours=0x2c ref=0x2c kar_wowjinxy
+VERIFIED  8018D2FC LObjUpdateFunc                           ours=0x24c ref=0x24c kar_wowjinxy
 CLOSE     8018D548 HSD_LObjGetLightVector                   ours=0x124 ref=0x128 kar_wowjinxy
 VERIFIED  8018D66C HSD_LObjSetup                            ours=0x164 ref=0x164 kar_wowjinxy
 CLOSE     8018D7D0 HSD_LObjSetupSpecularInit                ours=0x278 ref=0x284 kar_wowjinxy
@@ -1154,10 +1171,14 @@ VERIFIED  8018EAD4 HSD_LObjRemoveAll                        ours=0x20c ref=0x20c
 VERIFIED  8018ECE0 HSD_LObjSetColor                         ours=0xc ref=0xc melee
 VERIFIED  8018ECEC HSD_LObjGetColor                         ours=0xc ref=0xc melee
 VERIFIED  8018ECF8 HSD_LObjSetPosition                      ours=0x88 ref=0x88 melee
+VERIFIED  8018ED80 HSD_LObjGetPosition                      ours=0x40 ref=0x40 melee
+VERIFIED  8018EDC0 HSD_LObjGetInterest                      ours=0x40 ref=0x40 melee
 VERIFIED  8018EE00 LObjLoad                                 ours=0x414 ref=0x414 kar_wowjinxy
 VERIFIED  8018F214 HSD_LObjLoadDesc                         ours=0xf0 ref=0xf0 kar_wowjinxy
+VERIFIED  8018F304 LObjRelease                              ours=0x164 ref=0x164 kar_wowjinxy
 VERIFIED  8018F468 LObjAmnesia                              ours=0x60 ref=0x60 melee
 VERIFIED  8018F4C8 LObjInfoInit                             ours=0x80 ref=0x80 kar_wowjinxy
+MISMATCH  8018F548 HSD_CObjEraseScreen                      ours=0x1a4 ref=0x17c melee
 VERIFIED  8018F6EC CObjUpdateFunc                           ours=0x144 ref=0x144 kar_wowjinxy
 CLOSE     8018FE2C HSD_CObjSetCurrent                       ours=0x504 ref=0x574 kar_wowjinxy
 VERIFIED  80190330 HSD_CObjEndCurrent                       ours=0x24 ref=0x24 melee
@@ -1166,6 +1187,7 @@ VERIFIED  80190394 HSD_CObjGetEyePositionWObj               ours=0x40 ref=0x40 m
 VERIFIED  801903D4 HSD_CObjGetInterest                      ours=0x6c ref=0x6c melee
 VERIFIED  80190440 HSD_CObjSetInterest                      ours=0x6c ref=0x6c melee
 VERIFIED  801904AC HSD_CObjGetEyePosition                   ours=0x6c ref=0x6c melee
+VERIFIED  80190518 HSD_CObjSetEyePosition                   ours=0x6c ref=0x6c melee
 VERIFIED  80190584 HSD_CObjGetEyeDistance                   ours=0x104 ref=0x104 melee
 CLOSE     80190688 upvec2roll                               ours=0x1e8 ref=0x1f0 xd
 CLOSE     80190870 roll2upvec                               ours=0x2e4 ref=0x314 kar_wowjinxy
@@ -1174,6 +1196,7 @@ VERIFIED  80190EC8 HSD_CObjMtxIsDirty                       ours=0x4c ref=0x4c k
 VERIFIED  80190F14 HSD_CObjGetViewingMtx                    ours=0x34 ref=0x34 melee
 VERIFIED  80190F48 HSD_CObjGetInvViewingMtxPtrDirect        ours=0x64 ref=0x64 melee
 VERIFIED  80190FAC HSD_CObjGetViewingMtxPtr                 ours=0x30 ref=0x30 kar_wowjinxy
+CLOSE     80190FDC HSD_CObjSetRoll                          ours=0x428 ref=0x410 xd
 VERIFIED  80191404 HSD_CObjSetFov                           ours=0x20 ref=0x20 melee
 VERIFIED  80191444 HSD_CObjGetNear                          ours=0x18 ref=0x18 melee
 VERIFIED  8019145C HSD_CObjSetNear                          ours=0x10 ref=0x10 melee
@@ -1232,6 +1255,7 @@ VERIFIED  801965C0 HSD_JObjSetMtxDirty                      ours=0x70 ref=0x70 m
 VERIFIED  80196630 HSD_JObjMakeMatrix                       ours=0x2d0 ref=0x2d0 melee
 VERIFIED  80196900 HSD_JObjReqAnimByFlags                   ours=0x88 ref=0x88 kar_wowjinxy
 VERIFIED  80196988 HSD_JObjReqAnimAllByFlags                ours=0x2c8 ref=0x2c8 kar_wowjinxy
+VERIFIED  80196C74 JObjSortAnim                             ours=0x58 ref=0x58 melee
 VERIFIED  80196CCC HSD_JObjAddAnim                          ours=0x140 ref=0x140 kar_wowjinxy
 VERIFIED  80196E0C HSD_JObjAddAnimAll                       ours=0x3dc ref=0x3dc kar_wowjinxy
 VERIFIED  801971E8 JObjUpdateFunc                           ours=0x944 ref=0x944 kar_wowjinxy
@@ -1293,8 +1317,12 @@ VERIFIED  8019D65C HSD_VIPostRetraceCB                      ours=0x20c ref=0x20c
 VERIFIED  8019D868 HSD_VIGXDrawDoneCB                       ours=0x44 ref=0x44 melee
 VERIFIED  8019D8AC HSD_VIGetDrawDoneWaitingFlag             ours=0x10 ref=0x10 melee
 VERIFIED  8019D8BC HSD_VICopyEFB2XFBPtr                     ours=0x258 ref=0x258 kar_wowjinxy
+VERIFIED  8019DE54 HSD_VISetConfigure                       ours=0x88 ref=0x88 melee
 VERIFIED  8019DEDC HSD_VISetBlack                           ours=0x18 ref=0x18 melee
 VERIFIED  8019DEF4 HSD_VIInit                               ours=0x228 ref=0x228 kar_wowjinxy
+VERIFIED  8019E11C splGetHelmite                            ours=0x60 ref=0x60 melee
+VERIFIED  8019E17C splGetSplinePoint                        ours=0x490 ref=0x490 kar_wowjinxy
+VERIFIED  8019E60C splArcLength                             ours=0x308 ref=0x308 kar_wowjinxy
 VERIFIED  8019E914 splArcLengthGetParameter                 ours=0x200 ref=0x200 kar_wowjinxy
 VERIFIED  8019EB14 splArcLengthPoint                        ours=0x48 ref=0x48 melee
 VERIFIED  8019F5E4 HSD_MtxGetTranslate                      ours=0x1c ref=0x1c melee
@@ -1321,12 +1349,14 @@ VERIFIED  801A0AB4 HSD_RObjGetByType                        ours=0x58 ref=0x58 k
 VERIFIED  801A0B0C RObjUpdateFunc                           ours=0x44 ref=0x44 melee
 VERIFIED  801A0B50 HSD_RObjAnimAll                          ours=0x68 ref=0x68 melee
 VERIFIED  801A0BB8 HSD_RObjReqAnimAllByFlags                ours=0x84 ref=0x84 melee
+VERIFIED  801A0C3C HSD_RObjAddAnimAll                       ours=0x90 ref=0x90 melee
 VERIFIED  801A0CCC HSD_RObjGetGlobalPosition                ours=0x1b4 ref=0x1b4 kar_wowjinxy
 VERIFIED  801A0E80 resolveCnsDirUp                          ours=0x5e8 ref=0x5e8 kar_wowjinxy
 VERIFIED  801A1468 resolveLimits                            ours=0x208 ref=0x208 kar_wowjinxy
 VERIFIED  801A1670 HSD_RObjUpdateAll                        ours=0x484 ref=0x484 kar_wowjinxy
 VERIFIED  801A1AF4 HSD_RObjResolveRefsAll                   ours=0x114 ref=0x114 kar_wowjinxy
 VERIFIED  801A1C08 HSD_RObjLoadDesc                         ours=0x474 ref=0x474 kar_wowjinxy
+VERIFIED  801A207C HSD_RObjRemoveAll                        ours=0x9c ref=0x9c melee
 VERIFIED  801A2118 HSD_RObjAlloc                            ours=0x5c ref=0x5c melee
 VERIFIED  801A2174 HSD_RObjFree                             ours=0x2c ref=0x2c melee
 VERIFIED  801A21A0 expEvaluate                              ours=0x49c ref=0x49c kar_wowjinxy
@@ -1339,6 +1369,7 @@ VERIFIED  801A2988 HSD_IDInitAllocData                      ours=0x30 ref=0x30 m
 VERIFIED  801A29B8 HSD_IDSetup                              ours=0x30 ref=0x30 melee
 VERIFIED  801A29E8 HSD_IDInsertToTable                      ours=0xec ref=0xec kar_wowjinxy
 VERIFIED  801A2AD4 HSD_IDRemoveByIDFromTable                ours=0xac ref=0xac kar_wowjinxy
+VERIFIED  801A2B80 HSD_IDGetDataFromTable                   ours=0x88 ref=0x88 melee
 VERIFIED  801A2C08 WObjUpdateFunc                           ours=0x144 ref=0x144 kar_wowjinxy
 VERIFIED  801A2D4C WObjLoad                                 ours=0x68 ref=0x68 melee
 VERIFIED  801A2DB4 HSD_WObjInit                             ours=0x74 ref=0x74 kar_wowjinxy
@@ -1362,11 +1393,16 @@ VERIFIED  801A3B28 FogRelease                               ours=0xcc ref=0xcc k
 VERIFIED  801A3BF4 FogInfoInit                              ours=0x64 ref=0x64 kar_wowjinxy
 VERIFIED  801A3C58 FogAdjInfoInit                           ours=0x44 ref=0x44 melee
 VERIFIED  801A3CF8 HSD_ListInitAllocData                    ours=0x44 ref=0x44 melee
+VERIFIED  801A3D3C HSD_SListAlloc                           ours=0x5c ref=0x5c melee
+CLOSE     801A3D98 HSD_SListAllocAndAppend                  ours=0x80 ref=0x84 melee
 CLOSE     801A3E18 HSD_SListAllocAndPrepend                 ours=0x80 ref=0x84 melee
 VERIFIED  801A3E98 HSD_SListAppendList                      ours=0x70 ref=0x70 melee
 VERIFIED  801A3F08 HSD_SListPrependList                     ours=0x50 ref=0x50 melee
 VERIFIED  801A3F58 HSD_SListRemove                          ours=0x50 ref=0x50 kar_wowjinxy
 VERIFIED  801A3FA8 ObjInfoInit                              ours=0x44 ref=0x44 melee
+VERIFIED  801A4060 _HSD_MemAlloc                            ours=0x2c ref=0x2c kar_wowjinxy
+VERIFIED  801A40EC HSD_Free                                 ours=0x30 ref=0x30 kar_wowjinxy
+VERIFIED  801A411C HSD_Alloc                                ours=0x38 ref=0x38 kar_wowjinxy
 VERIFIED  801A4154 HSD_ShadowInitAllocData                  ours=0x30 ref=0x30 melee
 VERIFIED  801A4184 HSD_ShadowAlloc                          ours=0xfc ref=0xfc kar_wowjinxy
 VERIFIED  801A4280 HSD_ShadowRemove                         ours=0x108 ref=0x108 kar_wowjinxy
@@ -1380,6 +1416,7 @@ CLOSE     801A4F00 HSD_ShadowSetViewingRect                 ours=0x1c0 ref=0x1cc
 VERIFIED  801A50C0 HSD_ViewingRectInit                      ours=0x20c ref=0x20c xd
 VERIFIED  801A52CC HSD_ViewingRectCheck                     ours=0x7c ref=0x7c kar_wowjinxy
 VERIFIED  801A5348 HSD_ViewingRectAddRect                   ours=0x210 ref=0x210 kar_wowjinxy
+VERIFIED  801A5558 HSD_ArchiveGetPublicAddress              ours=0xa4 ref=0xa4 melee
 VERIFIED  801A55FC HSD_ArchiveGetExtern                     ours=0x38 ref=0x38 melee
 CLOSE     801A5F10 HSD_ByteCodeEval                         ours=0x15c8 ref=0x15c0 kar_wowjinxy
 VERIFIED  801A74D8 hsdInitClassInfo                         ours=0xe8 ref=0xe8 kar_wowjinxy
@@ -1394,6 +1431,7 @@ VERIFIED  801A7B14 _hsdClassAmnesia                         ours=0x2c ref=0x2c m
 VERIFIED  801A7B40 _hsdClassInfoInit                        ours=0x9c ref=0x9c kar_wowjinxy
 VERIFIED  801A7BDC hsdNew                                   ours=0xc8 ref=0xc8 kar_wowjinxy
 VERIFIED  801A7CA4 hsdSearchClassInfo                       ours=0x40 ref=0x40 melee
+VERIFIED  801A7CE4 HSD_HashSearch                           ours=0x100 ref=0x100 kar_wowjinxy
 VERIFIED  801A7DE4 HSD_TExpGetType                          ours=0x3c ref=0x3c melee
 VERIFIED  801A7E20 HSD_TExpRef                              ours=0x88 ref=0x88 melee
 VERIFIED  801A7EA8 HSD_TExpUnref                            ours=0x57c ref=0x57c kar_wowjinxy
@@ -1427,6 +1465,7 @@ VERIFIED  801ACCAC SimplifyByMerge                          ours=0x17c8 ref=0x17
 VERIFIED  801AE474 CalcTevRange                             ours=0x2b4 ref=0x2b4 kar_wowjinxy
 VERIFIED  801AE728 HSD_TExpSimplify                         ours=0x90 ref=0x90 kar_wowjinxy
 VERIFIED  801AE7B8 HSD_TExpSimplify2                        ours=0x1fc ref=0x1fc kar_wowjinxy
+VERIFIED  801AE9B4 HSD_SaveContext                          ours=0x98 ref=0x98 kar_wowjinxy
 VERIFIED  801AEA4C __assert                                 ours=0x5c ref=0x5c kar_wowjinxy
 VERIFIED  801AEAA8 HSD_Panic                                ours=0x98 ref=0x98 kar_wowjinxy
-{'VERIFIED': 1399, 'MISMATCH': 1, 'CLOSE': 28, 'EVIDENCE': 3}
+{'VERIFIED': 1434, 'MISMATCH': 3, 'CLOSE': 30, 'EVIDENCE': 3}
