@@ -7,10 +7,10 @@ dolphin                           75     47   0x010F98/0x022354  49.62%   0x0020
 MSL                               48     29   0x002F00/0x00937C  31.87%   0x000718/0x000D20  54.05%     37/   84
 Runtime                            5      4   0x000924/0x0009DC  92.71%   0x000024/0x00009C  23.08%     18/   19
 MetroTRK                          29     10   0x000A40/0x006220  10.45%   0x000030/0x0034F8   0.35%     22/  162
-sysdolphin                        18      2   0x000210/0x018DF8   0.52%   0x0000C4/0x000FB4   4.88%      4/  285
+sysdolphin                        29      2   0x000210/0x0265A4   0.34%   0x0000C4/0x001A3C   2.92%      4/  471
 game                             232    232   0x0024F0/0x0024F0 100.00%   0x000000/0x000000    -       232/  232
-automatic objects (unsplit)      231      0   0x000000/0x165E78   0.00%   0x000000/0x281C5C   0.00%      0/ 2105
-main.dol (all units)             638    324   0x0178FC/0x1B342C   5.41%   0x0028BC/0x29C458   0.38%    652/ 3533
+automatic objects (unsplit)      230      0   0x000000/0x1586CC   0.00%   0x000000/0x2811D4   0.00%      0/ 1919
+main.dol (all units)             648    324   0x0178FC/0x1B342C   5.41%   0x0028BC/0x29C458   0.38%    652/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 232 objects from C (one function each, tools/promote_drafts.py), 0x24F0 bytes = 0.77% of the game code, 0.53% of all code
 
