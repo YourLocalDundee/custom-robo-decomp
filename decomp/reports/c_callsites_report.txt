@@ -1,4 +1,4 @@
-c-callsite names (tools/check_c_callsites.py): 78 lines in symbols/symbols.txt, 78 OK, 0 FAIL; 1375 names derived from matched C call sites, 137 at a dtk default name, 8 differ from our name, 0 at two addresses, 0 sites without the same relocation
+c-callsite names (tools/check_c_callsites.py): 79 lines in symbols/symbols.txt, 79 OK, 0 FAIL; 1375 names derived from matched C call sites, 137 at a dtk default name, 8 differ from our name, 0 at two addresses, 0 sites without the same relocation
 
 OK   DSPCheckMailToDSP 0x8014A42C: 38 call site(s), all agree; e.g. dolphin/card/CARDUnlock InitCallback+0x3C (0x8014D13C REL24)
 OK   PSVECCrossProduct 0x8013A284: 3 call site(s), all agree; e.g. dolphin/mtx/mtx C_MTXLookAt+0x6C (0x80139BAC REL24)
@@ -78,6 +78,7 @@ OK   HSD_MObjSetAlpha 0x8018C884: defined there by sysdolphin/baselib/mobj.c (.t
 OK   hsdMObj 0x8024BE78: defined there by sysdolphin/baselib/mobj.c (.data, size 0x54)
 OK   splGetSplinePoint 0x8019E17C: defined there by sysdolphin/baselib/spline.c (.text, size 0x490)
 OK   splArcLength 0x8019E60C: defined there by sysdolphin/baselib/spline.c (.text, size 0x308)
+OK   GXNtsc480Prog 0x80249494: defined there by dolphin/gx/GXFrameBuf.c (.data, size 0x3C)
 
 UNNAMED BarnacleEnabled 0x8044FD2C (main.elf: lbl_8044FD2C): 2 site(s), e.g. dolphin/exi/EXIUart __OSEnableBarnacle+0x19E (0x8016BC02 EMB_SDA21)
 UNNAMED Chan 0x8044FD20 (main.elf: lbl_8044FD20): 2 site(s), e.g. dolphin/exi/EXIUart __OSEnableBarnacle+0x192 (0x8016BBF6 EMB_SDA21)

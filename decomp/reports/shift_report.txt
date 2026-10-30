@@ -12,7 +12,7 @@ padding per point: 0x100 bytes; points: 30
    9. 0x801C4F80 .data    start of .data -> everything from here moves by +0x900
   10. 0x8020B0C0 .data    inside .data: the start of the glue span 0x8020B0C0.. (a file's statics base) -> everything from here moves by +0xA00
   11. 0x802427F0 .data    inside .data: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0xB00
-  12. 0x80249848 .data    inside .data: the data piece of dolphin/gx/GXPixel.c (a proven object boundary) -> everything from here moves by +0xC00
+  12. 0x802497D0 .data    inside .data: the data piece of dolphin/gx/GXTev.c (a proven object boundary) -> everything from here moves by +0xC00
   13. 0x8024D9E8 .data    inside .data: the data piece of sysdolphin/baselib/texpdag.c (a proven object boundary) -> everything from here moves by +0xD00
   14. 0x8024DB20 .bss     start of .bss -> everything from here moves by +0xE00
   15. 0x80377E60 .bss     inside .bss: the start of the glue span 0x80377E60.. (a file's statics base) -> everything from here moves by +0xF00
@@ -31,9 +31,9 @@ padding per point: 0x100 bytes; points: 30
   28. 0x80451CA8 .sdata2  inside .sdata2: the data piece of dolphin/os/OSFont.c (a proven object boundary) -> everything from here moves by +0x1C00
   29. 0x80452310 .sdata2  inside .sdata2: the data piece of MSL/k_sin.c (a proven object boundary) -> everything from here moves by +0x1D00
   30. 0x804529E8 .sdata2  inside .sdata2: the data piece of sysdolphin/baselib/texp.c (a proven object boundary) -> everything from here moves by +0x1E00
-objects linked from C (batch 9, configure.py CR_MATCHING): 384 in both links, 383 of them moved by the padding; 9 holding a point, reassembled from asm
+objects linked from C (batch 9, configure.py CR_MATCHING): 385 in both links, 384 of them moved by the padding; 9 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
-shifted main.dol: SHA-1 1fb7dfabd5ed81f61749969f013f386b36f04b06 (2430848 bytes, retail 2425472)
+shifted main.dol: SHA-1 b15c6369d494e860ad9c9f0d97383b4248da1a01 (2430848 bytes, retail 2425472)
 sections, unshifted -> shifted:
   .init    0x80003100 size 0x0024D0 -> 0x80003100 size 0x0024D0
   .text    0x800055E0 size 0x1B0FF8 -> 0x800055E0 size 0x1B12F8
@@ -51,7 +51,7 @@ sections, unshifted -> shifted:
   _stack_addr  0x80462AC0 -> 0x804648C0
   __ArenaLo    0x80464AC0 -> 0x804668C0
 static check:
-  symbols compared (unique names): 15526
+  symbols compared (unique names): 15524
   symbols moved by the wrong amount: 0
   relocations of the unshifted build: 92819
   relocations missing after the shift: 0

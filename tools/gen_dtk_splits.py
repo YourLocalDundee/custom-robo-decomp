@@ -99,7 +99,9 @@ DATA FROM THE MATCHED C (Phase 4 Milestone 4, step 56): a C file that matches it
        kept whole); runs with nothing stripped between keep the .o distances; a global (another file may use it) next
        to the placed ones is there only with its own bytes exactly there, else it must be shown absent (its bytes are
        not next to the piece, or the neighbour is another object's piece); between two runs exactly as far apart as
-       in the .o, a global main.elf uses is at its offset.
+       in the .o, a global main.elf uses is at its offset; between two runs with more than padding between, a
+       global of the C between them in the .o is there when its own bytes are right after the first run (step 65,
+       GXFrameBuf.c's GXNtsc480Prog).
     3. every placed symbol's bytes equal main.dol's, every pointer in it is main.elf's relocation to its target; the
        piece starts aligned and on no dtk symbol's inside, and ends with its last symbol (to the end of a dtk symbol
        that runs on over the padding). The zeros after it go with it up to another object's piece (as dtk splits)
@@ -1463,6 +1465,31 @@ def c_data(elf, ours, objs, data, rejected):
                     p = next((p for p in ps if sym_at(p, v, sz)), None)
                     if p is not None:
                         return f"{syms[si][0]} (+0x{v:X}) may be {side} the piece (its bytes are at 0x{p:08X})"
+            # between two runs with a gap that is not only padding: a global of the C between them in the .o (one
+            # that other code may use) that is right after the first run, with its own bytes exactly there (not only
+            # zeros), is there; repeated (step 65: GXFrameBuf.c's GXNtsc480Prog between GXNtsc480IntDf and
+            # GXMpal480IntDf, the render modes between them stripped)
+            if sbytes is not None:
+                k = 0
+                while k + 1 < len(place):
+                    (a0, r0), (a1, r1) = place[k], place[k + 1]
+                    e0 = a0 + r0[-1][0] + r0[-1][1] - r0[0][0]
+                    if e0 <= a1 < e0 + C_PAD and rbytes(e0, a1 - e0) == bytes(a1 - e0):
+                        k += 1
+                        continue
+                    got = None
+                    for v, sz, si in order_[idx[r0[-1][2]] + 1:idx[r1[0][2]]]:
+                        if si in maybe and any(sbytes[v:v + sz]):
+                            p = next((p for p in range(e0, e0 + C_PAD) if p + sz <= a1 and rbytes(e0, p - e0) == bytes(p - e0)
+                                      and sym_at(p, v, sz)), None)
+                            if p is not None:
+                                got = (p, [(v, sz, si)])
+                                break
+                    if got is None:
+                        break
+                    how[got[1][0][2]].add("its bytes between two placed runs")
+                    place.insert(k + 1, got)
+                    k += 1
             # in .o order, each run after the last, separated by alignment padding only (zero bytes)
             for (a0, r0), (a1, r1) in zip(place, place[1:]):
                 e0 = a0 + r0[-1][0] + r0[-1][1] - r0[0][0]

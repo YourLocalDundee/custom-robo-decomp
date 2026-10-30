@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,361 @@ def MatchingFor(*versions):
+@@ -284,18 +307,360 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -282,6 +282,7 @@ diff --git a/configure.py b/configure.py
 +    "dolphin/gx/GXFifo.c",
 +    "dolphin/gx/GXMisc.c",
 +    "dolphin/os/init/__start.c",
++    "dolphin/gx/GXFrameBuf.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -384,8 +385,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 1 of 4 functions differ (WriteUARTN 93%): the reference is another revision",
 +    "dolphin/gx/GXAttr.c":
 +        "code: 2 of 16 functions differ (__GXSetVAT 76%, GXSetArray 44%): the reference is another revision",
-+    "dolphin/gx/GXFrameBuf.c":
-+        "data: 100% code, but its .data (the GX render modes) is not proven: the C's symbols at +0x348 are not where they follow from +0xF0 (another revision's table), so the render modes stay in an automatic object and linking defines them twice",
 +    "dolphin/gx/GXGeometry.c":
 +        "code: 1 of 9 functions differ (GXSetCullMode 35%): the reference is another revision",
 +    "dolphin/gx/GXInit.c":
