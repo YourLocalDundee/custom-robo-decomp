@@ -70,10 +70,11 @@ sudo apt install -y git curl unzip python3 python3-venv openjdk-21-jdk
   (any newer 21.x from https://adoptium.net/temurin/releases/?version=21 works the same way). Everything else the
   pipeline needs is downloaded into the repo folder by `tools/setup.sh`, so nothing else needs root.
 
-## Arch (KDE: Konsole, yay / pacman)
+## Arch (Hyprland or KDE: any terminal, yay / pacman)
 
-Open **Konsole**, KDE's terminal (Application Launcher → System → Konsole, or `Ctrl+Alt+T` in Plasma). Konsole is the
-window; the shell running in it is whatever `echo $SHELL` prints (bash, zsh or fish are all fine). Every command
+Open your terminal: on Hyprland the one bound to `Super+Q` or `Super+Return` (kitty, foot or alacritty by default),
+on KDE Konsole (`Ctrl+Alt+T` in Plasma). The terminal is only the window; the shell running in it is whatever
+`echo $SHELL` prints (bash, zsh or fish are all fine; the tested Arch machine runs Hyprland with bash). Every command
 below works unchanged in each of them: nothing to `export`, no rc file to edit, and the project's scripts are started
 as `bash tools/...`, so they run in bash whatever your shell is.
 
@@ -104,7 +105,7 @@ sudo pacman -S --needed git curl unzip python jdk21-openjdk
   build tools").
 - Do not install Arch's or the AUR's `ghidra`: setup downloads the pinned 12.1.4 (another version changes the output).
 
-Then clone and run in Konsole (the same in bash, zsh and fish):
+Then clone and run in your terminal (the same in bash, zsh and fish):
 
 ```bash
 git clone https://github.com/YourLocalDundee/custom-robo-decomp.git
