@@ -1,13 +1,16 @@
 # Game-code drafts: m2c, compile, compare (batch 12)
 
 Milestone 5 (game code to matching C, about 1,750 functions) needs a first C version of every function. This batch makes
-one for all of them, checks each against the original, and says where to start. It runs on its own in about 2 minutes:
+one for all of them, checks each against the original, and says where to start. The drafts took about 2 minutes, parallel, in
+the first full run (plan.md step 57); after them the batch promotes the linkable matches into `decomp/src/game` and, when
+that folder changed, runs batch 9 again, which adds that build's time (with `-Sample` there is no promotion):
 
     pwsh tools\batches\batch12_drafts.ps1 [-Sample 50] [-Jobs 8]      # or: python -I tools\draft_batch.py [--only NAME ...]
 
-It is in `run_all.ps1` (after batch 11, before the checksums). It needs batch 9's output (`decomp/build/GXCE01/asm` and
-`obj`, the compilers; all read only, nothing in `decomp/build` is written and ninja is never run) and `tools/m2c`
-(`tools/setup.ps1` clones it at the commit in `tools/pins.txt`; plain Python, nothing to install).
+It is in `run_all.ps1` (after batch 11, before the checksums). The draft step needs batch 9's output (`decomp/build/GXCE01/asm`
+and `obj`, the compilers; all read only: the drafts write nothing in `decomp/build` and never run ninja; the promotion
+and the batch 9 rerun after it do) and `tools/m2c` (`tools/setup.ps1` clones it at the commit in `tools/pins.txt`;
+plain Python, nothing to install).
 
 ## What it does, per game function
 
