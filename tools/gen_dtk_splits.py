@@ -172,7 +172,7 @@ REFS = [
     "refs/pikmin/config/GPIE01_01", "refs/bfbb/config/GQPE78", "refs/ttyd/config/G8MJ01",
 ]
 LIB_DIRS = ("dolphin", "sysdolphin", "MSL", "Runtime", "MetroTRK", "TRK_MINNOW_DOLPHIN", "Dolphin", "PowerPC_EABI_Support",
-            "TRK", "libc", "musyx", "SDK", "dolsdk", "amcstubs", "odenotstub", "OdemuExi2", "debugger", "Runtime.PPCEABI.H",
+            "TRK", "libc", "musyx", "SDK", "sdk", "dolsdk", "amcstubs", "odenotstub", "OdemuExi2", "debugger", "Runtime.PPCEABI.H",
             "MSL_C", "MSL_C.PPCEABI.bare.H", "MetroTRK", "os", "dvd", "gx", "vi", "pad", "si", "exi", "card", "ax",
             "ai", "ar", "dsp", "mtx", "gba", "thp", "hio", "db", "base", "mcc", "axfx", "OdemuExi", "libs")
 SYM = re.compile(r"^\s*([^\s=]+)\s*=\s*(\.[\w.]+):0x([0-9A-Fa-f]+);\s*//(.*)$")
@@ -209,7 +209,7 @@ def objkey(path: str):
 
 
 SDK_LIBS = {"ai", "amcstubs", "ar", "ax", "axfx", "base", "card", "db", "dsp", "dvd", "exi", "gx", "hio", "mcc", "mtx",
-            "odenotstub", "odemuexi2", "os", "pad", "si", "thp", "vi", "gba"}
+            "odenotstub", "odemuexi2", "os", "pad", "si", "thp", "vi", "gba", "texpalette"}
 
 
 def canonical(path: str) -> str:
@@ -225,6 +225,8 @@ def canonical(path: str) -> str:
     if fam == "msl":
         return ("Runtime/" if "runtime" in path.lower() else "MSL/") + f
     lib = next((x for x in reversed(parts[:-1]) if x.lower() in SDK_LIBS), None)
+    if lib is None and Path(f).stem.lower() in SDK_LIBS:
+        lib = Path(f).stem  # a library of one file named as it (TTYD's sdk/texPalette.c): Melee's dolphin/<lib>/<file>
     return f"dolphin/{lib}/{f}" if lib else f"dolphin/{f}"
 
 
@@ -431,13 +433,33 @@ def code_splits(ours, rejected, notes, audit=None):
                     rejected.append(f"{tag}: none of its functions is (uniquely) named in ours")
                     continue
                 i, j = hit[0], hit[-1]
+                # step 68: a static name several of our files use (CARDWrite.c's WriteCallback / EraseCallback,
+                # OSMemory.c's OnReset) is not unique, but next to the object it is the reference's own function when
+                # the reference has that name at our size in this file: the range grows over it
+                # the reference has that name at our size in this file: the range grows over it. Likewise a named
+                # neighbour that the pinned sources define in this very file only (texPalette.c's
+                # TEXGetGXTexObjFromPaletteCI, which TTYD's texPalette.c does not link)
+                fns = {(s[0], s[3]) for s in F}
+
+                def own(f):
+                    return f[1] == sec and f[0] not in names and not DEFAULT.match(f[0]) and (
+                        (f[0], f[3]) in fns or (not where.get(f[0]) and verdict(defs, f[0], family(path)) == stem.lower()
+                                                and {st for _, st in defs.get(f[0], ())} == {stem.lower()}))
+                stem = Path(name).stem
+                while i > 0 and own(funcs[i - 1]):
+                    i -= 1
+                while j + 1 < len(funcs) and own(funcs[j + 1]):
+                    j += 1
                 # (a named function R's file lacks is still allowed when the pinned library sources define it in this
                 # very file: another revision of the file has it; or when every reference that places it puts it in
                 # a library file of this name: another revision's function, or a header inline's out-of-line copy)
                 bad = [funcs[k][0] for k in range(i, j + 1) if not DEFAULT.match(funcs[k][0]) and funcs[k][0] not in names
                        and verdict(defs, funcs[k][0], family(path)) != Path(name).stem.lower()
                        and placed.get(funcs[k][0]) != {objkey(path)}
-                       and not (family(path) == "hsd" and not placed.get(funcs[k][0]) and not defs.get(funcs[k][0]))]
+                       and not (family(path) == "hsd" and not placed.get(funcs[k][0]) and not defs.get(funcs[k][0]))
+                       # (step 68: a static name several files use, e.g. dvd.c's AlarmHandler, that this reference has
+                       # in this very file at our size, is this file's own)
+                       and not any(s[0] == funcs[k][0] and s[3] == funcs[k][3] for s in F)]
                 # (HSD only, step 61 iteration 3: a name between two of R's functions of O that no reference places in
                 # any file and no pinned source defines carries no file of its own: it counts as the unnamed function
                 # it was, enclosed by O's functions - as rule 4 does for such a neighbour)

@@ -934,11 +934,15 @@ dolphin/os/OSFont.c:
 
 dolphin/os/OSInterrupt.c:
 	.text       start:0x80135C00 end:0x8013646C
-	.data       start:0x80244048 end:0x80244074
+	.data       start:0x80244048 end:0x80244078
 	.sbss       start:0x8044F908 end:0x8044F920
 
 dolphin/os/OSLink.c:
 	.text       start:0x8013646C end:0x80136484
+
+dolphin/os/OSMemory.c:
+	.text       start:0x80136484 end:0x80136768
+	.data       start:0x80244078 end:0x80244088
 
 dolphin/os/OSMutex.c:
 	.text       start:0x80136768 end:0x801367D8
@@ -1005,8 +1009,21 @@ dolphin/mtx/vec.c:
 dolphin/dvd/dvdlow.c:
 	.text       start:0x8013A2C0 end:0x8013B13C
 	.bss        start:0x8041F690 end:0x8041F760
-	.sdata      start:0x8044ED90 end:0x8044ED94
+	.sdata      start:0x8044ED90 end:0x8044ED98
 	.sbss       start:0x8044F980 end:0x8044F9C8
+
+dolphin/dvd/dvdfs.c:
+	.text       start:0x8013B13C end:0x8013BD30
+	.data       start:0x80244100 end:0x8024429E
+	.sdata      start:0x8044ED98 end:0x8044EDA0
+	.sbss       start:0x8044F9C8 end:0x8044F9E8
+
+dolphin/dvd/dvd.c:
+	.text       start:0x8013BD30 end:0x8013E464
+	.data       start:0x802442A0 end:0x80244420
+	.bss        start:0x8041F760 end:0x8041F7F8
+	.sdata      start:0x8044EDA0 end:0x8044EDB8
+	.sbss       start:0x8044F9E8 end:0x8044FA30
 
 dolphin/dvd/dvdqueue.c:
 	.text       start:0x8013E464 end:0x8013E65C
@@ -1136,6 +1153,12 @@ dolphin/card/CARDOpen.c:
 dolphin/card/CARDCreate.c:
 	.text       start:0x801504D8 end:0x80150828
 
+dolphin/card/CARDRead.c:
+	.text       start:0x80150828 end:0x80150C54
+
+dolphin/card/CARDWrite.c:
+	.text       start:0x80150C54 end:0x80150F88
+
 dolphin/card/CARDDelete.c:
 	.text       start:0x80150F88 end:0x8015113C
 
@@ -1213,6 +1236,10 @@ dolphin/gx/GXTransform.c:
 dolphin/gx/GXPerf.c:
 	.text       start:0x80158AEC end:0x80159344
 	.data       start:0x80249868 end:0x80249958
+
+dolphin/texPalette/texPalette.c:
+	.text       start:0x80159344 end:0x80159530
+	.sdata2     start:0x80451EA0 end:0x80451EA8
 
 MetroTRK/mainloop.c:
 	.text       start:0x80159530 end:0x80159628
