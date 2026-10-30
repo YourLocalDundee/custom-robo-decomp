@@ -1085,6 +1085,61 @@ FPTR_DECL = re.compile(r'^    ()[^;=\n]*?\(\*+(\w+)\)\([^;\n]*\);$')   # `M2C_UN
 CASTS = {'M2C_FIELD', 'u8', 's8', 'u16', 's16', 'u32', 's32', 'f32', 'f64', 'void'}
 
 
+def ctx_arrays():
+    """the names the context declares as arrays (`extern u32 lbl_803BE358[289];`), read once per process"""
+    if 'arrays' not in W:
+        try:
+            text = open(os.path.join(W['out'], 'ctx.h'), encoding='utf-8').read()
+        except OSError:
+            text = ''
+        W['arrays'] = set(re.findall(r'^(?:CR_SECTION\("[^"]+"\) )?extern [^;()\n]*?\b(\w+)\[\d*\];$', text, re.M))
+    return W['arrays']
+
+
+def address_only(ex):
+    """True when ex reads no memory through a pointer and calls nothing: names, `&name[i]`, `name[i]` of an array,
+    arithmetic and casts (a `*` only as a multiplication or in a cast)"""
+    if re.search(r'->|M2C_FIELD|\w\s*\(|\.', ex):
+        return False
+    s = re.sub(r'\((?:const |struct |unsigned |signed )*\w+(?: \*+)?\)', '', ex)
+    if re.search(r'(?:^|[^\w)\]\s])\s*\*', s):
+        return False
+    return all(m.group(1) in ctx_arrays() for m in re.finditer(r'\b(\w+)\s*\[', ex))
+
+
+def read_names(ex):
+    """the names whose value ex reads: not an array whose address only it takes (`&a[i]`, a bare `a`); `a[i]` reads a"""
+    arrays = ctx_arrays()
+    out = set()
+    for m in re.finditer(r'\b[A-Za-z_]\w*\b', ex):
+        n = m.group(0)
+        if n in CASTS:
+            continue
+        if n in arrays:
+            after = ex[m.end():].lstrip()
+            before = ex[:m.start()].rstrip()
+            if not after.startswith('[') or before.endswith('&'):
+                continue
+        out.add(n)
+    return out
+
+
+def written_base(stmt):
+    """the named object a simple statement writes (`lbl_803BE358[2] += 1;` -> lbl_803BE358, `x = ...` -> x,
+    `M2C_FIELD(&a[i], s32 *, 8) = ...` -> a), when it writes one named object and calls nothing; else None"""
+    m = re.match(r'^\s+(.+?)\s*(?:[-+*/%&|^]|<<|>>)?=(?!=)(.*);$', stmt) or re.match(r'^\s+(\w+)()(?:\+\+|--);$', stmt)
+    if not m or re.search(r'\b\w+\s*\(', m.group(2).replace('M2C_FIELD(', '(')):
+        return None
+    lhs = m.group(1)
+    for p in (r'^(\w+)$', r'^(\w+)\[(?:[^\[\]=]|\[[^\[\]]*\])*\]$',
+              r'^M2C_FIELD\(&(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?, [\w ]+\*, [^,()]+\)$',
+              r'^M2C_FIELD\((\w+), [\w ]+\*, [^,()]+\)$'):
+        lm = re.match(p, lhs)
+        if lm and (p == r'^(\w+)$' or lm.group(1) in ctx_arrays() or p.startswith(r'^M2C_FIELD\(&')):
+            return lm.group(1)
+    return None
+
+
 def inline_volatile_temps(body):
     """a temporary m2c names after a volatile register (`temp_r0_9`, `temp_f1_27`: r0, r3-r12, f0-f13) assigned once
     and used once was an expression of the source, not a variable: at level 0 the compiler gives every C local a
@@ -1130,6 +1185,14 @@ def inline_volatile_temps(body):
             pure = ids <= locs and not re.search(r'[*\[]|\w\s*\(', re.sub(r'\((?:%s)\)' % '|'.join(SCALARS), '', ex))
             if pure and not any(assigned(x, '\n'.join(mid)) for x in ids):
                 mid = []
+            elif mid and address_only(ex):
+                # an address of named objects (`&lbl_803BE358[lbl_8044F770]`: no load through a pointer, no call)
+                # past statements that only write named objects it does not read (`lbl_803BE358[2] += 1;`): two
+                # named objects never overlap, so the address is the same at the use (the script commands'
+                # common head, cr_S_BGM_STOP & co.; step 69)
+                bases = [written_base(x) for x in mid]
+                if all(bases) and not (set(bases) & read_names(ex)):
+                    mid = []
             for x in mid:
                 lm = re.match(r'^\s+(\w+)\s*(?:[-+*/%&|^]|<<|>>)?=(?!=)(.*);$', x) or re.match(r'^\s+(\w+)(\+\+|--);$', x)
                 if not lm or lm.group(1) not in locs or re.search(r'[*\[]|\w\s*\(', lm.group(2)) \
@@ -1525,6 +1588,7 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             ((), (void_null,)), ((register_order,), (void_null,)), ((inline_volatile_temps,), ()), ((param_aliases,), ()), ((), (float_literals,)), ((), (drop_same_field_casts,)), ((), (table_call_noargs,)), ((), (unsigned_fields,)), ((), (redundant_returns,)))
 
 
+VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this
 REG_VARS = ','.join(['r%d' % i for i in range(14, 32)] + ['f%d' % i for i in range(14, 32)])
 
 
@@ -2184,7 +2248,7 @@ def one(job):
     # VARIANTS (step 64): the two post-processing rules whose evidence is not in the draft itself (which register a
     # local gets, whether the original worked on the parameter or on a copy) are tried both ways when the draft does not
     # match and is close (40% or more): the variant that scores higher is kept (first one on a tie: the full rules)
-    if p < 100 and p >= 40:
+    if p < 100 and p >= VARIANT_MIN:
         seen = {body}
         for k, (skip, add) in enumerate(VARIANTS):
             vb = postprocess(m2c_body, skip, add)
@@ -2209,7 +2273,7 @@ def one(job):
     # square root are one f31). m2c's default output splits them, and folds a value into its single use even when the
     # original kept it in its register first (`f31 = x*x + ...; f31 = sqrt(f31)`). Tried like the VARIANTS: when the
     # draft does not match and scores 40% or more, with the same post-processing (and its variants), best one kept.
-    if p < 100 and p >= 40:
+    if p < 100 and p >= VARIANT_MIN:
         rc2, so2, _ = m2c(['--reg-vars', REG_VARS])
         rbody = regvar_cleanup(so2.replace('\r\n', '\n'))
         if rc2 == 0 and re.search(r'^\S.*\b%s\s*\(' % re.escape(name), rbody, re.M) and 'Decompilation failure' not in rbody:

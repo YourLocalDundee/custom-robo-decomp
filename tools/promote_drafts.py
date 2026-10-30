@@ -96,10 +96,17 @@ class Context:
         from m2c.c_types import add_builtin_typedefs
         ast, self.scope = parse_c(m2c_source(add_builtin_typedefs(path.read_text(encoding="utf-8"))), None)
         self.typedef, self.ident, self.tagdef, self.enumer, self.enumdef = {}, {}, {}, {}, {}
+        self.anon = {}   # id(anonymous struct) -> the first plain typedef name of it
         for it in ast.ext:
             if isinstance(it, ca.Typedef):
                 self.typedef.setdefault(it.name, it)
                 self._defs(it, it.type)
+                # step 69: `typedef struct { ... } Vec, Vec3, *VecPtr, Point3d;` is ONE struct under several names;
+                # the first plain name is the one that defines it, the others are typedefs of that name (emitted
+                # as copies they were distinct structs: cr_Chara_SetCurrentPointers stores a Vec3 * in a Point3d *)
+                if isinstance(it.type, ca.TypeDecl) and isinstance(it.type.type, (ca.Struct, ca.Union)) \
+                        and it.type.type.name is None and it.type.type.decls is not None:
+                    self.anon.setdefault(id(it.type.type), it.name)
             elif isinstance(it, ca.Decl):
                 if it.name:
                     if not isinstance(self.ident.get(it.name), ca.FuncDef):
@@ -242,6 +249,17 @@ class Emitter:
             return
         ca = self.ca
         td = self.ctx.typedef[name]
+        # another name of an anonymous struct: a typedef of its first name (Context.anon), pointers kept
+        base, stars = td.type, 0
+        while isinstance(base, ca.PtrDecl):
+            base, stars = base.type, stars + 1
+        if isinstance(base, ca.TypeDecl) and isinstance(base.type, (ca.Struct, ca.Union)):
+            canon = self.ctx.anon.get(id(base.type))
+            if canon and canon != name:
+                self.need_type(canon, ptr and not stars)
+                self.tstate[name] = "full"
+                self.out.append(f"typedef {canon} {'*' * stars}{name};")
+                return
         u = td.type.type if isinstance(td.type, ca.TypeDecl) else None
         if isinstance(u, (ca.Struct, ca.Union)) and u.name:
             fwd = f"typedef {kind(u)} {u.name} {name};"
