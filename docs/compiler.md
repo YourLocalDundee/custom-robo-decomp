@@ -2,7 +2,8 @@
 
 Which Metrowerks CodeWarrior (`mwcceppc`) version and flags built each part of `main.dol` (GXCE01 v1.0), found by
 compiling known C with every pinned GC compiler and comparing the code with the retail bytes.
-Rerun: `pwsh tools/batches/batch10_compiler_probe.ps1` (about 5 minutes, ~50,000 compiles; not in `run_all.ps1`).
+Rerun: `pwsh tools\batches\batch10_compiler_probe.ps1` on Windows, `tools/batches/batch10_compiler_probe.sh` on Linux /
+macOS (about 5 minutes, ~50,000 compiles; the full run includes it since plan.md step 52).
 Script: `tools/compiler_probe/probe.py`; results (gitignored): `tools/compiler_probe/out/summary.txt`, `results.tsv`.
 
 ## Result
@@ -103,8 +104,9 @@ leaf functions, constants are not folded (`li r0,2; clrlwi r0,r0,24`), and the s
 
 ## Flags as applied in decomp/configure.py (Phase 4 Milestone 4, step 54)
 
-Edit `decomp/configure.py`, then `python -I tools/make_configure_patch.py` rewrites
-`tools/patches/dtk_template_configure.patch` (applied to the pinned template by `tools/setup_decomp.ps1`). An object
+Edit `decomp/configure.py`, then `tools/make_configure_patch.py` (run with `python -I` / `python3 -I`) rewrites
+`tools/patches/dtk_template_configure.patch` (applied to the pinned template by `tools/setup_decomp.ps1` /
+`tools/setup_decomp.sh`). An object
 is compiled with these flags whenever `decomp/src/<object>` exists; it is LINKED from C only when it is in `CR_MATCHING`.
 
 | Top folder of splits.txt | Compiler | Flags (after the common ones) | Header roots |
@@ -114,7 +116,7 @@ is compiled with these flags whenever `decomp/src/<object>` exists; it is LINKED
 | MSL | GC/2.6 | `-O4,p -inline auto,deferred -use_lmw_stmw on -str pool,readonly -common off -fp_contract on -char signed` | `include/marioparty4`, `include/marioparty4/dolphin` |
 | Runtime | GC/2.6 | `-O4,p -inline auto -use_lmw_stmw on -str reuse,pool,readonly -common off -fp_contract on` | as MSL |
 | MetroTRK | GC/2.6 | `-O4,p -inline auto,deferred -use_lmw_stmw on -str reuse,readonly -common off -sdata 0 -sdata2 0 -fp_contract on` | as MSL |
-| game | GC/2.6 | `-opt level=0,peephole,schedule,speed -fp_contract on` | (none yet) |
+| game | GC/2.6 | `-opt level=0,peephole,schedule,speed -fp_contract on` | `include` (`decomp/include/game/cr_game.h`, plan.md step 58) |
 
 Common to all (`cflags_cr`): `-nodefaults -proc gekko -align powerpc -enum int -fp hardware -Cpp_exceptions off
 -pragma "cats off" -pragma "warn_notinlined off" -maxerrors 1 -nosyspath -cwd source -multibyte -W off
@@ -123,26 +125,7 @@ so they win): `dolphin/exi/EXIBios.c` `-O3,p`; `dolphin/card/CARDOpen.c`, `CARDR
 (`CR_DIR_CFLAGS`): `dolphin/dvd/`, `dolphin/mtx/` `-char signed`. `CR_OBJECT_INCLUDES` replaces a library's header
 roots for a file taken from another reference (`Runtime/__mem.c`: Melee's). The linker stays GC/1.3.2.
 Confirmed by the 66 objects matched in step 54 (dolphin, MSL, Runtime and MetroTRK all have objects at 100% with these
-flags; sysdolphin's two tried files, util.c and object.c, are 100% code too).
+flags; sysdolphin's two tried files, util.c and object.c, are 100% code too), and since then by every object linked
+from C: 92 library objects and 232 game functions (`decomp/reports/progress_report.txt`, plan.md step 59).
 
-## Ready-to-use flags (Milestone 3 proposal; applied above)
-
-The original proposal, kept for reference (the table above is what the build uses):
-
-```python
-cflags_common = ["-nodefaults", "-proc gekko", "-align powerpc", "-enum int", "-fp hard", "-Cpp_exceptions off",
-                 "-nosyspath", "-multibyte", "-i include"]
-CR_LIBS = {
-    # top folder of splits.txt: (mw_version, cflags)
-    "dolphin":    ("GC/1.2.5n", [*cflags_common, "-O4,p", "-inline auto", "-fp_contract off", "-char unsigned"]),
-    # per object: dolphin/exi/EXIBios.c -> "-O3,p"; dolphin/dvd/*, dolphin/mtx/*, CARDOpen, CARDRename -> "-char signed"
-    "sysdolphin": ("GC/1.3.2",  [*cflags_common, "-O4,p", "-inline auto", "-fp_contract on", "-str reuse"]),
-    "MSL":        ("GC/2.6",    [*cflags_common, "-O4,p", "-inline auto,deferred", "-use_lmw_stmw on",
-                                 "-str pool,readonly", "-common off", "-fp_contract on"]),
-    "Runtime":    ("GC/2.6",    [*cflags_common, "-O4,p", "-inline auto", "-use_lmw_stmw on",
-                                 "-str reuse,pool,readonly", "-common off"]),
-    "MetroTRK":   ("GC/2.6",    [*cflags_common, "-O4,p", "-inline auto,deferred", "-use_lmw_stmw on",
-                                 "-str reuse,readonly", "-common off", "-sdata 0", "-sdata2 0"]),
-    "game":       ("GC/2.6",    [*cflags_common, "-opt level=0,peephole,schedule,speed", "-fp_contract on"]),
-}
-```
+The Milestone 3 proposal that the table above replaced (plan.md step 50) is in this file's git history.

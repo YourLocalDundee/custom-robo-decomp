@@ -3,8 +3,8 @@
 # (each download is SHA-256 checked), then extract YOUR copy of the game. Every step: docs\REPRODUCE.md.
 # Usage:  pwsh tools\setup.ps1 -Iso "C:\path\to\Custom Robo (USA).iso" [-Dolphin "C:\your\Dolphin folder"]
 #   -Dolphin is optional: without it, the official Dolphin 2609a build is downloaded just for DolphinTool.exe.
-# Needs on PATH: git, python (3.11+), java (21+); Windows also dotnet (SDK 8+) and tar (built in); Linux/macOS also unzip,
-# and Dolphin's dolphin-tool (see docs/INSTALL.md). Runs on Windows, Linux and macOS under PowerShell 7 (pwsh).
+# Needs on PATH: git, python (3.11+), java (21+), dotnet (SDK 8+) and tar (built in); see docs/INSTALL.md.
+# Windows script (PowerShell 7). Linux / macOS: tools/setup.sh (bash; no PowerShell needed there).
 # Re-running skips finished steps.
 param([Parameter(Mandatory)][string]$Iso, [string]$Dolphin)
 $ErrorActionPreference = 'Stop'
