@@ -1,10 +1,10 @@
 m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md step 58)
 one object per function (the game's own source files are not known); batch 9 links them and checks the SHA-1
 
-drafts at 100% MATCH: 236
-promoted: 230 (9308 bytes = 0x245C)
+drafts at 100% MATCH: 235
+promoted: 229 (9208 bytes = 0x23F8)
 left out: 6
-kept from earlier runs (draft no longer 100%): 2
+kept from earlier runs (draft no longer 100%): 3
 removed (function name no longer ours): 0
 
 == promoted (address, function, bytes)
@@ -92,7 +92,6 @@ removed (function name no longer ours): 0
 8001E684  fn_8001E684                                     44
 80020A40  fn_80020A40                                     32
 800215F8  fn_800215F8                                    124
-80021A40  fn_80021A40                                    100
 80021AA4  fn_80021AA4                                     12
 8002312C  fn_8002312C                                     56
 80023570  fn_80023570                                    120
@@ -248,6 +247,7 @@ removed (function name no longer ours): 0
 80112A0C  fn_80112A0C                                    172  has data of its own (.sdata2 0x8): needs the data piece split too
 
 == kept (function, its draft's status now)
+fn_80021A40                                  92%
 fn_800A0804                                  85%
 fn_800F60A8                                  94%
 

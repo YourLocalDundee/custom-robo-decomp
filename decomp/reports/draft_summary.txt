@@ -5,38 +5,32 @@ counts only; the drafts themselves are decompiled output and are never committed
 functions 1751
 m2c ok 1749
 m2c failed 2
-compile failed 303
-compiled 1446
-100% MATCH 236
-bytes matched 279816 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
+compile failed 96
+compiled 1653
+100% MATCH 235
+bytes matched 354216 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
 
-match % histogram of the 1446 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
-    0- 9%  57
-   10-19%  106
-   20-29%  128
-   30-39%  281
-   40-49%  178
-   50-59%  156
-   60-69%  93
-   70-79%  92
-   80-89%  81
-   90-99%  38
-  100%     236
+match % histogram of the 1653 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
+    0- 9%  77
+   10-19%  135
+   20-29%  159
+   30-39%  313
+   40-49%  193
+   50-59%  184
+   60-69%  117
+   70-79%  111
+   80-89%  88
+   90-99%  41
+  100%     235
 
 most common failures:
-     68  compile: pointer/array required
-     63  compile: illegal explicit conversion from '*' to
-     57  compile: illegal implicit conversion from '*' to
-     36  compile: illegal operand
-     21  compile: illegal struct/union/enum/class definition
-     13  compile: function call '*' does not match
-      9  compile: call of non-function
-      9  compile: type mismatch
-      9  compile: undefined identifier '*'
-      7  compile: illegal type
-      6  compile: function call '*' does not
+     25  compile: pointer/array required
+     19  compile: illegal explicit conversion from '*' to
+     19  compile: illegal operand
+     13  compile: illegal implicit conversion from '*' to
+     10  compile: illegal type
+      5  compile: not an lvalue
       2  compile: illegal use of keyword
+      2  compile: type mismatch
       2  m2c: */
-      1  compile: function call '*'
-      1  compile: function call '*' does
-      1  compile: function call 'fn_8018C854(long, unsigned char, unsigned char, unsigned
+      1  compile: undefined identifier '*'

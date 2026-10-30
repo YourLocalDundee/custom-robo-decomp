@@ -93,6 +93,37 @@ m2c's own errors. Below 100%, the typical gaps now are m2c's temporaries (one mo
 `lfsu`: cr_Mtx_Store): the next step is types in `cr_types.h` / `cr_globals.txt` (the drafts' context sizes every `lbl_`
 already; naming and typing one fixes every draft that touches it).
 
+## Third generator (plan.md step 60, Oct 30, 2026)
+
+Round 2 on the compile failures, same m2c and compiler. (1) **The context declared none of the 111 library functions
+the game code calls** (655 call sites): to the compiler they were implicit `int f()` (float arguments promoted to
+double, `PSMTXRotRad` "3 vs 4 args" was its own guess from the first call of a draft). Now `sdk_protos` takes the
+prototype of every undeclared `bl` target from the decomp's pinned SDK headers (`decomp/include/dolsdk2004`, read only;
+only a prototype whose types the context knows: 20, `ctx_sdk.h`) and the unnamed library `fn_` the game calls (90)
+get theirs from their own first-pass draft like the game functions (`ctx_protos.h`); the context is compiled once as
+a check. (2) **Repair rules** added: `**x` / `***x` chains and `x[i]` on integers load through `(T **)` / `(T *)`;
+casts to function-pointer types (`long (**)(...)`) are allowed; `*M2C_FIELD(x, void **, N) = v` stores through
+`v`'s type; a conversion to an anonymous `struct *` casts to `void *`; a struct wanted by value from a pointer
+derefs (`*(GXColor *) &sp38`); an explicit conversion from a struct by value reads the scalar at the offset
+(`*(u16 *) ((u8 *) base + off)`) or takes a stack struct's address; a call's argument is chosen by the callee's
+parameter of the reported type (prototypes parsed from the context; a variadic call's extra arguments are never
+cast, which was the `float` to `char *` class); `call of non-function` also for `*obj(args)` and `table[i](args)`;
+`illegal operand` casts a pointer used as the right operand of `+` / an index / compared with `(u32)` to an
+integer and `(void *) (addr)` in a comparison to `u32`; `type mismatch` swaps the cast; a call with fewer / more
+arguments than the prototype is padded with zeros / cut (compiles, cannot match); `unksp` locals and m2c's `s24`
+width are declared; a definition with a function-pointer parameter is recognised (the stack arrays of such drafts
+were not declared before). **Before -> after**: compile 1,446 -> 1,653 of 1,751 (failures 303 -> 96), 100% MATCH
+236 -> 235, bytes equal after alignment 279,816 -> 354,216; histogram 0-9% 57 -> 77, 10-19% 106 -> 135, 20-29%
+128 -> 159, 30-39% 281 -> 313, 40-49% 178 -> 193, 50-59% 156 -> 184, 60-69% 93 -> 117, 70-79% 92 -> 111, 80-89%
+81 -> 88, 90-99% 38 -> 41. The one match lost (fn_80021A40, kept in decomp/src/game) calls a library function whose
+draft signature takes an argument the caller never sets (`M2C_ERROR`); the one gained, fn_800215F8, passes a
+pointer to `DVDClose`. The 96 failures left: `pointer/array required` where the operand is an array element or a
+struct field (25), explicit conversions m2c itself writes (`M2C_BITWISE(f32, ptr)`, 19), `illegal operand` on
+struct-typed globals (`*(cr_g_AreaBoxes + i) & 1`, 19), `not an lvalue`, misplaced `case` / `default` labels (m2c).
+The 5 matched drafts with an .sdata2 constant of their own cannot be promoted by the sole-user rule: every one of
+their constants is shared (lbl_804502A0 18 objects, lbl_80450AB0 13, lbl_80451290 63, lbl_80451850 7), so a
+per-function object cannot own the piece; they need the real file edges (several functions in one object).
+
 ## Promoted to decomp/src/game (plan.md step 58)
 
 After the drafts, batch 12 runs `python -I tools/promote_drafts.py` (method: its docstring). Every 100% draft that can be

@@ -87,11 +87,12 @@ def unit_files():
     return out
 
 
-def game_functions():
+def game_functions(with_lib=False):
     """[(name, address, size, asm lines, original object)] of every game function, in address order, and the jump
-    tables {name: lines} of the whole split (from dtk's asm of every object)"""
+    tables {name: lines} of the whole split (from dtk's asm of every object); with_lib: also {name: the same tuple}
+    of every other function of the split (the libraries), for the signatures of the ones the game code calls"""
     end = game_end()
-    funcs, jt = [], {}
+    funcs, jt, lib = [], {}, {}
     for asm, obj in unit_files():
         cur, buf, addr, size, blk = None, [], 0, 0, None
         for l in open(asm, encoding='utf-8', errors='replace').read().split(chr(10)):
@@ -107,6 +108,8 @@ def game_functions():
                 if ENDFN.match(l):
                     if GAME_START <= addr < end:
                         funcs.append((cur, addr, size, buf, obj))
+                    else:
+                        lib[cur] = (cur, addr, size, buf, obj)
                     cur = None
                 continue
             m = re.match(r'^\.obj (jumptable_[0-9A-F]{8}),', l)
@@ -118,7 +121,7 @@ def game_functions():
             elif blk:
                 blk[1].append(l)
     funcs.sort(key=lambda f: f[1])
-    return funcs, jt
+    return (funcs, jt, lib) if with_lib else (funcs, jt)
 
 
 def game_flags():
@@ -262,7 +265,7 @@ def data_decls(ptrs={}):
     return ''.join(out)
 
 
-DEF = re.compile(r'^([A-Za-z_][\w \t\*]*?)\s*\**\b(\w+)\(([^()]*)\) \{$', re.M)
+DEF = re.compile(r'^([A-Za-z_][\w \t\*]*?)\s*\**\b(\w+)\(((?:[^()]|\([^()]*\))*)\) \{$', re.M)
 
 
 def signature(name, body):
@@ -283,6 +286,56 @@ def protos_text(sigs, ctx_pp):
         if not re.search(r'\b%s\s*\(' % re.escape(name), ctx_pp):
             out.append(sigs[name][1] + '\n')
     return ''.join(out)
+
+
+SDK_INC = 'include/dolsdk2004'   # the decomp's pinned SDK headers (decomp/include; read only here)
+KEYWORDS = {'void', 'char', 'short', 'int', 'long', 'float', 'double', 'signed', 'unsigned', 'const', 'volatile',
+            'struct', 'union', 'enum', 'extern', 'register'}
+
+
+def callees(funcs):
+    """every `bl` target of the game functions' asm"""
+    out = set()
+    for f in funcs:
+        for l in f[3]:
+            m = re.search(r'\bbl\s+([A-Za-z_]\w*)\s*$', l)
+            if m:
+                out.add(m.group(1))
+    return out
+
+
+def declared(name, ctx_pp):
+    return re.search(r'\b%s\s*\(' % re.escape(name), ctx_pp) is not None
+
+
+def sdk_protos(names, ctx_pp):
+    """{name: (header, prototype)} of the library functions in names that the context does not declare, from the SDK
+    headers of decomp/include/dolsdk2004 (dolphin/, libc/): a function the game calls without a prototype is an
+    implicit `int f()` to the compiler (float arguments promoted to double, the result an int: PSMTXRotRad, cos, ...).
+    Only a one-line prototype whose types the context already knows is taken (the compiler must accept the context)."""
+    known = set(re.findall(r'\b[A-Za-z_]\w*\b', ctx_pp))
+    root = os.path.join(D, SDK_INC)
+    found = {}
+    for d, _, files in sorted(os.walk(root)):
+        for f in sorted(files):
+            if not f.endswith('.h'):
+                continue
+            text = open(os.path.join(d, f), encoding='utf-8', errors='replace').read()
+            text = re.sub(r'//[^\n]*', '', re.sub(r'/\*.*?\*/', ' ', text, flags=re.S))
+            for m in re.finditer(r'^[ \t]*((?:[A-Za-z_]\w*[ \t\*]+)+?)\s*\b(\w+)\s*\(([^(){};#]*)\)\s*;', text, re.M):
+                ret, name, params = re.sub(r'\s+', ' ', m.group(1)).strip(), m.group(2), re.sub(r'\s+', ' ', m.group(3)).strip()
+                if name not in names or name in found or {'static', 'inline', 'typedef', 'return'} & set(ret.split()):
+                    continue
+                idents = set(re.findall(r'\b[A-Za-z_]\w*\b', ret.replace('extern ', '')))
+                for p in params.split(','):
+                    w = re.findall(r'\b[A-Za-z_]\w*\b', p)
+                    if len(w) >= 2 and w[-1] not in KEYWORDS:
+                        w = w[:-1]   # the parameter's name
+                    idents |= set(w)
+                if all(i in known or i in KEYWORDS for i in idents):
+                    found[name] = (os.path.relpath(os.path.join(d, f), D).replace('\\', '/'),
+                                   '%s %s(%s);' % (ret.replace('extern ', ''), name, params))
+    return found
 
 
 def globals_decls():
@@ -422,8 +475,30 @@ def drop_param_spills(body):
     return body
 
 
+def declare_unk_stack(body):
+    """`unksp14C` is m2c's name for a stack slot it could not place in its template (used through its address, e.g.
+    `(&unksp14C)[i]`): declared as f32 where a use is a float expression, else s32. And a template type m2c makes up
+    for an odd width (`s24 sp18`) becomes bytes."""
+    body = re.sub(r'^(\s*)[su](24|40|48|56) (\w+);', lambda m: '%su8 %s[%d];' % (m.group(1), m.group(3), int(m.group(2)) // 8), body, flags=re.M)
+    lines = body.split('\n')
+    names = sorted(set(re.findall(r'\b(unksp[0-9A-F]+)\b', body)))
+    add = []
+    for nm in names:
+        if re.search(r'^\s*[\w \*]+\b%s;' % nm, body, re.M):
+            continue
+        uses = [l for l in lines if re.search(r'\b%s\b' % nm, l)]
+        f = any(re.search(r'\b(temp_f|var_f|farg|f32)\w*|\d\.\d', l) for l in uses)
+        add.append('    %s %s;' % ('f32' if f else 's32', nm))
+    if add:
+        for i, l in enumerate(lines):
+            if DEF.match(l):
+                lines[i + 1:i + 1] = add
+                break
+    return '\n'.join(lines)
+
+
 def postprocess(body):
-    return type_void_stores(drop_saved_reg_reads(drop_param_spills(declare_stack_arrays(body))))
+    return type_void_stores(drop_saved_reg_reads(drop_param_spills(declare_unk_stack(declare_stack_arrays(body)))))
 
 
 # ---- the repair loop: one fix per compiler message, checked by compiling again -------------------------------------------
@@ -524,8 +599,146 @@ def locate(line, seg, col):
     return ls[k] if k < len(ls) else len(line)
 
 
+CANON = {'u8': 'unsigned char', 's8': 'signed char', 'u16': 'unsigned short', 's16': 'short', 'u32': 'unsigned long',
+         's32': 'long', 'f32': 'float', 'f64': 'double', 'vu8': 'unsigned char', 'vu16': 'unsigned short', 'vu32': 'unsigned long',
+         'vs32': 'long', 'size_t': 'unsigned long', 'BOOL': 'int', 'M2C_UNK': 'long', 'M2C_UNK8': 'unsigned char',
+         'M2C_UNK16': 'unsigned short', 'M2C_UNK32': 'unsigned long'}
+DRAFT = {'unsigned char': 'u8', 'signed char': 's8', 'unsigned short': 'u16', 'short': 's16', 'unsigned long': 'u32',
+         'long': 's32', 'unsigned int': 'u32', 'int': 's32', 'float': 'f32', 'double': 'f64', 'char': 'char', 'void': 'void'}
+
+
+def canon(t):
+    """a type the way the compiler prints it, without spaces (`u8 *` and `unsigned char *` are the same)"""
+    t = re.sub(r'\b(\w+)\b', lambda m: CANON.get(m.group(1), m.group(1)), t)
+    return re.sub(r'\s+', '', t)
+
+
+def draft_type(t):
+    """the draft's spelling of a type the compiler printed (`unsigned char *` -> `u8 *`)"""
+    for k in sorted(DRAFT, key=len, reverse=True):
+        if t == k or t.startswith(k + ' ') or t.startswith(k + '*'):
+            return DRAFT[k] + t[len(k):]
+    return t
+
+
+def protos_map():
+    """{name: ([canonical parameter types], variadic)} of every prototype of the context (ctx_pp.c, ctx_sdk.h,
+    ctx_protos.h), read once per process"""
+    if 'protos' in W:
+        return W['protos']
+    out = {}
+    for f in ('ctx_pp.c', 'ctx_sdk.h', 'ctx_protos.h'):
+        try:
+            text = open(os.path.join(W['out'], f), encoding='utf-8').read()
+        except OSError:
+            continue
+        for m in re.finditer(r'\b([A-Za-z_]\w*)\s*\(([^(){};]*(?:\([^(){}]*\)[^(){};]*)*)\)\s*;', text):
+            name, params = m.group(1), m.group(2).strip()
+            if name in out or name in KEYWORDS:
+                continue
+            ps = [p.strip() for p in split_args('(' + params + ')', 0)[0]] if params else []
+            if ps == ['void']:
+                ps = []
+            variadic = bool(ps) and ps[-1] == '...'
+            if variadic:
+                ps = ps[:-1]
+            cps = []
+            for p in ps:
+                if '(' in p:
+                    p = re.sub(r'\(\s*\*\s*\w+\s*\)', '(*)', p)
+                else:
+                    w = re.findall(r'\b[A-Za-z_]\w*\b', p)
+                    if len(w) >= 2 and w[-1] not in KEYWORDS:
+                        p = re.sub(r'\b%s\s*$' % w[-1], '', p.rstrip()).rstrip()   # hmm: `u8 name[4]`? rare in prototypes
+                cps.append(canon(p))
+            out[name] = (cps, variadic)
+    W['protos'] = out
+    return out
+
+
+def call_at(s, at):
+    """(callee name, [(start, end)] of the top-level arguments, index of the opening bracket) of the call whose closing
+    bracket is at or just before s[at] (the compiler's caret for an argument's conversion), or None"""
+    i = at
+    if i < len(s) and s[i] == ')':
+        i += 1
+    while i > 0 and s[i - 1] == ' ':
+        i -= 1
+    if i == 0 or s[i - 1] != ')':
+        return None
+    depth, j = 0, i - 1
+    while j >= 0:
+        depth += 1 if s[j] == ')' else -1 if s[j] == '(' else 0
+        if depth == 0:
+            break
+        j -= 1
+    if j < 0:
+        return None
+    k = j
+    while k > 0 and s[k - 1] == ' ':
+        k -= 1
+    e = k
+    while k > 0 and (s[k - 1].isalnum() or s[k - 1] == '_'):
+        k -= 1
+    name = s[k:e]
+    if not name or name[0].isdigit() or name in KEYWORDS or name in ('if', 'while', 'return', 'sizeof'):
+        return None
+    args, _ = split_args(s, j)
+    if args is None:
+        return None
+    spans, p = [], j + 1
+    for a in args:
+        spans.append((p, p + len(a)))
+        p += len(a) + 1
+    return name, spans, j
+
+
+def wrap(ex):
+    return ex if re.match(r'^[\w.]+$', ex) or (ex.startswith('(') and ex.endswith(')') and split_args(ex, 0)[1] == len(ex)) else '(' + ex + ')'
+
+
+def cast_text(ex, t, deref=False):
+    """`(t) ex`, or `*(t *) ex` for a struct the compiler wants by value out of a pointer"""
+    return ('*(%s *) ' % t if deref else '(%s) ' % t) + wrap(ex)
+
+
+def cast_span(s, a, b, t, deref=False):
+    """the argument s[a:b] cast to t (its own spacing kept)"""
+    arg = s[a:b]
+    lead = len(arg) - len(arg.lstrip())
+    return s[:a] + arg[:lead] + cast_text(arg.strip(), t, deref) + s[b:]
+
+
+def has_cast(ex, t):
+    m = re.match(r'^\s*\((.+?)\)\s', ex)
+    return bool(m) and canon(m.group(1)) == canon(t)
+
+
+def ptr_names(lines):
+    """the locals and parameters a draft declares as pointers"""
+    out = set()
+    for l in lines:
+        m = re.match(r'^\s*(?:const )?[\w ]+?\s*\*+\s*(\w+)(?:\[[^\]]*\])*;', l)
+        if m:
+            out.add(m.group(1))
+        m = DEF.match(l)
+        if m:
+            out |= set(re.findall(r'\*\s*(\w+)\b', m.group(3)))
+    return out
+
+
+def unbracket(ex):
+    """the expression without one pair of outer brackets"""
+    ex = ex.strip()
+    while ex.startswith('(') and split_args(ex, 0)[1] == len(ex):
+        ex = ex[1:-1].strip()
+    return ex
+
+
 def repair(lines, e):
-    """apply one fix for the compiler's first error to the draft's lines (1-based line numbers); the fix made, or None"""
+    """apply one fix for the compiler's first error to the draft's lines (1-based line numbers); the fix made, or None.
+    The rules are mechanical and local to the line of the message (the rest of the draft is m2c's); each one is named
+    in the report's note through the fix count."""
     ln, seg, col, msg = e
     if not 1 <= ln <= len(lines):
         return None
@@ -536,19 +749,42 @@ def repair(lines, e):
         at = locate(s, seg, col)
     m = re.match(r"illegal implicit conversion from '(.*)' to '(.*)'$", msg)
     if m and at is not None:
-        t = m.group(2)
+        a_t, t = m.group(1), m.group(2)
         if t == 'void':
-            # `*(void *)ADDR = value`: a store through an untyped address; the value's type is the store's
-            nl = re.sub(r'\*\s*\(void \*\)', '*(%s *)' % m.group(1), s, count=1)
+            # `*(void *)ADDR = value` / `*M2C_FIELD(x, void **, 8) = value`: a store through an untyped address; the
+            # value's type is the store's
+            nl = re.sub(r'\*\s*\(void \*\)', '*(%s *)' % a_t, s, count=1)
+            if nl == s:
+                nl = s.replace('void **', '%s **' % a_t, 1)
             if nl == s:
                 return None
             lines[ln - 1] = nl
-            return 'store through a %s *' % m.group(1)
-        if '(' in t and '(*)' not in t:
+            return 'store through a %s *' % a_t
+        deref = False
+        if re.match(r'^(struct|union)\s*\*$', t):
+            t = 'void *'          # an anonymous struct's pointer: void * converts to it
+        elif re.match(r'^(struct|union) \w+$', t) and a_t.endswith('*'):
+            deref = True          # a struct by value where m2c passes its address
+        elif (re.match(r'^(struct|union)\b', t) and not t.endswith('*')) or (re.match(r'^(struct|union)\b', a_t) and not a_t.endswith('*')):
+            return None   # a struct by value: no cast makes that
+        if '(' in t and '(*' not in t:
             return None
+        # a call's argument: the message points at the call's end; the parameter of that type says which argument
+        c = call_at(s, at)
+        if c is not None:
+            name, spans, _ = c
+            protos = protos_map()
+            if name in protos:
+                params, variadic = protos[name]
+                want = canon(t)
+                for i in reversed(range(min(len(params), len(spans)))):
+                    if canon(params[i]) == want and not has_cast(s[spans[i][0]:spans[i][1]], t):
+                        lines[ln - 1] = cast_span(s, spans[i][0], spans[i][1], t, deref)
+                        return 'cast argument %d of %s to %s' % (i, name, t)
+                if variadic or any(canon(p) == want for p in params):
+                    return None
         st = expr_start(s, at)
-        # the message for a call's argument points at the call's end: the argument to cast is the last one that is
-        # not cast to that type already
+        # otherwise the last expression before the caret that is not cast to that type already
         for _ in range(12):
             if st >= at:
                 return None
@@ -561,24 +797,103 @@ def repair(lines, e):
                 return None
             at, st = k, expr_start(s, k)
         ex = s[st:at].rstrip()
-        wrap = ex if re.match(r'^[\w.]+$', ex) or (ex.startswith('(') and ex.endswith(')')) else '(' + ex + ')'
-        lines[ln - 1] = s[:st] + '(' + t + ') ' + wrap + s[st + len(ex):]
+        lines[ln - 1] = s[:st] + cast_text(ex, t, deref) + s[st + len(ex):]
         return 'cast to ' + t
+    m = re.match(r"illegal explicit conversion from '(.*)' to '(.*)'$", msg)
+    if m and at is not None:
+        a_t, t = m.group(1), m.group(2)
+        st = expr_start(s, at)
+        ex = s[st:at].rstrip()
+        if not ex.startswith('('):
+            return None
+        cm = split_args(ex, 0)
+        if cm[0] is None:
+            return None
+        ct, operand = ex[1:cm[1] - 1].strip(), ex[cm[1]:].strip()
+        struct_src = re.match(r'^(struct|union)\b', a_t) and not a_t.endswith('*')
+        struct_dst = re.match(r'^(struct|union)\b', t) and not t.endswith('*')
+        if struct_src:
+            inner = unbracket(operand)
+            if inner.startswith('*') and not inner.startswith('*('):
+                inner = '*(' + inner[1:].strip() + ')'
+            if inner.startswith('*('):
+                # `(u16) *(base + off)`: a struct by value where the code reads a scalar at that byte offset
+                body = unbracket(inner[1:])
+                new = '*(%s *) ((u8 *) %s)' % (ct, body)
+            elif re.match(r'^\w+$', inner):
+                # `(s32) sp48` of a stack struct: its address (a pointer target) or its first scalar
+                new = '(%s) &%s' % (ct, inner) if t.endswith('*') else '*(%s *) &%s' % (ct, inner)
+            else:
+                return None
+            lines[ln - 1] = s[:st] + new + s[st + len(ex):]
+            return 'struct %s read as %s' % (a_t.split()[-1], ct)
+        if struct_dst and a_t.endswith('*'):
+            lines[ln - 1] = s[:st] + '*(%s *) %s' % (ct, wrap(operand)) + s[st + len(ex):]
+            return 'struct %s by value from its pointer' % ct
+        return None
     if msg == 'call of non-function':
-        # `*(table + i * 4)(args)`: a call through a pointer m2c could not type; cast the address to a pointer to a
-        # pointer to an unprototyped function (its arguments are passed as they are, like the original's)
+        # `*(table + i * 4)(args)` / `*obj(args)` / `table[i](args)`: a call through a pointer m2c could not type; the
+        # address is cast to a pointer to a pointer to an unprototyped function (the arguments pass as they are)
         for m in re.finditer(r'\*\(', s):
             args, end = split_args(s, m.end() - 1)
             if args is not None and end < len(s) and s[end] == '(' and not s[m.start() - 1:m.start()].isalnum():
                 lines[ln - 1] = s[:m.start()] + '(*(M2C_UNK (**)()) ' + s[m.end() - 1:end] + ')' + s[end:]
                 return 'call through a function pointer'
+        m = re.search(r'(?<![\w)\]])\*(\w+)\(', s)
+        if m:
+            lines[ln - 1] = s[:m.start()] + '(*(M2C_UNK (**)()) %s)(' % m.group(1) + s[m.end():]
+            return 'call through a function pointer'
+        for m in re.finditer(r'\]\(', s):
+            depth, i = 0, m.start()
+            while i >= 0:
+                depth += 1 if s[i] == ']' else -1 if s[i] == '[' else 0
+                if depth == 0:
+                    break
+                i -= 1
+            while i > 0 and (s[i - 1].isalnum() or s[i - 1] in '_.)'):
+                if s[i - 1] == ')':
+                    d2 = 0
+                    while i > 0:
+                        i -= 1
+                        d2 += 1 if s[i] == ')' else -1 if s[i] == '(' else 0
+                        if d2 == 0:
+                            break
+                else:
+                    i -= 1
+            if i < m.start() and not s[i:i + 1].isdigit():
+                lines[ln - 1] = s[:i] + '((M2C_UNK (*)()) ' + s[i:m.start() + 1] + ')' + s[m.start() + 1:]
+                return 'call through a function table'
         return None
     if msg == 'pointer/array required' and at is not None:
-        # `*(x + 8)` / `*x` where m2c typed x as an integer: the load's type is the cast in front of it (`(u16) *(...)`)
-        # or s32
+        # `*(x + 8)` / `*x` / `**(x + 8)` / `x[i]` where m2c typed x as an integer: the load goes through a pointer to
+        # the type of the cast in front of it (`(u16) *(...)`), else s32, with as many levels as there are stars
         end = at
         while end > 0 and s[end - 1] == ' ':
             end -= 1
+        if end and s[end - 1] == ']':
+            depth, i = 0, end - 1
+            while i >= 0:
+                depth += 1 if s[i] == ']' else -1 if s[i] == '[' else 0
+                if depth == 0:
+                    break
+                i -= 1
+            k = i
+            if k > 0 and s[k - 1] == ')':
+                depth = 0
+                while k > 0:
+                    k -= 1
+                    depth += 1 if s[k] == ')' else -1 if s[k] == '(' else 0
+                    if depth == 0:
+                        break
+            else:
+                while k > 0 and (s[k - 1].isalnum() or s[k - 1] == '_'):
+                    k -= 1
+            if k >= i or (k > 0 and s[k - 1] in '.>'):
+                return None
+            cm = re.search(r'\((u8|s8|u16|s16|u32|s32|f32|f64)\) $', s[:k])
+            t = (cm.group(1) if cm else 's32') + ' *'
+            lines[ln - 1] = s[:k] + '((' + t + ') ' + s[k:i] + ')' + s[i:]
+            return 'index through a ' + t
         if end and s[end - 1] == ')':
             depth, i = 0, end - 1
             while i >= 0:
@@ -593,11 +908,15 @@ def repair(lines, e):
         j = i
         while j > 0 and s[j - 1] == ' ':
             j -= 1
-        if j == 0 or s[j - 1] != '*' or (j >= 2 and s[j - 2] == '*'):
+        stars = 0
+        while j > 0 and s[j - 1] == '*':
+            j -= 1
+            stars += 1
+        if stars == 0 or (j > 0 and (s[j - 1].isalnum() or s[j - 1] == ')')):
             return None
-        cm = re.search(r'\((u8|s8|u16|s16|u32|s32|f32|f64)\) $', s[:j - 1])
-        t = (cm.group(1) if cm else 's32') + ' *'
-        lines[ln - 1] = s[:j] + '(' + t + ') ' + s[i:]
+        cm = re.search(r'\((u8|s8|u16|s16|u32|s32|f32|f64)\) $', s[:j])
+        t = (cm.group(1) if cm else 's32') + ' ' + '*' * stars
+        lines[ln - 1] = s[:j + stars] + '(' + t + ') ' + s[i:]
         return 'load through a ' + t
     if msg in ('illegal type', 'illegal operand'):
         fixed = s.replace('void **', 'u8 **')
@@ -607,9 +926,9 @@ def repair(lines, e):
             lines[ln - 1] = fixed
             changed.append('void **')
         for i, l in enumerate(lines):
-            dm = re.match(r'^(\s*)void \*(\w+);$', l)
+            dm = re.match(r'^(\s*)void \*\s*(\w+)((?:\[\w*\])*);$', l)
             if dm and dm.group(2) in names:
-                lines[i] = '%su8 *%s;' % (dm.group(1), dm.group(2))
+                lines[i] = '%su8 *%s%s;' % (dm.group(1), dm.group(2), dm.group(3))
                 changed.append(dm.group(2))
             dm = DEF.match(l)
             if dm:
@@ -619,7 +938,72 @@ def repair(lines, e):
                 if nl != l:
                     lines[i] = nl
                     changed.append('param')
-        return 'u8 * for ' + ' '.join(changed) if changed else None
+        if changed:
+            return 'u8 * for ' + ' '.join(changed)
+        s = lines[ln - 1]
+        # an integer compared with `(void *) (address)`: the address as an integer
+        if re.search(r'[=!<>]=?\s*\(void \*\) \(|\(void \*\) \([^;]*\)\s*[=!<>]=', s) and '(void *) (' in s:
+            lines[ln - 1] = s.replace('(void *) (', '(u32) (', 1)
+            return 'address as u32'
+        # pointer + pointer / pointer as an index: the right one as an integer
+        ptrs = ptr_names(lines)
+        for m in re.finditer(r'([+\-]=?|\[)\s*(?!\(s32\))(\w+)\b(?![\w(])', s):
+            if m.group(2) in ptrs:
+                lines[ln - 1] = s[:m.start(2)] + '(s32) ' + s[m.start(2):]
+                return 'pointer %s as an integer' % m.group(2)
+        for m in re.finditer(r'([+\-]=?|\[)\s*M2C_FIELD\(', s):
+            args, end = split_args(s, m.end() - 1)
+            if args and args[1].strip().endswith('**'):
+                lines[ln - 1] = s[:m.end() - 10] + '(s32) ' + s[m.end() - 10:]
+                return 'pointer field as an integer'
+        # `(u32) x == ptr`: the pointer as an integer
+        for m in re.finditer(r'(==|!=)\s*(\w+)\b|\b(\w+)\s*(==|!=)', s):
+            n = m.group(2) or m.group(3)
+            if n in ptrs and '(u32)' in s:
+                st = m.start(2) if m.group(2) else m.start(3)
+                lines[ln - 1] = s[:st] + '(u32) ' + s[st:]
+                return 'pointer %s as an integer' % n
+        return None
+    m = re.match(r"type mismatch '(.*)' and '(.*)'$", msg)
+    if m:
+        a_t, b_t = m.group(1), m.group(2)
+        da, db_ = draft_type(a_t), draft_type(b_t)
+        if '(%s)' % da in s and '(' not in db_:
+            lines[ln - 1] = s.replace('(%s)' % da, '(%s)' % db_, 1)
+            return 'cast %s instead of %s' % (db_, da)
+        if a_t.endswith('*') and '(' not in b_t and not b_t.endswith('*'):
+            ptrs = ptr_names(lines)
+            for cm in re.finditer(r'\b(\w+)\s*(>=|<=|==|!=|<|>)', s):
+                if cm.group(1) in ptrs:
+                    lines[ln - 1] = s[:cm.start(1)] + '(%s) ' % db_ + s[cm.start(1):]
+                    return 'pointer %s as %s' % (cm.group(1), db_)
+        return None
+    m = re.match(r"function call '(\w+)\((.*)\)' does not match '\1\((.*)\)'$", msg)
+    if m:
+        # the call passes fewer / more arguments than the callee's prototype (a draft's guess, or a call the compiler
+        # declared implicitly before): zeros for the missing ones, the extra ones dropped (it compiles; it will not match)
+        name = m.group(1)
+        have = split_args('(' + m.group(2) + ')', 0)[0] if m.group(2).strip() else []
+        want = split_args('(' + m.group(3) + ')', 0)[0] if m.group(3).strip() else []
+        want = [w.strip() for w in want if w.strip() not in ('void', '...')]
+        cm = re.search(r'\b%s\s*\(' % re.escape(name), s)
+        if not cm:
+            return None
+        args, end = split_args(s, cm.end() - 1)
+        if args is None:
+            return None
+        if len(args) < len(want) and len(have) == len(args):
+            extra = ['0.0f' if w in ('float', 'double') else '0' for w in want[len(args):]]
+            if args == [''] and len(args) == 1:
+                lines[ln - 1] = s[:cm.end()] + ', '.join(extra) + s[end - 1:]
+            else:
+                lines[ln - 1] = s[:end - 1] + ', ' + ', '.join(extra) + s[end - 1:]
+            return 'call of %s padded to %d arguments' % (name, len(want))
+        if len(args) > len(want) and len(have) == len(args):
+            keep = args[:len(want)]
+            lines[ln - 1] = s[:cm.end()] + ','.join(keep) + s[end - 1:]
+            return 'call of %s cut to %d arguments' % (name, len(want))
+        return None
     m = re.match(r"undefined identifier '(saved_reg_[rf]\d+)'$", msg)
     if m:
         for i, l in enumerate(lines):
@@ -700,7 +1084,7 @@ def main():
         os.makedirs(os.path.join(out, s))
     ver, flags = game_flags()
     # inputs, copied once: the other builds may rewrite decomp/build while this runs
-    funcs, jt = game_functions()
+    funcs, jt, lib = game_functions(with_lib=True)
     assert funcs and funcs[0][1] == GAME_START, 'game code asm not as expected (run batch 9 first)'
     shutil.rmtree(os.path.join(out, 'orig'), ignore_errors=True)
     os.makedirs(os.path.join(out, 'orig'))
@@ -711,6 +1095,13 @@ def main():
             shutil.copyfile(f[4], copies[f[4]])
     funcs = [(n, ad, sz, b, copies[o]) for n, ad, sz, b, o in funcs]
     starts = {n: ad for n, ad, _, _, _ in funcs}
+    # the library functions the game code calls (bl targets outside the game range): the ones no header declares get
+    # a prototype from the SDK headers (ctx_sdk.h) or, for the unnamed fn_, from their own first-pass draft
+    called = callees(funcs)
+    game = set(starts)
+    libcalled = sorted(n for n in called if n in lib and n not in starts)
+    for n in libcalled:
+        starts[n] = lib[n][1]
 
     def jtext(name):
         out = []
@@ -720,7 +1111,7 @@ def main():
                 l = '	.4byte .L_%08X' % (starts[m.group(1)] + int(m.group(2), 16))
             out.append(l)
         return ['.obj %s, local' % name] + out + ['.endobj %s' % name]
-    for name, ad, sz, b, _ in funcs:
+    for name, ad, sz, b, _ in funcs + [lib[n] for n in libcalled]:
         for t in sorted(set(re.findall(r'jumptable_[0-9A-F]{8}', chr(10).join(b)))):
             if t in jt:
                 tx = jtext(t)
@@ -747,8 +1138,9 @@ def main():
     open(os.path.join(out, 'm2c_run.py'), 'w', newline='\n').write(
         "import sys\nsys.path.insert(0, %r)\nfrom m2c.main import main\nmain()\n" % M2C.replace('\\', '/'))
     protos = os.path.join(out, 'ctx_protos.h')
+    sdk = os.path.join(out, 'ctx_sdk.h')
 
-    def context(text):
+    def context(text, check=True):
         open(os.path.join(out, 'ctx.h'), 'w', newline='\n').write(text)
         ctxin = os.path.join(out, 'ctx_in.h')
         shutil.copyfile(os.path.join(out, 'ctx.h'), ctxin)
@@ -759,19 +1151,38 @@ def main():
             sys.exit('context preprocess failed:\n' + so[:2000] + se[:2000])
         # m2c's context parser reads plain C: our own preprocessed text, with the macros it defines itself dropped
         open(os.path.join(out, 'ctx_pp.c'), 'w', encoding='utf-8', newline='\n').write(so)
+        if check:   # the compiler must accept the context as it is (every draft includes it)
+            chk = os.path.join(out, 'ctx_check.c')
+            open(chk, 'w', newline='\n').write('#include "ctx.h"\n')
+            rc, so2, se2 = run(mwcc_cmd(ver) + ['-c'] + flags + CTX_DEFS + ['-i', 'drafts'] + sum([['-i', i] for i in CTX_INC], [])
+                               + ['-o', os.path.join(out, 'ctx_check.o'), chk], 120, cwd=D)
+            if rc != 0:
+                sys.exit('the context does not compile:\n' + (so2 + se2)[:3000])
         # prime m2c's context cache once (workers then only read it)
         run([sys.executable, '-I', os.path.join(out, 'm2c_run.py'), '-t', 'ppc-mwcc-c', '--context', os.path.join(out, 'ctx_pp.c'),
              '-f', funcs[0][0], os.path.join(out, 'asm', funcs[0][0] + '.s')], 300)
         return so
 
     full = not a.only and not a.sample
-    if full or not os.path.exists(protos):
+    if full or not os.path.exists(protos) or not os.path.exists(sdk):
+        # the SDK / MSL prototypes of the library functions the game calls that the HSD headers do not declare
+        ctx_pp = context(base, check=False)
+        und = sorted(n for n in called if n not in game and not declared(n, ctx_pp))
+        found = sdk_protos(und, ctx_pp)
+        open(sdk, 'w', encoding='utf-8', newline='\n').write(
+            '// prototypes of the library functions the game code calls that the HSD headers do not declare, from the\n'
+            '// decomp\'s SDK headers (decomp/include/dolsdk2004; tools/draft_batch.py sdk_protos); gitignored, a full run rewrites it\n'
+            + ''.join('%s   // %s\n' % (found[n][1], found[n][0]) for n in sorted(found)))
+        print('SDK prototypes: %d of %d undeclared library callees (%d unnamed fn_ get theirs from pass 1)' % (
+            len(found), len(und), sum(1 for n in und if n in lib and n not in found)))
         # pass 1: every function once, without the data declarations, for the signature of its own draft (the callers
-        # then see the callee's parameters) and the pointer types m2c infers for 4-byte data objects
-        ctx_pp = context(base)
+        # then see the callee's parameters) and the pointer types m2c infers for 4-byte data objects; the library
+        # functions the game calls that have no prototype yet get theirs the same way
+        ctx_pp = context(base + '#include "ctx_sdk.h"\n')
         sigs, ptr = {}, collections.defaultdict(set)
+        p1 = [(n, ad, sz, o) for n, ad, sz, _, o in funcs] + [(n, lib[n][1], lib[n][2], lib[n][4]) for n in libcalled if n in und and n not in found]
         with cf.ProcessPoolExecutor(a.jobs, initializer=init, initargs=(out, ver, flags, True)) as ex:
-            for name, sig, externs, _ in ex.map(one, [(n, ad, sz, o) for n, ad, sz, _, o in funcs], chunksize=4):
+            for name, sig, externs, _ in ex.map(one, p1, chunksize=4):
                 if sig:
                     sigs[name] = (starts[name], sig)
                     for t, lbl in externs:
@@ -783,7 +1194,7 @@ def main():
             + ''.join('#define CR_PTR_%s %s\n' % (n, ptrs[n]) for n in sorted(ptrs)))
         print('pass 1: %d prototypes, %d pointer objects from the drafts (%d s)' % (len(sigs), len(ptrs), time.time() - t0))
     ptrs = dict(re.findall(r'^#define CR_PTR_(lbl_[0-9A-F]{8}) (.*)$', open(protos, encoding='utf-8').read(), re.M))
-    context(base + data_decls(ptrs) + '\n#include "ctx_protos.h"\n')
+    context(base + '#include "ctx_sdk.h"\n' + data_decls(ptrs) + '\n#include "ctx_protos.h"\n')
     res = {}
     with cf.ProcessPoolExecutor(a.jobs, initializer=init, initargs=(out, ver, flags)) as ex:
         for name, status, note, eqb in ex.map(one, jobs, chunksize=4):
