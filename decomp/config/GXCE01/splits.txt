@@ -888,6 +888,7 @@ dolphin/os/OS.c:
 	.text       start:0x80131D1C end:0x80132808
 	.data       start:0x802427F0 end:0x802429E8
 	.bss        start:0x8041EB80 end:0x8041EBD0
+	.sdata      start:0x8044ED50 end:0x8044ED60
 
 dolphin/os/OSAlarm.c:
 	.text       start:0x80132808 end:0x80132F64
@@ -1601,11 +1602,13 @@ sysdolphin/baselib/displayfunc.c:
 
 sysdolphin/baselib/initialize.c:
 	.text       start:0x8019CC64 end:0x8019D3EC
-	.data       start:0x8024CB00 end:0x8024CB70
+	.data       start:0x8024CB00 end:0x8024CB6D
+	.sdata      start:0x8044F100 end:0x8044F119
 	.sdata2     start:0x80452838 end:0x80452840
 
 sysdolphin/baselib/video.c:
 	.text       start:0x8019D3EC end:0x8019E11C
+	.data       start:0x8024CB70 end:0x8024CBF8
 	.sdata      start:0x8044F120 end:0x8044F128
 	.sbss       start:0x80450038 end:0x80450040
 	.sdata2     start:0x80452840 end:0x80452850
@@ -1673,6 +1676,7 @@ sysdolphin/baselib/object.c:
 
 sysdolphin/baselib/bytecode.c:
 	.text       start:0x801A5F10 end:0x801A74D8
+	.data       start:0x8024D438 end:0x8024D4D8
 	.sdata      start:0x8044F238 end:0x8044F248
 	.sdata2     start:0x804529B0 end:0x804529E8
 

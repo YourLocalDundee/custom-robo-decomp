@@ -902,8 +902,13 @@ def pool_refs(audit, funcs):
     return by_f, by_c
 
 
-def data_splits(objs, chosen_by_path, refinfo, rejected, notes, audit):
-    """objs: [(path, {sec: (a, b)})] code objects -> {path: {sec: (a, b)}} proven data pieces, report lines"""
+def data_splits(objs, chosen_by_path, refinfo, rejected, notes, audit, cpieces=None):
+    """objs: [(path, {sec: (a, b)})] code objects -> {path: {sec: (a, b)}} proven data pieces, report lines.
+    cpieces ({path: {sec: (a, b)}}, the pieces the matched C proves; second pass of main): a symbol before / after the
+    candidate range that lies in another object's C piece belongs to that object, whoever uses it (a global of a C
+    file used by an earlier unit, e.g. util.c's HSD_identityMtx used by displayfunc.c, no longer blocks video.c)"""
+    def in_cpiece(path, sec, a):
+        return any(p != path and sec in v and v[sec][0] <= a < v[sec][1] for p, v in (cpieces or {}).items())
     import reloc_audit as ra
     elf, dobjs, rng, events, raw, rels = audit
     secr = {s[1]: (s[3], s[3] + s[4]) for s in elf.alloc}
@@ -1030,11 +1035,11 @@ def data_splits(objs, chosen_by_path, refinfo, rejected, notes, audit):
             k1 = j + 1
             while k1 < len(lst) and (not users.get(lst[k1]) or ui in users[lst[k1]]):
                 k1 += 1
-            if k0 >= 0 and max(users[lst[k0]]) >= ui:
+            if k0 >= 0 and max(users[lst[k0]]) >= ui and not in_cpiece(path, sec, lst[k0]):
                 rejected.append(f"data {tag}: the symbol before, 0x{lst[k0]:08X}, is used by {uname(max(users[lst[k0]]))} "
                                 f"(not before this object in link order)")
                 continue
-            if k1 < len(lst) and min(users[lst[k1]]) <= ui:
+            if k1 < len(lst) and min(users[lst[k1]]) <= ui and not in_cpiece(path, sec, lst[k1]):
                 rejected.append(f"data {tag}: the symbol after, 0x{lst[k1]:08X}, is used by {uname(min(users[lst[k1]]))} "
                                 f"(not after this object in link order)")
                 continue
@@ -1874,9 +1879,19 @@ def main(argv) -> int:
     data, dlines, dgaps = ({}, [], [])
     clines, cnames, cwhole = [], [], []
     if "--no-data" not in argv:
+        nrej, nnotes = len(rejected), len(notes)
         data, dlines, dgaps = data_splits(objs, by_path, refinfo, rejected, notes, audit)
         if "--no-c" not in argv:
             compile_c(objs, data)
+            cdata, clines, need, cwhole = c_data(audit[0], ours, objs, data, list(rejected))
+            # second pass: the relocation users' pieces bounded by the C-proven ones (data_splits cpieces), then the
+            # C pieces again against those
+            rejected[:] = rejected[:nrej]
+            notes[:] = notes[:nnotes]
+            C_DEFS.clear()
+            C_OVERHANG.clear()
+            C_SALIGN.clear()
+            data, dlines, dgaps = data_splits(objs, by_path, refinfo, rejected, notes, audit, cdata)
             cdata, clines, need, cwhole = c_data(audit[0], ours, objs, data, rejected)
             clines += game_data(audit, objs, data, ours, rejected)
             dgaps = merge_c_data(objs, data, cdata, dlines, clines, rejected, audit[0])
