@@ -1,0 +1,6 @@
+/* Custom Robo: from zeldaret/tp @ c8fa8c9e2aab72cf4e5db0e5d1c84a9ea6ee6eb0, libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Include/cstdarg */ #ifndef _MSL_CSTDARG_H_
+#define _MSL_CSTDARG_H_
+
+#include <va_list>
+
+#endif

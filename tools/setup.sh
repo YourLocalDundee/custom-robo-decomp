@@ -94,9 +94,14 @@ pinned_clone melee "$t/melee" /config/ /src/sysdolphin/ /src/Runtime/ /src/MSL/ 
     /libs/doldecomp/include/ /libs/dolphin/include/
 # (MetroTRK/: the TRK sources, and MSL's math.h includes MetroTRK/intrinsics.h; tools/compiler_probe compiles them.
 #  An older clone without it: git -C tools/melee sparse-checkout add /src/MetroTRK/)
-for r in mkdd pikmin2 ttyd tww tp; do
+for r in mkdd ttyd tww; do
     pinned_clone "$r" "$t/refs/$r" '/config/*/symbols.txt' '/config/*/splits.txt'
 done
+# Twilight Princess / Pikmin 2: also their MetroTRK v2.6, MSL and SDK sources (docs/compiler.md "Source hunt"; the
+# MetroTRK objects and FILE_POS.c are imported from them by tools/import_ref_source.py, tools/compiler_probe/sources.py)
+pinned_clone tp "$t/refs/tp" '/config/*/symbols.txt' '/config/*/splits.txt' /include/ /libs/TRK_MINNOW_DOLPHIN/ \
+    /libs/PowerPC_EABI_Support/ /libs/dolphin/ /configure.py
+pinned_clone pikmin2 "$t/refs/pikmin2" '/config/*/symbols.txt' '/config/*/splits.txt' /include/ /src/Dolphin/ /configure.py
 # Library-naming references (tools/match_lib_*.py): names, sizes, and source text for call graphs / asserts / strings.
 # Only text is read; nothing from these repos is built or run.
 for r in kar_wowjinxy xd dolsdk2001 dolsdk2004 ac-decomp sms marioparty4 pikmin bfbb; do

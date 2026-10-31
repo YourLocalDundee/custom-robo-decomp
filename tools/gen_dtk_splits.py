@@ -21,7 +21,12 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
        that no reference or pinned source puts in O's file, counts as an unnamed one (naming it loses no proof; HSD
        objects only, step 61: elsewhere it would change two SDK / MSL ranges, critical_regions and SISamplingRate,
        which are not reviewed under this rule yet). A named neighbour that the pinned sources define only in another
-       library (SDK / MSL / TRK / HSD) proves the end too (step 65: HSD_Panic before THPDec.c).
+       library (SDK / MSL / TRK / HSD) proves the end too (step 65: HSD_Panic before THPDec.c), and (step 68, not in
+       HSD objects) one that the pinned sources of this library define only in other files (AXCL.c's AXSetMode before
+       AXOut.c). Before the end tests, the range grows over a neighbour that R has in O at our size although the
+       name is on several of our functions (a static several files use: CARDWrite.c's WriteCallback /
+       EraseCallback, OSMemory.c's OnReset), and over a named neighbour that no reference places and the pinned
+       sources define only in O's file (texPalette.c's TEXGetGXTexObjFromPaletteCI, which TTYD does not link).
        When unnamed functions sit between our end function and the next named function P (in another object of R), the
        end is still proven
          - by a size run: R has exactly as many functions between the two, with our sizes one to one (the same
@@ -42,6 +47,10 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
   object's last function belongs to that object, as the linker puts it there.
   Agreement: several references can prove the same object. When their ranges differ (different SDK / MSL / TRK
   revisions, or a decomp's own guess), each section is settled
+    0. BY THE FUNCTION ITSELF (step 68): when every function inside some ranges but not all is placed by the
+       references at our size in exactly one file, and one of those names has another size elsewhere (two revisions
+       give the name to different functions: Pikmin 2's mslsupp.c __close_console, 0x84, vs MSL's 8-byte one), the
+       range that holds exactly the ones placed in O wins;
     1. BY SOURCE: our named functions inside some of the candidate ranges but not all are looked up in the pinned
        library sources (dolsdk2001, dolsdk2004, Melee's MSL / Runtime / MetroTRK / sysdolphin, Mario Party 4's SDK /
        MSL / Runtime / TRK): which file DEFINES each one (a body, not a prototype; the object's own library first,
@@ -57,7 +66,9 @@ CODE (.init / .text), library objects (Dolphin SDK, MSL / Runtime, MetroTRK, HSD
   only if doldecomp/kar (refs/kar: asm/sysdolphin/<file>.s + src/sysdolphin/<file>.c, the same GKYE01 DOL) has that
   file with the same first and last function address and the same names on both anchor functions (the naming rule:
   a wowjinxy name counts only when another reference agrees). Reference file names that are addresses (Melee's
-  hsd_3910.c, ..._8004a648.c) are placeholders, never used.
+  hsd_3910.c, ..._8004a648.c) are placeholders, never used. MusyX files of the references (musyx/...) are not
+  read (step 68: this game does not link MusyX, and its reverb / chorus names are the SDK AXFX files' too); TTYD's
+  sdk/ folder is (its texPalette.c), and a library of one file named as it maps to dolphin/<name>/<name>.c.
   The object's path is Melee's path for a file of the same name (lower-case match), else the first reference's file
   name in Melee's folder layout (dolphin/<lib>/, MSL/, Runtime/, MetroTRK/, sysdolphin/baselib/).
 
@@ -172,7 +183,7 @@ REFS = [
     "refs/pikmin/config/GPIE01_01", "refs/bfbb/config/GQPE78", "refs/ttyd/config/G8MJ01",
 ]
 LIB_DIRS = ("dolphin", "sysdolphin", "MSL", "Runtime", "MetroTRK", "TRK_MINNOW_DOLPHIN", "Dolphin", "PowerPC_EABI_Support",
-            "TRK", "libc", "musyx", "SDK", "dolsdk", "amcstubs", "odenotstub", "OdemuExi2", "debugger", "Runtime.PPCEABI.H",
+            "TRK", "libc", "musyx", "SDK", "sdk", "dolsdk", "amcstubs", "odenotstub", "OdemuExi2", "debugger", "Runtime.PPCEABI.H",
             "MSL_C", "MSL_C.PPCEABI.bare.H", "MetroTRK", "os", "dvd", "gx", "vi", "pad", "si", "exi", "card", "ax",
             "ai", "ar", "dsp", "mtx", "gba", "thp", "hio", "db", "base", "mcc", "axfx", "OdemuExi", "libs")
 SYM = re.compile(r"^\s*([^\s=]+)\s*=\s*(\.[\w.]+):0x([0-9A-Fa-f]+);\s*//(.*)$")
@@ -185,6 +196,8 @@ PLACEHOLDER_FILE = re.compile(r"^hsd_[0-9A-Fa-f]{3,8}$|_[0-9A-Fa-f]{8}$|^text_|^
 
 def family(path: str) -> str:
     p = path.lower()
+    if p.startswith("musyx/"):
+        return "musyx"  # MusyX (its runtime/ is not the MSL Runtime): a library this game does not link
     if p.startswith("sysdolphin/"):
         return "hsd"
     if "trk" in p.split("/")[0] or "metrotrk" in p or "trk_minnow" in p:
@@ -209,7 +222,7 @@ def objkey(path: str):
 
 
 SDK_LIBS = {"ai", "amcstubs", "ar", "ax", "axfx", "base", "card", "db", "dsp", "dvd", "exi", "gx", "hio", "mcc", "mtx",
-            "odenotstub", "odemuexi2", "os", "pad", "si", "thp", "vi", "gba"}
+            "odenotstub", "odemuexi2", "os", "pad", "si", "thp", "vi", "gba", "texpalette"}
 
 
 def canonical(path: str) -> str:
@@ -217,6 +230,8 @@ def canonical(path: str) -> str:
     # sysdolphin/baselib/), the file name as the reference writes it
     parts = path.split("/")
     f, fam = parts[-1], family(path)
+    if fam == "musyx":
+        return path
     if fam == "hsd":
         return "sysdolphin/baselib/" + f
     if fam == "trk":
@@ -225,6 +240,8 @@ def canonical(path: str) -> str:
     if fam == "msl":
         return ("Runtime/" if "runtime" in path.lower() else "MSL/") + f
     lib = next((x for x in reversed(parts[:-1]) if x.lower() in SDK_LIBS), None)
+    if lib is None and Path(f).stem.lower() in SDK_LIBS:
+        lib = Path(f).stem  # a library of one file named as it (TTYD's sdk/texPalette.c): Melee's dolphin/<lib>/<file>
     return f"dolphin/{lib}/{f}" if lib else f"dolphin/{f}"
 
 
@@ -284,6 +301,8 @@ def lib_path(ref: str, name: str, hsd: set):
         return "sysdolphin/baselib/" + name if ref == WOW and stem.lower() in hsd else None
     if name.split("/")[0] not in LIB_DIRS:
         return None
+    if family(name) == "musyx":
+        return None  # step 68: MusyX is not linked here (its reverb / chorus names overlap the SDK's AXFX files)
     if ref == WOW and name.startswith("dolphin/") and name.count("/") == 1 and stem.lower() in SDK_LIBS:
         return None  # wowjinxy's dolphin/os.c etc.: a whole SDK library as one file, not a source file
     return name
@@ -384,6 +403,8 @@ def code_splits(ours, rejected, notes, audit=None):
 
     hsd = hsd_stems()
     placed = placed_in(hsd)  # function name -> the library files (objkeys) the references place it in
+    PLACED_SZ.clear()
+    PLACED_SZ.update(placed_sized(hsd))
     g3 = {a: Path(f).stem.lower() for a, f in read_g3().items()}  # function -> the .c file its assert names
     melee_paths = {}
     refinfo = {}  # ref tag -> (symbols, {object name: [(sec, start, end)]})
@@ -429,13 +450,33 @@ def code_splits(ours, rejected, notes, audit=None):
                     rejected.append(f"{tag}: none of its functions is (uniquely) named in ours")
                     continue
                 i, j = hit[0], hit[-1]
+                # step 68: a static name several of our files use (CARDWrite.c's WriteCallback / EraseCallback,
+                # OSMemory.c's OnReset) is not unique, but next to the object it is the reference's own function when
+                # the reference has that name at our size in this file: the range grows over it
+                # the reference has that name at our size in this file: the range grows over it. Likewise a named
+                # neighbour that the pinned sources define in this very file only (texPalette.c's
+                # TEXGetGXTexObjFromPaletteCI, which TTYD's texPalette.c does not link)
+                fns = {(s[0], s[3]) for s in F}
+
+                def own(f):
+                    return f[1] == sec and f[0] not in names and not DEFAULT.match(f[0]) and (
+                        (f[0], f[3]) in fns or (not where.get(f[0]) and verdict(defs, f[0], family(path)) == stem.lower()
+                                                and {st for _, st in defs.get(f[0], ())} == {stem.lower()}))
+                stem = Path(name).stem
+                while i > 0 and own(funcs[i - 1]):
+                    i -= 1
+                while j + 1 < len(funcs) and own(funcs[j + 1]):
+                    j += 1
                 # (a named function R's file lacks is still allowed when the pinned library sources define it in this
                 # very file: another revision of the file has it; or when every reference that places it puts it in
                 # a library file of this name: another revision's function, or a header inline's out-of-line copy)
                 bad = [funcs[k][0] for k in range(i, j + 1) if not DEFAULT.match(funcs[k][0]) and funcs[k][0] not in names
                        and verdict(defs, funcs[k][0], family(path)) != Path(name).stem.lower()
                        and placed.get(funcs[k][0]) != {objkey(path)}
-                       and not (family(path) == "hsd" and not placed.get(funcs[k][0]) and not defs.get(funcs[k][0]))]
+                       and not (family(path) == "hsd" and not placed.get(funcs[k][0]) and not defs.get(funcs[k][0]))
+                       # (step 68: a static name several files use, e.g. dvd.c's AlarmHandler, that this reference has
+                       # in this very file at our size, is this file's own)
+                       and not any(s[0] == funcs[k][0] and s[3] == funcs[k][3] for s in F)]
                 # (HSD only, step 61 iteration 3: a name between two of R's functions of O that no reference places in
                 # any file and no pinned source defines carries no file of its own: it counts as the unnamed function
                 # it was, enclosed by O's functions - as rule 4 does for such a neighbour)
@@ -585,6 +626,11 @@ def code_splits(ours, rejected, notes, audit=None):
                         # the pinned sources define it only in another library (step 65: HSD_Panic, sysdolphin's, before
                         # the SDK's THPDec.c): no file of this library holds it, so it is another object's
                         return f"{nb} is in another library's sources"
+                    fst = {st for f, st in defs.get(nb, ()) if f == family(path)}
+                    if family(path) != "hsd" and fst and Path(name).stem.lower() not in fst:
+                        # step 68: the pinned sources of this library define it only in other files (AXCL.c's
+                        # AXSetMode before AXOut.c, AXAlloc.c's AXSetVoicePriority before AXAux.c)
+                        return f"{nb} is defined in {sorted(fst)[0]}.c"
                     if family(path) == "hsd" and not where.get(nb) and objkey(path) not in placed.get(nb, ()) \
                             and verdict(defs, nb, family(path)) != Path(name).stem.lower():
                         # a name this reference does not have (a newer revision's function), that no reference and
@@ -757,6 +803,10 @@ def verdict(defs, name, fam):
 def settle(path, key, lst, funcs, defs, rejected, notes):
     """candidates of one object -> the ones to use, or None (rejected). Agreeing ranges are kept as they are; when the
     references disagree (SDK / MSL / TRK revisions, or a decomp's guess), each section is settled
+      0. (step 68) by the function itself: every function in some candidate range but not all is placed by the
+         references at our size in exactly one file, and some reference has the name at another size elsewhere (a name
+         two revisions give to different functions: MetroTRK mslsupp.c's 0x84 __close_console in Pikmin 2 vs MSL's
+         8-byte one): the one range that holds exactly those placed in this object wins;
       1. by source: our named functions inside some candidate range but not all are looked up in the pinned library
          sources (which file defines each); the one range whose membership matches the defining file for every such
          function (in the range iff defined in this file) wins;
@@ -779,6 +829,26 @@ def settle(path, key, lst, funcs, defs, rejected, notes):
         lo, hi = min(a for a, b in rs), max(b for a, b in rs)
         diff = [f for f in funcs if f[1] == sec and lo <= f[2] < hi and not DEFAULT.match(f[0])
                 and not all(a <= f[2] < b for a, b in rs)]
+        # 0. by the function itself (step 68): a name two revisions give to different functions (MetroTRK mslsupp.c's
+        #    __close_console, 0x84 in Pikmin 2, vs MSL's 8-byte one in uart_console_io.c) is settled by where the
+        #    references put a function of that name AT OUR SIZE, before the pinned sources (which only know the name);
+        #    only when every such placement of every differing function agrees and the name has another size elsewhere
+        ev = {}
+        for f in diff:
+            at = PLACED_SZ.get(f[0], set())
+            mine = {k for k, z in at if z == f[3]}
+            if not mine or len(mine) > 1:
+                ev = None
+                break
+            ev[f[0]] = (next(iter(mine)) == key, any(z != f[3] for k, z in at))
+        if ev and any(o for _, o in ev.values()):
+            ok0 = [(a, b) for a, b in sorted(rs) if all((a <= f[2] < b) == ev[f[0]][0] for f in diff)]
+            if len(ok0) == 1:
+                keep += [c for c in cs if (c["start"], c["end"]) == ok0[0]]
+                how.append(f"{sec} 0x{ok0[0][0]:08X}-0x{ok0[0][1]:08X} by the function's size in the references ("
+                           + ", ".join(sorted(ev)) + ": only placed at our size "
+                           + ("here" if all(v[0] for v in ev.values()) else "as this range says") + ")")
+                continue
         vd = {f[0]: verdict(defs, f[0], key[0]) for f in diff}
         known = {n: v for n, v in vd.items() if v}
         ok = []
@@ -810,6 +880,30 @@ def settle(path, key, lst, funcs, defs, rejected, notes):
 def fmt_sizes(lst):
     s = ",".join(f"{x:X}" for x in lst[:12])
     return f"[{s}{',..' if len(lst) > 12 else ''}]"
+
+
+PLACED_SZ = {}  # function name -> {(objkey, size)} over all references (code sections); filled by code_splits
+
+
+def placed_sized(hsd):
+    """{function name: {(objkey of the library file a reference places it in, its size there)}}"""
+    out = defaultdict(set)
+    for ref in REFS:
+        d = G / "tools" / ref
+        tagr = ref.split('/')[-1]
+        if not (d / "splits.txt").exists() or not (d / "symbols.txt").exists():
+            continue
+        rf = sorted([s for s in read_syms(d / "symbols.txt") if s[4]], key=lambda s: s[2])
+        for name, secs in read_splits(d / "splits.txt"):
+            path = lib_path(tagr, name, hsd)
+            if path is None:
+                continue
+            for sec, a, b in secs:
+                if sec in CODE:
+                    for s in rf:
+                        if a <= s[2] < b and s[1] == sec and not DEFAULT.match(s[0]):
+                            out[s[0]].add((objkey(path), s[3]))
+    return out
 
 
 def placed_in(hsd):

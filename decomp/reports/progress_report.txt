@@ -3,19 +3,19 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           82     82   0x02BAB8/0x02BAB8 100.00%   0x016D30/0x016D30 100.00%    690/  690
-MSL                               49     46   0x008EE8/0x00939C  96.81%   0x0014B2/0x0014BA  99.85%     80/   85
+dolphin                           98     97   0x032CC4/0x033700  98.76%   0x01F8EB/0x01F933  99.94%    825/  831
+MSL                               49     48   0x009378/0x00939C  99.90%   0x0014BA/0x0014BA 100.00%     84/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
-MetroTRK                          29     12   0x000AD8/0x006220  11.05%   0x000030/0x0034F8   0.35%     32/  162
-sysdolphin                        30     13   0x0081F4/0x026600  21.17%   0x0010AE/0x00247E  45.71%    157/  472
+MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
+sysdolphin                        30     18   0x00B20C/0x026600  29.00%   0x002CFD/0x003D85  73.13%    227/  472
 game                             420    420   0x00B880/0x00B880 100.00%   0x0000E4/0x0000E4 100.00%    420/  420
-automatic objects (unsplit)      298      0   0x000000/0x145B5C   0.00%   0x000000/0x27E754   0.00%      0/ 1685
-main.dol (all units)             913    578   0x0498C8/0x1B342C  16.90%   0x019440/0x29C434   3.78%   1398/ 3533
+automatic objects (unsplit)      266      0   0x000000/0x13DE64   0.00%   0x000000/0x2740B8   0.00%      0/ 1542
+main.dol (all units)             897    617   0x059778/0x1B3430  20.55%   0x027297/0x29C41F   5.86%   1739/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 420 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0xB880 bytes = 3.84% of the game code, 2.65% of all code
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
-MSL/FILE_POS.c                                code 0x0/0x3C0  data 0x0/0x0  functions 0/3  not linked: code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision; BfBB has no FILE_POS.c and no reference reproduces _fseek (86%) or ftell (46%) (step 66)
+MSL/FILE_POS.c                                code 0x3C0/0x3C0  data 0x0/0x0  functions 3/3  linked from C
 MSL/PPC_EABI/critical_regions.gamecube.c      code 0xC/0xC  data 0x0/0x0  functions 3/3  linked from C
 MSL/abort_exit.c                              code 0xF0/0xF0  data 0x110/0x110  functions 1/1  linked from C
 MSL/alloc.c                                   code 0x4B4/0x4B4  data 0x54/0x54  functions 4/4  linked from C
@@ -53,7 +53,7 @@ MSL/s_modf.c                                  code 0xFC/0xFC  data 0x0/0x0  func
 MSL/s_sin.c                                   code 0xD8/0xD8  data 0x8/0x8  functions 1/1  linked from C
 MSL/s_tan.c                                   code 0x78/0x78  data 0x8/0x8  functions 1/1  linked from C
 MSL/string.c                                  code 0x2DC/0x2DC  data 0x0/0x0  functions 7/7  linked from C
-MSL/uart_console_io_gcn.c                     code 0xD0/0xD0  data 0x8/0x8  functions 1/1  not linked: link: 100% code and data (BfBB's file), but the C also defines __close_console, which main.dol has at 0x8015EBAC, before MetroTRK/mslsupp.c, far outside this object's range 0x80165A14-0x80165AE4 (MKDD's map puts it in another unit of the same name there): linked from C it is defined twice (step 65)
+MSL/uart_console_io_gcn.c                     code 0xD0/0xD0  data 0x8/0x8  functions 1/1  linked from C
 MSL/w_acos.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_asin.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_atan2.c                                 code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
@@ -63,29 +63,34 @@ MSL/w_log.c                                   code 0x20/0x20  data 0x0/0x0  func
 MSL/w_pow.c                                   code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/w_sqrt.c                                  code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
 MSL/wchar_io.c                                code 0x88/0x88  data 0x0/0x0  functions 1/1  linked from C
+MetroTRK/CircleBuffer.c                       code 0x268/0x268  data 0x0/0x0  functions 4/4  linked from C
+MetroTRK/MWCriticalSection_gc.cpp             code 0x58/0x58  data 0x0/0x0  functions 3/3  linked from C
 MetroTRK/MWTrace.c                            code 0x50/0x50  data 0x0/0x0  functions 1/1  linked from C
 MetroTRK/UDP_Stubs.c                          code 0x48/0x48  data 0x0/0x0  functions 9/9  linked from C
-MetroTRK/dispatch.c                           code 0x0/0x178  data 0x0/0x40  functions 0/2  not linked: code: 2 of 2 functions differ (TRKInitializeDispatcher 0%, TRKDispatchMessage 24%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)  (C has data the split object lacks: .bss 0x4, .data 0x84)
-MetroTRK/dolphin_trk.c                        code 0x100/0x638  data 0x0/0x48  functions 3/8  not linked: code: 5 of 8 functions differ (TRKTargetTranslate 73%, __TRK_copy_vectors 85%, fn_8015E288 0%, fn_8015E09C 0% (+1 more)): the reference is another revision; fn_ = a function of ours the reference file does not have (or names otherwise); ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)  (C has data the split object lacks: .init 0x104)
-MetroTRK/dolphin_trk_glue.c                   code 0xC4/0x558  data 0x0/0x138  functions 3/13  not linked: code: 10 of 13 functions differ (InitMetroTRKCommTable 37%, TRKInitializeIntDrivenUART 75%, EnableEXI2Interrupts 67%, TRKPollUART 0% (+6 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
+MetroTRK/ddh/main.c                           code 0x344/0x344  data 0x908/0x908  functions 10/10  linked from C
+MetroTRK/dispatch.c                           code 0x178/0x178  data 0xB0/0xB0  functions 2/2  linked from C
+MetroTRK/dolphin_trk.c                        code 0x668/0x668  data 0x48/0x48  functions 9/9  linked from C
+MetroTRK/dolphin_trk_glue.c                   code 0x558/0x558  data 0x138/0x138  functions 13/13  linked from C
 MetroTRK/flush_cache.c                        code 0x38/0x38  data 0x0/0x0  functions 1/1  linked from C
-MetroTRK/main_TRK.c                           code 0x0/0x58  data 0x8/0x18  functions 0/1  not linked: code: 1 of 1 functions differ (TRK_main 77%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
+MetroTRK/gdev/main.c                          code 0x34C/0x34C  data 0x608/0x608  functions 10/10  linked from C
+MetroTRK/main_TRK.c                           code 0x58/0x58  data 0x18/0x18  functions 1/1  linked from C
 MetroTRK/mainloop.c                           code 0xF8/0xF8  data 0x0/0x0  functions 1/1  linked from C
 MetroTRK/mem_TRK.c                            code 0x10C/0x10C  data 0x0/0x0  functions 3/3  linked from C
 MetroTRK/mpc_7xx_603e.c                       code 0x370/0x370  data 0x0/0x0  functions 2/2  linked from C
-MetroTRK/msg.c                                code 0x0/0x44  data 0x0/0x28  functions 0/1  not linked: code: 1 of 1 functions differ (TRKMessageSend 0%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
-MetroTRK/msgbuf.c                             code 0x604/0x83C  data 0x19B0/0x19B0  functions 11/14  not linked: code: 3 of 14 functions differ (TRKResetBuffer 92%, TRKAppendBuffer1_ui64 53%, TRKAppendBuffer_ui32 65%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)  (C has data the split object lacks: .rodata 0x1D)
-MetroTRK/msghndlr.c                           code 0x1C/0x1070  data 0x0/0x228  functions 2/17  not linked: code: 15 of 17 functions differ (OutputData 0%, TRKDoConnect 0%, TRKDoDisconnect 0%, TRKDoReset 0% (+11 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
-MetroTRK/mslsupp.c                            code 0x178/0x178  data 0x0/0x0  functions 2/2  linked from C
+MetroTRK/msg.c                                code 0x44/0x44  data 0x25/0x25  functions 1/1  linked from C
+MetroTRK/msgbuf.c                             code 0x83C/0x83C  data 0x19CD/0x19CD  functions 14/14  linked from C
+MetroTRK/msghndlr.c                           code 0x1070/0x1070  data 0x226/0x226  functions 17/17  linked from C
+MetroTRK/mslsupp.c                            code 0x1FC/0x1FC  data 0x0/0x0  functions 3/3  linked from C
 MetroTRK/mutex_TRK.c                          code 0x18/0x18  data 0x0/0x0  functions 3/3  linked from C
-MetroTRK/notify.c                             code 0x0/0x98  data 0x0/0x0  functions 0/1  not linked: code: 1 of 1 functions differ (TRKDoNotifyStopped 61%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
+MetroTRK/notify.c                             code 0x98/0x98  data 0x0/0x0  functions 1/1  linked from C
 MetroTRK/nubevent.c                           code 0x228/0x228  data 0x28/0x28  functions 5/5  linked from C
-MetroTRK/nubinit.c                            code 0x4C/0x198  data 0x0/0x30  functions 2/3  not linked: code: 1 of 3 functions differ (TRKInitializeNub 73%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)  (C has data the split object lacks: .bss 0x4)
-MetroTRK/serpoll.c                            code 0x58/0x2B8  data 0x0/0x1A8  functions 2/5  not linked: code: 3 of 5 functions differ (TRKTestForPacket 0%, TRKGetInput 38%, TRKInitializeSerialHandler 16%): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
-MetroTRK/support.c                            code 0x0/0x714  data 0x0/0xA8  functions 0/5  not linked: code: 5 of 5 functions differ (TRKSuppAccessFile 39%, TRKRequestSend 77%, HandleOpenFileSupportRequest 24%, HandleCloseFileSupportRequest 51% (+1 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
+MetroTRK/nubinit.c                            code 0x198/0x198  data 0x38/0x38  functions 3/3  linked from C
+MetroTRK/serpoll.c                            code 0x2B8/0x2B8  data 0x1B0/0x1B0  functions 5/5  linked from C
+MetroTRK/support.c                            code 0x714/0x714  data 0xA5/0xA5  functions 5/5  linked from C
 MetroTRK/targcont.c                           code 0x34/0x34  data 0x0/0x0  functions 1/1  linked from C
 MetroTRK/target_options.c                     code 0x1C/0x1C  data 0x8/0x8  functions 2/2  linked from C
-MetroTRK/targimpl.c                           code 0xC20/0x1B8C  data 0x30/0x648  functions 17/29  not linked: code: 12 of 29 functions differ (TRKValidMemory32 40%, TRKTargetAccessFP 23%, TRKPostInterruptEvent 86%, TRKTargetInterrupt 81% (+8 more)): the reference is another revision; ours is MetroTRK v2.6 (the banner; the sizes of XD / TP), and no pinned reference has v2.6 source: KAR / BfBB / SMS reproduce only some of its functions (step 66, docs/compiler.md Source revisions)
+MetroTRK/targimpl.c                           code 0x1B8C/0x1B8C  data 0x648/0x648  functions 29/29  linked from C
+MetroTRK/targsupp.c                           code 0x20/0x20  data 0x0/0x0  functions 4/4  linked from C
 MetroTRK/usr_put.c                            code 0x8C/0x8C  data 0x0/0x0  functions 2/2  linked from C
 Runtime/GCN_mem_alloc.c                       code 0xB8/0xB8  data 0x78/0x78  functions 1/1  linked from C
 Runtime/__mem.c                               code 0x138/0x138  data 0x0/0x0  functions 3/3  linked from C
@@ -94,12 +99,22 @@ Runtime/global_destructor_chain.c             code 0x48/0x48  data 0xC/0xC  func
 Runtime/runtime.c                             code 0x6DC/0x6DC  data 0x18/0x18  functions 13/13  linked from C
 dolphin/OdemuExi2/DebuggerDriver.c            code 0xA80/0xA80  data 0x1D/0x1D  functions 14/14  linked from C
 dolphin/ai/ai.c                               code 0x8E8/0x8E8  data 0x90/0x90  functions 19/19  linked from C
+dolphin/amcstubs/AmcExi2Stubs.c               code 0x30/0x30  data 0x0/0x0  functions 8/8  linked from C
 dolphin/ar/ar.c                               code 0x1B38/0x1B38  data 0x70/0x70  functions 9/9  linked from C
-dolphin/ar/arq.c                              code 0x39C/0x39C  data 0x74/0x74  functions 5/5  linked from C
-dolphin/ax/AXAlloc.c                          code 0x4BC/0x4BC  data 0x104/0x104  functions 10/10  linked from C
+dolphin/ar/arq.c                              code 0x39C/0x39C  data 0x75/0x75  functions 5/5  linked from C
+dolphin/ax/AX.c                               code 0x70/0x70  data 0x4C/0x4C  functions 2/2  linked from C
+dolphin/ax/AXAlloc.c                          code 0x4BC/0x4BC  data 0x108/0x108  functions 10/10  linked from C
+dolphin/ax/AXAux.c                            code 0x490/0x490  data 0x2D38/0x2D38  functions 14/14  linked from C
+dolphin/ax/AXCL.c                             code 0x72C/0x72C  data 0x618/0x618  functions 5/5  linked from C
+dolphin/ax/AXOut.c                            code 0x7B4/0x7B4  data 0x4AD8/0x4AD8  functions 8/8  linked from C
 dolphin/ax/AXProf.c                           code 0x48/0x48  data 0x10/0x10  functions 1/1  linked from C
-dolphin/ax/AXVPB.c                            code 0x1588/0x1588  data 0x118E8/0x118E8  functions 22/22  linked from C
+dolphin/ax/AXSPB.c                            code 0x4C4/0x4C4  data 0x68/0x68  functions 4/4  linked from C
+dolphin/ax/AXVPB.c                            code 0x1588/0x1588  data 0x118EC/0x118EC  functions 22/22  linked from C
+dolphin/axfx/axfx.c                           code 0x5C/0x5C  data 0x8/0x8  functions 3/3  linked from C
+dolphin/axfx/chorus.c                         code 0xA7C/0xA7C  data 0x808/0x808  functions 6/6  linked from C
 dolphin/axfx/delay.c                          code 0x580/0x580  data 0x0/0x0  functions 4/4  linked from C
+dolphin/axfx/reverb_hi.c                      code 0xF08/0xF08  data 0x60/0x60  functions 7/7  linked from C
+dolphin/axfx/reverb_std.c                     code 0x5C0/0xA3C  data 0x10/0x48  functions 5/6  not linked: code: ReverbSTDCreate (0x80148998, 0x47C, the first function: no public source compiles to it; dolsdk2004 63%, dolsdk2001 49%, TP 47%: the same instructions with other registers and the delay-line loop counters set up in another order; GC/1.2.5-2.6 and -O4,p / -O3,p / -O2 variants tried, step 67): write it from our asm starting from dolsdk2004; the other five functions are dolsdk2004's
 dolphin/base/PPCArch.c                        code 0x114/0x114  data 0x0/0x0  functions 22/22  linked from C
 dolphin/card/CARDBios.c                       code 0x12E4/0x12E4  data 0x2C0/0x2C0  functions 25/25  linked from C
 dolphin/card/CARDBlock.c                      code 0x404/0x404  data 0x0/0x0  functions 6/6  linked from C
@@ -112,16 +127,20 @@ dolphin/card/CARDMount.c                      code 0xA78/0xA78  data 0x40/0x40  
 dolphin/card/CARDNet.c                        code 0xC4/0xC4  data 0x8/0x8  functions 1/1  linked from C
 dolphin/card/CARDOpen.c                       code 0x5EC/0x5EC  data 0x0/0x0  functions 8/8  linked from C
 dolphin/card/CARDRdwr.c                       code 0x280/0x280  data 0x0/0x0  functions 4/4  linked from C
+dolphin/card/CARDRead.c                       code 0x42C/0x42C  data 0x0/0x0  functions 3/3  linked from C
 dolphin/card/CARDStat.c                       code 0x4C8/0x4C8  data 0x0/0x0  functions 4/4  linked from C
 dolphin/card/CARDUnlock.c                     code 0x1260/0x1260  data 0x168/0x168  functions 6/6  linked from C
+dolphin/card/CARDWrite.c                      code 0x334/0x334  data 0x0/0x0  functions 3/3  linked from C
 dolphin/db/db.c                               code 0xEC/0xEC  data 0x20/0x20  functions 5/5  linked from C
 dolphin/dsp/dsp.c                             code 0x250/0x250  data 0x8D/0x8D  functions 8/8  linked from C
 dolphin/dsp/dsp_debug.c                       code 0x50/0x50  data 0x0/0x0  functions 1/1  linked from C
 dolphin/dsp/dsp_task.c                        code 0x884/0x884  data 0x158/0x158  functions 5/5  linked from C
+dolphin/dvd/dvd.c                             code 0x2734/0x2734  data 0x278/0x278  functions 47/47  linked from C
 dolphin/dvd/dvdFatal.c                        code 0x30/0x30  data 0x8/0x8  functions 1/1  linked from C
 dolphin/dvd/dvderror.c                        code 0x198/0x198  data 0x48/0x48  functions 2/2  linked from C
+dolphin/dvd/dvdfs.c                           code 0xBF4/0xBF4  data 0x1C6/0x1C6  functions 15/15  linked from C
 dolphin/dvd/dvdidutils.c                      code 0xF8/0xF8  data 0x0/0x0  functions 1/1  linked from C
-dolphin/dvd/dvdlow.c                          code 0xE7C/0xE7C  data 0x11C/0x11C  functions 21/21  linked from C
+dolphin/dvd/dvdlow.c                          code 0xE7C/0xE7C  data 0x120/0x120  functions 21/21  linked from C
 dolphin/dvd/dvdqueue.c                        code 0x1F8/0x1F8  data 0x20/0x20  functions 5/5  linked from C
 dolphin/dvd/fstload.c                         code 0x240/0x240  data 0x100/0x100  functions 2/2  linked from C
 dolphin/exi/EXIBios.c                         code 0x19DC/0x19DC  data 0x1E0/0x1E0  functions 23/23  linked from C
@@ -135,8 +154,8 @@ dolphin/gx/GXFrameBuf.c                       code 0x964/0x964  data 0x138/0x138
 dolphin/gx/GXGeometry.c                       code 0x33C/0x33C  data 0x0/0x0  functions 9/9  linked from C
 dolphin/gx/GXInit.c                           code 0x1380/0x1380  data 0x8C8/0x8C8  functions 5/5  linked from C
 dolphin/gx/GXLight.c                          code 0x604/0x604  data 0x50/0x50  functions 11/11  linked from C
-dolphin/gx/GXMisc.c                           code 0x674/0x674  data 0x14/0x14  functions 19/19  linked from C
-dolphin/gx/GXPerf.c                           code 0x858/0x858  data 0xEC/0xEC  functions 2/2  linked from C
+dolphin/gx/GXMisc.c                           code 0x674/0x674  data 0x18/0x18  functions 19/19  linked from C
+dolphin/gx/GXPerf.c                           code 0x858/0x858  data 0xF0/0xF0  functions 2/2  linked from C
 dolphin/gx/GXPixel.c                          code 0x7F8/0x7F8  data 0x80/0x80  functions 13/13  linked from C
 dolphin/gx/GXTev.c                            code 0x764/0x764  data 0x78/0x78  functions 16/16  linked from C
 dolphin/gx/GXTexture.c                        code 0xFE8/0xFE8  data 0x28E/0x28E  functions 19/19  linked from C
@@ -155,8 +174,9 @@ dolphin/os/OSCache.c                          code 0x64C/0x64C  data 0x230/0x230
 dolphin/os/OSContext.c                        code 0x8E0/0x8E0  data 0x1D7/0x1D7  functions 13/13  linked from C
 dolphin/os/OSError.c                          code 0x6AC/0x6AC  data 0x36A/0x36A  functions 4/4  linked from C
 dolphin/os/OSFont.c                           code 0xD60/0xD60  data 0xB30/0xB30  functions 8/8  linked from C
-dolphin/os/OSInterrupt.c                      code 0x86C/0x86C  data 0x44/0x44  functions 11/11  linked from C
+dolphin/os/OSInterrupt.c                      code 0x86C/0x86C  data 0x48/0x48  functions 11/11  linked from C
 dolphin/os/OSLink.c                           code 0x18/0x18  data 0x0/0x0  functions 1/1  linked from C
+dolphin/os/OSMemory.c                         code 0x2E4/0x2E4  data 0x10/0x10  functions 7/7  linked from C
 dolphin/os/OSMutex.c                          code 0x70/0x70  data 0x0/0x0  functions 1/1  linked from C
 dolphin/os/OSReboot.c                         code 0x35C/0x35C  data 0x30/0x30  functions 3/3  linked from C
 dolphin/os/OSReset.c                          code 0x424/0x424  data 0x10/0x10  functions 5/5  linked from C
@@ -171,6 +191,7 @@ dolphin/pad/PadClamp.c                        code 0x2B4/0x2B4  data 0x30/0x30  
 dolphin/pad/pad.c                             code 0x1340/0x1340  data 0x90/0x90  functions 12/12  linked from C
 dolphin/si/SIBios.c                           code 0x1478/0x1478  data 0x32C/0x32C  functions 18/18  linked from C
 dolphin/si/SISamplingRate.c                   code 0x108/0x108  data 0x98/0x98  functions 2/2  linked from C
+dolphin/texPalette/texPalette.c               code 0x1EC/0x1EC  data 0x8/0x8  functions 3/3  linked from C
 dolphin/thp/THPAudio.c                        code 0x530/0x530  data 0x0/0x0  functions 3/3  linked from C
 dolphin/thp/THPDec.c                          code 0x7568/0x7568  data 0x334/0x334  functions 19/19  linked from C
 dolphin/vi/vi.c                               code 0x1E54/0x1E54  data 0x588/0x588  functions 22/22  linked from C
@@ -594,7 +615,7 @@ game/fn_8013079C.c                            code 0x24/0x24  data 0x0/0x0  func
 game/fn_80130848.c                            code 0x140/0x140  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80130988.c                            code 0x4/0x4  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8013149C.c                            code 0x38/0x38  data 0x0/0x0  functions 1/1  linked from C
-sysdolphin/baselib/aobj.c                     code 0x550/0x620  data 0x18/0x58  functions 13/15  not linked: code: 13 of 15 functions equal in objdiff (doldecomp/kar's aobj.c for its 10 functions, the 9 it lacks ported from wowjinxy/KAR's aobj.c, provenance per function; HSD_AObjSetRate named by its bytes): fn_8018CCDC (0x50) and fn_8018CD2C (0x80), between HSD_AObjInvokeCallBacks and HSD_AObjReqAnim, have no function of their size in Melee's or KAR's file (HSD_AObjSetFObj 0x4C, HSD_AObjStopAnim 0x44 there); the C also has functions this revision inlines (HSD_AObjGetAllocData, Get/Set/ClearFlags, SetFObj, StopAnim)  (C has data the split object lacks: .data 0x33)
+sysdolphin/baselib/aobj.c                     code 0x620/0x620  data 0x97/0x97  functions 15/15  linked from C
 sysdolphin/baselib/bytecode.c                 code 0x0/0x15C8  data 0x10/0xE8  functions 0/1  not linked: code: HSD_ByteCodeEval (0x15C8, the whole object) 97% in objdiff: Melee's saves f30 / f31 and computes a few values differently (another revision; doldecomp/kar has only asm): adapt to this revision
 sysdolphin/baselib/class.c                    code 0x80C/0x80C  data 0x1A4/0x1A4  functions 12/12  linked from C
 sysdolphin/baselib/cobj.c                     code 0xCD4/0x26A4  data 0x8/0x70  functions 32/48  not linked: code: 32 of 48 functions equal in objdiff (Melee's cobj.c with this revision's assert lines; HSD_CObjGetUpVector, HSD_CObjGetViewingMtxPtr, CObjInfoInit's update method, CObjResetFlags from wowjinxy/KAR's cobj.c; step 61 iteration 7): unnamed, not in Melee's C: fn_8018F830, fn_8018FA94, fn_8018FD60 (0xCC, HSD_CObjSetupViewingMtx by its caller; 0x13C in KAR), fn_80190BBC, fn_80190EB8, fn_80191424, fn_80191494, fn_801914B0, fn_801914CC, fn_801914F8; HSD_CObjEraseScreen 97% (double tan + frsp here), HSD_CObjSetCurrent 0x504 here 86%, upvec2roll 63%, roll2upvec 84%, HSD_CObjSetRoll 0x428 here 83% (wowjinxy's 46-88%) (another revision): adapt to this revision  (C has data the split object lacks: .data 0x12D, .sdata 0x12)
@@ -607,18 +628,19 @@ sysdolphin/baselib/initialize.c               code 0x788/0x788  data 0x95/0x95  
 sysdolphin/baselib/jobj.c                     code 0x2944/0x5058  data 0x68/0x468  functions 29/48  not linked: code: 29 of 48 functions equal in objdiff (Melee's jobj.c with this revision's assert lines, jobj.h's set inlines too; JObjUpdateFunc, JObjInfoInit, HSD_JObjSetupMatrixSub's / HSD_JObjAnim's update method, HSD_JObjSetPtclTargetCallback from wowjinxy/KAR's jobj.c; step 61 iteration 7): unnamed, no C: fn_80196568 (0x58), fn_80196C50, fn_80198014, fn_80198144, fn_80198690, fn_80198700 (0x1FC, the load method; wowjinxy's JObjLoad 0x214), fn_80199178, fn_801991A4, fn_801995CC; HSD_JObjSetMtxDirty and HSD_IDGetData have no C in any reference; HSD_JObjReqAnimAllByFlags 82%, HSD_JObjResolveRefsAll 98% (an extra NULL check), ref_INC 90% (no NULL check here), HSD_JObjSetFlagsAll 87%, resolveIKJoint1 99.6% (one fmuls register), resolveIKJoint2 99.2% (frsp before fneg here), HSD_JObjSetMtxDirtySub 85% (another revision): adapt to this revision  (C has data the split object lacks: .sdata 0x35)
 sysdolphin/baselib/list.c                     code 0x2B0/0x2B0  data 0x75/0x75  functions 7/7  linked from C
 sysdolphin/baselib/lobj.c                     code 0x1434/0x22E8  data 0x40/0x1E8  functions 24/27  not linked: code: 24 of 27 functions equal in objdiff, 25 with LObjUpdateFunc (equal but for its jump table's name) (doldecomp/kar's lobj.c for its functions, TryNormalize comparing with the double FLT_MIN as main.dol does; the 13 kar lacks ported from wowjinxy/KAR's lobj.c, provenance per function, with the HSD_LightPoint / Spot desc structs of wowjinxy's lobj.h in include/cr_kar/lobj.h; LObjUpdateFunc, HSD_LObjGetPosition / GetInterest, LObjRelease named by their bytes): HSD_LObjSetCurrentAll (0x8018E604, 0x340 = KAR) written as Melee's LObjReplaceAll with wowjinxy's HSD_LObjAddCurrent inline (step 61 iteration 8): HSD_LObjSetupSpecularInit (0x278) and HSD_LObjSetupInit (0xBBC) are asm in kar (KAR's, 0x284 / 0xBC8) and 96% / 92% in wowjinxy's C (not ported yet: it reads its float constants as externs; this file's .sdata2 must come from literals first); the C has .sdata2 the split object lacks (kar's HSD_LObjSetup reads lbl_805E5A34, a KAR address, as an extern)  (C has data the split object lacks: .sdata2 0x20)
-sysdolphin/baselib/mobj.c                     code 0x17F8/0x17F8  data 0x1B4/0x1B4  functions 26/26  linked from C
+sysdolphin/baselib/mobj.c                     code 0x17F8/0x17F8  data 0x1B8/0x1B8  functions 26/26  linked from C
 sysdolphin/baselib/mtx.c                      code 0x718/0x1840  data 0x68/0xB0  functions 9/16  not linked: code: 9 of 16 functions equal in objdiff (Melee's mtx.c, HSD_VecAlloc / HSD_MtxAlloc with this revision's assert lines, HSD_MtxGetScale (0x4D8) from wowjinxy/KAR's mtx.c with its .sdata2 constants at main.dol's addresses, step 61 iteration 7): our first five functions (0x8019EB5C..0x8019FC14, sizes 0x430 0x320 0x338 0x13C 0x2D8) are unnamed and none has the size of a Melee function, HSD_MtxSRTQuat 0x1AC here vs 0x110 (28%; wowjinxy's 85%), HSD_VecGetOrthogonal (from wowjinxy) 99.6% (f0 / f1 swapped in the first branch; four statement orders tried) (another revision; doldecomp/kar has only asm): adapt to this revision
+sysdolphin/baselib/objalloc.c                 code 0x508/0x508  data 0x55/0x55  functions 5/5  linked from C
 sysdolphin/baselib/object.c                   code 0x44/0x44  data 0x5C/0x5C  functions 1/1  linked from C
 sysdolphin/baselib/perf.c                     code 0x5C/0x5C  data 0x9F/0x9F  functions 1/1  linked from C
 sysdolphin/baselib/pobj.c                     code 0x698/0x2AD4  data 0x0/0x60  functions 11/23  not linked: code: 11 of 23 functions equal in objdiff (doldecomp/kar's pobj.c for HSD_PObjReqAnimAllByFlags; HSD_PObjAddAnimAll, PObjUpdateFunc, HSD_PObjAnimAll, HSD_PObjLoadDesc, HSD_PObjRemoveAll, HSD_PObjAlloc, HSD_ClearVtxDesc, HSD_PObjClearMtxMark, PObjSetupMtx, PObjAmnesia, PObjInfoInit ported from wowjinxy/KAR's pobj.c, include/cr_kar/pobj.h with HSD_A_S_W0 2 and the blend union; step 61 iteration 7): PObjInfoInit 99.9% (its class strings at hsdPObj + 0x318 / 0x330: needs the whole file's .data), get_shape_vertex_xyz / get_shape_normal_xyz 99.8% in wowjinxy's C (assert lines 0x43A / 0x465 here and vertex_desc / comp_type in r5 / r6 swapped), PObjRelease 99.5% (r29 / r31 swapped), PObjLoad 96%, HSD_PObjResolveRefsAll 95%, get_shape_nbt_xyz 94%, interpretShapeAnimDisplayList 98%, drawShapeAnim 96%, SetupSharedVtxModelMtx 96%, SetupEnvelopeModelMtx 93%, HSD_PObjDisp 94% (wowjinxy's C, not ported): adapt to this revision  (C has data the split object lacks: .data 0x6D, .sdata 0xD)
 sysdolphin/baselib/robj.c                     code 0xC60/0x1F18  data 0x0/0x220  functions 15/21  not linked: code: 15 of 21 functions equal in objdiff (doldecomp/kar's robj.c for its 6; resolveLimits, HSD_RObjLoadDesc, HSD_RObjRemoveAll, HSD_RObjAlloc, HSD_RObjFree, HSD_RvalueRemoveAll, dummy_func (wowjinxy's RObjEvalZero), expLoadDesc, bcexpLoadDesc ported from wowjinxy/KAR's robj.c, include/cr_kar/robj.h with the 8-byte HSD_RvalueList; step 61 iteration 7): HSD_RObjGetGlobalPosition 90% (94% with the JOBJ test as a BOOL inline; main.dol computes the constraint type branch-free with cntlzw of (rp == NULL)), resolveCnsDirUp 91%, HSD_RObjUpdateAll 89%, expEvaluate 97% (registers r28-r30 permuted), HSD_RObjResolveRefsAll / HSD_RvalueResolveRefsAll (their assert strings are addressed from the file's .data base, +0x4C / 0x5C / 0x68 / 0x130: need the whole file's .data): adapt to this revision
 sysdolphin/baselib/spline.c                   code 0xA40/0xA40  data 0x50/0x50  functions 5/5  linked from C
-sysdolphin/baselib/state.c                    code 0x864/0xAA0  data 0x0/0x180  functions 17/18  not linked: code: 17 of 18 functions equal in objdiff (Melee's state.c adapted: u32 parameters where main.dol compares unsigned, _HSD_StateInvalidatePrimitive's order and 0xFF, HSD_SetMaterialColor's alpha clamp as an inline with early returns, HSD_StateSetZMode's arg2 first); HSD_SetupChannelMode 0x23C here vs 0x1B0 (another revision, no C in any reference); the C's .sbss is in an automatic object: adapt to this revision  (C has data the split object lacks: .sbss 0x45, .sdata2 0xC)
-sysdolphin/baselib/tev.c                      code 0x924/0xD20  data 0x10/0xB8  functions 17/22  not linked: code: 17 of 22 functions equal in objdiff (Melee's tev.c, assert line numbers of this revision, HSD_StateSetNumChans stores prev_num_chans as wowjinxy/KAR's does): HSD_DisableChannelLighting, fn_8018AEA4, fn_8018AFE0, fn_8018B3B8 are not in Melee's C (wowjinxy's HSD_DisableChannelLighting 58%), HSD_SetTevRegAll 83% (another revision): adapt to this revision  (C has data the split object lacks: .data 0x290, .sdata2 0x8)
-sysdolphin/baselib/texp.c                     code 0x47C/0x31B8  data 0x38/0x3A0  functions 7/22  not linked: code: 7 of 22 functions equal in objdiff (Melee's texp.c, TETev with this revision's a_range byte and assert line numbers): HSD_TExpUnref 0x57C here vs 0x274, TExp2TevDesc 0x400 vs 0x464, HSD_TExpCnst / ColorOp / AlphaOp sizes differ, the other 10 are 2-93 instructions apart (another revision; wowjinxy/KAR has no texp.c): adapt to this revision
+sysdolphin/baselib/state.c                    code 0xAA0/0xAA0  data 0x1D0/0x1D0  functions 18/18  linked from C
+sysdolphin/baselib/tev.c                      code 0xD20/0xD20  data 0x2E8/0x2E8  functions 22/22  linked from C
+sysdolphin/baselib/texp.c                     code 0x2340/0x31B8  data 0x38/0x3A0  functions 19/22  not linked: code: 19 of 22 functions equal in objdiff (Melee's texp.c, TETev with this revision's a_range byte; step 68: TECnst's comp / ctype as u8 (wowjinxy/KAR texp.h: ref at +0x10), main.dol's assert lines throughout, HSD_TExpCnst clears range, HSD_TExpColorOp / AlphaOp compare op with ADD and SUB, the file built with -O3 (HSD_TExpSetReg's registers)): HSD_TExpSetReg 99.6% (one instruction scheduled elsewhere: the .data base address before / after `changed = 0`; init orders tried), TExp2TevDesc (0x400) has main.dol's instructions (each UNDEF default as a u32 temporary and an if) but other saved registers for its parameters (texp / desc in r30 / r31 there, r27 / r28 here; locals, the static table's place, -O levels and compilers tried), HSD_TExpUnref 40.6% (0x57C here vs Melee's 0x274; wowjinxy/KAR's C 84%): adapt to this revision
 sysdolphin/baselib/texpdag.c                  code 0x79C/0x3A18  data 0x10/0xC8  functions 3/11  not linked: code: 3 of 11 functions equal in objdiff (Melee's texpdag.c adapted: HSD_TExpSchedule reads a_dst for alpha inputs, HSD_TExpSimplify2 the TETev a_range byte, texp.h, order_dag's dep_bits an int): CalcDistance 99.1% (r3 / r4 swapped in its inlined recursive copies; statement order, declaration order, signedness, index-only and for-header forms tried), assign_reg 0x1B0 here vs 0x1B4, HSD_TExpMakeDag 0x4B0 vs 0x4A8, SimplifySrc 0x498 vs 0x414, SimplifyThis 0x840 vs 0x7EC, SimplifyByMerge 0x17C8 vs 0xA04, HSD_TExpSimplify 0x90 vs 0x88, CalcTevRange not in Melee's C (wowjinxy/KAR has C for all of them, none equal: 90-99.6%, its SimplifyByMerge 0xC9C 32%) (another revision; doldecomp/kar has only asm): adapt to this revision  (C has data the split object lacks: .sbss2 0x8)
 sysdolphin/baselib/tobj.c                     code 0x3144/0x3144  data 0x53E/0x53E  functions 39/39  linked from C
 sysdolphin/baselib/util.c                     code 0x1CC/0x1CC  data 0x68/0x68  functions 3/3  linked from C
-sysdolphin/baselib/video.c                    code 0x9F0/0xD30  data 0x20/0xA8  functions 8/10  not linked: code: 8 of 10 functions equal in objdiff (Melee's video.c; fn_8019DE54 named HSD_VISetConfigure by its bytes): fn_8019DB14 (0x17C) and fn_8019DC90 (0x1C4) have no function of their size in Melee's (HSD_VICopyXFBAsync 0x104 ... HSD_VIGetXFBLastDrawDone 0x170) or KAR's file (wowjinxy map: 0x208 0xD4 0x178 0x16C 0x170) (another revision): adapt to this revision  (C has data the split object lacks: .bss 0x1600)
+sysdolphin/baselib/video.c                    code 0xD30/0xD30  data 0x16A7/0x16A7  functions 10/10  linked from C
 sysdolphin/baselib/wobj.c                     code 0x7DC/0x7DC  data 0xF5/0xF5  functions 13/13  linked from C

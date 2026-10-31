@@ -1,14 +1,14 @@
 """Source hunt: for every MetroTRK / MSL / Runtime function, which public source compiles to main.dol's exact bytes
 (docs/compiler.md "Source hunt"; plan.md step 67). Extends revisions.py (step 66) with the 2004-2006 references that
 have the CodeWarrior 2.6-era TRK / MSL source: Twilight Princess (zeldaret/tp) and Pikmin 2 (doldecomp/pikmin2),
-cloned into the gitignored tools/refs_new by --fetch (shallow, sparse: only their TRK / MSL / Runtime folders and
-headers).
+the pinned clones tools/refs/{tp,pikmin2} (tools/pins.txt; tools/setup.ps1 / setup.sh check out their TRK / MSL /
+SDK folders and headers since step 68; --fetch widens an older clone that has only their config/).
 
 Every source is compiled with GC/2.6 and our pinned flags for the library (docs/compiler.md table) plus the per-file
 variants the reference itself uses (-char signed, -sdata 8, -rostr, -str reuse,nopool), and every function is compared
 with the retail bytes (probe.py's masked compare). A function counts as exact when one variant reproduces it.
 
-Inputs : as revisions.py, plus tools/refs_new/{tp,pikmin2}
+Inputs : as revisions.py, plus tools/refs/{tp,pikmin2}
 Output : tools/compiler_probe/out/sources.txt (gitignored), also printed
 Usage  : python -I tools/compiler_probe/sources.py [--fetch] [--jobs N] [--part sdk,trk,msl]
 """
@@ -22,12 +22,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import probe as P       # noqa: E402
 import revisions as Rv  # noqa: E402
 
-N = P.G / 'tools' / 'refs_new'
-FETCH = {   # name: (url, commit tested, sparse paths)
-    'tp': ('https://github.com/zeldaret/tp', 'c8fa8c9',
-           ['/include/', '/libs/TRK_MINNOW_DOLPHIN/', '/libs/PowerPC_EABI_Support/', '/libs/dolphin/include/',
-            '/libs/dolphin/src/', '/configure.py']),
-    'pikmin2': ('https://github.com/doldecomp/pikmin2', '999140f', ['/include/', '/src/Dolphin/', '/configure.py']),
+N = P.G / 'tools' / 'refs'
+FETCH = {   # name: sparse paths (the same lists as tools/setup.ps1 / setup.sh; commit: tools/pins.txt)
+    'tp': ['/config/*/symbols.txt', '/config/*/splits.txt', '/include/', '/libs/TRK_MINNOW_DOLPHIN/',
+           '/libs/PowerPC_EABI_Support/', '/libs/dolphin/', '/configure.py'],
+    'pikmin2': ['/config/*/symbols.txt', '/config/*/splits.txt', '/include/', '/src/Dolphin/', '/configure.py'],
 }
 I = Rv.I
 TP, PK = N / 'tp', N / 'pikmin2'
@@ -49,14 +48,22 @@ ASM_SRC = 'tp/pikmin2 targsupp.s'
 
 
 def fetch():
-    N.mkdir(exist_ok=True)
+    """Clone (at the pinned commit) or widen tools/refs/{tp,pikmin2} to the sparse paths above."""
     env = dict(os.environ, MSYS_NO_PATHCONV='1')
-    for name, (url, _, paths) in FETCH.items():
+    pins = {f[1]: (f[2], f[3]) for f in (ln.split() for ln in open(P.G / 'tools' / 'pins.txt', encoding='utf-8'))
+            if len(f) >= 4 and f[0] == 'git'}
+    for name, paths in FETCH.items():
         d = N / name
+        url, commit = pins[name]
         if not d.exists():
-            subprocess.run(['git', 'clone', '-q', '--depth', '1', '--filter=blob:none', '--no-checkout', url, str(d)],
+            subprocess.run(['git', 'init', '-q', str(d)], check=True)
+            subprocess.run(['git', '-C', str(d), 'remote', 'add', 'origin', url], check=True)
+            subprocess.run(['git', '-C', str(d), 'sparse-checkout', 'set', '--no-cone'] + paths, check=True, env=env)
+            subprocess.run(['git', '-C', str(d), 'fetch', '-q', '--depth', '1', '--filter=blob:none', 'origin', commit],
                            check=True)
-        subprocess.run(['git', '-C', str(d), 'sparse-checkout', 'set', '--no-cone'] + paths, check=True, env=env)
+            subprocess.run(['git', '-C', str(d), 'checkout', '-q', 'FETCH_HEAD'], check=True)
+        else:
+            subprocess.run(['git', '-C', str(d), 'sparse-checkout', 'set', '--no-cone'] + paths, check=True, env=env)
 
 
 def sets(lib):

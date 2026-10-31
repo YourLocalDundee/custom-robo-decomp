@@ -28,7 +28,12 @@ HSD_ObjAllocData *HSD_SListGetAllocData();
 HSD_ObjAllocData *HSD_DListGetAllocData();
 HSD_SList *HSD_SListAlloc();
 void HSD_SListAllocAndAppend(HSD_SList *list, void *data);
+#ifdef CR_LIST_PREPEND_RETURNS
+/* a file that uses the result (aobj.c, step 68; CR_OBJECT_CFLAGS): it returns the new head, as Melee declares it */
+HSD_SList *HSD_SListAllocAndPrepend(HSD_SList *list, void *data);
+#else
 void HSD_SListAllocAndPrepend(HSD_SList *list, void *data);
+#endif
 HSD_SList *HSD_SListAppendList(HSD_SList *list, HSD_SList *next);
 HSD_SList *HSD_SListPrependList(HSD_SList *list, HSD_SList *prev);
 HSD_SList *HSD_SListRemove(HSD_SList *list);

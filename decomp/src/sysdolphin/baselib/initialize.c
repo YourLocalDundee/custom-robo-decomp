@@ -68,7 +68,7 @@ extern const u32 HSD_DefaultClearColor[2];
 #define HSD_MemReportData memReport
 #define HSD_ClearColor lbl_8044F110
 #define HSD_CurrentRenderPass lbl_80450030
-#define CObjRenderMode lbl_80449EA0
+#define CObjRenderMode HSD_VIData /* Custom Robo: named (step 68); its first member is this HSD_VIStatus */
 #define HSD_ZBufferFormat lbl_8044F108
 #define HSD_PixelFormat lbl_8045001C
 #define HSD_CacheInvalidateFlags lbl_8045002C
@@ -139,8 +139,8 @@ s32 OSSetCurrentHeap(s32 heap);
  * bytes); HSD_HeapMaxSize lbl_80450024 (read here in main.dol), OSGetPhysicalMemSize fn_80136484 and
  * _HSD_MemSetCallbacks fn_801A3FEC (main.dol's calls here, in wowjinxy's order) */
 #define HSD_HeapMaxSize lbl_80450024
-#define OSGetPhysicalMemSize fn_80136484
-#define _HSD_MemSetCallbacks fn_801A3FEC
+// (OSGetPhysicalMemSize: named, step 68)
+/* (_HSD_MemSetCallbacks: named, step 68) */
 #define OSRoundDown32B(x) (((u32) (x)) & ~(32 - 1))
 #define OSRoundUp32B(x) (((u32) (x) + 32 - 1) & ~(32 - 1))
 extern s32 HSD_HeapMaxSize;

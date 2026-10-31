@@ -52,14 +52,14 @@ sudo apt install -y git curl unzip python3 python3-venv openjdk-21-jdk
 
 (No root? A JDK from the Temurin tarball under `~/.local` works too: [docs/INSTALL.md](docs/INSTALL.md#debian--ubuntu-apt).)
 
-**Arch (KDE: in Konsole, with yay; bash, zsh or fish all work)**
+**Arch (Hyprland or KDE, any terminal, with yay; bash, zsh or fish all work)**
 
 ```bash
 yay -S --needed git curl unzip python jdk21-openjdk
 ```
 
 (Without yay: `sudo pacman -S --needed git curl unzip python jdk21-openjdk`. Repository packages only, nothing from the
-AUR; the JDK note and the shell note: [docs/INSTALL.md](docs/INSTALL.md#arch-kde-konsole-yay--pacman).)
+AUR; the JDK note and the shell note: [docs/INSTALL.md](docs/INSTALL.md#arch-hyprland-or-kde-any-terminal-yay--pacman).)
 
 **Fedora (dnf)**
 

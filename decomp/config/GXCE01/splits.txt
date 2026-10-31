@@ -1327,11 +1327,15 @@ dolphin/os/OSFont.c:
 
 dolphin/os/OSInterrupt.c:
 	.text       start:0x80135C00 end:0x8013646C
-	.data       start:0x80244048 end:0x80244074
+	.data       start:0x80244048 end:0x80244078
 	.sbss       start:0x8044F908 end:0x8044F920
 
 dolphin/os/OSLink.c:
 	.text       start:0x8013646C end:0x80136484
+
+dolphin/os/OSMemory.c:
+	.text       start:0x80136484 end:0x80136768
+	.data       start:0x80244078 end:0x80244088
 
 dolphin/os/OSMutex.c:
 	.text       start:0x80136768 end:0x801367D8
@@ -1398,8 +1402,21 @@ dolphin/mtx/vec.c:
 dolphin/dvd/dvdlow.c:
 	.text       start:0x8013A2C0 end:0x8013B13C
 	.bss        start:0x8041F690 end:0x8041F760
-	.sdata      start:0x8044ED90 end:0x8044ED94
+	.sdata      start:0x8044ED90 end:0x8044ED98
 	.sbss       start:0x8044F980 end:0x8044F9C8
+
+dolphin/dvd/dvdfs.c:
+	.text       start:0x8013B13C end:0x8013BD30
+	.data       start:0x80244100 end:0x8024429E
+	.sdata      start:0x8044ED98 end:0x8044EDA0
+	.sbss       start:0x8044F9C8 end:0x8044F9E8
+
+dolphin/dvd/dvd.c:
+	.text       start:0x8013BD30 end:0x8013E464
+	.data       start:0x802442A0 end:0x80244420
+	.bss        start:0x8041F760 end:0x8041F7F8
+	.sdata      start:0x8044EDA0 end:0x8044EDB8
+	.sbss       start:0x8044F9E8 end:0x8044FA30
 
 dolphin/dvd/dvdqueue.c:
 	.text       start:0x8013E464 end:0x8013E65C
@@ -1455,28 +1472,72 @@ dolphin/ar/ar.c:
 
 dolphin/ar/arq.c:
 	.text       start:0x801443C4 end:0x80144760
-	.data       start:0x80244938 end:0x80244980
-	.sdata      start:0x8044EE08 end:0x8044EE0C
+	.data       start:0x80244938 end:0x8024497D
+	.sdata      start:0x8044EE08 end:0x8044EE10
 	.sbss       start:0x8044FB28 end:0x8044FB50
+
+dolphin/ax/AX.c:
+	.text       start:0x80144760 end:0x801447D0
+	.data       start:0x80244980 end:0x802449C8
+	.sdata      start:0x8044EE10 end:0x8044EE14
 
 dolphin/ax/AXAlloc.c:
 	.text       start:0x801447D0 end:0x80144C8C
 	.bss        start:0x8041FA20 end:0x8041FB20
-	.sbss       start:0x8044FB50 end:0x8044FB54
+	.sbss       start:0x8044FB50 end:0x8044FB58
+
+dolphin/ax/AXAux.c:
+	.text       start:0x80144C8C end:0x8014511C
+	.bss        start:0x8041FB20 end:0x80422820
+	.sbss       start:0x8044FB58 end:0x8044FB90
+
+dolphin/ax/AXCL.c:
+	.text       start:0x8014511C end:0x80145848
+	.bss        start:0x80422820 end:0x80422E20
+	.sbss       start:0x8044FB90 end:0x8044FBA8
+
+dolphin/ax/AXOut.c:
+	.text       start:0x80145848 end:0x80145FFC
+	.bss        start:0x80422E20 end:0x804278C0
+	.sbss       start:0x8044FBA8 end:0x8044FBE0
+
+dolphin/ax/AXSPB.c:
+	.text       start:0x80145FFC end:0x801464C0
+	.bss        start:0x804278C0 end:0x80427900
+	.sbss       start:0x8044FBE0 end:0x8044FC08
 
 dolphin/ax/AXVPB.c:
 	.text       start:0x801464C0 end:0x80147A48
 	.data       start:0x802449C8 end:0x80244A9C
 	.bss        start:0x80427900 end:0x80439100
 	.sbss       start:0x8044FC08 end:0x8044FC18
-	.sdata2     start:0x80451D10 end:0x80451D14
+	.sdata2     start:0x80451D10 end:0x80451D18
 
 dolphin/ax/AXProf.c:
 	.text       start:0x80147A48 end:0x80147A90
 	.sbss       start:0x8044FC18 end:0x8044FC28
 
+dolphin/axfx/reverb_hi.c:
+	.text       start:0x80147A90 end:0x80148998
+	.data       start:0x802483A0 end:0x802483C0
+	.sdata2     start:0x80451D18 end:0x80451D58
+
+dolphin/axfx/reverb_std.c:
+	.text       start:0x80148998 end:0x801493D4
+	.data       start:0x802483C0 end:0x802483D0
+	.sdata2     start:0x80451D58 end:0x80451D90
+
+dolphin/axfx/chorus.c:
+	.text       start:0x801493D4 end:0x80149E50
+	.data       start:0x802483D0 end:0x80248BD0
+	.sdata2     start:0x80451D90 end:0x80451D98
+
 dolphin/axfx/delay.c:
 	.text       start:0x80149E50 end:0x8014A3D0
+
+dolphin/axfx/axfx.c:
+	.text       start:0x8014A3D0 end:0x8014A42C
+	.sdata      start:0x8044EE20 end:0x8044EE28
 
 dolphin/dsp/dsp.c:
 	.text       start:0x8014A42C end:0x8014A67C
@@ -1529,6 +1590,12 @@ dolphin/card/CARDOpen.c:
 dolphin/card/CARDCreate.c:
 	.text       start:0x801504D8 end:0x80150828
 
+dolphin/card/CARDRead.c:
+	.text       start:0x80150828 end:0x80150C54
+
+dolphin/card/CARDWrite.c:
+	.text       start:0x80150C54 end:0x80150F88
+
 dolphin/card/CARDDelete.c:
 	.text       start:0x80150F88 end:0x8015113C
 
@@ -1558,7 +1625,7 @@ dolphin/gx/GXAttr.c:
 
 dolphin/gx/GXMisc.c:
 	.text       start:0x8015458C end:0x80154C00
-	.sbss       start:0x8044FC98 end:0x8044FCAC
+	.sbss       start:0x8044FC98 end:0x8044FCB0
 
 dolphin/gx/GXGeometry.c:
 	.text       start:0x80154C00 end:0x80154F3C
@@ -1605,7 +1672,11 @@ dolphin/gx/GXTransform.c:
 
 dolphin/gx/GXPerf.c:
 	.text       start:0x80158AEC end:0x80159344
-	.data       start:0x80249868 end:0x80249954
+	.data       start:0x80249868 end:0x80249958
+
+dolphin/texPalette/texPalette.c:
+	.text       start:0x80159344 end:0x80159530
+	.sdata2     start:0x80451EA0 end:0x80451EA8
 
 MetroTRK/mainloop.c:
 	.text       start:0x80159530 end:0x80159628
@@ -1617,19 +1688,22 @@ MetroTRK/nubevent.c:
 MetroTRK/nubinit.c:
 	.text       start:0x80159850 end:0x801599E8
 	.rodata     start:0x801C40E8 end:0x801C4118
+	.bss        start:0x80439C20 end:0x80439C28
 
 MetroTRK/msg.c:
 	.text       start:0x801599E8 end:0x80159A2C
-	.rodata     start:0x801C4118 end:0x801C4140
+	.rodata     start:0x801C4118 end:0x801C413D
 
 MetroTRK/msgbuf.c:
 	.text       start:0x80159A2C end:0x8015A268
+	.rodata     start:0x801C4140 end:0x801C415D
 	.bss        start:0x80439C28 end:0x8043B5D8
 
 MetroTRK/serpoll.c:
 	.text       start:0x8015A268 end:0x8015A520
 	.rodata     start:0x801C4160 end:0x801C42F0
 	.bss        start:0x8043B5D8 end:0x8043B5F0
+	.sbss       start:0x8044FCB0 end:0x8044FCB8
 
 MetroTRK/usr_put.c:
 	.text       start:0x8015A520 end:0x8015A5AC
@@ -1637,16 +1711,17 @@ MetroTRK/usr_put.c:
 MetroTRK/dispatch.c:
 	.text       start:0x8015A5AC end:0x8015A724
 	.rodata     start:0x801C42F0 end:0x801C4330
+	.data       start:0x80249958 end:0x802499C8
 
 MetroTRK/msghndlr.c:
 	.text       start:0x8015A724 end:0x8015B794
-	.rodata     start:0x801C4330 end:0x801C4518
+	.rodata     start:0x801C4330 end:0x801C4516
 	.data       start:0x802499C8 end:0x80249A00
 	.bss        start:0x8043B5F0 end:0x8043B5F8
 
 MetroTRK/support.c:
 	.text       start:0x8015B794 end:0x8015BEA8
-	.rodata     start:0x801C4518 end:0x801C45C0
+	.rodata     start:0x801C4518 end:0x801C45BD
 
 MetroTRK/mutex_TRK.c:
 	.text       start:0x8015BEA8 end:0x8015BEC0
@@ -1674,6 +1749,7 @@ MetroTRK/mpc_7xx_603e.c:
 	.text       start:0x8015DC00 end:0x8015DF70
 
 MetroTRK/dolphin_trk.c:
+	.init       start:0x800053E0 end:0x8000540C
 	.text       start:0x8015DF70 end:0x8015E5AC
 	.data       start:0x80249A30 end:0x80249A70
 	.bss        start:0x8043BB78 end:0x8043BB80
@@ -1697,13 +1773,14 @@ MetroTRK/target_options.c:
 	.bss        start:0x8043BB90 end:0x8043BB98
 
 MetroTRK/mslsupp.c:
-	.text       start:0x8015EC30 end:0x8015EDA8
+	.text       start:0x8015EBAC end:0x8015EDA8
 
 MetroTRK/UDP_Stubs.c:
 	.text       start:0x8015EDA8 end:0x8015EDF0
 
 MetroTRK/ddh/main.c:
 	.text       start:0x8015EDF0 end:0x8015F134
+	.rodata     start:0x801C4770 end:0x801C4850
 	.bss        start:0x8043BB98 end:0x8043C3B8
 	.sbss       start:0x8044FCB8 end:0x8044FCC0
 
@@ -1714,6 +1791,7 @@ MetroTRK/gdev/main.c:
 	.text       start:0x8015F39C end:0x8015F6E8
 	.rodata     start:0x801C4850 end:0x801C4930
 	.bss        start:0x8043C3B8 end:0x8043C8D8
+	.sbss       start:0x8044FCC0 end:0x8044FCC8
 
 MetroTRK/MWTrace.c:
 	.text       start:0x8015F6E8 end:0x8015F738
@@ -1928,6 +2006,9 @@ MSL/exponentialsf.c:
 MSL/w_sqrt.c:
 	.text       start:0x80169424 end:0x80169444
 
+dolphin/amcstubs/AmcExi2Stubs.c:
+	.text       start:0x80169444 end:0x80169474
+
 dolphin/odenotstub/odenotstub.c:
 	.text       start:0x80169474 end:0x8016947C
 
@@ -1977,22 +2058,26 @@ sysdolphin/baselib/state.c:
 	.data       start:0x8024BAE8 end:0x8024BC48
 	.bss        start:0x80449D18 end:0x80449D30
 	.sdata      start:0x8044EFD8 end:0x8044EFE0
+	.sbss       start:0x8044FF08 end:0x8044FF48
+	.sdata2     start:0x804526A0 end:0x804526B0
 
 sysdolphin/baselib/tev.c:
 	.text       start:0x8018A728 end:0x8018B448
+	.data       start:0x8024BC48 end:0x8024BE78
 	.bss        start:0x80449D30 end:0x80449DB8
 	.sdata      start:0x8044EFE0 end:0x8044EFF0
 	.sbss       start:0x8044FF48 end:0x8044FF68
 
 sysdolphin/baselib/mobj.c:
 	.text       start:0x8018B448 end:0x8018CC40
-	.data       start:0x8024BE78 end:0x8024BFE4
+	.data       start:0x8024BE78 end:0x8024BFE8
 	.sdata      start:0x8044EFF0 end:0x8044F018
 	.sbss       start:0x8044FF68 end:0x8044FF78
 	.sdata2     start:0x804526B0 end:0x804526C0
 
 sysdolphin/baselib/aobj.c:
 	.text       start:0x8018CC40 end:0x8018D260
+	.data       start:0x8024BFE8 end:0x8024C027
 	.bss        start:0x80449DB8 end:0x80449DE8
 	.sdata      start:0x8044F018 end:0x8044F028
 	.sbss       start:0x8044FF78 end:0x8044FF88
@@ -2045,7 +2130,8 @@ sysdolphin/baselib/initialize.c:
 
 sysdolphin/baselib/video.c:
 	.text       start:0x8019D3EC end:0x8019E11C
-	.data       start:0x8024CB70 end:0x8024CBF8
+	.data       start:0x8024CB70 end:0x8024CBF7
+	.bss        start:0x80449EA0 end:0x8044B4A0
 	.sdata      start:0x8044F120 end:0x8044F128
 	.sbss       start:0x80450038 end:0x80450040
 	.sdata2     start:0x80452840 end:0x80452850
@@ -2067,7 +2153,8 @@ sysdolphin/baselib/util.c:
 
 sysdolphin/baselib/objalloc.c:
 	.text       start:0x801A0568 end:0x801A0A70
-	.sdata      start:0x8044F148 end:0x8044F150
+	.data       start:0x8024CC50 end:0x8024CC98
+	.sdata      start:0x8044F148 end:0x8044F14D
 	.sbss       start:0x80450040 end:0x80450048
 
 sysdolphin/baselib/robj.c:

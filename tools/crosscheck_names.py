@@ -21,7 +21,7 @@ Library names (symbols/symbols.txt, symbols/candidates_{hsd,sdk,rt}.txt):
   Producing evidence (not counted again): dtk -> size; Melee-assert -> asserts+size; layout-proof / R3 / hand-identified
   -> size; R4 -> asserts; R5 -> callees+callers; R6 -> strings; C-callsite (R7, matched C's call sites, checked by
   tools/check_c_callsites.py) -> callers; C-define (R8, the definition of a C file that matches its whole object, also checked by
-  tools/check_c_callsites.py) -> size.
+  tools/check_c_callsites.py) -> size (and another revision's size is then no contradiction: step 68).
   Verdict: FAIL = any contradiction; OK = at least one independent supporting kind; WEAK = only the producing evidence.
   Merged name set used for callees / callers: symbols.txt, overridden per address by candidates_*.txt (a candidate
   "replaces:" the shifted layout-proof name there), plus descriptive.txt (game code). Objects / labels: size + unique.
@@ -699,6 +699,10 @@ def ours_str(ours, dol, a):
 def lib_verdict(r, sup, con):
     prod = PRODUCER.get(r['tag'], set())
     indep = {k: v for k, v in sup.items() if k not in prod}
+    if r['tag'] == 'C-define':
+        # the C file that defines the name matches its whole object byte for byte (check_c_callsites.py): another
+        # revision's size for the name is no contradiction (step 68: AXRegisterCallback, __AXFXAllocFunction)
+        con = [c for c in con if not c.startswith('size')]
     if con: return 'FAIL', indep
     return ('OK' if indep else 'WEAK'), indep
 

@@ -1,13 +1,18 @@
 symbols from the objects built from C (tools/gen_c_symbols.py): main.elf's symbols inside each object's
 ranges replace those of decomp/config/GXCE01/symbols.txt there (same bytes; the C's names, sizes, scopes).
-objects: 578; symbols written: 2393
+objects: 617; symbols written: 3021
 functions and globals the C names differently from symbols.txt before it (a dtk default name: the matched C
 is the proof of the real name; one of our own names: the two disagree):
   .bss     0x80439BF8  lbl_80439BF8 -> gTRKEventQueue
+  .data    0x8024BC08  lbl_8024BC08 -> invalidate_funcs
+  .rodata  0x801C45C0  lbl_801C45C0 -> gTRKMemMap
+  .sbss    0x8044FA2C  lbl_8044FA2C -> LastState
+  .sbss    0x8044FBA0  lbl_8044FBA0 -> __AXClMode
   .sbss    0x8044FD38  lbl_8044FD38 -> __PADFixBits
   .sdata   0x8044EDF8  lbl_8044EDF8 -> __AIVersion
   .sdata   0x8044EE00  lbl_8044EE00 -> __ARVersion
   .sdata   0x8044EE08  lbl_8044EE08 -> __ARQVersion
+  .sdata   0x8044EE10  lbl_8044EE10 -> __AXVersion
   .sdata   0x8044EE28  lbl_8044EE28 -> __DSPVersion
   .sdata   0x8044EE30  lbl_8044EE30 -> __CARDVersion
   .sdata   0x8044EE60  lbl_8044EE60 -> GXTexMode0Ids

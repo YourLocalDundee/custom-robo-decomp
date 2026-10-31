@@ -124,8 +124,8 @@ typedef struct _HSD_TECnst {
     HSD_TExpType type; ///< must be HSD_TE_CNST for this union member
     HSD_TExp* next;
     void* val;
-    HSD_TEInput comp; ///< if TE_RGB, val points to RGB array, else 1 value
-    HSD_TEType ctype; ///< pointer type of val
+    u8 comp; ///< if TE_RGB, val points to RGB array, else 1 value (Custom Robo: u8 in this revision, as wowjinxy/KAR texp.h: ref at +0x10)
+    u8 ctype; ///< pointer type of val (HSD_TEType)
     u8 reg;
     u8 idx;
     u8 ref;

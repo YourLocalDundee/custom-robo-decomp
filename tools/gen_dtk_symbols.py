@@ -15,6 +15,9 @@ object <-> object / label). It is NOT applied, and the dtk default name is kept,
   - it is not a valid linker identifier (a C name, or CodeWarrior's local-static form name$123);
   - two of our files give the same address different names, or the same name to different addresses;
   - another dtk symbol (one we do not rename) already has that name;
+  (except for statics: a name every one of our lines gives as scope:local may be on several symbols, as dtk's own
+  AlarmHandler is; the renamed symbols are then written scope:local, so the all-asm link does not define it twice:
+  step 68, reverb_hi.c's and reverb_std.c's HandleReverb)
   - dtk has no symbol of that kind at that address (e.g. a name for a field inside a larger dtk object).
 Every such case is listed in decomp/reports/symbols_report.txt. At one address, labels are written after the
 sized symbol (see the comment at the end: mwld hangs otherwise). Output is byte-identical on every run (LF, as dtk
@@ -59,6 +62,7 @@ def main() -> int:
     report = []
     # our names: (addr, kind) -> {name: [source files]}
     want = defaultdict(lambda: defaultdict(list))
+    local = set()  # (addr, name) given as scope:local: a static, which several files may name alike (step 68)
     for f in OURS:
         for line in f.read_text(encoding="utf-8").splitlines():
             if line.lstrip().startswith("//") or not line.strip():
@@ -67,6 +71,8 @@ def main() -> int:
             if not m:
                 sys.exit(f"{f.name}: unparsed line: {line}")
             want[(int(m.group(3), 16), kind(m.group(4)))][m.group(1)].append(f.name)
+            if "scope:local" in m.group(4):
+                local.add((int(m.group(3), 16), m.group(1)))
 
     rename = {}  # dtk index -> new name
     for (addr, k), names in sorted(want.items()):
@@ -93,6 +99,8 @@ def main() -> int:
     for i, n in rename.items():
         users[n].append(i)
     for n, idx in sorted(users.items()):
+        if len(idx) > 1 and all((dtk[i][2], n) in local for i in idx):
+            continue  # statics of different files (reverb_hi.c's and reverb_std.c's HandleReverb): allowed, as dtk's own
         if len(idx) > 1:
             report.append(f"DUPLICATE {n}: given to {', '.join(f'0x{dtk[i][2]:08X}' for i in sorted(idx))}; dtk names kept")
             for i in idx:
@@ -104,16 +112,25 @@ def main() -> int:
         n = rename[i]
         if n in held:
             j = held[n]
+            if (dtk[i][2], n) in local and "scope:local" in dtk[j][4]:
+                continue  # a static of another file that dtk already names alike (step 68)
             report.append(f"COLLISION 0x{dtk[i][2]:08X}: {n} is already dtk's name for {dtk[j][1]}:0x{dtk[j][2]:08X}; dtk name {dtk[i][0]} kept")
             del rename[i]
     final = {i: rename.get(i, s[0]) for i, s in enumerate(dtk)}
 
+    # a static name given to several symbols (ours scope:local) must be local in dtk's file too, or the all-asm link
+    # defines it twice (step 68: the two HandleReverb)
+    count = defaultdict(int)
+    for n in final.values():
+        count[n] += 1
     out = []
     for i, s in enumerate(dtk):
         line = s[4]
         if i in rename:
             assert line.startswith(s[0] + " = ")
             line = rename[i] + line[len(s[0]):]
+            if count[rename[i]] > 1 and (s[2], rename[i]) in local and "scope:" not in line:
+                line += " scope:local"
         out.append(line)
     # At one address, labels (size 0) go after the function / object that starts there. dtk writes the split objects'
     # ELF symbols in this order, and mwld (GC/1.3.2 and 2.6) hangs linking an object whose first symbol is a label in

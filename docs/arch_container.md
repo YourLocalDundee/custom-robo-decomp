@@ -1,6 +1,6 @@
 # Arch test container
 
-How the Arch Linux path ([INSTALL.md](INSTALL.md#arch-kde-konsole-yay--pacman)) is tested without an Arch machine: a
+How the Arch Linux path ([INSTALL.md](INSTALL.md#arch-hyprland-or-kde-any-terminal-yay--pacman)) is tested without an Arch machine: a
 Docker image built from the official `archlinux` image that does exactly what the Arch section tells a desktop user to
 do, as a normal user with sudo. The recipe is [tools/arch_container/Dockerfile](../tools/arch_container/Dockerfile).
 No game data is in the image: the ISO (and, to save time, a download cache) is mounted when it runs.

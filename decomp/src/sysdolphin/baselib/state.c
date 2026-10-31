@@ -13,10 +13,10 @@
 
 static GXColor dark_matter = { 0x00, 0x00, 0x00, 0xFF };
 
-static u8 state_line_width;
-static int state_line_tex_offsets;
+/* Custom Robo: this revision has no HSD_StateSetLineWidth / HSD_StateSetPointSize (main.dol: their statics too),
+   point size before line width (main.dol's .sbss: line width +0x38, point size +0x39) */
 static u8 state_point_size;
-static int HSD_State_804D75BC;
+static u8 state_line_width;
 static int state_cull_mode;
 static int state_blend_type;
 static int state_src_factor;
@@ -45,86 +45,15 @@ static struct matstate_t {
     f32 shininess;
 } matstate;
 
-HSD_Chan HSD_State_80405A38 = { /* next       = */ NULL,
-                                /* chan       = */ 1,
-                                /* flags      = */ 1,
-                                /* amb_color  = */ { 0 },
-                                /* mat_color  = */ { 0xFF, 0xFF, 0xFF, 0xFF },
-                                /* enable     = */ 1,
-                                /* amb_src    = */ 0,
-                                /* mat_src    = */ 0,
-                                /* light_mask = */ 0,
-                                /* diff_fn    = */ 2 };
-
-HSD_Chan HSD_State_80405A38_30 = {
-    /* next       = */ NULL,
-    /* chan       = */ 4,
-    /* flags      = */ 0,
-    /* amb_color  = */ { 0 },
-    /* mat_color  = */ { 0 },
-    /* enable     = */ 0,
-    /* amb_src    = */ 0,
-    /* mat_src    = */ 1,
-    /* light_mask = */ 0,
-    /* diff_fn    = */ 2,
-    /* attn_fn    = */ 2,
-};
-
-HSD_Chan HSD_State_80405A38_60 = {
-    /* next       = */ NULL,
-    /* chan       = */ 0,
-    /* flags      = */ 0,
-    /* amb_color  = */ { 0 },
-    /* mat_color  = */ { 0xFF, 0xFF, 0xFF, 0xFF },
-    /* enable     = */ 1,
-    /* amb_src    = */ 0,
-    /* mat_src    = */ 0,
-    /* light_mask = */ 0,
-    /* diff_fn    = */ 2,
-    /* attn_fn    = */ 1,
-};
-
-HSD_Chan HSD_State_80405A38_90 = {
-    /* next       = */ NULL,
-    /* chan       = */ 2,
-    /* flags      = */ 0,
-    /* amb_color  = */ { 0x00, 0x00, 0x00, 0xFF },
-    /* mat_color  = */ { 0x00, 0x00, 0x00, 0xFF },
-    /* enable     = */ 1,
-    /* amb_src    = */ 0,
-    /* mat_src    = */ 0,
-    /* light_mask = */ 0,
-    /* diff_fn    = */ 2,
-    /* attn_fn    = */ 1,
-};
-
-HSD_Chan HSD_State_80405A38_C0 = {
-    /* next       = */ NULL,
-    /* chan       = */ 2,
-    /* flags      = */ 0,
-    /* amb_color  = */ { 0 },
-    /* mat_color  = */ { 0x00, 0x00, 0x00, 0xFF },
-    /* enable     = */ 0,
-    /* amb_src    = */ 0,
-    /* mat_src    = */ 0,
-    /* light_mask = */ 0,
-    /* diff_fn    = */ 0,
-    /* attn_fn    = */ 2,
-};
-
-HSD_Chan HSD_State_80405A38_F0 = {
-    /* next       = */ NULL,
-    /* chan       = */ 4,
-    /* flags      = */ 0,
-    /* amb_color  = */ { 0 },
-    /* mat_color  = */ { 0xFF, 0xFF, 0xFF, 0xFF },
-    /* enable     = */ 0,
-    /* amb_src    = */ 0,
-    /* mat_src    = */ 0,
-    /* light_mask = */ 0,
-    /* diff_fn    = */ 2,
-    /* attn_fn    = */ 2,
-};
+/* Custom Robo: this revision's six channel templates (main.dol's .data 0x8024BAE8-0x8024BC08; Melee has six global
+   structs of other values): file statics, which the compiler addresses from one base register as main.dol does;
+   specular, diffuse, alpha, alpha as color0a0, vertex color, vertex alpha (named by address) */
+static HSD_Chan lbl_8024BAE8 = { NULL, 1, 0, { 0 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 1, 0, 0, 0, 0, 0 };
+static HSD_Chan lbl_8024BB18 = { NULL, 0, 0, { 0 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 1, 0, 0, 0, 2, 1 };
+static HSD_Chan lbl_8024BB48 = { NULL, 2, 0, { 0 }, { 0 }, 1, 0, 0, 0, 2, 1 };
+static HSD_Chan lbl_8024BB78 = { NULL, 2, 0, { 0 }, { 0 }, 0, 0, 1, 0, 2, 1 };
+static HSD_Chan lbl_8024BBA8 = { NULL, 0, 0, { 0 }, { 0xFF, 0xFF, 0xFF, 0xFF }, 0, 0, 1, 0, 0, 2 };
+static HSD_Chan lbl_8024BBD8 = { NULL, 2, 0, { 0 }, { 0x00, 0x00, 0x00, 0xFF }, 0, 0, 1, 0, 0, 2 };
 
 struct invalidate_funcs_t {
     int mask;
@@ -140,63 +69,96 @@ struct invalidate_funcs_t {
     { HSD_STATE_NONE }
 };
 
-void HSD_SetupChannelMode(u32 arg0)
-{
-    HSD_LObj* temp_r3;
-    HSD_LObj* temp_r3_2;
-    f32 var_f0;
-    int i;
-    s32 var_r3;
-    int max;
+/* Custom Robo: this revision's HSD_SetupChannelMode (= doldecomp/kar's tev.s, KAR PAL), written to it after
+   wowjinxy/KAR tev.c's (cb94b15) with Melee's field names */
+void HSD_DisableChannelLighting(int mask);
 
-    if (arg0 & 8) {
-        var_r3 = 2;
-    } else {
-        var_r3 = 1;
+void HSD_SetupChannelMode(u32 rendermode)
+{
+    HSD_LObj* lobj;
+    HSD_LObj* diffuse_lobj;
+    int i;
+    int max;
+    u32 num_chans;
+    u32 alpha_mode;
+    int specular = 0;
+    int alpha_color = 0;
+    u8 alpha;
+
+    num_chans = rendermode & 3;
+    if (num_chans == 0) {
+        num_chans = 1;
     }
-    HSD_StateSetNumChans(var_r3);
-    if (arg0 & 8) {
-        HSD_State_80405A38.light_mask = HSD_LObjGetLightMaskSpecular();
-        HSD_SetupChannel(&HSD_State_80405A38);
-        i = 0;
+    alpha_mode = rendermode & 0x6000;
+    if (alpha_mode == 0) {
+        alpha_mode = num_chans << 13;
+    }
+
+    if (rendermode & 8) {
+        lbl_8024BAE8.light_mask = HSD_LObjGetLightMaskSpecular();
+        HSD_SetupChannel(&lbl_8024BAE8);
+        specular = 1;
         max = HSD_LObjGetNbActive();
         for (i = 0; i < max; i++) {
-            temp_r3 = HSD_LObjGetActiveByIndex(i);
-            if (temp_r3 != NULL) {
-                var_f0 = arg0 & 8 ? matstate.shininess : temp_r3->shininess;
-                HSD_LObjSetup(temp_r3, temp_r3->color, var_f0);
+            lobj = HSD_LObjGetActiveByIndex(i);
+            if (lobj != NULL) {
+                HSD_LObjSetup(lobj, lobj->color, matstate.shininess);
             }
         }
     }
-    switch (arg0 & 7) {
-    case 2:
-        HSD_SetupChannel(&HSD_State_80405A38_30);
-        break;
-    case 4:
-        temp_r3_2 = HSD_LObjGetActiveByID(0x100);
-        if (temp_r3_2 != NULL && (temp_r3_2->flags & 4)) {
-            HSD_MulColor(&matstate.ambient, &temp_r3_2->color,
-                         &HSD_State_80405A38_60.amb_color);
+
+    if (rendermode & 4) {
+        diffuse_lobj = HSD_LObjGetActiveByID(0x100);
+        if (diffuse_lobj != NULL && (diffuse_lobj->flags & 4)) {
+            HSD_MulColor(&matstate.ambient, &diffuse_lobj->color, &lbl_8024BB18.amb_color);
         } else {
-            HSD_State_80405A38_60.amb_color = dark_matter;
+            lbl_8024BB18.amb_color = dark_matter;
         }
-        HSD_State_80405A38_60.light_mask = HSD_LObjGetLightMaskDiffuse();
-        HSD_SetupChannel(&HSD_State_80405A38_60);
-        HSD_State_80405A38_90.light_mask = HSD_LObjGetLightMaskAlpha();
-        if (temp_r3_2 != NULL && (temp_r3_2->flags & 0x10)) {
-            HSD_State_80405A38_90.amb_color.a = temp_r3_2->color.a;
-            HSD_SetupChannel(&HSD_State_80405A38_90);
-        } else if (HSD_State_80405A38_90.light_mask != 0) {
-            HSD_State_80405A38_90.amb_color.a = 0;
-            HSD_SetupChannel(&HSD_State_80405A38_90);
+        lbl_8024BB18.mat_src = (num_chans >> 1) & 1;
+        lbl_8024BB18.light_mask = HSD_LObjGetLightMaskDiffuse();
+        HSD_SetupChannel(&lbl_8024BB18);
+
+        if (alpha_mode & 0x4000) {
+            lbl_8024BB48.chan = 3;
+            alpha_color = 1;
+            HSD_SetupChannel(&lbl_8024BB78);
         } else {
-            HSD_SetupChannel(&HSD_State_80405A38_C0);
+            lbl_8024BB48.chan = 2;
         }
-        break;
-    case 3:
-    default:
-        HSD_SetupChannel(&HSD_State_80405A38_F0);
-        break;
+
+        lbl_8024BB48.light_mask = HSD_LObjGetLightMaskAlpha();
+        if (diffuse_lobj != NULL && (diffuse_lobj->flags & 0x10)) {
+            alpha = diffuse_lobj->color.a;
+        } else {
+            alpha = 0;
+        }
+        if (lbl_8024BB48.light_mask != 0) {
+            lbl_8024BB48.enable = 1;
+            lbl_8024BB48.mat_color.a = 0xFF;
+            lbl_8024BB48.amb_color.a = alpha;
+        } else {
+            lbl_8024BB48.enable = 0;
+            lbl_8024BB48.mat_color.a = alpha;
+        }
+        HSD_SetupChannel(&lbl_8024BB48);
+    } else {
+        lbl_8024BBA8.mat_src = (num_chans >> 1) & 1;
+        HSD_SetupChannel(&lbl_8024BBA8);
+        lbl_8024BBD8.mat_src = (alpha_mode >> 14) & 1;
+        HSD_SetupChannel(&lbl_8024BBD8);
+    }
+
+    if (specular) {
+        if (!alpha_color) {
+            HSD_DisableChannelLighting(3);
+        }
+        HSD_StateSetNumChans(2);
+    } else if (alpha_color) {
+        HSD_DisableChannelLighting(1);
+        HSD_StateSetNumChans(2);
+    } else {
+        HSD_DisableChannelLighting(5);
+        HSD_StateSetNumChans(1);
     }
 }
 
@@ -295,6 +257,7 @@ void HSD_SetMaterialShininess(f32 shininess)
     matstate.shininess = shininess;
 }
 
+#if 0 /* Custom Robo: not in main.dol */
 void HSD_StateSetLineWidth(u8 arg0, int arg1)
 {
     if (state_line_width != arg0 || state_line_tex_offsets != arg1) {
@@ -303,6 +266,7 @@ void HSD_StateSetLineWidth(u8 arg0, int arg1)
         state_line_tex_offsets = arg1;
     }
 }
+#endif
 
 void HSD_StateSetCullMode(int mode)
 {
@@ -341,6 +305,7 @@ void HSD_StateSetZMode(u32 arg0, int arg1, u32 arg2) /* Custom Robo: u32 (cmplw 
     }
 }
 
+#if 0 /* Custom Robo: not in main.dol */
 void HSD_StateSetPointSize(u8 arg0, int arg1)
 {
     if (state_point_size != arg0 || HSD_State_804D75BC != arg1) {
@@ -349,6 +314,7 @@ void HSD_StateSetPointSize(u8 arg0, int arg1)
         HSD_State_804D75BC = arg1;
     }
 }
+#endif
 
 void HSD_StateSetAlphaCompare(int arg0, u8 arg1, int arg2, int arg3, u8 arg4)
 {
