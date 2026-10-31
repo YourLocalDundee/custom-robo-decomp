@@ -1589,6 +1589,30 @@ def float_text(v, double):
     return '(%s)' % t if t.startswith('-') else t
 
 
+def pool_strings():
+    """{name: C string literal} of the string objects of .sdata2 (dtk's data:string objects of symbols.txt, the bytes
+    from main.dol, every byte as a hex escape; only a string whose NUL lies inside the object), read once per process
+    (step 83: the strings of a file's constant pool, see float_literals)"""
+    if 'strings' not in W:
+        out = {}
+        try:
+            read = dol_reader()
+        except OSError:
+            read = None
+        for l in open(os.path.join(D, 'config/GXCE01/symbols.txt'), encoding='utf-8') if read else ():
+            # dtk types most of them `data:string`; the Shift-JIS ones of fn_8002444C it leaves untyped (`size:0x8`), so an
+            # untyped .sdata2 object counts too when its bytes are a non-empty string followed only by zeros
+            m = re.match(r'^(lbl_[0-9A-F]{8}) = \.sdata2:0x([0-9A-F]+); // type:object size:0x([0-9A-F]+)(.*)$', l)
+            if not m or ('data:' in m.group(4) and 'data:string' not in m.group(4)):
+                continue
+            b = read(int(m.group(2), 16), int(m.group(3), 16))
+            if b is None or 0 not in b or b[0] == 0 or any(b[b.index(0):]) or any(c < 0x20 for c in b[:b.index(0)]):
+                continue
+            out[m.group(1)] = '"' + ''.join('\\x%02x' % c for c in b[:b.index(0)]) + '"'
+        W['strings'] = out
+    return W['strings']
+
+
 def pool_floats():
     """{name: C literal} of the float / double constants of .sdata2 (dtk's data:float / data:double objects of
     symbols.txt, their values from main.dol), read once per process"""
@@ -1620,12 +1644,28 @@ def float_literals(body):
     literal it holds (`0.0f`): the source wrote literals, and the compiler allocates a literal's register differently
     from an extern's (three stores of 0.0f load f0, f1, f0 with the second load moved up; three of an extern float f0,
     f0, f0: fn_80079C70, fn_8001CA84; step 69). The literal is the compiler's own pool constant (the file's .sdata2
-    entry at that address: the compare masks the relocation); a variant, because the extern form matches elsewhere."""
+    entry at that address: the compare masks the relocation); a variant, because the extern form matches elsewhere.
+    Step 83: the same draft also writes the .sdata2 STRING literals it reads by name (`(s32) lbl_804504F8` ->
+    `"\x96\xb3\x82\xb5"`, pool_strings): a file's constant pool holds its float literals and its short string
+    literals in one sequence (first use order; `-str readonly` puts a literal of 8 bytes or less in .sdata2 as its own
+    object: fn_8002444C's pool is 48, 56, 96, 88, "...", 192, "...", 72, "...", 160), so a draft that owns its floats
+    must own the strings between them too, or the piece cannot be placed (promote_report.txt: "two piece starts").
+    The code is the same either way (`li r3, X@sda21`); only the ownership changes, so this stays inside the variant."""
     fl = pool_floats()
-    if not fl:
+    st = pool_strings()
+    if not fl and not st:
         return body
     pat = re.compile(r'(?<![&\w])(lbl_[0-9A-F]{8})\b(?!\s*(?:\[|=[^=]|\+=|-=|\*=|/=))')
-    return '\n'.join(l if re.search(r'\bextern\b', l) else pat.sub(lambda m: fl.get(m.group(1), m.group(1)), l)
+    # a string only where the draft takes the object's address as a char pointer or an integer (`(s8 *) lbl_X`,
+    # `(s32) lbl_X`): dtk types these objects as plain bytes (`extern u8 lbl_804504F8[8];`), so a load of them stays
+    spat = re.compile(r'\((?:s8|u8|char|const char) \*\) (lbl_[0-9A-F]{8})\b|(\((?:s32|u32)\) )(lbl_[0-9A-F]{8})\b')
+
+    def strs(m):
+        n = m.group(1) or m.group(3)
+        if n not in st:
+            return m.group(0)
+        return (m.group(2) or '') + st[n]
+    return '\n'.join(l if re.search(r'\bextern\b', l) else pat.sub(lambda m: fl.get(m.group(1), m.group(1)), spat.sub(strs, l))
                      for l in body.split('\n'))
 
 

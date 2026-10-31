@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,447 @@ def MatchingFor(*versions):
+@@ -284,18 +307,451 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -145,7 +145,11 @@ diff --git a/configure.py b/configure.py
 +    # game: -use_lmw_stmw on (plan.md step 64): all 614 game functions that save five or more registers do it with
 +    # stmw / lmw (three or four: single stw, as the compiler does with the option), none calls _savegpr_N /
 +    # _restgpr_N (GC/2.6's default at level 0)
-+    "game": ("GC/2.6", [*cflags_cr, "-opt level=0,peephole,schedule,speed", "-use_lmw_stmw on", "-fp_contract on", "-i include"]),
++    # game: -str reuse,readonly (plan.md step 83): the game's string literals are in .rodata (2,565) and, when 8 bytes or
++    # less, in .sdata2 as objects of their own in first-use order between the float literals (fn_8002444C's pool:
++    # 0x804504E8 48, 56, 96, 88, "...", 192, "...", 72, "...", 160); with the default -str reuse the compiler puts them in
++    # .sdata / .data, which never matches main.dol. Drafts write strings as externs, so the flag changes no draft's code.
++    "game": ("GC/2.6", [*cflags_cr, "-opt level=0,peephole,schedule,speed", "-use_lmw_stmw on", "-fp_contract on", "-str reuse,readonly", "-i include"]),
 +}
 +# Per-object additions (appended, so they override: mwcc takes the last setting). dolsdk2004's Makefile: EXIBios.c
 +# -O3,p; dvd, mtx, CARDOpen.c, CARDRename.c -char signed.

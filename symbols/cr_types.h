@@ -2157,5 +2157,10 @@ void cr_Bits_Clear(u32* set, u32 bit);
 void cr_Bits_Set(u32* set, u32 bit);
 u32 cr_Bits_Test(u32* set, u32 bit);
 void cr_Mem_CopyWords(void* dst, void* src, u32 bytes);
+// step 83: fn_8006B144 (0x8006B144: two floats and a string, drawn as text by its callers' use) takes the floats first:
+// fn_8002444C's constant pool lays each call's literals out in argument order with the string after its two
+// floats (0x804504E8: 48, 56, 96, 88, "...", 192, "...", 72, "...", 160; the registers f1, f2, r3 fit either
+// order). The string parameter is const: fn_8002444C passes literals (.sdata2 / .rodata), never a buffer.
+void fn_8006B144(f32 x, f32 y, const char* text);
 
 #endif

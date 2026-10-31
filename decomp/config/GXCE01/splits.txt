@@ -410,6 +410,10 @@ game/fn_80023990.c:
 game/fn_80023EC8.c:
 	.text       start:0x80023EC8 end:0x80023F0C
 
+game/fn_8002444C_fn_8002444C.c:
+	.text       start:0x8002444C end:0x80024578
+	.sdata2     start:0x804504E8 end:0x80450518
+
 game/fn_80024578.c:
 	.text       start:0x80024578 end:0x80024590
 

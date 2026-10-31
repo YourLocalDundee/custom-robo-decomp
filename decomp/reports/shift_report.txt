@@ -28,12 +28,12 @@ padding per point: 0x100 bytes; points: 30
   25. 0x8044FC18 .sbss    inside .sbss: the data piece of dolphin/ax/AXProf.c (a proven object boundary) -> everything from here moves by +0x1900
   26. 0x80450080 .sbss    inside .sbss: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x1A00
   27. 0x804501A0 .sdata2  start of .sdata2 -> everything from here moves by +0x1B00
-  28. 0x804509A0 .sdata2  inside .sdata2: the data piece of game/fn_8005C4D0_fn_8005C4D0.c (a proven object boundary) -> everything from here moves by +0x1C00
+  28. 0x804504E8 .sdata2  inside .sdata2: the data piece of game/fn_8002444C_fn_8002444C.c (a proven object boundary) -> everything from here moves by +0x1C00
   29. 0x80452120 .sdata2  inside .sdata2: the data piece of MSL/e_pow.c (a proven object boundary) -> everything from here moves by +0x1D00
   30. 0x804529F8 .sdata2  inside .sdata2: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x1E00
-objects linked from C (batch 9, configure.py CR_MATCHING): 632 in both links, 631 of them moved by the padding; 13 holding a point, reassembled from asm
+objects linked from C (batch 9, configure.py CR_MATCHING): 633 in both links, 632 of them moved by the padding; 13 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
-shifted main.dol: SHA-1 a9e904ac2f5f391adeacd4df486233bb8329bd72 (2430848 bytes, retail 2425472)
+shifted main.dol: SHA-1 f5010f57565377f9d1bd7a8de900bcc8eabf208f (2430848 bytes, retail 2425472)
 sections, unshifted -> shifted:
   .init    0x80003100 size 0x0024D0 -> 0x80003100 size 0x0024D0
   .text    0x800055E0 size 0x1B0FF8 -> 0x800055E0 size 0x1B12F8
@@ -51,7 +51,7 @@ sections, unshifted -> shifted:
   _stack_addr  0x80462AC0 -> 0x804648C0
   __ArenaLo    0x80464AC0 -> 0x804668C0
 static check:
-  symbols compared (unique names): 15216
+  symbols compared (unique names): 15205
   symbols moved by the wrong amount: 0
   relocations of the unshifted build: 92814
   relocations missing after the shift: 0
