@@ -9,7 +9,8 @@ void HSD_StateInvalidate(int mask);
 extern u32 lbl_8044F608[2];
 extern u32 lbl_8037A400[12032];
 typedef struct HSD_JObj HSD_JObj;
-void HSD_JObjDispAll(HSD_JObj *arg0, f32 (*arg1)[4], s32 arg2, s32 arg3);
+typedef f32 Mtx[3][4];
+void HSD_JObjDispAll(HSD_JObj *jobj, Mtx vmtx, u32 flags, u32 rendermode);
 extern f32 lbl_8032344C[237];
 void fn_80075EE8(void);
 
@@ -21,7 +22,7 @@ void fn_80079080(void) {
     *lbl_8044F608 = (u32) lbl_8037A400;
     while (var_r31_9 < 0x100) {
         if (M2C_FIELD(*lbl_8044F608, u32 *, 0) != 0U) {
-            HSD_JObjDispAll(M2C_FIELD(*lbl_8044F608, HSD_JObj **, 0x90), (f32 (*)[4]) lbl_8032344C, 7, 0);
+            HSD_JObjDispAll(M2C_FIELD(*lbl_8044F608, HSD_JObj **, 0x90), (f32 (*)[4]) lbl_8032344C, 7U, 0U);
         }
         var_r31_9 += 1;
         *lbl_8044F608 += 0xBC;

@@ -457,9 +457,17 @@ typedef struct cr_Chara
 __declspec(section ".data") extern cr_Chara cr_g_Charas[24];
 __declspec(section ".sdata") extern cr_Chara *cr_g_CurrentChara;
 void HSD_MObjSetup(HSD_MObj *mobj, u32 rendermode);
-void fn_80095E6C(HSD_JObj *arg0, f32 (*arg1)[4], s32 arg2, s32 arg3);
+typedef enum HSD_TrspMask
+{
+  HSD_TRSP_OPA = 1,
+  HSD_TRSP_XLU = 2,
+  HSD_TRSP_TEXEDGE = 4,
+  HSD_TRSP_ALL = 7
+} HSD_TrspMask;
+void fn_80095E6C(HSD_JObj *arg0, f32 (*arg1)[4], enum HSD_TrspMask arg2, u32 arg3);
 extern f32 lbl_8032344C[237];
-void HSD_JObjDispAll(HSD_JObj *arg0, f32 (*arg1)[4], s32 arg2, s32 arg3);
+typedef f32 Mtx[3][4];
+void HSD_JObjDispAll(HSD_JObj *jobj, Mtx vmtx, u32 flags, u32 rendermode);
 
 void fn_800BCC60(u32 arg0) {
     s32 var_r31_6;
@@ -472,10 +480,10 @@ void fn_800BCC60(u32 arg0) {
                 if (((u16) cr_g_CurrentChara->build_number != 2) && ((u16) cr_g_CurrentChara->build_number != 0xE) && ((u16) cr_g_CurrentChara->build_number != 0xF) && ((u16) cr_g_CurrentChara->build_number != 0x10)) {
                     if ((HSD_MObj *) cr_g_CurrentChara->material != NULL) {
                         HSD_MObjSetup(cr_g_CurrentChara->material, arg0);
-                        fn_80095E6C(cr_g_CurrentChara->root_joint, (f32 (*)[4]) lbl_8032344C, (s32) arg0, 0x04000000);
+                        fn_80095E6C(cr_g_CurrentChara->root_joint, (f32 (*)[4]) lbl_8032344C, (enum HSD_TrspMask) arg0, 0x04000000U);
                     }
                 } else {
-                    HSD_JObjDispAll(cr_g_CurrentChara->root_joint, (f32 (*)[4]) lbl_8032344C, (s32) arg0, 0);
+                    HSD_JObjDispAll(cr_g_CurrentChara->root_joint, (f32 (*)[4]) lbl_8032344C, arg0, 0U);
                 }
             }
         }

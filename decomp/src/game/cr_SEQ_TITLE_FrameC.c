@@ -17,7 +17,7 @@ void PSMTXCopy(Mtx src, Mtx dst);
 extern f32 lbl_8032344C[237];
 void HSD_StateInvalidate(int mask);
 typedef struct HSD_JObj HSD_JObj;
-void HSD_JObjDispAll(HSD_JObj *arg0, f32 (*arg1)[4], s32 arg2, s32 arg3);
+void HSD_JObjDispAll(HSD_JObj *jobj, Mtx vmtx, u32 flags, u32 rendermode);
 extern HSD_JObj *lbl_8044F398;
 void fn_80075C54(void);
 void HSD_CObjEndCurrent(void);
@@ -31,8 +31,8 @@ void cr_SEQ_TITLE_FrameC(void) {
         M2C_FIELD(temp_r31_13, s32 *, 8) = (s32) (M2C_FIELD(temp_r31_13, s32 *, 8) | 0x80000000 | 2);
         PSMTXCopy((f32 (*)[4]) lbl_8032344C, (float (*)[4]) (temp_r31_13 + 0x54));
         HSD_StateInvalidate(-1);
-        HSD_JObjDispAll(lbl_8044F398, (f32 (*)[4]) lbl_8032344C, 1, 0);
-        HSD_JObjDispAll(lbl_8044F398, (f32 (*)[4]) lbl_8032344C, 2, 0);
+        HSD_JObjDispAll(lbl_8044F398, (f32 (*)[4]) lbl_8032344C, 1U, 0U);
+        HSD_JObjDispAll(lbl_8044F398, (f32 (*)[4]) lbl_8032344C, 2U, 0U);
         fn_80075C54();
         HSD_CObjEndCurrent();
     }

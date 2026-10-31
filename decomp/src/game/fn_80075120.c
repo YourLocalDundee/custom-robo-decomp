@@ -91,10 +91,10 @@ extern char lbl_80450C4F[5];
 extern char lbl_80450C54[4];
 void PSMTXCopy(Mtx src, Mtx dst);
 void HSD_JObjSetMtxDirtySub(HSD_JObj *);
-void HSD_JObjDispAll(HSD_JObj *arg0, f32 (*arg1)[4], s32 arg2, s32 arg3);
+void HSD_JObjDispAll(HSD_JObj *jobj, Mtx vmtx, u32 flags, u32 rendermode);
 extern f32 lbl_8032344C[237];
 
-void fn_80075120(f32 (*arg0)[4], HSD_JObj *arg1, s32 arg2) {
+void fn_80075120(f32 (*arg0)[4], HSD_JObj *arg1, u32 arg2) {
     s32 var_r30_62;
 
     if (arg1 != NULL) {
@@ -115,6 +115,6 @@ void fn_80075120(f32 (*arg0)[4], HSD_JObj *arg1, s32 arg2) {
                 HSD_JObjSetMtxDirtySub(arg1);
             }
         }
-        HSD_JObjDispAll(arg1, (f32 (*)[4]) lbl_8032344C, arg2, 0);
+        HSD_JObjDispAll(arg1, (f32 (*)[4]) lbl_8032344C, arg2, 0U);
     }
 }

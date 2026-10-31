@@ -6,19 +6,20 @@ Functions below 0x80131000: 1761 (1315 still `FUN_`). All functions in the expor
 
 | hint | functions |
 |---|---|
+| math | 280 |
 | model | 219 |
-| math | 217 |
-| render | 106 |
+| render | 100 |
 | file-io | 59 |
-| camera | 55 |
+| camera | 48 |
 | light | 45 |
-| memory | 40 |
 | video | 33 |
+| input | 32 |
+| memory | 30 |
 | anim | 29 |
 | memcard | 16 |
-| audio | 8 |
-| input | 6 |
+| audio | 9 |
 | debug-print | 4 |
+| movie | 3 |
 
 ## Game source files (.c named in game-code asserts; a run is bounded by the first and last function citing it)
 
@@ -36,7 +37,7 @@ Functions below 0x80131000: 1761 (1315 still `FUN_`). All functions in the expor
 | 80098290 | 77 | 0 | 67 |  |
 | 80066948 | 66 | 0 | 24 |  |
 | 8006A344 | 50 | 1 | 37 |  |
-| 8001CA84 | 47 | 1 | 33 |  |
+| 8001CA84 | 47 | 1 | 32 | math |
 | 8008B930 | 40 | 1 | 10 |  |
 | 8008E108 | 38 | 0 | 12 |  |
 | 8001F060 | 37 | 0 | 126 |  |
@@ -81,7 +82,7 @@ Functions below 0x80131000: 1761 (1315 still `FUN_`). All functions in the expor
 | 800AFE3C | 12 | 7 | 348 |  |
 | 800F6A30 | 12 | 0 | 10 |  |
 | 8001B42C | 11 | 1 | 46 |  |
-| 8001BF04 | 11 | 1 | 164 |  |
+| 8001BF04 | 11 | 1 | 162 | math |
 | 80023304 | 11 | 0 | 17 |  |
 | 800677C4 | 11 | 0 | 23 |  |
 | 80096594 | 11 | 0 | 13 |  |
@@ -103,38 +104,38 @@ Functions below 0x80131000: 1761 (1315 still `FUN_`). All functions in the expor
 
 | addr | lines | callers | hints |
 |---|---|---|---|
-| 800A63C0 | 1410 | 1 | light,model,~anim,~file-io,~math |
-| 800F21C8 | 1142 | 1 | ~file-io,~math,~model,~render,~video |
-| 800A0E64 | 1031 | 0 | model,video,~file-io,~render |
+| 800A63C0 | 1408 | 1 | light,model,~anim,~file-io,~math |
+| 800F21C8 | 1142 | 1 | ~file-io,~input,~math,~model,~render,~video |
+| 800A0E64 | 1031 | 0 | model,video,~file-io,~input,~render |
 | 8010A5CC | 1008 | 1 | light,model |
-| 800ECA28 | 981 | 1 | memcard,~memory |
-| 8004B0A0 | 980 | 1 | math,~model |
-| 800B81C4 | 923 | 0 | model,~math |
-| 80054238 | 901 | 1 |  |
+| 800ECA28 | 983 | 1 | memcard,~memory |
+| 8004B0A0 | 979 | 1 | math,~input,~model |
+| 800B81C4 | 923 | 0 | math,model |
+| 80054238 | 906 | 1 |  |
 | 800DBAD0 | 899 | 1 | math,~model |
-| 8009AEC4 | 884 | 1 | model,~camera,~file-io,~math,~render,~video |
+| 8009AEC4 | 884 | 1 | model,~camera,~file-io,~input,~math,~render,~video |
 | 80128F20 | 866 | 0 |  |
-| 800DF4C8 | 787 | 1 |  |
+| 800DF4C8 | 787 | 1 | ~math |
 | 8002745C | 697 | 1 | math |
 | 80049924 | 675 | 0 | ~math,~model |
-| 80070170 | 634 | 0 | math,model,~anim |
+| 80070170 | 632 | 0 | math,model,~anim |
 | 80042AB8 | 607 | 1 | math,~anim,~model |
-| 8003FE98 | 579 | 1 | model,~math |
-| 8005ED28 | 572 | 3 |  |
+| 8003FE98 | 580 | 1 | math,model |
+| 8005ED28 | 572 | 3 | ~math |
 | 8003DD38 | 554 | 1 | math,model |
-| 8002B3C4 | 492 | 3 | math |
+| 8002B3C4 | 490 | 3 | math |
 | 800EF39C | 487 | 3 |  |
 | 80009A90 | 462 | 1 |  |
 | 800F96A4 | 461 | 1 |  |
 | 80041358 | 454 | 1 | ~math,~model |
 | 8006B848 | 453 | 1 | ~math,~model |
-| 8002CC54 | 443 | 4 | math |
-| 8003C4F0 | 417 | 1 | ~math,~model |
+| 8002CC54 | 439 | 4 | math |
+| 8003C4F0 | 416 | 1 | math,~model |
 | 80090710 | 414 | 1 | render |
 | 80109314 | 403 | 1 |  |
 | 80060284 | 380 | 1 |  |
 | 8012F3C4 | 374 | 1 |  |
-| 8003B528 | 358 | 1 | ~anim,~math,~model |
+| 8003B528 | 358 | 1 | ~anim,~input,~math,~model |
 | 80006658 | 350 | 1 |  |
 | 800E6348 | 349 | 1 | ~math |
 | 800AFE3C | 348 | 12 |  |
