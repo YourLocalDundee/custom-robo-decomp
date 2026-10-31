@@ -87,10 +87,10 @@ index 0000000..a5cefa0
 +}
 diff --git a/HSDRawViewer/ModelImport.cs b/HSDRawViewer/ModelImport.cs
 new file mode 100644
-index 0000000..33f9e08
+index 0000000..5bec2c6
 --- /dev/null
 +++ b/HSDRawViewer/ModelImport.cs
-@@ -0,0 +1,405 @@
+@@ -0,0 +1,411 @@
 +using System;
 +using System.Collections.Generic;
 +using System.IO;
@@ -198,6 +198,9 @@ index 0000000..33f9e08
 +            int existing = 0, newMeshes = 0, newTris = 0, textures = 0, colours = 0;
 +            var seenExisting = new HashSet<(int, int)>();
 +            var addedTo = new SortedDictionary<int, int>();
++            // new geometry, grouped by (joint, material) over all new meshes: one DObj each
++            var groups = new SortedDictionary<(int, string), List<GX_Vertex>>();
++            var groupMeshes = new Dictionary<(int, string), SortedSet<string>>();
 +
 +            foreach (var mesh in model.Meshes)
 +            {
@@ -229,7 +232,6 @@ index 0000000..33f9e08
 +
 +                // 3. new geometry: rigid DObjs on the joints its triangles are weighted to
 +                newMeshes++;
-+                var groups = new Dictionary<(int, string), List<GX_Vertex>>();
 +                foreach (var poly in mesh.Polygons)
 +                {
 +                    if (poly.Indicies.Count == 0) continue;
@@ -248,7 +250,11 @@ index 0000000..33f9e08
 +                            bone = b;
 +                        }
 +                        if (!groups.TryGetValue((bone, poly.MaterialName), out var list))
++                        {
 +                            groups[(bone, poly.MaterialName)] = list = new List<GX_Vertex>();
++                            groupMeshes[(bone, poly.MaterialName)] = new SortedSet<string>();
++                        }
++                        groupMeshes[(bone, poly.MaterialName)].Add(mesh.Name);
 +                        Matrix4x4.Invert(worlds[bone], out var inv);
 +                        // the importer's winding: reverse each triangle (ModelImporter's FlipWindingOrder default)
 +                        foreach (int vi in tri.Reverse())
@@ -261,19 +267,19 @@ index 0000000..33f9e08
 +                        newTris++;
 +                    }
 +                }
-+                foreach (var ((bone, matName), verts) in groups)
++            }
++            foreach (var ((bone, matName), verts) in groups)
++            {
++                var newDobj = new HSD_DOBJ
 +                {
-+                    var newDobj = new HSD_DOBJ
-+                    {
-+                        Mobj = NewMaterial(matName, gltf, dobjs.Values.FirstOrDefault()?.Mobj, newMats),
-+                        Pobj = gen.CreatePOBJsFromTriangleList(verts, new[] { GXAttribName.GX_VA_POS, GXAttribName.GX_VA_NRM }, null),
-+                    };
-+                    if (joints[bone].Dobj == null) joints[bone].Dobj = newDobj;
-+                    else joints[bone].Dobj.Add(newDobj);
-+                    touched.Add(bone);
-+                    addedTo[bone] = addedTo.GetValueOrDefault(bone) + verts.Count / 3;
-+                    Console.WriteLine($"import: new {mesh.Name} -> JOBJ_{bone}: {verts.Count / 3} triangles, material {matName}");
-+                }
++                    Mobj = NewMaterial(matName, gltf, dobjs.Values.FirstOrDefault()?.Mobj, newMats),
++                    Pobj = gen.CreatePOBJsFromTriangleList(verts, new[] { GXAttribName.GX_VA_POS, GXAttribName.GX_VA_NRM }, null),
++                };
++                if (joints[bone].Dobj == null) joints[bone].Dobj = newDobj;
++                else joints[bone].Dobj.Add(newDobj);
++                touched.Add(bone);
++                addedTo[bone] = addedTo.GetValueOrDefault(bone) + verts.Count / 3;
++                Console.WriteLine($"import: new DObj on JOBJ_{bone}: {verts.Count / 3} triangles, material {matName}, from {string.Join(", ", groupMeshes[(bone, matName)])}");
 +            }
 +            foreach (var k in dobjs.Keys.Where(k => !seenExisting.Contains(k)))
 +                Console.WriteLine($"import: warning: Joint_{k.Item1}_Object_{k.Item2} is not in the glb; kept unchanged (deleting template meshes is not supported)");
