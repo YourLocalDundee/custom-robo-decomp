@@ -85,11 +85,422 @@ index 0000000..a5cefa0
 +        }
 +    }
 +}
+diff --git a/HSDRawViewer/ModelImport.cs b/HSDRawViewer/ModelImport.cs
+new file mode 100644
+index 0000000..33f9e08
+--- /dev/null
++++ b/HSDRawViewer/ModelImport.cs
+@@ -0,0 +1,405 @@
++using System;
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using System.Numerics;
++using System.Text.RegularExpressions;
++using HSDRaw;
++using HSDRaw.Common;
++using HSDRaw.GX;
++using HSDRaw.Tools;
++using HSDRawViewer.Converters;
++using HSDRawViewer.IO.GLTF;
++using HSDRawViewer.Tools.Animation;
++using IONET.Core;
++using IONET.Core.Model;
++using IONET.Core.Skeleton;
++using SharpGLTF.Schema2;
++using SixLabors.ImageSharp;
++using SixLabors.ImageSharp.PixelFormats;
++
++namespace HSDRawViewer
++{
++    /// <summary>
++    /// gameTesting patch: headless "import over" of an edited glb into a template .dat, keeping the template's joint
++    /// tree (same joints, same order, same transforms, flags and animations).
++    ///
++    ///   HSDRawViewer.exe --import &lt;template.dat&gt; &lt;edited.glb&gt; &lt;out.dat&gt;
++    ///
++    /// The glb is one that --export wrote from the template (bones JOBJ_n, meshes Joint_j_Object_d), edited in Blender:
++    ///  - bones are matched by name JOBJ_n; the glb must have exactly the template's joints with the same parents
++    ///    (Blender's armature object node above JOBJ_0 is ignored). Bone transforms always come from the template.
++    ///  - meshes named Joint_j_Object_d (the exporter's names) are the template's own DObjs: their geometry and
++    ///    material settings are kept; only two edits are taken from the glb:
++    ///      texture: the base colour image, if its pixels differ from the template texture the exporter wrote, is
++    ///               encoded into that TObj (same format, e.g. CMP; same TObj flags / blending),
++    ///      colour:  the base colour factor, if it differs from the MObj's diffuse colour, becomes the diffuse colour.
++    ///    A geometry change to such a mesh is reported and ignored.
++    ///  - any other mesh is new geometry: every triangle must be weighted 100% to one bone (any mix of bones per
++    ///    mesh is fine, each triangle to one). It becomes a rigid DObj on that joint (vertices in the joint's space,
++    ///    position + normal), one per (joint, material), with a material made from the glb base colour (no texture).
++    /// Prints "import: ..." lines and a summary; exit code 1 on any error.
++    /// </summary>
++    public static class ModelImport
++    {
++        private static readonly Regex ExportedMesh = new(@"^Joint_(\d+)_Object_(\d+)");
++        private static readonly Regex BoneName = new(@"^JOBJ_(\d+)$");
++
++        public static int Run(string templatePath, string glbPath, string outPath)
++        {
++            try
++            {
++                Import(templatePath, glbPath, outPath);
++                return 0;
++            }
++            catch (ImportError e)
++            {
++                Console.WriteLine($"import: ERROR {e.Message}");
++                return 1;
++            }
++        }
++
++        private class ImportError : Exception { public ImportError(string m) : base(m) { } }
++
++        private static void Import(string templatePath, string glbPath, string outPath)
++        {
++            var dat = new HSDRawFile(templatePath);
++            var rootNode = dat.Roots.Find(r => r.Name.EndsWith("_joint"))
++                ?? throw new ImportError($"{templatePath}: no *_joint root");
++            if (dat.Roots.Count(r => r.Name.EndsWith("_joint")) != 1)
++                throw new ImportError($"{templatePath}: more than one *_joint root (not supported)");
++            var root = new HSD_JOBJ { _s = rootNode.Data._s };
++            List<HSD_JOBJ> joints = root.TreeList;   // pre-order = the exporter's JOBJ_n numbering
++            var index = new Dictionary<HSD_JOBJ, int>();
++            for (int i = 0; i < joints.Count; i++) index[joints[i]] = i;
++            var parents = new int[joints.Count];
++            parents[0] = -1;
++            foreach (var j in joints)
++                foreach (var c in j.Children) parents[index[c]] = index[j];
++
++            // the template as --export writes it: its bone world matrices are the space of the glb's vertices (the bind
++            // pose: inverse bind matrices where the joint has one, else the joint SRT), its meshes the originals
++            var exp = new ModelExporter(root, new ModelExportSettings { ExportTextures = false, Directory = Path.GetTempPath() }, new JointMap());
++            var worlds = TemplateWorlds(exp.Scene.Models[0], joints.Count);
++            var original = exp.Scene.Models[0].Meshes.ToDictionary(m => m.Name, m => m);
++            float size = ModelSize(exp.Scene.Models[0]);
++
++            // 1. glb
++            var scene = GLTFModelImporter.Import(glbPath, out _);
++            var gltf = ModelRoot.Load(glbPath);
++            var model = scene.Models[0];
++            CheckSkeleton(model, joints.Count, parents, worlds);
++
++            var dobjs = new Dictionary<(int, int), HSD_DOBJ>();
++            for (int i = 0; i < joints.Count; i++)
++            {
++                if (joints[i].Dobj == null || joints[i].Flags.HasFlag(JOBJ_FLAG.SPLINE) || joints[i].Flags.HasFlag(JOBJ_FLAG.PTCL)) continue;
++                int d = 0;
++                foreach (var dobj in joints[i].Dobj.List) dobjs[(i, d++)] = dobj;
++            }
++
++            var touched = new HashSet<int>();
++            var newMats = new Dictionary<string, HSD_MOBJ>();
++            var doneMobjs = new Dictionary<HSDStruct, string>();
++            var gen = new POBJ_Generator { CullMode = GenCullMode.None };
++            int existing = 0, newMeshes = 0, newTris = 0, textures = 0, colours = 0;
++            var seenExisting = new HashSet<(int, int)>();
++            var addedTo = new SortedDictionary<int, int>();
++
++            foreach (var mesh in model.Meshes)
++            {
++                var m = ExportedMesh.Match(mesh.Name);
++                if (m.Success && dobjs.TryGetValue((int.Parse(m.Groups[1].Value), int.Parse(m.Groups[2].Value)), out var dobj))
++                {
++                    // 2. a template mesh: material edits only
++                    existing++;
++                    seenExisting.Add((int.Parse(m.Groups[1].Value), int.Parse(m.Groups[2].Value)));
++                    string baseName = mesh.Name.Split('.')[0];
++                    if (original.TryGetValue(baseName, out var orig) && !SameGeometry(orig, mesh, size, out string why))
++                        Console.WriteLine($"import: warning: {mesh.Name}: geometry differs from the template ({why}); geometry edits to existing meshes are not imported, only material / texture edits");
++                    foreach (var matName in mesh.Polygons.Select(p => p.MaterialName).Distinct())
++                    {
++                        var mat = gltf.LogicalMaterials.FirstOrDefault(x => x.Name == matName);
++                        if (mat == null || dobj.Mobj == null) continue;
++                        if (doneMobjs.TryGetValue(dobj.Mobj._s, out string prev))
++                        {
++                            if (prev != matName)
++                                Console.WriteLine($"import: warning: {mesh.Name}: material {matName} shares a template material with {prev}; the first one's edits win");
++                            continue;
++                        }
++                        doneMobjs[dobj.Mobj._s] = matName;
++                        if (ApplyTexture(mat, dobj.Mobj, mesh.Name)) textures++;
++                        if (ApplyColour(mat, dobj.Mobj, mesh.Name)) colours++;
++                    }
++                    continue;
++                }
++
++                // 3. new geometry: rigid DObjs on the joints its triangles are weighted to
++                newMeshes++;
++                var groups = new Dictionary<(int, string), List<GX_Vertex>>();
++                foreach (var poly in mesh.Polygons)
++                {
++                    if (poly.Indicies.Count == 0) continue;
++                    poly.ToTriangles(mesh);
++                    if (poly.PrimitiveType != IOPrimitive.TRIANGLE)
++                        throw new ImportError($"{mesh.Name}: primitive {poly.PrimitiveType} not supported");
++                    for (int t = 0; t + 2 < poly.Indicies.Count; t += 3)
++                    {
++                        var tri = new[] { poly.Indicies[t], poly.Indicies[t + 1], poly.Indicies[t + 2] };
++                        int bone = -1;
++                        foreach (int vi in tri)
++                        {
++                            int b = RigidBone(mesh, mesh.Vertices[vi], joints.Count);
++                            if (bone >= 0 && b != bone)
++                                throw new ImportError($"{mesh.Name}: a triangle spans bones JOBJ_{bone} and JOBJ_{b}; weight each new triangle 100% to one bone");
++                            bone = b;
++                        }
++                        if (!groups.TryGetValue((bone, poly.MaterialName), out var list))
++                            groups[(bone, poly.MaterialName)] = list = new List<GX_Vertex>();
++                        Matrix4x4.Invert(worlds[bone], out var inv);
++                        // the importer's winding: reverse each triangle (ModelImporter's FlipWindingOrder default)
++                        foreach (int vi in tri.Reverse())
++                        {
++                            var v = mesh.Vertices[vi];
++                            var p = Vector3.Transform(v.Position, inv);
++                            var n = Vector3.Normalize(Vector3.TransformNormal(v.Normal, inv));
++                            list.Add(new GX_Vertex { POS = new GXVector3(p.X, p.Y, p.Z), NRM = new GXVector3(n.X, n.Y, n.Z) });
++                        }
++                        newTris++;
++                    }
++                }
++                foreach (var ((bone, matName), verts) in groups)
++                {
++                    var newDobj = new HSD_DOBJ
++                    {
++                        Mobj = NewMaterial(matName, gltf, dobjs.Values.FirstOrDefault()?.Mobj, newMats),
++                        Pobj = gen.CreatePOBJsFromTriangleList(verts, new[] { GXAttribName.GX_VA_POS, GXAttribName.GX_VA_NRM }, null),
++                    };
++                    if (joints[bone].Dobj == null) joints[bone].Dobj = newDobj;
++                    else joints[bone].Dobj.Add(newDobj);
++                    touched.Add(bone);
++                    addedTo[bone] = addedTo.GetValueOrDefault(bone) + verts.Count / 3;
++                    Console.WriteLine($"import: new {mesh.Name} -> JOBJ_{bone}: {verts.Count / 3} triangles, material {matName}");
++                }
++            }
++            foreach (var k in dobjs.Keys.Where(k => !seenExisting.Contains(k)))
++                Console.WriteLine($"import: warning: Joint_{k.Item1}_Object_{k.Item2} is not in the glb; kept unchanged (deleting template meshes is not supported)");
++
++            gen.SaveChanges();
++            UpdateFlags(root, joints, touched);
++
++            dat.Save(outPath);
++            Console.WriteLine($"import: {Path.GetFileName(glbPath)} -> {outPath}: joints {joints.Count} kept, template meshes {existing} " +
++                $"(textures replaced {textures}, colours changed {colours}), new meshes {newMeshes} ({newTris} triangles on " +
++                string.Join(", ", addedTo.Select(kv => $"JOBJ_{kv.Key}: {kv.Value}")) + ")");
++        }
++
++        /// <summary>World matrices of the exported template bones JOBJ_0..n-1.</summary>
++        private static Matrix4x4[] TemplateWorlds(IOModel exported, int count)
++        {
++            var w = new Matrix4x4[count];
++            var seen = new bool[count];
++            foreach (var b in exported.Skeleton.BreathFirstOrder())
++            {
++                var m = BoneName.Match(b.Name);
++                if (!m.Success || int.Parse(m.Groups[1].Value) >= count) throw new ImportError($"unexpected exported bone {b.Name}");
++                int i = int.Parse(m.Groups[1].Value);
++                w[i] = b.WorldTransform; seen[i] = true;
++            }
++            if (seen.Any(x => !x)) throw new ImportError("the exported template is missing bones");
++            return w;
++        }
++
++        /// <summary>The glb skeleton must be the template's: JOBJ_0..n-1, same parents. Reports the bind-pose drift.</summary>
++        private static void CheckSkeleton(IOModel model, int count, int[] parents, Matrix4x4[] worlds)
++        {
++            var found = new Dictionary<int, IOBone>();
++            void Walk(IOBone b, int parent)
++            {
++                int me = parent;
++                var m = BoneName.Match(b.Name);
++                if (m.Success)
++                {
++                    me = int.Parse(m.Groups[1].Value);
++                    if (me >= count) throw new ImportError($"bone {b.Name}: the template has only {count} joints (JOBJ_0..JOBJ_{count - 1}); new bones need the GUI and a roles file (docs/MODDING.md)");
++                    if (found.ContainsKey(me)) throw new ImportError($"bone {b.Name} appears twice");
++                    found[me] = b;
++                    if (parents[me] != parent)
++                        throw new ImportError($"bone {b.Name}: parent is {(parent < 0 ? "none" : "JOBJ_" + parent)}, the template's is {(parents[me] < 0 ? "none" : "JOBJ_" + parents[me])}; the skeleton must stay the template's");
++                }
++                else if (parent >= 0)
++                    throw new ImportError($"bone {b.Name} inside the skeleton: only JOBJ_n bones are allowed (new bones are not supported here)");
++                foreach (var c in b.Children) Walk(c, me);
++            }
++            foreach (var r in model.Skeleton.RootBones) Walk(r, -1);
++            if (found.Count != count)
++                throw new ImportError($"the glb has {found.Count} of the template's {count} bones (missing: " +
++                    string.Join(", ", Enumerable.Range(0, count).Where(i => !found.ContainsKey(i)).Take(10).Select(i => "JOBJ_" + i)) + ")");
++            // bind pose drift (Blender keeps joint positions; its bone rotations differ and are not used)
++            float drift = 0;
++            foreach (var (i, b) in found)
++            {
++                // world position of the glb bone below the non-JOBJ parents (Blender's armature object)
++                var w = b.WorldTransform;
++                drift = Math.Max(drift, Vector3.Distance(w.Translation, worlds[i].Translation));
++            }
++            Console.WriteLine($"import: skeleton matches the template ({count} joints); largest joint position difference {drift:G3}");
++        }
++
++        /// <summary>The only bone a vertex is weighted to (weight 1), or its mesh's parent bone if it has no weights.</summary>
++        private static int RigidBone(IOMesh mesh, IOVertex v, int count)
++        {
++            var ws = v.Envelope.Weights.Where(w => w.Weight > 1e-4f).GroupBy(w => w.BoneName).Select(g => (g.Key, g.Sum(w => w.Weight))).ToList();
++            string name;
++            if (ws.Count == 0)
++            {
++                name = mesh.ParentBone?.Name;
++                if (name == null || !BoneName.IsMatch(name))
++                    throw new ImportError($"{mesh.Name}: vertices with no bone weights; weight new geometry 100% to one bone (vertex group JOBJ_n)");
++            }
++            else
++            {
++                var best = ws.OrderByDescending(w => w.Item2).First();
++                if (ws.Count > 1 && best.Item2 < 0.999f)
++                    throw new ImportError($"{mesh.Name}: a vertex is weighted to {string.Join(" + ", ws.Select(w => $"{w.Key} {w.Item2:0.##}"))}; new geometry must be 100% on one bone");
++                name = best.Key;
++            }
++            var m = BoneName.Match(name);
++            if (!m.Success || int.Parse(m.Groups[1].Value) >= count)
++                throw new ImportError($"{mesh.Name}: bone {name} is not a template joint");
++            return int.Parse(m.Groups[1].Value);
++        }
++
++        private static float ModelSize(IOModel m)
++        {
++            var all = m.Meshes.SelectMany(x => x.Vertices).Select(v => v.Position).ToList();
++            if (all.Count == 0) return 1;
++            var lo = all.Aggregate(Vector3.Min); var hi = all.Aggregate(Vector3.Max);
++            return Math.Max(Vector3.Distance(lo, hi), 1e-6f);
++        }
++
++        /// <summary>Same bounding box (within 0.1% of the model size) and same triangle count.</summary>
++        private static bool SameGeometry(IOMesh a, IOMesh b, float size, out string why)
++        {
++            int ta = a.Polygons.Sum(p => TriCount(p)), tb = b.Polygons.Sum(p => TriCount(p));
++            why = "";
++            if (ta != tb) { why = $"{ta} -> {tb} triangles"; return false; }
++            if (a.Vertices.Count == 0 || b.Vertices.Count == 0) return true;
++            var la = a.Vertices.Select(v => v.Position).Aggregate(Vector3.Min); var ha = a.Vertices.Select(v => v.Position).Aggregate(Vector3.Max);
++            var lb = b.Vertices.Select(v => v.Position).Aggregate(Vector3.Min); var hb = b.Vertices.Select(v => v.Position).Aggregate(Vector3.Max);
++            float d = Math.Max(Vector3.Distance(la, lb), Vector3.Distance(ha, hb));
++            if (d > size * 1e-3f) { why = $"bounding box moved by {d:G3}"; return false; }
++            return true;
++        }
++
++        private static int TriCount(IOPolygon p) => p.PrimitiveType switch
++        {
++            IOPrimitive.TRIANGLE => p.Indicies.Count / 3,
++            IOPrimitive.TRISTRIP or IOPrimitive.TRIFAN => Math.Max(0, p.Indicies.Count - 2),
++            _ => p.Indicies.Count / 3,
++        };
++
++        /// <summary>The TObj the glTF exporter wrote as the base colour texture: the last diffuse-lightmap TObj.</summary>
++        private static HSD_TOBJ BaseColourTObj(HSD_MOBJ mobj) =>
++            mobj.Textures?.List.LastOrDefault(t => t.DiffuseLightmap && t.ImageData?.ImageData != null);
++
++        private static bool ApplyTexture(Material mat, HSD_MOBJ mobj, string meshName)
++        {
++            var tex = mat.GetDiffuseTexture()?.PrimaryImage?.Content;
++            var tobj = BaseColourTObj(mobj);
++            if (tex == null || tobj == null || !tex.Value.IsPng) return false;
++            using var edited = SixLabors.ImageSharp.Image.Load<Bgra32>(tex.Value.Content.ToArray());
++            byte[] now = tobj.GetDecodedImageData();
++            int w = tobj.ImageData.Width, h = tobj.ImageData.Height;
++            var px = new byte[edited.Width * edited.Height * 4];
++            edited.CopyPixelDataTo(px);
++            if (edited.Width == w && edited.Height == h)
++            {
++                long changed = 0;
++                for (int i = 0; i < px.Length; i += 4)
++                    for (int c = 0; c < 4; c++)
++                        if (Math.Abs(px[i + c] - now[i + c]) > 8) { changed++; break; }
++                if (changed <= (long)w * h / 1000) return false;   // unchanged (PNG round trips are exact; allow noise)
++                Console.WriteLine($"import: texture of {mat.Name} ({w}x{h} {tobj.ImageData.Format}): {changed} of {w * h} pixels changed, re-encoded");
++            }
++            else
++                Console.WriteLine($"import: texture of {mat.Name}: {w}x{h} -> {edited.Width}x{edited.Height}, re-encoded as {tobj.ImageData.Format}");
++            if (tobj.ImageData.MaxLOD > 0 || tobj.ImageData.MipMap != 0)
++                Console.WriteLine($"import: warning: {mat.Name}: the template texture has mipmaps; only level 0 is written");
++            tobj.EncodeImageData(px, edited.Width, edited.Height, tobj.ImageData.Format,
++                tobj.TlutData != null ? tobj.TlutData.Format : GXTlutFmt.RGB5A3);
++            return true;
++        }
++
++        private static bool ApplyColour(Material mat, HSD_MOBJ mobj, string meshName)
++        {
++            var f = mat.GetDiffuseColor(Vector4.One);
++            var d = mobj.Material;
++            if (d == null) return false;
++            var was = new Vector4(d.DIF_R, d.DIF_G, d.DIF_B, d.DIF_A) / 255f;
++            if (Vector4.Distance(f, was) < 1.5f / 255f) return false;
++            byte B(float x) => (byte)Math.Clamp(MathF.Round(x * 255f), 0, 255);
++            d.DIF_R = B(f.X); d.DIF_G = B(f.Y); d.DIF_B = B(f.Z); d.DIF_A = B(f.W);
++            Console.WriteLine($"import: diffuse colour of {mat.Name}: {was} -> {f}");
++            return true;
++        }
++
++        /// <summary>
++        /// Material for new geometry: the template's first material's render mode without textures (constant colour,
++        /// lighting and specular as the template has them), diffuse = glb base colour, ambient = 70% of it.
++        /// </summary>
++        private static HSD_MOBJ NewMaterial(string name, ModelRoot gltf, HSD_MOBJ template, Dictionary<string, HSD_MOBJ> cache)
++        {
++            name ??= "";
++            if (cache.TryGetValue(name, out var have)) return have;
++            var mat = gltf.LogicalMaterials.FirstOrDefault(x => x.Name == name);
++            var c = mat?.GetDiffuseColor(Vector4.One) ?? Vector4.One;
++            if (mat?.GetDiffuseTexture() != null)
++                Console.WriteLine($"import: warning: material {name} of new geometry has a texture; only its base colour is imported");
++            byte B(float x) => (byte)Math.Clamp(MathF.Round(x * 255f), 0, 255);
++            const RENDER_MODE texBits = RENDER_MODE.TEX0 | RENDER_MODE.TEX1 | RENDER_MODE.TEX2 | RENDER_MODE.TEX3 |
++                RENDER_MODE.TEX4 | RENDER_MODE.TEX5 | RENDER_MODE.TEX6 | RENDER_MODE.TEX7;
++            var rm = template != null ? template.RenderFlags & ~texBits & ~RENDER_MODE.XLU : RENDER_MODE.CONSTANT | RENDER_MODE.DIFFUSE;
++            rm |= RENDER_MODE.CONSTANT | RENDER_MODE.DIFFUSE;
++            var tm = template?.Material;
++            var mobj = new HSD_MOBJ
++            {
++                RenderFlags = rm,
++                Material = new HSD_Material
++                {
++                    DIF_R = B(c.X), DIF_G = B(c.Y), DIF_B = B(c.Z), DIF_A = 255,
++                    AMB_R = B(c.X * 0.7f), AMB_G = B(c.Y * 0.7f), AMB_B = B(c.Z * 0.7f), AMB_A = 255,
++                    SPC_R = tm?.SPC_R ?? 0, SPC_G = tm?.SPC_G ?? 0, SPC_B = tm?.SPC_B ?? 0, SPC_A = 255,
++                    Alpha = 1,
++                    Shininess = tm?.Shininess ?? 20,
++                },
++            };
++            cache[name] = mobj;
++            Console.WriteLine($"import: new material {name}: colour {B(c.X)},{B(c.Y)},{B(c.Z)} render mode {rm}");
++            return mobj;
++        }
++
++        /// <summary>
++        /// Joint flags: joints that got new DObjs get HSDLib's DObj-derived flags (OPA / XLU, LIGHTING, SPECULAR,
++        /// ENVELOPE_MODEL); every joint gets the ROOT_OPA / ROOT_XLU / ROOT_TEXEDGE bits HSDLib computes. All other
++        /// bits (SKELETON, IK types, billboards, ...) stay the template's.
++        /// </summary>
++        private static void UpdateFlags(HSD_JOBJ root, List<HSD_JOBJ> joints, HashSet<int> touched)
++        {
++            var before = joints.Select(j => j.Flags).ToArray();
++            root.UpdateFlags();
++            const JOBJ_FLAG dobjBits = JOBJ_FLAG.OPA | JOBJ_FLAG.XLU | JOBJ_FLAG.TEXEDGE | JOBJ_FLAG.LIGHTING |
++                JOBJ_FLAG.SPECULAR | JOBJ_FLAG.ENVELOPE_MODEL;
++            const JOBJ_FLAG rootBits = JOBJ_FLAG.ROOT_OPA | JOBJ_FLAG.ROOT_XLU | JOBJ_FLAG.ROOT_TEXEDGE;
++            int changed = 0;
++            for (int i = 0; i < joints.Count; i++)
++            {
++                var now = joints[i].Flags;
++                var f = before[i] | (now & rootBits);
++                if (touched.Contains(i)) f = (f & ~dobjBits) | (now & dobjBits);
++                joints[i].Flags = f;
++                if (f != before[i]) { changed++; Console.WriteLine($"import: JOBJ_{i} flags {before[i]} -> {f}"); }
++            }
++        }
++    }
++}
 diff --git a/HSDRawViewer/Program.cs b/HSDRawViewer/Program.cs
-index 8eb6817..7c4b247 100644
+index 8eb6817..fa7ee25 100644
 --- a/HSDRawViewer/Program.cs
 +++ b/HSDRawViewer/Program.cs
-@@ -15,6 +15,20 @@ namespace HSDRawViewer
+@@ -15,6 +15,26 @@ namespace HSDRawViewer
              Application.SetHighDpiMode(HighDpiMode.SystemAware);
              Application.SetCompatibleTextRenderingDefault(false);
              Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -105,6 +516,12 @@ index 8eb6817..7c4b247 100644
 +            {
 +                new HSDRaw.HSDRawFile(args[1]).Save(args[2]);
 +                System.Console.WriteLine($"resaved {args[1]} -> {args[2]}");
++                return;
++            }
++            //   HSDRawViewer.exe --import <template.dat> <edited.glb> <out.dat>   (import over the template's joint tree, ModelImport.cs)
++            if (args.Length == 4 && args[0] == "--import")
++            {
++                System.Environment.ExitCode = ModelImport.Run(args[1], args[2], args[3]);
 +                return;
 +            }
              PluginManager.Init();

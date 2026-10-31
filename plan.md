@@ -57,7 +57,7 @@ gameTesting\
    ├─ render_preview.py         renders a .glb to PNG (uses tools\pyenv)
    ├─ scripts\                  Ghidra scripts: EnableGCAnalyzer, ApplySymbols, DefineStrings, ExportDecompiledC
    ├─ ghidra_12.1.4_PUBLIC\     Ghidra (+ GameCubeLoader extension installed)
-   ├─ HSDLib\                   HSDRawViewer built from source + our patch: headless --export (BatchExport.cs), --resave (Program.cs)
+   ├─ HSDLib\                   HSDRawViewer built from source + our patch: headless --export (BatchExport.cs), --resave (Program.cs), --import (ModelImport.cs)
    ├─ patches\                  our tool fixes as patches: hsdlib_headless_export_resave.patch (+ base commit)
    ├─ dtk\                      decomp-toolkit 1.8.4 + its analysis project (proj\symbols.txt)
    ├─ melee\                    sparse clone of doldecomp/melee (sysdolphin source + verified symbols)
