@@ -58,6 +58,8 @@ Every command runs from the repo root. `tools/check_docs.py` checks this convent
 | [formats/model_entry.md](formats/model_entry.md) | Robo / weapon / story-character model entries (header decoded from the game's loaders), joint roles |
 | [formats/containers.md](formats/containers.md) | Every archive and file type on the disc: what is inside, what is decoded, what is not |
 | [community_codes.md](community_codes.md) | Public AR / Gecko codes (decrypted, mapped to our addresses), texture mods, Gecko tooling (research notes, Oct 28, 2026) |
+| [robo_tables.md](robo_tables.md) | Every table, file and constant indexed by the body (robo) number, and what must grow for a new body (step 71, Oct 30, 2026) |
+| [images/](images/) | Screenshots as evidence: `ray_legionnaire_v1_customize.jpg`, `ray_legionnaire_v1_battle1.jpg`, `ray_legionnaire_v1_battle2.jpg` (the first edited robo model seen in the game, Oct 30, 2026) |
 | [community/discord_codes.md](community/discord_codes.md) | Codes and addresses from the community Discord, mapped to our functions (Oct 29, 2026) |
 | [community/codes_gxce01.tsv](community/codes_gxce01.tsv) | The codes of community_codes.md as a table, one row per code. Research data of Oct 28, 2026: no tool in the repo writes it; keep it in step with community_codes.md |
 
