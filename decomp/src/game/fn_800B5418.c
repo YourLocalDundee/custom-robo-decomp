@@ -21,7 +21,7 @@ void fn_800B5418(s32 arg0) {
     temp_r30_23 = M2C_FIELD((lbl_803BACE8 + (M2C_FIELD(lbl_8044F738, s16 *, 0x80) * 8)), s32 **, 4);
     M2C_FIELD(lbl_8044F738, u8 *, 1) = 0U;
     while (var_r31_13 < 2U) {
-        if ((u32) *(u32 *) (*temp_r30_23 + ((var_r31_13 * 4) & 0x3FC)) != 0U) {
+        if (M2C_FIELD((*temp_r30_23 + ((var_r31_13 * 4) & 0x3FC)), u32 *, 0) != 0U) {
             M2C_FIELD(&lbl_8044F738[(var_r31_13 * 4) & 0x3FC], HSD_JObj **, 0x20) = HSD_JObjLoadJoint(*M2C_FIELD((*temp_r30_23 + ((var_r31_13 * 4) & 0x3FC)), HSD_Joint ***, 0));
             M2C_FIELD(lbl_8044F738, u8 *, 1) += 1;
         }
