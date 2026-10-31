@@ -579,6 +579,15 @@ game/fn_800774A4.c:
 game/fn_80077578.c:
 	.text       start:0x80077578 end:0x80077648
 
+game/fn_80077648.c:
+	.text       start:0x80077648 end:0x80077768
+
+game/fn_80077768.c:
+	.text       start:0x80077768 end:0x80077888
+
+game/fn_80077888.c:
+	.text       start:0x80077888 end:0x800779A8
+
 game/fn_80077F38.c:
 	.text       start:0x80077F38 end:0x80078000
 
@@ -587,6 +596,12 @@ game/fn_80078438.c:
 
 game/fn_80078478.c:
 	.text       start:0x80078478 end:0x800784B0
+
+game/fn_80078CA0.c:
+	.text       start:0x80078CA0 end:0x80078D30
+
+game/fn_80078D30.c:
+	.text       start:0x80078D30 end:0x80078DC0
 
 game/fn_80078DC0.c:
 	.text       start:0x80078DC0 end:0x80078E54

@@ -7,21 +7,21 @@ m2c ok 1749
 m2c failed 2
 compile failed 46
 compiled 1703
-100% MATCH 446
-bytes matched 489032 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
+100% MATCH 451
+bytes matched 490044 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
 
 match % histogram of the 1703 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
     0- 9%  46
-   10-19%  74
-   20-29%  104
+   10-19%  73
+   20-29%  105
    30-39%  121
-   40-49%  270
+   40-49%  268
    50-59%  127
-   60-69%  155
-   70-79%  155
+   60-69%  151
+   70-79%  157
    80-89%  135
-   90-99%  70
-  100%     446
+   90-99%  69
+  100%     451
 
 most common failures:
      11  compile: pointer/array required

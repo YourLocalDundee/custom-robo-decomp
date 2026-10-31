@@ -1,8 +1,8 @@
 m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md steps 58, 63)
 one object per function, or one per file of consecutive functions that share their constant pool (file objects); batch 9 links them and checks the SHA-1
 
-drafts at 100% MATCH: 446
-promoted: 411 (44972 bytes = 0xAFAC)
+drafts at 100% MATCH: 451
+promoted: 416 (46124 bytes = 0xB42C)
 file objects: 3 (3 functions, 1028 bytes = 0x404)
 left out: 32
 kept from earlier runs (draft no longer 100%): 1
@@ -197,9 +197,14 @@ removed (function name no longer ours): 0
 800773D0  fn_800773D0                                    212
 800774A4  fn_800774A4                                    212
 80077578  fn_80077578                                    208
+80077648  fn_80077648                                    288
+80077768  fn_80077768                                    288
+80077888  fn_80077888                                    288
 80077F38  fn_80077F38                                    200
 80078438  fn_80078438                                     64
 80078478  fn_80078478                                     56
+80078CA0  fn_80078CA0                                    144
+80078D30  fn_80078D30                                    144
 80078DC0  fn_80078DC0                                    148
 80078E54  fn_80078E54                                    148
 80078EE8  fn_80078EE8                                     24
@@ -424,14 +429,14 @@ removed (function name no longer ours): 0
 == file runs of the drafts with data of their own (range, first..last, functions; the users of every entry the run's drafts own, closed: plan.md steps 63, 64)
 800057B8-8000860C  fn_800057B8..fn_8000805C  16 functions, 11 at 100%: not available yet (5 not matched: fn_800057B8, fn_80005BC8, fn_80005DA4, fn_80007CE4, fn_8000805C)
 80008ED8-8001B1A0  fn_80008ED8..cr_SEQ_LOGO_FrameA  129 functions, 63 at 100%: not available yet (66 not matched: fn_80009018, fn_800095F4, fn_80009A90, cr_SEQ_ENDING_FrameA, cr_SEQ_MENU_FrameA, cr_SEQ_NAME_ENTRY_FrameA ...)
-80009A90-8013149C  fn_80009A90..fn_801310D4  1708 functions, 417 at 100%: not available yet (1291 not matched: fn_80009A90, cr_SEQ_ENDING_FrameA, cr_SEQ_MENU_FrameA, cr_SEQ_NAME_ENTRY_FrameA, fn_8000AFBC, fn_8000B144 ...)
+80009A90-8013149C  fn_80009A90..fn_801310D4  1708 functions, 422 at 100%: not available yet (1286 not matched: fn_80009A90, cr_SEQ_ENDING_FrameA, cr_SEQ_MENU_FrameA, cr_SEQ_NAME_ENTRY_FrameA, fn_8000AFBC, fn_8000B144 ...)
 8001B1D4-8001F350  fn_8001B1D4..fn_8001F060  72 functions, 30 at 100%: not available yet (42 not matched: fn_8001B29C, fn_8001B388, fn_8001B544, fn_8001B6EC, fn_8001BD54, fn_8001BF04 ...)
 80024148-80036BCC  fn_80024148..fn_80036954  74 functions, 12 at 100%: not available yet (62 not matched: fn_8002419C, fn_8002444C, fn_80024634, cr_CamMode_DefaultStart, fn_80024848, cr_CAMMODE_SNR_AUTO_Y_ANG_Frame ...)
 800527D4-8005BEC8  fn_800527D4..fn_8005BE70  18 functions, 1 at 100%: not available yet (17 not matched: fn_800528B8, fn_8005299C, fn_80053430, fn_80053A20, fn_80053DA8, fn_80054238 ...)
 8005C4D0-8005C628  fn_8005C4D0..fn_8005C4D0  1 functions, 1 at 100%: FILE OBJECT game/fn_8005C4D0_fn_8005C4D0.c (.sdata2 0x804509A0-0x804509A8)
 80067904-8006B46C  fn_80067904..fn_8006B3D0  42 functions, 10 at 100%: not available yet (32 not matched: fn_80067904, fn_80068420, fn_8006868C, fn_80068988, fn_80068A74, fn_80068B84 ...)
 8006EEF8-8006FE38  fn_8006EEF8..fn_8006FDD0  7 functions, 4 at 100%: not available yet (3 not matched: fn_8006EEF8, fn_8006FB9C, fn_8006FBE0)
-80076B2C-80079CB8  fn_80076B2C..fn_80079C70  31 functions, 14 at 100%: not available yet (17 not matched: fn_80076B2C, fn_80077648, fn_80077768, fn_80077888, fn_800779A8, fn_80077C5C ...)
+80076B2C-80079CB8  fn_80076B2C..fn_80079C70  31 functions, 19 at 100%: not available yet (12 not matched: fn_80076B2C, fn_800779A8, fn_80077C5C, fn_80078000, fn_800784B0, fn_80078B60 ...)
 8007C094-8008052C  fn_8007C094..fn_8007FCD8  22 functions, 9 at 100%: not available yet (13 not matched: fn_8007C094, fn_8007D3C8, fn_8007D638, fn_8007D800, fn_8007DA20, fn_8007DA80 ...)
 8007D0D4-8008052C  fn_8007D0D4..fn_8007FCD8  18 functions, 6 at 100%: not available yet (12 not matched: fn_8007D3C8, fn_8007D638, fn_8007D800, fn_8007DA20, fn_8007DA80, fn_8007DD60 ...)
 8007D3C8-8008052C  fn_8007D3C8..fn_8007FCD8  14 functions, 2 at 100%: not available yet (12 not matched: fn_8007D3C8, fn_8007D638, fn_8007D800, fn_8007DA20, fn_8007DA80, fn_8007DD60 ...)
@@ -458,7 +463,7 @@ fn_8005C4D0: the users of the entries its draft owns span fn_8005C4D0..fn_8005C4
 fn_800683B4: the users of the entries its draft owns span fn_80067904..fn_8006A7D8 (0x80067904-0x8006B0AC, 38 functions, 9 at 100%)
 fn_800694C4: the users of the entries its draft owns span fn_80067904..fn_8006A7D8 (0x80067904-0x8006B0AC, 38 functions, 9 at 100%)
 fn_8006FDD0: the users of the entries its draft owns span fn_8006EEF8..fn_8006FDD0 (0x8006EEF8-0x8006FE38, 7 functions, 4 at 100%)
-fn_80079C70: the users of the entries its draft owns span fn_80076B2C..fn_80079C70 (0x80076B2C-0x80079CB8, 31 functions, 14 at 100%)
+fn_80079C70: the users of the entries its draft owns span fn_80076B2C..fn_80079C70 (0x80076B2C-0x80079CB8, 31 functions, 19 at 100%)
 fn_8007CC90: the users of the entries its draft owns span fn_8007C094..fn_8007E400 (0x8007C094-0x8007EA04, 17 functions, 9 at 100%)
 fn_8007CD3C: the users of the entries its draft owns span fn_8007C094..fn_8007E400 (0x8007C094-0x8007EA04, 17 functions, 9 at 100%)
 fn_8007D0D4: the users of the entries its draft owns span fn_8007D0D4..fn_8007F808 (0x8007D0D4-0x8007FCD8, 17 functions, 6 at 100%)

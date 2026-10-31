@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 1142
+files: 1147
 
 src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
@@ -367,9 +367,14 @@ src/game/fn_800772C0.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_800773D0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800774A4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80077578.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80077648.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80077768.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80077888.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80077F38.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80078438.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80078478.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80078CA0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80078D30.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80078DC0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80078E54.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80078EE8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py

@@ -1,7 +1,7 @@
 # Game-code drafts: m2c, compile, compare (batch 12)
 
 Milestone 5 (game code to matching C, about 1,750 functions) needs a first C version of every function. This batch makes
-one for all of them, checks each against the original, and says where to start. The drafts take about 25 minutes, parallel
+one for all of them, checks each against the original, and says where to start. The drafts take about 26 minutes, parallel
 (two m2c passes, the repair loop and the variants of every draft below 100%, plan.md step 69; 6.5 minutes after step 59,
 2 minutes in the first version, step 57); after them the batch promotes
 the linkable matches into `decomp/src/game` and, when that folder changed, runs batch 9 again, which adds that build's time
@@ -299,7 +299,7 @@ edited. "Changed" = drafts whose text the rule changes (counted over the final m
    f31 = sqrt(f31);`). Every draft below 100% is drafted again with m2c's own `--reg-vars` for r14-r31 / f14-f31 (the
    epilogue restores it prints as `M2C_ERROR(psq_l ...)` statements are dropped) and tried with the same rules and
    variants (step 69 late: register_order also takes its names, `var_r29` without m2c's `_N` suffix: 7 more, e.g.
-   fn_80111EEC, fn_80068CFC, fn_80104C54). 41 matches need it (fn_80017668, fn_8001D05C / D104 / D1AC, fn_8000DA5C / DB94 / DCCC, fn_800F67FC,
+   fn_80111EEC, fn_80068CFC, fn_80104C54). 44 matches need it (fn_80017668, fn_8001D05C / D104 / D1AC, fn_8000DA5C / DB94 / DCCC, fn_800F67FC,
    fn_80104AB0 ...).
 2. **Volatile temporaries back into their use** (`inline_volatile_temps`): a temporary named after r0, r3-r12 or
    f0-f13, assigned once and used once, was an expression; as a C local it took a callee-saved register the
@@ -342,9 +342,9 @@ edited. "Changed" = drafts whose text the rule changes (counted over the final m
    `unsigned_fields` (`(u16) M2C_FIELD(x, s16 *, n)` -> a u16 field: cr_C_ACT_TURN_POINT; as a rule it lost
    cr_C_ACT_MOVE), `redundant_returns` (`if (c) { ...; return; } return;` -> one return: fn_8008BA44's two blr),
    `widen_masked_bytes` (a `u8` local only ever assigned `(u8) (E)` becomes a u32 of `(E) & 0xFF`: fn_8005C628 with
-   table_call_noargs), `invert_early_returns` (`if (c) { return; } rest` at the function's end -> `if (!c) { rest }`),
+   table_call_noargs; or only ever loaded from a byte field: fn_80077648 / 768 / 888), `invert_early_returns` (`if (c) { return; } rest` at the function's end -> `if (!c) { rest }`),
    `chain_assign` (`A = v; B = v;` -> `B = A = v;`); no match needs the last two yet. The variants and --reg-vars now run for every compiled draft
-   below 100% (VARIANT_MIN 0: 3 more matches below 40%); the draft step takes about 25 minutes (1,537 s; was 445 s).
+   below 100% (VARIANT_MIN 0: 3 more matches below 40%); the draft step takes about 26 minutes (1,574 s; was 445 s).
 10. **Field signedness from the loads** (symbols/cr_types.h): cr_Chara.id (+193C), target_id (+1996) and
     countdown_1990 (+1990) are u16: every load of them in the game code is `lhz` (42, 3, 2), none `lha`.
 11. **promote_drafts.py**: the other names of an anonymous struct (`typedef struct { ... } Vec, Vec3, *VecPtr,
@@ -355,9 +355,9 @@ edited. "Changed" = drafts whose text the rule changes (counted over the final m
     `cr_g_CurrentChara->motion_set->turn_r`).
 **Before -> after** (full runs; m2c, compiler, flags unchanged): compile 1,702 -> 1,703 of 1,751 (failures 47 -> 46 + 2 m2c: pointer/array required 11,
 illegal operand 9, explicit / implicit conversions 6 + 8, illegal type 7), **100% MATCH 350 ->
-446**, bytes equal after alignment 428,472 -> 489,032; histogram 0-9% 67 -> 46, 10-19% 93 -> 74, 20-29%
-152 -> 104, 30-39% 294 -> 121, 40-49% 136 -> 270, 50-59% 159 -> 127, 60-69% 138 -> 155, 70-79% 156 -> 155, 80-89% 114 -> 135,
-90-99% 43 -> 70. **Linked: 415 game objects** (411 promoted, 3 file objects, 1 kept; was 342); the first three FILE
+451** (101 new, none lost), bytes equal after alignment 428,472 -> 490,044; histogram 0-9% 67 -> 46, 10-19% 93 -> 73, 20-29%
+152 -> 105, 30-39% 294 -> 121, 40-49% 136 -> 268, 50-59% 159 -> 127, 60-69% 138 -> 151, 70-79% 156 -> 157, 80-89% 114 -> 135,
+90-99% 43 -> 69. **Linked: 420 game objects** (416 promoted, 3 file objects, 1 kept; was 342); the first three FILE
 OBJECTS: `game/fn_8005C4D0_fn_8005C4D0.c`, fn_8005C4D0 with its own int-to-float constant (.sdata2
 0x804509A0-0x804509A8), which no other function uses (round 5's prediction), and `game/fn_800AA130_fn_800AA130.c`,
 fn_800AA130 (a vowel test, a switch) with its own jump table (.data 0x8022B130-0x8022B204) and
@@ -367,8 +367,8 @@ own code (main.elf must relocate each word to that address; the words are left o
 `tools/shift_test.py` puts no insertion point into a piece of a C file with `#pragma force_active` (reassembled from
 dtk's asm, the unreferenced function lost its force_active and mwld stripped it: the control link was not retail),
 and the drafts read such an object's own jump table (dtk names it `"@16"`, entries `.rel fn, .L_x`) as
-`jumptable_<address>`, so the draft of a file object with a switch stays 100%. 0xB400 bytes = 3.75% of the game
-code; 573 of 908 units from C, 16.83% of all code, data from C 3.78%. Batch 9:
+`jumptable_<address>`, so the draft of a file object with a switch stays 100%. 0xB880 bytes = 3.84% of the game
+code; 578 of 913 units from C, 16.90% of all code, data from C 3.78%. Batch 9:
 main.dol retail SHA-1, every object 100% code + data, static shift PASS; checksums written.
 Not found / left for the next round:
 - the script-command head (`cr_S_BGM_STOP`, `cr_CHAR_MOVE` and about 35 more at 78-85%): the original saves r30 and

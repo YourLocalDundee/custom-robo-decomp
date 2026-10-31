@@ -8,11 +8,11 @@ MSL                               49     46   0x008EE8/0x00939C  96.81%   0x0014
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     12   0x000AD8/0x006220  11.05%   0x000030/0x0034F8   0.35%     32/  162
 sysdolphin                        30     13   0x0081F4/0x026600  21.17%   0x0010AE/0x00247E  45.71%    157/  472
-game                             415    415   0x00B400/0x00B400 100.00%   0x0000E4/0x0000E4 100.00%    415/  415
-automatic objects (unsplit)      298      0   0x000000/0x145FDC   0.00%   0x000000/0x27E754   0.00%      0/ 1690
-main.dol (all units)             908    573   0x049448/0x1B342C  16.83%   0x019440/0x29C434   3.78%   1393/ 3533
+game                             420    420   0x00B880/0x00B880 100.00%   0x0000E4/0x0000E4 100.00%    420/  420
+automatic objects (unsplit)      298      0   0x000000/0x145B5C   0.00%   0x000000/0x27E754   0.00%      0/ 1685
+main.dol (all units)             913    578   0x0498C8/0x1B342C  16.90%   0x019440/0x29C434   3.78%   1398/ 3533
 
-game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 415 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0xB400 bytes = 3.75% of the game code, 2.58% of all code
+game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 420 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0xB880 bytes = 3.84% of the game code, 2.65% of all code
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
 MSL/FILE_POS.c                                code 0x0/0x3C0  data 0x0/0x0  functions 0/3  not linked: code: 3 of 3 functions differ (ftell 44%, _fseek 91%, fseek 29%): the reference is another revision; BfBB has no FILE_POS.c and no reference reproduces _fseek (86%) or ftell (46%) (step 66)
@@ -367,9 +367,14 @@ game/fn_800772C0.c                            code 0x110/0x110  data 0x0/0x0  fu
 game/fn_800773D0.c                            code 0xD4/0xD4  data 0x0/0x0  functions 1/1  linked from C
 game/fn_800774A4.c                            code 0xD4/0xD4  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80077578.c                            code 0xD0/0xD0  data 0x0/0x0  functions 1/1  linked from C
+game/fn_80077648.c                            code 0x120/0x120  data 0x0/0x0  functions 1/1  linked from C
+game/fn_80077768.c                            code 0x120/0x120  data 0x0/0x0  functions 1/1  linked from C
+game/fn_80077888.c                            code 0x120/0x120  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80077F38.c                            code 0xC8/0xC8  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80078438.c                            code 0x40/0x40  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80078478.c                            code 0x38/0x38  data 0x0/0x0  functions 1/1  linked from C
+game/fn_80078CA0.c                            code 0x90/0x90  data 0x0/0x0  functions 1/1  linked from C
+game/fn_80078D30.c                            code 0x90/0x90  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80078DC0.c                            code 0x94/0x94  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80078E54.c                            code 0x94/0x94  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80078EE8.c                            code 0x18/0x18  data 0x0/0x0  functions 1/1  linked from C
