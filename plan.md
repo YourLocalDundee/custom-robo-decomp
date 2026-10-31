@@ -66,6 +66,7 @@ gameTesting\
 
 ## Resume here (updated Oct 31, 2026)
 
+- **Shifted build booted again (Oct 31, 2026, after the step 75/76/78 merges, main 5f1e995):** batch 11 PASS - the shifted main.dol (SHA-1 a9e904ac…) boots to the title screen, OS arena at the shifted `_stack_addr` 0x804648c0 (control: retail 0x80462ac0), no error-level log line, the same 12 disc files read in the same order as the control (decomp/build/shift/boot/boot_result.txt, screenshots control.png / shifted.png).
 - **Step 78 (branch hsd2): HSD 22 of 30 objects from C (fobj.c), 42.57% of its code; per-function `#pragma opt_common_subs off` made HSD_PObjDisp and HSD_EraseRect equal**; 623 of 896 units from C, 21.90% of main.dol's code. Left: lobj 2, pobj 2, texp 2 functions (register allocation), displayfunc 3, mtx 7, cobj 11, jobj 17, texpdag 8, and the unsplit HSD edges.
 - **Step 76 (branch libs2): every non-HSD library object is built from C:** Dolphin SDK 98 of 98 (reverb_std.c: DLcreate's `<< 2` as in reverb_hi.c), MSL 49 of 49 (exponentialsf.c: powf), Runtime 5 of 5, MetroTRK 29 of 29; 622 of 896 units from C, 21.48% of main.dol's code, retail SHA-1. Left for the libraries: HSD 21 of 30.
 - **Step 72 (branch crbr-parts):** [docs/community/crbr_parts_expansion.md](docs/community/crbr_parts_expansion.md): CRBR-Parts-Expansion and Project Hive's public sources (0seiken0/project-hive) mapped to our names; leads for Phase 2b item 6: slot-based new robos on existing bodies, the order lists' direct users, the model number in the menu's model requests, free space at 0x800048E0 / 0x8023BC70.
