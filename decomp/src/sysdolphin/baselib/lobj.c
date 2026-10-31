@@ -276,7 +276,7 @@ void HSD_LObjSetup(HSD_LObj* lobj, GXColor color, f32 arg8)
     }
     if (lobj->spec_id != 0) {
         if (lobj->shininess != arg8) {
-            f32 temp_f4 = arg8 * 0.5F;
+            f32 temp_f4 = arg8 / 2.0F; /* Custom Robo: a division (main.dol multiplies arg8 by 0.5 in that operand order) */
             lobj->shininess = arg8;
             GXInitLightAttn(&lobj->spec_lightobj, 0.0f, 0.0f, 1.0f, temp_f4, 0.0f, 1.0f - temp_f4);
             lobj->flags |= LOBJ_SPEC_DIRTY;
@@ -470,19 +470,20 @@ static inline void setup_point_lightobj(HSD_LObj* lobj, Mtx mtx)
     if (lobj->flags & LOBJ_RAW_PARAM) {
         GXInitLightAttn(&lobj->lightobj, 1.0F, 0.0F, 0.0F, lobj->u.attn.k0, lobj->u.attn.k1, lobj->u.attn.k2);
     } else {
+        /* Custom Robo: this revision attenuates point lights by ref_dist (main.dol reads +0x2C; wowjinxy/KAR: cutoff) */
         f32 ref_br = lobj->u.point.ref_br;
-        f32 cutoff = lobj->u.point.cutoff;
+        f32 ref_dist = lobj->u.point.ref_dist;
         s32 dist_func = lobj->u.point.dist_func;
 
+        if (ref_dist < 1.1920929e-7F) {
+            ref_dist = 1.1920929e-7F;
+        }
         if (ref_br < 1.1920929e-7F) {
             ref_br = 1.1920929e-7F;
         }
-        if (cutoff < 1.1920929e-7F) {
-            cutoff = 1.1920929e-7F;
-        }
-        GXInitLightDistAttn(&lobj->lightobj, cutoff, ref_br, dist_func);
+        GXInitLightDistAttn(&lobj->lightobj, ref_dist, ref_br, dist_func);
         GXInitLightSpot(&lobj->lightobj, 0.0F, 0);
-        GXInitLightDistAttn(&lobj->spec_lightobj, cutoff, ref_br, dist_func);
+        GXInitLightDistAttn(&lobj->spec_lightobj, ref_dist, ref_br, dist_func);
     }
 }
 
@@ -509,11 +510,12 @@ static inline void setup_spot_lightobj(HSD_LObj* lobj, Mtx mtx)
         s32 spot_func = lobj->u.spot.spot_func;
         s32 dist_func = lobj->u.spot.dist_func;
 
-        if (ref_br < 1.1920929e-7F) {
-            ref_br = 1.1920929e-7F;
-        }
+        /* Custom Robo: main.dol clamps ref_dist first */
         if (ref_dist < 1.1920929e-7F) {
             ref_dist = 1.1920929e-7F;
+        }
+        if (ref_br < 1.1920929e-7F) {
+            ref_br = 1.1920929e-7F;
         }
         /* Custom Robo: main.dol sets the specular light's attenuation first and passes spot_func to GXInitLightSpot */
         GXInitLightDistAttn(&lobj->lightobj, ref_dist, ref_br, dist_func);
@@ -958,6 +960,18 @@ BOOL HSD_LObjGetPosition(HSD_LObj* lobj, Vec* pos)
     return FALSE;
 }
 
+/* wowjinxy/KAR lobj.c HSD_LObjSetInterest: not in main.dol (dead-stripped), kept for its assert string, which main.dol's
+ * .data has after "lobj->position" */
+void HSD_LObjSetInterest(HSD_LObj* lobj, Vec* interest)
+{
+    assert_line(1427, lobj);
+    if (lobj->interest == NULL) {
+        lobj->interest = HSD_WObjAlloc();
+        assert_line(1430, lobj->interest);
+    }
+    HSD_WObjSetPosition(lobj->interest, interest);
+}
+
 /* wowjinxy/KAR lobj.c HSD_LObjGetInterest */
 BOOL HSD_LObjGetInterest(HSD_LObj* lobj, Vec* interest)
 {
@@ -1030,6 +1044,12 @@ static inline void HSD_LObjSetAttn(HSD_LObj* lobj, f32 a0, f32 a1, f32 a2,
     HSD_LObjSetAttnA(lobj, a0, a1, a2);
     HSD_LObjSetAttnK(lobj, k0, k1, k2);
 }
+
+/* wowjinxy/KAR lobj.c: its unused assert string, in main.dol's .data before LObjLoad's */
+#pragma push
+#pragma force_active on
+static char unused[] = "hsdIsDescendantOf(info, &hsdLObj)";
+#pragma pop
 
 /* wowjinxy/KAR lobj.c LObjLoad */
 int LObjLoad(HSD_LObj* lobj, HSD_LightDesc* ldesc)

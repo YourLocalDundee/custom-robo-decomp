@@ -4081,7 +4081,7 @@ sysdolphin/baselib/tobj.c                        .data   0x8024B618-0x8024BAE1  
 sysdolphin/baselib/tobj.c                        .sdata  0x8044EFA0-0x8044EFD6   9 sym  of 9 in the C (0 stripped), 9 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/tobj.c                        .sbss   0x8044FF00-0x8044FF08   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
 sysdolphin/baselib/tobj.c                        .sdata2 0x80452670-0x804526A0   9 sym  of 9 in the C (0 stripped), 9 at a verified use (code), bytes = main.dol
-sysdolphin/baselib/util.c                        .data   0x8024CBF8-0x8024CC50   2 sym  of 2 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/util.c                        .data   0x8024CBF8-0x8024CC50   2 sym  of 2 in the C (0 stripped), 2 at a verified use (C call site, code), bytes = main.dol
 sysdolphin/baselib/util.c                        .sdata  0x8044F138-0x8044F142   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/video.c                       .data   0x8024CB70-0x8024CBF7   4 sym  of 4 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/video.c                       .bss    0x80449EA0-0x8044B4A0   2 sym  of 2 in the C (0 stripped), 2 at a verified use (C call site, code)
@@ -5107,10 +5107,10 @@ data from C MSL/alloc.c .bss: __malloc_pool (+0x38) may be after the piece (no b
 data from C MetroTRK/dolphin_trk_glue.c .bss: _MetroTRK_Has_Framing (+0x4) may be after the piece (no bytes to tell, the neighbour is unproven)
 data from C dolphin/gx/GXFifo.c .sbss: __GXCurrentBP (+0x1C) may be after the piece (no bytes to tell, the neighbour is unproven)
 data from C sysdolphin/baselib/cobj.c: 10 of 48 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/displayfunc.c: 4 of 16 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/displayfunc.c: 3 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/jobj.c: 14 of 48 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/lobj.c: 4 of 27 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/lobj.c: 2 of 27 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/mtx.c: 7 of 16 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/pobj.c: 3 of 23 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/pobj.c: 2 of 23 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/texp.c: 2 of 22 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/texpdag.c: 8 of 11 functions of the object are not verified C functions (another revision): its data is not proven

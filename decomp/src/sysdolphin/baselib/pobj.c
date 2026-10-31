@@ -1396,10 +1396,11 @@ static void setupVtxDesc(HSD_PObj* pobj)
 static void setupShapeAnimArrayDesc(HSD_VtxDescList* desc_list)
 {
     HSD_VtxDescList* desc;
+    int attr;
 
-    for (desc = desc_list; desc->attr != GX_VA_NULL; desc++) {
+    for (desc = desc_list; (attr = desc->attr) != GX_VA_NULL; desc++) {
         if (desc->attr_type != GX_DIRECT) {
-            switch (desc->attr) {
+            switch (attr) {
             case GX_VA_POS:
             case GX_VA_NRM:
             case GX_VA_NBT:
@@ -1415,10 +1416,11 @@ static void setupShapeAnimArrayDesc(HSD_VtxDescList* desc_list)
 static void setupShapeAnimVtxDesc(HSD_PObj* pobj)
 {
     HSD_VtxDescList* desc;
+    int attr;
 
     GXClearVtxDesc();
-    for (desc = pobj->verts; desc->attr != GX_VA_NULL; desc++) {
-        switch (desc->attr) {
+    for (desc = pobj->verts; (attr = desc->attr) != GX_VA_NULL; desc++) {
+        switch (attr) {
         case GX_VA_NRM:
         case GX_VA_POS:
         case GX_VA_NBT:
@@ -1464,6 +1466,8 @@ static void PObjDispShapeAnim(HSD_PObj* pobj, u32 rendermode)
     drawShapeAnim(pobj);
 }
 
+#pragma push
+#pragma opt_common_subs off
 void HSD_PObjDisp(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode)
 {
     if (pobj->flags & POBJ_HIDE) {
@@ -1491,6 +1495,7 @@ void HSD_PObjDisp(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode)
         PObjDispSimplePrimitive(pobj, rendermode);
     }
 }
+#pragma pop
 
 /* wowjinxy/KAR pobj.c PObjRelease */
 void PObjRelease(HSD_Class* o)

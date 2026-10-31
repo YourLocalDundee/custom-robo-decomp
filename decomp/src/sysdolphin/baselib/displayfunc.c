@@ -512,6 +512,9 @@ void HSD_SetEraseColor(u8 r, u8 g, u8 b, u8 a)
     erase_color.a = a;
 }
 
+/* Custom Robo: common subexpressions off (main.dol reloads what CSE would keep: r7 / r8 / r10 / r11 in the GX FIFO writes) */
+#pragma push
+#pragma opt_common_subs off
 void HSD_EraseRect(f32 top, f32 bottom, f32 left, f32 right, f32 z,
                    int enable_color, int enable_alpha, int enable_depth)
 {
@@ -597,6 +600,7 @@ void HSD_EraseRect(f32 top, f32 bottom, f32 left, f32 right, f32 z,
 
     HSD_StateInvalidate(HSD_STATE_ALL);
 }
+#pragma pop
 
 void _HSD_DispForgetMemory(void* lo, void* hi)
 {
