@@ -1,4 +1,4 @@
-c-callsite names (tools/check_c_callsites.py): 178 lines in symbols/symbols.txt, 178 OK, 0 FAIL; 2073 names derived from matched C call sites, 52 at a dtk default name, 2 differ from our name, 0 at two addresses, 0 sites without the same relocation
+c-callsite names (tools/check_c_callsites.py): 178 lines in symbols/symbols.txt, 178 OK, 0 FAIL; 2071 names derived from matched C call sites, 51 at a dtk default name, 1 differ from our name, 0 at two addresses, 0 sites without the same relocation
 
 OK   DSPCheckMailToDSP 0x8014A42C: 40 call site(s), all agree; e.g. dolphin/ax/AXOut __AXOutNewFrame+0x4C (0x80145894 REL24)
 OK   PSVECCrossProduct 0x8013A284: 3 call site(s), all agree; e.g. dolphin/mtx/mtx C_MTXLookAt+0x6C (0x80139BAC REL24)
@@ -204,7 +204,6 @@ UNNAMED in$889 0x8024D8BC (main.elf: lbl_8024D8BC): 16 site(s), e.g. sysdolphin/
 UNNAMED jsound_callback 0x8044FFDC (main.elf: lbl_8044FFDC): 1 site(s), e.g. sysdolphin/baselib/jobj JObjUpdateFunc+0x7FC (0x801979E4 EMB_SDA21)
 UNNAMED lbl_805DE208 0x8044FF88 (main.elf: lbl_8044FF88): 3 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjLoadDesc+0x3C (0x8018F250 EMB_SDA21)
 UNNAMED lbl_805DE20C 0x8044FF8C (main.elf: lbl_8044FF8C): 9 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjSetCurrentAll+0xCC (0x8018E6D0 EMB_SDA21)
-UNNAMED lbl_805E5A34 0x804526E8 (main.elf: lbl_804526E8): 1 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjSetup+0xEC (0x8018D758 EMB_SDA21)
 UNNAMED lbl_805E5CB8 0x804528E8 (main.elf: lbl_804528E8): 1 site(s), e.g. sysdolphin/baselib/robj RObjUpdateFunc+0x14 (0x801A0B20 EMB_SDA21)
 UNNAMED lightmask_alpha 0x8044FFA0 (main.elf: lbl_8044FFA0): 1 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjGetLightMaskAlpha+0x0 (0x8018D270 EMB_SDA21)
 UNNAMED lightmask_attnfunc 0x8044FF9C (main.elf: lbl_8044FF9C): 1 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjGetLightMaskAttnFunc+0x0 (0x8018D268 EMB_SDA21)
@@ -232,4 +231,3 @@ UNNAMED zlist_xlu_top 0x80450000 (main.elf: lbl_80450000): 5 site(s), e.g. sysdo
 UNNAMED zsort_listing 0x8044FFEC (main.elf: lbl_8044FFEC): 1 site(s), e.g. sysdolphin/baselib/displayfunc HSD_JObjDispDObj+0xD8 (0x8019C418 EMB_SDA21)
 UNNAMED zsort_sorting 0x8044FFF0 (main.elf: lbl_8044FFF0): 1 site(s), e.g. sysdolphin/baselib/displayfunc _HSD_ZListSort+0xC (0x8019C6C0 EMB_SDA21)
 DIFFERS MTXRotRad 0x80139800 (main.elf: PSMTXRotRad): 1 site(s), e.g. sysdolphin/baselib/displayfunc mkRBillBoardMtx+0x1A0 (0x8019C01C REL24)
-DIFFERS func_803CD230 0x80155B48 (main.elf: GXInitLightColor): 1 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjSetup+0x98 (0x8018D704 REL24)
