@@ -66,4 +66,17 @@ It ends with the PASS / FAIL table of `tools/from_scratch.sh`; `docker rm -f cr-
   1.13.2, objdiff-cli 3.6.1 and wibo running CodeWarrior's `mwcceppc.exe` all started; Ghidra 12.1.4's
   `analyzeHeadless` found the JDK; `python3 -m venv` plus `pip install -r tools/requirements-preview.txt` (setup step 6)
   installed every pinned package on Python 3.14.8.
-- The full pipeline (`tools/from_scratch.sh`) has not been run in it yet.
+- Oct 30-31, 2026, the first full pipeline run, on Docker Desktop (Docker Engine 29.9.2) on Windows 11: the default
+  image built from the pinned base, a fresh clone of main at f421534. `tools/from_scratch.sh`: setup PASS (with a
+  Windows clone's cache mounted: ghidra.zip, gcloader.zip and the Linux tools downloaded, compilers_*.zip reused; the
+  symlinked cache of the old recipe stopped with `curl: (23)` on ghidra.zip, so the cache is copied now); run_all
+  FAIL in batch 9 after 12 minutes: `CR_MATCHING names objects that are not in splits.txt: ['dolphin/dvd/dvdfs.c']`.
+  Cause (plan.md step 68b): not Linux itself but the name batches reading other reference files than the Windows
+  machine (tp / pikmin2 clones there still config-only from before step 68) and committed names older than the hand
+  lines, plus one filesystem-order citation in match_lib_rt.py. After the fix (branch linux-fix, merged with main
+  90aeae3), `tools/batches/run_all.sh` in the same container and `run_all.ps1` on Windows gave byte-identical
+  name files, `decomp/config/GXCE01/{splits,symbols}.txt`, `config.yml` and batch 9 reports: retail SHA-1,
+  617 objects from C, names 0 FAIL. Its batch 12 was stopped by hand: wibo compiled the drafts at 3-4 a minute
+  under Docker Desktop (Windows: 1,703 in 40 minutes). On the final commit (the Windows run's outputs and checksums)
+  `tools/batches/batch9_decomp_build.sh` in the container: retail SHA-1, 617 objects from C, no file changed;
+  `tools/checksums.sh --compare`: all 33 files match.
