@@ -6,7 +6,50 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 cr_g_StageSelector[852];
+typedef struct cr_StageSelectorState
+{
+  u8 state;
+  u8 unk_001;
+  u8 unk_002;
+  u8 unk_003;
+  u8 unk_004;
+  u8 stage_count;
+  u8 stage;
+  u8 cursor;
+  u32 timer;
+  u8 ready;
+  u8 unk_00d;
+  u8 unk_00e[2];
+  u32 flags;
+  s8 stage_ids[42];
+  u16 stage_msgs[42];
+  u8 stage_open[42];
+  u8 unk_0bc;
+  u8 unk_0bd;
+  u8 unk_0be;
+  u8 unk_0bf;
+  u8 unk_0c0[2];
+  u8 unk_0c2;
+  u8 unk_0c3[7];
+  u8 unk_0ca[2];
+  f32 unk_0cc;
+  f32 unk_0d0;
+  u32 unk_0d4;
+  u16 unk_0d8;
+  u16 unk_0da;
+  u16 unk_0dc;
+  u16 unk_0de;
+  u8 unk_0e0[0x5C];
+  void *unk_13c;
+  u8 windows[8][0x34];
+  u8 unk_2e0[0x68];
+  u32 unk_348;
+  u8 unk_34c;
+  u8 unk_34d[3];
+  u8 unk_350;
+  u8 unk_351[3];
+} cr_StageSelectorState;
+__declspec(section ".data") extern cr_StageSelectorState cr_g_StageSelector;
 extern u8 lbl_8023C6AC[416];
 extern f32 lbl_8044ECDC[2];
 extern f32 lbl_8044ECE8[2];
@@ -25,21 +68,21 @@ void fn_80111EEC(void) {
     u8 var_r27;
 
     var_r30 = 0;
-    var_r27 = cr_g_StageSelector[4];
+    var_r27 = cr_g_StageSelector.unk_004;
     while (var_r30 < 2U) {
         var_r29 = 0;
         while (var_r29 < 6U) {
             sp8 = 0;
             var_r31 = var_r29 + (var_r30 * 6);
             var_r28 = var_r31 + (var_r27 * 6);
-            if ((s8) cr_g_StageSelector[5] <= (s32) var_r28) {
+            if ((s8) cr_g_StageSelector.stage_count <= (s32) var_r28) {
                 M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], u16 *, 0x10) = 0xFFFF;
-            } else if (M2C_FIELD(&cr_g_StageSelector[var_r28], u8 *, 0x92) != 0) {
-                M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], u16 *, 0x10) = M2C_FIELD(&cr_g_StageSelector[(var_r28 * 2) & 0x1FE], u16 *, 0x3E);
+            } else if (cr_g_StageSelector.stage_open[var_r28] != 0) {
+                M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], u16 *, 0x10) = cr_g_StageSelector.stage_msgs[var_r28];
             } else {
                 M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], s16 *, 0x10) = 0xB;
             }
-            if (cr_g_StageSelector[0xD] != 0) {
+            if (cr_g_StageSelector.unk_00d != 0) {
                 if (M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], u16 *, 0x10) == 1) {
                     M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], s16 *, 0x10) = 0x11;
                 } else if (M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], u16 *, 0x10) == 0x1F) {

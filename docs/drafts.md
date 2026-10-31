@@ -566,6 +566,105 @@ gave a byte-offset `M2C_FIELD(cr_g_Script.script_name, s8 **, cr_g_ScriptDepth)`
 (`sp50[6]`) and fn_800F21C8 - a generator rule for the next round (a slot that holds two globals' addresses is two locals).
 Result of the one full run: compile 1,703 -> 1,703 of 1,751, **100% MATCH 477 -> 477** (lost: fn_80111E0C 100->77, fn_80111EEC 100->92), bytes equal 518,120 -> 518,064; histogram 10-19% 61 -> 61 20-29% 72 -> 72 30-39% 115 -> 115 40-49% 253 -> 254 50-59% 142 -> 141 60-69% 157 -> 154 70-79% 176 -> 174 80-89% 133 -> 136 90-99% 75 -> 76; 80-99% 208 -> 212. Against the step 80 report 226 drafts up (cr_BattleRobo_InitFromLoadout 35->36, cr_Save_ApplyUnlocks 52->53, fn_80022830 32->34, cr_Mem_CopyWords 70->100, fn_8008E3F8 62->68, fn_8008FA8C 63->69), 22 down (cr_Bits_Clear 40->33, fn_8007E400 45->44, fn_8009AEC4 10->8, fn_800A0C20 97->86, fn_800AC158 78->75, fn_800AC910 64->53); newly compiling: fn_80020204 (86), cr_Chara_BuildModel (47), fn_800EB518 (86). **Linked: 441 game objects** (436 promoted, 3 file objects, 4 kept), 0xC704 bytes = 4.14% of the game code; 644 of 918 units from C, **22.11% of main.dol's code** (data 5.90%).
 
+## Tenth generator (plan.md step 82, Oct 31, 2026)
+
+Round 9 (branch drafts4), on the step 81 build and names. Baseline: the step 81 generator run again here gives the
+committed counts exactly (477 at 100%, 1,703 compile, 518,064 bytes equal, 212 at 80-99%, 46 compile failures), so
+the per-function comparison below is against that run. Method as in rounds 6-8: a scratch compile-and-compare of
+hand-written spellings against the original (dtk's asm; `dtk elf disasm` of the compiled draft; side by side), then
+the rule in `tools/draft_batch.py`, then `--only` on the targets and on every draft the rule's pattern occurs in
+(stock against patched, same output), then the full run. No draft is edited.
+1. **`split_slot_structs`** (default): m2c types a stack slot once, but the original reused the slot for the
+   addresses of two typed globals (`sp48 = &cr_g_Scenario; ... sp48 = (cr_ScenarioState *) &cr_g_Script;
+   sp48->unk_470 = 0;`), so the second's members were looked up in the first's struct and the draft did not compile
+   ("'unk_470' is not a struct/union/class member", "pointer/array required" for a slot declared `u32`). Every
+   assignment of a typed global's address to a slot local (`spN = &cr_g_X;`, with or without a cast) starts a binding;
+   when a slot is bound to more than one struct type, or to one other than its declared type, each binding gets its
+   own pointer local `spN_cr_g_X` typed with the global's struct, and the slot's uses up to its next assignment are
+   renamed to it. cr_Scenario_Reset, cr_Save_ResetData and fn_8011023C compile (31%, 8%, 16%: far from a match, but
+   they are in the loop now). Not fn_800F21C8: its failure is another class, `void *` arithmetic m2c writes for a
+   slot it typed `void *` (`sp234 = sp230 + temp_r0_109;`, "illegal type").
+2. **`unsigned_not_mask`** (default): `cr_g_StageSelector.flags &= ~arg0;` on a u32 member with an s32 operand gives
+   the base register the compiler's second choice (`lis r5 ... lwz r0, 0x10(r5)` where the original has r4, 77%);
+   `&= ~(u32) arg0` gives the original (fn_80111E0C 77 -> 100%). The ten other spellings tried (the expanded
+   `x = x & ~a`, through M2C_FIELD at the offset, through a struct-pointer cast, `(u32) ~a`, `~(s32) a`, a `u32`
+   parameter) give 10 or 2 of 18 words. The rule casts when the member is unsigned and the operand is an s32 local
+   or parameter of the draft.
+3. **`member_array_index`** (default): `M2C_FIELD((&cr_g_StageSelector + ((var_r28 * 2) & 0x1FE)), u16 *, 0x3E)` is
+   pointer arithmetic on the struct (a step of sizeof, `mulli r6, r5, 0x354`); when the struct has an array of that
+   element width at that offset (stage_msgs, u16[42] at +0x3E) the access is `cr_g_StageSelector.stage_msgs[var_r28]`
+   (fn_80111EEC 92 -> 100%). The struct layouts come from symbols/cr_types.h (`member_offsets()`).
+4. **`indexed_offset`** (default; round 8's cycle 2 with the gate it lacked): `M2C_FIELD((arg0 + (((var_r30 * 4) &
+   0x3FC) + 0xAC)), u32 *, 0)` compiles to `add; lwz 0xac(r3)` (the constant folded into the displacement) where
+   the original keeps the sum in a register and loads indexed (`addi r0, r3, 0xac; lwzx r0, r31, r0`), the form the
+   compiler gives `p->array[i]`; the offset as the macro's argument, `M2C_FIELD((arg0 + ((var_r30 * 4) & 0x3FC)),
+   u32 *, 0xAC)`, compiles so (micro-test: of ten spellings only this and `*(u32 *) ((p + i * 4) + 0xAC)` give the
+   indexed load). Round 8 applied it to every such access and lost 16 matches whose originals fold the constant;
+   those are record arrays (`lbl[i].field`, `(i * 0x78) + 0x2C` for an s32 field) and global bases. The gate: the
+   base is a pointer variable (not an `lbl_` / `cr_g_` address) and the index's scale equals the access width (an
+   array of the accessed type at the constant offset). fn_8008688C 96 -> 100% (its `HSD_JObj **` access included;
+   the pattern occurs in no other draft of the run).
+5. **The script-command head: flags and pragmas** (plan.md step 80 left this as "the scheduler's"). Compiled and
+   compared on the pure head (cr_CM_DUMMY_008, 38 words) with every spelling at the ceiling (18 of 38 words equal
+   by position, the same 38 instructions in another order and other register numbers): the game flags without
+   `schedule` (1 of 39), without `peephole` (4 of 39), without both, `space` instead of `speed`, level 1 and 2 with
+   and without peephole / schedule, `-O0`, `-O0,p`, `-O1`, `-O1,p`, `-O2`, `-O3`, `-O4,p`, `-schedule on` with
+   `noschedule`, `cse` / `nocse`, `dead` / `nodead`, `prop` / `noprop`, `lifetimes` / `nolifetimes`, without
+   `-use_lmw_stmw`, without `-fp_contract`, `-sdata 0 -sdata2 0`, `-inline off` / `all`, `-char unsigned`, `-str
+   reuse`, `-common on`; the processor models `generic`, 505, 555, 603, 603e, 604, 604e, 750, 7400, 7450, 801, 821,
+   823, 860 (the schedule changes with the model: 603 / generic / 5xx / 8xx give 10 of 38, 604 / 7450 give 2-3,
+   750 / 7400 / gekko give the 18); and the pragmas `scheduling off / on / 603 / 604 / 750`, `peephole off`,
+   `optimization_level 0 / 1 / 2`, `global_optimizer off / on`, `opt_common_subs off`, `opt_lifetimes off / on`,
+   `opt_propagation off`, `opt_dead_assignments off`, `opt_dead_code off`, `optimize_for_size on / off`,
+   `opt_strength_reduction off`, `opt_loop_invariants off`, `opt_unroll_loops off`, `opt_vectorize_loops off`,
+   `optimizewithasm off`, `processor 750 / 603`, `fp_contract off`, `readonly_strings on`, `pool_data on / off`,
+   `ANSI_strict on`, `sym on`, `no_register_save_helpers on`, `no_register_coloring on / off`, `inline_depth 0`,
+   `dont_inline on`, `merge_float_consts off`, `explicit_zero_data on`, `function_align 4`, `force_active on`.
+   **None changes the 18 of 38**; every setting that changes the code moves away from the original. One finding
+   about the spelling: the original reloads cr_g_ScriptPC for the advance (`lwz r31, PC; lha r7, 0(r31); lwz r3, PC;
+   addi r0, r3, 4; stw r0, PC`), so the head is `pc = cr_g_ScriptPC; ... = *pc; cr_g_ScriptPC += 2;`, not `pc + 2`
+   (that spelling gives the same 38 instructions as the original; the drafts' `pc + 2` form gives 37 and computes
+   the advance from r31). With that, all 60 statement orders (`++` before `&=`), with the counter pointer set before
+   or after the PC local, still peak at 18. The register numbers (the original's three `lis` of the struct's address
+   in r3, r4, r5 at the top, the `&=` statement's base allocated before the `++` statement's although its load comes
+   after) are the scheduler's renaming of a pre-schedule order no statement order of ours produces, so the ~220
+   handler drafts stay at 78-85% with the game flags; no per-file flag or pragma reproduces the head.
+6. **fn_8006EEF8** (0xBCC bytes, 32%, the only function keeping the file run fn_8006EEF8..fn_8006FDD0 open): read
+   with the draft and the asm side by side, not written. It is a debug grid drawer (GX line setup, PSMTXScale, a
+   loop over -21..21 with two PSMTXMultVec per vertex pair and GXBegin GX_LINES / GX_LINESTRIP, the vertices written
+   to the write-gather pipe at 0xCC008000 as 3 f32 + 4 u8). The original keeps the transformed vertex components in
+   f23-f31 across the GXBegin calls, the pipe's high half `lis rN, 0xcc01` in r14-r18 (one per store, hoisted), and
+   copies 12 three-float groups to the stack (sp8..sp70) before writing them: the shape of f32 parameters of an
+   inlined helper (an inlined function's parameters live in the caller's frame at level 0), with the first four
+   vertices written without copies (macros). The draft writes the pipe through casts of the constant address and
+   keeps nothing in registers across the calls (32%). Matching it needs the helper's signature and the macro form
+   found by trial against 755 instructions; not attempted in this round (an hour was the budget; the register
+   analysis above is the start).
+
+**Before -> after** (one full run each, tools/batches/batch12_drafts.ps1, 1,892 and 1,830 s; a second full run after the
+rule-2 gate, which the first run showed was needed: cr_F_CLR 79 -> 76 with the cast through its global pointer):
+compile 1,703 -> 1,706 of 1,751 (+ cr_Scenario_Reset, cr_Save_ResetData, fn_8011023C), **100% MATCH 477 -> 480**
+(+ fn_80111E0C, fn_80111EEC, fn_8008688C), bytes equal 518,064 -> 520,140; histogram 0-9% 43 -> 44, 10-19% 61 -> 62, 20-29% 72 -> 72, 30-39% 115 -> 116, 40-49% 254 -> 253, 50-59% 141 -> 142, 60-69% 154 -> 152, 70-79% 174 -> 175, 80-89% 136 -> 135, 90-99% 76 -> 75; 80-99% 212 ->
+210. Against the baseline report 21 drafts up (fn_800AAF74 64 -> 70, fn_800AC910 53 -> 58, fn_800AD094 53 -> 58,
+fn_800AF0E0 66 -> 71, fn_800D0E60 47 -> 52: the `indexed_offset` form), 0 down, no match lost.
+**Linked: 442 game objects** (438 promoted, 3 file objects, 1 kept: fn_800A0804; fn_8008688C and
+fn_80111E0C promoted, fn_80111EEC's file object written from its draft again), 645 of 920 units from C,
+**22.17% of main.dol's code** (game code 0xCB18 bytes = 4.23% of the game code). Checks: batch 9 retail SHA-1, static shift PASS; batch 8 0 FAIL;
+checksums written (the 3 decompiled\ lines kept at the committed values).
+
+**promote_drafts.py** (round 4's bug): a promoted function renamed in symbols/descriptive.txt (fn_80125884 ->
+cr_Customize_SetMode) got its new file written while the old one stayed as "kept (no draft)", and batch 9 failed on
+the overlapping split. The kept check now reads the file's header address (`.text 0xA-0xB`): a kept file is dropped
+when its function's current name is not ours, when the name's address is not the header's, or when a file written
+by this run owns an address in its range. The stale `fn_80125884 kept` line is gone from promote_report.txt.
+
+**Left**: fn_800F21C8's `void *` arithmetic (and the 45 other compile failures: pointer/array 9, implicit
+conversions 10, illegal operand 9, explicit conversions 6, illegal type 6), the handler head (item 5: a different
+pre-schedule order, which only another source shape would give; the inline-function and macro forms of plan.md
+step 80 were tried; a `do { } while (0)` macro of the whole head with the PC reload gives the same 18 of 38, an
+inline function with the advance as its parameter 16),
+fn_8006EEF8 (item 6), round 7's four classes.
+
 ## Promoted to decomp/src/game (plan.md step 58)
 
 After the drafts, batch 12 runs `python -I tools/promote_drafts.py` (method: its docstring). Every 100% draft that can be
