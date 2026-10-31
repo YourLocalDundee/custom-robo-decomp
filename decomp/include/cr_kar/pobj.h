@@ -80,13 +80,14 @@ typedef struct _HSD_PObjDesc {
     } u;
 } HSD_PObjDesc;
 
-/* Custom Robo: attr / attr_type / comp_cnt / comp_type are the GX enums of wowjinxy's pobj.h (int: main.dol compares
- * them signed, get_shape_vertex_xyz `cmpwi r0, 0x3` at 0x80194C08 for GX_INDEX16) */
+/* Custom Robo: attr / attr_type / comp_cnt / comp_type are GX enums (wowjinxy's / Melee's pobj.h): int, not kar's u32
+ * (main.dol compares them signed, get_shape_vertex_xyz `cmpwi r0, 0x3` at 0x80194C08 for GX_INDEX16; s32 (long) gives
+ * other registers in get_shape_vertex_xyz / interpretShapeAnimDisplayList) */
 typedef struct _HSD_VtxDescList {
-    s32 attr;
-    s32 attr_type;
-    s32 comp_cnt;
-    s32 comp_type;
+    int attr;
+    int attr_type;
+    int comp_cnt;
+    int comp_type;
     u8 frac;
     u16 stride;
     void* vertex;

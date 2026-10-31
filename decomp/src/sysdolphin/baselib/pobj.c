@@ -328,64 +328,80 @@ s32 HSD_Index2PosNrmMtx(s32 index); /* Custom Robo: a function in this revision 
 #ifndef POBJ_HIDE
 #define POBJ_HIDE (1 << 11)
 #endif
+/* Custom Robo: the write-gather pipe as the SDK's GXVert.h has it (Melee's copy): a variable at the absolute address
+ * 0xCC008000; wowjinxy writes through a cast pointer, which the compiler allocates registers for differently */
+typedef union {
+    u8 u8;
+    u16 u16;
+    u32 u32;
+    u64 u64;
+    s8 s8;
+    s16 s16;
+    s32 s32;
+    s64 s64;
+    f32 f32;
+    f64 f64;
+} PPCWGPipe;
+volatile PPCWGPipe GXWGFifo : 0xCC008000;
+
 /* wowjinxy/KAR pobj.c GX FIFO inlines */
 static inline void GXPosition3f32(f32 x, f32 y, f32 z)
 {
-    *(volatile f32*) GX_WGPIPE = x;
-    *(volatile f32*) GX_WGPIPE = y;
-    *(volatile f32*) GX_WGPIPE = z;
+    GXWGFifo.f32 = x;
+    GXWGFifo.f32 = y;
+    GXWGFifo.f32 = z;
 }
 
 static inline void GXNormal3f32(f32 x, f32 y, f32 z)
 {
-    *(volatile f32*) GX_WGPIPE = x;
-    *(volatile f32*) GX_WGPIPE = y;
-    *(volatile f32*) GX_WGPIPE = z;
+    GXWGFifo.f32 = x;
+    GXWGFifo.f32 = y;
+    GXWGFifo.f32 = z;
 }
 
 static inline void GXMatrixIndex1u8(u8 idx)
 {
-    *(volatile u8*) GX_WGPIPE = idx;
+    GXWGFifo.u8 = idx;
 }
 
 static inline void GXTexCoord1x8(u8 idx)
 {
-    *(volatile u8*) GX_WGPIPE = idx;
+    GXWGFifo.u8 = idx;
 }
 
 static inline void GXTexCoord1x16(u16 idx)
 {
-    *(volatile u16*) GX_WGPIPE = idx;
+    GXWGFifo.u16 = idx;
 }
 
 static inline void GXColor1x8(u8 idx)
 {
-    *(volatile u8*) GX_WGPIPE = idx;
+    GXWGFifo.u8 = idx;
 }
 
 static inline void GXColor1x16(u16 idx)
 {
-    *(volatile u16*) GX_WGPIPE = idx;
+    GXWGFifo.u16 = idx;
 }
 
 static inline void GXColor1u16(u16 clr)
 {
-    *(volatile u16*) GX_WGPIPE = clr;
+    GXWGFifo.u16 = clr;
 }
 
 static inline void GXColor3u8(u8 r, u8 g, u8 b)
 {
-    *(volatile u8*) GX_WGPIPE = r;
-    *(volatile u8*) GX_WGPIPE = g;
-    *(volatile u8*) GX_WGPIPE = b;
+    GXWGFifo.u8 = r;
+    GXWGFifo.u8 = g;
+    GXWGFifo.u8 = b;
 }
 
 static inline void GXColor4u8(u8 r, u8 g, u8 b, u8 a)
 {
-    *(volatile u8*) GX_WGPIPE = r;
-    *(volatile u8*) GX_WGPIPE = g;
-    *(volatile u8*) GX_WGPIPE = b;
-    *(volatile u8*) GX_WGPIPE = a;
+    GXWGFifo.u8 = r;
+    GXWGFifo.u8 = g;
+    GXWGFifo.u8 = b;
+    GXWGFifo.u8 = a;
 }
 
 static inline void GXEnd(void)
@@ -466,7 +482,75 @@ void HSD_PObjAnimAll(HSD_PObj* pobj)
     }
 }
 
-/* wowjinxy/KAR pobj.c PObjLoad */
+/* Custom Robo: PObjLoad in Melee pobj.c's form (static helpers, auto-inlined into PObjLoad and dead-stripped; their
+ * strings come before PObjLoad's own in .data as in main.dol: the envelope assert's, then the shape set's) with
+ * wowjinxy/KAR's contents (no shape-set aobj, HSD_Alloc, _HSD_NeedCacheInvalidate(1)) and main.dol's assert lines */
+static HSD_Envelope* HSD_EnvelopeAlloc(void)
+{
+    HSD_Envelope* envelope = hsdAllocMemPiece(sizeof(HSD_Envelope));
+    ASSERT_POBJ(0x1A9, envelope);
+    memset(envelope, 0, sizeof(HSD_Envelope));
+    return envelope;
+}
+
+static HSD_SList* loadEnvelopeDesc(HSD_EnvelopeDesc** edesc_p)
+{
+    HSD_SList* list = NULL;
+    HSD_SList** list_p = &list;
+
+    if (edesc_p == NULL) {
+        return NULL;
+    }
+
+    while (*edesc_p) {
+        HSD_Envelope* envelope;
+        HSD_EnvelopeDesc* edesc;
+        HSD_Envelope** env_p;
+        envelope = NULL;
+        env_p = &envelope;
+        edesc = *edesc_p;
+
+        while (edesc->joint) {
+            *env_p = HSD_EnvelopeAlloc();
+            (*env_p)->weight = edesc->weight;
+            env_p = &(*env_p)->next;
+            edesc++;
+        }
+
+        (*list_p) = HSD_SListAlloc();
+        (*list_p)->data = envelope;
+        list_p = &(*list_p)->next;
+        edesc_p++;
+    }
+    return list;
+}
+
+static HSD_ShapeSet* loadShapeSetDesc(HSD_ShapeSetDesc* sdesc)
+{
+    int i;
+
+    HSD_ShapeSet* shape_set = hsdAllocMemPiece(sizeof(HSD_ShapeSet));
+    ASSERT_POBJ(0x1E2, shape_set);
+    memset(shape_set, 0, sizeof(HSD_ShapeSet));
+    shape_set->flags = sdesc->flags;
+    shape_set->nb_shape = sdesc->nb_shape;
+    shape_set->nb_vertex_index = sdesc->nb_vertex_index;
+    shape_set->vertex_desc = sdesc->vertex_desc;
+    shape_set->vertex_idx_list = sdesc->vertex_idx_list;
+    shape_set->nb_normal_index = sdesc->nb_normal_index;
+    shape_set->normal_desc = sdesc->normal_desc;
+    shape_set->normal_idx_list = sdesc->normal_idx_list;
+    if (shape_set->flags & SHAPESET_ADDITIVE) {
+        shape_set->blend.bp = HSD_Alloc(shape_set->nb_shape * sizeof(f32));
+        for (i = 0; i < shape_set->nb_shape; i++) {
+            shape_set->blend.bp[i] = 0.0f;
+        }
+    } else {
+        shape_set->blend.bl = 0.0f;
+    }
+    return shape_set;
+}
+
 s32 PObjLoad(HSD_PObj* pobj, HSD_PObjDesc* desc)
 {
     pobj->next = HSD_PObjLoadDesc(desc->next);
@@ -474,70 +558,20 @@ s32 PObjLoad(HSD_PObj* pobj, HSD_PObjDesc* desc)
     pobj->flags = desc->flags;
     pobj->n_display = desc->n_display;
     pobj->display = desc->display;
-
     switch (pobj_type(pobj)) {
-    case POBJ_SHAPEANIM: {
-        HSD_ShapeSetDesc* sdesc = desc->u.shape_set;
-        HSD_ShapeSet* shape_set = hsdAllocMemPiece(sizeof(HSD_ShapeSet));
-        ASSERT_POBJ(0x1E2 /* Custom Robo: main.dol's line (wowjinxy/KAR 0x1E5) */, shape_set);
-        memset(shape_set, 0, sizeof(HSD_ShapeSet));
-        shape_set->flags = sdesc->flags;
-        shape_set->nb_shape = sdesc->nb_shape;
-        shape_set->nb_vertex_index = sdesc->nb_vertex_index;
-        shape_set->vertex_desc = sdesc->vertex_desc;
-        shape_set->vertex_idx_list = sdesc->vertex_idx_list;
-        shape_set->nb_normal_index = sdesc->nb_normal_index;
-        shape_set->normal_desc = sdesc->normal_desc;
-        shape_set->normal_idx_list = sdesc->normal_idx_list;
-        if (shape_set->flags & SHAPESET_ADDITIVE) {
-            s32 i;
-            shape_set->blend.bp = (f32*) HSD_Alloc(shape_set->nb_shape * sizeof(f32));
-            for (i = 0; i < shape_set->nb_shape; i++) {
-                shape_set->blend.bp[i] = 0.0f;
-            }
-        } else {
-            shape_set->blend.bl = 0.0f;
-        }
-        pobj->u.shape_set = shape_set;
+    case POBJ_SHAPEANIM:
+        pobj->u.shape_set = loadShapeSetDesc(desc->u.shape_set);
         break;
-    }
 
-    case POBJ_ENVELOPE: {
-        HSD_EnvelopeDesc** edesc_p = desc->u.envelope_p;
-        HSD_SList* list = NULL;
-        HSD_SList** list_p = &list;
-
-        if (edesc_p != NULL) {
-            while (*edesc_p != NULL) {
-                HSD_Envelope* envelope = NULL;
-                HSD_Envelope** env_p = &envelope;
-                HSD_EnvelopeDesc* edesc = *edesc_p;
-
-                while (edesc->joint != NULL) {
-                    HSD_Envelope* envelope = hsdAllocMemPiece(sizeof(HSD_Envelope));
-                    ASSERT_POBJ(0x1A9 /* Custom Robo: main.dol's line (wowjinxy/KAR 0x1AC) */, envelope);
-                    memset(envelope, 0, sizeof(HSD_Envelope));
-                    *env_p = envelope;
-                    (*env_p)->weight = edesc->weight;
-                    env_p = &((*env_p)->next);
-                    edesc++;
-                }
-
-                *list_p = HSD_SListAlloc();
-                (*list_p)->data = envelope;
-                list_p = &((*list_p)->next);
-                edesc_p++;
-            }
-        }
-        pobj->u.envelope_list = list;
+    case POBJ_ENVELOPE:
+        pobj->u.envelope_list = loadEnvelopeDesc(desc->u.envelope_p);
         break;
-    }
 
     case POBJ_SKIN:
         break;
 
     default:
-        HSD_Panic(__FILE__, 0x22A /* Custom Robo: main.dol's line (wowjinxy/KAR 0x22D) */, "pobj: unexected type.\n");
+        HSD_Panic("pobj.c", 0x22A, "pobj: unexected type.\n");
     }
 
     _HSD_NeedCacheInvalidate(1);
@@ -581,6 +615,18 @@ void HSD_PObjRemoveAll(HSD_PObj* pobj)
     }
 }
 
+/* wowjinxy/KAR pobj.c HSD_PObjSetCurrent: not in main.dol (unreferenced, dead-stripped), its assert string stays in .data
+ * between PObjLoad's and HSD_PObjResolveRefsAll's as in main.dol */
+BOOL hsdIsDescendantOf(HSD_ClassInfo* info, HSD_ClassInfo* class_info);
+
+void HSD_PObjSetCurrent(HSD_PObjInfo* info)
+{
+    if (info != NULL) {
+        ASSERT_POBJ_MSG(0x28B, hsdIsDescendantOf((HSD_ClassInfo*) info, (HSD_ClassInfo*) &hsdPObj), "hsdIsDescendantOf(info, &hsdPObj)");
+    }
+    PObjCurrentInfo = info;
+}
+
 /* wowjinxy/KAR pobj.c HSD_PObjGetCurrent (static inline here: main.dol has no function of its own) */
 static inline HSD_PObjInfo* HSD_PObjGetCurrent(void)
 {
@@ -595,57 +641,72 @@ HSD_PObj* HSD_PObjAlloc(void)
     return pobj;
 }
 
-/* wowjinxy/KAR pobj.c HSD_PObjResolveRefsAll */
+/* Custom Robo: HSD_PObjResolveRefsAll in Melee pobj.c's form (resolveEnvelope and HSD_PObjResolveRefs inlined, the
+ * reference count raised through Melee jobj.h's HSD_JObjRefThis / object.h's iref_INC), main.dol's assert lines */
+static inline void iref_INC(void* o)
+{
+    HSD_OBJ(o)->ref_count_individual++;
+    ASSERT_REF_COUNT(0x9E, HSD_OBJ(o)->ref_count_individual != 0);
+}
+
+static inline void HSD_JObjRefThis(HSD_JObj* jobj)
+{
+    if (jobj != NULL) {
+        iref_INC(jobj);
+    }
+}
+
+static inline void resolveEnvelope(HSD_SList* list, HSD_EnvelopeDesc** edesc_p)
+{
+    if (list == NULL || edesc_p == NULL) {
+        return;
+    }
+
+    for (; list && *edesc_p; list = list->next, edesc_p++) {
+        HSD_Envelope* env = list->data;
+        HSD_EnvelopeDesc* edesc = *edesc_p;
+
+        while (env && edesc->joint) {
+            HSD_JObjUnrefThis(env->jobj);
+            env->jobj = HSD_IDGetDataFromTable(NULL, (u32) edesc->joint, NULL);
+            ASSERT_POBJ(0x2CA, env->jobj);
+            HSD_JObjRefThis(env->jobj);
+            env = env->next;
+            edesc++;
+        }
+    }
+}
+
+static inline void HSD_PObjResolveRefs(HSD_PObj* pobj, HSD_PObjDesc* pdesc)
+{
+    if (!pobj || !pdesc) {
+        return;
+    }
+
+    switch (pobj_type(pobj)) {
+    case POBJ_ENVELOPE:
+        resolveEnvelope(pobj->u.envelope_list, pdesc->u.envelope_p);
+        break;
+
+    case POBJ_SKIN:
+        HSD_JObjUnrefThis(pobj->u.jobj);
+        pobj->u.jobj = NULL;
+        if (pdesc->u.joint != NULL) {
+            pobj->u.jobj = HSD_IDGetDataFromTable(NULL, (u32) pdesc->u.joint, NULL);
+            ASSERT_POBJ(0x2E5, pobj->u.jobj);
+            HSD_JObjRefThis(pobj->u.jobj);
+        }
+        break;
+
+    default:
+        break;
+    }
+}
+
 void HSD_PObjResolveRefsAll(HSD_PObj* pobj, HSD_PObjDesc* pdesc)
 {
-    while (pobj != NULL && pdesc != NULL) {
-        if (pobj != NULL && pdesc != NULL) {
-            switch (pobj_type(pobj)) {
-            case POBJ_ENVELOPE: {
-                HSD_SList* list = pobj->u.envelope_list;
-                HSD_EnvelopeDesc** edesc_p = pdesc->u.envelope_p;
-
-                if (list != NULL && edesc_p != NULL) {
-                    for (; list != NULL && *edesc_p != NULL; list = list->next, edesc_p++) {
-                        HSD_Envelope* env = list->data;
-                        HSD_EnvelopeDesc* edesc = *edesc_p;
-
-                        while (env != NULL && edesc->joint != NULL) {
-                            HSD_JObjUnrefThis(env->jobj);
-                            env->jobj = HSD_IDGetDataFromTable(NULL, (u32) edesc->joint, NULL);
-                            ASSERT_POBJ(0x2CA /* Custom Robo: main.dol's line (wowjinxy/KAR 0x2CD) */, env->jobj);
-                            if (env->jobj != NULL) {
-                                HSD_OBJ(env->jobj)->ref_count_individual++;
-                                ASSERT_REF_COUNT(0x9E,
-                                                 HSD_OBJ(env->jobj)->ref_count_individual != 0);
-                            }
-                            env = env->next;
-                            edesc++;
-                        }
-                    }
-                }
-                break;
-            }
-
-            case POBJ_SKIN:
-                HSD_JObjUnrefThis(pobj->u.jobj);
-                pobj->u.jobj = NULL;
-                if (pdesc->u.joint != NULL) {
-                    pobj->u.jobj = HSD_IDGetDataFromTable(NULL, (u32) pdesc->u.joint, NULL);
-                    ASSERT_POBJ(0x2E5 /* Custom Robo: main.dol's line (wowjinxy/KAR 0x2E8) */, pobj->u.jobj);
-                    if (pobj->u.jobj != NULL) {
-                        HSD_OBJ(pobj->u.jobj)->ref_count_individual++;
-                        ASSERT_REF_COUNT(0x9E, HSD_OBJ(pobj->u.jobj)->ref_count_individual != 0);
-                    }
-                }
-                break;
-
-            default:
-                break;
-            }
-        }
-        pobj = pobj->next;
-        pdesc = pdesc->next;
+    for (; pobj != NULL && pdesc != NULL; pobj = pobj->next, pdesc = pdesc->next) {
+        HSD_PObjResolveRefs(pobj, pdesc);
     }
 }
 
@@ -770,10 +831,10 @@ void get_shape_normal_xyz(HSD_ShapeSet* shape_set, s32 shape_id, s32 arrayidx,
 }
 
 /* wowjinxy/KAR pobj.c get_shape_nbt_xyz */
-void get_shape_nbt_xyz(HSD_ShapeSet* shape_set, s32 shape_id, s32 arrayidx, f32* dst)
+void get_shape_nbt_xyz(HSD_ShapeSet* shape_set, int shape_id, int arrayidx, f32* dst)
 {
     u8* index_array = shape_set->normal_idx_list[shape_id];
-    s32 i, idx;
+    int i, idx;
     void* src_base;
 
     ASSERT_POBJ(0x4B1 /* Custom Robo: main.dol's line (wowjinxy/KAR 0x4B4) */, shape_set->normal_desc->attr == GX_VA_NBT);
@@ -793,7 +854,7 @@ void get_shape_nbt_xyz(HSD_ShapeSet* shape_set, s32 shape_id, s32 arrayidx, f32*
     if (shape_set->normal_desc->comp_type == GX_F32) {
         memcpy(dst, src_base, sizeof(f32[9]));
     } else {
-        s32 decimal_point = 1 << shape_set->normal_desc->frac;
+        int decimal_point = 1 << shape_set->normal_desc->frac;
         switch (shape_set->normal_desc->comp_type) {
         case GX_U8:
             for (i = 0; i < 9; i++) {
@@ -825,13 +886,13 @@ void get_shape_nbt_xyz(HSD_ShapeSet* shape_set, s32 shape_id, s32 arrayidx, f32*
 void interpretShapeAnimDisplayList(HSD_PObj* pobj, f32 (*vertex)[3], f32 (*normal)[3])
 {
     u8* dl = pobj->display;
-    s32 length = pobj->n_display << 5;
-    s32 l;
+    int length = pobj->n_display << 5; /* Custom Robo: int as in Melee's pobj.c (kar's s32 is a long) */
+    int l;
 
     for (l = 0; l + 3 < length;) {
-        s32 n = dl[1] << 8 | dl[2];
-        s32 m = 3;
-        s32 i, j;
+        int n = dl[1] << 8 | dl[2];
+        int m = 3;
+        int i, j;
 
         if ((dl[0] & GX_OPCODE_MASK) == GX_NOP) {
             break;
@@ -972,7 +1033,7 @@ void drawShapeAnim(HSD_PObj* pobj)
 
         blend = shape_set->blend.bl;
         blend_int = (s32) blend;
-        shape_id = pobj_min((blend_int < 0 ? 0 : blend_int), shape_set->nb_shape - 1);
+        shape_id = pobj_min(MAX(0, blend_int), shape_set->nb_shape - 1);
         blend = pobj_min(MAX(0.0, blend - (f32) shape_id), 1.0f);
         for (i = 0; i < shape_set->nb_vertex_index; i++) {
             f32 s0[3], s1[3];
@@ -1133,14 +1194,14 @@ void SetupSharedVtxModelMtx(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode)
     {
         void* mtx0_obj = PObjMtxMark[0].obj;
         u32 mtx0_mark = PObjMtxMark[0].mark;
-        if (mtx0_obj != jobj || mtx0_mark != HSD_MTX_RIGID) {
+        if (mtx0_obj != jobj && mtx0_mark != HSD_MTX_RIGID) { /* Custom Robo: && as in Melee pobj.c (main.dol) */
             flags |= SETUP_JOINT0;
         }
     }
     {
         void* mtx1_obj = PObjMtxMark[1].obj;
         u32 mtx1_mark = PObjMtxMark[1].mark;
-        if (mtx1_obj != pobj->u.jobj || mtx1_mark != HSD_MTX_RIGID) {
+        if (mtx1_obj != pobj->u.jobj && mtx1_mark != HSD_MTX_RIGID) {
             flags |= SETUP_JOINT1;
         }
     }
@@ -1151,7 +1212,7 @@ void SetupSharedVtxModelMtx(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode)
 
     flags |= GetSetupFlags(jobj);
 
-    if (flags & SETUP_JOINT0) {
+    if (flags | SETUP_JOINT0) { /* Custom Robo: Melee pobj.c's `|` (always true; main.dol tests it: ori / cmpwi) */
         GXSetCurrentMtx(GX_PNMTX0);
         GXLoadPosMtxImm(pmtx, GX_PNMTX0);
         HSD_PerfCurrentStat.unkC++;
@@ -1170,7 +1231,7 @@ void SetupSharedVtxModelMtx(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode)
             }
         }
     }
-    if (flags & SETUP_JOINT1) {
+    if (flags | SETUP_JOINT1) {
         HSD_JObjSetupMatrix(pobj->u.jobj);
         PSMTXConcat(vmtx, pobj->u.jobj->mtx, m);
         GXLoadPosMtxImm(m, GX_PNMTX1);
@@ -1195,12 +1256,12 @@ void SetupSharedVtxModelMtx(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode)
 /* wowjinxy/KAR pobj.c SetupEnvelopeModelMtx */
 void SetupEnvelopeModelMtx(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode)
 {
-    HSD_JObj* jobj;
-    HSD_SList* list;
     s32 MtxIdx;
-    MtxPtr right;
-    Mtx mtx;
+    HSD_JObj* jobj;
     PObjSetupFlag flags;
+    HSD_SList* list;
+    Mtx mtx;
+    MtxPtr right;
 
     jobj = HSD_JObjGetCurrent();
     HSD_PObjClearMtxMark(NULL, HSD_MTX_ENVELOPE);
@@ -1245,8 +1306,8 @@ void SetupEnvelopeModelMtx(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode)
         }
         HSD_PerfCountEnvelopeBlending(perf);
         if (right) {
+            /* Custom Robo: no mtxp = tmp2 here (main.dol: mtxp is tmp2 whenever right is set) */
             PSMTXConcat(mtxp, right, tmp2);
-            mtxp = tmp2;
         }
         PSMTXConcat(vmtx, mtxp, tmp);
         GXLoadPosMtxImm(tmp, mtx_no);
@@ -1288,7 +1349,121 @@ void PObjSetupMtx(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode)
     }
 }
 
-/* wowjinxy/KAR pobj.c HSD_PObjDisp */
+/* Custom Robo: HSD_PObjDisp in Melee pobj.c's form (its static vertex-setup helpers, auto-inlined and dead-stripped)
+ * with wowjinxy/KAR's POBJ_HIDE test and main.dol's assert line */
+static void setupArrayDesc(HSD_VtxDescList* desc_list)
+{
+    HSD_VtxDescList* desc;
+
+    if (prev_vtxdesclist_array != desc_list) {
+        for (desc = desc_list; desc->attr != GX_VA_NULL; desc++) {
+            if (desc->attr_type != GX_DIRECT) {
+                GXSetArray(desc->attr, desc->vertex, desc->stride);
+            }
+        }
+        prev_vtxdesclist_array = desc_list;
+    }
+}
+
+static void setupVtxDesc(HSD_PObj* pobj)
+{
+    HSD_VtxDescList* desc;
+
+    if (prev_vtxdesc != pobj->verts) {
+        GXClearVtxDesc();
+        for (desc = pobj->verts; desc->attr != GX_VA_NULL; desc++) {
+            GXSetVtxDesc(desc->attr, desc->attr_type);
+            switch (desc->attr) {
+            case GX_VA_PNMTXIDX:
+            case GX_VA_TEX0MTXIDX:
+            case GX_VA_TEX1MTXIDX:
+            case GX_VA_TEX2MTXIDX:
+            case GX_VA_TEX3MTXIDX:
+            case GX_VA_TEX4MTXIDX:
+            case GX_VA_TEX5MTXIDX:
+            case GX_VA_TEX6MTXIDX:
+            case GX_VA_TEX7MTXIDX:
+                break;
+            default:
+                GXSetVtxAttrFmt(GX_VTXFMT0, desc->attr, desc->comp_cnt,
+                                desc->comp_type, desc->frac);
+            }
+        }
+        prev_vtxdesc = pobj->verts;
+    }
+}
+
+static void setupShapeAnimArrayDesc(HSD_VtxDescList* desc_list)
+{
+    HSD_VtxDescList* desc;
+
+    for (desc = desc_list; desc->attr != GX_VA_NULL; desc++) {
+        if (desc->attr_type != GX_DIRECT) {
+            switch (desc->attr) {
+            case GX_VA_POS:
+            case GX_VA_NRM:
+            case GX_VA_NBT:
+                break;
+            default:
+                GXSetArray(desc->attr, desc->vertex, desc->stride);
+            }
+        }
+    }
+    prev_vtxdesclist_array = NULL;
+}
+
+static void setupShapeAnimVtxDesc(HSD_PObj* pobj)
+{
+    HSD_VtxDescList* desc;
+
+    GXClearVtxDesc();
+    for (desc = pobj->verts; desc->attr != GX_VA_NULL; desc++) {
+        switch (desc->attr) {
+        case GX_VA_NRM:
+        case GX_VA_POS:
+        case GX_VA_NBT:
+            GXSetVtxDesc(desc->attr, GX_DIRECT);
+            GXSetVtxAttrFmt(GX_VTXFMT0, desc->attr, desc->comp_cnt, GX_F32, 0);
+            break;
+
+        case GX_VA_PNMTXIDX:
+        case GX_VA_TEX0MTXIDX:
+        case GX_VA_TEX1MTXIDX:
+        case GX_VA_TEX2MTXIDX:
+        case GX_VA_TEX3MTXIDX:
+        case GX_VA_TEX4MTXIDX:
+        case GX_VA_TEX5MTXIDX:
+        case GX_VA_TEX6MTXIDX:
+        case GX_VA_TEX7MTXIDX:
+            GXSetVtxDesc(desc->attr, desc->attr_type);
+            break;
+
+        default:
+            GXSetVtxDesc(desc->attr, desc->attr_type);
+            GXSetVtxAttrFmt(GX_VTXFMT0, desc->attr, desc->comp_cnt,
+                            desc->comp_type, desc->frac);
+        }
+    }
+    prev_vtxdesc = NULL;
+}
+
+static void PObjDispSimplePrimitive(HSD_PObj* pobj, u32 rendermode)
+{
+    setupArrayDesc(pobj->verts);
+    setupVtxDesc(pobj);
+
+    GXCallDisplayList(pobj->display, pobj->n_display << 5);
+}
+
+static void PObjDispShapeAnim(HSD_PObj* pobj, u32 rendermode)
+{
+    setupShapeAnimArrayDesc(pobj->verts);
+    setupShapeAnimVtxDesc(pobj);
+
+    ASSERT_POBJ_MSG(0x77A, pobj->u.shape_set, "pobj->u.shape_set");
+    drawShapeAnim(pobj);
+}
+
 void HSD_PObjDisp(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode)
 {
     if (pobj->flags & POBJ_HIDE) {
@@ -1310,91 +1485,10 @@ void HSD_PObjDisp(HSD_PObj* pobj, Mtx vmtx, Mtx pmtx, u32 rendermode)
     }
 
     HSD_POBJ_METHOD(pobj)->setup_mtx(pobj, vmtx, pmtx, rendermode);
-
     if (pobj_type(pobj) == POBJ_SHAPEANIM) {
-        HSD_VtxDescList* desc;
-
-        for (desc = pobj->verts; desc->attr != GX_VA_NULL; desc++) {
-            if (desc->attr_type != GX_DIRECT) {
-                switch (desc->attr) {
-                case GX_VA_POS:
-                case GX_VA_NRM:
-                case GX_VA_NBT:
-                    break;
-                default:
-                    GXSetArray(desc->attr, desc->vertex, desc->stride);
-                }
-            }
-        }
-        PObjPrevVtxDescListArray = 0;
-        GXClearVtxDesc();
-        for (desc = pobj->verts; desc->attr != GX_VA_NULL; desc++) {
-            switch (desc->attr) {
-            case GX_VA_NRM:
-            case GX_VA_POS:
-            case GX_VA_NBT:
-                GXSetVtxDesc(desc->attr, GX_DIRECT);
-                GXSetVtxAttrFmt(GX_VTXFMT0, desc->attr, desc->comp_cnt, GX_F32, 0);
-                break;
-
-            case GX_VA_PNMTXIDX:
-            case GX_VA_TEX0MTXIDX:
-            case GX_VA_TEX1MTXIDX:
-            case GX_VA_TEX2MTXIDX:
-            case GX_VA_TEX3MTXIDX:
-            case GX_VA_TEX4MTXIDX:
-            case GX_VA_TEX5MTXIDX:
-            case GX_VA_TEX6MTXIDX:
-            case GX_VA_TEX7MTXIDX:
-                GXSetVtxDesc(desc->attr, desc->attr_type);
-                break;
-
-            default:
-                GXSetVtxDesc(desc->attr, desc->attr_type);
-                GXSetVtxAttrFmt(GX_VTXFMT0, desc->attr, desc->comp_cnt, desc->comp_type,
-                                desc->frac);
-            }
-        }
-        PObjPrevVtxDesc = 0;
-
-        ASSERT_POBJ_MSG(0x77A /* Custom Robo: main.dol's line (wowjinxy/KAR 0x77D) */, pobj->u.shape_set, "pobj->u.shape_set");
-        drawShapeAnim(pobj);
+        PObjDispShapeAnim(pobj, rendermode);
     } else {
-        HSD_VtxDescList* desc;
-
-        if (PObjPrevVtxDescListArray != pobj->verts) {
-            for (desc = pobj->verts; desc->attr != GX_VA_NULL; desc++) {
-                if (desc->attr_type != GX_DIRECT) {
-                    GXSetArray(desc->attr, desc->vertex, desc->stride);
-                }
-            }
-            PObjPrevVtxDescListArray = pobj->verts;
-        }
-
-        if (PObjPrevVtxDesc != pobj->verts) {
-            GXClearVtxDesc();
-            for (desc = pobj->verts; desc->attr != GX_VA_NULL; desc++) {
-                GXSetVtxDesc(desc->attr, desc->attr_type);
-                switch (desc->attr) {
-                case GX_VA_PNMTXIDX:
-                case GX_VA_TEX0MTXIDX:
-                case GX_VA_TEX1MTXIDX:
-                case GX_VA_TEX2MTXIDX:
-                case GX_VA_TEX3MTXIDX:
-                case GX_VA_TEX4MTXIDX:
-                case GX_VA_TEX5MTXIDX:
-                case GX_VA_TEX6MTXIDX:
-                case GX_VA_TEX7MTXIDX:
-                    break;
-                default:
-                    GXSetVtxAttrFmt(GX_VTXFMT0, desc->attr, desc->comp_cnt, desc->comp_type,
-                                    desc->frac);
-                }
-            }
-            PObjPrevVtxDesc = pobj->verts;
-        }
-
-        GXCallDisplayList(pobj->display, pobj->n_display << 5);
+        PObjDispSimplePrimitive(pobj, rendermode);
     }
 }
 
@@ -1421,11 +1515,13 @@ void PObjRelease(HSD_Class* o)
         break;
     }
     case POBJ_ENVELOPE: {
+        HSD_Envelope* next;
+        HSD_Envelope* env;
         HSD_SList* list;
         for (list = pobj->u.envelope_list; list != NULL; list = HSD_SListRemove(list)) {
-            HSD_Envelope* env = list->data;
+            env = list->data;
             while (env != NULL) {
-                HSD_Envelope* next = env->next;
+                next = env->next;
                 HSD_JObjUnrefThis(env->jobj);
                 if (env != NULL) {
                     hsdFreeMemPiece(env, sizeof(HSD_Envelope));
