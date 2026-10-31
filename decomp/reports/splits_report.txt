@@ -1027,6 +1027,7 @@ sysdolphin/baselib/aobj.c                         15 functions
 sysdolphin/baselib/class.c                        12 functions
 sysdolphin/baselib/dobj.c                         16 functions
 sysdolphin/baselib/fog.c                          11 functions
+sysdolphin/baselib/hash.c                          1 functions
 sysdolphin/baselib/id.c                            5 functions
 sysdolphin/baselib/initialize.c                   18 functions
 sysdolphin/baselib/list.c                          7 functions
@@ -2333,6 +2334,7 @@ DEF 0x801A7B14 _hsdClassAmnesia sysdolphin/baselib/class.c .text size:0x2C globa
 DEF 0x801A7B40 _hsdClassInfoInit sysdolphin/baselib/class.c .text size:0x9C global
 DEF 0x801A7BDC hsdNew sysdolphin/baselib/class.c .text size:0xC8 global
 DEF 0x801A7CA4 hsdSearchClassInfo sysdolphin/baselib/class.c .text size:0x40 global
+DEF 0x801A7CE4 HSD_HashSearch sysdolphin/baselib/hash.c .text size:0x100 global
 DEF 0x801AEB40 THPVideoDecode dolphin/thp/THPDec.c .text size:0x244 global
 DEF 0x801AED84 __THPSetupBuffers dolphin/thp/THPDec.c .text size:0x44 local
 DEF 0x801AEDC8 __THPReadFrameHeader dolphin/thp/THPDec.c .text size:0x13C global
@@ -2772,6 +2774,7 @@ DEF 0x8024D610 @192 sysdolphin/baselib/class.c .data size:0xB local
 DEF 0x8024D61C unused5 sysdolphin/baselib/class.c .data size:0xA global
 DEF 0x8024D628 @315 sysdolphin/baselib/class.c .data size:0xC local
 DEF 0x8024D634 @316 sysdolphin/baselib/class.c .data size:0x2E local
+DEF 0x8024D668 @68 sysdolphin/baselib/hash.c .data size:0x17 local
 DEF 0x8024DAD0 @3 dolphin/thp/THPDec.c .data size:0x3C local
 DEF 0x8041EB80 DriveInfo dolphin/os/OS.c .bss size:0x20 local
 DEF 0x8041EBA0 DriveBlock dolphin/os/OS.c .bss size:0x30 local
@@ -2978,6 +2981,7 @@ DEF 0x8044F1F8 @47 sysdolphin/baselib/list.c .sdata size:0x5 local
 DEF 0x8044F200 @54 sysdolphin/baselib/list.c .sdata size:0x5 local
 DEF 0x8044F208 @53 sysdolphin/baselib/object.c .sdata size:0x8 local
 DEF 0x8044F248 @13 sysdolphin/baselib/class.c .sdata size:0x8 local
+DEF 0x8044F250 @67 sysdolphin/baselib/hash.c .sdata size:0x7 local
 DEF 0x8044F298 __THPVersion dolphin/thp/THPDec.c .sdata size:0x4 global
 DEF 0x8044F898 BootInfo dolphin/os/OS.c .sbss size:0x4 local
 DEF 0x8044F89C BI2DebugFlag dolphin/os/OS.c .sbss size:0x4 local
@@ -3831,6 +3835,8 @@ sysdolphin/baselib/dobj.c                        .sbss   0x8044FEF8-0x8044FF00  
 sysdolphin/baselib/fog.c                         .data   0x8024CEA8-0x8024CFBF   6 sym  of 6 in the C (0 stripped), 5 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/fog.c                         .sdata  0x8044F1B8-0x8044F1D4   5 sym  of 5 in the C (0 stripped), 5 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/fog.c                         .sdata2 0x80452940-0x80452964   7 sym  of 7 in the C (0 stripped), 7 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/hash.c                        .data   0x8024D668-0x8024D67F   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/hash.c                        .sdata  0x8044F250-0x8044F257   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/id.c                          .bss    0x8044B550-0x8044B710   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
 sysdolphin/baselib/id.c                          .sdata  0x8044F180-0x8044F18E   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/initialize.c                  .data   0x8024CB00-0x8024CB6D   4 sym  of 5 in the C (1 stripped), 4 at a verified use (code), bytes = main.dol
@@ -4140,6 +4146,7 @@ sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x8045293C  
 .data   0x8024CEA5-0x8024CEA8 size 0x3
 .data   0x8024CFBF-0x8024CFC0 size 0x1
 .data   0x8024D0A4-0x8024D438 size 0x394
+.data   0x8024D67F-0x8024D680 size 0x1
 .data   0x8024DAA0-0x8024DAD0 size 0x30
 .bss    0x8024DB20-0x8041EB80 size 0x1D1060
 .bss    0x8041EC14-0x8041EC20 size 0xC
@@ -4160,6 +4167,7 @@ sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x8045293C  
 .sdata  0x8044F1E7-0x8044F1E8 size 0x1
 .sdata  0x8044F205-0x8044F208 size 0x3
 .sdata  0x8044F210-0x8044F238 size 0x28
+.sdata  0x8044F257-0x8044F258 size 0x1
 .sdata  0x8044F290-0x8044F298 size 0x8
 .sbss   0x8044F2A0-0x8044F898 size 0x5F8
 .sbss   0x8044FCE4-0x8044FCF0 size 0xC

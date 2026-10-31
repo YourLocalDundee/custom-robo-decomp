@@ -7,10 +7,10 @@ dolphin                           98     97   0x032CC4/0x033700  98.76%   0x01F8
 MSL                               49     48   0x009378/0x00939C  99.90%   0x0014BA/0x0014BA 100.00%     84/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
-sysdolphin                        30     18   0x00B20C/0x026600  29.00%   0x002CFD/0x003D85  73.13%    227/  472
+sysdolphin                        30     19   0x00B30C/0x026600  29.16%   0x002D1B/0x003D83  73.33%    228/  472
 game                             342    342   0x0067AC/0x0067AC 100.00%   0x000000/0x000000    -       342/  342
 automatic objects (unsplit)      236      0   0x000000/0x142F38   0.00%   0x000000/0x27419C   0.00%      0/ 1620
-main.dol (all units)             789    539   0x0546A4/0x1B3430  19.39%   0x0271B3/0x29C41F   5.85%   1661/ 3533
+main.dol (all units)             789    540   0x0547A4/0x1B3430  19.41%   0x0271D1/0x29C41D   5.85%   1662/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 342 objects from C (one function each, tools/promote_drafts.py), 0x67AC bytes = 2.16% of the game code, 1.49% of all code
 
@@ -545,6 +545,7 @@ sysdolphin/baselib/displayfunc.c              code 0xA20/0x17D0  data 0x48/0x78 
 sysdolphin/baselib/dobj.c                     code 0x6B4/0x6B4  data 0x13D/0x13D  functions 16/16  linked from C
 sysdolphin/baselib/fobj.c                     code 0x16A8/0x1D7C  data 0x10/0xB0  functions 10/11  not linked: code: 10 of 11 functions equal in objdiff (doldecomp/kar's fobj.c for its functions; FObjLoadData, HSD_FObjInterpretAnim / InterpretAnimAll, HSD_FObjLoadDesc, HSD_FObjAlloc, HSD_FObjFree ported from wowjinxy/KAR's fobj.c, provenance per function, assert lines of this revision; step 61 iteration 8: HSD_FObjGetState as a conditional expression (main.dol puts the NULL case first) -> FObjLoadData equal, the update data as wowjinxy's 0xC union HSD_ObjData -> InterpretAnim's frame 0x60 as main.dol's): HSD_FObjInterpretAnim 99.6%: cases 4 / 5 store the new state with clrlwi / rlwimi from the state register in main.dol, the C folds the constant (ori 3 / ori 4); tried: Melee's MUST_MATCH `state = state = 3`, a non-inline static HSD_FObjSetState, u8 state parameter / return, the operand order of Melee's SetState, a bitfield store, state-- / state++, compilers GC/1.2.5 / 1.3 / 1.3.2r
 sysdolphin/baselib/fog.c                      code 0x8B8/0x8B8  data 0x15B/0x15B  functions 11/11  linked from C
+sysdolphin/baselib/hash.c                     code 0x100/0x100  data 0x1E/0x1E  functions 1/1  linked from C
 sysdolphin/baselib/id.c                       code 0x280/0x280  data 0x1CE/0x1CE  functions 5/5  linked from C
 sysdolphin/baselib/initialize.c               code 0x788/0x788  data 0x95/0x95  functions 18/18  linked from C
 sysdolphin/baselib/jobj.c                     code 0x2944/0x5058  data 0x68/0x468  functions 29/48  not linked: code: 29 of 48 functions equal in objdiff (Melee's jobj.c with this revision's assert lines, jobj.h's set inlines too; JObjUpdateFunc, JObjInfoInit, HSD_JObjSetupMatrixSub's / HSD_JObjAnim's update method, HSD_JObjSetPtclTargetCallback from wowjinxy/KAR's jobj.c; step 61 iteration 7): unnamed, no C: fn_80196568 (0x58), fn_80196C50, fn_80198014, fn_80198144, fn_80198690, fn_80198700 (0x1FC, the load method; wowjinxy's JObjLoad 0x214), fn_80199178, fn_801991A4, fn_801995CC; HSD_JObjSetMtxDirty and HSD_IDGetData have no C in any reference; HSD_JObjReqAnimAllByFlags 82%, HSD_JObjResolveRefsAll 98% (an extra NULL check), ref_INC 90% (no NULL check here), HSD_JObjSetFlagsAll 87%, resolveIKJoint1 99.6% (one fmuls register), resolveIKJoint2 99.2% (frsp before fneg here), HSD_JObjSetMtxDirtySub 85% (another revision): adapt to this revision  (C has data the split object lacks: .sdata 0x35)

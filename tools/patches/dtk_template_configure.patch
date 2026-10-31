@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,448 @@ def MatchingFor(*versions):
+@@ -284,18 +307,449 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -460,6 +460,7 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/aobj.c",
 +    "sysdolphin/baselib/video.c",
 +    "sysdolphin/baselib/tev.c",
++    "sysdolphin/baselib/hash.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
