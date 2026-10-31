@@ -1,4 +1,4 @@
-lib candidates: 143 accepted (R3:56, R4:16, R5:62, R6:9), 0 rejected, 7 layout-proof names replaced, 2 round(s)
+lib candidates: 141 accepted (R3:56, R4:16, R5:60, R6:9), 0 rejected, 7 layout-proof names replaced, 2 round(s)
 REPLACED layout-proof atan2 at 0x801690C8
 REPLACED layout-proof exp at 0x801690E8
 REPLACED layout-proof fmod at 0x80169108
@@ -28,7 +28,6 @@ ACCEPT __timesdec 0x801623CC R3 ac-decomp/GAFU01_00
 ACCEPT __two_exp 0x80160C48 R3 ac-decomp/GAFU01_00
 ACCEPT __VIGetCurrentPosition 0x80140950 R5 bfbb/vi.c
 ACCEPT __VIRetraceHandler 0x8013EB5C R3 ac-decomp/GAFU01_00
-ACCEPT _HSD_ZListClear 0x8019C7CC R5 kar/GKYE01
 ACCEPT acos 0x80169088 R5 ac-decomp/GAFE01_00
 ACCEPT ARInit 0x80142A64 R5 ac-decomp/ar.c
 ACCEPT ARQPostRequest 0x80144604 R5 bfbb/arq.c
@@ -76,7 +75,6 @@ ACCEPT HSD_GXInit 0x8019CF0C R5 melee/GALE01
 ACCEPT HSD_ImageDescFree 0x80189A4C R5 melee/GALE01
 ACCEPT HSD_Index2TevStage 0x8018B090 R5 melee/GALE01
 ACCEPT HSD_InitComponent 0x8019CC64 R5 melee/GALE01
-ACCEPT HSD_JObjDisp 0x8019C86C R5 melee/GALE01
 ACCEPT HSD_JObjMakeMatrix 0x80196630 R5 kar/GKYE01
 ACCEPT HSD_JObjReqAnimAllByFlags 0x80196988 R5 kar/GKYE01
 ACCEPT HSD_JObjReqAnimByFlags 0x80196900 R5 kar/GKYE01

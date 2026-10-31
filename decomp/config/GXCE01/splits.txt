@@ -2160,10 +2160,11 @@ sysdolphin/baselib/objalloc.c:
 sysdolphin/baselib/robj.c:
 	.text       start:0x801A0A70 end:0x801A2988
 	.rodata     start:0x801C4EB8 end:0x801C4EE0
-	.data       start:0x8024CC98 end:0x8024CE00
+	.data       start:0x8024CC98 end:0x8024CDFE
 	.bss        start:0x8044B4F8 end:0x8044B550
 	.sdata      start:0x8044F150 end:0x8044F180
 	.sbss       start:0x80450048 end:0x80450050
+	.sdata2     start:0x804528E8 end:0x80452920
 
 sysdolphin/baselib/id.c:
 	.text       start:0x801A2988 end:0x801A2C08
@@ -2200,7 +2201,7 @@ sysdolphin/baselib/object.c:
 
 sysdolphin/baselib/bytecode.c:
 	.text       start:0x801A5F10 end:0x801A74D8
-	.data       start:0x8024D438 end:0x8024D4D8
+	.data       start:0x8024D438 end:0x8024D4D5
 	.sdata      start:0x8044F238 end:0x8044F248
 	.sdata2     start:0x804529B0 end:0x804529E8
 
@@ -2212,8 +2213,8 @@ sysdolphin/baselib/class.c:
 
 sysdolphin/baselib/hash.c:
 	.text       start:0x801A7CE4 end:0x801A7DE4
-	.data       start:0x8024D668 end:0x8024D680
-	.sdata      start:0x8044F250 end:0x8044F258
+	.data       start:0x8024D668 end:0x8024D67F
+	.sdata      start:0x8044F250 end:0x8044F257
 
 sysdolphin/baselib/texp.c:
 	.text       start:0x801A7DE4 end:0x801AAF9C

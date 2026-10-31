@@ -58,7 +58,11 @@ Every command runs from the repo root. `tools/check_docs.py` checks this convent
 | [formats/model_entry.md](formats/model_entry.md) | Robo / weapon / story-character model entries (header decoded from the game's loaders), joint roles |
 | [formats/containers.md](formats/containers.md) | Every archive and file type on the disc: what is inside, what is decoded, what is not |
 | [community_codes.md](community_codes.md) | Public AR / Gecko codes (decrypted, mapped to our addresses), texture mods, Gecko tooling (research notes, Oct 28, 2026) |
+| [robo_tables.md](robo_tables.md) | Every table, file and constant indexed by the body (robo) number, and what must grow for a new body (step 71, Oct 30, 2026) |
+| [images/ray_legionnaire_v1_customize.jpg](images/ray_legionnaire_v1_customize.jpg) | Screenshot: the first edited robo model (Ray 01 legionnaire v1) in the Customize screen, Oct 30, 2026 |
+| [images/ray_legionnaire_v1_battle1.jpg](images/ray_legionnaire_v1_battle1.jpg), [images/ray_legionnaire_v1_battle2.jpg](images/ray_legionnaire_v1_battle2.jpg) | Screenshots: the same model in a battle, the added parts follow their bones, Oct 30, 2026 |
 | [community/discord_codes.md](community/discord_codes.md) | Codes and addresses from the community Discord, mapped to our functions (Oct 29, 2026) |
+| [community/crbr_parts_expansion.md](community/crbr_parts_expansion.md) | DesiacX's CRBR-Parts-Expansion and Project Hive's sources mapped to our names: how they add part slots, record layouts, free space, textures, similar repos (step 72) |
 | [community/codes_gxce01.tsv](community/codes_gxce01.tsv) | The codes of community_codes.md as a table, one row per code. Research data of Oct 28, 2026: no tool in the repo writes it; keep it in step with community_codes.md |
 
 ## Written by tools (never edit by hand)

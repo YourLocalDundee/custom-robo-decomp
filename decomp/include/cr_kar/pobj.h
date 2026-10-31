@@ -80,11 +80,14 @@ typedef struct _HSD_PObjDesc {
     } u;
 } HSD_PObjDesc;
 
+/* Custom Robo: attr / attr_type / comp_cnt / comp_type are GX enums (wowjinxy's / Melee's pobj.h): int, not kar's u32
+ * (main.dol compares them signed, get_shape_vertex_xyz `cmpwi r0, 0x3` at 0x80194C08 for GX_INDEX16; s32 (long) gives
+ * other registers in get_shape_vertex_xyz / interpretShapeAnimDisplayList) */
 typedef struct _HSD_VtxDescList {
-    u32 attr;
-    u32 attr_type;
-    u32 comp_cnt;
-    u32 comp_type;
+    int attr;
+    int attr_type;
+    int comp_cnt;
+    int comp_type;
     u8 frac;
     u16 stride;
     void* vertex;
@@ -104,10 +107,10 @@ typedef struct _HSD_EnvelopeDesc {
 typedef struct _HSD_ShapeSet {
     u16 flags;
     u16 nb_shape;
-    u32 nb_vertex_index;
+    s32 nb_vertex_index; /* Custom Robo: s32 (wowjinxy pobj.h; main.dol compares signed) */
     struct _HSD_VtxDescList* vertex_desc;
     u8** vertex_idx_list;
-    u32 nb_normal_index;
+    s32 nb_normal_index; /* Custom Robo: s32 (wowjinxy pobj.h) */
     struct _HSD_VtxDescList* normal_desc;
     u8** normal_idx_list;
     union { /* Custom Robo: a union (wowjinxy); kar has a struct */
@@ -119,10 +122,10 @@ typedef struct _HSD_ShapeSet {
 typedef struct _HSD_ShapeSetDesc {
     u16 flags;
     u16 nb_shape;
-    u32 nb_vertex_index;
+    s32 nb_vertex_index; /* Custom Robo: s32 (wowjinxy pobj.h; main.dol compares signed) */
     struct _HSD_VtxDescList* vertex_desc;
     u8** vertex_idx_list;
-    u32 nb_normal_index;
+    s32 nb_normal_index; /* Custom Robo: s32 (wowjinxy pobj.h) */
     struct _HSD_VtxDescList* normal_desc;
     u8** normal_idx_list;
 } HSD_ShapeSetDesc;

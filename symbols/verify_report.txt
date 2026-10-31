@@ -1256,16 +1256,21 @@ VERIFIED  80190584 HSD_CObjGetEyeDistance                   ours=0x104 ref=0x104
 CLOSE     80190688 upvec2roll                               ours=0x1e8 ref=0x1f0 xd
 CLOSE     80190870 roll2upvec                               ours=0x2e4 ref=0x314 kar_wowjinxy
 VERIFIED  80190B54 HSD_CObjGetUpVector                      ours=0x68 ref=0x68 kar_wowjinxy
+VERIFIED  80190EB8 HSD_CObjSetMtxDirty                      ours=0x10 ref=0x10 melee
 VERIFIED  80190EC8 HSD_CObjMtxIsDirty                       ours=0x4c ref=0x4c kar_wowjinxy
 VERIFIED  80190F14 HSD_CObjGetViewingMtx                    ours=0x34 ref=0x34 melee
 VERIFIED  80190F48 HSD_CObjGetInvViewingMtxPtrDirect        ours=0x64 ref=0x64 melee
 VERIFIED  80190FAC HSD_CObjGetViewingMtxPtr                 ours=0x30 ref=0x30 kar_wowjinxy
 CLOSE     80190FDC HSD_CObjSetRoll                          ours=0x428 ref=0x410 xd
 VERIFIED  80191404 HSD_CObjSetFov                           ours=0x20 ref=0x20 melee
+VERIFIED  80191424 HSD_CObjSetAspect                        ours=0x20 ref=0x20 melee
 VERIFIED  80191444 HSD_CObjGetNear                          ours=0x18 ref=0x18 melee
 VERIFIED  8019145C HSD_CObjSetNear                          ours=0x10 ref=0x10 melee
 VERIFIED  8019146C HSD_CObjGetFar                           ours=0x18 ref=0x18 melee
-VERIFIED  80191484 HSD_CObjSetFar                           ours=0x10 ref=0x10 melee
+VERIFIED  80191494 HSD_CObjSetScissor                       ours=0x1c ref=0x1c melee
+VERIFIED  801914B0 HSD_CObjSetScissorx4                     ours=0x1c ref=0x1c melee
+VERIFIED  801914CC HSD_CObjSetViewportf                     ours=0x2c ref=0x2c melee
+VERIFIED  801914F8 HSD_CObjSetViewportfx4                   ours=0x1c ref=0x1c melee
 VERIFIED  80191514 HSD_CObjGetProjectionType                ours=0x18 ref=0x18 melee
 VERIFIED  8019152C HSD_CObjSetProjectionType                ours=0x10 ref=0x10 melee
 VERIFIED  8019153C HSD_CObjSetFrustum                       ours=0x24 ref=0x24 melee
@@ -1337,6 +1342,8 @@ VERIFIED  80198DF0 ref_INC                                  ours=0x4c ref=0x4c k
 VERIFIED  80198E3C HSD_JObjUnref                            ours=0x148 ref=0x148 kar_wowjinxy
 VERIFIED  80198F84 HSD_JObjUnrefThis                        ours=0xa8 ref=0xa8 kar_wowjinxy
 VERIFIED  8019902C HSD_JObjAddChild                         ours=0x14c ref=0x14c melee
+VERIFIED  80199178 HSD_JObjGetDObj                          ours=0x2c ref=0x2c kar_wowjinxy
+VERIFIED  801991A4 HSD_JObjGetFlags                         ours=0x18 ref=0x18 melee
 VERIFIED  801991BC HSD_JObjSetFlags                         ours=0x9c ref=0x9c melee
 VERIFIED  80199258 HSD_JObjSetFlagsAll                      ours=0x2d8 ref=0x2d8 kar_wowjinxy
 VERIFIED  80199530 HSD_JObjClearFlags                       ours=0x9c ref=0x9c melee
@@ -1367,7 +1374,8 @@ VERIFIED  8019C548 zlist_sort                               ours=0x16c ref=0x16c
 VERIFIED  8019C6B4 _HSD_ZListSort                           ours=0x50 ref=0x50 melee
 VERIFIED  8019C704 _HSD_ZListDisp                           ours=0xc8 ref=0xc8 melee
 VERIFIED  8019C7CC _HSD_ZListClear                          ours=0xa0 ref=0xa0 melee
-EVIDENCE  8019C86C HSD_JObjDisp                             ours=0xac ref=0xd0 melee
+MISMATCH  8019C86C HSD_JObjDisp                             ours=0xac ref=0xd0 melee
+VERIFIED  8019C918 HSD_JObjSetSPtclCallback                 ours=0x8 ref=0x8 melee
 CLOSE     8019C920 HSD_EraseRect                            ours=0x344 ref=0x374 melee
 CLOSE     8019CC64 HSD_InitComponent                        ours=0x108 ref=0x118 melee
 VERIFIED  8019CD6C HSD_GXSetFifoObj                         ours=0x18 ref=0x18 melee
@@ -1391,6 +1399,7 @@ VERIFIED  8019E17C splGetSplinePoint                        ours=0x490 ref=0x490
 VERIFIED  8019E60C splArcLength                             ours=0x308 ref=0x308 kar_wowjinxy
 VERIFIED  8019E914 splArcLengthGetParameter                 ours=0x200 ref=0x200 kar_wowjinxy
 VERIFIED  8019EB14 splArcLengthPoint                        ours=0x48 ref=0x48 melee
+CLOSE     8019EF8C HSD_MtxGetRotation                       ours=0x320 ref=0x32c kar_wowjinxy
 VERIFIED  8019F5E4 HSD_MtxGetTranslate                      ours=0x1c ref=0x1c melee
 VERIFIED  8019F600 HSD_MtxGetScale                          ours=0x4d8 ref=0x4d8 kar_wowjinxy
 VERIFIED  8019FAD8 HSD_MkRotationMtx                        ours=0x13c ref=0x13c xd
@@ -1487,6 +1496,8 @@ VERIFIED  801A52CC HSD_ViewingRectCheck                     ours=0x7c ref=0x7c k
 VERIFIED  801A5348 HSD_ViewingRectAddRect                   ours=0x210 ref=0x210 kar_wowjinxy
 VERIFIED  801A5558 HSD_ArchiveGetPublicAddress              ours=0xa4 ref=0xa4 melee
 VERIFIED  801A55FC HSD_ArchiveGetExtern                     ours=0x38 ref=0x38 melee
+VERIFIED  801A5E7C HSD_Randf                                ours=0x58 ref=0x58 melee
+VERIFIED  801A5ED4 HSD_Randi                                ours=0x3c ref=0x3c melee
 CLOSE     801A5F10 HSD_ByteCodeEval                         ours=0x15c8 ref=0x15c0 kar_wowjinxy
 VERIFIED  801A74D8 hsdInitClassInfo                         ours=0xe8 ref=0xe8 kar_wowjinxy
 VERIFIED  801A75C0 GetMemoryEntry                           ours=0x264 ref=0x264 kar_wowjinxy
@@ -1559,4 +1570,4 @@ VERIFIED  801B6008 THPInit                                  ours=0xa0 ref=0xa0 m
 VERIFIED  801B60A8 THPAudioDecode                           ours=0x464 ref=0x464 marioparty4
 VERIFIED  801B650C __THPAudioGetNewSample                   ours=0x90 ref=0x90 marioparty4
 VERIFIED  801B659C __THPAudioInitialize                     ours=0x3c ref=0x3c marioparty4
-{'VERIFIED': 1509, 'MISMATCH': 14, 'UNSOURCED': 2, 'CLOSE': 32, 'EVIDENCE': 4}
+{'VERIFIED': 1519, 'MISMATCH': 15, 'UNSOURCED': 2, 'CLOSE': 33, 'EVIDENCE': 3}

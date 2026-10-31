@@ -72,15 +72,17 @@ void HSD_TExpRef(HSD_TExp* texp, u8 sel)
     }
 }
 
+#pragma push
+#pragma inline_recursion on
+#pragma inline_max_size(768)
+/* Custom Robo: wowjinxy/KAR texpdag.c's pragmas (the recursion inlined into itself, main.dol's 0x57C), the type test as
+ * a switch (main.dol keeps each inlined copy's default branch) */
 void HSD_TExpUnref(HSD_TExp* texp, u8 sel)
 {
     s32 i;
-    HSD_TExpType type = HSD_TExpGetType(texp);
 
-    if (type != HSD_TE_CNST) {
-        if (type >= HSD_TE_CNST || type != HSD_TE_TEV) {
-            return;
-        }
+    switch (HSD_TExpGetType(texp)) {
+    case HSD_TE_TEV:
         if (sel == true) {
             if (texp->tev.c_ref != 0) {
                 texp->tev.c_ref -= 1;
@@ -95,14 +97,15 @@ void HSD_TExpUnref(HSD_TExp* texp, u8 sel)
                 HSD_TExpUnref(texp->tev.a_in[i].exp, texp->tev.a_in[i].sel);
             }
         }
-        return;
-    }
-
-    if (texp->cnst.ref != 0) {
-        texp->cnst.ref -= 1;
-        return;
+        break;
+    case HSD_TE_CNST:
+        if (texp->cnst.ref != 0) {
+            texp->cnst.ref -= 1;
+        }
+        break;
     }
 }
+#pragma pop
 
 HSD_TExp* HSD_TExpFreeList(HSD_TExp* texp_list, HSD_TExpType type, s32 all)
 {
@@ -838,8 +841,9 @@ static int TExpAssignReg(HSD_TExp* texp, HSD_TExpRes* res)
         } else if (IsThroughColor((HSD_TExp*) tev) &&
                    tev->c_in[3].type == HSD_TE_CNST)
         {
-            if (AssignColorKonst(tev, 3, res) < 0) {
-                val = AssignColorReg(tev, 3, res);
+            /* Custom Robo: this revision tries a register first here (main.dol's call order) */
+            if (AssignColorReg(tev, 3, res) < 0) {
+                val = AssignColorKonst(tev, 3, res);
                 if (val < 0) {
                     HSD_ASSERT(0x489, val >= 0);
                     return val;

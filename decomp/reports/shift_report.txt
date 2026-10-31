@@ -7,12 +7,12 @@ padding per point: 0x100 bytes; points: 30
    4. 0x801B6620 .rodata  start of .rodata -> everything from here moves by +0x400
    5. 0x801C09F8 .rodata  inside .rodata: the start of the glue span 0x801C09F8.. (a file's statics base) -> everything from here moves by +0x500
    6. 0x801C40D8 .rodata  inside .rodata: the data piece of dolphin/pad/PadClamp.c (a proven object boundary) -> everything from here moves by +0x600
-   7. 0x801C4948 .rodata  inside .rodata: the data piece of Runtime/GCN_mem_alloc.c (a proven object boundary) -> everything from here moves by +0x700
+   7. 0x801C4930 .rodata  inside .rodata: the data piece of Runtime/runtime.c (a proven object boundary) -> everything from here moves by +0x700
    8. 0x801C4EE0 .rodata  inside .rodata: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x800
    9. 0x801C4F80 .data    start of .data -> everything from here moves by +0x900
   10. 0x8020B0C0 .data    inside .data: the start of the glue span 0x8020B0C0.. (a file's statics base) -> everything from here moves by +0xA00
   11. 0x802427F0 .data    inside .data: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0xB00
-  12. 0x802495A8 .data    inside .data: the data piece of dolphin/gx/GXTexture.c (a proven object boundary) -> everything from here moves by +0xC00
+  12. 0x80249588 .data    inside .data: the data piece of dolphin/gx/GXLight.c (a proven object boundary) -> everything from here moves by +0xC00
   13. 0x8024DAD0 .data    inside .data: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0xD00
   14. 0x8024DB20 .bss     start of .bss -> everything from here moves by +0xE00
   15. 0x80377E60 .bss     inside .bss: the start of the glue span 0x80377E60.. (a file's statics base) -> everything from here moves by +0xF00
@@ -31,9 +31,9 @@ padding per point: 0x100 bytes; points: 30
   28. 0x804509A0 .sdata2  inside .sdata2: the data piece of game/fn_8005C4D0_fn_8005C4D0.c (a proven object boundary) -> everything from here moves by +0x1C00
   29. 0x80452120 .sdata2  inside .sdata2: the data piece of MSL/e_pow.c (a proven object boundary) -> everything from here moves by +0x1D00
   30. 0x804529F8 .sdata2  inside .sdata2: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x1E00
-objects linked from C (batch 9, configure.py CR_MATCHING): 604 in both links, 603 of them moved by the padding; 13 holding a point, reassembled from asm
+objects linked from C (batch 9, configure.py CR_MATCHING): 607 in both links, 606 of them moved by the padding; 13 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
-shifted main.dol: SHA-1 7ee7db0ca73d32a608b9ac509ea632f45fdc7920 (2430848 bytes, retail 2425472)
+shifted main.dol: SHA-1 221309c4ed3c99d1ff94b1255d661edbfe6c8cc1 (2430848 bytes, retail 2425472)
 sections, unshifted -> shifted:
   .init    0x80003100 size 0x0024D0 -> 0x80003100 size 0x0024D0
   .text    0x800055E0 size 0x1B0FF8 -> 0x800055E0 size 0x1B12F8
@@ -51,12 +51,12 @@ sections, unshifted -> shifted:
   _stack_addr  0x80462AC0 -> 0x804648C0
   __ArenaLo    0x80464AC0 -> 0x804668C0
 static check:
-  symbols compared (unique names): 15226
+  symbols compared (unique names): 15259
   symbols moved by the wrong amount: 0
-  relocations of the unshifted build: 92801
+  relocations of the unshifted build: 92803
   relocations missing after the shift: 0
   relocation targets moved by the wrong amount: 0
-  relocations in the shifted build: 92801
+  relocations in the shifted build: 92803
   relocated values (data words, lis pairs, small-data, loads) different from their target: 0
   relocated branches that miss their target: 0
   numbers relocated as addresses (audit false positives) in the shifted build: 0
