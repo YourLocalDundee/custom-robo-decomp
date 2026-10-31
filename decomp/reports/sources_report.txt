@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 1134
+files: 1135
 
 src/MSL/FILE_POS.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
@@ -449,6 +449,7 @@ src/game/fn_800A5438.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_800A57CC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800A5844.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800A5890.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800AA130_fn_800AA130.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800AA17C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800AB468.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800AB4CC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py

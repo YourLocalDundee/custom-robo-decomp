@@ -3,8 +3,8 @@ one object per function, or one per file of consecutive functions that share the
 
 drafts at 100% MATCH: 439
 promoted: 405 (43596 bytes = 0xAA4C)
-file objects: 1 (1 functions, 344 bytes = 0x158)
-left out: 33
+file objects: 2 (2 functions, 420 bytes = 0x1A4)
+left out: 32
 kept from earlier runs (draft no longer 100%): 1
 removed (function name no longer ours): 0
 
@@ -434,7 +434,7 @@ removed (function name no longer ours): 0
 8008A0A8-8008BED4  fn_8008A0A8..fn_8008BD50  11 functions, 6 at 100%: not available yet (5 not matched: fn_8008A484, fn_8008A6B0, fn_8008A8B0, fn_8008AAE8, fn_8008ACEC)
 8008A484-80093C30  fn_8008A484..fn_80093AF0  87 functions, 24 at 100%: not available yet (63 not matched: fn_8008A484, fn_8008A6B0, fn_8008A8B0, fn_8008AAE8, fn_8008ACEC, fn_8008BED4 ...)
 80096594-80098F4C  fn_80096594..fn_80098484  25 functions, 8 at 100%: not available yet (17 not matched: fn_800965F4, fn_80096754, fn_800968B4, fn_80096C28, fn_80096D28, fn_80096E28 ...)
-800AA130-800AA17C  fn_800AA130..fn_800AA130  1 functions, 1 at 100%: its .data has relocations (a pointer table): not handled
+800AA130-800AA17C  fn_800AA130..fn_800AA130  1 functions, 1 at 100%: FILE OBJECT game/fn_800AA130_fn_800AA130.c (.data 0x8022B130-0x8022B204)
 8010E47C-80112AB8  fn_8010E47C..fn_80112A0C  27 functions, 11 at 100%: not available yet (16 not matched: fn_8010E47C, fn_8010E820, fn_8010E9DC, fn_8010EB5C, fn_8010F07C, fn_8010F87C ...)
 801147B4-80125884  fn_801147B4..fn_80124F5C  79 functions, 16 at 100%: not available yet (63 not matched: fn_801147B4, fn_80114A48, fn_80114EB8, fn_8011513C, fn_801155AC, fn_80115918 ...)
 fn_80006658: the users of the entries its draft owns span fn_800057B8..fn_8000805C (0x800057B8-0x8000860C, 16 functions, 11 at 100%)
@@ -498,7 +498,6 @@ fn_8012481C: the users of the entries its draft owns span fn_8012093C..fn_80124F
 80096594  fn_80096594                                     88  has data of its own (.sdata2 0x8): needs the data piece split too
 800A54A4  fn_800A54A4                                    404  has data of its own (.sdata2 0x8): needs the data piece split too
 800A5638  fn_800A5638                                    404  has data of its own (.sdata2 0x8): needs the data piece split too
-800AA130  fn_800AA130                                     76  has data of its own (.data 0xD4): needs the data piece split too
 800B7B18  fn_800B7B18                                    628  has data of its own (.sdata2 0x14): needs the data piece split too
 800BE32C  cr_C_ACT_TURN                                  352  has data of its own (.sdata2 0x8): needs the data piece split too
 800BE48C  cr_C_ACT_MOVE_LENG                             384  has data of its own (.sdata2 0x8): needs the data piece split too
