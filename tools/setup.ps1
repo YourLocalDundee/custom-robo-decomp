@@ -138,7 +138,7 @@ foreach ($r in 'kar_wowjinxy', 'xd', 'dolsdk2001', 'dolsdk2004', 'ac-decomp', 's
 # doldecomp/kar: its asm/ is exact Kirby Air Ride code (calls, assert and string data) for HSD functions without C yet
 PinnedClone kar "$t/refs/kar" @('/config/', '/src/', '/include/', '/libs/', '/asm/')
 
-# 4. HSDLib (HSDRawViewer) at the pinned commit, plus our headless export/resave patch (readable: tools\patches\).
+# 4. HSDLib (HSDRawViewer) at the pinned commit, plus our headless export / resave / import patch (readable: tools\patches\).
 if (-not $IsWindows) {
     "skip HSDLib/HSDRawViewer: it is a Windows program (model export to glTF needs Windows; everything else works here)"
 } elseif (-not (Test-Path -LiteralPath "$t/HSDLib")) {

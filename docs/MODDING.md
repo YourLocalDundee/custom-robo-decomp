@@ -29,6 +29,8 @@ Everything is optional; use what your mod needs.
    select `root0_joint`, and edit or import over it (keep the same skeleton: same bones, same order).
 3. Save it as `mods/my_mod/models/<category>/<same name>.dat`.
 
+Or script the edit in Blender and let one command do export, import and the build: [Blender loop](#blender-loop).
+
 Supported categories: `chara` (robos), `weapon_gun`, `weapon_bom`, `weapon_pod`, `weapon_leg`, `snr_chara`
 (story characters), `bg_data` (stages), `leg_effect`, `snr_obj`. Effects in `*_effect` containers are not yet.
 
@@ -100,6 +102,105 @@ Bigger robos need scaled vertices or another hook; open.
 Community tests so far (Oct 27, 2026; plan.md step 29): bodies swap and fight fine (also with different skeletons);
 with bodies only, a body runs with the slot's animations; changing `cr_g_CharaYOffset` does **not** change the size.
 
+## Blender loop
+
+Edit a robo in Blender with a script and get a bootable ISO and a `.crpatch` in one command (plan.md step 70). The
+loop keeps the robo's skeleton exactly (same bones, same order, names `JOBJ_n`), so the game's 19 role bones, the
+animations and blocks A/B/C stay valid and no roles file is needed.
+
+```powershell
+pwsh tools\model_loop.ps1 -Mod ray_legionnaire -Script legionnaire -Entries 000,001,002,003,004 -Boot
+pwsh tools\model_loop.ps1 -Mod rt_test -Script roundtrip -Entries 000      # no edit: tests the loop itself
+```
+
+```bash
+tools/model_loop.sh ray_legionnaire legionnaire 000,001,002,003,004 --boot
+tools/model_loop.sh rt_test roundtrip 000
+```
+
+For each entry (`chara_<entry>`; robo N = entries 5N..5N+4, the game loads 5N, see above):
+
+1. **export** (once; `-Fresh` / `--fresh` to redo): `HSDRawViewer --export` of `models_dat/chara/chara_<entry>.dat` to
+   `build/model_loop/<mod>/export/chara_<entry>/root0_joint.glb`.
+2. **roles**: `tools/robo_joints.py roles unpacked/chara/<entry>.bin` (which joint is the head, each arm, each leg),
+   passed to the script.
+3. **Blender**, headless: `blender -b --factory-startup --python-exit-code 1 --python tools/blender/<script>.py --
+   <in.glb> <out.glb> <roles.json>`.
+4. **import**: `HSDRawViewer --import models_dat/chara/chara_<entry>.dat <out.glb> mods/<mod>/models/chara/chara_<entry>.dat`.
+
+Then `tools/make_mod.py mods/<mod>` (ISO in `build/mods/<name>/`, patch in `mods/<mod>/`) and, with `-Boot`, a 40 s
+`tools/boot_check.ps1` (Dolphin must still run and show no warning dialog; it cannot see the picture, plan.md step 20).
+Options: `-Iso` / `--iso` (clean ISO), `-Blender <exe>` or `BLENDER=...` (default: Blender on PATH, else the newest
+`C:\Program Files\Blender Foundation\Blender *`), `-Category` (default `chara`), `-Seconds`.
+HSDRawViewer is a Windows program: the bash twin runs every step under Git Bash on Windows; on Linux / macOS it skips
+export and import (run them on Windows) and still runs Blender and `make_mod.py`.
+A mod folder's `mod.json` and `notes.txt` are committed (the recipe); its models, patch and ISO stay local.
+
+Tested (Oct 30, 2026): the `roundtrip` loop on entry 000 builds an ISO with the clean disc's SHA-1 (0 changed files);
+`ray_legionnaire` on entries 000-004 boots (40 s, no warning) and its patch applies to a clean ISO with the same SHA-1.
+**Not yet seen in game**: an in-person tester checks the crest, shield and bronze body.
+
+### Writing a script
+
+Start from `tools/blender/legionnaire.py`; `tools/blender/common.py` loads and saves with the loop's settings. Rules:
+
+- Do not touch the armature (no new, renamed, deleted or re-parented bones).
+- New geometry: a mesh object parented to the armature with an **Armature modifier** and a **vertex group named after
+  one bone** (`JOBJ_32`) at weight 1.0. Every triangle must sit 100% on one bone (several bones per mesh are fine,
+  one per triangle). Build it in world space, in the bind pose the glb shows.
+- New materials: only the Principled BSDF **Base Color** is used (one material per colour; no textures yet).
+- The robo's own meshes (`Joint_<j>_Object_<d>...`): edit the **pixels of their texture** (`image.pixels`, then
+  `image.pack()`) or their Base Color factor. Geometry edits to them are reported and ignored (see the limits).
+- The bind pose of IK end joints (hands, feet: effector joints without a bind matrix) looks odd in the export
+  (Ray 01's hands float beside the forearms, the feet stand in front): place parts by the meshes on a joint
+  (`own_meshes` in legionnaire.py), not by such joints' positions.
+- Ray 01 faces glTF +Z (Blender -Y); the scripts take "left" as up x forward. The roles name the arms a / b by side.
+
+### Blender settings (`tools/blender/common.py`)
+
+- Import: glTF importer defaults (bone heuristic "Blender", guess original bind pose). Blender re-orients bones; that
+  does not matter: the importer takes every bone transform from the template, only names and parents from the glb.
+  The importer's hidden bone-shape `Icosphere` (collection `glTF_not_exported`) is not part of the model.
+- Export: GLB, +Y up, skins on, no animations, no shape keys, materials exported, images in their own format (PNG),
+  texture coordinates and normals on, modifiers not applied, no deform-only bone filter, only visible objects.
+- Run with `--factory-startup` (no user add-ons or preferences) and `--python-exit-code 1` (a script error fails the loop).
+
+### What `HSDRawViewer --import` keeps and changes
+
+`--import <template.dat> <edited.glb> <out.dat>` (`ModelImport.cs`, in tools/patches/hsdlib_headless_export_resave.patch)
+imports **over** the template's `root0_joint` instead of building a new model. HSDRawViewer's own importer
+(`ModelImporter`) rebuilds every joint, DObj and material from the glTF: Ray 01's single shared material (the one
+block B points at), its envelope-skinned body, joint flags and texture settings would all be lost. Settings chosen:
+
+| Setting | Choice | Why |
+|---|---|---|
+| Skeleton | kept from the template; the glb must have exactly `JOBJ_0..n-1` with the template's parents (other bones: error) | role bones, animations and blocks A/B/C address joints by tree position |
+| Bone transforms | from the template; the glb's are only checked (joint positions after Blender: < 1e-6 apart) | Blender changes bone orientations |
+| Vertex space | the template's bind pose exactly as `--export` writes it (bind matrices where a joint has one, else joint SRT) | new parts land where they were in Blender (a re-export matches to 0.001) |
+| Template meshes | matched by the exporter's names `Joint_<j>_Object_<d>`; geometry, PObjs, materials, TObj settings kept | the game's own data stays byte-identical |
+| Texture edits | the base colour texture (the last diffuse-lightmap TObj) is re-encoded **in its own format** (CMP for robos) when over 0.1% of its pixels differ by more than 8 | CMP as the game uses; PNG noise is not an edit |
+| Colour edits | a Base Color factor that differs from the MObj's diffuse colour becomes the diffuse colour | Ray 01's body texture blends over its diffuse colour, so recolour the texture instead |
+| New meshes | one rigid DObj per (bone, material) on that joint, positions + normals in the joint's space, triangle strips | rigid like the robo's own parts (no envelopes needed) |
+| New materials | the template's first MObj's render mode without textures (constant + diffuse + specular, alpha from the material), diffuse = Base Color, ambient = 70% of it, the template's specular and shininess | lit like the robo; no texture memory |
+| Culling | none on new PObjs; winding reversed like HSDRawViewer's importer | thin parts (a crest) show from both sides |
+| Joint flags | HSDLib's `UpdateFlags` result only on joints that got DObjs (OPA, LIGHTING, SPECULAR) and for the ROOT_* bits; every other bit (skeleton, IK types) kept | a joint without OPA does not draw its new DObj |
+| Material count | one new MObj per new colour (the legionnaire: red, gold), shared by every new DObj of that colour | keeps materials few |
+
+Checks: export -> `--import` and export -> Blender `roundtrip.py` -> `--import` of chara_000 give the template .dat
+byte for byte; the rebuilt entries keep their joint tree and roles (`robo_joints.py roles` equal).
+
+### Known limits (what is left for a prettier model)
+
+- Geometry edits to the robo's **own meshes** are ignored (reported): re-skinning Ray 01's envelope body is not
+  written yet. Deleting own meshes is not supported either.
+- New geometry has no texture and no vertex colours (one flat colour per material) and must be rigid (one bone per
+  triangle); smooth skinning across bones is not imported.
+- New bones need HSDRawViewer's GUI and a roles file (above), not this loop.
+- Texture edits keep the texture's format and write mip level 0 only (Ray 01's textures have no mips).
+- Size limits are unknown (memory, vertices): the legionnaire adds 2 KB per entry (108 triangles).
+- A grown archive moves to unused disc space (`iso_patch.py build`; Custom Robo's files sit at the end of the disc),
+  so a size change no longer needs room after the last file.
+
 ## 3. Build it
 
 ```powershell
@@ -159,7 +260,7 @@ Still missing before it is a normal workflow (Oct 29, 2026): a battle tested by 
 
 `tools/make_mod.py` → models go back into their archive (`crmodel.from_dat` with the original entry as the
 template, then `sfd.build`), files are copied, code lines patch a copy of `main.dol` → `tools/iso_patch.py build`
-writes each changed file over the clean ISO (in place if it fits, else appended, file table updated) →
+writes each changed file over the clean ISO (in place if it fits, else moved to unused disc space, file table updated) →
 `tools/iso_patch.py diff` stores the difference: blocks found in the clean ISO (also when moved) become
 references, the rest the changed bytes only.
 Tested: robo 0 recolour → 43 KB of new bytes in the patch; apply on a clean ISO gives the same SHA-1;

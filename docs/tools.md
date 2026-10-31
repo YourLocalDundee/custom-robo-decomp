@@ -28,6 +28,7 @@ Everything in `tools/`. Run from the repo root.
 | `find.py` | Search the decompile ([workflows](workflows.md#5-read-and-search-the-code)): `text`, `func [--brief]`, `callers`, `callees`, `refs`, `str`, `hint` | `tools/find.py func cr_Archive_OpenEntry --brief` |
 | `robo_joints.py` | Robo joint roles (blocks B/C): `table`, `roles`, `path`, `selftest` (170/170 byte-identical) | `tools/robo_joints.py roles unpacked/chara/000.bin` |
 | `make_mod.py` | Mod folder (models, files, code patches) → playable ISO + `.crpatch`; syncs main.dol's entry tables ([MODDING](MODDING.md)) | `tools/make_mod.py mods/my_mod [<clean.iso>]` |
+| `blender/*.py` | Blender scripts of the [Blender loop](MODDING.md#blender-loop), run by Blender's own Python (not `python -I`): `common.py` (load / save settings), `roundtrip.py` (no edit), `legionnaire.py` (the step-70 test edit) | `blender -b --factory-startup --python tools/blender/roundtrip.py -- <in.glb> <out.glb>` |
 | `iso_patch.py` | `build` / `diff` / `apply` / `info`: modded ISO and data-free patches | `tools/iso_patch.py apply <clean.iso> <mod.crpatch> <out.iso>` |
 | `robo_swap.py` | Swap two robos completely (`--model-only`, `--keep-motion`, `--size X`) | `tools/robo_swap.py 0 7` |
 | `struct_fields.py` | Finds typed fields inside a `cr_` struct's unknown stretches from the C's accesses (`report` → `docs/struct_<struct>.md`, `apply`) | `tools/struct_fields.py cr_Chara report` |
@@ -40,6 +41,7 @@ Everything in `tools/`. Run from the repo root.
 
 | Tool | Purpose | Windows / Linux, macOS |
 |---|---|---|
+| `model_loop` | [Blender loop](MODDING.md#blender-loop): export -> `tools/blender/<script>.py` -> `HSDRawViewer --import` -> `make_mod.py` -> ISO + `.crpatch` (+ boot). Export / import need Windows | `pwsh tools\model_loop.ps1 -Mod <mod> -Script <script> -Entries 000 [-Boot]` / `tools/model_loop.sh <mod> <script> 000 [--boot]` |
 | `from_scratch` | Everything from a fresh clone + your ISO, PASS/FAIL table, writes `BUILD_REPORT.md` ([REPRODUCE](REPRODUCE.md)) | `pwsh tools\from_scratch.ps1 -Iso <iso>` / `tools/from_scratch.sh <iso>` |
 | `setup` | Downloads every tool at the version in `tools/pins.txt` (SHA-256 checked), extracts the disc (Windows: DolphinTool; Linux / macOS: the pinned dtk) | `pwsh tools\setup.ps1 -Iso <iso>` / `tools/setup.sh <iso>` |
 | `setup_decomp` | Phase 4 build setup (setup step 8): the pinned `encounter/dtk-template` → `decomp/` with our configure patch, the pinned build tools, your `main.dol` | run by `setup` |
