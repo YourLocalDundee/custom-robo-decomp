@@ -1060,7 +1060,8 @@ def assert_ternary(body):
     return pat.sub(lambda m: '%s(%s) ? (void) 0 : %s\n' % (m.group(1), m.group(2), m.group(3)), body)
 
 
-REGVAR = re.compile(r'^\s+[^;=()]*?\b(?:var|temp)_([rf])(\d+)_\w*(?:\[\w*\])*;\s*$')
+# (step 69: also m2c's --reg-vars names, `var_r29` without the `_N` suffix)
+REGVAR = re.compile(r'^\s+[^;=()]*?\b(?:var|temp)_([rf])(\d+)(?:_\w*)?(?:\[\w*\])*;\s*$')
 
 
 def top_level_binop(ex):
