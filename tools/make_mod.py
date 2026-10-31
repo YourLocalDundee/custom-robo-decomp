@@ -68,6 +68,9 @@ def sync_entry_table(dol, arch, old_archive, new_archive):
     sys.exit(f'{arch}: not found among main.dol file descriptors; cannot keep its entry table in sync')
 
 
+CHARA_ENTRY_MAX = 0x3A000   # per-robo body load buffer (docs/robo_tables.md, part load requests)
+
+
 def robo_roles(dat_path, entry, template, all_entries):
     """Robo joint roles (trailer blocks B/C, optionally A) for an edited robo; see docs/MODDING.md.
     With <name>.roles.json next to the .dat: B/C are rebuilt for the new skeleton. Without it, the skeleton
@@ -130,6 +133,9 @@ def main():
                 if not crmodel.parse(entries[idx]): sys.exit(f'{p}: rebuilt entry does not parse')
                 if cat == 'chara':
                     entries[idx] = robo_roles(p, entries[idx], template, entries)
+                    if len(entries[idx]) > CHARA_ENTRY_MAX:
+                        sys.exit(f"{p}: entry is {len(entries[idx]):#x} bytes; a body entry must fit the game's "
+                                 f'{CHARA_ENTRY_MAX:#x}-byte load buffer (docs/robo_tables.md)')
             else:
                 entries[idx] = dat
             changed.append(f'{arch} entry {idx:03d} <- {p.relative_to(mod)}')

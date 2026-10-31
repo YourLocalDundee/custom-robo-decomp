@@ -51,12 +51,17 @@ foreach ($e in $Entries) {
     } else { '{"C": {}}' | Set-Content -LiteralPath $roles }
     # 3. Blender
     $edited = Join-Path $work "$name.edited.glb"
+    $argsFile = Join-Path $work "$name.edited.args"
+    Remove-Item -LiteralPath $edited, $argsFile -ErrorAction SilentlyContinue
     & $Blender -b --factory-startup --python-exit-code 1 --python $py -- $glb $edited $roles 2>&1 |
         Where-Object { $_ -match '^(legionnaire|blender|[a-z_]+:)|Error|Traceback' }
     if ($LASTEXITCODE -or -not (Test-Path -LiteralPath $edited)) { throw "Blender script $Script failed for $name" }
     # 4. import over the original .dat (same skeleton) -> the mod's model
     $target = Join-Path $out "$name.dat"
-    & $exe --import $dat $edited $target | Where-Object { $_ -notmatch 'flags' }
+    # import options the script asked for (one per line in <edited>.args: --replace, --skeleton glb, --roles ...)
+    $iargs = @(if (Test-Path -LiteralPath $argsFile) { Get-Content -LiteralPath $argsFile | Where-Object { $_ } })
+    Remove-Item -LiteralPath ([IO.Path]::ChangeExtension($target, '.roles.json')) -ErrorAction SilentlyContinue
+    & $exe --import $dat $edited $target @iargs | Where-Object { $_ -notmatch 'flags' }
     if ($LASTEXITCODE) { throw "HSDRawViewer --import failed for $name" }
 }
 # 5. ISO + patch
