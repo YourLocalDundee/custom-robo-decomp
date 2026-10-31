@@ -5,7 +5,6 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 lbl_8041A244[852];
 typedef enum cr_Seq
 {
   SEQ_LOGO,
@@ -24,20 +23,40 @@ typedef enum cr_Seq
   SEQ_ILLUSTRATED_BOOK,
   SEQ_ENDING
 } cr_Seq;
-__declspec(section ".data") extern cr_Seq cr_g_SeqCurrent;
+extern u8 lbl_8041A244[852];
+typedef struct cr_SeqState
+{
+  cr_Seq current;
+  cr_Seq previous;
+  cr_Seq next;
+  u8 unk_0c[4];
+  u32 unk_10;
+  u8 unk_14[0x10];
+  u32 unk_24;
+  u32 unk_28;
+  u32 unk_2c;
+  u8 unk_30[4];
+  u32 unk_34;
+  s32 unk_38;
+  s16 unk_3c;
+  u8 unk_3e[2];
+  s32 unk_40;
+  u8 unk_44[4];
+} cr_SeqState;
+__declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 void fn_80125884(u8 arg0);
 extern u8 lbl_8041CDE4[6996];
 
 u32 fn_80111CE8(void) {
-    u32 var_r31_13;
+    enum cr_Seq var_r31_13;
 
     if (M2C_FIELD(lbl_8041A244, s32 *, 0x10) & 2) {
-        var_r31_13 = M2C_FIELD(&cr_g_SeqCurrent, u32 *, 4);
+        var_r31_13 = cr_g_SeqCurrent.previous;
     } else {
-        var_r31_13 = 5;
+        var_r31_13 = SEQ_MODE_SELECTOR;
     }
-    if (var_r31_13 == 0xC) {
+    if ((u32) var_r31_13 == 0xCU) {
         fn_80125884(*lbl_8041CDE4);
     }
-    return var_r31_13;
+    return (u32) var_r31_13;
 }

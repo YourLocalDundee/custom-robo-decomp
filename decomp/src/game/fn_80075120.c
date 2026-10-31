@@ -24,7 +24,26 @@ typedef enum cr_Seq
   SEQ_ILLUSTRATED_BOOK,
   SEQ_ENDING
 } cr_Seq;
-__declspec(section ".data") extern cr_Seq cr_g_SeqCurrent;
+typedef struct cr_SeqState
+{
+  cr_Seq current;
+  cr_Seq previous;
+  cr_Seq next;
+  u8 unk_0c[4];
+  u32 unk_10;
+  u8 unk_14[0x10];
+  u32 unk_24;
+  u32 unk_28;
+  u32 unk_2c;
+  u8 unk_30[4];
+  u32 unk_34;
+  s32 unk_38;
+  s16 unk_3c;
+  u8 unk_3e[2];
+  s32 unk_40;
+  u8 unk_44[4];
+} cr_SeqState;
+__declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 extern u8 lbl_8044F5F0[8];
 typedef struct HSD_Obj HSD_Obj;
 struct _HSD_ClassInfo;
@@ -98,7 +117,7 @@ void fn_80075120(f32 (*arg0)[4], HSD_JObj *arg1, u32 arg2) {
     s32 var_r30_62;
 
     if (arg1 != NULL) {
-        if ((arg2 & 1) && !(M2C_FIELD(&cr_g_SeqCurrent, s32 *, 0x38) & 0x4000) && (*lbl_8044F5F0 != 0)) {
+        if ((arg2 & 1) && !(cr_g_SeqCurrent.unk_38 & 0x4000) && (*lbl_8044F5F0 != 0)) {
             HSD_JObjAnimAll(arg1);
         }
         (arg1 != NULL) ? (void) 0 : __assert(lbl_80450C48, 0x495U, lbl_80450C4F);

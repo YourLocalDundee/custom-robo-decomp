@@ -9,7 +9,7 @@ cr_g_FileSlots = .bss:0x80320184; // type:object datatype:cr_FileSlot[32] // why
 cr_g_DirTree = .bss:0x80321084; // type:object datatype:u32 // why: root of the path tree built by cr_FileSys_RegisterPath (passed as its starting node)
 cr_g_ArchiveDvdEntry = .bss:0x8032109C; // type:object datatype:s32[43] // why: cr_FileSys_Init sets all 0x2B to -1, then to desc[1] for single-file archives (packed == 1)
 cr_g_PackedArchives = .bss:0x80321148; // type:object datatype:cr_PackedArchive[43] // why: cr_Archive_SetEntryTable writes the 0x44-byte record of an archive here; accessors read +0x3C/+0x40
-cr_g_FileSysReady = .bss:0x80321CB4; // type:object datatype:u8 // why: cr_FileSys_Init returns at once when set and sets it to 1 at the end
+cr_g_FileSysReady = .bss:0x80321CB4; // type:object datatype:cr_FileSysState // why: cr_FileSys_Init returns at once when set and sets it to 1 at the end; dtk's object here is 0x8C bytes, the read queue below is part of it (cr_FileSysState)
 cr_g_ReadQueueHead = .bss:0x80321CB8; // type:object datatype:u8 // why: cr_FileSlot_QueueRead compares it with the tail to decide whether to start the read now
 cr_g_ReadQueueTail = .bss:0x80321CB9; // type:object datatype:u8 // why: cr_FileSlot_QueueRead stores the slot at cr_g_ReadQueue[tail] and advances it mod 0x20
 cr_g_ReadChunkSectors = .bss:0x80321CBA; // type:object datatype:u16 // why: read length cap in 0x800-byte sectors (0x80 at init, 0x200/0x400 in cr_Archive_OpenRequestList)
@@ -35,7 +35,7 @@ cr_g_CurrentMtx = .bss:0x8031FE68; // type:object datatype:f32[12] // why: the 3
 cr_g_MtxStackMaxDepth = .sbss:0x8044F3D8; // type:object datatype:s32 // why: raised to the depth when cr_Mtx_Push goes deeper
 cr_g_MtxStackDepth = .sbss:0x8044F3DC; // type:object datatype:s32 // why: +1 in cr_Mtx_Push, -1 in cr_Mtx_Pop
 cr_g_MtxStackTop = .sbss:0x8044F3E0; // type:object datatype:f32* // why: where cr_Mtx_Push stores the next 0x30-byte matrix; cr_Mtx_Pop steps it back
-cr_g_SeqCurrent = .bss:0x80321D88; // type:object datatype:cr_Seq // why: indexes all five sequence tables and the SEQ_* name table; set from cr_g_SeqNext when the sequence changes (FUN_8000878c)
+cr_g_SeqCurrent = .bss:0x80321D88; // type:object datatype:cr_SeqState // why: indexes all five sequence tables and the SEQ_* name table; set from cr_g_SeqNext when the sequence changes (FUN_8000878c); dtk's object here is 0x48 bytes and the code addresses all of it from this base (cr_SeqState: current / previous / next and the handlers' counters)
 cr_g_SeqPrevious = .bss:0x80321D8C; // type:object datatype:cr_Seq // why: = cr_g_SeqCurrent just before it changes (FUN_8000878c)
 cr_g_SeqNext = .bss:0x80321D90; // type:object datatype:cr_Seq // why: when it differs from cr_g_SeqCurrent the Leave handler of the current and the Enter handler of this one run (FUN_8000878c)
 cr_g_SeqNames = .data:0x801DEAB4; // type:object datatype:char*[15] // why: the game's own SEQ_LOGO ... SEQ_ENDING strings in sequence-number order (docs/name_tables.tsv)

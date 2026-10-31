@@ -23,12 +23,31 @@ typedef enum cr_Seq
   SEQ_ILLUSTRATED_BOOK,
   SEQ_ENDING
 } cr_Seq;
-__declspec(section ".data") extern cr_Seq cr_g_SeqCurrent;
+typedef struct cr_SeqState
+{
+  cr_Seq current;
+  cr_Seq previous;
+  cr_Seq next;
+  u8 unk_0c[4];
+  u32 unk_10;
+  u8 unk_14[0x10];
+  u32 unk_24;
+  u32 unk_28;
+  u32 unk_2c;
+  u8 unk_30[4];
+  u32 unk_34;
+  s32 unk_38;
+  s16 unk_3c;
+  u8 unk_3e[2];
+  s32 unk_40;
+  u8 unk_44[4];
+} cr_SeqState;
+__declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 void fn_8002B3C4(void *arg0);
 void fn_8002E04C(void *arg0);
 
 void cr_CAMMODE_DRAW_Frame(s32 arg0) {
-    if (!(M2C_FIELD(&cr_g_SeqCurrent, s32 *, 0x38) & 0x4000)) {
+    if (!(cr_g_SeqCurrent.unk_38 & 0x4000)) {
         fn_8002B3C4((void *) arg0);
         fn_8002E04C((void *) arg0);
     }

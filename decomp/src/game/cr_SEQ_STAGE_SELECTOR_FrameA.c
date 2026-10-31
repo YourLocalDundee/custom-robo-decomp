@@ -23,21 +23,40 @@ typedef enum cr_Seq
   SEQ_ILLUSTRATED_BOOK,
   SEQ_ENDING
 } cr_Seq;
-__declspec(section ".data") extern cr_Seq cr_g_SeqCurrent;
+typedef struct cr_SeqState
+{
+  cr_Seq current;
+  cr_Seq previous;
+  cr_Seq next;
+  u8 unk_0c[4];
+  u32 unk_10;
+  u8 unk_14[0x10];
+  u32 unk_24;
+  u32 unk_28;
+  u32 unk_2c;
+  u8 unk_30[4];
+  u32 unk_34;
+  s32 unk_38;
+  s16 unk_3c;
+  u8 unk_3e[2];
+  s32 unk_40;
+  u8 unk_44[4];
+} cr_SeqState;
+__declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 void cr_Cam_Init(void);
 extern u8 lbl_8041A244[852];
 void fn_8008F838(void);
 void cr_Cam_SetMode(u8 mode);
 s32 fn_80113934(void);
 u8 fn_80113680(void);
-u32 fn_80111D50(void);
+enum cr_Seq fn_80111D50(void);
 u32 fn_80111CE8(void);
 
 void cr_SEQ_STAGE_SELECTOR_FrameA(void) {
     u8 temp_r3_47;
 
-    if (M2C_FIELD(&cr_g_SeqCurrent, u32 *, 0x24) == 0U) {
-        M2C_FIELD(&cr_g_SeqCurrent, u32 *, 0x24) = 1U;
+    if ((u32) cr_g_SeqCurrent.unk_24 == 0) {
+        cr_g_SeqCurrent.unk_24 = 1;
         cr_Cam_Init();
         if (M2C_FIELD(lbl_8041A244, s32 *, 0x10) & 2) {
             fn_8008F838();
@@ -47,21 +66,21 @@ void cr_SEQ_STAGE_SELECTOR_FrameA(void) {
         }
         fn_80113934();
         if (M2C_FIELD(lbl_8041A244, s32 *, 0x10) & 1) {
-            M2C_FIELD(&cr_g_SeqCurrent, s32 *, 0x38) |= 0x100;
+            cr_g_SeqCurrent.unk_38 |= 0x100;
         } else {
-            M2C_FIELD(&cr_g_SeqCurrent, s32 *, 0x40) = 2;
+            cr_g_SeqCurrent.unk_40 = 2;
         }
     }
     temp_r3_47 = fn_80113680();
     switch ((s32) temp_r3_47) {                     /* irregular */
     case 0x1:
-        M2C_FIELD(&cr_g_SeqCurrent, u32 *, 8) = fn_80111D50();
+        cr_g_SeqCurrent.next = fn_80111D50();
         return;
     case 0x0:
-        M2C_FIELD(&cr_g_SeqCurrent, u32 *, 8) = fn_80111CE8();
+        cr_g_SeqCurrent.next = fn_80111CE8();
         return;
     case 0x2:
-        M2C_FIELD(&cr_g_SeqCurrent, u32 *, 8) = 2U;
+        cr_g_SeqCurrent.next = SEQ_TITLE;
         /* fallthrough */
     case 0xFF:
         return;

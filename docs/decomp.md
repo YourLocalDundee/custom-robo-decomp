@@ -96,7 +96,7 @@ fields and their evidence: `symbols/cr_types.h`; plan.md steps 30-38. The four r
 
 ### Game sequences
 
-The game runs one sequence at a time (`cr_Seq`: SEQ_LOGO, SEQ_MOVIE, SEQ_TITLE, SEQ_FIELD, SEQ_BATTLE, ... - the game's own names). `cr_g_SeqCurrent` picks the handlers in five tables: `cr_g_SeqEnter` / `cr_g_SeqLeave` on a change, `cr_g_SeqFrameA/B/C` every frame. Handlers are named `cr_SEQ_BATTLE_Enter` etc. To find a mode's code, start at its handlers. plan.md step 42.
+The game runs one sequence at a time (`cr_Seq`: SEQ_LOGO, SEQ_MOVIE, SEQ_TITLE, SEQ_FIELD, SEQ_BATTLE, ... - the game's own names). `cr_g_SeqCurrent` (a `cr_SeqState`, 0x48 bytes: current / previous / next sequence and the handlers' counters, step 77) picks the handlers in five tables: `cr_g_SeqEnter` / `cr_g_SeqLeave` on a change, `cr_g_SeqFrameA/B/C` every frame. Handlers are named `cr_SEQ_BATTLE_Enter` etc. To find a mode's code, start at its handlers. plan.md step 42.
 
 ### Script commands
 
@@ -109,9 +109,10 @@ The game's script interpreter dispatches through `cr_g_ScrCmdFuncs` (0x8021C3F4,
 ## Building library objects from C (Phase 4 Milestone 4, Oct 29, 2026)
 
 Not the Ghidra C above (that is never copied anywhere): the community's own matching C from the pinned reference
-decomps, compiled by the Phase 4 build (`decomp/`). Status: `decomp/reports/progress_report.txt` (Oct 29, 2026: 92
-library objects from C, 44 more C files in `decomp/src` compiled for objdiff only, each with its reason in
-`CR_NOT_MATCHING`); provenance of every file: `decomp/reports/sources_report.txt`. Game functions come into
+decomps, compiled by the Phase 4 build (`decomp/`). Status: `decomp/reports/progress_report.txt` (Oct 31, 2026, plan.md
+step 77: 641 of 916 objects from C, 21.68% of main.dol's code: Dolphin SDK 98 of 98, MSL 49 of 49, Runtime 5 of 5,
+MetroTRK 29 of 29, HSD 21 of 30, game 439 (0xC65C bytes, 4.13% of the game code); 9 more C files in `decomp/src`
+compiled for objdiff only, each with its reason in `CR_NOT_MATCHING`); provenance of every file: `decomp/reports/sources_report.txt`. Game functions come into
 `decomp/src/game` another way (m2c drafts that match, promoted by script): [drafts.md](drafts.md).
 
 Step 65 (Oct 30, 2026): 444 objects from C, the Dolphin SDK 82 of 82 objects, MSL 46 of 49, Runtime 5 of 5. Which

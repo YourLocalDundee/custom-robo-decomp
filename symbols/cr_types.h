@@ -55,7 +55,7 @@ typedef struct cr_FileSlot {
     /* +10 */ u32 unk_10;
     /* +14 */ u32 read_left;         // = size when queued
     /* +18 */ u32 read_done;         // = 0 when queued
-    /* +1C */ void* read_buffer;     // destination given to cr_FileSlot_QueueRead
+    /* +1C */ u8* read_buffer;       // destination given to cr_FileSlot_QueueRead; advanced by read_chunk bytes after each read
     /* +20 */ u32 read_total;        // = size when queued
     /* +24 */ u32 read_chunk;        // first read length, capped at cr_g_ReadChunkSectors * 0x800
     /* +28 */ u32 unk_28;
@@ -65,6 +65,21 @@ typedef struct cr_FileSlot {
     /* +38 */ u32 unk_38;
     /* +3C */ DVDFileInfo file_info; // filled by DVDFastOpen; passed to DVDReadAsyncPrio
 } cr_FileSlot;
+
+// ASSERT_SIZE(cr_FileSysState, 0x8C)   dtk's one object at 0x80321CB4 (size 0x8C, up to 0x80321D40); the code addresses
+//                                      it as one base (`lis/addi` of 0x80321CB4, then +4 / +5 / +6 / +8 / +0xC)
+
+/// The file system's read state: the ready flag and the read queue (cr_g_FileSysReady, 0x80321CB4; the fields are
+/// the globals cr_globals.txt names at their own addresses, which the code never reaches as symbols of their own).
+typedef struct cr_FileSysState {
+    /* +00 */ u8 ready;                     // cr_FileSys_Init returns at once when set and sets it to 1 at the end
+    /* +01 */ u8 unk_01[3];
+    /* +04 */ u8 queue_head;                // cr_FileSlot_QueueRead compares it with queue_tail
+    /* +05 */ u8 queue_tail;                // cr_FileSlot_QueueRead stores the slot at queue[tail], advances it mod 0x20
+    /* +06 */ u16 chunk_sectors;            // read length cap in 0x800-byte sectors (0x80 at init)
+    /* +08 */ cr_FileSlot* current_read;    // the slot whose DVD read cr_FileSlot_QueueRead starts
+    /* +0C */ cr_FileSlot* queue[32];       // ring of queued slots
+} cr_FileSysState;
 
 // ---- Robo models (docs/formats/model_entry.md) -------------------------------------------------------------
 
@@ -611,6 +626,30 @@ typedef enum cr_Seq {
 
 /// One entry of the per-sequence handler tables (cr_g_SeqEnter, cr_g_SeqLeave, cr_g_SeqFrameA/B/C).
 typedef void (*cr_SeqFunc)(void);
+
+// ASSERT_SIZE(cr_SeqState, 0x48)   dtk's one object at 0x80321D88 (size 0x48, up to lbl_80321DD0); the game code
+//                                  addresses it as one base 643 times (`lis/addi` of 0x80321D88, then a field offset)
+
+/// The sequence state (cr_g_SeqCurrent, 0x80321D88): current / previous / next sequence and the per-sequence
+/// counters the handlers keep. Field types: how the code compares and sign-extends them (m2c, step 77).
+typedef struct cr_SeqState {
+    /* +00 */ cr_Seq current;               // indexes the five handler tables and cr_g_SeqNames (cr_Game_Update)
+    /* +04 */ cr_Seq previous;              // = current just before it changes (cr_Game_Update)
+    /* +08 */ cr_Seq next;                  // when it differs from current, Leave of the current and Enter of this run
+    /* +0C */ u8 unk_0c[4];
+    /* +10 */ u32 unk_10;
+    /* +14 */ u8 unk_14[0x10];
+    /* +24 */ u32 unk_24;                   // the FrameA handlers test it for 0, set the sequence up and set it to 1
+    /* +28 */ u32 unk_28;
+    /* +2C */ u32 unk_2c;
+    /* +30 */ u8 unk_30[4];
+    /* +34 */ u32 unk_34;
+    /* +38 */ s32 unk_38;
+    /* +3C */ s16 unk_3c;
+    /* +3E */ u8 unk_3e[2];
+    /* +40 */ s32 unk_40;                   // set together with unk_24 = 1 (cr_SEQ_ENDING_FrameA & co.: 2)
+    /* +44 */ u8 unk_44[4];
+} cr_SeqState;
 
 // ---- Camera ------------------------------------------------------------------------------------------------
 
