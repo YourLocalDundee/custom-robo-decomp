@@ -467,6 +467,19 @@ Not found / left for the next round:
   the struct of the named slots (fn_8002EBB0: 0x20 more, locals the code never touches);
 - `lha` vs `lhz` through struct fields typed by m2c (`(s16) chara->angle` of the s32 at +0x58 reads its low half).
 
+## Naming round 3 types (plan.md step 79, Oct 31, 2026)
+
+Not a generator round: the script engine state (`cr_g_Script`, 0x803BE358, 0x484), the scenario state (`cr_g_Scenario`, 0x803BF914,
+0x364, with two `cr_ScenarioSlot`), the controllers (`cr_g_Pads`, 4 x `cr_Pad` of 0xA4 at 0x8031FED8) and the game-mode block
+(`cr_g_GameMode`, 0x80321D40, 0x48) became typed structs in symbols/cr_types.h, with the scalars `cr_g_ScriptPC`, `cr_g_ScriptDepth`,
+`cr_g_ScriptReturnStack`, `cr_g_ScenarioSlotPtr` and `cr_g_PadStatus` (symbols/cr_globals.txt). The drafts of the 300 script-command
+handlers now read `cr_g_Script.cmd_history[cr_g_Script.history_index] = *cr_g_ScriptPC;` instead of
+`M2C_FIELD(&lbl_803BE358[lbl_803BE358[2]], s32 *, 0x4C)`. Two variants came with the types (`drop_same_member_casts`,
+`expand_ptr_compound`: a typed member's same-type cast costs a register; a compound assignment through a global pointer loads the
+pointer once where the original loads it twice). Result of the one full run: 100% MATCH 477 -> 477, compiled 1,703 -> 1700, bytes equal
+517,256 -> 512,448; 439 game objects linked; 218 handler drafts about 8 points lower (m2c folds the counter pointer temporary that
+reproduced the saved r30 into the typed member: a rule for the next round), 25 higher, 2 new compile failures.
+
 ## Promoted to decomp/src/game (plan.md step 58)
 
 After the drafts, batch 12 runs `python -I tools/promote_drafts.py` (method: its docstring). Every 100% draft that can be
