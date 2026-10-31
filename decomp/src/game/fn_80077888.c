@@ -29,14 +29,14 @@ void fn_80077888(HSD_JObj **arg0, s8 arg1) {
     var_r26 = NULL;
     var_r27 = NULL;
     var_r28 = NULL;
-    if ((*(u32 *)((s8 *)(*(s32 *) (*var_r31 + (arg1 * 4))) + (4))) != 0U) {
-        var_r26 = *(*(HSD_AnimJoint ***)((s8 *)(*(s32 *) (*var_r31 + (arg1 * 4))) + (4)));
+    if (M2C_FIELD(M2C_FIELD((*var_r31 + (arg1 * 4)), u32 *, 0), u32 *, 4) != 0U) {
+        var_r26 = *M2C_FIELD(M2C_FIELD((*var_r31 + (arg1 * 4)), u32 *, 0), HSD_AnimJoint ***, 4);
     }
-    if ((*(u32 *)((s8 *)(*(s32 *) (*var_r31 + (arg1 * 4))) + (8))) != 0U) {
-        var_r27 = *(*(HSD_MatAnimJoint ***)((s8 *)(*(s32 *) (*var_r31 + (arg1 * 4))) + (8)));
+    if (M2C_FIELD(M2C_FIELD((*var_r31 + (arg1 * 4)), u32 *, 0), u32 *, 8) != 0U) {
+        var_r27 = *M2C_FIELD(M2C_FIELD((*var_r31 + (arg1 * 4)), u32 *, 0), HSD_MatAnimJoint ***, 8);
     }
-    if ((*(u32 *)((s8 *)(*(s32 *) (*var_r31 + (arg1 * 4))) + (0xC))) != 0U) {
-        var_r28 = *(*(HSD_ShapeAnimJoint ***)((s8 *)(*(s32 *) (*var_r31 + (arg1 * 4))) + (0xC)));
+    if (M2C_FIELD(M2C_FIELD((*var_r31 + (arg1 * 4)), u32 *, 0), u32 *, 0xC) != 0U) {
+        var_r28 = *M2C_FIELD(M2C_FIELD((*var_r31 + (arg1 * 4)), u32 *, 0), HSD_ShapeAnimJoint ***, 0xC);
     }
     HSD_JObjAddAnimAll(*arg0, var_r26, var_r27, var_r28);
 }

@@ -25,14 +25,14 @@ void fn_800774A4(HSD_JObj **arg0) {
     var_r27_15 = NULL;
     var_r28_16 = NULL;
     var_r29_17 = NULL;
-    if ((*(u32 *)((s8 *)((*(HSD_Joint ***)((s8 *)(*(s32 *) temp_r31_9) + (0)))) + (4))) != 0U) {
-        var_r27_15 = *(*(HSD_AnimJoint ***)((s8 *)((*(HSD_Joint ***)((s8 *)(*(s32 *) temp_r31_9) + (0)))) + (4)));
+    if (M2C_FIELD(M2C_FIELD(M2C_FIELD(temp_r31_9, u32 *, 0), HSD_Joint ***, 0), u32 *, 4) != 0U) {
+        var_r27_15 = *M2C_FIELD(M2C_FIELD(M2C_FIELD(temp_r31_9, u32 *, 0), HSD_Joint ***, 0), HSD_AnimJoint ***, 4);
     }
-    if ((*(u32 *)((s8 *)((*(HSD_Joint ***)((s8 *)(*(s32 *) temp_r31_9) + (0)))) + (8))) != 0U) {
-        var_r28_16 = *(*(HSD_MatAnimJoint ***)((s8 *)((*(HSD_Joint ***)((s8 *)(*(s32 *) temp_r31_9) + (0)))) + (8)));
+    if (M2C_FIELD(M2C_FIELD(M2C_FIELD(temp_r31_9, u32 *, 0), HSD_Joint ***, 0), u32 *, 8) != 0U) {
+        var_r28_16 = *M2C_FIELD(M2C_FIELD(M2C_FIELD(temp_r31_9, u32 *, 0), HSD_Joint ***, 0), HSD_MatAnimJoint ***, 8);
     }
-    if ((*(u32 *)((s8 *)((*(HSD_Joint ***)((s8 *)(*(s32 *) temp_r31_9) + (0)))) + (0xC))) != 0U) {
-        var_r29_17 = *(*(HSD_ShapeAnimJoint ***)((s8 *)((*(HSD_Joint ***)((s8 *)(*(s32 *) temp_r31_9) + (0)))) + (0xC)));
+    if (M2C_FIELD(M2C_FIELD(M2C_FIELD(temp_r31_9, u32 *, 0), HSD_Joint ***, 0), u32 *, 0xC) != 0U) {
+        var_r29_17 = *M2C_FIELD(M2C_FIELD(M2C_FIELD(temp_r31_9, u32 *, 0), HSD_Joint ***, 0), HSD_ShapeAnimJoint ***, 0xC);
     }
     HSD_JObjAddAnimAll(*arg0, var_r27_15, var_r28_16, var_r29_17);
 }
