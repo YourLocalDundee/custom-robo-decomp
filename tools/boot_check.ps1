@@ -11,6 +11,7 @@ param([Parameter(Mandatory)][string]$Iso, [int]$Seconds = 60, [string]$Snapshot,
       [string]$DolphinDir)
 # Dolphin folder: -DolphinDir, else $env:CR_DOLPHIN_DIR, else the pinned Dolphin tools/setup.ps1 downloads
 # (tools/dolphin/Dolphin-x64, made portable so its User/ and log stay in that folder), else a local Project Hive build.
+$Iso = (Resolve-Path -LiteralPath $Iso).Path   # Dolphin starts in its own folder: a relative path would not be found
 if (-not $DolphinDir) { $DolphinDir = $env:CR_DOLPHIN_DIR }
 if (-not $DolphinDir) {
     $pinned = Join-Path (Split-Path $PSScriptRoot -Parent) 'tools/dolphin/Dolphin-x64'

@@ -1,0 +1,9 @@
+ray_legionnaire_tskel - the step 73 legionnaire (see mods/ray_legionnaire/notes.txt) on Ray 01's exact skeleton:
+55 joints, no new bones (crest on the head joint JOBJ_33, scutum on the left forearm JOBJ_40, gladius on the right
+hand JOBJ_54), so the game keeps Ray 01's own joint paths and no roles file is written. The fallback if the custom
+skeleton of ray_legionnaire misbehaves in battle.
+
+Rebuild:
+  pwsh tools\model_loop.ps1 -Mod ray_legionnaire_tskel -Script legionnaire_v2_template -Entries 000,001,002,003,004 -Boot
+Result of Oct 30, 2026: each entry 230,144 bytes (0x38300); ISO SHA-1 27aea58c18a786195054e4e8196103e83cfc71c8;
+patch 797,356 bytes; boot_check 40 s: running, no warning dialog. Not yet seen in game.
