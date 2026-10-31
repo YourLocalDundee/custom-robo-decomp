@@ -110,9 +110,9 @@ That one command checks your ISO is the clean retail dump (SHA-1 `fff6e745…0bc
 extracts the disc, decompiles and names everything, rebuilds `main.dol` from split objects and the matched C with the retail SHA-1, checks
 your result is **byte-identical to ours**, and checks the archive/model tools round-trip. It ends with PASS or FAIL.
 The first run takes longer than a rerun (downloads, and two Ghidra rebuilds on a fresh setup). Expect about an hour
-on a desktop: the game-code drafts (batch 12) alone take about 31 minutes, the Ghidra rebuild about 4 minutes per
-pass, the compiler probe 5 minutes. The last timed complete run was before batch 12 grew (Windows, Oct 30, 2026:
-1,126 s for `run_all`; Ubuntu, Oct 30, 2026: 90 minutes on 4 cores); a new timing is pending
+on a desktop: the game-code drafts (batch 12) alone take about 26 minutes, the Ghidra rebuild about 4 minutes per
+pass, the compiler probe 5 minutes. Timed on Oct 31, 2026 (Windows, 8 cores): `run_all` 2,138 s (36 minutes, one
+rebuild) in a set-up checkout; `from_scratch.ps1` 2,489 s (41 minutes, PASS) in a fresh clone with the tools already in the download cache (Ubuntu, Oct 30, 2026: 90 minutes on 4 cores)
 ([docs/REPRODUCE.md, "Verify this checkout"](docs/REPRODUCE.md#verify-this-checkout)).
 
 After that, one command reruns everything. Windows:
@@ -126,11 +126,12 @@ tools/batches/run_all.sh                 # Linux / macOS
 ```
 
 It runs batches 1–12 in order, stopping at the first failure, and ends by comparing every output with
-[docs/expected_checksums.txt](docs/expected_checksums.txt); about 45 minutes when a previous Ghidra export exists
-(batch 12 is 31 of them). **On Windows, during batch 11 Dolphin opens by itself, twice, for
-about a minute: don't type or click** (a key mapped to Start moves the game past the title screen and the check
-fails); `from_scratch.ps1` runs it too. Batch 11 is skipped on Linux / macOS. To check a checkout without the full
-run (batch 9, batch 8, checksums; a few minutes): [docs/REPRODUCE.md, "Verify this checkout"](docs/REPRODUCE.md#verify-this-checkout).
+[docs/expected_checksums.txt](docs/expected_checksums.txt); 36 minutes when a previous Ghidra export exists
+(batch 12 is 26 of them). **On Windows, during batch 11 Dolphin opens by itself, twice, for
+about a minute (32 s each when its memory card has no Custom Robo save): don't type or click** (a key mapped to Start
+moves the game past the title screen and the check fails); `from_scratch.ps1` runs it too. Batch 11 is skipped on
+Linux / macOS. To check a checkout without the full run (batch 9, batch 8, checksums; about a minute):
+[docs/REPRODUCE.md, "Verify this checkout"](docs/REPRODUCE.md#verify-this-checkout).
 
 Every step, what it runs and why: [docs/REPRODUCE.md](docs/REPRODUCE.md).
 

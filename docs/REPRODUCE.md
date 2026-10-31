@@ -36,11 +36,11 @@ bash tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
 ```
 
 `tools\from_scratch.ps1` / `tools/from_scratch.sh` runs sections 1–4 below in order, stops at the first failure, and
-ends with a PASS / FAIL table. Expect about an hour on a desktop: setup (downloads) 5-15 minutes, `run_all` about 45
-minutes (two Ghidra rebuilds on a fresh setup, 4 minutes each; batch 12 about 31 minutes), the archive / model / mod
+ends with a PASS / FAIL table. Expect about an hour on a desktop: setup (downloads) 5-15 minutes, `run_all` about 40
+minutes (two Ghidra rebuilds on a fresh setup, 4 minutes each; batch 12 about 26 minutes), the archive / model / mod
 steps a few minutes (the glTF export of 1,006 models is the longest). Tested from an empty folder on Windows
-(Oct 27, 2026: **PASS**, 10–15 minutes, before the Phase 4 batches existed) and on Ubuntu 26.04 (Oct 30, 2026: **PASS**,
-90 minutes on 4 cores with the tools already downloaded); not timed as one run since. On Arch only the install block
+(Oct 31, 2026, a fresh local clone, 8 cores: **PASS** in 41 minutes, 2,489 s, with the pinned downloads already cached by setup; two Ghidra rebuilds, batch 12 1,441 s, batch 11 on the pinned Dolphin without a save) and on Ubuntu 26.04 (Oct 30, 2026: **PASS**,
+90 minutes on 4 cores with the tools already downloaded). On Arch only the install block
 was verified (an `archlinux` container, Oct 30, 2026: [arch_container.md](arch_container.md)). The sections explain
 what each part does, so you can also run them one by one.
 
@@ -50,11 +50,11 @@ The checks a checkout must pass before anything built from it counts, from a clo
 (section 1 done once; the tools and the extracted disc are gitignored and stay across branches). Every command runs
 from the repo root in `pwsh`. Expected durations are from this desktop (8 cores).
 
-**Short check** (a few minutes): the build and the names, from the committed files alone. Run it after a pull, a
+**Short check** (about a minute: batch 9 47 s, batch 8 10 s, the compare 1 s on Oct 31, 2026): the build and the names, from the committed files alone. Run it after a pull, a
 merge, or any change to `symbols/`, `decomp/src`, `decomp/configure.py` or the generators:
 
 ```powershell
-pwsh tools\batches\batch9_decomp_build.ps1     # main.dol == retail SHA-1, every C object 100%, relocations, static shift test (a few minutes; not timed on its own)
+pwsh tools\batches\batch9_decomp_build.ps1     # main.dol == retail SHA-1, every C object 100%, relocations, static shift test (47 s; 50 s in a fresh worktree where it also unpacks the build tools and builds every object)
 pwsh tools\batches\batch8_crosscheck.ps1       # every name re-checked from independent evidence, stops on any FAIL (quick; needs decompiled\index.db from a previous run)
 pwsh tools\checksums.ps1 -Compare              # the 33 outputs vs docs\expected_checksums.txt (seconds)
 ```
@@ -64,13 +64,13 @@ compare prints `all 33 files match`. A `DIFFERENT` on `decomp\reports\*` or `dec
 merge is expected when the merge changed names or sources: see "If a checksum differs" below. A `DIFFERENT` on
 `decompiled\*` or `symbols\*` means the names changed and the Ghidra export was not rebuilt yet: run the full check.
 
-**Full check** (about 45 minutes, plus a Dolphin window twice): everything the project publishes, regenerated from
+**Full check** (36 minutes: 2,138 s on Oct 31, 2026, plus a Dolphin window twice): everything the project publishes, regenerated from
 your disc and the committed names:
 
 ```powershell
 pwsh tools\batches\run_all.ps1                 # batches 1-12 in order: names <-> Ghidra rebuild to a fixpoint (4 min per rebuild, 1 rebuild
                                                # when the previous export exists), types, cross-checks, map, index, batch 9 (a few min), batch 10
-                                               # (5 min), batch 11 (1 min, Dolphin opens twice: do not type), batch 12 (31 min), then checksums -Compare
+                                               # (5 min), batch 11 (1-2 min, Dolphin opens twice: do not type), batch 12 (26 min), then checksums -Compare
 pwsh tools\batches\batch11_shift_test.ps1      # only if run_all was run with batch 11 skipped or failed on timing: the shifted build must boot (PASS)
 pwsh tools\checksums.ps1 -Compare              # all 33 files match
 ```
@@ -136,11 +136,11 @@ Everything below runs locally, with no network access. The name batches and the 
    leaves every name unchanged, so the decompiled C is exactly the C of the final names, and fails after 5 rebuilds
    (`-MaxPasses`). The summary prints how many rebuilds it took.
 4. Batches 5, 2, 3, 4 and 8 on the final export, then batch 9 (the Phase 4 build, section 2b; it reads only the final name files),
-   batch 10 (compiler probe, about 5 minutes), batch 11 (the shifted build booted in Dolphin, section 2c, about 1 minute; don't
+   batch 10 (compiler probe, about 5 minutes), batch 11 (the shifted build booted in Dolphin, section 2c, 1-2 minutes; don't
    type while Dolphin is open), batch 12 (m2c drafts of the game code, compiled and compared, then the linkable 100% ones
-   promoted into `decomp\src\game` and batch 9 again when that folder changed: about 31 minutes since plan.md step 77;
+   promoted into `decomp\src\game` and batch 9 again when that folder changed: about 26 minutes, 1,552 s on Oct 31, 2026;
    `docs\drafts.md`), and finally `tools\checksums.ps1 -Compare` (section 3). **This one script runs every batch in
-   order** and stops at the first failure; about 45 minutes in all. `tools\from_scratch.ps1` runs setup, then this script, then the archive / model / mod steps.
+   order** and stops at the first failure; 36 minutes in all (2,138 s, one rebuild). `tools\from_scratch.ps1` runs setup, then this script, then the archive / model / mod steps.
 
 The name matchers take **our names only from the symbol files** and the Ghidra export **only for structure**: function
 starts, calls, string references and computed jumps, all by address (`tools\export_struct.py`; never a name or type Ghidra
@@ -214,10 +214,10 @@ the downloads; `configure.py` stops instead of downloading anything unpinned).
 ## 2c. Boot the shifted build — `tools\batches\batch11_shift_test.ps1` (Phase 4, Milestone 2; run by run_all.ps1, or alone; Windows only, skipped elsewhere)
 
 ```powershell
-pwsh tools\batches\batch11_shift_test.ps1           # after batch 9; starts Dolphin twice, about 1 minute
+pwsh tools\batches\batch11_shift_test.ps1           # after batch 9; starts Dolphin twice, about 1 minute (58 s; 104 s when the Dolphin has no save, below)
 ```
 
-Reruns `tools\shift_test.py`, makes `decomp\build\shift\disc\` (hard links to `Custom Robo extracted`, which is never written, with the shifted `sys\main.dol` as a real file), then boots the unmodified folder (control) and the scratch copy for 22 s each with `tools\boot_check.ps1 -Log -Screenshot` (Dolphin's log for that run only, switched on by command-line config). PASS when the shifted build shows no warning dialog, OSInit reports the arena at the shifted `_stack_addr` (the control at the retail one), the log has no error line, and it reads the same disc files in the same order as the control up to the title screen (`sprite/us_title.tpl`, `TITLE_MODEL.dat`). Results and screenshots in `decomp\build\shift\boot\` (timing-dependent, not checksummed). **Don't type or click while it runs:** the Dolphin window takes focus, and a key mapped to Start moves the game past the title screen (Oct 29, 2026: one run reached the main menu and read `sprite/mode_select.tpl`, so the file check failed; two reruns without input passed). That run also showed the shifted build reacting to Start and loading the main menu correctly.
+Reruns `tools\shift_test.py`, makes `decomp\build\shift\disc\` (hard links to `Custom Robo extracted`, which is never written, with the shifted `sys\main.dol` as a real file), then boots the unmodified folder (control) and the scratch copy for 22 s each with `tools\boot_check.ps1 -Log -Screenshot` (Dolphin's log for that run only, switched on by command-line config; the pinned Dolphin's first-start "Allow Usage Statistics Reporting" prompt is answered the same way). The Dolphin is the pinned `tools\dolphin\Dolphin-x64` that `setup.ps1` downloads (or `-DolphinDir` / `CR_DOLPHIN_DIR`). **When its memory card has no Custom Robo save** (the pinned one right after setup: it keeps its own `User\` folder), the game stops after the logos at "There is no save data on the Memory Card in Slot A" and waits for A: the control's log then ends at `logo_read_us.dbn` without a title file, and the batch redoes both boots for 32 s each with `boot_check.ps1 -PressA 16` (the A button, Dolphin's default keyboard key X, every 2 s from 16 s until the title file is read; no save is created, the title screen comes at about 23 s instead of 13 s). PASS when the shifted build shows no warning dialog, OSInit reports the arena at the shifted `_stack_addr` (the control at the retail one), the log has no error line, and it reads the same disc files in the same order as the control up to the title screen (`sprite/us_title.tpl`, `TITLE_MODEL.dat`). Results and screenshots in `decomp\build\shift\boot\` (timing-dependent, not checksummed). **Don't type or click while it runs:** the Dolphin window takes focus, and a key mapped to Start moves the game past the title screen (Oct 29, 2026: one run reached the main menu and read `sprite/mode_select.tpl`, so the file check failed; two reruns without input passed). That run also showed the shifted build reacting to Start and loading the main menu correctly.
 
 **A battle in the shifted build (by hand)** - the script cannot play:
 1. Run batch 9, then batch 11 (it must say PASS). Open Dolphin and boot `decomp\build\shift\disc\sys\main.dol` (File > Open), not your ISO.

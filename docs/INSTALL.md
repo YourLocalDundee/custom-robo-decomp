@@ -25,7 +25,7 @@ tool lives. A fresh Windows clone with the same tools reproduces every checksum.
 | .NET SDK | 10.0.403 (`dotnet`); HSDRawViewer targets .NET 8 and runs on 10 through `RollForward=Major` | on `PATH` | winget `Microsoft.DotNet.SDK.8` or newer |
 | git | 2.55.0 | on `PATH` | winget `Git.Git` |
 | Blender | 5.2 (`C:\Program Files\Blender Foundation\Blender 5.2\blender.exe`; `tools/model_loop.ps1` takes `-Blender`, else `$env:BLENDER`, else `blender` on `PATH`, else the newest `C:\Program Files\Blender Foundation\Blender *`) | Program Files | blender.org installer; only for the [Blender loop](MODDING.md#blender-loop) |
-| Dolphin | 2609a. The pinned official build is downloaded to `tools/dolphin/Dolphin-x64` by `setup.ps1` **only when the disc is not extracted yet** (it is downloaded for its `DolphinTool`); `tools/boot_check.ps1` / batch 11 use `-DolphinDir`, else `CR_DOLPHIN_DIR`, else `tools/dolphin/Dolphin-x64`, else the Project Hive build at `D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]` (this desktop's; the disc was extracted with its DolphinTool, so `tools/dolphin` does not exist here) | `tools/dolphin/` or your own | `setup.ps1` (pinned, `dolphin.7z` in pins.txt) |
+| Dolphin | 2609a. The pinned official build is downloaded to `tools/dolphin/Dolphin-x64` by `setup.ps1` whenever it is missing (also on a re-run; its `DolphinTool` extracts the disc, and `tools/boot_check.ps1` / batch 11 boot builds with it: `-DolphinDir`, else `CR_DOLPHIN_DIR`, else `tools/dolphin/Dolphin-x64`). It is portable (own `User\` folder, empty memory card, stock settings: the Project Hive build on this desktop, `D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]`, runs GXCE01 with Gecko / AR codes and a 32 MB MEM1 from its `User\GameSettings\GXCE01.ini`, so it is not used for the checks any more) | `tools/dolphin/` or your own | `setup.ps1` (pinned, `dolphin.7z` in pins.txt) |
 | Ghidra + GameCube loader | 12.1.4 + 1.3.1 | `tools/ghidra_12.1.4_PUBLIC/` (loader in `Ghidra/Extensions/GameCubeLoader`, its `version=` set to 12.1.4) | `setup.ps1` step 7 |
 | decomp-toolkit | 1.8.4 | `tools/dtk/dtk.exe`; its analysis of your `main.dol` in `tools/dtk/proj/` (`symbols.txt`, `splits.txt`, `out/`) | `setup.ps1` step 5 |
 | ninja | 1.13.2 | `tools/ninja/ninja.exe` | `setup_decomp.ps1` |
@@ -292,10 +292,10 @@ Or step by step: `pwsh tools/setup.ps1 -Iso ...`, `pwsh tools/batches/run_all.ps
   package indexes and the scripts have no distro-specific code, but they have not been run there yet.
 - Batch 11 (the shifted build booted in Dolphin) is Windows-only (`tools/boot_check.ps1` reads Dolphin's windows through
   the Win32 API) and is skipped on Linux / macOS; the static shift test in batch 9 still runs. On Windows it uses the
-  pinned Dolphin that `setup.ps1` downloads (`tools/dolphin/Dolphin-x64`), or `-DolphinDir` / `CR_DOLPHIN_DIR`.
-  `setup.ps1` downloads Dolphin only while the disc is not extracted yet: a checkout whose disc was extracted another
-  way (this desktop: the Project Hive DolphinTool) has no `tools/dolphin`, and `boot_check.ps1` then falls back to the
-  Project Hive folder named in the script; elsewhere pass `-DolphinDir` or set `CR_DOLPHIN_DIR`.
+  pinned Dolphin that `setup.ps1` downloads (`tools/dolphin/Dolphin-x64`; re-run `setup.ps1` if the folder is
+  missing, it skips every finished step), or `-DolphinDir` / `CR_DOLPHIN_DIR`. A Dolphin whose memory card has no
+  Custom Robo save (the pinned one) stops the game at the no-save message after the logos; batch 11 then presses the
+  A button for it ([REPRODUCE.md section 2c](REPRODUCE.md#2c-boot-the-shifted-build--toolsbatchesbatch11_shift_testps1-phase-4-milestone-2-run-by-run_allps1-or-alone-windows-only-skipped-elsewhere)).
 - Model export to glTF (`tools/export_models.py`) uses HSDRawViewer, a Windows (WinForms) program: on Linux / macOS
   `setup.sh` skips building it and `from_scratch.sh` skips the glTF and preview steps. Decompile, naming, archives,
   `.dat` models, mods and patches work wherever the scripts run.

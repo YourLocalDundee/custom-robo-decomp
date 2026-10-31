@@ -15,14 +15,12 @@
 param([Parameter(Mandatory)][string]$Iso, [int]$Seconds = 60, [string]$Snapshot, [string]$Screenshot, [string]$Log,
       [string]$DolphinDir, [int]$PressA = 0)
 # Dolphin folder: -DolphinDir, else $env:CR_DOLPHIN_DIR, else the pinned Dolphin tools/setup.ps1 downloads
-# (tools/dolphin/Dolphin-x64, made portable so its User/ and log stay in that folder), else a local Project Hive build.
+# (tools/dolphin/Dolphin-x64, made portable so its User/ and log stay in that folder; stock settings, no cheats).
 $Iso = (Resolve-Path -LiteralPath $Iso).Path   # Dolphin starts in its own folder: a relative path would not be found
 if (-not $DolphinDir) { $DolphinDir = $env:CR_DOLPHIN_DIR }
 if (-not $DolphinDir) {
     $pinned = Join-Path (Split-Path $PSScriptRoot -Parent) 'tools/dolphin/Dolphin-x64'
-    foreach ($c in $pinned, 'D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]') {
-        if (Test-Path -LiteralPath (Join-Path $c 'Dolphin.exe')) { $DolphinDir = $c; break }
-    }
+    if (Test-Path -LiteralPath (Join-Path $pinned 'Dolphin.exe')) { $DolphinDir = $pinned }
 }
 if (-not $DolphinDir) { throw 'no Dolphin found: pass -DolphinDir, set CR_DOLPHIN_DIR, or run tools/setup.ps1 (it downloads the pinned Dolphin to tools/dolphin/Dolphin-x64)' }
 if (-not (Test-Path -LiteralPath (Join-Path $DolphinDir 'portable.txt'))) { $null = New-Item -ItemType File -Path (Join-Path $DolphinDir 'portable.txt') }

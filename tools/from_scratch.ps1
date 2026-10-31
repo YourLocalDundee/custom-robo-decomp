@@ -9,7 +9,7 @@
 #                                 then as ISO -> .crpatch -> applied to the clean ISO, SHA-1 checked
 #   5. BUILD_REPORT.md            what was made and where everything is
 # Usage:  pwsh tools\from_scratch.ps1 -Iso "C:\path\to\Custom Robo (USA).iso" [-Dolphin "C:\your\Dolphin folder"]
-# About an hour on this desktop (run_all alone about 45 minutes, batch 12 most of it): docs/REPRODUCE.md.
+# 41 minutes on this desktop (2,489 s on Oct 31, 2026, downloads cached; run_all alone 36 minutes in a set-up checkout, batch 12 most of it): docs/REPRODUCE.md.
 param([Parameter(Mandatory)][string]$Iso, [string]$Dolphin)
 $ErrorActionPreference = 'Stop'
 $g = Split-Path $PSScriptRoot -Parent

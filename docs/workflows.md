@@ -192,7 +192,7 @@ a global in `symbols/cr_globals.txt`, so the next full run reproduces it ([draft
    python -I tools\draft_batch.py --sample 200 --out build\drafts_try      # an experiment apart from the last full run (copy the two ctx_*.h files there first)
    ```
    A rule must not lose a match elsewhere: compare the sample's `draft_report.txt` with the last full run's.
-4. The full run, then promotion and batch 9: `pwsh tools\batches\batch12_drafts.ps1` (about 31 minutes). The counts
+4. The full run, then promotion and batch 9: `pwsh tools\batches\batch12_drafts.ps1` (about 26 minutes). The counts
    go into `decomp/reports/draft_summary.txt` and `promote_report.txt`; `decomp/src/game` gets the new files.
 5. Docs: a new generator round is a section in drafts.md (what changed, before -> after), the counts in README /
    decomp.md, a plan.md step. Commit the generator, the type files, `decomp/src/game`, the reports, the docs.
@@ -293,11 +293,11 @@ pwsh tools\checksums.ps1 -Compare              # expected: only the decomp\ repo
 ```
 
 - When the merge **changed names or types** (`symbols/*.txt`, `cr_types.h`, `cr_globals.txt`): the Ghidra export must
-  follow: `pwsh tools\rebuild_decomp.ps1`, then batches 4 and 8 (or the whole `run_all.ps1`, about 45 minutes, which
+  follow: `pwsh tools\rebuild_decomp.ps1`, then batches 4 and 8 (or the whole `run_all.ps1`, 36 minutes, which
   also reruns batch 12 and renames the promoted files). Until then `decompiled\*` and `symbols\types_report.txt`
   differ in the compare and `decompiled\main_dol.c` shows the old names.
 - When the merge **changed `decomp/src/game` or the generator**: `pwsh tools\batches\batch12_drafts.ps1` once in the
-  main checkout, so `draft_summary.txt`, `promote_report.txt` and the promoted files are the main build's (31 minutes).
+  main checkout, so `draft_summary.txt`, `promote_report.txt` and the promoted files are the main build's (26 minutes).
 - When all checks pass and the differences are the intended ones: `pwsh tools\checksums.ps1 -Write`, then one plain
   commit with the regenerated reports, `docs\expected_checksums.txt`, and the plan.md "Resume here" bullet of the step
   (what the numbers are now, what is left). Then remove the junctions, `git worktree remove ..\<worktree>` and delete

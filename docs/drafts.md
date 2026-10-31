@@ -1,7 +1,7 @@
 # Game-code drafts: m2c, compile, compare (batch 12)
 
 Milestone 5 (game code to matching C, about 1,750 functions) needs a first C version of every function. This batch makes
-one for all of them, checks each against the original, and says where to start. The drafts take about 31 minutes, parallel
+one for all of them, checks each against the original, and says where to start. The drafts take about 26 minutes (1,552 s on Oct 31, 2026), parallel
 (two m2c passes, the repair loop and the variants of every draft below 100%, plan.md steps 69 and 77; 6.5 minutes after step 59,
 2 minutes in the first version, step 57); after them the batch promotes
 the linkable matches into `decomp/src/game` and, when that folder changed, runs batch 9 again, which adds that build's time
