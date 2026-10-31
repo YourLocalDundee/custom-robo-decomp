@@ -13,7 +13,7 @@ extern f32 lbl_804519EC;
 void fn_8008CE9C(void);
 extern u32 lbl_8031FED8[5];
 void fn_8008C8A8(void);
-void fn_80097488(s32 arg0, s8 arg1, u16 arg2);
+void fn_80097488(s32 arg0, u8 arg1, u16 arg2);
 void fn_80098290(s32 arg0);
 
 void fn_8011DC34(void) {
@@ -30,7 +30,7 @@ void fn_8011DC34(void) {
             lbl_8041CBC0[4] = 1;
             M2C_FIELD(lbl_8041CBC0, u8 *, 0) = 2;
             lbl_8041CBC0[1] = 0;
-            fn_80097488(0x10000, 0, 0x1EU);
+            fn_80097488(0x10000, 0U, 0x1EU);
         } else {
             M2C_FIELD(lbl_8041CBC0, u8 *, 0) = 0;
         }

@@ -1865,15 +1865,20 @@ def game_file_data(elf, dobjs, opath, text_start, text_end, addr_of):
     bytes equal the object's section, it starts on a dtk data symbol, every relocation of main.elf into it comes from
     the file's own code range (the per-file pool rule: no other function shares an entry, so no other file needs it),
     and the bytes after it up to the next dtk symbol are zeros (the alignment padding, which goes with it).
-    Data sections with relocations of their own (pointer tables) are not handled: reported."""
+    A data section with relocations of its own is taken when it is a jump table into the file's own code (step 69);
+    other pointer tables are not handled: reported."""
     secs, syms, rels = read_obj(opath)
     ti = next(i for i, s in enumerate(secs) if s[0] == ".text")
     own = {i: s for i, s in enumerate(secs) if s[0] in GAME_DATA and s[2]}
     if not own:
         return {}, ""
+    # step 69: a section of its own with relocations is handled when it is a jump table (every relocation an ADDR32 into
+    # the file's own .text, fn_800AA130's switch): main.elf must relocate each word, with the same type, to that address
+    # of the file's code, and those words are left out of the byte compare (the object has zeros there)
     for i in own:
-        if rels.get(i):
-            return {}, f"its {secs[i][0]} has relocations (a pointer table): not handled"
+        for off, typ, si, add in rels.get(i, []):
+            if typ != 1 or syms[si][5] != ti:
+                return {}, f"its {secs[i][0]} has relocations to other sections (a pointer table): not handled"
     start = {}
     for off, typ, si, add in rels.get(ti, []):
         n, v, sz, t, b, shn = syms[si]
@@ -1899,8 +1904,13 @@ def game_file_data(elf, dobjs, opath, text_start, text_end, addr_of):
         if name not in [x[1] for x in elf.alloc] or elf.section_of(s) != name or s % max(1, align):
             return {}, f"{name} piece 0x{s:08X} is not in main.dol's {name} or not aligned"
         sec = next(x for x in elf.alloc if x[1] == name)
-        got = elf.d[sec[5] + s - sec[3]: sec[5] + s - sec[3] + size]
-        if got != data:
+        got = bytearray(elf.d[sec[5] + s - sec[3]: sec[5] + s - sec[3] + size])
+        for off, typ, si, add in rels.get(shn, []):
+            r = elf.relocs.get(s + off)
+            if r is None or r[0] != typ or r[1] != text_start + syms[si][1] + add:
+                return {}, f"{name} piece 0x{s:08X}: main.elf does not relocate +0x{off:X} to the file's code"
+            got[off:off + 4] = data[off:off + 4]
+        if bytes(got) != data:
             return {}, f"{name} piece 0x{s:08X}: main.dol's bytes differ from the object's"
         if s not in dobjs.info:
             return {}, f"{name} piece 0x{s:08X} does not start on a dtk symbol"

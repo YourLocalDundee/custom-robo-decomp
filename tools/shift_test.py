@@ -86,6 +86,10 @@ def points(elf, objs, c, units, pad):
             where.append((a, sec, u['name']))
     where.sort()
 
+    def forced(n):
+        p = os.path.join(D, 'src', n)
+        return os.path.exists(p) and '#pragma force_active on' in open(p, encoding='utf-8', errors='replace').read()
+
     def unit_at(sec, a):
         best = None
         for start, s, n in where:
@@ -117,8 +121,11 @@ def points(elf, objs, c, units, pad):
         lo, hi = secs[sec]
         # (not one inside a glue span: a piece whose code addresses its first symbol with a negative offset, step 65
         # THPDec.c's __THPIDCTWorkspace - 8, has its span start before the piece)
+        # (and not a piece of a C file with `#pragma force_active` (step 69, the game file objects: an unreferenced
+        # function promote_drafts.py keeps that way): reassembled from dtk's asm it has no force_active, mwld strips
+        # the function and the control link is not retail)
         b = sorted({a for a, s, n in where if s == sec and lo < a < hi and not n.startswith('auto_')
-                    and not any(g0 < a <= g1 for g0, g1 in c['glue'])})
+                    and not any(g0 < a <= g1 for g0, g1 in c['glue']) and not forced(n)})
         pick = b if ALL_DATA else (sorted({b[0], b[len(b) // 2], b[-1]}) if b else [])
         for a in pick:
             pts.append((a, sec, unit_at(sec, a)[1],

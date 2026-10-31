@@ -34,98 +34,98 @@ The game's own names, found in main.dol. Use these before inventing a `cr_` name
 | `scene_data` | FUN_80077f38, FUN_80078000 |
 | `scene_data` | FUN_80082f84 |
 | `train_rst` | FUN_8009d620, cr_AreaBoxes_Update |
-| `sysdolphin_base_library` | FUN_80186ac4 |
-| `hsd_dobj` | FUN_80186ac4 |
-| `sysdolphin_base_library` | FUN_80189be4 |
-| `hsd_tobj` | FUN_80189be4 |
+| `sysdolphin_base_library` | DObjInfoInit |
+| `hsd_dobj` | DObjInfoInit |
+| `sysdolphin_base_library` | TObjInfoInit |
+| `hsd_tobj` | TObjInfoInit |
 | `sysdolphin_base_library` | MObjInfoInit |
 | `hsd_mobj` | MObjInfoInit |
-| `sysdolphin_base_library` | FUN_8018f4c8 |
-| `hsd_lobj` | FUN_8018f4c8 |
-| `sysdolphin_base_library` | FUN_80191b60 |
-| `hsd_cobj` | FUN_80191b60 |
-| `shape_set` | FUN_80193b14 |
-| `sysdolphin_base_library` | FUN_801963a4 |
-| `hsd_pobj` | FUN_801963a4 |
+| `sysdolphin_base_library` | LObjInfoInit |
+| `hsd_lobj` | LObjInfoInit |
+| `sysdolphin_base_library` | CObjInfoInit |
+| `hsd_cobj` | CObjInfoInit |
+| `shape_set` | PObjLoad |
+| `sysdolphin_base_library` | PObjInfoInit |
+| `hsd_pobj` | PObjInfoInit |
 | `sysdolphin_base_library` | JObjInfoInit |
 | `hsd_jobj` | JObjInfoInit |
-| `sysdolphin_base_library` | FUN_801a3364 |
-| `had_wobj` | FUN_801a3364 |
-| `sysdolphin_base_library` | FUN_801a3bf4, FUN_801a3c58 |
-| `hsd_fogadj` | FUN_801a3c58 |
-| `sysdolphin_base_library` | FUN_801a3fa8 |
-| `sysdolphin_base_library` | FUN_801a7b40 |
-| `hsd_class` | FUN_801a7b40 |
+| `sysdolphin_base_library` | WObjInfoInit |
+| `had_wobj` | WObjInfoInit |
+| `sysdolphin_base_library` | FogAdjInfoInit, FogInfoInit |
+| `hsd_fogadj` | FogAdjInfoInit |
+| `sysdolphin_base_library` | ObjInfoInit |
+| `sysdolphin_base_library` | _hsdClassInfoInit |
+| `hsd_class` | _hsdClassInfoInit |
 | `texp_list` | HSD_TExpCnst, HSD_TExpCompile, HSD_TExpTev |
-| `hsd_fog` | FUN_801a3bf4 |
-| `hsd_obj` | FUN_801a3fa8 |
+| `hsd_fog` | FogInfoInit |
+| `hsd_obj` | ObjInfoInit |
 
 ### source file: 81 strings, 77 referenced directly by code
 
 | string | used by |
 |---|---|
-| `seq_movie.c` | FUN_80016868, FUN_80017128 |
+| `seq_movie.c` | cr_SEQ_MOVIE_FrameA, cr_SEQ_MOVIE_FrameC |
 | `background.c` | FUN_8006e83c, FUN_80072064 |
 | `shadow.h` | FUN_8006e83c, FUN_8006ea34, FUN_80072064 |
 | `sprite.c` | FUN_8008e3f8, FUN_8008fa8c, FUN_8008fc38, FUN_80090298 |
-| `axdriver.c` | FUN_8016d42c, FUN_8016d490, FUN_8016d5dc, FUN_8016daa0 |
-| `devcom.c` | FUN_80170ecc, FUN_80170f48, FUN_801710ec, FUN_8017163c |
+| `axdriver.c` | AXDriverAlloc, AXDriverSetupAux, FUN_8016d490, FUN_8016d5dc |
+| `devcom.c` | FUN_80170ecc, FUN_80170f48, FUN_801710ec, HSD_DevComDVDARAMEndCallback |
 | `dvdsche.c` | FUN_80172178, FUN_801723e4, FUN_801725d0, FUN_801726b0 |
-| `particle.c` | FUN_80179f88 |
+| `particle.c` | psInitDataBankLoad |
 | `object.h` | FUN_8017a798, FUN_8017a890 |
 | `psinterpret.c` | FUN_8017e79c |
 | `generator.c` | FUN_8017f4b8 |
 | `object.h` | FUN_80180ac8, FUN_801812a4, FUN_80181360 |
 | `psdisp.c` | FUN_8018144c |
 | `pslist.c` | FUN_80186010, FUN_801860ec |
-| `object.h` | FUN_8018cfa4 |
+| `object.h` | HSD_AObjLoadDesc |
 | `object.h` | FUN_8018e604 |
-| `object.h` | FUN_80193eb8 |
-| `object.h` | FUN_801989a4, FUN_80198a9c, FUN_80198d70, FUN_80198df0 |
-| `displayfunc.c` | FUN_8019c064, FUN_8019c164 |
-| `initialize.c` | FUN_8019cd88, FUN_8019cebc, FUN_8019d15c, FUN_8019d2a0 |
-| `objalloc.c` | FUN_801a094c, HSD_ObjAllocAddFree |
-| `object.h` | FUN_801a1af4, FUN_801a28a0 |
+| `object.h` | HSD_PObjResolveRefsAll |
+| `object.h` | HSD_JObjRef, HSD_JObjResolveRefs, HSD_JObjResolveRefsAll, HSD_JObjSetCurrent |
+| `displayfunc.c` | HSD_JObjMakePositionMtx, _HSD_mkEnvelopeModelNodeMtx |
+| `initialize.c` | FUN_8019cebc, FUN_8019d15c, FUN_8019d2a0, HSD_AllocateXFB |
+| `objalloc.c` | HSD_ObjAllocAddFree, HSD_ObjAllocInit |
+| `object.h` | HSD_RObjResolveRefsAll, HSD_RvalueResolveRefsAll |
 | `memory.c` | FUN_801a3fec |
-| `shadow.c` | FUN_801a43f8, FUN_801a4558, FUN_801a4800, FUN_801a4998 |
-| `object.h` | FUN_801a4c84 |
+| `shadow.c` | FUN_801a4800, FUN_801a4998, FUN_801a4abc, HSD_ShadowInit |
+| `object.h` | HSD_ShadowAddObject |
 | `bytecode.c` | HSD_ByteCodeEval |
 | `texpdag.c` | HSD_TExpMakeDag |
 | `dvdfs.c` | DVDConvertPathToEntrynum, DVDReadAsyncPrio, DVDReadPrio |
 | `vi.c` | VIConfigure |
-| `synth.c` | FUN_80172dd8, FUN_80173274, FUN_8017346c, FUN_80173c80 |
+| `synth.c` | FUN_80173c80, FUN_80174bfc, FUN_80174e1c, FUN_80174ef4 |
 | `jobj.h` | FUN_8017aadc, FUN_8017b1b8, FUN_8017b360, FUN_8017e3d4 |
 | `jobj.h` | FUN_8017f1dc, FUN_80180728 |
-| `dobj.c` | FUN_8018667c, HSD_DObjAlloc, HSD_DObjLoadDesc |
-| `tobj.c` | FUN_80186d0c, HSD_ImageDescAlloc, HSD_Index2TexCoord, HSD_Index2TexMap |
-| `tev.c` | FUN_8018afe0, FUN_8018b090, HSD_TevStage2Num, HSD_TexCoordID2Num |
-| `mobj.c` | FUN_8018bb88, HSD_MObjAddShadowTexture, HSD_MObjAlloc, HSD_MObjLoadDesc |
+| `dobj.c` | DObjLoad, HSD_DObjAlloc, HSD_DObjLoadDesc |
+| `tobj.c` | HSD_ImageDescAlloc, HSD_Index2TexCoord, HSD_Index2TexMap, HSD_Index2TexMtx |
+| `tev.c` | FUN_8018afe0, HSD_Index2TevStage, HSD_TevStage2Num, HSD_TexCoordID2Num |
+| `mobj.c` | HSD_MObjAddShadowTexture, HSD_MObjAlloc, HSD_MObjLoadDesc, HSD_MaterialAlloc |
 | `aobj.c` | FUN_8018ccdc, HSD_AObjAlloc |
-| `lobj.c` | FUN_8018d7d0, FUN_8018da48, FUN_8018ecf8, FUN_8018ee00 |
+| `lobj.c` | HSD_LObjLoadDesc, HSD_LObjSetPosition, HSD_LObjSetupInit, HSD_LObjSetupSpecularInit |
 | `lobj.h` | FUN_8018e604 |
-| `cobj.c` | CObjRelease, FUN_8018fe2c, FUN_80190518, FUN_80190584 |
-| `fobj.c` | FUN_80191ea4, FUN_80192f74, HSD_FObjAlloc |
-| `pobj.c` | FUN_80193b14, FUN_80193e5c, FUN_80193eb8, FUN_801940b8 |
-| `jobj.h` | FUN_80195650, SetupEnvelopeModelMtx |
-| `jobj.h` | FUN_8019643c, FUN_80196568, FUN_801965c0, FUN_80196630 |
-| `jobj.c` | FUN_80198700, FUN_801988fc, FUN_801989a4, FUN_80198a9c |
+| `cobj.c` | CObjLoad, CObjRelease, FUN_80190bbc, HSD_CObjAlloc |
+| `fobj.c` | FObjLoadData, HSD_FObjAlloc, HSD_FObjInterpretAnim |
+| `pobj.c` | HSD_PObjAlloc, HSD_PObjDisp, HSD_PObjLoadDesc, HSD_PObjResolveRefsAll |
+| `jobj.h` | SetupEnvelopeModelMtx, SetupSharedVtxModelMtx |
+| `jobj.h` | FUN_80196568, FUN_80198014, FUN_80198144, FUN_80198690 |
+| `jobj.c` | FUN_80198700, HSD_JObjAddChild, HSD_JObjAlloc, HSD_JObjLoadJoint |
 | `jobj.h` | HSD_JObjDispDObj |
-| `video.c` | FUN_8019d8bc, FUN_8019dc90, HSD_VIPreRetraceCB |
+| `video.c` | FUN_8019dc90, HSD_VICopyEFB2XFBPtr, HSD_VIPreRetraceCB |
 | `mtx.c` | HSD_MtxAlloc, HSD_VecAlloc |
 | `util.c` | HSD_Index2PosNrmMtx |
-| `robj.c` | FUN_801a0ccc, FUN_801a0e80, FUN_801a1670, FUN_801a1af4 |
-| `jobj.h` | FUN_801a0ccc, FUN_801a0e80, FUN_801a1670, expEvaluate |
+| `robj.c` | HSD_RObjAlloc, HSD_RObjGetGlobalPosition, HSD_RObjLoadDesc, HSD_RObjResolveRefsAll |
+| `jobj.h` | HSD_RObjGetGlobalPosition, HSD_RObjUpdateAll, expEvaluate, resolveCnsDirUp |
 | `id.c` | HSD_IDInsertToTable |
 | `wobj.c` | HSD_WObjAlloc, HSD_WObjLoadDesc, WObjUpdateFunc |
 | `jobj.h` | HSD_WObjGetPosition, HSD_WObjSetPositionX, HSD_WObjSetPositionY, HSD_WObjSetPositionZ |
-| `fog.c` | FUN_801a33e4, FUN_801a37e8, HSD_FogLoadDesc |
+| `fog.c` | HSD_FogAdjLoadDesc, HSD_FogLoadDesc, HSD_FogSet |
 | `perf.c` | FUN_801a3c9c |
-| `list.c` | FUN_801a3d3c, HSD_SListAllocAndAppend, HSD_SListAllocAndPrepend, HSD_SListAppendList |
-| `class.c` | FUN_801a74d8, FUN_801a75c0 |
-| `hash.c` | FUN_801a7ce4 |
-| `texp.c` | FUN_801a9c80, HSD_TExpAlphaIn, HSD_TExpAlphaInSub, HSD_TExpAlphaOp |
-| `cobj.h` | FUN_8000fbc0, FUN_8001001c, FUN_800129f8, FUN_8001581c |
-| `jobj.h` | FUN_80014a64, FUN_80015388 |
+| `list.c` | HSD_SListAlloc, HSD_SListAllocAndAppend, HSD_SListAllocAndPrepend, HSD_SListAppendList |
+| `class.c` | GetMemoryEntry, hsdInitClassInfo |
+| `hash.c` | HSD_HashSearch |
+| `texp.c` | HSD_TExpAlphaIn, HSD_TExpAlphaInSub, HSD_TExpAlphaOp, HSD_TExpCnst |
+| `cobj.h` | cr_SEQ_BATTLE_FrameC, cr_SEQ_CUSTOMIZE_FrameC, cr_SEQ_SCENARIO_FrameC, cr_SEQ_STAGE_SELECTOR_FrameC |
+| `jobj.h` | FUN_80015388, cr_SEQ_SCENARIO_FrameB |
 | `jobj.h` | FUN_800392b0, FUN_80039fac, FUN_8003d500, FUN_8003fb00 |
 | `jobj.h` | FUN_80061e18, FUN_8006207c |
 | `jobj.h` | FUN_8006c970 |
@@ -147,7 +147,7 @@ The game's own names, found in main.dol. Use these before inventing a `cr_` name
 | string | used by |
 |---|---|
 | `MOTION = %s ` | FUN_800a0e64 |
-| `fst_ret_%02d` | FUN_800d78b8 |
+| `fst_ret_%02d` | cr_SYS_RET_GEKITOU |
 | `fst_ret_%02d` | FUN_800f21c8 |
 | `Dispatch command 0x%08x ` | TRKDispatchMessage |
 | `DoReadRegisters : Buffer length 0x%08x ` | TRKDoReadRegisters |
@@ -213,7 +213,7 @@ The game's own names, found in main.dol. Use these before inventing a `cr_` name
 | `  Game ver .... %d ` | __fstLoad |
 | `  Streaming ... %s ` | __fstLoad |
 | `VIConfigure(): Tried to change mode from (%d) to (%d), which` | VIConfigure |
-| `DSPInit(): Build Date: %s %s ` | FUN_8014a478 |
+| `DSPInit(): Build Date: %s %s ` | DSPInit |
 | `DSP is booting task: 0x%08X ` | __DSP_boot_task |
 | `__DSP_boot_task()  : IRAM MMEM ADDR: 0x%08X ` | __DSP_boot_task |
 | `__DSP_boot_task()  : IRAM DSP ADDR : 0x%08X ` | __DSP_boot_task |
@@ -221,13 +221,13 @@ The game's own names, found in main.dol. Use these before inventing a `cr_` name
 | `__DSP_boot_task()  : DRAM MMEM ADDR: 0x%08X ` | __DSP_boot_task |
 | `__DSP_boot_task()  : Start Vector  : 0x%08X ` | __DSP_boot_task |
 | `assertion %s failed. ` | FUN_80172178, FUN_801723e4, FUN_801725d0, FUN_801726b0 |
-| `Can't load SFX file; bank(id=%d) buffer overflow. ` | FUN_80173274 |
-| `invalid bankID = %d; filename = %s ` | FUN_8017346c |
+| `Can't load SFX file; bank(id=%d) buffer overflow. ` | HSD_SynthSFXHeaderLoadCallback |
+| `invalid bankID = %d; filename = %s ` | HSD_SynthSFXLoad |
 | `pst=%08x: pst->buftableheadix = %d, a=%d  cadhi= %d pstbuf=%` | FUN_80177fd0 |
-| `mobj has unexpected blending flags (0x%x).` | FUN_8018667c |
+| `mobj has unexpected blending flags (0x%x).` | DObjLoad |
 | `texmtx index exceed hardware limit (%d). ` | HSD_Index2TexMtx |
-| `unexpected lightdesc flags (%x) ` | FUN_8018ee00 |
-| `attr(%d) is not supported by sysdolphin ` | FUN_80194bd8 |
+| `unexpected lightdesc flags (%x) ` | LObjLoad |
+| `attr(%d) is not supported by sysdolphin ` | interpretShapeAnimDisplayList |
 | `Number of argment of expression exceeds the argument buffer ` | expEvaluate |
 | `Trying to open file %s ` | FUN_801a5708 |
 | `specified stack doesn't exist (%d). ` | HSD_ByteCodeEval |
@@ -251,4 +251,63 @@ The game's own names, found in main.dol. Use these before inventing a `cr_` name
 |---|---|
 | `MESGbmg1` | cr_FileSys_Init |
 | `psCamera` | FUN_8017f4b8 |
+
+## Robo bodies: the game's own body codes and stats names, by body number
+
+Codes from the body pictures `sprite/parts_illustrated_book/body_tpl/CR_S1_<code>.tpl` (archive 36, one file per body); names from the body stats record (0x801C6C44 + body x 0x134: +0x20 romaji, +0x00 Shift-JIS). The US names are in bmg/info_usa.bin message file 9. Tables and what grows for a new body: [robo_tables.md](robo_tables.md).
+
+| body | code | stats name (+0x20) | stats name (+0x00) |
+|---|---|---|---|
+| 0 | SF011 | Ray 01 | レイ01 |
+| 1 | SF012 | Splendor | スプレンダー |
+| 2 | SF013 | Lava | ラーバ |
+| 3 | AB021 | Coil | ミルキーウェイ |
+| 4 | AB022 | Earth | アース |
+| 5 | AB023 | Spica | スピカ |
+| 6 | MG031 | Bronzia | メタルコング |
+| 7 | MG032 | ???^???x?A?[ | メタルベアー |
+| 8 | MG033 | Metal ox | メタルオックス |
+| 9 | LR041 | Agilia | リトルチック |
+| 10 | LR042 | PekingDuck | ペキンダック |
+| 11 | LR043 | Peregrine | ペリグリン |
+| 12 | SV051 | ?W???x???? | ジャベリン |
+| 13 | SV052 | Bullova | ブローバ |
+| 14 | SV053 | Halbert | ハルベルト |
+| 15 | TF061 | Criminal | クリミナル |
+| 16 | TF062 | Arius | バギー |
+| 17 | TF063 | Juggler | ジャグラー |
+| 18 | LS071 | Defender | ディフェンダー |
+| 19 | LS072 | Berias | ベリアス |
+| 20 | LS073 | Breakr | ブレイカー |
+| 21 | FB081 | Strato | シールヘッド |
+| 22 | FB082 | PleasureHead | プレジャーヘッド |
+| 23 | FB083 | HoverHead | ホバーヘッド |
+| 24 | SP091 | ???C | 旧レイ |
+| 25 | SP092 | ?B???A?[?}?[ | ドラムカンロボ |
+| 26 | SP093 | ?B???X?s?[?h | ＮＧレイ |
+| 27 | UG101 | Crystalium | ラカンセン |
+| 28 | UG102 | Ruhiel | ルヒエル |
+| 29 | UG103 | Artemis | アルテミス |
+| 30 | RR111 | R Type 1 | Ｒ第１形態 |
+| 31 | RR112 | R Type 2 | Ｒ第２形態 |
+| 32 | RR113 | R Type 3 | Ｒ第３形態 |
+| 33 | SP094 | ?B???A?[?}?[ | ニワトリロボ |
+
+## Leads (by hand, plan.md step 71): behaviour seen, not proven enough for a name yet
+
+| address | lead |
+|---|---|
+| 0x8024E120 | battle robos: 4 x 0x33520 bytes (body +0x1CC, HP +0x74, body stats copy +0x1B98); used as lbl_8024E120 in decomp/src, so it keeps its lbl_ name until that C is renamed with it |
+| 0x8044F348 | current battle robo pointer (cr_Battle_SetCurrentPointers); lbl_8044F348 in decomp/src |
+| 0x801C6C44 | body stats table (34 x 0x134; names at +0x00 / +0x20, special-part byte +0x45, u16 +0x40 = 1000 for Ray 01 and 30000 for R Type 3, HP-like but unproven); lbl_801C6C44 in another stream's C |
+| 0x801C5BD0 | battle loadouts (4 x 0x10: team, body, gun, bomb, pod, leg, HP, controller); lbl_801C5BD0 in another stream's C |
+| 0x8023BA84 | part load requests (4 players x 5 categories x 0x14, 0xFF end); lbl_8023BA84 in another stream's C |
+| 0x80075950 | loads the gun / bomb / pod / leg effect entries and the body's attack_effect entry of the 4 loadouts; fn_80075950 is used by name in another stream's C |
+| 0x80066948 | (message file, message) -> text of bmg/info*.bin; fn_80066948 is called from decomp/src |
+| 0x801DE868 | a second copy of the weapon / body request lists (16 weapon + 4 body requests, 0xFF ends, buffer offsets); no code or data reference found |
+| 0x803BF79C | part bitsets, one save area (5 categories x 0x20 bytes = 4 x 64 bits); 0x803BFB9C is the other area, picked by mode flag 0x800000 of 0x80321D40; what the two areas and sets 2-4 mean is unproven |
+| 0x800F9014 | part name + description for a menu cursor (the cr_Text_Get*Name of the category, cr_Text_MaskUnownedSpecialPart, cr_Text_GetPartDescription into 0x80400604); fn_800F8820 not traced |
+| 0x800A63C0 | part viewer / new-part screen: category 0x803BFC95, part 0x803BFC96, opens chara.bin entry part x 5 for a body; which screen it is is not proven |
+| 0x80065DB0 | two 0x28-byte windows at 0x8032CC20: state +0 = 3 when +8 is set (close request?); caller cr_SYS_WINDOW_CLOSE |
+| 0x8012481C | menu sprites 0x8044F860 / 0x8044F85C: flag 1 and part ids chosen from bits 2..0x20; screen unknown |
 

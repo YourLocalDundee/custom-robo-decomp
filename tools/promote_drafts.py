@@ -96,10 +96,17 @@ class Context:
         from m2c.c_types import add_builtin_typedefs
         ast, self.scope = parse_c(m2c_source(add_builtin_typedefs(path.read_text(encoding="utf-8"))), None)
         self.typedef, self.ident, self.tagdef, self.enumer, self.enumdef = {}, {}, {}, {}, {}
+        self.anon = {}   # id(anonymous struct) -> the first plain typedef name of it
         for it in ast.ext:
             if isinstance(it, ca.Typedef):
                 self.typedef.setdefault(it.name, it)
                 self._defs(it, it.type)
+                # step 69: `typedef struct { ... } Vec, Vec3, *VecPtr, Point3d;` is ONE struct under several names;
+                # the first plain name is the one that defines it, the others are typedefs of that name (emitted
+                # as copies they were distinct structs: cr_Chara_SetCurrentPointers stores a Vec3 * in a Point3d *)
+                if isinstance(it.type, ca.TypeDecl) and isinstance(it.type.type, (ca.Struct, ca.Union)) \
+                        and it.type.type.name is None and it.type.type.decls is not None:
+                    self.anon.setdefault(id(it.type.type), it.name)
             elif isinstance(it, ca.Decl):
                 if it.name:
                     if not isinstance(self.ident.get(it.name), ca.FuncDef):
@@ -139,7 +146,9 @@ class Emitter:
         from m2c_pycparser.c_generator import CGenerator
         self.ctx, self.ca, self.gen = ctx, ctx.ca, CGenerator
         self.provided = provided
-        self.full = full   # the structs a used global / function points to are defined (the draft reads their fields)
+        self.full = full   # the structs a used global / function points to are defined (the draft reads their fields);
+        # "deep" (step 69): also the structs their members point to, and so on (cr_C_ACT_TURN_POINT reads
+        # cr_g_CurrentChara->motion_set->turn_r: cr_Chara's member points to the cr_MotionSet it needs)
         self.top = False   # walking such a declaration itself (not the members of a struct it pulls in)
         self.out, self.done, self.tstate, self.sstate = [], set(), {}, {}
         self.local = set()
@@ -153,6 +162,12 @@ class Emitter:
         if n is None:
             return
         if isinstance(n, ca.PtrDecl):
+            if self.top == "member":
+                # "deep": a member pointing to one of our own types (cr_*) gets that type's definition, any other
+                # (HSD, SDK) stays a pointer to an incomplete type
+                t = n.type.type if isinstance(n.type, ca.TypeDecl) else None
+                own = isinstance(t, ca.IdentifierType) and any(x.startswith("cr_") for x in t.names)
+                return self.walk(n.type, not own)
             return self.walk(n.type, not self.top)
         if isinstance(n, ca.TypeDecl):
             return self.walk(n.type, ptr)
@@ -164,7 +179,7 @@ class Emitter:
         if isinstance(n, (ca.Struct, ca.Union)):
             if n.decls is None:
                 return self.need_tag(kind(n), n.name, ptr)
-            top, self.top = self.top, False
+            top, self.top = self.top, "member" if self.full == "deep" else False
             for d in n.decls:
                 self.walk(d)
             self.top = top
@@ -231,7 +246,7 @@ class Emitter:
         if self.sstate.get(key) == "full":
             return
         self.sstate[key] = "full"
-        top, self.top = self.top, False
+        top, self.top = self.top, "member" if self.full == "deep" else False
         for d in su.decls:
             self.walk(d)
         self.top = top
@@ -242,6 +257,17 @@ class Emitter:
             return
         ca = self.ca
         td = self.ctx.typedef[name]
+        # another name of an anonymous struct: a typedef of its first name (Context.anon), pointers kept
+        base, stars = td.type, 0
+        while isinstance(base, ca.PtrDecl):
+            base, stars = base.type, stars + 1
+        if isinstance(base, ca.TypeDecl) and isinstance(base.type, (ca.Struct, ca.Union)):
+            canon = self.ctx.anon.get(id(base.type))
+            if canon and canon != name:
+                self.need_type(canon, ptr and not stars)
+                self.tstate[name] = "full"
+                self.out.append(f"typedef {canon} {'*' * stars}{name};")
+                return
         u = td.type.type if isinstance(td.type, ca.TypeDecl) else None
         if isinstance(u, (ca.Struct, ca.Union)) and u.name:
             fwd = f"typedef {kind(u)} {u.name} {name};"
@@ -542,7 +568,7 @@ def main(argv):
         # 5. the promoted file: the declarations it uses (a struct used only through a pointer incomplete); when the
         #    compiler needs a struct's fields there (illegal use of incomplete struct), again with every struct defined
         body = draft_body(name)
-        for full in (False, True):
+        for full in (False, True, "deep"):
             r = promoted_text(name, a, size, body, full, not referenced(a, size))
             if isinstance(r, str):
                 return r
@@ -554,7 +580,7 @@ def main(argv):
                                                 str(src.relative_to(D)).replace("\\", "/")])
             if rc or not obj.exists():
                 err = db.compile_error(txt)
-                if not full and "incomplete struct" in err:
+                if full != "deep" and "incomplete struct" in err:
                     continue
                 return "the promoted file does not compile: " + err
             break

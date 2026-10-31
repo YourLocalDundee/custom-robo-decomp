@@ -14,7 +14,7 @@ void fn_8006E7D0(void) {
 
     var_r31_6 = 0;
     while (var_r31_6 < 1) {
-        if ((u32) lbl_80354100[var_r31_6] != 0) {
+        if (lbl_80354100[var_r31_6] != 0) {
             fn_8006EA34((HSD_Shadow *) lbl_80354100[var_r31_6]);
         }
         var_r31_6 += 1;

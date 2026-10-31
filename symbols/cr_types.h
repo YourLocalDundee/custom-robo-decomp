@@ -532,7 +532,7 @@ typedef struct cr_Chara {
     /* +1914 */ u8 unk_1914[0x20];
     /* +1934 */ u32 unk_1934;              // script value (FUN_800cf5ec)
     /* +1938 */ s32 unk_1938;               // auto: 6 uses in 2 functions
-    /* +193C */ s16 id;            // an ID other characters' target_id is compared with; script value (FUN_800cf5ec)
+    /* +193C */ u16 id;            // an ID other characters' target_id is compared with; script value (FUN_800cf5ec); unsigned: all 42 loads in the game code are lhz (step 69)
     /* +193E */ u16 build_number;        // model number passed to cr_Chara_BuildModel; copied to +0x1940; compared with 2 and with DAT_8044eb00
     /* +1940 */ u16 built_number;        // last number built: cr_Chara_BuildModel runs again when build_number != built_number, then they are synced
     /* +1942 */ u16 flags_1942;                              // bit flags only (tested & 1, 4, 8; set | 0x20; cleared & 0xfff7) - meaning of bits open
@@ -555,10 +555,10 @@ typedef struct cr_Chara {
     /* +198C */ u16 countdown_198c;      // tested == 0, decremented, refilled from a table (DAT_803bfe7c[0xb])
     /* +198E */ u8 unk_198e;
     /* +198F */ u8 unk_198f;
-    /* +1990 */ s16 countdown_1990;      // tested == 0, decremented, loaded from script data
+    /* +1990 */ u16 countdown_1990;      // tested == 0, decremented, loaded from script data; unsigned: both loads are lhz (step 69)
     /* +1992 */ u8 unk_1992[0x2];
     /* +1994 */ u16 unk_1994;             // low byte selects a branch of a switch, high byte tested separately; copied from script data
-    /* +1996 */ s16 target_id;     // compared with other characters' id (FUN_8009aec4)
+    /* +1996 */ u16 target_id;     // compared with other characters' id (FUN_8009aec4); unsigned: all 3 loads are lhz (step 69)
     /* +1998 */ u8 unk_1998[0x1];
     /* +1999 */ u8 unk_1999;                // auto: 1 uses in 1 functions
     /* +199A */ u8 unk_199a;                // auto: 1 uses in 1 functions
