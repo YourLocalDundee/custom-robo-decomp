@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,448 @@ def MatchingFor(*versions):
+@@ -284,18 +307,447 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -462,6 +462,7 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/tev.c",
 +    "sysdolphin/baselib/hash.c",
 +    "sysdolphin/baselib/bytecode.c",
++    "sysdolphin/baselib/robj.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
@@ -482,8 +483,6 @@ diff --git a/configure.py b/configure.py
 +        "code: 20 of 22 functions equal in objdiff (Melee's texp.c, TETev with this revision's a_range byte; step 68: TECnst's comp / ctype as u8 (wowjinxy/KAR texp.h: ref at +0x10), main.dol's assert lines throughout, HSD_TExpCnst clears range, HSD_TExpColorOp / AlphaOp compare op with ADD and SUB, the file built with -O3 (HSD_TExpSetReg's registers)): HSD_TExpSetReg 99.6% (one instruction scheduled elsewhere: the .data base address before / after `changed = 0`; init orders tried), TExp2TevDesc (0x400) has main.dol's instructions (each UNDEF default as a u32 temporary and an if) but other saved registers for its parameters (texp / desc in r30 / r31 there, r27 / r28 here; locals, the static table's place, -O levels and compilers tried); step 61 iteration 9: HSD_TExpUnref equal (wowjinxy/KAR's inline_recursion / inline_max_size(768) pragmas, the type test as a switch), TExpAssignReg equal (this revision tries AssignColorReg before AssignColorKonst for the pass-through colour): adapt to this revision",
 +    "sysdolphin/baselib/displayfunc.c":
 +        "code: 10 of 16 functions equal in objdiff (Melee's displayfunc.c with this revision's assert lines; zlist_sort from wowjinxy/KAR's displayfunc.c, step 61 iteration 7): mkVBillBoardMtx / mkHBillBoardMtx / mkBillBoardMtx 0x2DC / 0x344 / 0x398 here vs 0x23C / 0x2D4 / 0x2B8 (74 / 78 / 61%; wowjinxy's 80-90%), HSD_EraseRect 98.8% (r7 / r8 / r10 / r11 swapped in the GX FIFO writes; no wowjinxy form matches), fn_8019C86C and fn_8019C918 not in Melee's C (another revision): adapt to this revision",
-+    "sysdolphin/baselib/robj.c":
-+        "code: 15 of 21 functions equal in objdiff (doldecomp/kar's robj.c for its 6; resolveLimits, HSD_RObjLoadDesc, HSD_RObjRemoveAll, HSD_RObjAlloc, HSD_RObjFree, HSD_RvalueRemoveAll, dummy_func (wowjinxy's RObjEvalZero), expLoadDesc, bcexpLoadDesc ported from wowjinxy/KAR's robj.c, include/cr_kar/robj.h with the 8-byte HSD_RvalueList; step 61 iteration 7): HSD_RObjGetGlobalPosition 90% (94% with the JOBJ test as a BOOL inline; main.dol computes the constraint type branch-free with cntlzw of (rp == NULL)), resolveCnsDirUp 91%, HSD_RObjUpdateAll 89%, expEvaluate 97% (registers r28-r30 permuted), HSD_RObjResolveRefsAll / HSD_RvalueResolveRefsAll (their assert strings are addressed from the file's .data base, +0x4C / 0x5C / 0x68 / 0x130: need the whole file's .data): adapt to this revision",
 +    "sysdolphin/baselib/lobj.c":
 +        "code: 25 of 27 functions equal in objdiff, 26 with LObjUpdateFunc (equal but for its jump table's name) (doldecomp/kar's lobj.c for its functions, TryNormalize comparing with the double FLT_MIN as main.dol does; the 13 kar lacks ported from wowjinxy/KAR's lobj.c, provenance per function, with the HSD_LightPoint / Spot desc structs of wowjinxy's lobj.h in include/cr_kar/lobj.h; HSD_LObjSetCurrentAll written as Melee's LObjReplaceAll with wowjinxy's HSD_LObjAddCurrent inline, step 61 iteration 8; step 61 iteration 9: HSD_LObjSetup takes the colour by value as Melee's state.c calls it, its float constants are literals now): HSD_LObjSetupSpecularInit (0x278, wowjinxy's C with literals) 99.1%: main.dol keeps FLT_MIN in f0 and the joint position in f1 / f2 for the first TryNormalize (here f1 and f0 / f3 / f2; declaration order, a matrix-column inline, the comparison written six ways tried), HSD_LObjSetupInit (0xBBC, wowjinxy's C with literals, the type signed, spot lights' DistAttn before GXInitLightSpot with spot_func, the last loop over the active count, TryNormalize's NULL test as !v) 98.7%: main.dol keeps &active_lights from the first stores in r26 for both later loops (here it is computed again), so its callee-saved registers are numbered differently (statement orders, a local pointer and a clearing loop tried)",
 +    "sysdolphin/baselib/pobj.c":

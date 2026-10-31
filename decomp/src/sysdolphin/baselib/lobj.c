@@ -392,7 +392,7 @@ void GXInitLightSpot(GXLightObj*, f32, s32);
 void PSMTXMultVec(Mtx, Vec*, Vec*);
 void PSMTXMultVecSR(Mtx, Vec*, Vec*);
 
-static inline void setup_spec_lightobj(HSD_LObj* lobj, Mtx mtx, s32 spec_id)
+static void setup_spec_lightobj(HSD_LObj* lobj, Mtx mtx, s32 spec_id)
 {
     f32 x;
 

@@ -1923,10 +1923,11 @@ sysdolphin/baselib/objalloc.c:
 sysdolphin/baselib/robj.c:
 	.text       start:0x801A0A70 end:0x801A2988
 	.rodata     start:0x801C4EB8 end:0x801C4EE0
-	.data       start:0x8024CC98 end:0x8024CE00
+	.data       start:0x8024CC98 end:0x8024CDFE
 	.bss        start:0x8044B4F8 end:0x8044B550
 	.sdata      start:0x8044F150 end:0x8044F180
 	.sbss       start:0x80450048 end:0x80450050
+	.sdata2     start:0x804528E8 end:0x80452920
 
 sysdolphin/baselib/id.c:
 	.text       start:0x801A2988 end:0x801A2C08
