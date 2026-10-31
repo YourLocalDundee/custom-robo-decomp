@@ -1963,7 +1963,7 @@ sysdolphin/baselib/object.c:
 
 sysdolphin/baselib/bytecode.c:
 	.text       start:0x801A5F10 end:0x801A74D8
-	.data       start:0x8024D438 end:0x8024D4D8
+	.data       start:0x8024D438 end:0x8024D4D5
 	.sdata      start:0x8044F238 end:0x8044F248
 	.sdata2     start:0x804529B0 end:0x804529E8
 

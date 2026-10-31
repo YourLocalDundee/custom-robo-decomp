@@ -555,7 +555,7 @@ sysdolphin/baselib/fog.c                         .text  0x801A33E4-0x801A3C9C  1
 sysdolphin/baselib/perf.c                        .text  0x801A3C9C-0x801A3CF8   1 fn  GALE01 HSD_PerfCountEnvelopeBlending..HSD_PerfCountEnvelopeBlending 1/6 [FogAdjInfoInit is in sysdolphin/baselib/fog.c | HSD_ListInitAllocData is in sysdolphin/baselib/list.c] [fewer functions than the reference, both edges named: rule 5]; GKYE01 HSD_PerfCountEnvelopeBlending..HSD_PerfCountEnvelopeBlending 1/6 [FogAdjInfoInit is in fog.c | HSD_ListInitAllocData is in list.c] [fewer functions than the reference, both edges named: rule 5]
 sysdolphin/baselib/list.c                        .text  0x801A3CF8-0x801A3FA8   7 fn  GALE01 HSD_ListInitAllocData..HSD_SListRemove 7/9 [HSD_PerfCountEnvelopeBlending is in sysdolphin/baselib/perf.c | ObjInfoInit is in sysdolphin/baselib/object.c]; GKYE01 HSD_ListInitAllocData..HSD_SListRemove 7/9 [HSD_PerfCountEnvelopeBlending is in perf.c | ObjInfoInit is in object.c]
 sysdolphin/baselib/object.c                      .text  0x801A3FA8-0x801A3FEC   1 fn  GALE01 ObjInfoInit..ObjInfoInit 1/1 [HSD_SListRemove is in sysdolphin/baselib/list.c | reference's own first function (_HSD_MemSetCallbacks is not in this reference)]; GKYE01 ObjInfoInit..ObjInfoInit 1/1 [HSD_SListRemove is in list.c | _HSD_MemSetCallbacks is in memory.c]
-sysdolphin/baselib/bytecode.c                    .text  0x801A5F10-0x801A74D8   1 fn  GALE01 HSD_ByteCodeEval..HSD_ByteCodeEval 1/1 [reference's own first function | hsdInitClassInfo is in sysdolphin/baselib/class.c]; GKYE01 HSD_ByteCodeEval..HSD_ByteCodeEval 1/3 [reference's own first function | hsdInitClassInfo is in class.c]
+sysdolphin/baselib/bytecode.c                    .text  0x801A5F10-0x801A74D8   1 fn  GALE01 HSD_ByteCodeEval..HSD_ByteCodeEval 1/1 [HSD_Randi is in sysdolphin/baselib/random.c | hsdInitClassInfo is in sysdolphin/baselib/class.c]; GKYE01 HSD_ByteCodeEval..HSD_ByteCodeEval 1/3 [HSD_Randi is in random.c | hsdInitClassInfo is in class.c]
 sysdolphin/baselib/class.c                       .text  0x801A74D8-0x801A7CE4  12 fn  GALE01 hsdInitClassInfo..hsdSearchClassInfo 12/20 [HSD_ByteCodeEval is in sysdolphin/baselib/bytecode.c | HSD_HashSearch is in sysdolphin/baselib/hash.c] [fewer functions than the reference, both edges named: rule 5]; GKYE01 hsdInitClassInfo..hsdSearchClassInfo 12/22 [HSD_ByteCodeEval is in bytecode.c | HSD_HashSearch is in hash.c] [fewer functions than the reference, both edges named: rule 5]
 sysdolphin/baselib/hash.c                        .text  0x801A7CE4-0x801A7DE4   1 fn  GALE01 HSD_HashSearch..HSD_HashSearch 1/2 [hsdSearchClassInfo is in sysdolphin/baselib/class.c | HSD_TExpGetType is in sysdolphin/baselib/texp.c]; GKYE01 HSD_HashSearch..HSD_HashSearch 1/1 [hsdSearchClassInfo is in class.c | HSD_TExpGetType is in texpdag.c]
 sysdolphin/baselib/texp.c                        .text  0x801A7DE4-0x801AAF9C  22 fn  GALE01 HSD_TExpGetType..HSD_TExpFreeTevDesc 22/23 [HSD_HashSearch is in sysdolphin/baselib/hash.c | assign_reg is in sysdolphin/baselib/texpdag.c]
@@ -1024,6 +1024,7 @@ dolphin/thp/THPAudio.c                             3 functions
 dolphin/thp/THPDec.c                              19 functions
 dolphin/vi/vi.c                                   22 functions
 sysdolphin/baselib/aobj.c                         15 functions
+sysdolphin/baselib/bytecode.c                      1 functions
 sysdolphin/baselib/class.c                        12 functions
 sysdolphin/baselib/dobj.c                         16 functions
 sysdolphin/baselib/fog.c                          11 functions
@@ -2322,6 +2323,7 @@ DEF 0x801A3E98 HSD_SListAppendList sysdolphin/baselib/list.c .text size:0x70 glo
 DEF 0x801A3F08 HSD_SListPrependList sysdolphin/baselib/list.c .text size:0x50 global
 DEF 0x801A3F58 HSD_SListRemove sysdolphin/baselib/list.c .text size:0x50 global
 DEF 0x801A3FA8 ObjInfoInit sysdolphin/baselib/object.c .text size:0x44 global
+DEF 0x801A5F10 HSD_ByteCodeEval sysdolphin/baselib/bytecode.c .text size:0x15C8 global
 DEF 0x801A74D8 hsdInitClassInfo sysdolphin/baselib/class.c .text size:0xE8 global
 DEF 0x801A75C0 GetMemoryEntry sysdolphin/baselib/class.c .text size:0x264 global
 DEF 0x801A7824 hsdAllocMemPiece sysdolphin/baselib/class.c .text size:0x1C8 global
@@ -2760,6 +2762,13 @@ DEF 0x8024CFB4 @216 sysdolphin/baselib/fog.c .data size:0xB local
 DEF 0x8024CFC0 HSD_PerfCurrentStat sysdolphin/baselib/perf.c .data size:0x90 global
 DEF 0x8024D050 hsdObj sysdolphin/baselib/object.c .data size:0x3C global
 DEF 0x8024D08C @52 sysdolphin/baselib/object.c .data size:0x18 local
+DEF 0x8024D438 @611 sysdolphin/baselib/bytecode.c .data size:0xB local
+DEF 0x8024D444 @612 sysdolphin/baselib/bytecode.c .data size:0x12 local
+DEF 0x8024D458 @613 sysdolphin/baselib/bytecode.c .data size:0x25 local
+DEF 0x8024D480 @616 sysdolphin/baselib/bytecode.c .data size:0x16 local
+DEF 0x8024D498 @617 sysdolphin/baselib/bytecode.c .data size:0x17 local
+DEF 0x8024D4B0 @622 sysdolphin/baselib/bytecode.c .data size:0xC local
+DEF 0x8024D4BC @625 sysdolphin/baselib/bytecode.c .data size:0x19 local
 DEF 0x8024D4D8 hsdClass sysdolphin/baselib/class.c .data size:0x3C global
 DEF 0x8024D514 @14 sysdolphin/baselib/class.c .data size:0x38 local
 DEF 0x8024D54C @15 sysdolphin/baselib/class.c .data size:0x3A local
@@ -2980,6 +2989,8 @@ DEF 0x8044F1F0 @20 sysdolphin/baselib/list.c .sdata size:0x5 local
 DEF 0x8044F1F8 @47 sysdolphin/baselib/list.c .sdata size:0x5 local
 DEF 0x8044F200 @54 sysdolphin/baselib/list.c .sdata size:0x5 local
 DEF 0x8044F208 @53 sysdolphin/baselib/object.c .sdata size:0x8 local
+DEF 0x8044F238 @614 sysdolphin/baselib/bytecode.c .sdata size:0x1 local
+DEF 0x8044F23C @615 sysdolphin/baselib/bytecode.c .sdata size:0x6 local
 DEF 0x8044F248 @13 sysdolphin/baselib/class.c .sdata size:0x8 local
 DEF 0x8044F250 @67 sysdolphin/baselib/hash.c .sdata size:0x7 local
 DEF 0x8044F298 __THPVersion dolphin/thp/THPDec.c .sdata size:0x4 global
@@ -3583,6 +3594,14 @@ DEF 0x8045294C @48 sysdolphin/baselib/fog.c .sdata2 size:0x4 local
 DEF 0x80452950 @49 sysdolphin/baselib/fog.c .sdata2 size:0x4 local
 DEF 0x80452958 @51 sysdolphin/baselib/fog.c .sdata2 size:0x8 local
 DEF 0x80452960 @183 sysdolphin/baselib/fog.c .sdata2 size:0x4 local
+DEF 0x804529B0 @610 sysdolphin/baselib/bytecode.c .sdata2 size:0x4 local
+DEF 0x804529B8 @618 sysdolphin/baselib/bytecode.c .sdata2 size:0x8 local
+DEF 0x804529C0 @619 sysdolphin/baselib/bytecode.c .sdata2 size:0x8 local
+DEF 0x804529C8 @620 sysdolphin/baselib/bytecode.c .sdata2 size:0x8 local
+DEF 0x804529D0 @621 sysdolphin/baselib/bytecode.c .sdata2 size:0x8 local
+DEF 0x804529D8 @623 sysdolphin/baselib/bytecode.c .sdata2 size:0x4 local
+DEF 0x804529DC @624 sysdolphin/baselib/bytecode.c .sdata2 size:0x4 local
+DEF 0x804529E0 @628 sysdolphin/baselib/bytecode.c .sdata2 size:0x8 local
 DEF 0x804529F8 @200 dolphin/thp/THPDec.c .sdata2 size:0x8 local
 DEF 0x80452A00 @636 dolphin/thp/THPDec.c .sdata2 size:0x4 local
 DEF 0x80452A04 @637 dolphin/thp/THPDec.c .sdata2 size:0x4 local
@@ -3826,6 +3845,9 @@ sysdolphin/baselib/aobj.c                        .bss    0x80449DB8-0x80449DE4  
 sysdolphin/baselib/aobj.c                        .sdata  0x8044F018-0x8044F024   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/aobj.c                        .sbss   0x8044FF78-0x8044FF84   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
 sysdolphin/baselib/aobj.c                        .sdata2 0x804526C0-0x804526C8   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/bytecode.c                    .data   0x8024D438-0x8024D4D5   7 sym  of 7 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/bytecode.c                    .sdata  0x8044F238-0x8044F242   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/bytecode.c                    .sdata2 0x804529B0-0x804529E8   8 sym  of 8 in the C (0 stripped), 8 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/class.c                       .data   0x8024D4D8-0x8024D662  14 sym  of 14 in the C (0 stripped), 4 at a verified use (C call site, code), bytes = main.dol
 sysdolphin/baselib/class.c                       .sdata  0x8044F248-0x8044F250   1 sym  of 3 in the C (2 stripped), 1 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/class.c                       .sbss   0x80450058-0x80450064   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code)
@@ -4146,6 +4168,7 @@ sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x8045293C  
 .data   0x8024CEA5-0x8024CEA8 size 0x3
 .data   0x8024CFBF-0x8024CFC0 size 0x1
 .data   0x8024D0A4-0x8024D438 size 0x394
+.data   0x8024D4D5-0x8024D4D8 size 0x3
 .data   0x8024D67F-0x8024D680 size 0x1
 .data   0x8024DAA0-0x8024DAD0 size 0x30
 .bss    0x8024DB20-0x8041EB80 size 0x1D1060
@@ -4183,7 +4206,7 @@ sysdolphin/baselib/wobj.c                        .sdata2 0x80452920-0x8045293C  
 .sdata2 0x80452964-0x804529B0 size 0x4C
 .sbss2  0x80452A20-0x80452AC0 size 0xA0
 
-== rejected candidates (686)
+== rejected candidates (685)
 GALE01:Runtime/__va_arg.c .text: start not proven (__va_arg .. __va_arg; neighbour MWInitializeCriticalSection)
 GALE01:Runtime/Gecko_ExceptionPPC.c .text: none of its functions is (uniquely) named in ours
 GALE01:Runtime/Gecko_setjmp.c .text: none of its functions is (uniquely) named in ours
@@ -4225,7 +4248,7 @@ GALE01:sysdolphin/baselib/quatlib.c .text: none of its functions is (uniquely) n
 GALE01:sysdolphin/baselib/memory.c .text: end not proven (HSD_Free .. HSD_Free; neighbour HSD_Alloc)
 GALE01:sysdolphin/baselib/shadow.c .text: start not proven (HSD_ShadowInitAllocData .. HSD_ViewingRectAddRect; neighbour HSD_Alloc)
 GALE01:sysdolphin/baselib/archive.c .text: end not proven (HSD_ArchiveGetPublicAddress .. HSD_ArchiveGetExtern; neighbour fn_801A5634)
-GALE01:sysdolphin/baselib/random.c .text: none of its functions is (uniquely) named in ours
+GALE01:sysdolphin/baselib/random.c .text: start not proven (HSD_Randf .. HSD_Randi; neighbour fn_801A5C68)
 GALE01:sysdolphin/baselib/leak.c .text: none of its functions is (uniquely) named in ours
 GALE01:sysdolphin/baselib/debug.c .text: start not proven (__assert .. HSD_Panic; neighbour HSD_SaveContext)
 GALE01:sysdolphin/baselib/synth.c .text: end not proven (HSD_AudioMalloc .. fn_8017929C; neighbour fn_8017933C)
@@ -4496,7 +4519,7 @@ GKYE01:controller.c .text: none of its functions is (uniquely) named in ours
 GKYE01:rumble.c .text: none of its functions is (uniquely) named in ours
 GKYE01:quatlib.c .text: none of its functions is (uniquely) named in ours
 GKYE01:archive.c .text: end not proven (HSD_ArchiveGetPublicAddress .. HSD_ArchiveGetExtern; neighbour fn_801A5634)
-GKYE01:random.c .text: none of its functions is (uniquely) named in ours
+GKYE01:random.c .text: start not proven (HSD_Randf .. HSD_Randi; neighbour fn_801A5C68)
 GKYE01:gobjplink.c .text: none of its functions is (uniquely) named in ours
 GKYE01:gobjgxlink.c .text: none of its functions is (uniquely) named in ours
 GKYE01:gobjobject.c .text: none of its functions is (uniquely) named in ours
@@ -4859,7 +4882,6 @@ data from C MSL/alloc.c .bss: __malloc_pool (+0x38) may be after the piece (no b
 data from C MetroTRK/dolphin_trk_glue.c .bss: _MetroTRK_Has_Framing (+0x4) may be after the piece (no bytes to tell, the neighbour is unproven)
 data from C dolphin/axfx/reverb_std.c: 1 of 6 functions of the object are not verified C functions (another revision): its data is not proven
 data from C dolphin/gx/GXFifo.c .sbss: __GXCurrentBP (+0x1C) may be after the piece (no bytes to tell, the neighbour is unproven)
-data from C sysdolphin/baselib/bytecode.c: 1 of 1 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/cobj.c: 10 of 48 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/displayfunc.c: 4 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/fobj.c: 1 of 11 functions of the object are not verified C functions (another revision): its data is not proven
@@ -4868,5 +4890,5 @@ data from C sysdolphin/baselib/lobj.c: 3 of 27 functions of the object are not v
 data from C sysdolphin/baselib/mtx.c: 7 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/pobj.c: 12 of 23 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/robj.c: 6 of 21 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/texp.c: 4 of 22 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/texp.c: 2 of 22 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/texpdag.c: 8 of 11 functions of the object are not verified C functions (another revision): its data is not proven
