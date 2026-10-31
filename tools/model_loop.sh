@@ -80,7 +80,7 @@ for e in ${entries//,/ }; do
     if [ $hsd = 1 ]; then
         # import options the script asked for (one per line in <edited>.args: --replace, --skeleton glb, --roles ...)
         iargs=()
-        [ -f "$work/$name.edited.args" ] && mapfile -t iargs < <(tr -d '' < "$work/$name.edited.args")
+        [ -f "$work/$name.edited.args" ] && mapfile -t iargs < <(tr -d '\r' < "$work/$name.edited.args")
         rm -f "$out/$name.roles.json"
         "$exe" --import "$(winpath "$dat")" "$(winpath "$edited")" "$(winpath "$out/$name.dat")" "${iargs[@]}" | grepq -v flags ||
             die "HSDRawViewer --import failed for $name"
