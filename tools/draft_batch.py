@@ -978,7 +978,7 @@ def invert_early_returns(body):
 
 
 def widen_masked_bytes(body):
-    """a variant (step 69): a local `u8 v;` (u16 alike) whose every assignment is `v = (u8) (E);` becomes a u32 that
+    """a variant (step 69): a local `u8 v;` (u16 alike) whose every assignment is `v = (u8) (E);` (or a load of a u8 field) becomes a u32 that
     takes `(E) & 0xFF`: m2c types a register by the `rlwinm` that extracted its byte, but as a byte the compiler masks
     it again where it is used (`rlwinm r0,r30,2,22,29` for `v * 4` where the original has `slwi r0,r30,2`;
     fn_8005C628). The same values: v only ever holds the masked byte."""
@@ -986,7 +986,11 @@ def widen_masked_bytes(body):
         t, v = m.group(1), m.group(2)
         n = re.escape(v)
         asg = re.findall(r'^\s+%s = \(%s\) (.+);$' % (n, t), body, re.M)
-        if not asg or len(re.findall(r'\b%s\s*(?:[-+*/%%&|^]|<<|>>)?=(?!=)|\b%s\s*(?:\+\+|--)|(?:\+\+|--)\s*%s\b' % (n, n, n), body)) != len(asg):
+        # (also a byte / halfword loaded from a field of its own width, `v = M2C_FIELD(p, u8 *, 0x8C);`: the load
+        # zero-extends, so as a u32 it needs no mask either; fn_80077648 & co.'s `slwi` index)
+        loads = re.findall(r'^\s+%s = M2C_FIELD\([^;]*, %s \*, [^,()]+\);$' % (n, t), body, re.M)
+        writes = len(re.findall(r'\b%s\s*(?:[-+*/%%&|^]|<<|>>)?=(?!=)|\b%s\s*(?:\+\+|--)|(?:\+\+|--)\s*%s\b' % (n, n, n), body))
+        if not (asg or loads) or writes != len(asg) + len(loads):
             continue
         mask = '0xFF' if t == 'u8' else '0xFFFF'
         body = body.replace(m.group(0), '    u32 %s;' % v, 1)
