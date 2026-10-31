@@ -20,8 +20,8 @@ void fn_80023394(s8 *arg0, u32 arg1);
 extern u8 *lbl_8044F348;
 
 void fn_8000768C(void) {
-    s32 var_r30;
     s32 var_r31;
+    s32 var_r30;
 
     var_r31 = 0;
     while (var_r31 < 4) {

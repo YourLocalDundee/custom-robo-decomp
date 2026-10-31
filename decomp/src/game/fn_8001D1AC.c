@@ -9,8 +9,8 @@ f64 sqrt(f64 x);
 extern f32 lbl_80450408;
 
 f32 fn_8001D1AC(void *arg0) {
-    f32 var_f30;
     f32 var_f31;
+    f32 var_f30;
 
     var_f31 = (M2C_FIELD(arg0, f32 *, 0x20) * M2C_FIELD(arg0, f32 *, 0x20)) + ((M2C_FIELD(arg0, f32 *, 0) * M2C_FIELD(arg0, f32 *, 0)) + (M2C_FIELD(arg0, f32 *, 0x10) * M2C_FIELD(arg0, f32 *, 0x10)));
     var_f31 = (f32) sqrt((f64) var_f31);

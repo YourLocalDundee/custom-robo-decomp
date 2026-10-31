@@ -1,4 +1,4 @@
-c-callsite names (tools/check_c_callsites.py): 126 lines in symbols/symbols.txt, 126 OK, 0 FAIL; 1835 names derived from matched C call sites, 85 at a dtk default name, 2 differ from our name, 0 at two addresses, 0 sites without the same relocation
+c-callsite names (tools/check_c_callsites.py): 126 lines in symbols/symbols.txt, 126 OK, 0 FAIL; 1849 names derived from matched C call sites, 85 at a dtk default name, 2 differ from our name, 0 at two addresses, 0 sites without the same relocation
 
 OK   DSPCheckMailToDSP 0x8014A42C: 38 call site(s), all agree; e.g. dolphin/card/CARDUnlock InitCallback+0x3C (0x8014D13C REL24)
 OK   PSVECCrossProduct 0x8013A284: 3 call site(s), all agree; e.g. dolphin/mtx/mtx C_MTXLookAt+0x6C (0x80139BAC REL24)

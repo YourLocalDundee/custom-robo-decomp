@@ -16,10 +16,10 @@ void fn_80124808(s8 arg0);
 __declspec(section ".sdata") extern u8 lbl_8044F885[11];
 
 u32 fn_800F67FC(void) {
-    s32 var_r28;
-    s32 var_r29;
     s32 var_r31;
     u32 var_r30;
+    s32 var_r29;
+    s32 var_r28;
 
     if (fn_80099538(0x10000) != 0) {
         var_r29 = 0x10000;

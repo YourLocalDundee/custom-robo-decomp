@@ -14,8 +14,8 @@ extern f32 lbl_80450404;
 
 f32 fn_8001B42C(f32 farg0) {
     f32 var_f30;
-    s32 var_r30;
     s32 var_r31;
+    s32 var_r30;
 
     var_r31 = 0;
     if (farg0 <= lbl_804503D0) {

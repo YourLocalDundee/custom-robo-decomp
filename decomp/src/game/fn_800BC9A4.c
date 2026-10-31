@@ -469,8 +469,8 @@ void HSD_JObjUnref(HSD_JObj *jobj);
 extern u8 lbl_803BC028[8928];
 
 void fn_800BC9A4(void) {
-    s32 var_r30;
     s32 var_r31;
+    s32 var_r30;
 
     var_r31 = 0;
     while (var_r31 < 0x18) {

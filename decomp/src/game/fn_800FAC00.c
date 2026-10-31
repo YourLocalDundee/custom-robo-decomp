@@ -9,8 +9,8 @@ extern u8 lbl_80407260[75344];
 extern u8 lbl_804026E8[10];
 
 void fn_800FAC00(void *arg0) {
-    u8 var_r30;
     u8 var_r31;
+    u8 var_r30;
 
     var_r31 = (u8) M2C_FIELD(arg0, s32 *, 0x10);
     var_r30 = M2C_FIELD((lbl_80407260 + (var_r31 * 0x4994)), u8 *, 0x4860);

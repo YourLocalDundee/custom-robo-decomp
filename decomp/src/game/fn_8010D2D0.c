@@ -14,8 +14,8 @@ extern u32 lbl_80377C60[128];
 struct HSD_JObj;
 
 void fn_8010D2D0(u8 arg0, u16 arg1) {
-    u16 var_r29;
     u32 var_r30;
+    u16 var_r29;
 
     if ((s32) M2C_FIELD((lbl_8023BA84 + ((arg1 + (arg0 * 5)) * 0x14)), u32 *, 0) == 1) {
         if (M2C_FIELD((lbl_8024DFA0 + (arg0 * 0x58)), u32 *, 4) != 0U) {

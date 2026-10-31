@@ -18,9 +18,9 @@ void fn_80023228(s32 arg0, u32 arg1);
 extern u8 *lbl_8044F794;
 
 void fn_800D9A0C(void) {
-    s32 var_r29;
     s32 var_r31;
     u32 var_r30;
+    s32 var_r29;
 
     var_r30 = 0;
     if (M2C_FIELD(lbl_803BF914, u8 *, 0x2F) == 0) {

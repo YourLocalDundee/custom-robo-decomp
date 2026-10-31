@@ -11,8 +11,8 @@ extern u8 lbl_8024DFA0[352];
 extern u32 lbl_80377C60[128];
 
 void fn_80007A30(void) {
-    s32 var_r30;
     s32 var_r31;
+    s32 var_r30;
 
     fn_80023394((s8 *) lbl_8024E120, 0xCD480U);
     var_r31 = 0;

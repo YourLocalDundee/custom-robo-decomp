@@ -28,8 +28,8 @@ typedef enum cr_Seq
 __declspec(section ".data") extern cr_Seq cr_g_SeqCurrent;
 
 void fn_8007A748(void *arg0) {
-    s32 var_r30;
     u8 var_r31;
+    s32 var_r30;
 
     if ((u8) *cr_g_CurrentCam == 8) {
         var_r30 = M2C_FIELD(cr_g_Cams, s32 *, 0xFC);

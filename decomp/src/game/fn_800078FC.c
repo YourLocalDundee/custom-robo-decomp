@@ -12,8 +12,8 @@ extern u32 lbl_80377C60[128];
 struct HSD_JObj;
 
 void fn_800078FC(void) {
-    s32 var_r30;
     s32 var_r31;
+    s32 var_r30;
 
     var_r31 = 0;
     while (var_r31 < 4) {

@@ -3,25 +3,25 @@ m2c drafts of every game function (decomp/drafts/, gitignored), compiled with th
 counts only; the drafts themselves are decompiled output and are never committed
 
 functions 1751
-m2c ok 1749
-m2c failed 2
+m2c ok 1748
+m2c failed 3
 compile failed 46
-compiled 1703
-100% MATCH 439
-bytes matched 482760 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
+compiled 1702
+100% MATCH 445
+bytes matched 488956 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
 
-match % histogram of the 1703 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
-    0- 9%  48
-   10-19%  72
-   20-29%  106
-   30-39%  127
-   40-49%  275
-   50-59%  144
-   60-69%  143
+match % histogram of the 1702 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
+    0- 9%  46
+   10-19%  74
+   20-29%  104
+   30-39%  121
+   40-49%  270
+   50-59%  127
+   60-69%  155
    70-79%  155
-   80-89%  134
-   90-99%  60
-  100%     439
+   80-89%  135
+   90-99%  70
+  100%     445
 
 most common failures:
      11  compile: pointer/array required
@@ -29,7 +29,7 @@ most common failures:
       8  compile: illegal implicit conversion from '*' to
       7  compile: illegal type
       6  compile: illegal explicit conversion from '*' to
+      3  m2c: */
       2  compile: illegal use of keyword
       2  compile: type mismatch
-      2  m2c: */
       1  compile: undefined identifier '*'

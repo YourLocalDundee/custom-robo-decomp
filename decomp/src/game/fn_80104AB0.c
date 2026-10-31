@@ -12,10 +12,10 @@ extern u32 lbl_8023B8D0[17];
 s32 fn_80104AB0(void *arg0) {
     s8 sp9;
     s8 sp8;
-    u32 var_r27;
-    u32 var_r29;
     u32 var_r30;
+    u32 var_r29;
     u8 var_r28;
+    u32 var_r27;
 
     var_r28 = 1;
     var_r30 = 5;
