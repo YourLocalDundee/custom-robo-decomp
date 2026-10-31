@@ -710,12 +710,23 @@ def main(argv):
     changed = []
     existing = {p.stem: p for p in SRC.glob("*.c")} if SRC.exists() else {}
     kept, removed = [], []
+    # the addresses the files written this run own (a renamed function's new file owns its old file's address)
+    owned = {a for a, n, s in promoted} | {f[1] for mem, _ in files.values() for f in mem}
     for stem, p in sorted(existing.items()):
         if not marked(p) or stem in objs or stem in files:
             continue
-        defs = [m.group(1) for m in map(gs.CDEF.match, p.read_text(encoding="utf-8").splitlines()) if m]
-        if stem in in_file or any(addr_of(n) is None for n in defs) or not defs:
-            removed.append(stem)   # now in a file object, or a name that is no longer ours
+        text = p.read_text(encoding="utf-8")
+        defs = [m.group(1) for m in map(gs.CDEF.match, text.splitlines()) if m]
+        # the header's ".text 0xA-0xB": the address the file was written for; the function's current name must
+        # still be ours at that address (a renamed function: its old fn_ file is dropped, the new name's file is
+        # written by this run), and no file of this run may own it
+        m = re.search(r"\.text 0x([0-9A-F]{8})-0x([0-9A-F]{8})", text)
+        a0, a1 = (int(m.group(1), 16), int(m.group(2), 16)) if m else (None, None)
+        stale = (not defs or any(addr_of(n) is None for n in defs)
+                 or (a0 is not None and len(defs) == 1 and addr_of(defs[0]) != a0)
+                 or (a0 is not None and any(a0 <= a < a1 for a in owned)))
+        if stem in in_file or stale:
+            removed.append(stem)   # now in a file object, a name that is no longer ours, or an address another file owns
             if not check:
                 p.unlink()
                 changed.append(stem)
