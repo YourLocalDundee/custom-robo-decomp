@@ -199,10 +199,23 @@ def game_functions(with_lib=False):
     funcs, jt, lib = [], {}, {}
     for asm, obj in unit_files():
         cur, buf, addr, size, blk = None, [], 0, 0, None
+        nf, nl = len(funcs), len(lib)
+        local, daddr = {}, None   # a C object's own jump tables ("@16", step 69): renamed jumptable_<address>
         for l in open(asm, encoding='utf-8', errors='replace').read().split(chr(10)):
             m = HDR.match(l)
             if m:
                 addr, size = int(m.group(1), 16), int(m.group(2), 16)
+            m = re.match(r'^# \.\w+:0x[0-9A-Fa-f]+ \| 0x([0-9A-F]{8}) \|', l)
+            if m:
+                daddr = m.group(1)
+            m = re.match(r'^\.obj "(@\d+)", local', l)
+            if m and not cur and daddr:
+                local[m.group(1)] = 'jumptable_%s' % daddr
+                blk = [local[m.group(1)], []]
+                continue
+            if blk and re.match(r'^\s+\.rel \S+, (\.L_[0-9A-F]{8})\s*$', l):
+                blk[1].append('\t.4byte ' + re.match(r'^\s+\.rel \S+, (\.L_[0-9A-F]{8})', l).group(1))
+                continue
             m = FN.match(l)
             if m:
                 cur, buf = m.group(1), [l]
@@ -220,10 +233,23 @@ def game_functions(with_lib=False):
             if m:
                 blk = [m.group(1), []]
             elif blk and l.startswith('.endobj'):
-                jt[blk[0]] = blk[1]
+                if blk[0] in local.values() and not all(re.match(r'^\t\.4byte \.L_', x) for x in blk[1] if x.strip()):
+                    # a local object that is not a jump table (a constant, a string): not renamed, not copied
+                    local = {k: v for k, v in local.items() if v != blk[0]}
+                else:
+                    jt[blk[0]] = blk[1]
                 blk = None
             elif blk:
                 blk[1].append(l)
+        if local:
+            # the functions of this object name their table "@16"; the copied table is jumptable_<address>
+            def ren(t):
+                t = list(t)
+                t[3] = [re.sub(r'"(@\d+)"', lambda m: local.get(m.group(1), m.group(0)), x) for x in t[3]]
+                return tuple(t)
+            funcs[nf:] = [ren(f) for f in funcs[nf:]]
+            for k in list(lib)[nl:]:
+                lib[k] = ren(lib[k])
     funcs.sort(key=lambda f: f[1])
     return (funcs, jt, lib) if with_lib else (funcs, jt)
 
