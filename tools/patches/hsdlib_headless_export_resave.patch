@@ -87,10 +87,10 @@ index 0000000..a5cefa0
 +}
 diff --git a/HSDRawViewer/ModelImport.cs b/HSDRawViewer/ModelImport.cs
 new file mode 100644
-index 0000000..b037b02
+index 0000000..4d6f621
 --- /dev/null
 +++ b/HSDRawViewer/ModelImport.cs
-@@ -0,0 +1,840 @@
+@@ -0,0 +1,883 @@
 +using System;
 +using System.Collections.Generic;
 +using System.IO;
@@ -496,6 +496,12 @@ index 0000000..b037b02
 +            if (bJoint >= joints.Count || joints[bJoint].J.Dobj?.Mobj == null)
 +                throw new ImportError($"block B's material joint JOBJ_{bJoint} has no DObj / material; the game reads its material (put a mesh on it, e.g. the envelope body)");
 +
++            // the game draws a robo body with ONE material, the block B joint's (fn_800BCC60: HSD_MObjSetup once, then
++            // its own joint walk): a mesh on a material with another image shows the block B image through its UVs
++            var images = texMats.Values.Where(m => m.Diffuse != null).Select(m => m.Diffuse).Distinct().Count();
++            if (images > 1)
++                Console.WriteLine($"import: warning: {images} different textures on {texMats.Count(m => m.Value.Diffuse != null)} materials; the game draws a robo body with the block B joint's material only (one atlas for the whole body, as its own bodies have)");
++
 +            dat.Save(outPath);
 +            Console.WriteLine($"import: {Path.GetFileName(glbPath)} -> {outPath} ({new FileInfo(outPath).Length} bytes): joints {joints.Count} " +
 +                $"({(opt.GlbSkeleton ? $"glb skeleton, {joints.Count(j => j.New)} new, {tjoints.Count - joints.Count(j => !j.New)} dropped" : "template skeleton")}), " +
@@ -795,17 +801,37 @@ index 0000000..b037b02
 +
 +        private static bool IsPow2(int x) => x >= 8 && (x & (x - 1)) == 0;
 +
-+        /// <summary>A glb material for new geometry: its base colour image encoded once (shared by all its MObjs).</summary>
++        /// <summary>Encoded images by glb image (+ metallic source): two materials on the same image share them.</summary>
++        private static readonly Dictionary<string, (HSD_Image, HSD_Image)> imageCache = new();
++
++        /// <summary>
++        /// A glb material for new geometry: its base colour image encoded once (shared by all its MObjs, and by every
++        /// material that uses the same glb image, e.g. a culled and a two-sided material on one atlas). The specular
++        /// mask (half size) is the base image's luminance x (0.25 + 0.75 x metallic); metallic comes per pixel from the
++        /// glTF metallicRoughness texture's blue channel when the material has one, else from its metallic factor.
++        /// </summary>
 +        private static MatInfo Material(string name, ModelRoot gltf, HSD_MOBJ texTemplate, Dictionary<string, MatInfo> cache)
 +        {
 +            if (cache.TryGetValue(name, out var have)) return have;
 +            var mat = gltf.LogicalMaterials.FirstOrDefault(x => x.Name == name);
 +            var info = new MatInfo { Name = name, DoubleSided = mat?.DoubleSided ?? true, Colour = mat?.GetDiffuseColor(Vector4.One) ?? Vector4.One };
-+            var tex = mat?.GetDiffuseTexture()?.PrimaryImage?.Content;
++            var texImage = mat?.GetDiffuseTexture()?.PrimaryImage;
++            var tex = texImage?.Content;
 +            if (tex != null)
 +            {
 +                if (texTemplate == null) throw new ImportError($"material {name} has a texture but the template has no textured material to copy");
 +                if (!tex.Value.IsPng) throw new ImportError($"material {name}: the texture must be PNG (export_image_format AUTO / PNG)");
++                var mrImage = mat?.FindChannel("MetallicRoughness")?.Texture?.PrimaryImage;
++                float metal = Metallic(mat);
++                string key = $"{texImage.LogicalIndex}/{(mrImage != null ? mrImage.LogicalIndex.ToString() : metal.ToString("R"))}";
++                if (imageCache.TryGetValue(key, out var shared))
++                {
++                    (info.Diffuse, info.Specular) = shared;
++                    Console.WriteLine($"import: new textured material {name}: shares the images of glb image {texImage.LogicalIndex}" +
++                        $"{(info.DoubleSided ? ", two-sided" : "")}");
++                    cache[name] = info;
++                    return info;
++                }
 +                using var img = SixLabors.ImageSharp.Image.Load<Bgra32>(tex.Value.Content.ToArray());
 +                if (!IsPow2(img.Width) || !IsPow2(img.Height) || img.Width > 1024 || img.Height > 1024)
 +                    throw new ImportError($"material {name}: texture {img.Width}x{img.Height}; use a power of two from 8 to 1024");
@@ -816,9 +842,17 @@ index 0000000..b037b02
 +                var st = texTemplate.Textures.List.FirstOrDefault(t => t.SpecularLightmap && t.ImageData != null);
 +                if (st != null)
 +                {
-+                    float metal = Metallic(mat);
++                    byte[] mpx = null; int mw = 0, mh = 0;   // per-pixel metallic (glTF: the blue channel)
++                    if (mrImage?.Content is { } mr && mr.IsPng)
++                    {
++                        using var mimg = SixLabors.ImageSharp.Image.Load<Bgra32>(mr.Content.ToArray());
++                        mw = mimg.Width; mh = mimg.Height;
++                        mpx = new byte[mw * mh * 4];
++                        mimg.CopyPixelDataTo(mpx);
++                    }
 +                    int sw = Math.Max(8, img.Width / 2), sh = Math.Max(8, img.Height / 2);
 +                    var sp = new byte[sw * sh * 4];
++                    double metalSum = 0;
 +                    for (int y = 0; y < sh; y++)
 +                        for (int x = 0; x < sw; x++)
 +                        {
@@ -829,14 +863,23 @@ index 0000000..b037b02
 +                                    int o = (yy * img.Width + xx) * 4;
 +                                    l += (0.114f * px[o] + 0.587f * px[o + 1] + 0.299f * px[o + 2]); n++;
 +                                }
-+                            byte g = (byte)Math.Clamp(l / Math.Max(n, 1) * (0.25f + 0.75f * metal), 0, 255);
++                            float m = metal;
++                            if (mpx != null)
++                            {
++                                int mx = Math.Min(mw - 1, (int)((x + 0.5f) * mw / sw)), my = Math.Min(mh - 1, (int)((y + 0.5f) * mh / sh));
++                                m = mpx[(my * mw + mx) * 4] / 255f;   // Bgra32: byte 0 = blue = metallic
++                            }
++                            metalSum += m;
++                            byte g = (byte)Math.Clamp(l / Math.Max(n, 1) * (0.25f + 0.75f * m), 0, 255);
 +                            int q = (y * sw + x) * 4;
 +                            sp[q] = sp[q + 1] = sp[q + 2] = g; sp[q + 3] = 255;
 +                        }
 +                    info.Specular = Encode(sp, sw, sh, st);
++                    metal = (float)(metalSum / (sw * sh));
 +                }
++                imageCache[key] = (info.Diffuse, info.Specular);
 +                Console.WriteLine($"import: new textured material {name}: {img.Width}x{img.Height} {info.Diffuse.Format}" +
-+                    (info.Specular != null ? $", specular mask {info.Specular.Width}x{info.Specular.Height} (metallic {Metallic(mat):0.##})" : "") +
++                    (info.Specular != null ? $", specular mask {info.Specular.Width}x{info.Specular.Height} (metallic {(mrImage != null ? "per pixel, mean " : "")}{metal:0.##})" : "") +
 +                    $"{(info.DoubleSided ? ", two-sided" : "")}");
 +            }
 +            cache[name] = info;

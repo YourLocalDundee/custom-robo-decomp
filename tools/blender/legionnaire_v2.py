@@ -33,8 +33,12 @@ Parts (bone in brackets; "env" = smooth skinned over several bones):
         uppers, ankle straps [feet, toes, shins]
   scutum: curved red shield with gold rim, gold boss and painted gold wings / lightning [Scutum]
   gladius: steel blade, gold guard and pommel, leather grip [Gladius]
-Materials (each one baked image, power of two): Iron 128, Bronze 128, Gold 64, Red 128, Leather 128, Skin 256,
-Scutum 128 - procedural shaders baked with Cycles (base colour x ambient occlusion).
+Materials (each one baked image, power of two): Iron 128, Bronze 128, Gold 64, Red 64, Leather 64, Skin 256,
+Scutum 128 - procedural shaders baked with Cycles (base colour x ambient occlusion), then packed into ONE 512x256
+atlas with one material for the whole body (two when parts are two-sided: same images, culling differs): the game
+draws a robo body with a single material, the block B joint's (fn_800BCC60: HSD_MObjSetup once, then its own joint
+walk), so every mesh must sample the same texture. A metallic / roughness image (per region: the material's values)
+goes with it: the importer's specular mask takes its metallic channel per pixel.
 """
 import json
 import math
@@ -58,11 +62,14 @@ MATS = {
     'Iron': (128, 0.85, 0.35, False),
     'Bronze': (128, 0.9, 0.3, False),
     'Gold': (64, 1.0, 0.25, False),
-    'Red': (128, 0.0, 0.8, True),
-    'Leather': (128, 0.0, 0.7, True),
+    'Red': (64, 0.0, 0.8, True),
+    'Leather': (64, 0.0, 0.7, True),
     'Skin': (256, 0.0, 0.6, False),
     'Scutum': (128, 0.2, 0.5, False),
 }
+# the whole body's one texture (the game draws a body with one material): a 512x256 CMP is 64 KB + 16 KB specular
+# mask; the 7 images above fill it exactly (256 + 3 x 128 + 3 x 64). 512x512 would not fit the 0x3A000 entry.
+ATLAS = (512, 256)
 
 parts = []          # (object, material name)
 UV_BOOST = {}       # material -> (test(object, bmesh face, deform layer), scale): set by main()
@@ -549,6 +556,80 @@ def bake_all(mats):
     return joined
 
 
+def pack_atlas(joined, mats):
+    """One texture for the whole body (fn_800BCC60 draws every mesh of a robo with the block B joint's material):
+    each material's baked image is copied into a region of a 512x256 atlas and its parts' UVs moved there; every
+    part then gets one of two materials on that atlas (culled / two-sided, which the importer takes per material).
+    A second image carries the materials' metallic (B) and roughness (G) per region, wired as glTF expects."""
+    W, H = ATLAS
+    free = [(0, 0, W, H)]
+    place = {}
+    for name in sorted(joined, key=lambda n: -MATS[n][0]):
+        s = MATS[name][0]
+        free.sort(key=lambda r: r[2] * r[3])
+        for i, (x, y, w, h) in enumerate(free):
+            if w >= s and h >= s:
+                break
+        else:
+            raise RuntimeError(f'atlas {W}x{H}: no room for {name} {s}x{s}')
+        free.pop(i)
+        place[name] = (x, y)
+        if w > s:
+            free.append((x + s, y, w - s, s))
+        if h > s:
+            free.append((x, y + s, w, h - s))
+    atlas = np.zeros((H, W, 4), dtype=np.float32)
+    atlas[:, :, 3] = 1.0
+    metal = np.zeros((H, W, 4), dtype=np.float32)
+    metal[:, :, 3] = 1.0
+    for name, ob in joined.items():
+        s, m, rough, two = MATS[name]
+        x, y = place[name]
+        src = bpy.data.images[f'Legion_{name}']
+        atlas[y:y + s, x:x + s] = np.array(src.pixels[:], dtype=np.float32).reshape(s, s, 4)
+        metal[y:y + s, x:x + s, 1] = rough
+        metal[y:y + s, x:x + s, 2] = m
+        uvl = ob.data.uv_layers.active.data
+        for d in uvl:
+            d.uv = ((d.uv.x * s + x) / W, (d.uv.y * s + y) / H)
+        log(f'atlas: {name} {s}x{s} at {x},{y}')
+    img = bpy.data.images.new('Legion_Atlas', W, H, alpha=False)
+    img.pixels[:] = atlas.ravel()
+    img.pack()
+    mr = bpy.data.images.new('Legion_Atlas_mr', W, H, alpha=False)
+    mr.colorspace_settings.name = 'Non-Color'
+    mr.pixels[:] = metal.ravel()
+    mr.pack()
+    if TEX_DUMP:
+        img.save(filepath=f'{TEX_DUMP}.tex_atlas.png')
+        mr.save(filepath=f'{TEX_DUMP}.tex_atlas_mr.png')
+    out = {}
+    for two in (False, True):
+        mat = bpy.data.materials.new('Legion_Atlas' + ('_2s' if two else ''))
+        mat.use_nodes = True
+        nt = mat.node_tree
+        nt.nodes.clear()
+        o = node(nt, 'ShaderNodeOutputMaterial')
+        bsdf = node(nt, 'ShaderNodeBsdfPrincipled')
+        nt.links.new(bsdf.outputs[0], o.inputs[0])
+        t = node(nt, 'ShaderNodeTexImage', image=img)
+        nt.links.new(t.outputs['Color'], bsdf.inputs['Base Color'])
+        t2 = node(nt, 'ShaderNodeTexImage', image=mr)
+        sep = node(nt, 'ShaderNodeSeparateColor')
+        nt.links.new(t2.outputs['Color'], sep.inputs['Color'])
+        nt.links.new(sep.outputs['Green'], bsdf.inputs['Roughness'])
+        nt.links.new(sep.outputs['Blue'], bsdf.inputs['Metallic'])
+        mat.use_backface_culling = not two
+        out[two] = mat
+    for name, ob in joined.items():
+        ob.data.materials.clear()
+        ob.data.materials.append(out[MATS[name][3]])
+    for name in joined:
+        bpy.data.materials.remove(mats[name])
+        bpy.data.images.remove(bpy.data.images[f'Legion_{name}'])
+    log(f'atlas {W}x{H}: {len(joined)} images packed, materials Legion_Atlas (culled) / Legion_Atlas_2s (two-sided)')
+
+
 def triangulate(ob):
     bm = bmesh.new()
     bm.from_mesh(ob.data)
@@ -1023,8 +1104,9 @@ def main(template_skeleton=None):
     global TEX_DUMP
     TEX_DUMP = os.path.splitext(dst)[0]
     joined = bake_all(mats)
+    pack_atlas(joined, mats)
     tris = sum(triangulate(o) for o in joined.values())
-    log(f'{len(parts)} parts in {len(joined)} materials, {tris} triangles')
+    log(f'{len(parts)} parts in {len(joined)} baked groups, {tris} triangles')
 
     # ---- preview (as drawn in game: hands and feet in place)
     bpy.data.objects.remove(face, do_unlink=True)

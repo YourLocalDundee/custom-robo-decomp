@@ -189,8 +189,9 @@ Start from `tools/blender/legionnaire_v2.py` (a complete model) or `legionnaire.
   the hands, a turn for the feet, measured from the robo's meshes), and weight them 100% to the hand / foot joints.
 - Ray 01 faces **Blender +Y** (glTF -Z; the face and chest gem are on +Y): arm_a (-X) is its **left** arm. The
   step 70 note (faces -Y) was wrong; the v1 photo shows its shield, put on arm_b, on the gun arm.
-- Size: the body entry must stay under 0x3A000 bytes (the game's per-robo load buffer). legionnaire_v2: 3,756
-  triangles + 7 images (128 / 64 / 256) = 0x38560. Images cost most: a 256x256 CMP is 32 KB (+ 8 KB specular mask).
+- Size: the body entry must stay under 0x3A000 bytes (the game's per-robo load buffer). legionnaire_v2: 3,754
+  triangles + one 512x256 atlas (64 KB + 16 KB specular mask) = 213,839 bytes (0x3434F). Images cost most: a 512x512
+  CMP is 128 KB (+ 32 KB mask) and does not fit beside this many triangles.
 
 ### Blender settings (`tools/blender/common.py`)
 
@@ -246,6 +247,17 @@ Taken from Ray 01 (chara_000) with `HSDRawViewer --info`; every robo body seen f
 `--import` copy it field for field (checked: the MObj, material and both TObj raw dumps of the legionnaire equal Ray
 01's except the image pointers and sizes).
 
+- **One material per body - a game rule, not a convention** (found Oct 31, 2026 from the legionnaire v2 photos: every
+  mesh drawn in one flat tan). The robo draw loop `fn_800BCC60` calls `HSD_MObjSetup` **once** with the block B
+  joint's material (`cr_Chara.material` = that joint's first DObj's MObj, kept by `cr_Chara_BuildModel`) and then
+  walks the joints with its own display function (`fn_80095E6C`, flag 0x04000000), which draws every DObj's PObjs
+  without setting up their materials. So a body shows **one** texture, block B's, through each mesh's own UVs; a
+  mesh on another material samples the wrong image. That is why every retail body has one atlas and one MObj. For
+  a new body: bake everything into one atlas (legionnaire_v2.py `pack_atlas`: 512x256, the biggest that fits the
+  0x3A000 entry with ~3,800 triangles; 512x512 does not) and give every part the same material, or two materials on
+  the same image when some parts must be two-sided (the importer shares the encoded images; culling is per DObj).
+  The importer warns when a body carries more than one distinct texture. Build numbers 2, 0xE, 0xF and 0x10 are
+  drawn with `HSD_JObjDispAll` instead (their own materials).
 - **Mesh -> material**: each DObj (one per mesh part, on the joint that carries it) points at an **MObj**. Ray 01's
   18 DObjs all share **one** MObj; the importer gives each glb material one MObj, shared by its DObjs. Block B points
   at the joint whose first DObj's MObj the game keeps (JOBJ_1).
@@ -257,7 +269,9 @@ Taken from Ray 01 (chara_000) with `HSDRawViewer --info`; every robo body seen f
      image **CMP** (GX format 14, `0x0e`), no palette, no mipmaps. Ray 01: one 512x512 atlas for the whole body.
   2. specular: flags `LIGHTMAP_SPECULAR | COLORMAP_BLEND`, blending 0.8, coordinates `GX_TG_TEX1`, otherwise the same;
      a grey CMP mask at a quarter of the diffuse size (Ray 01: 128x128) laid out like the diffuse atlas. The importer
-     makes it at half size from the base image's luminance x (0.25 + 0.75 x Metallic).
+     makes it at half size from the base image's luminance x (0.25 + 0.75 x metallic), metallic per pixel from the
+     glTF metallicRoughness texture's blue channel when the material has one (the atlas's companion image in
+     legionnaire_v2.py), else the material's Metallic factor.
 - **PObj**: attributes POS, NRM (int16 indexed), TEX0 and TEX1 pointing at the **same** UV buffer (uint16 indexed),
   plus PNMTXIDX for envelope (skinned) PObjs; flags CULLFRONT (and ENVELOPE for skinned ones).
 - **Colours (entries 5N..5N+4)** are separate model entries, each with its own textures (no palette swap; the
