@@ -134,7 +134,10 @@ def sources_report():
                         state = 'identical'
                     else:
                         a, b = want.decode('utf-8', 'replace').splitlines(), body.decode('utf-8', 'replace').splitlines()
-                        n = sum(1 for t in difflib.ndiff(a, b) if t[:1] in '+-')
+                        # the lines of SequenceMatcher's non-equal blocks: ndiff's +/- count changed with Python 3.14
+                        # (its intraline pairing), so the same files gave other counts on Windows (3.13) and Arch (3.14)
+                        n = sum(i2 - i1 + j2 - j1 for op, i1, i2, j1, j2 in
+                                difflib.SequenceMatcher(None, a, b, autojunk=False).get_opcodes() if op != 'equal')
                         state = f'changed ({n} lines added / removed)'
                 rows.append(f'{rel}  {repo} @ {commit[:12]} {refpath}  {state}')
     head = ['C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)',
