@@ -1,4 +1,4 @@
-names_crosscheck: 2296 names; FAIL 0, WEAK 452, UNCHECKABLE 16, OK 1828; symbols OK=1219/WEAK=409, cand_hsd OK=60/WEAK=9, cand_sdk OK=63/WEAK=18, cand_rt OK=16/WEAK=15, descriptive OK=417/UNCHECKABLE=14, cr_globals OK=51/UNCHECKABLE=2
+names_crosscheck: 2346 names; FAIL 0, WEAK 452, UNCHECKABLE 31, OK 1863; symbols OK=1219/WEAK=409, cand_hsd OK=60/WEAK=9, cand_sdk OK=63/WEAK=18, cand_rt OK=16/WEAK=15, descriptive OK=438/UNCHECKABLE=28, cr_globals OK=65/UNCHECKABLE=3
 // tools/crosscheck_names.py: VERDICT ADDR NAME SOURCE TAG | AGAINST (contradictions) | independent kinds | evidence | notes
 WEAK        80003424 __flush_cache                        symbols     dtk                          independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x34/melee/GALE01 0x34=1.00 (46 refs)
 WEAK        800034AC gTRKInterruptVectorTable             symbols     dtk                          independent: none | no reference map has this name
@@ -453,21 +453,36 @@ WEAK        80147944 AXSetVoiceSrcRatio                   cand_sdk    R3 bfbb/GQ
 WEAK        801479DC AXSetVoiceAdpcmLoop                  cand_sdk    R3 bfbb/GQPE78               independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x6C/melee/GALE01 0x6C=1.00 (2 refs)
 WEAK        80153040 __GXWriteFifoIntReset                cand_sdk    R5 bfbb/gxfifo.c             independent: none | evidence: callers: caller GXSetGPFifo | size 0x30/ac-decomp/GAFU01_00 0x30=1.00 (39 refs)
 UNCHECKABLE 801C51B8 cr_g_BattleMotionSets                cr_globals  why                          checked: nothing mechanical | unconfirmed: FUN_80037d14: no direct reference into it in the index (computed address?) ; FUN_8004b0a0: no direct reference into it in the index (computed address?) ; FUN_80101730: no direct reference into it in the index (computed address?)
+UNCHECKABLE 8023B8BC cr_g_PartOrderLists                  cr_globals  why                          checked: nothing mechanical
 UNCHECKABLE 8031FE68 cr_g_CurrentMtx                      cr_globals  why                          checked: nothing mechanical
+UNCHECKABLE 8001B388 cr_Rand_Float                        descriptive why                          checked: nothing mechanical | unconfirmed: 0x8001B3F0: no call / reference between them (prose?)
+UNCHECKABLE 8001B544 cr_Vec3_Distance                     descriptive why                          checked: nothing mechanical
+UNCHECKABLE 8001BD54 cr_Vec3_RotateY                      descriptive why                          checked: nothing mechanical | unconfirmed: cr_Sin16: no call / reference between them (prose?)
+UNCHECKABLE 8001BF04 cr_Vec3_RotateAboutAxis              descriptive why                          checked: nothing mechanical | unconfirmed: cr_Sin16: no call / reference between them (prose?)
+UNCHECKABLE 8001CA84 cr_Vec3_Normalize                    descriptive why                          checked: nothing mechanical
+UNCHECKABLE 8001CB4C cr_Vec3_LengthInline                 descriptive why                          checked: nothing mechanical | unconfirmed: cr_Vec3_Distance: no call / reference between them (prose?)
 UNCHECKABLE 8001D694 cr_Mtx_Pop                           descriptive why                          checked: nothing mechanical
 UNCHECKABLE 8001D814 cr_Mtx_Push                          descriptive why                          checked: nothing mechanical
 UNCHECKABLE 8001DB5C cr_Mtx_TranslateZX                   descriptive why                          checked: nothing mechanical
 UNCHECKABLE 8001DD1C cr_Mtx_TranslateX                    descriptive why                          checked: nothing mechanical
 UNCHECKABLE 8001E054 cr_Mtx_Store                         descriptive why                          checked: nothing mechanical
 UNCHECKABLE 8001E134 cr_Mtx_Mul                           descriptive why                          checked: nothing mechanical
+UNCHECKABLE 8001E51C cr_Vec3_NormalizeTo                  descriptive why                          checked: nothing mechanical | unconfirmed: cr_Vec3_Normalize: no call / reference between them (prose?)
+UNCHECKABLE 8001E60C cr_Vec3_Cross                        descriptive why                          checked: nothing mechanical
+UNCHECKABLE 8001F350 cr_SinCos16                          descriptive why                          checked: nothing mechanical | unconfirmed: cr_Cos16: no call / reference between them (prose?) ; cr_Sin16: no call / reference between them (prose?)
 UNCHECKABLE 8001F428 cr_Cos16                             descriptive why                          checked: nothing mechanical
+UNCHECKABLE 8001F558 cr_Pad_StepIndex                     descriptive why                          checked: nothing mechanical
 UNCHECKABLE 800202EC cr_Archive_GetEntrySize              descriptive why                          checked: nothing mechanical | unconfirmed: cr_Archive_OpenEntry: no call / reference between them (prose?)
 UNCHECKABLE 8002036C cr_Archive_OpenRequestList           descriptive why                          checked: nothing mechanical | unconfirmed: cr_Archive_OpenEntry: no call / reference between them (prose?)
 UNCHECKABLE 80023888 cr_Heap_AllocAligned                 descriptive why                          checked: nothing mechanical
 UNCHECKABLE 80050E74 cr_Chara_SetCurrentPointers          descriptive why                          checked: nothing mechanical
 UNCHECKABLE 8005A09C cr_Chara_PoseLimbA                   descriptive why                          checked: nothing mechanical
+UNCHECKABLE 80066DCC cr_Text_GetPartDescription           descriptive why                          checked: nothing mechanical
+UNCHECKABLE 80068A74 cr_Text_CountChars                   descriptive why                          checked: nothing mechanical
 UNCHECKABLE 80073CB8 cr_WeaponModel_OnLoaded              descriptive why                          checked: nothing mechanical
 UNCHECKABLE 80074110 cr_Chara_BuildModel                  descriptive why                          checked: nothing mechanical
+UNCHECKABLE 80096EBC cr_Bgm_FadeOut                       descriptive why                          checked: nothing mechanical
+UNCHECKABLE 80130D1C cr_Ending_LoadPartPictures           descriptive why                          checked: nothing mechanical
 OK          80003100 __check_pad3                         symbols     dtk                          independent: callees, callers | evidence: callees: callees OSResetSystem; callers: caller __start; size: size within 10% of melee/GALE01 | size 0x40/melee/GALE01 0x40=1.00 (43 refs)
 OK          80003140 __set_debug_bba                      symbols     dtk                          independent: callers | evidence: callers: caller __start; size: size within 10% of ac-decomp/GAFU01_00 | size 0xC/ac-decomp/GAFU01_00 0xC=1.00 (24 refs)
 OK          8000314C __get_debug_bba                      symbols     dtk                          independent: callers | evidence: callers: caller __start; size: size within 10% of ac-decomp/GAFU01_00 | size 0x8/ac-decomp/GAFU01_00 0x8=1.00 (23 refs)
@@ -1828,6 +1843,7 @@ OK          8014EC90 IsCard                               cand_sdk    R5 ac-deco
 OK          80150B10 CARDReadAsync                        cand_sdk    R5 ac-decomp/cardread.c      independent: size | evidence: callees: callees DCInvalidateRange,ReadCallback,__CARDDefaultApiCallback,__CARDGetDirBlock,__CARDIsReadable,__CARDPutControlBlock,__CARDRead,__CARDSeek; size: size within 10% of ac-decomp/GAFU01_00 | size 0x144/ac-decomp/GAFU01_00 0x144=1.00 (43 refs)
 OK          8015374C GXGetVtxDesc                         cand_sdk    R3 mkdd/MarioClub_us         independent: callers | evidence: callers: caller GXDrawCube; size: size within 10% of mkdd/MarioClub_us | size 0x1B4/mkdd/MarioClub_us 0x1B4=1.00 (10 refs)
 OK          80153900 GXGetVtxDescv                        cand_sdk    R3 mkdd/MarioClub_us         independent: callees | evidence: callees: callees GXGetVtxDesc; size: size within 10% of mkdd/MarioClub_us | size 0x90/mkdd/MarioClub_us 0x90=1.00 (10 refs)
+OK          801C5C10 cr_g_BodyData                        cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_BodyData ; cr_CAMMODE_CUSTOMIZE_Start references cr_g_BodyData
 OK          801DEA78 cr_g_SeqFrameA                       cr_globals  why                          checked: FUN_8000878c references cr_g_SeqFrameA ; 15 words are code pointers
 OK          801DEAB4 cr_g_SeqNames                        cr_globals  why                          checked: 15 words point to strings
 OK          801DEAF0 cr_g_SeqFrameB                       cr_globals  why                          checked: FUN_800055e8 references cr_g_SeqFrameB ; 15 words are code pointers
@@ -1843,6 +1859,11 @@ OK          8021B080 cr_g_CharaYOffset                    cr_globals  why       
 OK          8021B160 cr_g_CharaMotionSets                 cr_globals  why                          checked: FUN_800cf5ec references cr_g_CharaMotionSets ; FUN_800d0268 references cr_g_CharaMotionSets ; cr_Chara_BuildModel references cr_g_CharaMotionSets
 OK          8021BF44 cr_g_ScrCmdNames                     cr_globals  why                          checked: 300 words point to strings
 OK          8021C3F4 cr_g_ScrCmdFuncs                     cr_globals  why                          checked: 300 words are code pointers
+OK          8023B73A cr_g_PartOrderBody                   cr_globals  why                          checked: cr_g_PartOrderLists[0] = 8023B73A ; cr_Records_BuildBodyRows references cr_g_PartOrderBody
+OK          8023B780 cr_g_PartOrderGun                    cr_globals  why                          checked: cr_g_PartOrderLists[1] = 8023B780
+OK          8023B7EA cr_g_PartOrderBomb                   cr_globals  why                          checked: cr_g_PartOrderLists[2] = 8023B7EA
+OK          8023B83E cr_g_PartOrderPod                    cr_globals  why                          checked: cr_g_PartOrderLists[3] = 8023B83E
+OK          8023B898 cr_g_PartOrderLeg                    cr_globals  why                          checked: cr_g_PartOrderLists[4] = 8023B898
 OK          8024DC80 cr_g_CharaEntries                    cr_globals  why                          checked: FUN_800a0854 references cr_g_CharaEntries ; cr_CharaEntry_OnLoaded references cr_g_CharaEntries
 OK          80320184 cr_g_FileSlots                       cr_globals  why                          checked: cr_Archive_OpenEntry references cr_g_FileSlots
 OK          80321084 cr_g_DirTree                         cr_globals  why                          checked: cr_FileSys_RegisterPath references cr_g_DirTree
@@ -1861,8 +1882,16 @@ OK          80324BD0 cr_g_Cams                            cr_globals  why       
 OK          80329B1C cr_g_CamPtrs                         cr_globals  why                          checked: FUN_80036bcc references cr_g_CamPtrs
 OK          8032A8C8 cr_g_MotionDataBit15                 cr_globals  why                          checked: FUN_80074dcc references cr_g_MotionDataBit15
 OK          8032ADC8 cr_g_MotionData                      cr_globals  why                          checked: FUN_80037a80 references cr_g_MotionData ; FUN_80074dcc references cr_g_MotionData
+OK          80330BC0 cr_g_MessageFiles                    cr_globals  why                          checked: cr_Text_GetBodyName references cr_g_MessageFiles ; cr_Text_GetPartDescription references cr_g_MessageFiles
 OK          803BAF28 cr_g_AreaBoxes                       cr_globals  why                          checked: cr_AreaBoxes_Update references cr_g_AreaBoxes
+OK          803BE7FC cr_g_BodyBattleRecords               cr_globals  why                          checked: cr_Battle_UpdateBodyRecords references cr_g_BodyBattleRecords ; cr_Records_BuildBodyRows references cr_g_BodyBattleRecords ; cr_Save_ResetData references cr_g_BodyBattleRecords
 OK          803BFE88 cr_g_Charas                          cr_globals  why                          checked: cr_Chara_UpdateAll references cr_g_Charas
+OK          8044C3C0 cr_g_BodyCount                       cr_globals  why                          checked: cr_Text_GetGunName references cr_g_BodyCount
+OK          8044C3C4 cr_g_LegCount                        cr_globals  why                          checked: cr_Text_MaskUnownedSpecialPart references cr_g_LegCount
+OK          8044C3C8 cr_g_GunCount                        cr_globals  why                          checked: cr_Text_GetBombName references cr_g_GunCount
+OK          8044C3CC cr_g_BombCount                       cr_globals  why                          checked: cr_Text_GetPodName references cr_g_BombCount
+OK          8044C3D0 cr_g_PodCount                        cr_globals  why                          checked: cr_Text_GetLegName references cr_g_PodCount
+OK          8044F34C cr_g_BattleRoboIndex                 cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_BattleRoboIndex
 OK          8044F3D8 cr_g_MtxStackMaxDepth                cr_globals  why                          checked: cr_Mtx_Push references cr_g_MtxStackMaxDepth
 OK          8044F3DC cr_g_MtxStackDepth                   cr_globals  why                          checked: cr_Mtx_Pop references cr_g_MtxStackDepth ; cr_Mtx_Push references cr_g_MtxStackDepth
 OK          8044F3E0 cr_g_MtxStackTop                     cr_globals  why                          checked: cr_Mtx_Pop references cr_g_MtxStackTop ; cr_Mtx_Push references cr_g_MtxStackTop
@@ -1879,6 +1908,8 @@ OK          8044F560 cr_g_CurrentChara_06dc               cr_globals  why       
 OK          8044F760 cr_g_FirstChara                      cr_globals  why                          checked: FUN_8009aec4 references cr_g_FirstChara ; cr_Chara_UpdateAll references cr_g_FirstChara
 OK          8044F764 cr_g_CurrentChara                    cr_globals  why                          checked: cr_Chara_BuildModel references cr_g_CurrentChara ; cr_Chara_UpdateAll references cr_g_CurrentChara
 OK          8044F768 cr_g_CurrentCharaIndex               cr_globals  why                          checked: cr_Chara_UpdateAll references cr_g_CurrentCharaIndex
+OK          80005DA4 cr_BattleRobo_InitFromLoadout        descriptive why                          checked: references 0x801C6C44 ; references 0x8024DFA0 ; references cr_g_BattleRoboIndex ; references cr_g_BodyData
+OK          8000878C cr_Game_Update                       descriptive why                          checked: cr_Pad_Update is a caller / callee / referenced ; references cr_g_SeqCurrent ; references cr_g_SeqEnter ; references cr_g_SeqFrameA ; references cr_g_SeqLeave ; references cr_g_SeqNext
 OK          80008C00 cr_SEQ_ILLUSTRATED_BOOK_Leave        descriptive why                          checked: 0x801DEBA4[13] = 80008C00 ; name table 0x801DEAB4[13] = "SEQ_ILLUSTRATED_BOOK" | unconfirmed: FUN_8000878c: no call / reference between them (prose?)
 OK          80008C20 cr_SEQ_ILLUSTRATED_BOOK_Enter        descriptive why                          checked: 0x801DEB68[13] = 80008C20 ; name table 0x801DEAB4[13] = "SEQ_ILLUSTRATED_BOOK" | unconfirmed: FUN_8000878c: no call / reference between them (prose?)
 OK          80008C24 cr_SEQ_ILLUSTRATED_BOOK_FrameC       descriptive why                          checked: 0x801DEB2C[13] = 80008C24 ; name table 0x801DEAB4[13] = "SEQ_ILLUSTRATED_BOOK" | unconfirmed: FUN_800055e8: no call / reference between them (prose?)
@@ -1955,11 +1986,15 @@ OK          8001A240 cr_SEQ_LOGO_FrameC                   descriptive why       
 OK          8001AA98 cr_SEQ_LOGO_FrameB                   descriptive why                          checked: 0x801DEAF0[0] = 8001AA98 ; name table 0x801DEAB4[0] = "SEQ_LOGO"
 OK          8001AA9C cr_SEQ_LOGO_FrameA                   descriptive why                          checked: 0x801DEA78[0] = 8001AA9C ; name table 0x801DEAB4[0] = "SEQ_LOGO"
 OK          8001F4C0 cr_Sin16                             descriptive why                          checked: references 0x801E6584
+OK          8001F758 cr_Pad_Update                        descriptive why                          checked: cr_Game_Update references it ; references 0x8031FEA8 ; references 0x8031FF70 ; references 0x8044F3F0 ; cr_Game_Update is a caller / callee / referenced
 OK          80020A70 cr_Archive_OpenEntry                 descriptive why                          checked: references 0x80320184
 OK          80020E44 cr_FileSlot_QueueRead                descriptive why                          checked: references 0x80321CC0
 OK          800219E4 cr_Archive_SetEntryTable             descriptive why                          checked: cr_FileSys_Init references it ; references 0x80321148 ; cr_FileSys_Init is a caller / callee / referenced
 OK          80021CB4 cr_FileSys_Init                      descriptive why                          checked: references 0x801F1200 ; references 0x80321CB4
 OK          80021EF4 cr_FileSys_RegisterPath              descriptive why                          checked: cr_FileSys_Init references it ; references 0x80321084 ; cr_FileSys_Init is a caller / callee / referenced
+OK          800235E8 cr_Heap2_Free                        descriptive why                          checked: references 0x8044F430 ; references 0x8044F434
+OK          80023678 cr_Heap2_AllocAligned                descriptive why                          checked: references 0x8044F430 ; references 0x8044F434 | unconfirmed: cr_Heap_AllocAligned: no call / reference between them (prose?)
+OK          80023A04 cr_Game_InitSystem                   descriptive why                          checked: cr_FileSys_Init is a caller / callee / referenced ; references cr_g_SeqCurrent ; references cr_g_SeqNext
 OK          800247D0 cr_CamMode_DefaultStart              descriptive why                          checked: cr_g_CamModeFuncs: 10 modes have it in slot 0 (claimed 10) ; references cr_g_CamModeFuncs
 OK          80024830 cr_Cam_SetMode                       descriptive why                          checked: cr_CM_MOVE is a caller / callee / referenced ; cr_CM_PLAYER is a caller / callee / referenced ; cr_CM_ROTATE is a caller / callee / referenced ; cr_CM_WATCH_MAN_KEEP is a caller / callee / referenced ; cr_SEQ_BATTLE_FrameA is a caller / callee / referenced ; cr_SEQ_LOGO_FrameA is a caller / callee / referenced ; cr_SEQ_STAGE_SELECTOR_FrameA is a caller / callee / referenced ; references cr_g_CurrentCam
 OK          800249C4 cr_CAMMODE_SNR_AUTO_Y_ANG_Frame      descriptive why                          checked: cr_g_CamModeFuncs[27] = 800249C4 ; name table 0x801F88A4[13] = "CAMMODE_SNR_AUTO_Y_ANG"
@@ -1984,17 +2019,28 @@ OK          8003577C cr_CAMMODE_OPENING_Start             descriptive why       
 OK          80035BCC cr_CAMMODE_MIDDLE_Frame              descriptive why                          checked: cr_g_CamModeFuncs[5] = 80035BCC ; name table 0x801F88A4[2] = "CAMMODE_MIDDLE"
 OK          80035ED4 cr_CAMMODE_DEBUG_Frame               descriptive why                          checked: cr_g_CamModeFuncs[1] = 80035ED4 ; name table 0x801F88A4[0] = "CAMMODE_DEBUG"
 OK          80035F18 cr_CAMMODE_NOMOVE_Frame              descriptive why                          checked: cr_g_CamModeFuncs[3] = 80035F18 ; name table 0x801F88A4[1] = "CAMMODE_NOMOVE" ; cr_g_CamModeFuncs[19*2+1] = 80035F18 ; cr_g_CamModeFuncs[20*2+1] = 80035F18 ; FUN_80036954 is a caller / callee / referenced
+OK          80036954 cr_Cam_Update                        descriptive why                          checked: references cr_g_CurrentCam ; references cr_g_SeqCurrent
 OK          80036BCC cr_Cam_Init                          descriptive why                          checked: references 0x8032338C ; references cr_g_CamPtrs ; references cr_g_Cams ; references cr_g_CurrentCam
 OK          80037A80 cr_Motion_LoadInfo                   descriptive why                          checked: FUN_8005ce74 is a caller / callee / referenced ; references cr_g_MotionData ; references cr_g_MotionInfo
 OK          80037D14 cr_Motion_Play                       descriptive why                          checked: cr_Motion_LoadInfo is a caller / callee / referenced ; references cr_g_CurrentChara_026c ; references cr_g_CurrentChara_06dc
 OK          80037FBC cr_Motion_PlayFromFrame1             descriptive why                          checked: calls cr_Motion_Play ; FUN_800a0e64 is a caller / callee / referenced ; FUN_80101730 is a caller / callee / referenced ; cr_Motion_Play is a caller / callee / referenced ; "MOTION = %s" used by the function named with it
+OK          8004D790 cr_Battle_UpdateBodyRecords          descriptive why                          checked: references 0x8044F44E ; references 0x8044F500 ; references cr_g_BodyBattleRecords
 OK          80050F08 cr_Battle_SetCurrentPointers         descriptive why                          checked: references cr_g_CurrentChara_026c
 OK          80059790 cr_Chara_PoseLimbB                   descriptive why                          checked: cr_Chara_PoseLimbs references it ; cr_Chara_PoseLimbs is a caller / callee / referenced
 OK          8005AEE8 cr_Chara_PoseLimbs                   descriptive why                          checked: calls cr_Chara_PoseLimbA
+OK          800669FC cr_Text_GetLegName                   descriptive why                          checked: references cr_g_BodyCount ; references cr_g_BombCount ; references cr_g_GunCount ; references cr_g_PodCount
+OK          80066AB4 cr_Text_GetPodName                   descriptive why                          checked: references cr_g_BodyCount ; references cr_g_BombCount ; references cr_g_GunCount
+OK          80066B64 cr_Text_GetBombName                  descriptive why                          checked: references cr_g_BodyCount ; references cr_g_GunCount
+OK          80066C0C cr_Text_GetGunName                   descriptive why                          checked: references cr_g_BodyCount
+OK          80066CAC cr_Text_GetBodyName                  descriptive why                          checked: references cr_g_MessageFiles
 OK          800747B0 cr_CharaEntry_OnLoaded               descriptive why                          checked: 0x800A0E64 references 800747B0 ; 0x800A0E64 is a caller / callee / referenced
 OK          800748A8 cr_ModelEntry_LoadAndBuild           descriptive why                          checked: 0x800A63C0 references it ; 0x800A63C0 is a caller / callee / referenced ; references 0x8024DFA0 | unconfirmed: cr_CharaEntry_OnLoaded: no call / reference between them (prose?)
 OK          80074DCC cr_MotionFile_Register               descriptive why                          checked: references cr_g_MotionData ; references cr_g_MotionDataBit15
+OK          80075CA8 cr_Particle_InitCallbacks            descriptive why                          checked: 0x8017A890 is a caller / callee / referenced ; 0x80180AC8 is a caller / callee / referenced | unconfirmed: cr_Game_InitSystem: no call / reference between them (prose?)
+OK          80096594 cr_Bgm_GetVolume                     descriptive why                          checked: references 0x8044EAF8 ; references 0x8044F6D0 | unconfirmed: 0x800965F4: no call / reference between them (prose?)
+OK          80096FAC cr_Bgm_Play                          descriptive why                          checked: references 0x8021AC30
 OK          80099EAC cr_Chara_UpdateAll                   descriptive why                          checked: references cr_g_Charas ; references cr_g_CurrentChara
+OK          800A59D8 cr_BattleRobo_InitBody               descriptive why                          checked: references 0x8024DFA0 ; references 0x8024E120 ; references cr_g_BodyData
 OK          800B5D4C cr_AreaBoxes_Update                  descriptive why                          checked: references 0x803BAF28 ; references cr_g_Charas
 OK          800BD7F0 cr_C_ACT_CHK_BIT                     descriptive why                          checked: game-real: 0x8021BF44[299] = 801C3705 ; game-real: string 0x801C3705 = "C_ACT_CHK_BIT" ; game-real: name cr_C_ACT_CHK_BIT = cr_ + the string ; game-real: 0x8021C3F4[299] = 800BD7F0 ; game-real: tables 0x8021BF44 (300) and 0x8021C3F4 (300) adjacent, same length ; 0x8021C3F4[299] = 800BD7F0 ; 0x8021BF44[299] = "C_ACT_CHK_BIT"
 OK          800BDB24 cr_C_ACT_JP                          descriptive why                          checked: game-real: 0x8021BF44[298] = 801C36FC ; game-real: string 0x801C36FC = "C_ACT_JP" ; game-real: name cr_C_ACT_JP = cr_ + the string ; game-real: 0x8021C3F4[298] = 800BDB24 ; game-real: tables 0x8021BF44 (300) and 0x8021C3F4 (300) adjacent, same length ; 0x8021C3F4[298] = 800BDB24 ; 0x8021BF44[298] = "C_ACT_JP"
@@ -2296,3 +2342,7 @@ OK          800DB4F0 cr_SYS_JP                            descriptive why       
 OK          800DB71C cr_SYS_START                         descriptive why                          checked: game-real: 0x8021BF44[2] = 801C2880 ; game-real: string 0x801C2880 = "SYS_START" ; game-real: name cr_SYS_START = cr_ + the string ; game-real: 0x8021C3F4[2] = 800DB71C ; game-real: tables 0x8021BF44 (300) and 0x8021C3F4 (300) adjacent, same length ; 0x8021C3F4[2] = 800DB71C ; 0x8021BF44[2] = "SYS_START"
 OK          800DB7B4 cr_SYS_SCR_END                       descriptive why                          checked: game-real: 0x8021BF44[1] = 801C2874 ; game-real: string 0x801C2874 = "SYS_SCR_END" ; game-real: name cr_SYS_SCR_END = cr_ + the string ; game-real: 0x8021C3F4[1] = 800DB7B4 ; game-real: tables 0x8021BF44 (300) and 0x8021C3F4 (300) adjacent, same length ; 0x8021C3F4[1] = 800DB7B4 ; 0x8021BF44[1] = "SYS_SCR_END"
 OK          800DB8A4 cr_SYS_SET_SCR                       descriptive why                          checked: game-real: 0x8021BF44[0] = 801C2868 ; game-real: string 0x801C2868 = "SYS_SET_SCR" ; game-real: name cr_SYS_SET_SCR = cr_ + the string ; game-real: 0x8021C3F4[0] = 800DB8A4 ; game-real: tables 0x8021BF44 (300) and 0x8021C3F4 (300) adjacent, same length ; 0x8021C3F4[0] = 800DB8A4 ; 0x8021BF44[0] = "SYS_SET_SCR"
+OK          800F0DEC cr_Save_ResetData                    descriptive why                          checked: references 0x801C50D0 ; references 0x80321D40 ; references 0x80321D44 ; references 0x803BE7DC ; references 0x803BE7FC ; references 0x803BF6FC ; references 0x803BF79C ; references cr_g_BodyBattleRecords
+OK          800F8E4C cr_Text_MaskUnownedSpecialPart       descriptive why                          checked: references 0x803BFB9C | unconfirmed: 0x803BF79C: not referenced directly (computed address?)
+OK          80101730 cr_BattleRobo_InitFromMenu           descriptive why                          checked: references cr_g_BodyData | unconfirmed: cr_BattleRobo_InitFromLoadout: no call / reference between them (prose?)
+OK          80117034 cr_Records_BuildBodyRows             descriptive why                          checked: references cr_g_BodyBattleRecords ; references cr_g_PartOrderBody

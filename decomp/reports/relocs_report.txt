@@ -93,6 +93,18 @@ named pointer tables (symbols/cr_globals.txt), words in their extent:
   ok   0x80205C94 cr_g_MotionInfo (u32*[1095], 1095 pointers): 1094 relocated words, 1 NULL, 0 unrelocated in-range words
   ok   0x80206DB0 cr_g_MotionNames (cr_MotionName[1095], struct data to 0x8020A108): 3285 relocated words, 1 NULL, 0 unrelocated in-range words
   ok   0x801C51B8 cr_g_BattleMotionSets (cr_BattleMotionSet[34], struct data to 0x801C5204): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x8044C3C0 cr_g_BodyCount (s32, struct data to 0x8044C3C4): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x8044C3C4 cr_g_LegCount (s32, struct data to 0x8044C3C8): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x8044C3C8 cr_g_GunCount (s32, struct data to 0x8044C3CC): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x8044C3CC cr_g_BombCount (s32, struct data to 0x8044C3D0): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x8044C3D0 cr_g_PodCount (s32, struct data to 0x8044C3D8): 0 relocated words, 1 NULL, 0 unrelocated in-range words
+  ok   0x801C5C10 cr_g_BodyData (u8[4080], struct data to 0x801C6C00): 34 relocated words, 208 NULL, 0 unrelocated in-range words
+  ok   0x8023B73A cr_g_PartOrderBody (u16[35], struct data to 0x8023B780): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x8023B780 cr_g_PartOrderGun (u16[53], struct data to 0x8023B7EA): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x8023B7EA cr_g_PartOrderBomb (u16[42], struct data to 0x8023B83E): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x8023B83E cr_g_PartOrderPod (u16[45], struct data to 0x8023B898): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x8023B898 cr_g_PartOrderLeg (u16[17], struct data to 0x8023B8BC): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x8023B8BC cr_g_PartOrderLists (u16*[5], 5 pointers): 5 relocated words, 0 NULL, 0 unrelocated in-range words
 
 glue spans (start .. end, section, the dtk objects at both ends):
   0x801B6620..0x801B6A29 .rodata lbl_801B6620 .. lbl_801B69CB
