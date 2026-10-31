@@ -353,7 +353,7 @@ def compare(a, b):
 
 
 DATA_TYPES = {'byte': 'u8', '2byte': 'u16', '4byte': 'u32', 'float': 'f32', 'double': 'f64', 'string': 'char'}
-ELEM = {'u8': 1, 'char': 1, 'u16': 2, 'u32': 4, 'f32': 4, 'f64': 8}
+ELEM = {'u8': 1, 'char': 1, 'u16': 2, 's16': 2, 'u32': 4, 'f32': 4, 'f64': 8}
 SMALL = ('sdata', 'sbss', 'sdata2', 'sbss2')
 
 
@@ -366,7 +366,56 @@ SECTION_PRELUDE = ('\n// CR_SECTION(s): the section of a data object, so the com
                    '#else\n#define CR_SECTION(s)\n#endif\n')
 
 
-def data_decls(ptrs={}):
+ACCESS_WIDTH = {'lbz': 1, 'stb': 1, 'lha': 2, 'lhz': 2, 'sth': 2, 'lwz': 4, 'stw': 4, 'lfs': 4, 'stfs': 4, 'lfd': 8,
+                'stfd': 8}
+LOAD_SIGN = {'lha': 's', 'lhau': 's', 'lhax': 's', 'lhz': 'u', 'lhzu': 'u', 'lhzx': 'u',
+             'lbz': 'b', 'lbzu': 'b', 'lbzx': 'b'}
+
+
+def load_signs(funcs):
+    """{lbl_ object: set of 's' / 'u'} of the halfword loads the game code makes from it (step 77): directly
+    (`lha r0, lbl_X@sda21(r0)`, `lha r0, lbl_X@l(r3)`) or through a register that holds its address (`addi r3, r3,
+    lbl_X@l` / `li r3, lbl_X@sda21`, until the register is written again; `lha r0, 0x40(r3)`, `lhax r0, r3, r4`).
+    dtk types a 2-byte object `2byte` (u16) whatever the code does with it; an object every load of which is `lha`
+    is a signed array (s16): `(s16) lbl_801C6C00[0x20]` read as u16 compiled to lhz (fn_80045B40).
+    Also the EXTENT of every object the code addresses through such a register: the end of the furthest load / store
+    at a constant offset (`li r3, lbl_8044F87C@sda21; lbz r0, 1(r3)`: 2 bytes, dtk's object is 1), in
+    load_signs.extents (data_decls declares an object the code reads beyond its dtk size with that extent)."""
+    signs = collections.defaultdict(set)
+    ext = load_signs.extents = {}
+    ins = re.compile(r'^/\* [0-9A-F]{8} [0-9A-F]{8}  [0-9A-F ]{11} \*/\t(\w+)\.? (.*)$')
+    for f in funcs:
+        held = {}
+        for l in f[3]:
+            m = ins.match(l)
+            if not m:
+                if re.match(r'^\.L_', l):
+                    held = {}
+                continue
+            op, args = m.group(1), [a.strip() for a in m.group(2).split(',')]
+            sym = re.search(r'\b(lbl_[0-9A-F]{8})@(?:l|sda21)\b', m.group(2))
+            if op in LOAD_SIGN and LOAD_SIGN[op] != 'b':
+                if sym:
+                    signs[sym.group(1)].add(LOAD_SIGN[op])
+                else:
+                    bases = re.findall(r'\((r\d+)\)', m.group(2)) if not op.endswith('x') else args[1:3]
+                    for b in bases:
+                        if b in held:
+                            signs[held[b]].add(LOAD_SIGN[op])
+            mo = re.match(r'^(-?0x[0-9a-fA-F]+|-?\d+)\((r\d+)\)$', args[1]) if len(args) == 2 else None
+            w = ACCESS_WIDTH.get(op)
+            if mo and w and mo.group(2) in held and not sym:
+                n = held[mo.group(2)]
+                ext[n] = max(ext.get(n, 0), int(mo.group(1), 0) + w)
+            dest = args[0] if args and re.match(r'^r\d+$', args[0]) and not op.startswith(('st', 'cmp', 'b')) else None
+            if dest:
+                held.pop(dest, None)
+                if sym and (op == 'addi' or op == 'li'):
+                    held[dest] = sym.group(1)
+    return signs
+
+
+def data_decls(ptrs={}, signs={}, extents={}):
     """extern declarations of every lbl_ data object of decomp/config/GXCE01/symbols.txt, with the element type dtk
     found (data:byte/2byte/4byte/float/double/string; u8 otherwise), its size, and the right data model: the game is
     compiled with -sdata 8 -sdata2 8, so the compiler takes an extern of at most 8 bytes for small data (sda21) and a
@@ -375,6 +424,13 @@ def data_decls(ptrs={}):
     which sets the data model of an extern in GC/2.6; step 62: before, such objects were cut to u8[8] or declared
     u8 name[], which hid their type from m2c: a float in .rodata was read as bytes); a size-0 object of a large section
     stays u8 name[].
+    signs (step 77): load_signs of the game code; a `2byte` object every halfword load of which is `lha` is s16.
+    extents (step 77, load_signs.extents): an object the code reads or writes beyond its dtk size through its address
+    (`li r3, X@sda21; lbz r0, 1(r3)`) is declared with that extent (in bytes, `u8 X[n]`, or in its element type when
+    that divides it), if it still ends before the next symbol of its section: dtk sized it by what it saw at its
+    start, the rest of the hole is the same object. As a scalar, m2c wrote `M2C_FIELD(&X, u8 *, 1)`, and the address
+    of a scalar compiles differently from an array element (lbl_8044F87C: 150 such accesses). Not for the 4-byte
+    objects m2c types as pointers.
     ptrs: {name: pointer type} for the 4-byte objects m2c itself typed as pointers in the first pass (`u8 *` when its
     drafts disagree or say `void *`, which the compiler cannot do arithmetic on).
     MIXED (step 64): a 4-byte object the first-pass drafts type as pointers to different things (`lbl_8044F728`: a
@@ -385,13 +441,30 @@ def data_decls(ptrs={}):
     own extern gets the same CR_SECTION (mixed_sections)."""
     out = ['\n// every lbl_ data object of decomp/config/GXCE01/symbols.txt with its size, so the compiler picks the\n'
            '// same data model as the original (small data only for the small sections; tools/draft_batch.py data_decls)\n']
-    for l in open(os.path.join(D, 'config/GXCE01/symbols.txt'), encoding='utf-8'):
-        m = re.match(r'^(lbl_[0-9A-F]{8}) = \.(\w+):0x[0-9A-F]+; // type:object size:0x([0-9A-F]+)(.*)$', l)
+    lines = open(os.path.join(D, 'config/GXCE01/symbols.txt'), encoding='utf-8').read().split('\n')
+    starts = collections.defaultdict(list)
+    for l in lines:
+        m = re.match(r'^\S+ = \.(\w+):0x([0-9A-F]+);', l)
+        if m:
+            starts[m.group(1)].append(int(m.group(2), 16))
+    for v in starts.values():
+        v.sort()
+    for l in lines:
+        m = re.match(r'^(lbl_[0-9A-F]{8}) = \.(\w+):0x([0-9A-F]+); // type:object size:0x([0-9A-F]+)(.*)$', l)
         if not m:
             continue
-        name, sec, size, rest = m.group(1), m.group(2), int(m.group(3), 16), m.group(4)
+        name, sec, addr, size, rest = m.group(1), m.group(2), int(m.group(3), 16), int(m.group(4), 16), m.group(5)
         d = re.search(r'\bdata:(\w+)', rest)
         t = DATA_TYPES.get(d.group(1) if d else None, 'u8')
+        if t == 'u16' and signs.get(name) == {'s'}:
+            t = 's16'
+        e = extents.get(name, 0)
+        if size and e > size and not (size == 4 and name in ptrs):
+            nxt = [a for a in starts[sec] if a > addr]
+            if not nxt or addr + e <= nxt[0]:
+                size = e
+                if size % ELEM[t]:
+                    t = 'u8'
         pre = ''
         if sec in SMALL:
             if size == 0:
@@ -863,6 +936,23 @@ def drop_same_casts(body):
     return ''.join(out)
 
 
+def drop_same_assign_casts(body):
+    """a variant (step 77): `= (s16) lbl_801C6C00[0x20];` where the global (or its element) already has the cast's
+    type: the value is assigned as it is loaded (fn_80045B40: `lha r0; sth r0`; with the cast the compiler took r4).
+    Whole right-hand sides only (`= (T) X;`, `= (T) X[i];`, `= (T) *X;`)."""
+    vt = ctx_types()
+
+    def fix(m):
+        t, star, x, idx = m.group(2), m.group(3), m.group(4), m.group(5)
+        if x not in vt:
+            return m.group(0)
+        vt_t, deref = vt[x]
+        if vt_t != t or deref != bool(star or idx) or (star and idx):
+            return m.group(0)
+        return '%s%s%s%s;' % (m.group(1), star, x, idx)
+    return re.sub(r'(= )\((%s)\) (\*?)([A-Za-z_]\w*)((?:\[[^\[\]=;]*\])?);' % '|'.join(SCALARS), fix, body)
+
+
 def drop_same_field_casts(body):
     """`(s32) M2C_FIELD(x, s32 *, n)` anywhere (not only in a comparison, drop_same_casts): a variant (step 69), since
     the cast moves registers both ways at level 0 (fn_8001838C's `x.A8 = (s32) x.64; x.C0 = 0;` hands r6 / r7 out in
@@ -923,6 +1013,17 @@ def table_call_self(body):
     mtctr r12; bctrl`, fn_8005C4D0; step 69): the slot's address is not an argument of the source's call. The other
     registers m2c passes are kept (table_call_noargs, a variant, drops them as well)."""
     return re.sub(r'(?<![\w)\]])(\*(\w+)\()\2(?:, |(?=\)))', r'\1', body)
+
+
+def global_call_self(body):
+    """`((M2C_UNK (*)(u32 *)) *lbl_X)(lbl_X);`: a call through a function pointer at the start of a global, which m2c
+    also passes the global's address: the original loads the pointer with `lis r3,X@ha; lwz r12,X@l(r3)`, so r3 holds
+    only the high half of the address, not an argument (fn_8006FB9C, step 77). The argument goes, and the cast's
+    parameter list with it. A test of that word right before the call (`if (*lbl_X != 0) {`) is a pointer test,
+    `if ((void *) *lbl_X != NULL) {` (with void_null: `addi; li r0,0; lwz; cmplw` as the original)."""
+    body = re.sub(r'\(\(M2C_UNK \(\*\)\([^()]*\)\) \*(lbl_[0-9A-F]{8})\)\(\1\)', r'((M2C_UNK (*)()) *\1)()', body)
+    return re.sub(r'^([ \t]*)if \(\*(lbl_[0-9A-F]{8}) != 0\) \{\n(\1    \(\(M2C_UNK \(\*\)\([^()]*\)\) \*\2\)\()',
+                  r'\1if ((void *) *\2 != NULL) {\n\3', body, flags=re.M)
 
 
 def table_call_noargs(body):
@@ -1088,6 +1189,47 @@ def assert_ternary(body):
     `bne end` (fn_80075120, cr_SEQ_TITLE_FrameC)"""
     pat = re.compile(r'^([ \t]*)if \((.+)\) \{\n\n?\1\} else \{\n\1    (__assert\([^;\n]*\);)\n\1\}\n', re.M)
     return pat.sub(lambda m: '%s(%s) ? (void) 0 : %s\n' % (m.group(1), m.group(2), m.group(3)), body)
+
+
+HSD_INLINE_DIRTY = re.compile(
+    r'^([ \t]*)\((\w+) != NULL\) \? \(void\) 0 : __assert\((\w+), 0x25DU, ([^;\n]+)\);\n'
+    r'\1(\w+) = 0;\n'
+    r'\1if \(!\(\2->flags & 0x800000\) && \(\2->flags & 0x40\)\) \{\n'
+    r'\1    \5 = 1;\n'
+    r'\1\}\n'
+    r'\1if \(\5 ([!=])= 0\) \{', re.M)
+
+
+def hsd_inlines(body):
+    """m2c's expansion of HSD_JObjMtxIsDirty (this HSD revision's jobj.h has its assert at line 605, 0x25D; Melee's at
+    564): `(j != NULL) ? (void) 0 : __assert(file, 0x25DU, text); v = 0; if (!(j->flags & 0x800000) && (j->flags &
+    0x40)) { v = 1; } if (v != 0) {` -> `if (cr_JObjMtxIsDirty_N(j)) {`, the inline function defined before the
+    draft's function (step 77). At level 0 the inlined function's own `result` takes a callee-saved register of its
+    own and the test reads the inline's value; m2c's variable of the caller is dropped. The file and text strings are
+    the draft's own extern objects (each game file's copy of "jobj.h" / "jobj"), so the inline adds no data. 46 game
+    functions call __assert, 92 of the calls are this one."""
+    defs = {}
+    used = set()
+
+    def fix(m):
+        ind, j, f, t, v, op = m.groups()
+        key = (f, t.strip())
+        if key not in defs:
+            defs[key] = 'cr_JObjMtxIsDirty_%d' % len(defs)
+        used.add(v)
+        return '%sif (%s%s(%s)) {' % (ind, '' if op == '!' else '!', defs[key], j)
+    new = HSD_INLINE_DIRTY.sub(fix, body)
+    if not defs:
+        return body
+    for v in used:   # m2c's result variables nothing uses any more: their declarations go too
+        if len(re.findall(r'\b%s\b' % re.escape(v), new)) == 1:
+            new = re.sub(r'^[ \t]+[\w ]+\b%s;\n' % re.escape(v), '', new, count=1, flags=re.M)
+    inl = ''.join('static inline s32 %s(HSD_JObj *jobj) {\n    s32 result;\n\n'
+                  '    (jobj != NULL) ? (void) 0 : __assert(%s, 0x25D, %s);\n    result = 0;\n'
+                  '    if (!(jobj->flags & 0x800000) && (jobj->flags & 0x40)) {\n        result = 1;\n    }\n'
+                  '    return result;\n}\n\n' % (n, f, t) for (f, t), n in defs.items())
+    m = re.search(r'^\w[^;\n]*\)\s*\{$', new, re.M)
+    return new[:m.start()] + inl + new[m.start():] if m else body
 
 
 # (step 69: also m2c's --reg-vars names, `var_r29` without the `_N` suffix)
@@ -1477,6 +1619,13 @@ def void_null(body):
     return re.sub(r'([=!]=) NULL\b', r'\1 ((void *) 0)', body)
 
 
+def pointer_tests(body):
+    """a variant (step 77), always with void_null: `(u32) lbl_X != 0U` -> `(void *) lbl_X != ((void *) 0)`. A 4-byte
+    global that the code only tests and loads (a callback or object pointer m2c could not type) compared with a null
+    pointer: `li r0,0; lwz r4,X; cmplw r4,r0` (fn_800DF2A0), where an integer test gives `cmplwi`."""
+    return re.sub(r'\((?:u32|s32)\) (lbl_[0-9A-F]{8}) ([=!]=) 0U?\b', r'(void *) \1 \2 NULL', body)
+
+
 def narrow_minus_one(body):
     """`(u16) *p != -1U` / `M2C_FIELD(x, u16 *, 4) == -1U`: m2c's -1 of a halfword (byte) compare (`cmplwi r0,0xFFFF`) is
     -1U, which C compares with the promoted 16-bit value as 0xFFFFFFFF (`addis r0,r3,1; cmplwi r0,0xFFFF`, or no test
@@ -1689,15 +1838,157 @@ def byte_steps(body):
         i = j
 
 
+def stack_struct(body):
+    """a variant (step 77): m2c names a local `spN` only for a stack slot the original read or wrote in memory, so
+    the source kept that value in memory: a member of a local struct or array (fn_8006FBE0: `Vec3 d; d.x = ...;
+    d.z = ...;` is sp8 / sp10, the translation copied out of a JObj is sp14..sp1C). Declared as scalars, the compiler
+    gives them registers (f30 / f31) and drops the loads and stores. All the draft's spN locals (arrays too) become
+    members of one local struct `sp`, at their offsets from the lowest one (padding in between), and every use
+    `spN` -> `sp.spN`. Not when a slot overlaps another, a member would be misaligned, or a type is a function
+    pointer / pointer to array; not when every scalar spN has its address taken already (those stay in memory)."""
+    lines = body.split('\n')
+    di = next((i for i, l in enumerate(lines) if DEF.match(l)), None)
+    if di is None:
+        return body
+    j = di + 1
+    decls = []
+    while j < len(lines) and lines[j].strip():
+        m = re.match(r'^\s+([\w ]+?\**)\s*\b(sp[0-9A-F]+)((?:\[\d+\])*);$', lines[j])
+        if m:
+            decls.append((j, m.group(1).strip(), m.group(2), m.group(3)))
+        elif re.search(r'\bsp[0-9A-F]+\b', lines[j]):
+            return body
+        j += 1
+    if not decls:
+        return body
+    rest = '\n'.join(lines[j:])
+    scalars = [nm for _, t, nm, dims in decls if not dims]
+    if not any(not re.search(r'&%s\b' % nm, rest) for nm in scalars):
+        return body
+    items = []
+    for _, t, nm, dims in decls:
+        es = 4 if t.endswith('*') else LOCAL_SIZE.get(t)
+        if es is None:
+            return body
+        n = 1
+        for d in re.findall(r'\[(\d+)\]', dims):
+            n *= int(d)
+        items.append((int(nm[2:], 16), es, es * n, t, nm, dims))
+    items.sort()
+    base = items[0][0]
+    pos = base
+    members = []
+    for off, al, size, t, nm, dims in items:
+        if off < pos or (off - base) % min(al, 8):
+            return body
+        if off > pos:
+            members.append('        u8 pad_%X[%d];' % (pos, off - pos))
+        members.append('        %s %s%s;' % (t, nm, dims))
+        pos = off + size
+    drop = {i for i, _, _, _ in decls}
+    head = [l for i, l in enumerate(lines[di + 1:j], di + 1) if i not in drop]
+    names = '|'.join(nm for _, _, nm, _ in decls)
+    rest = re.sub(r'(?<![\w.>])(%s)\b' % names, r'sp.\1', rest)
+    out = lines[:di + 1] + ['    struct {'] + members + ['    } sp;'] + head + rest.split('\n')
+    return '\n'.join(out)
+
+
+def assign_in_cond(body):
+    """`t = X & C; X = t; if ((t != 0) && ...` -> `if (((X &= C) != 0) && ...` (step 77): the original tests the value
+    its compound assignment stored (fn_8006FBE0: `rlwinm. r0,r0,0,26,27; stw r0; beq`); as a temporary of its own
+    the value took a callee-saved register. Only when t is used nowhere else; X has no call, no ++ / --."""
+    pat = re.compile(r'^([ \t]*)(temp_\w+) = ([^;\n]+?) ([&|^+\-]) ([^;\n]+);\n\1\3 = \2;\n\1(if \(|while \()(.*)$', re.M)
+
+    def fix(m):
+        ind, t, x, op, y, kw, cond = m.groups()
+        if '(' in x and not x.startswith('M2C_FIELD(') or '++' in x or '--' in x or re.search(r'\w\(', x.replace('M2C_FIELD(', '')):
+            return m.group(0)
+        if len(re.findall(r'\b%s\b' % re.escape(t), cond)) != 1:
+            return m.group(0)
+        return '%s%s%s' % (ind, kw, re.sub(r'\b%s\b' % re.escape(t), lambda _: '(%s %s= %s)' % (x, op, y), cond, count=1))
+    new = pat.sub(fix, body)
+    if new == body:
+        return body
+    for t in set(re.findall(r'\b(temp_\w+)\b', body)):
+        if len(re.findall(r'\b%s\b' % re.escape(t), new)) == 1:
+            new = re.sub(r'^[ \t]+[\w \*]+\b%s;\n' % re.escape(t), '', new, count=1, flags=re.M)
+    return new
+
+
+def struct_copies(body):
+    """three word copies `sp.spA = M2C_FIELD(P, T *, o); ... sp.sp(A+4) = M2C_FIELD(P, U *, o+4); ... sp.sp(A+8) = ...`
+    into the local struct of stack_struct, at least one of them an integer word while another is a float: the
+    original copied a Vec3 through integer registers (`lwz` / `stw`; a struct assignment, e.g. HSD_JObjGetTranslation's
+    `*translate = jobj->translate`, fn_8006FBE0), which m2c types by each word's later use. -> one struct assignment
+    `*(Vec3 *) &sp.spA = *(Vec3 *) ((u8 *) P + o);` where the first copy was; the statements between the three may
+    only assign other sp members and must not read the later ones (step 77, with stack_struct)."""
+    lines = body.split('\n')
+    cp = re.compile(r'^([ \t]*)sp\.sp([0-9A-F]+) = M2C_FIELD\(([^;]+), (f32|s32|u32) \*, (0x[0-9A-F]+|\d+)\);$')
+    changed = False
+    i = 0
+    while i < len(lines):
+        m = cp.match(lines[i])
+        if not m:
+            i += 1
+            continue
+        ind, a0, p, t0, o0 = m.group(1), int(m.group(2), 16), m.group(3), m.group(4), int(m.group(5), 0)
+        found = {0: (i, t0)}
+        k = i + 1
+        ok = True
+        while k < len(lines) and k <= i + 6 and len(found) < 3:
+            mk = cp.match(lines[k])
+            if mk and mk.group(3) == p and mk.group(1) == ind:
+                d = int(mk.group(2), 16) - a0
+                if d in (4, 8) and int(mk.group(5), 0) - o0 == d and d not in found:
+                    found[d] = (k, mk.group(4))
+                    k += 1
+                    continue
+            ma = re.match(r'^[ \t]*sp\.sp[0-9A-F]+ = [^;]*;$', lines[k])
+            later = ['sp.sp%X' % (a0 + d) for d in (4, 8) if d not in found]
+            if not ma or any(re.search(r'%s\b' % re.escape(x), lines[k]) for x in later):
+                ok = False
+                break
+            k += 1
+        types = {t for _, t in found.values()}
+        if ok and len(found) == 3 and 'f32' in types and types - {'f32'}:
+            for idx in sorted((found[4][0], found[8][0]), reverse=True):
+                del lines[idx]
+            lines[i] = '%s*(Vec3 *) &sp.sp%X = *(Vec3 *) ((u8 *) %s + 0x%X);' % (ind, a0, p, o0)
+            changed = True
+        i += 1
+    return '\n'.join(lines) if changed else body
+
+
+def alias_offsets(body):
+    """a variant (step 77): `t = b + K;` (both locals assigned once) and later `M2C_FIELD(b, T *, K)`: m2c folds the
+    access at offset 0 of the alias back into its base (fn_80029C84: `temp_r29 = cam + 0x28` is a Vec4 pointer and
+    `stfs f0,0(r29)` became `M2C_FIELD(cam, f32 *, 0x28)`, stored through r31 in the draft) -> `M2C_FIELD(t, T *, 0)`
+    after t's assignment (a later alias of the same address first). The text cannot say which register the original used, so it is a variant."""
+    out = body
+    for m in reversed(list(re.finditer(r'^[ \t]*((?:temp|var)_\w+) = ((?:temp|var)_\w+|arg\d+) \+ (0x[0-9A-F]+|\d+);$', body, re.M))):
+        t, b, k = m.group(1), m.group(2), int(m.group(3), 0)
+        if len(re.findall(r'^[ \t]*%s = ' % re.escape(t), body, re.M)) != 1 or \
+                len(re.findall(r'^[ \t]*%s (?:[-+*/|&^]?=) ' % re.escape(b), body, re.M)) > (0 if b.startswith('arg') else 1):
+            continue
+        at = out.find(m.group(0))
+        if at < 0:
+            continue
+        head, tail = out[:at + len(m.group(0))], out[at + len(m.group(0)):]
+        tail = re.sub(r'M2C_FIELD\(%s, ([^,()]+(?:\([^()]*\))?[^,()]*), (?:0x%X|%d)\)' % (re.escape(b), k, k),
+                      lambda mm: 'M2C_FIELD(%s, %s, 0)' % (t, mm.group(1)), tail)
+        out = head + tail
+    return out
+
+
 def postprocess(body, skip=(), add=()):
     """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
     for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
-              signed_fields, unsigned_fields, compound_assign, drop_same_casts, drop_same_field_casts, while_loops,
-              table_call_args, table_call_self, table_call_noargs, narrow_int_casts, minus_one_stores,
+              signed_fields, unsigned_fields, compound_assign, drop_same_casts, drop_same_assign_casts, drop_same_field_casts, while_loops,
+              table_call_args, table_call_self, global_call_self, table_call_noargs, narrow_int_casts, minus_one_stores,
               unsigned_const_stores, redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign,
-              double_negation, assert_ternary, mixed_externs, byte_steps, same_type_copies, param_regs, param_homes,
-              param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, void_null,
-              float_literals):
+              double_negation, assert_ternary, hsd_inlines, mixed_externs, byte_steps, same_type_copies, param_regs, param_homes,
+              param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
+              float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -1705,14 +1996,17 @@ def postprocess(body, skip=(), add=()):
 
 # rules only a variant applies, and the variants a near draft is also tried with (one(), step 64), in this order:
 # (rules left out, optional rules applied)
-OPTIONAL = (void_null, param_homes, float_literals, drop_same_field_casts, table_call_noargs, unsigned_fields,
+OPTIONAL = (void_null, pointer_tests, drop_same_assign_casts, param_homes, float_literals, drop_same_field_casts, table_call_noargs, unsigned_fields, hsd_inlines, stack_struct, alias_offsets,
             redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign)
 VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
             ((), (void_null,)), ((register_order,), (void_null,)),
             # step 69
             ((inline_volatile_temps,), ()), ((param_aliases,), ()), ((), (float_literals,)), ((), (drop_same_field_casts,)),
             ((), (table_call_noargs,)), ((), (unsigned_fields,)), ((), (redundant_returns,)), ((), (widen_masked_bytes,)),
-            ((), (invert_early_returns,)), ((), (chain_assign,)))
+            ((), (invert_early_returns,)), ((), (chain_assign,)),
+            # step 77
+            ((), (hsd_inlines,)), ((), (stack_struct,)), ((register_order,), (stack_struct,)), ((), (alias_offsets,)),
+            ((), (stack_struct, alias_offsets)), ((), (pointer_tests, void_null)), ((), (drop_same_assign_casts,)))
 
 
 VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this
@@ -2583,7 +2877,7 @@ def main():
         print('pass 1: %d prototypes (%d return types narrowed by their callers, %d parameters signed / unsigned by them), %d pointer objects from the drafts (%d s)' % (
             len(sigs), narrowed, nparams, len(ptrs), time.time() - t0))
     ptrs = dict(re.findall(r'^#define CR_PTR_(lbl_[0-9A-F]{8}) (.*)$', open(protos, encoding='utf-8').read(), re.M))
-    context(base + '#include "ctx_sdk.h"\n' + data_decls(ptrs) + '\n#include "ctx_protos.h"\n')
+    context(base + '#include "ctx_sdk.h"\n' + data_decls(ptrs, load_signs(funcs), load_signs.extents) + '\n#include "ctx_protos.h"\n')
     res = {}
     with cf.ProcessPoolExecutor(a.jobs, initializer=init, initargs=(out, ver, flags)) as ex:
         for name, status, note, eqb in ex.map(one, jobs, chunksize=4):

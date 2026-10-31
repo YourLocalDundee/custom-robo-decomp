@@ -5,10 +5,10 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u16 lbl_8044F5C8;
+extern s16 lbl_8044F5C8;
 extern u32 lbl_80321D40[18];
 
 s32 fn_80024578(void) {
-    lbl_8044F5C8 = (u16) M2C_FIELD(lbl_80321D40, u8 *, 0x44);
+    lbl_8044F5C8 = (s16) M2C_FIELD(lbl_80321D40, u8 *, 0x44);
     return 9;
 }

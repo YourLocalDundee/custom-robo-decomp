@@ -24,7 +24,26 @@ typedef enum cr_Seq
   SEQ_ILLUSTRATED_BOOK,
   SEQ_ENDING
 } cr_Seq;
-__declspec(section ".data") extern cr_Seq cr_g_SeqCurrent;
+typedef struct cr_SeqState
+{
+  cr_Seq current;
+  cr_Seq previous;
+  cr_Seq next;
+  u8 unk_0c[4];
+  u32 unk_10;
+  u8 unk_14[0x10];
+  u32 unk_24;
+  u32 unk_28;
+  u32 unk_2c;
+  u8 unk_30[4];
+  u32 unk_34;
+  s32 unk_38;
+  s16 unk_3c;
+  u8 unk_3e[2];
+  s32 unk_40;
+  u8 unk_44[4];
+} cr_SeqState;
+__declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 extern u8 lbl_8031F240[40];
 extern u32 lbl_8044F504;
 extern u32 lbl_8037569C[2417];
@@ -32,7 +51,7 @@ extern u16 lbl_801C5BD0[32];
 extern u8 lbl_8024E120[840832];
 
 void cr_SEQ_STAGE_SELECTOR_Enter(void) {
-    if ((M2C_FIELD(lbl_80321D40, u32 *, 0) & 0x02000000) && (M2C_FIELD(&cr_g_SeqCurrent, s32 *, 4) == 4)) {
+    if ((M2C_FIELD(lbl_80321D40, u32 *, 0) & 0x02000000) && ((enum cr_Seq) cr_g_SeqCurrent.previous == SEQ_BATTLE)) {
         M2C_FIELD(lbl_80321D40, u32 *, 0) = M2C_FIELD(lbl_8031F240, u32 *, 8);
         M2C_FIELD(lbl_80321D40, s16 *, 0x14) = M2C_FIELD(lbl_8031F240, s16 *, 2);
         lbl_80321D40[4] = M2C_FIELD(lbl_8031F240, u32 *, 4);

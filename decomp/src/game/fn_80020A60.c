@@ -5,8 +5,19 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-__declspec(section ".data") extern u8 cr_g_FileSysReady;
+typedef struct cr_FileSlot cr_FileSlot;
+typedef struct cr_FileSysState
+{
+  u8 ready;
+  u8 unk_01[3];
+  u8 queue_head;
+  u8 queue_tail;
+  u16 chunk_sectors;
+  cr_FileSlot *current_read;
+  cr_FileSlot *queue[32];
+} cr_FileSysState;
+__declspec(section ".data") extern cr_FileSysState cr_g_FileSysReady;
 
-void fn_80020A60(s16 arg0) {
-    M2C_FIELD(&cr_g_FileSysReady, s16 *, 6) = arg0;
+void fn_80020A60(u16 arg0) {
+    cr_g_FileSysReady.chunk_sectors = arg0;
 }

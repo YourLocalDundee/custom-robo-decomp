@@ -23,14 +23,33 @@ typedef enum cr_Seq
   SEQ_ILLUSTRATED_BOOK,
   SEQ_ENDING
 } cr_Seq;
-__declspec(section ".data") extern cr_Seq cr_g_SeqCurrent;
+typedef struct cr_SeqState
+{
+  cr_Seq current;
+  cr_Seq previous;
+  cr_Seq next;
+  u8 unk_0c[4];
+  u32 unk_10;
+  u8 unk_14[0x10];
+  u32 unk_24;
+  u32 unk_28;
+  u32 unk_2c;
+  u8 unk_30[4];
+  u32 unk_34;
+  s32 unk_38;
+  s16 unk_3c;
+  u8 unk_3e[2];
+  s32 unk_40;
+  u8 unk_44[4];
+} cr_SeqState;
+__declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 extern u32 lbl_8031FED8[5];
 extern u8 lbl_8044F756;
 
 extern u8 *lbl_8044F728;
 
 void fn_800BB3F4(void) {
-    if (!(M2C_FIELD(&cr_g_SeqCurrent, s32 *, 0x40) & 0x8002) && (M2C_FIELD(lbl_8031FED8, s32 *, 0x14) & 0x100)) {
+    if (!(cr_g_SeqCurrent.unk_40 & 0x8002) && (M2C_FIELD(lbl_8031FED8, s32 *, 0x14) & 0x100)) {
         lbl_8044F756 = 5;
         M2C_FIELD(lbl_8044F728, u16 *, 0) |= 8;
         M2C_FIELD(lbl_8044F728, s8 *, 0x4A0) = 1;
