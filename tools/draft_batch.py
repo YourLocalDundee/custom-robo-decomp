@@ -1980,6 +1980,77 @@ def alias_offsets(body):
     return out
 
 
+def member_types():
+    """{struct: {member: type}} of symbols/cr_types.h and {global: type} of symbols/cr_globals.txt (step 79: the
+    typed globals cr_g_Script / cr_g_Scenario / cr_g_GameMode / cr_g_Pads), read once per process; array and pointer
+    marks are kept on the type ("u16[19]", "cr_ScenarioSlot*")"""
+    if 'mtypes' not in W:
+        structs, cur = {}, None
+        for l in open(os.path.join(G, 'symbols/cr_types.h'), encoding='utf-8'):
+            m = re.match(r'^typedef struct (\w+) \{', l)
+            if m:
+                cur = structs.setdefault(m.group(1), {})
+                continue
+            if l.startswith('}'):
+                cur = None
+                continue
+            m = re.match(r'^\s*/\* \+[0-9A-Fa-f]+ \*/ ([\w ]+?)(\**) (\w+)((?:\[[^\]]+\])*);', l) if cur is not None else None
+            if m:
+                cur[m.group(3)] = m.group(1).strip() + m.group(2) + m.group(4)
+        globs = {}
+        for l in open(os.path.join(G, 'symbols/cr_globals.txt'), encoding='utf-8'):
+            m = re.match(r'^(\w+) = \.\w+:0x[0-9A-Fa-f]+; // type:object datatype:(\w+\**(?:\[\d+\])*)', l)
+            if m:
+                globs[m.group(1)] = m.group(2)
+        W['mtypes'] = (structs, globs)
+    return W['mtypes']
+
+
+def member_type(expr):
+    """the declared type of `cr_g_X.a[i].b` / `cr_g_X->a` / `cr_g_X[i].a` from member_types(), as a scalar name
+    ('u8', 's16', ...), or None when a step is unknown or the result is not a scalar"""
+    structs, globs = member_types()
+    parts = re.findall(r'(->|\.)?(\w+)((?:\[[^\[\]]*\])*)', expr)
+    if not parts or parts[0][1] not in globs:
+        return None
+    t = globs[parts[0][1]]
+    for sep, name, idx in parts:
+        if sep:
+            base = re.sub(r'[\[\]\d*]+$', '', t)
+            if base not in structs or name not in structs[base]:
+                return None
+            t = structs[base][name]
+        for _ in re.findall(r'\[', idx):   # one index strips one array / pointer level
+            if t.endswith(']'):
+                t = re.sub(r'\[[^\]]*\]$', '', t)
+            elif t.endswith('*'):
+                t = t[:-1]
+            else:
+                return None
+    return t if t in SCALARS else None
+
+
+MEMBER = r'cr_g_\w+(?:\[[^\[\]=;]*\])*(?:(?:->|\.)\w+(?:\[[^\[\]=;]*\])*)+'
+
+
+def drop_same_member_casts(body):
+    """a variant (step 79): `(u8) cr_g_Scenario.slot_index` where the member already has the cast's type, as
+    drop_same_field_casts does for M2C_FIELD: m2c writes the cast for every typed member it compares or assigns, and
+    the cast costs a register (fn_800D9A0C, fn_80125C2C: 100% as the untyped M2C_FIELD form, 98-99% with it)"""
+    def fix(m):
+        if m.start() > 0 and re.match(r'[\w)\]]', body[m.start() - 1]):
+            return m.group(0)
+        return m.group(2) if member_type(m.group(2)) == m.group(1) else m.group(0)
+    return re.sub(r'\((%s)\) (%s)' % ('|'.join(SCALARS), MEMBER), fix, body)
+
+
+def expand_ptr_compound(body):
+    """a variant (step 79): `cr_g_P->f |= Y;` through a global pointer -> `cr_g_P->f = cr_g_P->f | Y;`: the original
+    loads the pointer twice (`lwz r4, P; lwz r3, P; lwz r0, 0(r4); or; stw r0, 0(r3)`: fn_800A0804, every script
+    handler's test-and-clear of cr_g_ScenarioSlotPtr->status), which the compound form compiles to one load"""
+    return re.sub(r'^(\s*)(cr_g_\w+->\w+) (<<|>>|[-+*/%&|^])= ([^;]+);$', r'\1\2 = \2 \3 \4;', body, flags=re.M)
+
+
 def postprocess(body, skip=(), add=()):
     """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
     for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
@@ -1988,7 +2059,7 @@ def postprocess(body, skip=(), add=()):
               unsigned_const_stores, redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign,
               double_negation, assert_ternary, hsd_inlines, mixed_externs, byte_steps, same_type_copies, param_regs, param_homes,
               param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
-              float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies):
+              float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -1997,7 +2068,7 @@ def postprocess(body, skip=(), add=()):
 # rules only a variant applies, and the variants a near draft is also tried with (one(), step 64), in this order:
 # (rules left out, optional rules applied)
 OPTIONAL = (void_null, pointer_tests, drop_same_assign_casts, param_homes, float_literals, drop_same_field_casts, table_call_noargs, unsigned_fields, hsd_inlines, stack_struct, alias_offsets,
-            redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign)
+            redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign, drop_same_member_casts, expand_ptr_compound)
 VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
             ((), (void_null,)), ((register_order,), (void_null,)),
             # step 69
@@ -2006,7 +2077,9 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             ((), (invert_early_returns,)), ((), (chain_assign,)),
             # step 77
             ((), (hsd_inlines,)), ((), (stack_struct,)), ((register_order,), (stack_struct,)), ((), (alias_offsets,)),
-            ((), (stack_struct, alias_offsets)), ((), (pointer_tests, void_null)), ((), (drop_same_assign_casts,)))
+            ((), (stack_struct, alias_offsets)), ((), (pointer_tests, void_null)), ((), (drop_same_assign_casts,)),
+            # step 79: struct-typed globals (cr_g_Script, cr_g_Scenario, cr_g_GameMode, cr_g_Pads)
+            ((), (drop_same_member_casts,)), ((), (expand_ptr_compound,)), ((), (drop_same_member_casts, expand_ptr_compound)))
 
 
 VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this

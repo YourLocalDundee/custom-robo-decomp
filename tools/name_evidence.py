@@ -50,6 +50,14 @@ LEADS = [
                    'for a body; which screen it is is not proven'),
     ('0x80065DB0', 'two 0x28-byte windows at 0x8032CC20: state +0 = 3 when +8 is set (close request?); caller cr_SYS_WINDOW_CLOSE'),
     ('0x8012481C', 'menu sprites 0x8044F860 / 0x8044F85C: flag 1 and part ids chosen from bits 2..0x20; screen unknown'),
+    # step 79: the next data objects of the base-register scan (addressed as one struct from `lis/addi` of the object), untyped
+    ('0x8041A244', '0x354-byte state block addressed as one base by 27 functions (49 byte / word fields); what it belongs to is not traced'),
+    ('0x804198B0', '42 words that cr_Save_ResetData copies from the save data 0x803BF79C.. (the part bitsets area): a working copy, name pending its readers'),
+    ('0x8041CDE4', '0x1B54-byte block, 19 functions: byte fields at +0..+6 and words at +0x1A18..; not traced'),
+    ('0x8031F020', '0x188-byte block read as 57 word fields by 7 functions; not traced'),
+    ('0x803BE7DC', 'the save data (0x1138): five 0x300-byte record arrays (cr_g_BodyBattleRecords is the first) and the part bitsets at +0xFC0; a struct would type cr_Save_ResetData / fn_800F21C8'),
+    ('0x8044F774', 'while it is set the script dispatcher runs only commands >= 0x121 (289..299) and flags the others as an error; its meaning is unproven'),
+    ('0x800A0804', 'calls fn_800F5448 / fn_800F21C8 with (slot, area) and clears bit 0x400 of cr_g_ScenarioSlotPtr->status: a load of a scenario slot; its draft is 95% with the typed pointer (one pointer load short)'),
 ]
 
 
@@ -138,7 +146,7 @@ def main():
         en = ''.join(c if 0x20 <= ord(c) < 0x7F else '?' for c in cstr(rec + 0x20, 0x20).decode('latin1'))
         jp = cstr(rec, 0x20).decode('shift_jis', 'replace')
         lines.append(f'| {b} | {code} | {en} | {jp} |')
-    lines += ['', '## Leads (by hand, plan.md step 71): behaviour seen, not proven enough for a name yet', '',
+    lines += ['', '## Leads (by hand, plan.md steps 71 and 79): behaviour seen, not proven enough for a name yet', '',
               '| address | lead |', '|---|---|']
     lines += [f'| {a} | {t} |' for a, t in LEADS]
     lines.append('')

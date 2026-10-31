@@ -7,6 +7,7 @@
 #define CR_TYPES_H
 
 #include <dolphin/dvd.h>
+#include <dolphin/pad.h>
 
 // Sizes from the code (checked by ParseHeaders.java like the library's own ASSERT_SIZE lines):
 // ASSERT_SIZE(cr_FileDesc, 0x10)       0x10 stride in cr_Archive_OpenEntry / GetEntrySize
@@ -1839,6 +1840,165 @@ typedef enum cr_MotionId {
     MOTION_COUNT = 0x447   // 1095 entries in both 0x80205C94 and 0x80206DB0
 } cr_MotionId;
 
+// ---- Controller input (cr_Pad_Update, 0x8001F758) -----------------------------------------------------------
+
+// ASSERT_SIZE(cr_Pad, 0xA4)   cr_Pad_Update walks 4 records of 0xA4 bytes from 0x8031FED8 (stride 0xA4 in its byte
+//                             stores at +0x98..+0xA0, word stores through a pointer stepped by 0xA4). dtk cut the hole
+//                             into three objects (0x14 / 0x8 / 0x274 at 0x8031FED8 / 0x8031FEEC / 0x8031FEF4); the
+//                             code never addresses the last two, only the first base plus offsets up to +0x290.
+
+/// One controller's processed state (cr_g_Pads[4], 0x8031FED8), computed every frame by cr_Pad_Update from PADRead's
+/// PADStatus in cr_g_PadStatus. Field names follow what cr_Pad_Update stores; the rest is unk_.
+typedef struct cr_Pad {
+    /* +00 */ u32 pressed;          // held & ~prev_held (cr_Pad_Update: *p = p[2] & ~p[4])
+    /* +04 */ u32 released;         // prev_held & ~held
+    /* +08 */ u32 held;             // PADStatus.button of this frame (0 while the pad has an error)
+    /* +0C */ u32 not_held;         // ~held
+    /* +10 */ u32 prev_held;        // held of the previous frame
+    /* +14 */ u32 unk_14;           // the most-read word of the record (68 functions test bits of it); not stored by cr_Pad_Update
+    /* +18 */ u32 unk_18;
+    /* +1C */ u32 dir;              // rebuilt every frame: d-pad up 1 / right 2 / down 4 / left 8, buttons 0x100..0x2000, stick directions 0x1000000..0x8000000, L / R past 100 0x10000 / 0x20000
+    /* +20 */ u32 unk_20;
+    /* +24 */ u32 prev_dir;         // dir of the previous frame (p[9] = p[7])
+    /* +28 */ u32 unk_28;
+    /* +2C */ u32 unk_2c;
+    /* +30 */ u8 unk_30[0x20];      // bytes indexed by trigger (0 / 1) in cr_Pad_Update: +0x30 + i, +0x50 + i, +0x70 + i (repeat / hold counters, 0x14 and 0xA)
+    /* +50 */ u8 unk_50[0x20];
+    /* +70 */ u8 unk_70[0x22];
+    /* +92 */ u16 unk_92;           // fn_8001F654 / fn_8001F6BC (lhz / sth)
+    /* +94 */ u16 trigger_peak[2];  // highest L / R analog value seen; reset to 0 once the trigger falls 15 below it
+    /* +98 */ s8 stick_x;           // PADStatus.stickX * 100 / 55
+    /* +99 */ s8 stick_y;           // PADStatus.stickY * 100 / 55
+    /* +9A */ s8 substick_x;        // PADStatus.substickX * 100 / 50
+    /* +9B */ s8 substick_y;        // PADStatus.substickY * 100 / 50
+    /* +9C */ u8 trigger_l;         // PADStatus.triggerLeft
+    /* +9D */ u8 trigger_r;         // PADStatus.triggerRight
+    /* +9E */ u8 analog_a;          // PADStatus.analogA
+    /* +9F */ u8 analog_b;          // PADStatus.analogB
+    /* +A0 */ u8 err;               // PADStatus.err; 0 / 0xFF after PADReset of a disconnected pad
+    /* +A1 */ u8 trigger_clicked[2]; // L / R: 1 when the trigger fell from a peak of 100 or more (cr_Pad_Update's two-trigger loop, indexed)
+    /* +A3 */ u8 unk_a3;
+} cr_Pad;
+
+// ---- Scenario script engine (the 300 handlers of cr_g_ScrCmdFuncs: cr_SYS_*, cr_CHAR_*, cr_CM_*, cr_F_*, cr_MAP_*, ...) ----
+
+// ASSERT_SIZE(cr_ScriptState, 0x484)    dtk's one object at 0x803BE358; every handler addresses it as one base
+//                                       (`lis/addi` of 0x803BE358, then +8 / +0xC / +0x4C ...: 1,505 times in 280 functions)
+// ASSERT_SIZE(cr_ScenarioSlot, 0xCC)    two records of 0x33 words at 0x803BF944 cleared field by field in a loop by
+//                                       cr_Scenario_Reset; cr_g_ScenarioSlotPtr points at one of them
+// ASSERT_SIZE(cr_ScenarioState, 0x364)  dtk's one object at 0x803BF914, addressed as one base 828 times in 159 functions
+
+/// The script interpreter's state (cr_g_Script, 0x803BE358). Every command handler begins the same way: it logs the
+/// command word at cr_g_ScriptPC into cmd_history[history_index], advances the PC past the arguments, steps the
+/// index mod 0x40 and counts the command in cmd_count[cr_g_ScriptDepth] (cr_SYS_WINDOW_CLOSE, cr_SYS_CALL, ...).
+typedef struct cr_ScriptState {
+    /* +000 */ u32 unk_000;                 // cleared by cr_SYS_SCR_END when a called script returns, and by cr_Scenario_Reset
+    /* +004 */ u32 history_init;            // fn_800A0854 fills cmd_history with -1 once and sets it
+    /* +008 */ u32 history_index;           // next cmd_history entry, kept & 0x3F
+    /* +00C */ u32 cmd_count[16];           // commands run per call depth (cr_SYS_CALL zeroes the new depth's)
+    /* +04C */ s32 cmd_history[64];         // the last 64 command words (-1 = none)
+    /* +14C */ u32 map_bef_script[50];      // cr_MAP_BEF_SCRIPT sets an entry, cr_MAP_CLEAR_BEF_SCRIPT clears it
+    /* +214 */ u32 map_init_script[50];     // cr_MAP_INIT_SCRIPT / cr_MAP_CLEAR_INIT_SCRIPT
+    /* +2DC */ u32 map_no_enter_script[50]; // cr_MAP_NO_ENTER_SCRIPT / cr_MAP_CLEAR_NO_ENTER_SCRIPT
+    /* +3A4 */ char* script_name[16];       // per call depth: cr_SYS_CALL stores the called entry's second word; "NO_READ" at depth 0 in fn_800A0854
+    /* +3E4 */ u32 unk_3e4;
+    /* +3E8 */ u8 unk_3e8;
+    /* +3E9 */ u8 unk_3e9[3];
+    /* +3EC */ Vec3 char_pos[8];            // cr_CHAR_POS_GET stores a character's position (y plus its y_offset) in the slot its argument names (< 8)
+    /* +44C */ s32 unk_44c;                 // cr_SYS_SNR_NEXT
+    /* +450 */ s32 unk_450;                 // cr_SYS_SNR_NEXT stores, 12 functions read
+    /* +454 */ s32 unk_454;                 // -1 in fn_800A0854 and cr_Scenario_Reset; cr_SYS_OVERLAY, cr_SYS_RET_GEKITOU
+    /* +458 */ u32 call_count;              // +1 per cr_SYS_CALL
+    /* +45C */ s32 battle_arg_slot0;        // cr_SYS_BATTLE's argument while cr_g_Scenario.slot_index is 0
+    /* +460 */ s32 battle_arg;              // cr_SYS_BATTLE's argument (the word after the command); fn_800BB4C8 and 9 more read it
+    /* +464 */ u16 unk_464;                 // cr_CHAR_TALK
+    /* +466 */ u8 unk_466;
+    /* +467 */ u8 unk_467;                  // cr_SEQ_SCENARIO_Enter stores; cr_CHAR_COUSE_SET and 8 more read
+    /* +468 */ u8 unk_468;
+    /* +469 */ u8 unk_469;                  // cr_SEQ_SCENARIO_FrameB
+    /* +46A */ u8 unk_46a;
+    /* +46B */ u8 unk_46b;
+    /* +46C */ u32 unk_46c;
+    /* +470 */ u8 unk_470;
+    /* +471 */ u8 unk_471[5];
+    /* +476 */ u8 unk_476;
+    /* +477 */ u8 unk_477;
+    /* +478 */ u32 overlay_478;             // cr_SYS_OVERLAY stores these three, cr_SYS_OVERLAY_WAIT reads them
+    /* +47C */ u32 overlay_47c;
+    /* +480 */ u32 overlay_480;
+} cr_ScriptState;
+
+/// One of the two scenario slot areas (cr_g_Scenario.slot[2]); the current one is cr_g_ScenarioSlotPtr.
+typedef struct cr_ScenarioSlot {
+    /* +00 */ u32 status;        // bits the handlers test: 0x40 (cr_SYS_WINDOW_CLOSE: close the window first) and 0x20000 (suspended: the next command does not run); cr_SYS_BATTLE ORs a constant in
+    /* +04 */ u32 flags[32];     // 1024 event-flag bits: cr_F_SET / cr_F_CLR / cr_F_CHK_BIT through cr_g_ScenarioSlotPtr; fn_800A0854 clears the 0x20 words after the status
+    /* +84 */ u16 unk_84[6];     // cleared one by one by cr_Scenario_Reset
+    /* +90 */ u16 battle_count;  // +1 in cr_SYS_BATTLE
+    /* +92 */ u16 unk_92[2];
+    /* +96 */ u8 unk_96[2];
+    /* +98 */ u32 unk_98[5];
+    /* +AC */ u32 unk_ac[2];
+    /* +B4 */ u32 unk_b4;
+    /* +B8 */ u16 unk_b8;
+    /* +BA */ u16 unk_ba;
+    /* +BC */ u8 unk_bc[0x10];   // bytes cleared one by one by cr_Scenario_Reset
+} cr_ScenarioSlot;
+
+/// The scenario's state (cr_g_Scenario, 0x803BF914): the entered name, the script error flags, wait timers, the
+/// two slot areas and the part bitsets. cr_Scenario_Reset clears all of it.
+typedef struct cr_ScenarioState {
+    /* +000 */ u16 unk_000;             // cr_SYS_SAVE_NEXT / cr_SYS_SAVE_RET / cr_SYS_SAVE_TABLE / cr_F_CUSTOMIZE_ON store it
+    /* +002 */ char name[18];           // cr_Scenario_Reset sprintf's "" here; cr_SYS_NAME_ENTRY stores the entered characters
+    /* +014 */ u32 error_flags;         // every handler ORs an error bit in when the next command is bad (PC null, not a pointer, >= 300, wrong class; cr_CHAR_POS_GET: 0x6000); 1 in fn_800A0854
+    /* +018 */ u32 unk_018;             // cr_SYS_NAME_ENTRY, cr_SYS_SNR_NEXT
+    /* +01C */ u32 unk_01c;             // 0x80074 in fn_800A0854
+    /* +020 */ u32 unk_020;
+    /* +024 */ s32 wait_timer;          // cr_CM_WAIT, cr_SYS_WAIT_TM and cr_SYS_WINDOW_CLOSE_WAIT store their count here
+    /* +028 */ s32 unk_028;             // cr_CHAR_TALK and the message code store, cr_SYS_SEL_JP reads
+    /* +02C */ u8 unk_02c;              // cr_MAP_DOOR_WAIT
+    /* +02D */ u8 unk_02d;              // the cr_SYS_SAVE_* handlers
+    /* +02E */ u8 unk_02e;              // cr_SEQ_BATTLE_FrameA
+    /* +02F */ u8 slot_index;           // which of slot[2] is current: fn_800A0854 and fn_800F21C8 set cr_g_ScenarioSlotPtr = &slot[it]
+    /* +030 */ cr_ScenarioSlot slot[2];
+    /* +1C8 */ u32 unk_1c8[4];
+    /* +1D8 */ u32 unk_1d8[32];
+    /* +258 */ u32 unk_258[10];
+    /* +280 */ u32 unk_280;
+    /* +284 */ u8 unk_284;
+    /* +285 */ u8 unk_285[3];
+    /* +288 */ u32 part_bits[5][8];     // per part category (0x20 bytes each): fn_800F21C8 ORs the save data's bitsets (0x803BF79C + 0x20 x category) into words 0-1 and 2-3; what the four 64-bit sets mean is unproven (docs/name_evidence.md, lead 0x803BF79C)
+    /* +328 */ u32 unk_328[2];
+    /* +330 */ u8 unk_330;              // 2 in cr_Scenario_Reset
+    /* +331 */ u8 pickup_battle;        // cr_SYS_PICKUP_BATTLE sets, cr_SYS_PICKUP_BATTLE_END clears
+    /* +332 */ u8 unk_332[2];
+    /* +334 */ u32 unk_334[4];
+    /* +344 */ u32 unk_344[4];
+    /* +354 */ u32 unk_354[4];
+} cr_ScenarioState;
+
+// ASSERT_SIZE(cr_GameMode, 0x48)   dtk's one object at 0x80321D40 (up to cr_g_SeqCurrent), addressed as one base 324
+//                                  times in 95 functions and directly 261 times
+
+/// Game mode and settings block (cr_g_GameMode, 0x80321D40). cr_Save_ResetData writes its defaults (flags 0x76, unk_04
+/// 0xF, unk_14 0x1C20, unk_16 0xFFFF, the two u16 groups at +0x1C / +0x30 with 1000 at their +0xA, unk_42 1).
+typedef struct cr_GameMode {
+    /* +00 */ u32 flags;         // bit 0x800000 picks the second save area (docs/name_evidence.md, lead 0x803BF79C); stored by cr_SEQ_BATTLE_FrameA / Leave, cr_SEQ_CUSTOMIZE_FrameA, cr_SEQ_SCENARIO_Enter and 8 more
+    /* +04 */ u32 unk_04;        // cr_SYS_BATTLE_RESULT, cr_SEQ_BATTLE_FrameA
+    /* +08 */ u32 unk_08;
+    /* +0C */ u32 unk_0c;        // fn_80023164
+    /* +10 */ u32 unk_10;        // cr_SEQ_STAGE_SELECTOR_Enter stores; cr_BattleRobo_InitFromLoadout and 38 more read
+    /* +14 */ s16 unk_14;        // lha; cr_SYS_BATTLE / cr_SYS_BATTLE_EF / cr_SYS_BATTLE_RESULT and cr_SEQ_STAGE_SELECTOR_Enter store
+    /* +16 */ s16 unk_16;        // lha; cr_SEQ_BATTLE_FrameA reads 34 times; fn_8004EDE4 / fn_8004FF64 / fn_80050388 store
+    /* +18 */ s16 unk_18;        // lha / sth (fn_80015E04 / fn_80015E18)
+    /* +1A */ u8 unk_1a[2];
+    /* +1C */ u16 unk_1c[19];    // two groups of 10 halfwords at +0x1C and +0x30 (cr_Save_ResetData clears [0..4] and [7] of each and sets [5] = 1000)
+    /* +42 */ u8 unk_42;         // 1 in cr_Save_ResetData; cr_Pad_Update, fn_8001F6BC read
+    /* +43 */ u8 unk_43;
+    /* +44 */ u8 unk_44;         // cr_CAMMODE_MIDDLE_Frame, fn_8002444C
+    /* +45 */ u8 unk_45;         // cr_SEQ_BATTLE_FrameA / cr_SEQ_BATTLE_Leave
+    /* +46 */ u8 unk_46[2];
+} cr_GameMode;
+
 // ---- Prototypes of our descriptive functions (symbols/descriptive.txt) -----------------------------------
 
 void cr_FileSys_Init(void);
@@ -1866,5 +2026,6 @@ f64 sqrt(f64 x); /* MSL w_sqrt.c (was cr_Sqrt, step 65) */
 void cr_Cam_SetMode(u8 mode);
 void cr_Motion_Play(u32 request, u32 frame);
 void cr_Motion_PlayFromFrame1(u32 id);
+void cr_Scenario_Reset(void);
 
 #endif
