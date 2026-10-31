@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 *lbl_8044F748;
 void fn_80098104(s32 arg0, u8 arg1);
-void fn_8001F6BC(s32 arg0, s16 arg1);
+void fn_8001F6BC(s32 arg0, u16 arg1);
 
 void fn_800A57CC(void) {
     if (M2C_FIELD(lbl_8044F748, u16 *, 0x16C) < 0x1EU) {
@@ -17,5 +17,5 @@ void fn_800A57CC(void) {
     fn_80098104(0x40078, 0x7FU);
     M2C_FIELD(lbl_8044F748, u16 *, 0x16C) = 0U;
     M2C_FIELD(lbl_8044F748, s32 *, 4) += 1;
-    fn_8001F6BC(0, 0xF0);
+    fn_8001F6BC(0, 0xF0U);
 }

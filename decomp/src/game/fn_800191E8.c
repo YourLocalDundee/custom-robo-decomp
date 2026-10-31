@@ -48,7 +48,38 @@ typedef struct cr_SeqState
 __declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 u32 VIGetDTVStatus(void);
 void cr_Pad_Update(void);
-extern u32 lbl_8031FED8[5];
+typedef struct cr_Pad
+{
+  u32 pressed;
+  u32 released;
+  u32 held;
+  u32 not_held;
+  u32 prev_held;
+  u32 unk_14;
+  u32 unk_18;
+  u32 dir;
+  u32 unk_20;
+  u32 prev_dir;
+  u32 unk_28;
+  u32 unk_2c;
+  u8 unk_30[0x20];
+  u8 unk_50[0x20];
+  u8 unk_70[0x22];
+  u16 unk_92;
+  u16 trigger_peak[2];
+  s8 stick_x;
+  s8 stick_y;
+  s8 substick_x;
+  s8 substick_y;
+  u8 trigger_l;
+  u8 trigger_r;
+  u8 analog_a;
+  u8 analog_b;
+  u8 err;
+  u8 trigger_clicked[2];
+  u8 unk_a3;
+} cr_Pad;
+__declspec(section ".data") extern cr_Pad cr_g_Pads[4];
 extern u32 lbl_8044F354;
 u32 OSGetProgressiveMode(void);
 
@@ -63,7 +94,7 @@ void fn_800191E8(void) {
     var_r31 = VIGetDTVStatus();
     if (var_r31 != 0) {
         cr_Pad_Update();
-        if (M2C_FIELD(lbl_8031FED8, s32 *, 0x1C) & 0x200) {
+        if (cr_g_Pads->dir & 0x200) {
             cr_g_SeqCurrent.unk_10 = 5;
             lbl_8044F3CC = 1;
         } else {

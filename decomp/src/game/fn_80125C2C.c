@@ -6,9 +6,55 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 lbl_8041CDE4[6996];
-extern u16 lbl_803BF914[434];
+typedef struct cr_ScenarioSlot
+{
+  u32 status;
+  u32 flags[32];
+  u16 unk_84[6];
+  u16 battle_count;
+  u16 unk_92[2];
+  u8 unk_96[2];
+  u32 unk_98[5];
+  u32 unk_ac[2];
+  u32 unk_b4;
+  u16 unk_b8;
+  u16 unk_ba;
+  u8 unk_bc[0x10];
+} cr_ScenarioSlot;
+typedef struct cr_ScenarioState
+{
+  u16 unk_000;
+  char name[18];
+  u32 error_flags;
+  u32 unk_018;
+  u32 unk_01c;
+  u32 unk_020;
+  s32 wait_timer;
+  s32 unk_028;
+  u8 unk_02c;
+  u8 unk_02d;
+  u8 unk_02e;
+  u8 slot_index;
+  cr_ScenarioSlot slot[2];
+  u32 unk_1c8[4];
+  u32 unk_1d8[32];
+  u32 unk_258[10];
+  u32 unk_280;
+  u8 unk_284;
+  u8 unk_285[3];
+  u32 part_bits[5][8];
+  u32 unk_328[2];
+  u8 unk_330;
+  u8 pickup_battle;
+  u8 unk_332[2];
+  u32 unk_334[4];
+  u32 unk_344[4];
+  u32 unk_354[4];
+} cr_ScenarioState;
+__declspec(section ".data") extern cr_ScenarioState cr_g_Scenario;
 extern u32 lbl_804198B0[42];
 u8 fn_800964B0(s32 arg0);
+__declspec(section ".sdata") extern cr_ScenarioSlot *cr_g_ScenarioSlotPtr;
 void fn_800972D8(s32 arg0);
 typedef enum cr_Seq
 {
@@ -54,30 +100,28 @@ void fn_800965F4(f32 farg0);
 extern f32 lbl_80451A54;
 extern u32 lbl_803BE7DC[1102];
 
-extern u8 *lbl_8044F794;
-
 void fn_80125C2C(void) {
     lbl_8041CDE4[2] = 0;
     lbl_8041CDE4[6] = 0;
     if (M2C_FIELD(lbl_8041CDE4, u8 *, 0) == 1) {
-        if (M2C_FIELD(lbl_803BF914, u8 *, 0x2F) == 0) {
+        if (cr_g_Scenario.slot_index == 0) {
             lbl_8041CDE4[4] = 2;
         } else {
             lbl_8041CDE4[4] = 3;
         }
-        lbl_804198B0[0x28] = M2C_FIELD(lbl_803BF914, u32 *, 0x328);
-        lbl_804198B0[0x29] = M2C_FIELD(lbl_803BF914, u32 *, 0x32C);
+        lbl_804198B0[0x28] = cr_g_Scenario.unk_328[0];
+        lbl_804198B0[0x29] = cr_g_Scenario.unk_328[1];
         return;
     }
     if (M2C_FIELD(lbl_8041CDE4, u8 *, 0) == 2) {
-        if ((fn_800964B0((s32) M2C_FIELD(lbl_8044F794, u16 *, 0xBA)) == 0) && (M2C_FIELD(lbl_8044F794, u16 *, 0xBA) != 0x47)) {
-            fn_800972D8((s32) M2C_FIELD(lbl_8044F794, u16 *, 0xBA));
+        if ((fn_800964B0((s32) cr_g_ScenarioSlotPtr->unk_ba) == 0) && (cr_g_ScenarioSlotPtr->unk_ba != 0x47)) {
+            fn_800972D8((s32) cr_g_ScenarioSlotPtr->unk_ba);
         }
         if ((enum cr_Seq) cr_g_SeqCurrent.previous != SEQ_CUSTOMIZE) {
             M2C_FIELD(lbl_8041CDB4, f32 *, 0x14) = fn_800965EC();
         }
         fn_800965F4(lbl_80451A54 * M2C_FIELD(lbl_8041CDB4, f32 *, 0x14));
-        if (M2C_FIELD(lbl_803BF914, u8 *, 0x2F) == 0) {
+        if (cr_g_Scenario.slot_index == 0) {
             lbl_8041CDE4[4] = 0;
             return;
         }

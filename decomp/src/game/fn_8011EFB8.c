@@ -6,7 +6,25 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 lbl_8041CBEE[13];
-extern u32 lbl_80321D40[18];
+typedef struct cr_GameMode
+{
+  u32 flags;
+  u32 unk_04;
+  u32 unk_08;
+  u32 unk_0c;
+  u32 unk_10;
+  s16 unk_14;
+  s16 unk_16;
+  s16 unk_18;
+  u8 unk_1a[2];
+  u16 unk_1c[19];
+  u8 unk_42;
+  u8 unk_43;
+  u8 unk_44;
+  u8 unk_45;
+  u8 unk_46[2];
+} cr_GameMode;
+__declspec(section ".data") extern cr_GameMode cr_g_GameMode;
 extern u8 lbl_8044F884;
 
 void fn_8011EFB8(void) {
@@ -17,7 +35,7 @@ void fn_8011EFB8(void) {
         M2C_FIELD(((u8 *) (&lbl_8041CBEE[var_r31_4])), s8 *, 1) = 0;
         var_r31_4 += 1;
     }
-    if (!(lbl_80321D40[1] & 0x40)) {
+    if (!(cr_g_GameMode.unk_04 & 0x40)) {
         switch ((s8) lbl_8044F884) {                /* switch 1; irregular */
         case 0:                                     /* switch 1 */
             lbl_8041CBEE[1] = 1;

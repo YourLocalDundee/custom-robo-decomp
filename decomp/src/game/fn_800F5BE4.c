@@ -9,7 +9,25 @@ void fn_80015E18(void);
 void fn_80023264(s32 *arg0, s32 *arg1, u32 arg2);
 __declspec(section ".rodata") extern char lbl_801C3CF0[5];
 extern u32 lbl_803BE7DC[1102];
-extern u32 lbl_80321D40[18];
+typedef struct cr_GameMode
+{
+  u32 flags;
+  u32 unk_04;
+  u32 unk_08;
+  u32 unk_0c;
+  u32 unk_10;
+  s16 unk_14;
+  s16 unk_16;
+  s16 unk_18;
+  u8 unk_1a[2];
+  u16 unk_1c[19];
+  u8 unk_42;
+  u8 unk_43;
+  u8 unk_44;
+  u8 unk_45;
+  u8 unk_46[2];
+} cr_GameMode;
+__declspec(section ".data") extern cr_GameMode cr_g_GameMode;
 extern u32 lbl_801C50D0[58];
 extern f32 lbl_8044F6D0[2];
 
@@ -37,7 +55,7 @@ void fn_800F5BE4(void) {
     var_r30 += 4;
     fn_80023264(var_r30, (s32 *) lbl_803BE7DC, 0x1138U);
     var_r30 += 0x44E;
-    fn_80023264(var_r30, (s32 *) lbl_80321D40, 0x48U);
+    fn_80023264(var_r30, (s32 *) &cr_g_GameMode, 0x48U);
     var_r30 += 0x12;
     fn_80023264(var_r30, (s32 *) lbl_801C50D0, 0x80U);
     var_r30 += 0x20;

@@ -44,10 +44,28 @@ typedef struct cr_SeqState
   u8 unk_44[4];
 } cr_SeqState;
 __declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
-extern u32 lbl_80321D40[18];
+typedef struct cr_GameMode
+{
+  u32 flags;
+  u32 unk_04;
+  u32 unk_08;
+  u32 unk_0c;
+  u32 unk_10;
+  s16 unk_14;
+  s16 unk_16;
+  s16 unk_18;
+  u8 unk_1a[2];
+  u16 unk_1c[19];
+  u8 unk_42;
+  u8 unk_43;
+  u8 unk_44;
+  u8 unk_45;
+  u8 unk_46[2];
+} cr_GameMode;
+__declspec(section ".data") extern cr_GameMode cr_g_GameMode;
 
 void fn_8000DE08(void) {
     fn_80096F54();
     cr_g_SeqCurrent.next = SEQ_SCENARIO;
-    *lbl_80321D40 |= 0x400000;
+    cr_g_GameMode.flags |= 0x400000;
 }

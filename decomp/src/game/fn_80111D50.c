@@ -48,7 +48,25 @@ void fn_80125884(u8 arg0);
 extern u8 lbl_8041CDE4[6996];
 void fn_80124808(s8 arg0);
 __declspec(section ".sdata") extern u8 lbl_8044F885[11];
-extern u32 lbl_80321D40[18];
+typedef struct cr_GameMode
+{
+  u32 flags;
+  u32 unk_04;
+  u32 unk_08;
+  u32 unk_0c;
+  u32 unk_10;
+  s16 unk_14;
+  s16 unk_16;
+  s16 unk_18;
+  u8 unk_1a[2];
+  u16 unk_1c[19];
+  u8 unk_42;
+  u8 unk_43;
+  u8 unk_44;
+  u8 unk_45;
+  u8 unk_46[2];
+} cr_GameMode;
+__declspec(section ".data") extern cr_GameMode cr_g_GameMode;
 
 enum cr_Seq fn_80111D50(void) {
     enum cr_Seq var_r31_13;
@@ -61,7 +79,7 @@ enum cr_Seq fn_80111D50(void) {
             fn_80124808(5);
             lbl_8044F885[2] = 1;
         }
-    } else if (*lbl_80321D40 & 0x02000000) {
+    } else if (cr_g_GameMode.flags & 0x02000000) {
         if ((enum cr_Seq) cr_g_SeqCurrent.previous == SEQ_BATTLE) {
             var_r31_13 = SEQ_CUSTOMIZE;
         } else {

@@ -154,7 +154,7 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x8024D4D8..0x8024D604 .data hsdClass .. lbl_8024D5E0
   0x8024D680..0x8024D9D0 .data lbl_8024D680 .. lbl_8024D95C
   0x8031B5A0..0x8031F0E0 .bss lbl_8031B5A0 .. lbl_8031F020
-  0x8031FED8..0x8031FF73 .bss lbl_8031FED8 .. lbl_8031FEF4
+  0x8031FED8..0x8031FF73 .bss cr_g_Pads .. lbl_8031FEF4
   0x80320168..0x80321CBA .bss lbl_80320168 .. cr_g_FileSysReady
   0x80321DD0..0x80329B44 .bss lbl_80321DD0 .. lbl_80329B10
   0x80329B60..0x8032A89C .bss lbl_80329B60 .. lbl_8032A884

@@ -5,6 +5,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+__declspec(section ".sdata") extern s16 *cr_g_ScriptPC;
 typedef struct 
 {
   f32 x;
@@ -478,14 +479,12 @@ s32 fn_8001F060(f32 farg0, f32 farg1);
 void cr_Chara_SetCurrentPointers(void);
 void cr_Motion_PlayFromFrame1(u32 id);
 
-extern u8 *lbl_8044F778;
-
 void cr_C_ACT_TURN_POINT(void) {
-    void *temp_r31_8;
+    s16 *temp_r31_8;
     s32 temp_r30_34;
 
-    temp_r31_8 = lbl_8044F778;
-    lbl_8044F778 += 0xC;
+    temp_r31_8 = cr_g_ScriptPC;
+    cr_g_ScriptPC += 6;
     cr_g_CurrentChara->flags_1944 |= 1;
     cr_g_CurrentChara->target_angle = fn_8001F060(cr_g_CurrentChara->pos.x - M2C_FIELD(temp_r31_8, f32 *, 4), cr_g_CurrentChara->pos.z - M2C_FIELD(temp_r31_8, f32 *, 8));
     temp_r30_34 = (s16) cr_g_CurrentChara->target_angle - (s16) cr_g_CurrentChara->angle;

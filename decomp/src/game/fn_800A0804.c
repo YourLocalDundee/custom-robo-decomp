@@ -6,10 +6,10 @@
 
 M2C_UNK fn_800F21C8(s32, s32);                      /* extern */
 M2C_UNK fn_800F5448(s32);                           /* extern */
-extern s32 *lbl_8044F794;
+extern s32 *cr_g_ScenarioSlotPtr;
 
 void fn_800A0804(s32 arg0) {
     fn_800F5448(arg0 >> 1);
     fn_800F21C8(arg0 >> 1, arg0 & 1);
-    *lbl_8044F794 = *lbl_8044F794 & 0xFFFFFBFF;
+    *cr_g_ScenarioSlotPtr = *cr_g_ScenarioSlotPtr & 0xFFFFFBFF;
 }

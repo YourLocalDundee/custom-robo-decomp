@@ -5,6 +5,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+__declspec(section ".sdata") extern s16 *cr_g_ScriptPC;
 typedef struct 
 {
   f32 x;
@@ -456,13 +457,11 @@ typedef struct cr_Chara
 } cr_Chara;
 __declspec(section ".sdata") extern cr_Chara *cr_g_CurrentChara;
 
-extern u8 *lbl_8044F778;
-
 void cr_C_ACT_WAIT(void) {
-    void *temp_r31_5;
+    s16 *temp_r31_5;
 
-    temp_r31_5 = lbl_8044F778;
-    lbl_8044F778 += 4;
+    temp_r31_5 = cr_g_ScriptPC;
+    cr_g_ScriptPC += 2;
     cr_g_CurrentChara->flags_1944 |= 8;
     cr_g_CurrentChara->countdown_1990 = (u16) M2C_FIELD(temp_r31_5, s16 *, 2);
 }

@@ -5,7 +5,25 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u32 lbl_80321D40[18];
+typedef struct cr_GameMode
+{
+  u32 flags;
+  u32 unk_04;
+  u32 unk_08;
+  u32 unk_0c;
+  u32 unk_10;
+  s16 unk_14;
+  s16 unk_16;
+  s16 unk_18;
+  u8 unk_1a[2];
+  u16 unk_1c[19];
+  u8 unk_42;
+  u8 unk_43;
+  u8 unk_44;
+  u8 unk_45;
+  u8 unk_46[2];
+} cr_GameMode;
+__declspec(section ".data") extern cr_GameMode cr_g_GameMode;
 typedef enum cr_Seq
 {
   SEQ_LOGO,
@@ -51,19 +69,19 @@ extern u16 lbl_801C5BD0[32];
 extern u8 lbl_8024E120[840832];
 
 void cr_SEQ_STAGE_SELECTOR_Enter(void) {
-    if ((M2C_FIELD(lbl_80321D40, u32 *, 0) & 0x02000000) && ((enum cr_Seq) cr_g_SeqCurrent.previous == SEQ_BATTLE)) {
-        M2C_FIELD(lbl_80321D40, u32 *, 0) = M2C_FIELD(lbl_8031F240, u32 *, 8);
-        M2C_FIELD(lbl_80321D40, s16 *, 0x14) = M2C_FIELD(lbl_8031F240, s16 *, 2);
-        lbl_80321D40[4] = M2C_FIELD(lbl_8031F240, u32 *, 4);
+    if ((cr_g_GameMode.flags & 0x02000000) && ((enum cr_Seq) cr_g_SeqCurrent.previous == SEQ_BATTLE)) {
+        cr_g_GameMode.flags = M2C_FIELD(lbl_8031F240, u32 *, 8);
+        cr_g_GameMode.unk_14 = M2C_FIELD(lbl_8031F240, s16 *, 2);
+        cr_g_GameMode.unk_10 = M2C_FIELD(lbl_8031F240, u32 *, 4);
         lbl_8044F504 = M2C_FIELD(lbl_8031F240, u32 *, 0xC);
         M2C_FIELD(lbl_8037569C, u8 *, 6) = M2C_FIELD(lbl_8031F240, u8 *, 0);
         M2C_FIELD(lbl_801C5BD0, u16 *, 0) = M2C_FIELD(lbl_8031F240, u16 *, 0x10);
         lbl_801C5BD0[8] = M2C_FIELD(lbl_8031F240, u16 *, 0x12);
         lbl_801C5BD0[0x10] = M2C_FIELD(lbl_8031F240, u16 *, 0x14);
         lbl_801C5BD0[0x18] = M2C_FIELD(lbl_8031F240, u16 *, 0x16);
-        M2C_FIELD(lbl_8024E120, s32 *, 0x1D8) = M2C_FIELD(lbl_8031F240, s32 *, 0x18);
-        M2C_FIELD(lbl_8024E120, s32 *, 0x336F8) = M2C_FIELD(lbl_8031F240, s32 *, 0x1C);
-        M2C_FIELD(lbl_8024E120, s32 *, 0x66C18) = M2C_FIELD(lbl_8031F240, s32 *, 0x20);
-        M2C_FIELD(lbl_8024E120, s32 *, 0x9A138) = M2C_FIELD(lbl_8031F240, s32 *, 0x24);
+        M2C_FIELD(lbl_8024E120, s32 *, 0x1D8) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x18);
+        M2C_FIELD(lbl_8024E120, s32 *, 0x336F8) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x1C);
+        M2C_FIELD(lbl_8024E120, s32 *, 0x66C18) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x20);
+        M2C_FIELD(lbl_8024E120, s32 *, 0x9A138) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x24);
     }
 }

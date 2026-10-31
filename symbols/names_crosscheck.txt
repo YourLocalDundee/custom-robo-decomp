@@ -1,4 +1,4 @@
-names_crosscheck: 2360 names; FAIL 0, WEAK 458, UNCHECKABLE 31, OK 1871; symbols OK=1256/WEAK=428, cand_hsd OK=61/WEAK=9, cand_sdk OK=33/WEAK=5, cand_rt OK=16/WEAK=15, descriptive OK=438/UNCHECKABLE=28, cr_globals OK=65/UNCHECKABLE=3
+names_crosscheck: 2370 names; FAIL 0, WEAK 458, UNCHECKABLE 31, OK 1881; symbols OK=1256/WEAK=428, cand_hsd OK=61/WEAK=9, cand_sdk OK=33/WEAK=5, cand_rt OK=16/WEAK=15, descriptive OK=439/UNCHECKABLE=28, cr_globals OK=74/UNCHECKABLE=3
 // tools/crosscheck_names.py: VERDICT ADDR NAME SOURCE TAG | AGAINST (contradictions) | independent kinds | evidence | notes
 WEAK        80003424 __flush_cache                        symbols     dtk                          independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x34/melee/GALE01 0x34=1.00 (46 refs)
 WEAK        800034AC gTRKInterruptVectorTable             symbols     dtk                          independent: none | no reference map has this name
@@ -1879,6 +1879,8 @@ OK          8023B7EA cr_g_PartOrderBomb                   cr_globals  why       
 OK          8023B83E cr_g_PartOrderPod                    cr_globals  why                          checked: cr_g_PartOrderLists[3] = 8023B83E
 OK          8023B898 cr_g_PartOrderLeg                    cr_globals  why                          checked: cr_g_PartOrderLists[4] = 8023B898
 OK          8024DC80 cr_g_CharaEntries                    cr_globals  why                          checked: FUN_800a0854 references cr_g_CharaEntries ; cr_CharaEntry_OnLoaded references cr_g_CharaEntries
+OK          8031FEA8 cr_g_PadStatus                       cr_globals  why                          checked: cr_Pad_Update references cr_g_PadStatus
+OK          8031FED8 cr_g_Pads                            cr_globals  why                          checked: cr_Pad_Update references cr_g_Pads
 OK          80320184 cr_g_FileSlots                       cr_globals  why                          checked: cr_Archive_OpenEntry references cr_g_FileSlots
 OK          80321084 cr_g_DirTree                         cr_globals  why                          checked: cr_FileSys_RegisterPath references cr_g_DirTree
 OK          8032109C cr_g_ArchiveDvdEntry                 cr_globals  why                          checked: cr_FileSys_Init references cr_g_ArchiveDvdEntry
@@ -1889,6 +1891,7 @@ OK          80321CB9 cr_g_ReadQueueTail                   cr_globals  why       
 OK          80321CBA cr_g_ReadChunkSectors                cr_globals  why                          checked: cr_Archive_OpenRequestList references cr_g_ReadChunkSectors
 OK          80321CBC cr_g_CurrentRead                     cr_globals  why                          checked: cr_FileSlot_QueueRead references cr_g_CurrentRead
 OK          80321CC0 cr_g_ReadQueue                       cr_globals  why                          checked: cr_FileSlot_QueueRead references cr_g_ReadQueue
+OK          80321D40 cr_g_GameMode                        cr_globals  why                          checked: cr_SYS_BATTLE references cr_g_GameMode ; cr_Save_ResetData references cr_g_GameMode
 OK          80321D88 cr_g_SeqCurrent                      cr_globals  why                          checked: FUN_8000878c references cr_g_SeqCurrent
 OK          80321D8C cr_g_SeqPrevious                     cr_globals  why                          checked: FUN_8000878c references cr_g_SeqPrevious
 OK          80321D90 cr_g_SeqNext                         cr_globals  why                          checked: FUN_8000878c references cr_g_SeqNext
@@ -1898,8 +1901,11 @@ OK          8032A8C8 cr_g_MotionDataBit15                 cr_globals  why       
 OK          8032ADC8 cr_g_MotionData                      cr_globals  why                          checked: FUN_80037a80 references cr_g_MotionData ; FUN_80074dcc references cr_g_MotionData
 OK          80330BC0 cr_g_MessageFiles                    cr_globals  why                          checked: cr_Text_GetBodyName references cr_g_MessageFiles ; cr_Text_GetPartDescription references cr_g_MessageFiles
 OK          803BAF28 cr_g_AreaBoxes                       cr_globals  why                          checked: cr_AreaBoxes_Update references cr_g_AreaBoxes
+OK          803BE358 cr_g_Script                          cr_globals  why                          checked: cr_CHAR_POS_GET references cr_g_Script ; cr_SYS_CALL references cr_g_Script
 OK          803BE7FC cr_g_BodyBattleRecords               cr_globals  why                          checked: cr_Battle_UpdateBodyRecords references cr_g_BodyBattleRecords ; cr_Records_BuildBodyRows references cr_g_BodyBattleRecords ; cr_Save_ResetData references cr_g_BodyBattleRecords
+OK          803BF914 cr_g_Scenario                        cr_globals  why                          checked: cr_CM_WAIT references cr_g_Scenario ; cr_SYS_WAIT_TM references cr_g_Scenario ; cr_Scenario_Reset references cr_g_Scenario
 OK          803BFE88 cr_g_Charas                          cr_globals  why                          checked: cr_Chara_UpdateAll references cr_g_Charas
+OK          803E6648 cr_g_ScriptReturnStack               cr_globals  why                          checked: cr_SYS_CALL references cr_g_ScriptReturnStack ; cr_SYS_SCR_END references cr_g_ScriptReturnStack ; cr_Scenario_Reset references cr_g_ScriptReturnStack
 OK          8044C3C0 cr_g_BodyCount                       cr_globals  why                          checked: cr_Text_GetGunName references cr_g_BodyCount
 OK          8044C3C4 cr_g_LegCount                        cr_globals  why                          checked: cr_Text_MaskUnownedSpecialPart references cr_g_LegCount
 OK          8044C3C8 cr_g_GunCount                        cr_globals  why                          checked: cr_Text_GetBombName references cr_g_GunCount
@@ -1922,6 +1928,9 @@ OK          8044F560 cr_g_CurrentChara_06dc               cr_globals  why       
 OK          8044F760 cr_g_FirstChara                      cr_globals  why                          checked: FUN_8009aec4 references cr_g_FirstChara ; cr_Chara_UpdateAll references cr_g_FirstChara
 OK          8044F764 cr_g_CurrentChara                    cr_globals  why                          checked: cr_Chara_BuildModel references cr_g_CurrentChara ; cr_Chara_UpdateAll references cr_g_CurrentChara
 OK          8044F768 cr_g_CurrentCharaIndex               cr_globals  why                          checked: cr_Chara_UpdateAll references cr_g_CurrentCharaIndex
+OK          8044F770 cr_g_ScriptDepth                     cr_globals  why                          checked: cr_SYS_CALL references cr_g_ScriptDepth ; cr_SYS_SCR_END references cr_g_ScriptDepth ; cr_Scenario_Reset references cr_g_ScriptDepth
+OK          8044F778 cr_g_ScriptPC                        cr_globals  why                          checked: cr_F_CHECK_G_TROPHY references cr_g_ScriptPC ; cr_SYS_CALL references cr_g_ScriptPC ; cr_SYS_WINDOW_CLOSE references cr_g_ScriptPC
+OK          8044F794 cr_g_ScenarioSlotPtr                 cr_globals  why                          checked: cr_F_CHK_BIT references cr_g_ScenarioSlotPtr ; cr_F_CLR references cr_g_ScenarioSlotPtr ; cr_F_SET references cr_g_ScenarioSlotPtr
 OK          80005DA4 cr_BattleRobo_InitFromLoadout        descriptive why                          checked: references 0x801C6C44 ; references 0x8024DFA0 ; references cr_g_BattleRoboIndex ; references cr_g_BodyData
 OK          8000878C cr_Game_Update                       descriptive why                          checked: cr_Pad_Update is a caller / callee / referenced ; references cr_g_SeqCurrent ; references cr_g_SeqEnter ; references cr_g_SeqFrameA ; references cr_g_SeqLeave ; references cr_g_SeqNext
 OK          80008C00 cr_SEQ_ILLUSTRATED_BOOK_Leave        descriptive why                          checked: 0x801DEBA4[13] = 80008C00 ; name table 0x801DEAB4[13] = "SEQ_ILLUSTRATED_BOOK" | unconfirmed: FUN_8000878c: no call / reference between them (prose?)
@@ -2357,6 +2366,7 @@ OK          800DB71C cr_SYS_START                         descriptive why       
 OK          800DB7B4 cr_SYS_SCR_END                       descriptive why                          checked: game-real: 0x8021BF44[1] = 801C2874 ; game-real: string 0x801C2874 = "SYS_SCR_END" ; game-real: name cr_SYS_SCR_END = cr_ + the string ; game-real: 0x8021C3F4[1] = 800DB7B4 ; game-real: tables 0x8021BF44 (300) and 0x8021C3F4 (300) adjacent, same length ; 0x8021C3F4[1] = 800DB7B4 ; 0x8021BF44[1] = "SYS_SCR_END"
 OK          800DB8A4 cr_SYS_SET_SCR                       descriptive why                          checked: game-real: 0x8021BF44[0] = 801C2868 ; game-real: string 0x801C2868 = "SYS_SET_SCR" ; game-real: name cr_SYS_SET_SCR = cr_ + the string ; game-real: 0x8021C3F4[0] = 800DB8A4 ; game-real: tables 0x8021BF44 (300) and 0x8021C3F4 (300) adjacent, same length ; 0x8021C3F4[0] = 800DB8A4 ; 0x8021BF44[0] = "SYS_SET_SCR"
 OK          800F0DEC cr_Save_ResetData                    descriptive why                          checked: references 0x801C50D0 ; references 0x80321D40 ; references 0x80321D44 ; references 0x803BE7DC ; references 0x803BE7FC ; references 0x803BF6FC ; references 0x803BF79C ; references cr_g_BodyBattleRecords
+OK          800F1954 cr_Scenario_Reset                    descriptive why                          checked: references 0x803BBA28 ; references 0x803BC028 ; references 0x80451654 ; references cr_g_AreaBoxes ; references cr_g_Charas ; references cr_g_Scenario ; references cr_g_Script ; references cr_g_ScriptDepth ; references cr_g_ScriptReturnStack
 OK          800F8E4C cr_Text_MaskUnownedSpecialPart       descriptive why                          checked: references 0x803BFB9C | unconfirmed: 0x803BF79C: not referenced directly (computed address?)
 OK          80101730 cr_BattleRobo_InitFromMenu           descriptive why                          checked: references cr_g_BodyData | unconfirmed: cr_BattleRobo_InitFromLoadout: no call / reference between them (prose?)
 OK          80117034 cr_Records_BuildBodyRows             descriptive why                          checked: references cr_g_BodyBattleRecords ; references cr_g_PartOrderBody
