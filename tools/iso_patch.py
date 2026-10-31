@@ -3,8 +3,10 @@
   build <clean.iso> <mod_dir> <out.iso>
       mod_dir mirrors the disc: files/<path> and/or sys/main.dol, holding the files you changed (a full
       extracted folder works too: unchanged files are skipped). Changed files are written in place when they
-      fit their original space, otherwise appended after the last file; the file table (FST) and, for
-      main.dol, boot.bin are updated. Everything else stays byte-identical to the clean ISO.
+      fit their original space (up to where the next file, the FST or main.dol starts: the disc layout leaves
+      0x8000-alignment gaps), otherwise moved to the first unused part of the disc that fits, 0x8000-aligned
+      (Custom Robo's files sit at the end of the disc: ~450 MB between the FST and the first file are unused);
+      the file table (FST) and, for main.dol, boot.bin are updated. Everything else stays byte-identical to the clean ISO.
   diff <clean.iso> <modded.iso> <out.crpatch>
       A patch holds only what differs: blocks found anywhere in the clean ISO are stored as references to it;
       the rest only as the bytes that differ from the clean ISO at the same place. zlib-compressed.
@@ -52,14 +54,42 @@ def read_fst(iso):
     return fst_off, fst, files
 
 
+def unused_space(iso, files, capacity):
+    """Unused (start, end) ranges of the disc: everything but the header + apploader, main.dol, the FST (its
+    maximum size) and the files."""
+    iso.seek(0x420); dol, fst_off, _, fst_max = struct.unpack('>IIII', iso.read(16))
+    iso.seek(0x2440 + 0x14); app = 0x2460 + sum(struct.unpack('>II', iso.read(8)))
+    iso.seek(dol); h = iso.read(0x100)
+    dol_end = dol + max(o + s for o, s in zip(struct.unpack_from('>18I', h, 0), struct.unpack_from('>18I', h, 0x90)))
+    used = sorted([(0, app), (dol, dol_end), (fst_off, fst_off + fst_max)] + [(o, o + s) for _, o, s in files.values() if s])
+    free, pos = [], 0
+    for a, b in used + [(capacity, capacity)]:
+        if a > pos: free.append([pos, a])
+        pos = max(pos, b)
+    return free
+
+
+def allocate(free, n, align=0x8000):
+    """First unused range that holds n bytes at an aligned start; takes the space out of `free`."""
+    for r in free:
+        start = (r[0] + align - 1) & ~(align - 1)
+        if start + n <= r[1]:
+            r[0] = start + n
+            return start
+    return None
+
+
 def build(clean, mod_dir, out):
     if sha1_file(clean) != CLEAN_SHA1: sys.exit('clean ISO is not GXCE01 v1.0 (SHA-1 mismatch)')
     shutil.copyfile(clean, out)
+    capacity = os.path.getsize(clean)  # a GameCube image is always the full disc size
     with open(out, 'r+b') as iso:
         fst_off, fst, files = read_fst(iso)
         fst = bytearray(fst)
-        end = max(o + s for _, o, s in files.values())
-        end = max(end, fst_off + len(fst))
+        iso.seek(0x420); dol_start = struct.unpack('>I', iso.read(4))[0]
+        # where each file's space ends: the next start of a file, the FST or main.dol (or the end of the disc)
+        starts = sorted({o for _, o, s in files.values() if s} | {fst_off, dol_start, capacity})
+        free = unused_space(iso, files, capacity)
         changed = []
         files_dir = os.path.join(mod_dir, 'files')
         for root, _, names in os.walk(files_dir):
@@ -70,9 +100,13 @@ def build(clean, mod_dir, out):
                 data = open(os.path.join(root, n), 'rb').read()
                 iso.seek(off)
                 if len(data) == size and iso.read(size) == data: continue
-                if len(data) > size:  # does not fit: append, 0x8000-aligned like the original layout
-                    off = end = (end + 0x7FFF) & ~0x7FFF
-                    end += len(data)
+                room = next(x for x in starts if x > off) - off
+                if len(data) > room:  # does not fit: move it to unused space, 0x8000-aligned like the original layout
+                    off = allocate(free, len(data))
+                    if off is None: sys.exit(f'{path}: {len(data):#x} bytes do not fit in place ({room:#x}) nor anywhere unused on the disc')
+                else:  # in place, maybe into the gap after it: that space is no longer free
+                    for r in free:
+                        if r[0] < off + len(data) <= r[1] or (off <= r[0] < off + len(data)): r[0] = max(r[0], off + len(data))
                 iso.seek(off); iso.write(data)
                 struct.pack_into('>II', fst, idx * 12 + 4, off, len(data))
                 changed.append(f'{path} ({size:#x} -> {len(data):#x} @ {off:#x})')
@@ -87,8 +121,6 @@ def build(clean, mod_dir, out):
                 iso.seek(dol_off); iso.write(data)
                 changed.append('sys/main.dol')
         iso.seek(fst_off); iso.write(fst)
-        size = os.fstat(iso.fileno()).st_size
-        if end > size: sys.exit(f'mod data ends at {end:#x}, past the disc size {size:#x}')
     for c in changed: print('changed', c)
     print(f'built {out}: {len(changed)} file(s) changed, SHA-1 {sha1_file(out)}')
 
