@@ -368,7 +368,7 @@ Each phase has a goal, the ideas for reaching it, and a finish line. Within a ph
 
 **HSD models (stages, title, effects)**
 - [x] Confirm they open and export (all exported by `export_models.py`).
-- [~] Import a custom model into a .dat, repack, and see it in game: built for robos (step 70, Blender loop: `tools/model_loop.ps1`, `HSDRawViewer --import`; Ray 01 legionnaire ISO boots), awaiting the in-person visual test. Stage / title models: not yet.
+- [x] Import a custom model into a .dat, repack, and see it in game: done for robos (step 70, Blender loop: `tools/model_loop.ps1`, `HSDRawViewer --import`). **Seen in game Oct 30, 2026:** the Ray 01 legionnaire shows in Customize and fights in a battle, the added parts follow their bones (docs/images/ray_legionnaire_v1_customize.jpg, ray_legionnaire_v1_battle1.jpg, ray_legionnaire_v1_battle2.jpg; the stick crest and plank shield are the step 70 importer's rigid flat shapes, step 73 replaces the whole model). Stage / title models: not yet.
 
 **Custom format models (robos and weapons)**
 - [x] Trace the loaders (robo `FUN_800747b0`/`FUN_800748a8`, weapon `FUN_80073cb8`).
@@ -415,7 +415,7 @@ Each phase has a goal, the ideas for reaching it, and a finish line. Within a ph
 - **Code** (Gecko / Action Replay, and permanent DOL patches): table changes, new code, behaviour. The Custom Robo Discord says codes can add textures and other things but not models; research confirms it (`docs/community_codes.md`). The whole Dolphin code list gets about 6 KB (0x80001800-0x80003000); one robo entry is 186-233 KB and models live in the heap.
 
 **Path, in dependency order**
-1. **Models** (Phase 1): replacing works offline (484/484 byte-identical round trip; boots). [ ] Confirm in battle. [ ] Limits: file size, memory, vertex / bone counts.
+1. **Models** (Phase 1): replacing works offline (484/484 byte-identical round trip; boots). [x] Confirmed in battle (Oct 30, 2026, Ray 01 legionnaire v1, docs/images/). [ ] Limits: file size, memory, vertex / bone counts.
 2. **Skeletons**: a new bone tree works through the 19 role bones (`*.roles.json`, docs/MODDING.md). [ ] Confirm in battle. [ ] Robo size (lives in the vertices; root scale is overridden at run time, step 29).
 3. **Animations**: 1,095 motion IDs and the 34 battle motion sets x 38 slots are named (step 46). [ ] Map the motion data format (`snr_motion.bin`, `motion.DBN`). [ ] Exporter + importer like crmodel.py. [ ] Blender retarget workflow for new skeletons. [ ] What "charge not linked" is (step 28).
 4. **Sound effects and music**: `.ssm` banks and `.hps` streams, the same HAL formats as Melee (check Melee's tools first). HSD audio code is named (step 47). [ ] Read/write tools. [ ] Map SFX IDs -> bank, robo and action.
