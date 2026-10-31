@@ -80,3 +80,7 @@ It ends with the PASS / FAIL table of `tools/from_scratch.sh`; `docker rm -f cr-
   under Docker Desktop (Windows: 1,703 in 40 minutes). On the final commit (the Windows run's outputs and checksums)
   `tools/batches/batch9_decomp_build.sh` in the container: retail SHA-1, 617 objects from C, no file changed;
   `tools/checksums.sh --compare`: all 33 files match.
+- Oct 30, 2026, late: main's merge commit df9dc1c (620 objects from C) checked in the same container after
+  `tools/check_refs.py` (17 clones at their pins): `batch9_decomp_build.sh` retail SHA-1, 620 objects, static shift PASS;
+  then `tools/rebuild_decomp.sh` (the Ghidra export at the new names) and `tools/checksums.sh --compare`: all 33 files
+  match Windows byte for byte.
