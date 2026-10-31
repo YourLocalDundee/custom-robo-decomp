@@ -8,7 +8,70 @@ fetches (`tools/setup.ps1` on Windows, `tools/setup.sh` on Linux / macOS).
 Windows runs the PowerShell scripts (`tools/*.ps1`, `tools/batches/*.ps1`); Linux and macOS run the bash scripts
 (`tools/*.sh`, `tools/batches/*.sh`), which do the same steps in the same order with the same arguments and write the
 same files, so [docs/expected_checksums.txt](expected_checksums.txt) holds on every OS. No PowerShell is needed or used
-outside Windows.
+outside Windows. **The Linux / macOS parts of this page are not maintained at the moment** (last run Oct 30, 2026): the
+project is developed and verified on Windows; the `.sh` twins are kept but not updated.
+
+## What is in use on the development machine (Windows)
+
+The exact versions everything on this page was last verified with (Oct 31, 2026, plan.md step 83), and where each
+tool lives. A fresh Windows clone with the same tools reproduces every checksum.
+
+| Tool | Version in use | Where | How it got there |
+|---|---|---|---|
+| Windows | 11 Pro | | |
+| PowerShell | 7.6.7 (`pwsh`) | on `PATH` | winget `Microsoft.PowerShell` |
+| Python | 3.13.15 (`python`; also the venv `tools/pyenv`) | on `PATH` | winget `Python.Python.3.12` or newer; 3.11+ works |
+| Java | Temurin 21.0.12.1 (`java`) | on `PATH` | winget `EclipseAdoptium.Temurin.21.JDK` |
+| .NET SDK | 10.0.403 (`dotnet`); HSDRawViewer targets .NET 8 and runs on 10 through `RollForward=Major` | on `PATH` | winget `Microsoft.DotNet.SDK.8` or newer |
+| git | 2.55.0 | on `PATH` | winget `Git.Git` |
+| Blender | 5.2 (`C:\Program Files\Blender Foundation\Blender 5.2\blender.exe`; `tools/model_loop.ps1` takes `-Blender`, else `$env:BLENDER`, else `blender` on `PATH`, else the newest `C:\Program Files\Blender Foundation\Blender *`) | Program Files | blender.org installer; only for the [Blender loop](MODDING.md#blender-loop) |
+| Dolphin | 2609a. The pinned official build is downloaded to `tools/dolphin/Dolphin-x64` by `setup.ps1` **only when the disc is not extracted yet** (it is downloaded for its `DolphinTool`); `tools/boot_check.ps1` / batch 11 use `-DolphinDir`, else `CR_DOLPHIN_DIR`, else `tools/dolphin/Dolphin-x64`, else the Project Hive build at `D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]` (this desktop's; the disc was extracted with its DolphinTool, so `tools/dolphin` does not exist here) | `tools/dolphin/` or your own | `setup.ps1` (pinned, `dolphin.7z` in pins.txt) |
+| Ghidra + GameCube loader | 12.1.4 + 1.3.1 | `tools/ghidra_12.1.4_PUBLIC/` (loader in `Ghidra/Extensions/GameCubeLoader`, its `version=` set to 12.1.4) | `setup.ps1` step 7 |
+| decomp-toolkit | 1.8.4 | `tools/dtk/dtk.exe`; its analysis of your `main.dol` in `tools/dtk/proj/` (`symbols.txt`, `splits.txt`, `out/`) | `setup.ps1` step 5 |
+| ninja | 1.13.2 | `tools/ninja/ninja.exe` | `setup_decomp.ps1` |
+| CodeWarrior compilers | `compilers_20251118.zip`: GC/1.2.5n (Dolphin SDK), GC/1.3.2 (HSD, and the linker `mwldeppc`), GC/2.6 (MSL, Runtime, MetroTRK, game) are the ones used; all 19 GC versions for batch 10 | `decomp/build/compilers/GC/<version>/` | `setup_decomp.ps1` |
+| objdiff-cli, sjiswrap, gc-wii-binutils | 3.6.1, 1.2.2, 2.42-2 | `decomp/build/tools/`, `decomp/build/binutils/` | `setup_decomp.ps1` |
+| dtk-template | pinned commit | `tools/refs/dtk-template/` (clone); its `configure.py` + our patch = `decomp/configure.py`, its `tools/*.py` = `decomp/tools/` | `setup_decomp.ps1` |
+| m2c | pinned commit c632946 | `tools/m2c/` (plain Python; `tools/draft_batch.py` runs it through a small wrapper, nothing in the clone is changed) | `setup.ps1` step 4b |
+| HSDLib / HSDRawViewer | pinned commit 85567e4 + `tools/patches/hsdlib_headless_export_resave.patch` | `tools/HSDLib/HSDRawViewer/bin/Release/net8.0-windows7.0/HSDRawViewer.exe` | `setup.ps1` step 4 (below) |
+| Reference decomps | the commits in `tools/pins.txt` | `tools/melee/`, `tools/refs/<name>/` (sparse clones; `tools/check_refs.py` checks them) | `setup.ps1` step 3 |
+| The disc | `Custom Robo (USA).iso`, GXCE01 v1.0, SHA-1 `fff6e74590366a5c0c5ba0d40c8ccf94770bcb16` (MD5 `546e5108173bceb4d5c8ca27b3fcfc96`) | the repo root (`make_mod.py` and the model loop look for it there; on this desktop a hard link of `D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]\Games\Custom Robo (USA).iso`), extracted to `Custom Robo extracted/` | yours; `setup.ps1 -Iso <path>` checks the SHA-1 and extracts it |
+
+### In the repo, downloaded, or generated
+
+- **In git**: `tools/` (every script, the Ghidra scripts, the patches, `pins.txt`), `symbols/`, `decomp/config/`,
+  `decomp/src`, `decomp/include`, `decomp/reports/`, `docs/`, `mods/*/mod.json` + `notes.txt`, `plan.md`.
+- **Downloaded by setup, gitignored** (`.gitignore` lists them): `tools/downloads/` (the archives, SHA-256 checked
+  against `tools/pins.txt` on every run), `tools/ghidra_12.1.4_PUBLIC/`, `tools/dtk/dtk.exe`, `tools/ninja/`,
+  `tools/pyenv/`, `tools/HSDLib/`, `tools/melee/`, `tools/refs/`, `tools/m2c/`, `tools/dolphin/`,
+  `decomp/build/{tools,binutils,compilers}/`, `decomp/tools/`.
+- **Generated from your disc, gitignored**: `Custom Robo extracted/`, `unpacked/`, `models_dat/`, `models_export/`,
+  `previews/`, `test_build/`, `decompiled/` (Ghidra's C, the xrefs, `index.db`, `funcs/`), `ghidra_project/`,
+  `tools/dtk/proj/{main.dol,symbols.txt,splits.txt,out}`, `decomp/orig/` (your `main.dol`), `decomp/build/` (the
+  split objects, the linked `main.dol`, the shifted build, the reports' inputs), `decomp/drafts/` (the m2c drafts),
+  `tools/compiler_probe/out/`, `build/` (mods, the model loop's work files), `BUILD_REPORT.md`.
+- **Generated from the repo, gitignored**: `decomp/configure.py` = the pinned template's `configure.py` with
+  `tools/patches/dtk_template_configure.patch` applied (`setup_decomp.ps1` rewrites it on every run, so edit it and
+  then run `python -I tools\make_configure_patch.py` to keep the change); `decomp/build.ninja`, `objdiff.json`,
+  `compile_commands.json`, `report.json`, `ctx.*` (written by `configure.py` / ninja / objdiff).
+
+### HSDRawViewer: clone, patch, build
+
+`setup.ps1` step 4 does this on a fresh clone. By hand, or after the patch changed (setup only patches a fresh clone):
+
+```powershell
+git -C tools\HSDLib log --oneline -1           # must be 85567e4 (tools\patches\hsdlib_base_commit.txt)
+cd tools\HSDLib
+git reset -q; git checkout -q -- .; git clean -fq HSDRawViewer\BatchExport.cs HSDRawViewer\ModelImport.cs HSDRawViewer\ModelInfo.cs   # back to the pinned tree (an existing clone)
+git apply ..\patches\hsdlib_headless_export_resave.patch
+dotnet build HSDRawViewer -c Release -v quiet -nologo -p:RollForward=Major
+cd ..\..
+```
+
+`-p:RollForward=Major` writes `"rollForward": "Major"` into `HSDRawViewer.runtimeconfig.json`, so the .NET 8 program
+runs on the installed .NET 10. The patch adds the command line `--export`, `--resave`, `--import` and `--info`
+([tools.md](tools.md#third-party-tools-installed-under-tools-by-setup)). `tools/HSDLib` is one shared clone: a
+worktree that changes the patch rebuilds it for every checkout ([REPRODUCE.md](REPRODUCE.md#a-second-checkout-git-worktree)).
 
 ## What is needed
 
@@ -44,9 +107,13 @@ winget install --id EclipseAdoptium.Temurin.21.JDK -e
 ```
 
 Close and reopen the terminal, then run everything from `pwsh` (not the blue Windows PowerShell). All five IDs were
-looked up with `winget search` on Oct 28, 2026. Python from winget provides `python`.
+looked up with `winget search` on Oct 28, 2026. Python from winget provides `python`. Newer versions of each are fine
+(the development machine runs Python 3.13, .NET SDK 10, PowerShell 7.6: the table above). For the model loop also
+install Blender (blender.org, 4.x or 5.x) and, to look at models by hand, nothing more: HSDRawViewer is built by setup.
 
 ## Debian / Ubuntu (apt)
+
+Not maintained at the moment (last run Oct 30, 2026); kept as it was.
 
 ```bash
 sudo apt update
@@ -71,6 +138,8 @@ sudo apt install -y git curl unzip python3 python3-venv openjdk-21-jdk
   pipeline needs is downloaded into the repo folder by `tools/setup.sh`, so nothing else needs root.
 
 ## Arch (Hyprland or KDE: any terminal, yay / pacman)
+
+Not maintained at the moment (install block checked Oct 30, 2026, the pipeline never run there); kept as it was.
 
 Open your terminal: on Hyprland the one bound to `Super+Q` or `Super+Return` (kitty, foot or alacritty by default),
 on KDE Konsole (`Ctrl+Alt+T` in Plasma). The terminal is only the window; the shell running in it is whatever
@@ -124,11 +193,15 @@ there. The full pipeline (`from_scratch.sh`) has not been run on Arch yet: [arch
 
 ## Fedora (dnf)
 
+Not maintained at the moment (never run); kept as it was.
+
 ```bash
 sudo dnf install -y git curl unzip python3 java-21-openjdk-devel
 ```
 
 ## macOS (Homebrew) - best effort
+
+Not maintained at the moment (never run); kept as it was.
 
 ```bash
 brew install git python@3.12 openjdk@21 bash
@@ -207,6 +280,8 @@ Or step by step: `pwsh tools/setup.ps1 -Iso ...`, `pwsh tools/batches/run_all.ps
 
 ## Limits and status
 
+- **Windows is the verified system** (every step up to plan.md step 83, Oct 31, 2026, on the machine in the table
+  above). The Linux / macOS items below are as of Oct 30, 2026 and not maintained at the moment.
 - **Verified end to end on Windows and on Ubuntu 26.04 (x86_64).** The Linux run (Oct 30, 2026, a 4-core machine
   without root: JDK from the tarball above, nothing else installed beyond git, python3, curl, unzip):
   `tools/from_scratch.sh` ended with PASS and `tools/checksums.sh --compare` reported every file matching
@@ -218,6 +293,9 @@ Or step by step: `pwsh tools/setup.ps1 -Iso ...`, `pwsh tools/batches/run_all.ps
 - Batch 11 (the shifted build booted in Dolphin) is Windows-only (`tools/boot_check.ps1` reads Dolphin's windows through
   the Win32 API) and is skipped on Linux / macOS; the static shift test in batch 9 still runs. On Windows it uses the
   pinned Dolphin that `setup.ps1` downloads (`tools/dolphin/Dolphin-x64`), or `-DolphinDir` / `CR_DOLPHIN_DIR`.
+  `setup.ps1` downloads Dolphin only while the disc is not extracted yet: a checkout whose disc was extracted another
+  way (this desktop: the Project Hive DolphinTool) has no `tools/dolphin`, and `boot_check.ps1` then falls back to the
+  Project Hive folder named in the script; elsewhere pass `-DolphinDir` or set `CR_DOLPHIN_DIR`.
 - Model export to glTF (`tools/export_models.py`) uses HSDRawViewer, a Windows (WinForms) program: on Linux / macOS
   `setup.sh` skips building it and `from_scratch.sh` skips the glTF and preview steps. Decompile, naming, archives,
   `.dat` models, mods and patches work wherever the scripts run.

@@ -157,8 +157,12 @@ Tested (Oct 30, 2026): the `roundtrip` loop on entry 000 builds an ISO with the 
 the step 70 `legionnaire` (crest and shield added to Ray 01) was seen in the Customize screen by the user
 (docs/images/ray_legionnaire_v1_customize.jpg); the step 73 `legionnaire_v2` (complete replacement, below) and its
 template-skeleton twin build for entries 000-004, re-export to what Blender made (docs/images/legionnaire_v2_blender.png
-vs legionnaire_v2_reimport.png) and boot (40 s, no warning). **Not yet seen in game**: an in-person tester checks the
-legionnaire in the Customize screen and in a battle.
+vs legionnaire_v2_reimport.png) and boot (40 s, no warning). **Seen in game (Oct 31, 2026,
+docs/images/ray_legionnaire_v2_customize.png, _battle1-3.png)**: the custom 58-joint skeleton works in Customize and in
+a battle (pose, animation, attached gun and pods, the crest and scutum move), but the game draws a body with ONE
+material, so the seven materials came out as one flat tan ("How the game associates textures with meshes" below). The
+one-atlas build of step 74 (`pack_atlas` in `legionnaire_v2.py`: one 512x256 CMP atlas, two materials) builds and boots;
+**its look in game is the open test** (plan.md "Waiting on the user").
 
 ### Writing a script
 
@@ -418,7 +422,7 @@ The patch route above changes bytes in place, so anything new must fit where the
 
 What this enables: a bigger table (a new robo slot in the motion / model / name tables) or new code is an edit of the split asm or the C plus a relink, with no free-space hacks.
 
-Still missing before it is a normal workflow (Oct 29, 2026): a battle tested by hand in the shifted build ([REPRODUCE.md](REPRODUCE.md) section 2c); the game's own data is still in dtk's automatic objects (only library objects have proven data pieces, plan.md step 53), so growing a game table is only proven safe at a file boundary (where the code stops addressing data from one base plus offsets); no mod tool drives the build yet (make_mod.py still patches bytes); and most code is still asm: 324 of the 620 units are built from C, 5.41% of the code, of the game code 232 functions, 0.77% (`decomp/reports/progress_report.txt`).
+Still missing before it is a normal workflow (Oct 31, 2026, plan.md step 83): a battle tested by hand in the shifted build ([REPRODUCE.md](REPRODUCE.md) section 2c); the game's own data is still almost all in dtk's automatic objects (every library object and the 4 game file objects have proven data pieces; 5.90% of the data is built from C), so growing a game table is only proven safe at a file boundary (where the code stops addressing data from one base plus offsets); no mod tool drives the build yet (make_mod.py still patches bytes); and most game code is still asm: 646 of the 922 units are built from C, 22.18% of the code (every non-HSD library complete, HSD 22 of 30 objects), of the game code 443 objects, 4.25% (`decomp/reports/progress_report.txt`).
 
 ## How it works (for the curious)
 

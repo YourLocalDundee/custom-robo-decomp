@@ -11,7 +11,10 @@ and the outputs are **byte-for-byte reproducible**. At the end you compare SHA-2
   (SHA-1 `fff6e74590366a5c0c5ba0d40c8ccf94770bcb16`, MD5 `546e5108173bceb4d5c8ca27b3fcfc96`, matching GameTDB).
 - Windows 10/11, **PowerShell 7** (`pwsh`; every script has `#Requires -Version 7`, so the blue Windows PowerShell 5.1 refuses them. Under 5.1 the Ghidra call returned before Ghidra finished), **git**, **Python 3.11+**, **Java 21+** (Ghidra), **.NET SDK 8 or newer** (HSDRawViewer).
   Everything else is downloaded and hash-checked by the scripts. Dolphin is optional (the official build is fetched for its `DolphinTool`).
-- Or Linux / macOS: **bash**, **git**, **Python 3.11+** (`python3`), **Java 21+**, **curl**, **unzip** ([docs/INSTALL.md](INSTALL.md)). Every
+- Blender (the model loop) and Dolphin (booting builds; the pinned one is downloaded) are not needed for this page's
+  checks except batch 11. The versions in use on the development machine: [docs/INSTALL.md](INSTALL.md#what-is-in-use-on-the-development-machine-windows).
+- The Linux / macOS notes on this page are **not maintained at the moment** (last run Oct 30, 2026); everything is
+  verified on Windows. Or Linux / macOS: **bash**, **git**, **Python 3.11+** (`python3`), **Java 21+**, **curl**, **unzip** ([docs/INSTALL.md](INSTALL.md)). Every
   `.ps1` below has a `.sh` twin (`tools/setup.sh`, `tools/batches/run_all.sh`, `tools/checksums.sh --compare`, ...) that runs the
   same steps with the same arguments and writes the same files; the disc is extracted by the pinned decomp-toolkit instead of
   DolphinTool (byte-identical, checked), HSDRawViewer (glTF export) and batch 11 (Dolphin boot) are skipped. Verified on
@@ -33,10 +36,51 @@ bash tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
 ```
 
 `tools\from_scratch.ps1` / `tools/from_scratch.sh` runs sections 1–4 below in order, stops at the first failure, and
-ends with a PASS / FAIL table. Tested from an empty folder on Windows (Oct 27, 2026: **PASS**, 10–15 minutes, mostly
-downloads; that was before the Phase 4 batches, which add to it) and on Ubuntu 26.04 (Oct 30, 2026: **PASS**, 90 minutes on
-4 cores with the tools already downloaded). On Arch only the install block is verified so far (an `archlinux`
-container, Oct 30, 2026: [arch_container.md](arch_container.md)); the pipeline is not yet run there. The sections explain what each part does, so you can also run them one by one.
+ends with a PASS / FAIL table. Expect about an hour on a desktop: setup (downloads) 5-15 minutes, `run_all` about 45
+minutes (two Ghidra rebuilds on a fresh setup, 4 minutes each; batch 12 about 31 minutes), the archive / model / mod
+steps a few minutes (the glTF export of 1,006 models is the longest). Tested from an empty folder on Windows
+(Oct 27, 2026: **PASS**, 10–15 minutes, before the Phase 4 batches existed) and on Ubuntu 26.04 (Oct 30, 2026: **PASS**,
+90 minutes on 4 cores with the tools already downloaded); not timed as one run since. On Arch only the install block
+was verified (an `archlinux` container, Oct 30, 2026: [arch_container.md](arch_container.md)). The sections explain
+what each part does, so you can also run them one by one.
+
+## Verify this checkout
+
+The checks a checkout must pass before anything built from it counts, from a clone that has already been set up
+(section 1 done once; the tools and the extracted disc are gitignored and stay across branches). Every command runs
+from the repo root in `pwsh`. Expected durations are from this desktop (8 cores).
+
+**Short check** (a few minutes): the build and the names, from the committed files alone. Run it after a pull, a
+merge, or any change to `symbols/`, `decomp/src`, `decomp/configure.py` or the generators:
+
+```powershell
+pwsh tools\batches\batch9_decomp_build.ps1     # main.dol == retail SHA-1, every C object 100%, relocations, static shift test (a few minutes; not timed on its own)
+pwsh tools\batches\batch8_crosscheck.ps1       # every name re-checked from independent evidence, stops on any FAIL (quick; needs decompiled\index.db from a previous run)
+pwsh tools\checksums.ps1 -Compare              # the 33 outputs vs docs\expected_checksums.txt (seconds)
+```
+
+PASS means: `decomp\reports\build_report.txt` says MATCH, `shift_report.txt` says PASS, batch 8 prints 0 FAIL, and the
+compare prints `all 33 files match`. A `DIFFERENT` on `decomp\reports\*` or `decomp\config\GXCE01\*` right after a
+merge is expected when the merge changed names or sources: see "If a checksum differs" below. A `DIFFERENT` on
+`decompiled\*` or `symbols\*` means the names changed and the Ghidra export was not rebuilt yet: run the full check.
+
+**Full check** (about 45 minutes, plus a Dolphin window twice): everything the project publishes, regenerated from
+your disc and the committed names:
+
+```powershell
+pwsh tools\batches\run_all.ps1                 # batches 1-12 in order: names <-> Ghidra rebuild to a fixpoint (4 min per rebuild, 1 rebuild
+                                               # when the previous export exists), types, cross-checks, map, index, batch 9 (a few min), batch 10
+                                               # (5 min), batch 11 (1 min, Dolphin opens twice: do not type), batch 12 (31 min), then checksums -Compare
+pwsh tools\batches\batch11_shift_test.ps1      # only if run_all was run with batch 11 skipped or failed on timing: the shifted build must boot (PASS)
+pwsh tools\checksums.ps1 -Compare              # all 33 files match
+```
+
+`run_all` already ends with the compare; the two lines after it are for a rerun of a single part. What each batch
+reads and writes: section 2. A maintainer who changed something on purpose then runs `pwsh tools\checksums.ps1 -Write`
+and commits `docs\expected_checksums.txt` with the change (the commit message says what changed and why).
+
+**Where the result is**: `decomp\build\GXCE01\main.dol` (retail), `decomp\build\shift\main.dol` (the shifted build),
+`decomp\reports\*.txt` (committed), `decompiled\main_dol.c` + `index.db` (local), `symbols\*.txt` (committed).
 
 ## 1. Setup — `tools\setup.ps1` / `tools/setup.sh`
 
@@ -93,8 +137,10 @@ Everything below runs locally, with no network access. The name batches and the 
    (`-MaxPasses`). The summary prints how many rebuilds it took.
 4. Batches 5, 2, 3, 4 and 8 on the final export, then batch 9 (the Phase 4 build, section 2b; it reads only the final name files),
    batch 10 (compiler probe, about 5 minutes), batch 11 (the shifted build booted in Dolphin, section 2c, about 1 minute; don't
-   type while Dolphin is open), batch 12 (m2c drafts of the game code, compiled and compared, about 6.5 minutes since plan.md step 59; `docs\drafts.md`), and finally `tools\checksums.ps1 -Compare` (section 3). **This one script runs every batch in
-   order** and stops at the first failure. `tools\from_scratch.ps1` runs setup, then this script, then the archive / model / mod steps.
+   type while Dolphin is open), batch 12 (m2c drafts of the game code, compiled and compared, then the linkable 100% ones
+   promoted into `decomp\src\game` and batch 9 again when that folder changed: about 31 minutes since plan.md step 77;
+   `docs\drafts.md`), and finally `tools\checksums.ps1 -Compare` (section 3). **This one script runs every batch in
+   order** and stops at the first failure; about 45 minutes in all. `tools\from_scratch.ps1` runs setup, then this script, then the archive / model / mod steps.
 
 The name matchers take **our names only from the symbol files** and the Ghidra export **only for structure**: function
 starts, calls, string references and computed jumps, all by address (`tools\export_struct.py`; never a name or type Ghidra
@@ -128,8 +174,8 @@ names, never the export, so its output is the same from the very first pass.
 | Batch 8 | `tools\crosscheck_names.py` | independent cross-check of every name against all references (game-real names: the string still at the cited address, the table indexes still matching, the tables still adjacent and of the same length); **stops** on any FAIL | `decompiled\index.db`, name files → `symbols\names_crosscheck.txt`, `docs\names_crosscheck.md` |
 | Batch 9 | `tools\batches\batch9_decomp_build.ps1` | the Phase 4 build, section 2b; **stops** unless the built `main.dol` is the retail one | name files, dtk analysis, reference layouts → `decomp\config\GXCE01\{symbols,splits}.txt`, `decomp\reports\` |
 | Batch 10 | `tools\batches\batch10_compiler_probe.ps1` → `tools\compiler_probe\probe.py` | Phase 4 Milestone 3: compiles reference C (dolsdk2004, Melee sysdolphin / MSL / Runtime / MetroTRK, Mario Party 4 MSL / Runtime / TRK) and our hand-written C for small game functions (`tools\compiler_probe\game\`) with all 19 pinned GC compilers × 40+ flag sets per library and compares each function with `main.dol` (relocated fields masked); about 5 minutes. Conclusions in `docs\compiler.md`; `probe.py --show FUNCTION --version V --flags "..."` diffs one function | `main.dol`, `decomp\config\GXCE01\symbols.txt`, compilers, references → `tools\compiler_probe\out\{summary.txt,results.tsv}` (gitignored) |
-| Batch 12 | `tools\batches\batch12_drafts.ps1` → `tools\draft_batch.py` | Phase 4 Milestone 5 prep: for each of the 1,751 game functions m2c (`tools\m2c`, pinned) writes a C draft (our names, our types as context), the draft is compiled with the game compiler and flags (GC\2.6, `CR_LIBS["game"]`) and compared with the original (relocated fields masked); parallel, about 6.5 minutes (plan.md step 59). Method, how to read the report, determinism: `docs\drafts.md` | `decomp\build\GXCE01\{asm,obj}`, compilers, `tools\m2c`, Melee headers, `symbols\cr_types.h`, `cr_globals.txt` → `decomp\drafts\` (gitignored: drafts, objects, logs, `draft_report.txt`), `decomp\reports\draft_summary.txt` (counts only) |
-| Batch 12, then | `tools\promote_drafts.py` | every 100% draft that links as it is (no data of its own, no padding, relocations to the same addresses, compiles the same behind `decomp\include\game\cr_game.h` + generated declarations) becomes a one-function game object `decomp\src\game\<function>.c` (committed); when that folder changed, batch 9 runs again (plan.md step 58, `docs\drafts.md`) | `decomp\drafts\`, `decomp\build\splitdata\main.elf` → `decomp\src\game\`, `decomp\reports\promote_report.txt` |
+| Batch 12 | `tools\batches\batch12_drafts.ps1` → `tools\draft_batch.py` | Phase 4 Milestone 5: for each of the 1,751 game functions m2c (`tools\m2c`, pinned, run through a small wrapper that adds the load width to the fields it cannot place) writes a C draft (our names, our types as context), the draft is post-processed by the generator's rules, repaired on the compiler's messages, compiled with the game compiler and flags (GC\2.6, `CR_LIBS["game"]`: `-opt level=0,peephole,schedule,speed -use_lmw_stmw on -str reuse,readonly`) and compared with the original (relocated fields masked); every draft below 100% is tried again with m2c's `--reg-vars` and the generator's variants; parallel, about 31 minutes (plan.md steps 77-83). Method, how to read the report, determinism: `docs\drafts.md` | `decomp\build\GXCE01\{asm,obj}`, compilers, `tools\m2c`, Melee headers, `symbols\cr_types.h`, `cr_globals.txt` → `decomp\drafts\` (gitignored: drafts, objects, logs, `draft_report.txt`), `decomp\reports\draft_summary.txt` (counts only) |
+| Batch 12, then | `tools\promote_drafts.py` | every 100% draft that links as it is (no data of its own, no padding, relocations to the same addresses, compiles the same behind `decomp\include\game\cr_game.h` + generated declarations) becomes a one-function game object `decomp\src\game\<function>.c` (committed); a run of consecutive 100% drafts that share a constant pool becomes one file object `<first>_<last>.c` with its own data (step 63; 4 today); a file whose function is no longer 100% is kept while it still links, dropped when its name or address is no longer its function's (step 82); when the folder changed, batch 9 runs again (plan.md step 58, `docs\drafts.md`) | `decomp\drafts\`, `decomp\build\splitdata\main.elf` → `decomp\src\game\`, `decomp\reports\promote_report.txt` |
 
 ## 2b. Build main.dol from asm — `tools\batches\batch9_decomp_build.ps1` / `batch9_decomp_build.sh` (Phase 4, Milestones 1 + 2)
 
@@ -201,10 +247,59 @@ lists the PowerShell batches sort in Windows culture order are sorted the same w
 
 - `main.dol` differs → not the same disc; nothing after it can match.
 - dtk files differ → a different dtk build (check its SHA-256).
-- `symbols\*` differ but dtk matches → the reference commits differ from `tools\pins.txt`, or files were edited.
-- only `decompiled\*` differs → a different Ghidra or GameCube-loader version, or a different Java.
+- `symbols\*` differ but dtk matches → the reference commits differ from `tools\pins.txt` (`tools\check_refs.py`
+  says which; a clone made before a sparse list was widened gives other names), or files were edited.
+- only `decompiled\*` differs → a different Ghidra or GameCube-loader version, or a different Java; or the names
+  changed since the last `tools\rebuild_decomp.ps1` (after a merge that brought new names, run `run_all` or at least
+  `rebuild_decomp.ps1` + batch 4 + batch 8, then `-Write`).
 - only `decomp\*` differs → the name files differ (then symbols.txt does too), or a different dtk / template commit
   than `tools\pins.txt`. `build_report.txt` says whether your built `main.dol` matched the retail one.
+- right after a merge, `decomp\reports\*` and `decomp\config\GXCE01\*` differ and `build_report.txt` says MATCH → the
+  merge changed what the reports count (more objects from C, new names): that is the intended change. Check the
+  numbers in `progress_report.txt` against the merge's commit message, then `pwsh tools\checksums.ps1 -Write` and
+  commit `docs\expected_checksums.txt` together with the regenerated reports (the maintainer's step in
+  [workflows.md](workflows.md#14-work-in-a-worktree-and-merge-it-back)).
+- `MISSING` → the file was never made here: run the batch that writes it (the comment next to each file in
+  `tools\checksums.ps1` names it), or `run_all`.
+
+### A second checkout (git worktree)
+
+Work on a branch happens in a second worktree next to the main checkout (plan.md "Milestone 4 details": at most two
+work streams at a time, the main checkout merges and verifies). The gitignored big folders are not cloned again: they
+are junctions into the main checkout, so one copy of the tools, the references, the extracted disc and the Ghidra export
+serves every worktree. The recipe, for `D:\emulators\gameTesting` (main) and a worktree `D:\emulators\gameTesting-x`
+on branch `x` (`pwsh`, from the main checkout):
+
+```powershell
+git worktree add ..\gameTesting-x -b x                    # from the current commit of the main checkout
+$m = (Get-Location).Path; $w = "$m\..\gameTesting-x"
+# junctions: read-mostly folders that every worktree shares (never rebuilt from a worktree)
+foreach ($d in 'Custom Robo extracted', 'decompiled', 'ghidra_project', 'unpacked', 'models_dat', 'models_export') {
+    if (Test-Path "$m\$d") { New-Item -ItemType Junction -Path "$w\$d" -Target "$m\$d" | Out-Null } }
+foreach ($d in 'downloads', 'ghidra_12.1.4_PUBLIC', 'HSDLib', 'm2c', 'melee', 'ninja', 'pyenv', 'refs') {
+    New-Item -ItemType Junction -Path "$w\tools\$d" -Target "$m\tools\$d" | Out-Null }
+foreach ($d in 'orig', 'tools') { New-Item -ItemType Junction -Path "$w\decomp\$d" -Target "$m\decomp\$d" | Out-Null }
+# hard link: the clean ISO (same drive; read only)
+New-Item -ItemType HardLink -Path "$w\Custom Robo (USA).iso" -Target "$m\Custom Robo (USA).iso" | Out-Null
+# copies: what a worktree writes itself
+Copy-Item "$m\decomp\configure.py" "$w\decomp\"                       # or: pwsh tools\setup_decomp.ps1 in the worktree (template + patch)
+Copy-Item -Recurse "$m\tools\dtk" "$w\tools\dtk"                     # dtk.exe + proj\ (dtk's analysis; batch 9 reads it, checksummed)
+Copy-Item -Recurse "$m\decomp\build" "$w\decomp\build"               # the build (about 190 MB): batch 9 / 12 rebuild it here; or let batch 9 make it (setup_decomp.ps1 refetches nothing)
+```
+
+Rules that follow from the layout:
+- `decompiled\` and `ghidra_project\` are the main checkout's: **never run `rebuild_decomp.ps1` or `run_all.ps1` in
+  a worktree** (they would overwrite the main export with the branch's names). A worktree runs batch 9, batch 12,
+  batch 8 (read-only on the index), the model loop and the tools; the full run happens in the main checkout after
+  the merge.
+- `decomp\build`, `decomp\drafts`, `build\` (mods, model loop) and `tools\compiler_probe\out` are the worktree's own.
+- `tools\HSDLib` is shared: a worktree that changes the HSDLib patch rebuilds the one shared HSDRawViewer
+  ([tools.md](tools.md#rebuilding-hsdrawviewer-windows)); the patch file in the repo is what is committed.
+- `-Compare` in a worktree compares against the branch's `docs\expected_checksums.txt`, with the main checkout's
+  Ghidra export: the `decompiled\*` and `symbols\*` lines differ as soon as the branch changes names (expected; the
+  main checkout settles them after the merge).
+- Remove with `git worktree remove ..\gameTesting-x` after the merge (junctions are removed with the folder; the
+  targets are untouched).
 
 ## 4. Models — same tools we used, in order (`from_scratch.ps1` / `from_scratch.sh` run the unpack, verify and round-trip lines; on Linux / macOS `python3 -I` and forward slashes)
 

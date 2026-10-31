@@ -121,7 +121,7 @@ is compiled with these flags whenever `decomp/src/<object>` exists; it is LINKED
 | MSL | GC/2.6 | `-O4,p -inline auto,deferred -use_lmw_stmw on -str pool,readonly -common off -fp_contract on -char signed` | `include/marioparty4`, `include/marioparty4/dolphin` |
 | Runtime | GC/2.6 | `-O4,p -inline auto -use_lmw_stmw on -str reuse,pool,readonly -common off -fp_contract on` | as MSL |
 | MetroTRK | GC/2.6 | `-O4,p -inline auto,deferred -use_lmw_stmw on -str reuse,readonly -common off -sdata 0 -sdata2 0 -fp_contract on` | as MSL |
-| game | GC/2.6 | `-opt level=0,peephole,schedule,speed -fp_contract on` | `include` (`decomp/include/game/cr_game.h`, plan.md step 58) |
+| game | GC/2.6 | `-opt level=0,peephole,schedule,speed -use_lmw_stmw on -fp_contract on -str reuse,readonly` (`-use_lmw_stmw on`: step 64; `-str reuse,readonly`: step 83, a string literal of 8 bytes or less is its own .sdata2 object, longer ones go to .rodata) | `include` (`decomp/include/game/cr_game.h`, plan.md step 58) |
 
 Common to all (`cflags_cr`): `-nodefaults -proc gekko -align powerpc -enum int -fp hardware -Cpp_exceptions off
 -pragma "cats off" -pragma "warn_notinlined off" -maxerrors 1 -nosyspath -cwd source -multibyte -W off
