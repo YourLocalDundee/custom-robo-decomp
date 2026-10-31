@@ -43,6 +43,8 @@ Every command runs from the repo root. `tools/check_docs.py` checks this convent
 | [tools.md](tools.md) | Every tool in `tools/`: purpose, usage, inputs and outputs; the batches; the third-party tools |
 | [images/legionnaire_v2_blender.png](images/legionnaire_v2_blender.png), [images/legionnaire_v2_reimport.png](images/legionnaire_v2_reimport.png) | The step 73 legionnaire as built in Blender and as exported again from the built model ([MODDING.md](MODDING.md#blender-loop)) |
 | [images/ray_legionnaire_v1_customize.jpg](images/ray_legionnaire_v1_customize.jpg) | Step 70's first legionnaire in the game's Customize screen (photo by the user) |
+| [images/legionnaire_v2_atlas.png](images/legionnaire_v2_atlas.png), [images/legionnaire_v2_atlas_preview.png](images/legionnaire_v2_atlas_preview.png) | The legionnaire v2 texture atlas (one per body) and its preview (plan.md "Resume here", Legionnaire v2) |
+| [images/ray_legionnaire_v2_customize.png](images/ray_legionnaire_v2_customize.png), [images/ray_legionnaire_v2_battle1.png](images/ray_legionnaire_v2_battle1.png), [images/ray_legionnaire_v2_battle2.png](images/ray_legionnaire_v2_battle2.png), [images/ray_legionnaire_v2_battle3.png](images/ray_legionnaire_v2_battle3.png) | Legionnaire v2 in the Customize screen and in a battle, Oct 31, 2026 |
 
 ## Code and the rebuild (Phase 4)
 

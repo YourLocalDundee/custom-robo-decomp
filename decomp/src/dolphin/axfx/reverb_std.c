@@ -24,13 +24,13 @@ static void DLsetdelay(AXFX_REVSTD_DELAYLINE* dl, s32 lag) {
 
 static int DLcreate(AXFX_REVSTD_DELAYLINE* dl, s32 max_length) {
     dl->length = (max_length * 4);
-    dl->inputs = __AXFXAlloc(max_length * 4);
+    dl->inputs = __AXFXAlloc(max_length << 2);
 	ASSERTMSGLINE(49, dl->inputs, "Can't allocate the memory.");
 	if (dl->inputs == NULL) {
 		return 0;
 	}
 
-    memset(dl->inputs, 0, max_length * 4);
+    memset(dl->inputs, 0, max_length << 2);
     dl->lastOutput = 0.0f;
     DLsetdelay(dl, max_length >> 1);
     dl->inPoint = 0;
@@ -42,7 +42,7 @@ static void DLdelete(AXFX_REVSTD_DELAYLINE* dl) {
     __AXFXFree(dl->inputs);
 }
 
-// NONMATCHING RELEASE - regalloc
+// Custom Robo: matches with DLcreate's "<< 2" (as in reverb_hi.c), plan.md step 76
 static int ReverbSTDCreate(AXFX_REVSTD_WORK* rv, f32 coloration, f32 time, f32 mix, f32 damping, f32 predelay) {
     u8 i;
     u8 k;

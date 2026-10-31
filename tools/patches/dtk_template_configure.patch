@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,447 @@ def MatchingFor(*versions):
+@@ -284,18 +307,448 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -463,14 +463,15 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/hash.c",
 +    "sysdolphin/baselib/bytecode.c",
 +    "sysdolphin/baselib/robj.c",
++    # step 76 (libs2): powf (BfBB math.h's inline, out of line); reverb_std.c with DLcreate's "<< 2" as in reverb_hi.c
++    "MSL/exponentialsf.c",
++    "dolphin/axfx/reverb_std.c",
  ]
 +# C files in decomp/src that are NOT linked (compiled for objdiff only; the object is linked from asm), and why.
 +# "code": functions objdiff does not match (the reference is another revision of the file: adapt it);
 +# "data": the C defines data main.dol keeps in a dtk automatic object (the data split must give this object that
 +# piece first); "link": the C calls functions / uses data our symbols do not name yet.
 +CR_NOT_MATCHING = {
-+    "dolphin/axfx/reverb_std.c":
-+        "code: ReverbSTDCreate (0x80148998, 0x47C, the first function: no public source compiles to it; dolsdk2004 63%, dolsdk2001 49%, TP 47%: the same instructions with other registers and the delay-line loop counters set up in another order; GC/1.2.5-2.6 and -O4,p / -O3,p / -O2 variants tried, step 67): write it from our asm starting from dolsdk2004; the other five functions are dolsdk2004's",
 +    "sysdolphin/baselib/mtx.c":
 +        "code: 9 of 16 functions equal in objdiff (Melee's mtx.c, HSD_VecAlloc / HSD_MtxAlloc with this revision's assert lines, HSD_MtxGetScale (0x4D8) from wowjinxy/KAR's mtx.c with its .sdata2 constants at main.dol's addresses, step 61 iteration 7): our first five functions (0x8019EB5C..0x8019FC14, sizes 0x430 0x320 0x338 0x13C 0x2D8) are not equal (step 61 iteration 9: 0x8019EF8C is HSD_MtxGetRotation by robj.c's call, rule R7, no C here yet; 0x8019FAD8 HSD_MkRotationMtx 82%; the other three have no C), HSD_MtxSRTQuat 0x1AC here vs 0x110 (28%; wowjinxy's 85%), HSD_VecGetOrthogonal (from wowjinxy) 99.6% (f0 / f1 swapped in the first branch; four statement orders tried) (another revision; doldecomp/kar has only asm): adapt to this revision",
 +    "sysdolphin/baselib/texpdag.c":

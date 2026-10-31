@@ -3,14 +3,14 @@ Per library (top folder of splits.txt): split objects, how many are linked from 
 Code / data bytes are the sizes of the split (target) objects; "of all" = share of that library's split bytes now built from C.
 
 library                      objects from C             code from C             data from C     functions
-dolphin                           98     97   0x032CC4/0x033700  98.76%   0x01F8EB/0x01F933  99.94%    825/  831
-MSL                               49     48   0x009378/0x00939C  99.90%   0x0014BA/0x0014BA 100.00%     84/   85
+dolphin                           98     98   0x033700/0x033700 100.00%   0x01F933/0x01F933 100.00%    831/  831
+MSL                               49     49   0x00939C/0x00939C 100.00%   0x0014BA/0x0014BA 100.00%     85/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
 sysdolphin                        30     21   0x00E7EC/0x026600  37.77%   0x003056/0x003DB6  78.33%    250/  472
 game                             420    420   0x00B880/0x00B880 100.00%   0x0000E4/0x0000E4 100.00%    420/  420
 automatic objects (unsplit)      265      0   0x000000/0x13DE64   0.00%   0x000000/0x274080   0.00%      0/ 1542
-main.dol (all units)             896    620   0x05CD58/0x1B3430  21.33%   0x0275F0/0x29C418   5.89%   1762/ 3533
+main.dol (all units)             896    622   0x05D7B8/0x1B3430  21.48%   0x027638/0x29C418   5.89%   1769/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 420 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0xB880 bytes = 3.84% of the game code, 2.65% of all code
 
@@ -33,6 +33,7 @@ MSL/e_log.c                                   code 0x27C/0x27C  data 0x88/0x88  
 MSL/e_pow.c                                   code 0x830/0x830  data 0x140/0x140  functions 1/1  linked from C
 MSL/e_rem_pio2.c                              code 0x3A0/0x3A0  data 0x1E0/0x1E0  functions 1/1  linked from C
 MSL/e_sqrt.c                                  code 0x224/0x224  data 0x8/0x8  functions 1/1  linked from C
+MSL/exponentialsf.c                           code 0x24/0x24  data 0x0/0x0  functions 1/1  linked from C
 MSL/file_io.c                                 code 0x2F4/0x2F4  data 0x0/0x0  functions 2/2  linked from C
 MSL/k_cos.c                                   code 0xF4/0xF4  data 0x48/0x48  functions 1/1  linked from C
 MSL/k_rem_pio2.c                              code 0xE54/0xE54  data 0x90/0x90  functions 1/1  linked from C
@@ -114,7 +115,7 @@ dolphin/axfx/axfx.c                           code 0x5C/0x5C  data 0x8/0x8  func
 dolphin/axfx/chorus.c                         code 0xA7C/0xA7C  data 0x808/0x808  functions 6/6  linked from C
 dolphin/axfx/delay.c                          code 0x580/0x580  data 0x0/0x0  functions 4/4  linked from C
 dolphin/axfx/reverb_hi.c                      code 0xF08/0xF08  data 0x60/0x60  functions 7/7  linked from C
-dolphin/axfx/reverb_std.c                     code 0x5C0/0xA3C  data 0x10/0x48  functions 5/6  not linked: code: ReverbSTDCreate (0x80148998, 0x47C, the first function: no public source compiles to it; dolsdk2004 63%, dolsdk2001 49%, TP 47%: the same instructions with other registers and the delay-line loop counters set up in another order; GC/1.2.5-2.6 and -O4,p / -O3,p / -O2 variants tried, step 67): write it from our asm starting from dolsdk2004; the other five functions are dolsdk2004's
+dolphin/axfx/reverb_std.c                     code 0xA3C/0xA3C  data 0x48/0x48  functions 6/6  linked from C
 dolphin/base/PPCArch.c                        code 0x114/0x114  data 0x0/0x0  functions 22/22  linked from C
 dolphin/card/CARDBios.c                       code 0x12E4/0x12E4  data 0x2C0/0x2C0  functions 25/25  linked from C
 dolphin/card/CARDBlock.c                      code 0x404/0x404  data 0x0/0x0  functions 6/6  linked from C
