@@ -629,7 +629,7 @@ src/sysdolphin/baselib/displayfunc.c  doldecomp/melee @ 24e685d57535 src/sysdolp
 src/sysdolphin/baselib/displayfunc.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/displayfunc.h  identical
 src/sysdolphin/baselib/dobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/dobj.c  identical
 src/sysdolphin/baselib/dobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/dobj.h  identical
-src/sysdolphin/baselib/fobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fobj.c  changed (428 lines added / removed)
+src/sysdolphin/baselib/fobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fobj.c  changed (438 lines added / removed)
 src/sysdolphin/baselib/fobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/fobj.h  identical
 src/sysdolphin/baselib/fog.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/fog.c  changed (371 lines added / removed)
 src/sysdolphin/baselib/forward.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/forward.h  identical

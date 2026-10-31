@@ -1107,6 +1107,7 @@ sysdolphin/baselib/aobj.c                         15 functions
 sysdolphin/baselib/bytecode.c                      1 functions
 sysdolphin/baselib/class.c                        12 functions
 sysdolphin/baselib/dobj.c                         16 functions
+sysdolphin/baselib/fobj.c                         11 functions
 sysdolphin/baselib/fog.c                          11 functions
 sysdolphin/baselib/hash.c                          1 functions
 sysdolphin/baselib/id.c                            5 functions
@@ -2332,6 +2333,17 @@ DEF 0x8018D1DC HSD_AObjSetRate sysdolphin/baselib/aobj.c .text size:0x10 global
 DEF 0x8018D1EC HSD_AObjSetRewindFrame sysdolphin/baselib/aobj.c .text size:0x10 global
 DEF 0x8018D1FC HSD_AObjSetEndFrame sysdolphin/baselib/aobj.c .text size:0x10 global
 DEF 0x8018D20C HSD_AObjSetCurrentFrame sysdolphin/baselib/aobj.c .text size:0x54 global
+DEF 0x80191BEC HSD_FObjInitAllocData sysdolphin/baselib/fobj.c .text size:0x30 global
+DEF 0x80191C1C HSD_FObjRemove sysdolphin/baselib/fobj.c .text size:0x28 global
+DEF 0x80191C44 HSD_FObjRemoveAll sysdolphin/baselib/fobj.c .text size:0x124 global
+DEF 0x80191D68 HSD_FObjReqAnimAll sysdolphin/baselib/fobj.c .text size:0xA4 global
+DEF 0x80191E0C HSD_FObjStopAnimAll sysdolphin/baselib/fobj.c .text size:0x98 global
+DEF 0x80191EA4 FObjLoadData sysdolphin/baselib/fobj.c .text size:0x10D0 global
+DEF 0x80192F74 HSD_FObjInterpretAnim sysdolphin/baselib/fobj.c .text size:0x6D4 global
+DEF 0x80193648 HSD_FObjInterpretAnimAll sysdolphin/baselib/fobj.c .text size:0x70 global
+DEF 0x801936B8 HSD_FObjLoadDesc sysdolphin/baselib/fobj.c .text size:0x228 global
+DEF 0x801938E0 HSD_FObjAlloc sysdolphin/baselib/fobj.c .text size:0x5C global
+DEF 0x8019393C HSD_FObjFree sysdolphin/baselib/fobj.c .text size:0x2C global
 DEF 0x8019CC64 HSD_InitComponent sysdolphin/baselib/initialize.c .text size:0x108 global
 DEF 0x8019CD6C HSD_GXSetFifoObj sysdolphin/baselib/initialize.c .text size:0x18 global
 DEF 0x8019CD84 HSD_DVDInit sysdolphin/baselib/initialize.c .text size:0x4 global
@@ -2846,6 +2858,8 @@ DEF 0x8024BFD8 @442 sysdolphin/baselib/mobj.c .data size:0x9 local
 DEF 0x8024BFE8 @68 sysdolphin/baselib/aobj.c .data size:0x9 local
 DEF 0x8024BFF4 @168 sysdolphin/baselib/aobj.c .data size:0x9 local
 DEF 0x8024C000 @169 sysdolphin/baselib/aobj.c .data size:0x27 local
+DEF 0x8024C2E0 @189 sysdolphin/baselib/fobj.c .data size:0x15 local
+DEF 0x8024C2F8 @440 sysdolphin/baselib/fobj.c .data size:0x2E local
 DEF 0x8024CB00 @34 sysdolphin/baselib/initialize.c .data size:0xD local
 DEF 0x8024CB10 @35 sysdolphin/baselib/initialize.c .data size:0x22 local
 DEF 0x8024CB34 @42 sysdolphin/baselib/initialize.c .data size:0x1F local
@@ -2995,6 +3009,7 @@ DEF 0x80449D30 render_alloc_data sysdolphin/baselib/tev.c .bss size:0x2C global
 DEF 0x80449D5C tevreg_alloc_data sysdolphin/baselib/tev.c .bss size:0x2C global
 DEF 0x80449D88 chan_alloc_data sysdolphin/baselib/tev.c .bss size:0x2C global
 DEF 0x80449DB8 aobj_alloc_data sysdolphin/baselib/aobj.c .bss size:0x2C global
+DEF 0x80449E10 fobj_alloc_data sysdolphin/baselib/fobj.c .bss size:0x2C global
 DEF 0x80449EA0 HSD_VIData sysdolphin/baselib/video.c .bss size:0x1F4 global
 DEF 0x8044A0A0 garbage sysdolphin/baselib/video.c .bss size:0x1400 local
 DEF 0x8044B4F8 robj_alloc_data sysdolphin/baselib/robj.c .bss size:0x2C global
@@ -3086,6 +3101,8 @@ DEF 0x8044F008 @378 sysdolphin/baselib/mobj.c .sdata size:0x4 local
 DEF 0x8044F00C @393 sysdolphin/baselib/mobj.c .sdata size:0x5 local
 DEF 0x8044F018 @67 sysdolphin/baselib/aobj.c .sdata size:0x7 local
 DEF 0x8044F020 @192 sysdolphin/baselib/aobj.c .sdata size:0x4 local
+DEF 0x8044F070 @188 sysdolphin/baselib/fobj.c .sdata size:0x7 local
+DEF 0x8044F078 @671 sysdolphin/baselib/fobj.c .sdata size:0x4 local
 DEF 0x8044F100 lbl_8044F100 sysdolphin/baselib/initialize.c .sdata size:0x4 global
 DEF 0x8044F104 lbl_8044F104 sysdolphin/baselib/initialize.c .sdata size:0x4 global
 DEF 0x8044F108 lbl_8044F108 sysdolphin/baselib/initialize.c .sdata size:0x4 global
@@ -3712,6 +3729,11 @@ DEF 0x804526B4 @181 sysdolphin/baselib/mobj.c .sdata2 size:0x4 local
 DEF 0x804526B8 @182 sysdolphin/baselib/mobj.c .sdata2 size:0x4 local
 DEF 0x804526C0 @139 sysdolphin/baselib/aobj.c .sdata2 size:0x4 local
 DEF 0x804526C4 @193 sysdolphin/baselib/aobj.c .sdata2 size:0x4 local
+DEF 0x80452768 @69 sysdolphin/baselib/fobj.c .sdata2 size:0x4 local
+DEF 0x80452770 @71 sysdolphin/baselib/fobj.c .sdata2 size:0x8 local
+DEF 0x80452778 @442 sysdolphin/baselib/fobj.c .sdata2 size:0x8 local
+DEF 0x80452780 @495 sysdolphin/baselib/fobj.c .sdata2 size:0x8 local
+DEF 0x80452788 @627 sysdolphin/baselib/fobj.c .sdata2 size:0x8 local
 DEF 0x80452838 @55 sysdolphin/baselib/initialize.c .sdata2 size:0x4 local
 DEF 0x8045283C @56 sysdolphin/baselib/initialize.c .sdata2 size:0x4 local
 DEF 0x80452840 @386 sysdolphin/baselib/video.c .sdata2 size:0x4 local
@@ -4012,6 +4034,10 @@ sysdolphin/baselib/class.c                       .sbss   0x80450058-0x80450064  
 sysdolphin/baselib/dobj.c                        .data   0x8024B4F8-0x8024B615   8 sym  of 8 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/dobj.c                        .sdata  0x8044EF88-0x8044EF99   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/dobj.c                        .sbss   0x8044FEF8-0x8044FF00   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
+sysdolphin/baselib/fobj.c                        .data   0x8024C2E0-0x8024C326   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/fobj.c                        .bss    0x80449E10-0x80449E3C   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
+sysdolphin/baselib/fobj.c                        .sdata  0x8044F070-0x8044F07C   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/fobj.c                        .sdata2 0x80452768-0x80452790   5 sym  of 5 in the C (0 stripped), 5 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/fog.c                         .data   0x8024CEA8-0x8024CFBF   6 sym  of 6 in the C (0 stripped), 5 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/fog.c                         .sdata  0x8044F1B8-0x8044F1D4   5 sym  of 5 in the C (0 stripped), 5 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/fog.c                         .sdata2 0x80452940-0x80452964   7 sym  of 7 in the C (0 stripped), 7 at a verified use (code), bytes = main.dol
@@ -4382,7 +4408,7 @@ game/fn_80111EEC_fn_80111EEC.c                   .sdata2 0x80451888-0x80451890 t
 .sdata  0x8044EECC-0x8044EF88 size 0xBC
 .sdata  0x8044EFD6-0x8044EFD8 size 0x2
 .sdata  0x8044F050-0x8044F070 size 0x20
-.sdata  0x8044F080-0x8044F0D8 size 0x58
+.sdata  0x8044F07C-0x8044F0D8 size 0x5C
 .sdata  0x8044F14D-0x8044F150 size 0x3
 .sdata  0x8044F18E-0x8044F190 size 0x2
 .sdata  0x8044F1E7-0x8044F1E8 size 0x1
@@ -4405,7 +4431,7 @@ game/fn_80111EEC_fn_80111EEC.c                   .sdata2 0x80451888-0x80451890 t
 .sdata2 0x80452964-0x804529B0 size 0x4C
 .sbss2  0x80452A20-0x80452AC0 size 0xA0
 
-== rejected candidates (683)
+== rejected candidates (682)
 GALE01:Runtime/__va_arg.c .text: start not proven (__va_arg .. __va_arg; neighbour MWInitializeCriticalSection)
 GALE01:Runtime/Gecko_ExceptionPPC.c .text: none of its functions is (uniquely) named in ours
 GALE01:Runtime/Gecko_setjmp.c .text: none of its functions is (uniquely) named in ours
@@ -5082,7 +5108,6 @@ data from C MetroTRK/dolphin_trk_glue.c .bss: _MetroTRK_Has_Framing (+0x4) may b
 data from C dolphin/gx/GXFifo.c .sbss: __GXCurrentBP (+0x1C) may be after the piece (no bytes to tell, the neighbour is unproven)
 data from C sysdolphin/baselib/cobj.c: 10 of 48 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/displayfunc.c: 4 of 16 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/fobj.c: 1 of 11 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/jobj.c: 14 of 48 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/lobj.c: 4 of 27 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/mtx.c: 7 of 16 functions of the object are not verified C functions (another revision): its data is not proven

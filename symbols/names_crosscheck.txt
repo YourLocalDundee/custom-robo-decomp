@@ -1,4 +1,4 @@
-names_crosscheck: 2359 names; FAIL 0, WEAK 457, UNCHECKABLE 31, OK 1871; symbols OK=1256/WEAK=427, cand_hsd OK=61/WEAK=9, cand_sdk OK=33/WEAK=5, cand_rt OK=16/WEAK=15, descriptive OK=438/UNCHECKABLE=28, cr_globals OK=65/UNCHECKABLE=3
+names_crosscheck: 2360 names; FAIL 0, WEAK 458, UNCHECKABLE 31, OK 1871; symbols OK=1256/WEAK=428, cand_hsd OK=61/WEAK=9, cand_sdk OK=33/WEAK=5, cand_rt OK=16/WEAK=15, descriptive OK=438/UNCHECKABLE=28, cr_globals OK=65/UNCHECKABLE=3
 // tools/crosscheck_names.py: VERDICT ADDR NAME SOURCE TAG | AGAINST (contradictions) | independent kinds | evidence | notes
 WEAK        80003424 __flush_cache                        symbols     dtk                          independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x34/melee/GALE01 0x34=1.00 (46 refs)
 WEAK        800034AC gTRKInterruptVectorTable             symbols     dtk                          independent: none | no reference map has this name
@@ -343,6 +343,7 @@ WEAK        80449D30 render_alloc_data                    symbols     C-define  
 WEAK        80449D5C tevreg_alloc_data                    symbols     C-define                     independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x2C/melee/GALE01 0x2C=1.00 (1 refs)
 WEAK        80449D88 chan_alloc_data                      symbols     C-define                     independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x2C/melee/GALE01 0x2C=1.00 (1 refs)
 WEAK        80449DB8 aobj_alloc_data                      symbols     C-define                     independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x30/melee/GALE01 0x2C=1.09 (1 refs)
+WEAK        80449E10 fobj_alloc_data                      symbols     C-define                     independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x30/melee/GALE01 0x2C=1.09 (1 refs)
 WEAK        8044ED50 __OSVersion                          symbols     dtk                          independent: none | evidence: size: size within 10% of ac-decomp/GAFU01_00 | size 0x4/ac-decomp/GAFU01_00 0x4=1.00 (28 refs)
 WEAK        8044ED68 __OSArenaLo                          symbols     dtk                          independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x4/melee/GALE01 0x4=1.00 (47 refs)
 WEAK        8044ED80 SwitchThreadCallback                 symbols     dtk                          independent: none | evidence: size: size within 10% of ac-decomp/GAFU01_00 | size 0x4/ac-decomp/GAFU01_00 0x4=1.00 (28 refs)

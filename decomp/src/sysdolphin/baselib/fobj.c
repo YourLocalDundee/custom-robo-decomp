@@ -1,6 +1,6 @@
 /* Custom Robo: from doldecomp/kar @ 3ed51a1a008a05c33225cc286c046b8f90fb3d0e, src/sysdolphin/fobj.c */ #include "fobj.h"
 
-extern HSD_ObjAllocData fobj_alloc_data;
+HSD_ObjAllocData fobj_alloc_data; /* Custom Robo: defined here, as Melee's fobj.c does (kar: extern) */
 
 HSD_ObjAllocData* HSD_FObjGetAllocData(void)
 {
@@ -226,7 +226,9 @@ static inline s32 parseWait(u8** adp)
     return wait;
 }
 
-static inline u32 FObjLoadWait(HSD_FObj* fobj)
+/* Custom Robo: static, not inline: compiled where it is defined (then inlined, the copy dead-stripped), so its assert
+ * string comes first in .data as in main.dol */
+static u32 FObjLoadWait(HSD_FObj* fobj)
 {
     u32 st = HSD_FObjGetState(fobj);
     assert_line(0x16C, /* Custom Robo: main.dol passes 0x16C here, wowjinxy 0x17B */ st == FOBJ_LOAD_WAIT);
@@ -412,6 +414,14 @@ static inline void FObjUpdateAnim(HSD_FObj* fobj, void* obj,
     obj_update(obj, fobj->obj_type, (FObjData*) &fobjdata);
 }
 
+/* Custom Robo: an out-of-line user of FObjUpdateAnim before HSD_FObjInterpretAnim (Melee's revision has FObjUpdateAnim as
+ * a function of its own): it is compiled first, so FObjUpdateAnim's 1.0 comes before InterpretAnim's 0.0 in .sdata2 as in
+ * main.dol; nothing calls it, the linker drops it */
+static void FObjUpdateAnimCopy(HSD_FObj* fobj, void* obj, HSD_ObjUpdateFunc obj_update)
+{
+    FObjUpdateAnim(fobj, obj, obj_update);
+}
+
 /* wowjinxy/KAR fobj.c HSD_FObjInterpretAnim */
 void HSD_FObjInterpretAnim(HSD_FObj* fobj, void* obj,
                            HSD_ObjUpdateFunc obj_update, f32 rate)
@@ -444,11 +454,10 @@ void HSD_FObjInterpretAnim(HSD_FObj* fobj, void* obj,
             }
             case 4: {
                 if (fobj->fterm <= fobj->time) {
-                    state = 3;
-
+                    /* Custom Robo: the assignment inside the argument (main.dol masks the state register, it does not fold the constant) */
                     fterm = fobj->fterm;
                     fobj->time -= fobj->fterm;
-                    HSD_FObjSetState(fobj, state);
+                    HSD_FObjSetState(fobj, state = 3);
                     break;
                 }
                 FObjUpdateAnim(fobj, obj, obj_update);
@@ -457,8 +466,7 @@ void HSD_FObjInterpretAnim(HSD_FObj* fobj, void* obj,
                 return;
             }
             case 5: {
-                state = 4;
-                HSD_FObjSetState(fobj, state);
+                HSD_FObjSetState(fobj, state = 4);
                 break;
             }
             case 0:
