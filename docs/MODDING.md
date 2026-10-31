@@ -32,7 +32,7 @@ Everything is optional; use what your mod needs.
 Or script the edit in Blender and let one command do export, import and the build: [Blender loop](#blender-loop).
 
 Supported categories: `chara` (robos), `weapon_gun`, `weapon_bom`, `weapon_pod`, `weapon_leg`, `snr_chara`
-(story characters), `bg_data` (stages), `leg_effect`, `snr_obj`. Effects in `*_effect` containers are not yet.
+(story characters), `bg_data` (stages: [Stages](#stages)), `leg_effect`, `snr_obj`. Effects in `*_effect` containers are not yet.
 
 ### A robo with a different skeleton (more / fewer / other bones)
 
@@ -304,6 +304,66 @@ Taken from Ray 01 (chara_000) with `HSDRawViewer --info`; every robo body seen f
 - New bones need the roles file; `make_mod.py` refuses a changed skeleton without one.
 - A grown archive moves to unused disc space (`iso_patch.py build`; Custom Robo's files sit at the end of the disc),
   so a size change no longer needs room after the last file.
+
+### Stages
+
+A stage (arena) is two `bg_data.BIN` entries: **stage id s = entry 2s, the model** (a standard HSD .dat whose root
+`scene_data` holds up to 20 models, one camera, the lights and the fog) **and entry 2s+1, the collision** (one group
+of quads per model). The ids, names, menu order and formats: [stage_tables.md](stage_tables.md) (plan.md step 75).
+Basic Arena is id 0: `bg_data_000.dat` + entry 001.
+
+```powershell
+pwsh tools\model_loop.ps1 -Mod basic_arena_pillar -Script stage_pillar -Category bg_data -Entries 000 -Boot
+pwsh tools\model_loop.ps1 -Mod rt_stage -Script roundtrip -Category bg_data -Entries 000,008,026   # no edit: tests the loop
+```
+
+```bash
+tools/model_loop.sh basic_arena_pillar stage_pillar 000 --category bg_data --boot
+tools/model_loop.sh rt_stage roundtrip 000,008,026 --category bg_data
+```
+
+- **Export**: `HSDRawViewer --export` writes one glb per scene model, `scene_data_<n>.glb` (bones `JOBJ_n`, meshes
+  `Joint_<j>_Object_<d>`, as for robos). The loop runs the Blender script once per model (it gets
+  `scene_data_<n>.glb` as `<in.glb>`; a script that edits one model saves the others unchanged) and chains the
+  imports with `--model <n>`. `-Models 0,3` (`--models 0,3`) limits the loop to those models.
+- **Import** (`HSDRawViewer --import <template.dat> <edited.glb> <out.dat> --model N`): the same rules as for a robo
+  (kept meshes byte-identical, new rigid / skinned geometry, `--replace`), without the robo-only ones (block B, one
+  atlas), plus: a new mesh on one of the stage's **own materials** (the exporter's name, e.g. `Material_6F9003D5`)
+  shares that material as it is (same texture, same render mode; nothing re-encoded), and when that material colours
+  from the vertices (`VERTEX`, as Basic Arena's floor) the new mesh gets vertex colours (the glb's `COLOR_0`, else
+  white; export them with `common.save(path, export_vertex_color='ACTIVE')`). Joint flags of a scene only gain the
+  OPA / XLU / LIGHTING / SPECULAR bits a new mesh needs.
+- **File layout**: a stage .dat is written back in its **own layout**: every unchanged struct stays at its offset, new
+  structs are appended after the data, the relocation table and root are rebuilt. HSDLib's normal save lays the whole
+  file out again (and is not byte-identical for the game's stage files), so this matters for small patches.
+- `make_mod.py` puts `models/bg_data/bg_data_NNN.dat` into `bg_data.BIN` as it is (an odd NNN, a collision entry,
+  too). `bg_data.BIN` has no entry table copy in main.dol (the game reads the archive's own header at boot), so only
+  the archive changes.
+- Basic Arena's ISO (below): `build/mods/basic_arena_pillar/basic_arena_pillar.iso`, SHA-1 4b52d6a6...; the patch
+  `mods/basic_arena_pillar/basic_arena_pillar.crpatch` (29 KB).
+- `HSDRawViewer --info bg_data_000.dat` lists the scene (models, cameras, lights, fog) and every model's joints,
+  materials, textures and PObjs.
+
+Tested (Oct 31, 2026): export -> Blender `roundtrip.py` -> `--import` of every model gives the template .dat byte for
+byte for all 40 stages (every scene model through Blender; the ISO of a round trip has the clean disc's SHA-1; two
+stages, No-Man's Land 054 and Lost World 070, needed an exporter fix first: a zero-length normal became NaN, which
+glTF refuses, so the patched exporter writes +Y for it); the `basic_arena_pillar` ISO (`tools/blender/stage_pillar.py`: a golden
+1.2 x 1.2 x 2.6 pillar on Basic Arena's floor at x 4.5, z 0, with the floor's own material and texture) builds
+(the model entry grows 0x96100 -> 0x96400 bytes; in the data block one pointer changes, the rest is appended; re-export: docs/images/basic_arena_pillar_reexport.png, vertex colours not shown) and boots (40 s, no warning). **Not yet seen in game** (plan.md "Waiting on the user").
+
+**Limits** (stage_tables.md "Limits for a modded stage"):
+
+- Model entry (2s) at most **0x100000 bytes** (its load region; `make_mod.py` refuses more); the largest retail one
+  is 0xEC220. Collision entry (2s+1) at most **0x8000 bytes**.
+- At most 20 models per scene; at most 21 DObjs on the root joint of models 1 and up (the game hangs otherwise).
+- **No collision for new geometry**: the collision is entry 2s+1, a separate format (quads with plane equations per
+  model, stage_tables.md); robos walk through the pillar. Editing it (moving or adding quads) is not in the loop yet.
+- Meshes on scaled joints (Dead Line model 0: joints at scale 0.667; Battle Gear Station model 11) come back from
+  Blender with another size: they are kept as they were (the import warns and ignores the difference), but do not
+  edit their geometry.
+- Animations, cameras, lights and fog are kept as they are; the loop does not edit them. Spawn points, the battle
+  camera and the meaning of the collision attributes are not located yet.
+- `snr_map` (story maps: collision + model in one entry) is not in the loop yet.
 
 ## 3. Build it
 

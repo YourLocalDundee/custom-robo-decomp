@@ -1,0 +1,10 @@
+basic_arena_pillar - Basic Arena (stage id 0: bg_data entry 000 = model, 001 = collision; docs/stage_tables.md) with a
+golden 1.2 x 1.2 x 2.6 pillar standing on the floor at game x 4.5, z 0 (plan.md step 75).
+
+Built by tools/blender/stage_pillar.py (scene model 0, bone JOBJ_6) with the floor's own material (shared by
+HSDRawViewer --import --model 0, golden vertex colour). Only entry 000 changes (0x96100 -> 0x96400 bytes); the
+collision (001) is the original, so robos walk through the pillar.
+
+  pwsh tools\model_loop.ps1 -Mod basic_arena_pillar -Script stage_pillar -Category bg_data -Entries 000 -Boot
+
+Boots (40 s, no warning). Not yet seen in a battle: plan.md "Waiting on the user".
