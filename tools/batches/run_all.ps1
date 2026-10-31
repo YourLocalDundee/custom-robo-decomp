@@ -3,7 +3,10 @@
 #   batches 1 + 6 + 7 names <-> Ghidra rebuild to a fixpoint -> 5 types -> 2 dtk cross-check -> 3 game map
 #   -> 4 search index -> 8 name cross-check -> 9 decomp build (retail SHA-1, relocations, static shift test)
 #   -> 10 compiler probe (~5 min) -> 11 shifted build booted in Dolphin (~1 min; do not type while Dolphin is open)
+#   -> 12 m2c drafts of the game code, compiled and compared, the linkable 100% ones promoted into decomp/src/game
+#      (~31 min; batch 9 again when that folder changed)
 #   -> checksums.ps1 -Compare (every output byte-identical to docs/expected_checksums.txt), then a summary.
+# About 45 minutes in all when the previous Ghidra export exists (one rebuild): docs/REPRODUCE.md "Verify this checkout".
 # tools/from_scratch.ps1 wraps it: setup -> this -> archives / models / mod build.
 # Usage:  pwsh tools/batches/run_all.ps1 [-SkipRebuild] [-MaxPasses 5]
 #

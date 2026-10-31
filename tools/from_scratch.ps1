@@ -1,14 +1,15 @@
 #Requires -Version 7
 # Everything from a fresh clone + your ISO, in order, stopping at the first failure, ending in PASS / FAIL:
 #   1. tools\setup.ps1            download + hash-check all tools, extract the disc
-#   2. tools\batches\run_all.ps1  every batch in order (1-11: names, Ghidra, checks, map, index, decomp build,
-#                                 compiler probe, shifted boot), ending in checksums.ps1 -Compare
-#   4. archives + models          SFD repack and model round trip byte-identical; all 1,006 models to .dat,
+#   2. tools\batches\run_all.ps1  every batch in order (1-12: names, Ghidra, checks, map, index, decomp build,
+#                                 compiler probe, shifted boot, game-code drafts), ending in checksums.ps1 -Compare
+#   3. archives + models          SFD repack and model round trip byte-identical; all 1,006 models to .dat,
 #                                 then glTF (.glb) + textures for Blender; one preview render
-#   5. mod test build             test_build\ = the game with robo 0 recoloured, bootable in Dolphin;
+#   4. mod test build             test_build\ = the game with robo 0 recoloured, bootable in Dolphin;
 #                                 then as ISO -> .crpatch -> applied to the clean ISO, SHA-1 checked
-#   6. BUILD_REPORT.md            what was made and where everything is
+#   5. BUILD_REPORT.md            what was made and where everything is
 # Usage:  pwsh tools\from_scratch.ps1 -Iso "C:\path\to\Custom Robo (USA).iso" [-Dolphin "C:\your\Dolphin folder"]
+# About an hour on this desktop (run_all alone about 45 minutes, batch 12 most of it): docs/REPRODUCE.md.
 param([Parameter(Mandatory)][string]$Iso, [string]$Dolphin)
 $ErrorActionPreference = 'Stop'
 $g = Split-Path $PSScriptRoot -Parent

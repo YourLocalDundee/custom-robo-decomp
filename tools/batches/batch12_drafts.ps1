@@ -4,7 +4,8 @@
 # in a library object): m2c (tools/m2c, pinned in tools/pins.txt) writes a C draft with our names and our types
 # (HSD headers + symbols/cr_types.h) as context, the draft is compiled with the game compiler and flags (GC/2.6,
 # configure.py CR_LIBS "game"), and the compiled function is compared with the original one in dtk's split object
-# (relocation fields masked). About 5 minutes on 8 cores, parallel (multiprocessing), deterministic.
+# (relocation fields masked). About 31 minutes on this desktop (two m2c passes, the repair loop and the variants of every
+# draft below 100%, plan.md steps 77-83; -Sample 200 for a quick look), parallel (multiprocessing), deterministic.
 #   1. needs batch 9 (decomp/build/GXCE01/asm + obj, decomp/build/compilers) and tools/m2c (tools/setup.ps1); read only
 #   2. python -I tools/draft_batch.py -> decomp/drafts/ (GITIGNORED: drafts, asm, objects, logs, draft_report.txt)
 #      and decomp/reports/draft_summary.txt (counts only; committed)
