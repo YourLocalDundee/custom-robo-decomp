@@ -137,7 +137,7 @@ Versions are pinned in `tools/pins.txt`; what to install yourself per OS: [INSTA
 |---|---|---|
 | Ghidra | 12.1.4 (`ghidra_12.1.4_PUBLIC`) | needs Java 21 (system-wide, or a JDK on `PATH`); headless via `support\analyzeHeadless.bat` (Windows) / `support/analyzeHeadless` |
 | Ghidra GameCube Loader | 1.3.1 (built for 12.1) | `extension.properties` version patched 12.1 → 12.1.4. Headless needs `-loader-autoloadMaps false` or it hangs on a hidden dialog. |
-| HSDLib / HSDRawViewer | built from source on Windows (`tools/HSDLib`, base commit in `tools/patches/hsdlib_base_commit.txt`) | targets .NET 8; runtimeconfig set to `rollForward: Major` so it runs on a newer installed .NET. Our patch (`tools/patches/hsdlib_headless_export_resave.patch`) adds `--export <out_dir> <glb\|dae\|smd> <files…>` and `--resave <in.dat> <out.dat>`. After every rebuild the runtimeconfig roll-forward line must be re-added. |
+| HSDLib / HSDRawViewer | built from source on Windows (`tools/HSDLib`, base commit in `tools/patches/hsdlib_base_commit.txt`) | targets .NET 8; runtimeconfig set to `rollForward: Major` so it runs on a newer installed .NET. Our patch (`tools/patches/hsdlib_headless_export_resave.patch`) adds `--export <out_dir> <glb\|dae\|smd> <files…>`, `--resave <in.dat> <out.dat>`, `--import <template.dat> <edited.glb> <out.dat> [--replace] [--skeleton template\|glb] [--roles f] [--envelope-joint J]` and `--info <file.dat>` (docs/MODDING.md "Blender loop"). After every rebuild the runtimeconfig roll-forward line must be re-added. |
 | decomp-toolkit (dtk) | 1.8.4 (`tools/dtk/dtk.exe` on Windows, `tools/dtk/dtk` on Linux / macOS) | analysis project in `tools/dtk/proj` (`symbols.txt`, `splits.txt`); on Linux / macOS also extracts the disc (`dtk disc extract`, byte-identical to DolphinTool) |
 | Dolphin | 2609a, official build (`tools/dolphin/Dolphin-x64`, Windows) | its `DolphinTool` extracts the disc on Windows; batch 11 boots the shifted build with it |
 | Melee decomp | sparse clone (`tools/melee`) | `config`, `src/sysdolphin`, `src/MSL`, `src/Runtime`, `src/MetroTRK` and the SDK headers ([REPRODUCE](REPRODUCE.md), setup step 3) |
@@ -151,6 +151,9 @@ Versions are pinned in `tools/pins.txt`; what to install yourself per OS: [INSTA
 ```powershell
 cd tools\HSDLib
 git apply ..\patches\hsdlib_headless_export_resave.patch     # on a fresh clone only
+# an EXISTING clone after the patch changed (setup only patches a fresh clone): back to the pinned tree, then the patch
+#   git reset -q; git checkout -q -- .; git clean -fq HSDRawViewer\BatchExport.cs HSDRawViewer\ModelImport.cs HSDRawViewer\ModelInfo.cs
+#   git apply ..\patches\hsdlib_headless_export_resave.patch
 dotnet build HSDRawViewer\HSDRawViewer.csproj -c Release
 # then add  "rollForward": "Major",  under "runtimeOptions" in
 # HSDRawViewer\bin\Release\net8.0-windows7.0\HSDRawViewer.runtimeconfig.json
