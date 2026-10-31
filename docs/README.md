@@ -41,6 +41,8 @@ Every command runs from the repo root. `tools/check_docs.py` checks this convent
 | [workflows.md](workflows.md) | Step by step: look at and export models, edit and re-import one, test in Dolphin, read and search the code |
 | [MODDING.md](MODDING.md) | Make a mod (models, files, code), build a playable ISO and a data-free `.crpatch`, apply someone's patch |
 | [tools.md](tools.md) | Every tool in `tools/`: purpose, usage, inputs and outputs; the batches; the third-party tools |
+| [images/legionnaire_v2_blender.png](images/legionnaire_v2_blender.png), [images/legionnaire_v2_reimport.png](images/legionnaire_v2_reimport.png) | The step 73 legionnaire as built in Blender and as exported again from the built model ([MODDING.md](MODDING.md#blender-loop)) |
+| [images/ray_legionnaire_v1_customize.jpg](images/ray_legionnaire_v1_customize.jpg) | Step 70's first legionnaire in the game's Customize screen (photo by the user) |
 
 ## Code and the rebuild (Phase 4)
 
@@ -57,6 +59,7 @@ Every command runs from the repo root. `tools/check_docs.py` checks this convent
 | [formats/sfd.md](formats/sfd.md) | The `.BIN` SFD archive format (verified on all 22 archives) |
 | [formats/model_entry.md](formats/model_entry.md) | Robo / weapon / story-character model entries (header decoded from the game's loaders), joint roles |
 | [formats/containers.md](formats/containers.md) | Every archive and file type on the disc: what is inside, what is decoded, what is not |
+| [robo_tables.md](robo_tables.md) | Every table, file and constant indexed by the body (robo) number, with its users; the checklist for a new body (step 71) |
 | [community_codes.md](community_codes.md) | Public AR / Gecko codes (decrypted, mapped to our addresses), texture mods, Gecko tooling (research notes, Oct 28, 2026) |
 | [community/discord_codes.md](community/discord_codes.md) | Codes and addresses from the community Discord, mapped to our functions (Oct 29, 2026) |
 | [community/codes_gxce01.tsv](community/codes_gxce01.tsv) | The codes of community_codes.md as a table, one row per code. Research data of Oct 28, 2026: no tool in the repo writes it; keep it in step with community_codes.md |
