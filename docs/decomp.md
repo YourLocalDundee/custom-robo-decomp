@@ -127,6 +127,10 @@ from the references and the linked C confirms the name (plan.md step 65).
 
 Step 68 (Oct 30, 2026): MetroTRK 29 of 29, the SDK 97 of 98 (all split objects but reverb_std.c), MSL 48 of 49
 (exponentialsf.c left), HSD 18 of 30 objects from C.
+
+Step 76 (Oct 31, 2026, branch libs2): the SDK 98 of 98 and MSL 49 of 49 objects from C. reverb_std.c: dolsdk2004's file
+with DLcreate's alloc / memset size written `max_length << 2` as in reverb_hi.c (with `* 4` ReverbSTDCreate has the same
+instructions but other registers); exponentialsf.c: powf, BfBB math.h's inline out of line (ours). Only HSD is left.
 - **MetroTRK v2.6** comes from Twilight Princess (`tools/refs/tp`, zeldaret/tp; tools/setup.ps1 / setup.sh check out its
   `libs/TRK_MINNOW_DOLPHIN`, `libs/PowerPC_EABI_Support`, `libs/dolphin` and `include`) and Pikmin 2 (`tools/refs/pikmin2`,
   `src/Dolphin`, `include`). A TP file is imported with `--inc include=include/tp

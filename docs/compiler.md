@@ -354,7 +354,8 @@ unnamed `fn_` against every compiled function of its size. Step 66's per-object 
 - **fn_80148998** (0x47C, the first function of reverb_std.c = `ReverbSTDCreate` by position): dolsdk2004 63%, dolsdk2001
   49%, TP 47%; the same instructions with other registers (`rv` in r31 here, r23 in dolsdk2004) and the delay-line loop
   counters set up in another order; GC/1.2.5 / 1.2.5n / 1.3 / 1.3.2 / 2.0 / 2.6 with -O4,p / -O4,s / -O3,p / -O2 and
-  char / inline / fp_contract variants tried, best 63%. No reference: write from our asm starting from dolsdk2004.
+  char / inline / fp_contract variants tried, best 63%. **Matched in step 76**: dolsdk2004's file with DLcreate's
+  alloc / memset size written `max_length << 2` (as dolsdk2004's reverb_hi.c), GC/1.2.5n -O4,p as the other AXFX files.
 - 81 unnamed functions equal one compiled function byte for byte (68 to exactly one name: the THP / AXFX / Pad / CARD /
   texPalette names of step 66 and more; 13 to several names, e.g. fn_80153070 = `GXGetCPUFifo` or one of three other
   one-line getters). Every other SDK function therefore has C; the THP / AXFX / Pad files are BfBB `thp/`, dolsdk2004
@@ -688,7 +689,7 @@ What the HSD diffs show, by part:
 
 ### What remains unknown
 
-- SDK: fn_80148998 (AXFX ReverbSTDCreate, Jul 2003 AX build): no reference above 63%; register allocation differs.
+- SDK: none since step 76 (ReverbSTDCreate: dolsdk2004 with DLcreate's `<< 2` as in reverb_hi.c).
 - HSD: 41 functions with no reference ("-" above) and 18 rewrites; the HSD revision itself has no public source.
   Everything else in every library has an exact reference or is KAR asm to transcribe.
 - Names not applied: fn_8015E09C TRK__write_aram, fn_8015E288 TRK__read_aram, fn_800053E0 __TRK_reset (all exact under

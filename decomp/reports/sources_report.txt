@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 1274
+files: 1275
 
 src/MSL/FILE_POS.c  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
@@ -20,6 +20,7 @@ src/MSL/e_log.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL
 src/MSL/e_pow.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_pow.c  identical
 src/MSL/e_rem_pio2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/e_rem_pio2.c  identical
 src/MSL/e_sqrt.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/MSL_Common_Embedded/Math/Double_precision/e_sqrt.c  identical
+src/MSL/exponentialsf.c  ours (no reference)
 src/MSL/file_io.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/file_io.c  identical
 src/MSL/k_cos.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/k_cos.c  identical
 src/MSL/k_rem_pio2.c  mariopartyrd/marioparty4 @ 5b01c79b4910 src/MSL_C.PPCEABI.bare.H/k_rem_pio2.c  identical
@@ -107,7 +108,7 @@ src/dolphin/axfx/axfx.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/axfx/axfx.c  id
 src/dolphin/axfx/chorus.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/axfx/chorus.c  identical
 src/dolphin/axfx/delay.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/axfx/delay.c  identical
 src/dolphin/axfx/reverb_hi.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/axfx/reverb_hi.c  identical
-src/dolphin/axfx/reverb_std.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/axfx/reverb_std.c  identical
+src/dolphin/axfx/reverb_std.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/axfx/reverb_std.c  changed (6 lines added / removed)
 src/dolphin/base/PPCArch.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/base/PPCArch.c  identical
 src/dolphin/card/CARDBios.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/card/CARDBios.c  identical
 src/dolphin/card/CARDBlock.c  doldecomp/dolsdk2004 @ 2328b4164b1a src/card/CARDBlock.c  identical
