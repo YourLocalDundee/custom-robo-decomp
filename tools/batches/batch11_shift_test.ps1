@@ -7,13 +7,17 @@
 #   2. decomp/build/shift/disc/: a scratch copy of "Custom Robo extracted" (hard links, so no disk space and no copy
 #      time; the folder itself is never written) with the shifted sys/main.dol in it (a real file, not a link).
 #   3. tools/boot_check.ps1 boots the unmodified extracted folder (the control) and then the scratch copy, each for
-#      -Seconds, with Dolphin's log for that run (OS reports, files read from the disc) and a screenshot.
+#      -Seconds, with Dolphin's log for that run (OS reports, files read from the disc) and a screenshot. When the
+#      Dolphin's memory card has no Custom Robo save (the pinned one right after setup), the game stops at "There is
+#      no save data on the Memory Card in Slot A" (the control's last file read is logo_read_us.dbn, no title file):
+#      both boots are then redone with boot_check's -PressA 16 (the A button every 2 s until the title screen's file
+#      is read; the title comes at about 23 s instead of 13 s, so at least 32 s each). No save is created.
 #   4. Pass when, for the shifted build: Dolphin is still running with no warning dialog; the OS reports its arena
 #      starting at the SHIFTED _stack_addr (the control must show the retail one: proves OSInit used the moved linker
 #      symbols); no error-level line in the log; and it read the same disc files in the same order as the control,
 #      up to and including the title screen's (sprite/us_title.tpl, TITLE_MODEL.dat).
 # Writes decomp/build/shift/boot/{control,shifted}.{log,png} and boot_result.txt (timing-dependent: not checksummed).
-# Usage:  pwsh tools/batches/batch11_shift_test.ps1 [-Seconds 22]
+# Usage:  pwsh tools/batches/batch11_shift_test.ps1 [-Seconds 22]   (about 1 minute; 2 minutes without a save)
 param([int]$Seconds = 22)   # the title screen shows from ~13 s; at ~40 s the attract video starts (black between)
 $ErrorActionPreference = 'Stop'
 if (-not $IsWindows) { 'batch 11 skipped: the Dolphin boot check (tools/boot_check.ps1) uses Windows window APIs; run it on Windows (the static shift test ran in batch 9)'; exit 0 }
@@ -47,8 +51,10 @@ Copy-Item -LiteralPath "$s/main.dol" -Destination (Join-Path $disc 'sys/main.dol
 
 $b = "$s/boot"
 $null = New-Item -ItemType Directory -Force -Path $b
+$pressA = 0
 function Boot($dol, $name) {
-    $out = & "$g/tools/boot_check.ps1" -Iso $dol -Seconds $Seconds -Log "$b/$name.log" -Screenshot "$b/$name.png"
+    $secs = if ($pressA) { [Math]::Max($Seconds, $pressA + 16) } else { $Seconds }
+    $out = & "$g/tools/boot_check.ps1" -Iso $dol -Seconds $secs -Log "$b/$name.log" -Screenshot "$b/$name.png" -PressA $pressA
     $code = $LASTEXITCODE
     $log = if (Test-Path -LiteralPath "$b/$name.log") { Get-Content -LiteralPath "$b/$name.log" } else { @() }
     $files = $log | Where-Object { $_ -match 'W\[FileMon\]:\s+[\d,]+ kB (\S.*)$' } | ForEach-Object { $Matches[1].Trim() }
@@ -56,10 +62,16 @@ function Boot($dol, $name) {
     $errors = @($log | Where-Object { $_ -match ' E\[' })
     [pscustomobject]@{ Name = $name; Out = "$out"; Code = $code; Files = @($files); Arena = $arena; Errors = $errors }
 }
+$title = 'sprite/us_title.tpl', 'TITLE_MODEL.dat'
 $c = Boot "$srcFull/sys/main.dol" 'control'
+if ($c.Code -eq 0 -and ($title | Where-Object { $_ -notin $c.Files }) -and $c.Files -and $c.Files[-1] -eq 'logo_read_us.dbn') {
+    # no Custom Robo save on this Dolphin's memory card: the game waits for the A button after the logos
+    $pressA = 16
+    "control stopped after the logos (no save data on the memory card): booting again, pressing A from $pressA s"
+    $c = Boot "$srcFull/sys/main.dol" 'control'
+}
 $t = Boot (Join-Path $disc 'sys/main.dol') 'shifted'
 
-$title = 'sprite/us_title.tpl', 'TITLE_MODEL.dat'
 $checks = [ordered]@{
     'control boots with no warning'                     = $c.Code -eq 0
     "control arena = retail _stack_addr $($exp.arena_control)" = $c.Arena -eq $exp.arena_control
@@ -71,7 +83,7 @@ $checks = [ordered]@{
     'shifted reads the same files in the same order as the control' = ($c.Files -join '|') -eq ($t.Files -join '|')
 }
 $ok = -not ($checks.Values -contains $false)
-$lines = @("batch 11 (shift test, Dolphin boot, $Seconds s each): shifted main.dol SHA-1 $($exp.sha1_shifted)", $c.Out, $t.Out)
+$lines = @("batch 11 (shift test, Dolphin boot, $(if ($pressA) { [Math]::Max($Seconds, $pressA + 16) } else { $Seconds }) s each$(if ($pressA) { ', no save on the memory card: A pressed' })): shifted main.dol SHA-1 $($exp.sha1_shifted)", $c.Out, $t.Out)
 $lines += $checks.GetEnumerator() | ForEach-Object { "  $(if ($_.Value) { 'ok  ' } else { 'FAIL' }) $($_.Key)" }
 $lines += "  control files read: $($c.Files -join ', ')"
 $lines += "  shifted files read: $($t.Files -join ', ')"

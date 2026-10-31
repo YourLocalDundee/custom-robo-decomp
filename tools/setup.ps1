@@ -2,7 +2,8 @@
 # One-time setup: download every third-party tool and reference at the exact version in tools\pins.txt
 # (each download is SHA-256 checked), then extract YOUR copy of the game. Every step: docs\REPRODUCE.md.
 # Usage:  pwsh tools\setup.ps1 -Iso "C:\path\to\Custom Robo (USA).iso" [-Dolphin "C:\your\Dolphin folder"]
-#   -Dolphin is optional: without it, the official Dolphin 2609a build is downloaded just for DolphinTool.exe.
+#   -Dolphin is optional: without it, the official Dolphin 2609a build is downloaded to tools\dolphin\Dolphin-x64 (its
+#   DolphinTool.exe extracts the disc; tools\boot_check.ps1 and batch 11 boot builds with it). Re-running fetches it if missing.
 # Needs on PATH: git, python (3.11+), java (21+), dotnet (SDK 8+) and tar (built in); see docs/INSTALL.md.
 # Windows script (PowerShell 7). Linux / macOS: tools/setup.sh (bash; no PowerShell needed there).
 # Re-running skips finished steps.
@@ -91,11 +92,14 @@ if ($Dolphin) {
         $dtool = @($c)
     }
 } elseif ($IsWindows) {
+    # downloaded whenever it is missing, not only while the disc is still to be extracted: tools/boot_check.ps1 and
+    # batch 11 boot builds with this Dolphin too (a checkout whose disc was extracted another way needs it as well)
     $exe = "$t/dolphin/Dolphin-x64/DolphinTool.exe"
-    if (-not (Test-Path -LiteralPath $exe) -and -not (Test-Path -LiteralPath "$g/Custom Robo extracted")) {
+    if (-not (Test-Path -LiteralPath "$t/dolphin/Dolphin-x64/Dolphin.exe")) {
         PinnedFile dolphin.7z "$dl/dolphin.7z"
         New-Item -ItemType Directory -Force "$t/dolphin" | Out-Null
         tar -xf "$dl/dolphin.7z" -C "$t/dolphin"
+        if ($LASTEXITCODE) { throw 'extracting dolphin.7z failed' }
     }
     $dtool = @($exe)
 } else {

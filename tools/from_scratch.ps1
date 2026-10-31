@@ -66,7 +66,12 @@ $($rows -join "`n")
 }
 
 $setupArgs = @{ Iso = $Iso }
-if ($Dolphin) { $setupArgs.Dolphin = $Dolphin }
+if ($Dolphin) {
+    $setupArgs.Dolphin = $Dolphin
+    # your Dolphin folder also boots the shifted build (batch 11, tools/boot_check.ps1) instead of the pinned download
+    $dir = if (Test-Path -LiteralPath $Dolphin -PathType Leaf) { Split-Path $Dolphin -Parent } else { $Dolphin }
+    if (Test-Path -LiteralPath (Join-Path $dir 'Dolphin.exe')) { $env:CR_DOLPHIN_DIR = $dir }
+}
 Step 'setup' { & "$g/tools/setup.ps1" @setupArgs }
 Step 'all batches + checksums (run_all)' { & "$g/tools/batches/run_all.ps1" }
 Step 'SFD unpack + repack' {

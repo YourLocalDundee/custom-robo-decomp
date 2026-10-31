@@ -7,8 +7,13 @@
 #   -Screenshot x.png  picture of the game window at the end (a screen copy: the window is brought to the front)
 #   -Log x.log         Dolphin's log of this run only (OS reports, files read from the disc, boot / core / CPU
 #                      messages), switched on with command-line config: Dolphin's own settings are not changed
+#   -PressA 16         from that second on, press the GameCube A button every 2 s (the X key, Dolphin's default keyboard
+#                      mapping; the Dolphin window is brought to the front for it) until the log shows the title
+#                      screen's sprite/us_title.tpl (with -Log) or the run ends. For a Dolphin whose memory card has
+#                      no Custom Robo save: the game then waits at "There is no save data on the Memory Card in
+#                      Slot A" for A, and reaches the title screen at about 23 s instead of 13 s (batch 11 uses it)
 param([Parameter(Mandatory)][string]$Iso, [int]$Seconds = 60, [string]$Snapshot, [string]$Screenshot, [string]$Log,
-      [string]$DolphinDir)
+      [string]$DolphinDir, [int]$PressA = 0)
 # Dolphin folder: -DolphinDir, else $env:CR_DOLPHIN_DIR, else the pinned Dolphin tools/setup.ps1 downloads
 # (tools/dolphin/Dolphin-x64, made portable so its User/ and log stay in that folder), else a local Project Hive build.
 $Iso = (Resolve-Path -LiteralPath $Iso).Path   # Dolphin starts in its own folder: a relative path would not be found
@@ -59,6 +64,13 @@ public static class BootWin {
     return found;
   }
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+  // a key press as the keyboard would send it (scan code: Dolphin's DInput keyboard identifies keys by it)
+  [DllImport("user32.dll")] static extern void keybd_event(byte vk, byte sc, uint flags, UIntPtr extra);
+  [DllImport("user32.dll")] static extern uint MapVirtualKey(uint code, uint type);
+  public static void Press(char key, int holdMs) {
+    byte vk = (byte)key, sc = (byte)MapVirtualKey(vk, 0);
+    keybd_event(vk, sc, 8, UIntPtr.Zero); System.Threading.Thread.Sleep(holdMs); keybd_event(vk, sc, 10, UIntPtr.Zero);
+  }
   [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
   public static List<string> Titles(uint pid) {
     var r = new List<string>();
@@ -71,7 +83,9 @@ public static class BootWin {
 '@
 # start from Dolphin's own folder so it does not create a User\ folder in the current directory
 $dlog = Join-Path $DolphinDir 'User\Logs\dolphin.log'
-$dargs = @('-b')
+# a Dolphin that was never started (the pinned one right after setup) asks "Allow Usage Statistics Reporting" in a modal
+# dialog before the game runs: answered here (no) through command-line config, like the log settings below
+$dargs = @('-b', '-C', 'Dolphin.Analytics.PermissionAsked=True', '-C', 'Dolphin.Analytics.Enabled=False')
 if ($Log) {
     $dargs += 'Logger.Options.WriteToFile=True', 'Logger.Options.Verbosity=3', 'Logger.Logs.OSREPORT=True',
         'Logger.Logs.FileMon=True', 'Logger.Logs.BOOT=True', 'Logger.Logs.CORE=True', 'Logger.Logs.POWERPC=True',
@@ -82,8 +96,14 @@ Push-Location -LiteralPath $DolphinDir
 $p = Start-Process -FilePath (Join-Path $DolphinDir 'Dolphin.exe') -ArgumentList ($dargs + @('-e', "`"$Iso`"")) -PassThru
 Pop-Location
 $warn = $null
+$pressed = @()
+function LogSoFar { if ($Log -and (Test-Path -LiteralPath $dlog)) { $fs = [IO.File]::Open($dlog, 'Open', 'Read', 'ReadWrite'); [void]$fs.Seek($logStart, 'Begin'); $r = New-Object IO.StreamReader($fs); $t = $r.ReadToEnd(); $r.Close(); $t } else { '' } }
 for ($i = 0; $i -lt $Seconds -and -not $p.HasExited; $i++) {
     Start-Sleep -Seconds 1
+    if ($PressA -and $i -ge $PressA -and (($i - $PressA) % 2) -eq 0 -and -not ((LogSoFar) -match 'sprite/us_title\.tpl')) {
+        $p.Refresh()
+        if ($p.MainWindowHandle -ne [IntPtr]::Zero) { [void][BootWin]::SetForegroundWindow($p.MainWindowHandle); [BootWin]::Press('X', 150); $pressed += $i }
+    }
     $w = [BootWin]::Texts([uint32]$p.Id) | Where-Object { $_ -match '^(Warning|Error|Critical|Panic|Question)' }
     if ($w) {
         $warn = $w -join ', '
@@ -122,5 +142,5 @@ if ($Log) {   # only this run's part of Dolphin's log
     [void]$fs.Read($buf, 0, $buf.Length); $fs.Close()
     [IO.File]::WriteAllBytes($Log, $buf)
 }
-"boot_check: $(Split-Path $Iso -Leaf): after $i s, running=$alive, title='$title', warning=$(if ($warn) { $warn } else { 'none' })"
+"boot_check: $(Split-Path $Iso -Leaf): after $i s, running=$alive, title='$title', warning=$(if ($warn) { $warn } else { 'none' })$(if ($pressed) { ", A pressed at $($pressed -join ', ') s" })"
 if ($warn -or -not $alive) { exit 1 }
