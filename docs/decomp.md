@@ -131,6 +131,17 @@ Step 68 (Oct 30, 2026): MetroTRK 29 of 29, the SDK 97 of 98 (all split objects b
 Step 76 (Oct 31, 2026, branch libs2): the SDK 98 of 98 and MSL 49 of 49 objects from C. reverb_std.c: dolsdk2004's file
 with DLcreate's alloc / memset size written `max_length << 2` as in reverb_hi.c (with `* 4` ReverbSTDCreate has the same
 instructions but other registers); exponentialsf.c: powf, BfBB math.h's inline out of line (ours). Only HSD is left.
+
+Step 78 (Oct 31, 2026, branch hsd2): HSD 22 of 30 objects from C (fobj.c), 42.57% of its code; 623 of 896 units,
+21.90% of main.dol's code. What closed functions here, worth trying first on the HSD near-misses: (1) **per-function
+optimizer pragmas**: `#pragma push` / `#pragma opt_common_subs off` / `#pragma pop` around HSD_PObjDisp and HSD_EraseRect
+(main.dol reloads fields CSE would keep in a register); (2) an assignment inside the argument of an inline
+(`HSD_FObjSetState(fobj, state = 3)`: the constant is not folded); (3) the order of .data strings and .sdata2
+constants follows the order functions are compiled: a `static` (not `inline`) helper is compiled where it is defined,
+and a function the linker drops (never called) still leaves its strings and constants; main.dol's .data has strings
+of such functions (lobj.c: wowjinxy's HSD_LObjSetInterest and `unused`; JObjInfoInit / CObjInfoInit show the same).
+A pragma sweep (21 pragmas, 36 pairs) found nothing more for the other near-misses; the reasons per file, with what
+was tried, are in configure.py CR_NOT_MATCHING.
 - **MetroTRK v2.6** comes from Twilight Princess (`tools/refs/tp`, zeldaret/tp; tools/setup.ps1 / setup.sh check out its
   `libs/TRK_MINNOW_DOLPHIN`, `libs/PowerPC_EABI_Support`, `libs/dolphin` and `include`) and Pikmin 2 (`tools/refs/pikmin2`,
   `src/Dolphin`, `include`). A TP file is imported with `--inc include=include/tp
