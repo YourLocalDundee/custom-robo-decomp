@@ -333,6 +333,33 @@ links a group it cannot prove, so such a run simply waits until all its function
   Their 100% callers named 7 functions by rule R7 (`// c-callsite`, iteration 4): HSD_AObjInitEndCallBack,
   HSD_AObjInvokeCallBacks, HSD_RObjAddAnimAll, JObjSortAnim (jobj.c), HSD_CObjSetEyePosition, HSD_CObjSetRoll
   (cobj.c), HSD_Free (tobj.c); aobj.c is now 4/15, robj.c 6/21.
+- Iteration 9 (plan.md step 61; hash.c, bytecode.c, robj.c linked): what made the remaining functions match, in the
+  order worth trying on the next file:
+  - **main.dol's function order.** objdiff pairs functions by name, so it reports 100% for a file whose functions are
+    in another order; only the link shows it (main.dol differs from the first moved function on). Keep the C in the
+    address order of the split's symbols (robj.c had expEvaluate and dummy_func after HSD_RvalueRemoveAll).
+  - **int, not s32.** kar's and Melee's `s32` / `u32` are `long`; locals, fields and enum members the original
+    declared `int` (GX enums: vertex-desc attr / attr_type / comp_cnt / comp_type) get other registers as `long`
+    (pobj.c get_shape_*_xyz, interpretShapeAnimDisplayList). An unsigned field compares with `cmplw`: if main.dol
+    uses `cmpw`, the field is signed.
+  - **Static functions for the constant order.** MWCC compiles a static (not inline) function where it is defined;
+    auto-inlining it later keeps the code, the unreferenced out-of-line copy is dead-stripped by the linker, and its
+    .sdata2 constants / .data strings are pooled at its definition, before the caller's (robj.c set_dirup_matrix,
+    lobj.c setup_spec_lightobj, pobj.c loadEnvelopeDesc). Likewise a dead-stripped function keeps its strings in
+    .data (robj.c HSD_RObjSetConstraintObj, pobj.c HSD_PObjSetCurrent): keep the reference's unused functions when
+    main.dol's .data has their strings.
+  - **Local aggregate initialisers** (`Vec v = { 0, 0, 0 }`) are anonymous .rodata objects addressed from one section
+    base that the compiler keeps in a saved register across the function; a const table read by index is not.
+  - **Declaration order decides saved registers** (robj.c expEvaluate: one of 720 orders; pobj.c PObjRelease,
+    SetupEnvelopeModelMtx); volatile registers do not move with it. Nested inlines are expanded after their siblings,
+    which orders stack slots (robj.c UpdateAll's position constraint through a small inline).
+  - **The closer source per function**: Melee's form (static helpers, `flags | SETUP_JOINT0`, `&&`) is sometimes this
+    revision where wowjinxy's is not (pobj.c ResolveRefsAll, PObjLoad, SetupSharedVtxModelMtx); compile Melee's file
+    with Melee's flags into a scratch object and compare the function's words to main.dol before porting.
+  - **The GX FIFO** as the SDK's `volatile PPCWGPipe GXWGFifo : 0xCC008000;` (Melee GXVert.h), not a cast pointer.
+  - MSL: this revision's bytecode.c calls the double sin / cos / ... and rounds (`(f32) sin(x)`), not sinf.
+  - Names: a main.dol function with no name whose masked instructions equal one C function compiled here, in the
+    reference file's order, is that function (`why:` line; 10 found this way in iteration 9, 3 more by rule R7).
 - Per-function triage of a file compiled for objdiff: `objdiff-cli diff -p decomp -u main/sysdolphin/baselib/<file>
   -o out.json [<symbol>]` (decomp/build/tools/objdiff-cli.exe) writes both sides' instructions with a `diff_kind`;
   an `ARG_MISMATCH` where both sides have a relocation is only the data name (the split object's data is not the C's
