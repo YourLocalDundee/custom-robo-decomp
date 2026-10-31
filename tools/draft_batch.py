@@ -113,14 +113,24 @@ def _width_format(self, fmt):
             t = _t.Type.ptr(self.type).format(fmt) if _scalar(self.type) else ('u32 *' if want == 4 else 'u16 *')
             return 'M2C_FIELD(%s, %s, %s)' % (inner.ptr.format(fmt), t, _t.format_expr(inner.index, fmt))
         return s
-    if not want or s != '*' + var.format(fmt):
+    if not want or s not in ('*' + var.format(fmt), '*(' + var.format(fmt) + ')'):
         return s
+    if isinstance(var, _t.Cast) and not var.silent and var.type.is_pointer() and want in (1, 2, 4, 8):
+        # step 80: `*((cr_Pad *) ((u8 *) p + off)) = 0` (fn_80020204: a byte store at a variable offset into the typed
+        # array; m2c casts the address to the element type and the compiler cannot assign an int to a struct): the
+        # access with its own width
+        tgt = var.type.get_pointer_target()
+        if tgt is not None and tgt.is_struct():
+            t = _t.Type.ptr(self.type).format(fmt) if _scalar(self.type) else {1: 'u8 *', 2: 'u16 *', 4: 'u32 *', 8: 'u64 *'}[want]
+            return 'M2C_FIELD(%s, %s, 0)' % (var.expr.format(fmt), t)
     if not _scalar(self.type):
         # step 69: a word / halfword m2c could not tell from a pointer (its int-or-pointer type) read from a byte array
         # (`(u32) *(lbl_8024E120 + i * 0x33520) != 0`, dtk's untyped data: a lbz where the original has lwz:
-        # fn_8000768C, fn_800BC9A4, fn_8010D2D0): the access's own width
-        if want in (2, 4) and _target_size(var) == 1:
-            return 'M2C_FIELD(%s, %s, 0)' % (var.format(fmt), 'u32 *' if want == 4 else 'u16 *')
+        # fn_8000768C, fn_800BC9A4, fn_8010D2D0): the access's own width; step 80: also through a `void *` / integer
+        # base (`*(arg0 + i * 4 + 0xAC)` of a `void *` parameter that the repair loop makes `u8 *`: fn_8008688C's
+        # lwzx / stwx came out as lbz / stb)
+        if want in (2, 4) and _target_size(var) in (0, 1):
+            return _split_field(var, 'u32 *' if want == 4 else 'u16 *', fmt)
         return s
     if isinstance(var, _t.BinaryOp) and var.op == '+':
         # step 69: `*(chara->motion_set + i * 2)` on a struct pointer (m2c's offset is in bytes, C would scale it by the
@@ -133,7 +143,14 @@ def _width_format(self, fmt):
     have = _target_size(var)
     if have is None or have == want:
         return s
-    return 'M2C_FIELD(%s, %s, 0)' % (var.format(fmt), _t.Type.ptr(self.type).format(fmt))
+    return _split_field(var, _t.Type.ptr(self.type).format(fmt), fmt)
+
+
+def _split_field(var, t, fmt):
+    # step 80, cycle 2 tried `*(p + k)` -> M2C_FIELD(p, T *, k) (the offset as the macro's argument: an indexed load with
+    # the sum in a register, fn_8008688C's lwzx); it lost 16 matches whose originals fold the constant of k into the
+    # displacement (fn_8007A1D0, fn_800AB468 families: 100% -> 82-84%), so the whole sum stays at offset 0
+    return 'M2C_FIELD(%s, %s, 0)' % (var.format(fmt), t)
 
 
 _afmt = _t.ArrayAccess.format
@@ -2051,6 +2068,42 @@ def expand_ptr_compound(body):
     return re.sub(r'^(\s*)(cr_g_\w+->\w+) (<<|>>|[-+*/%&|^])= ([^;]+);$', r'\1\2 = \2 \3 \4;', body, flags=re.M)
 
 
+def script_counter_ptr(body):
+    """step 80: the 300 script-command handlers (cr_g_ScrCmdFuncs) begin alike: log the command word at cr_g_ScriptPC,
+    advance the PC, step the history index, count the command in cr_g_Script.cmd_count[cr_g_ScriptDepth]. The
+    original saves r30 and never uses it: a pointer local to the counter whose only use the peephole folded back
+    into the base register (`lwz r3, 0xc(r4); addi; stw r0, 0xc(r4)` where the pointer would have been r30 =
+    r4 + 0xC; the compiler keeps the callee-saved slot). The untyped drafts had m2c's own `temp_r4 = &lbl[depth]`
+    and scored 78-85%; the typed member (step 79) made m2c fold it (`cr_g_Script.cmd_count[cr_g_ScriptDepth] += 1`,
+    about 8 points lower). The counter's address goes back into a local, set right after the PC is read:
+    `cmd_cnt = &cr_g_Script.cmd_count[cr_g_ScriptDepth]; ... (*cmd_cnt)++;`. 85% is the family's ceiling with every
+    statement order and spelling tried (docs/drafts.md "Ninth generator"); the rest is the scheduler's."""
+    m = re.search(r'^([ \t]+)cr_g_Script\.cmd_count\[cr_g_ScriptDepth\] \+= 1;$', body, re.M)
+    if not m or 'cmd_cnt' in body:
+        return body
+    ind = m.group(1)
+    head = body[:m.start()]
+    anchor = None
+    for pat in (r'^[ \t]+\w+ = cr_g_ScriptPC;\n', r'^[ \t]+cr_g_Script\.cmd_history\['):
+        hits = list(re.finditer(pat, head, re.M))
+        if hits:
+            anchor = hits[-1].end() if pat.endswith(r'\n') else hits[-1].start()
+            break
+    if anchor is None:
+        return body
+    body = head[:anchor] + ind + 'cmd_cnt = &cr_g_Script.cmd_count[cr_g_ScriptDepth];\n' + head[anchor:] + ind + '(*cmd_cnt)++;' + body[m.end():]
+    lines = body.split('\n')
+    di = next((i for i, l in enumerate(lines) if DEF.match(l)), None)
+    if di is None:
+        return body
+    decl = '    u32 *cmd_cnt;'
+    if di + 1 < len(lines) and re.match(r'^\s+[\w ]+?\**\s*\w+(?:\[\w*\])*;$', lines[di + 1]):
+        lines.insert(di + 1, decl)
+    else:
+        lines[di + 1:di + 1] = [decl, '']
+    return '\n'.join(lines)
+
+
 def postprocess(body, skip=(), add=()):
     """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
     for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
@@ -2059,7 +2112,8 @@ def postprocess(body, skip=(), add=()):
               unsigned_const_stores, redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign,
               double_negation, assert_ternary, hsd_inlines, mixed_externs, byte_steps, same_type_copies, param_regs, param_homes,
               param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
-              float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound):
+              float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound,
+              script_counter_ptr):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -2079,7 +2133,9 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             ((), (hsd_inlines,)), ((), (stack_struct,)), ((register_order,), (stack_struct,)), ((), (alias_offsets,)),
             ((), (stack_struct, alias_offsets)), ((), (pointer_tests, void_null)), ((), (drop_same_assign_casts,)),
             # step 79: struct-typed globals (cr_g_Script, cr_g_Scenario, cr_g_GameMode, cr_g_Pads)
-            ((), (drop_same_member_casts,)), ((), (expand_ptr_compound,)), ((), (drop_same_member_casts, expand_ptr_compound)))
+            ((), (drop_same_member_casts,)), ((), (expand_ptr_compound,)), ((), (drop_same_member_casts, expand_ptr_compound)),
+            # step 80: the script-command head without the counter pointer (the rule is on by default)
+            ((script_counter_ptr,), ()))
 
 
 VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this
@@ -2341,6 +2397,16 @@ def repair(lines, e):
     if at is None and 'M2C_' in s:
         s = lines[ln - 1] = expand_fields(s)
         at = locate(s, seg, col)
+    m = re.match(r"illegal implicit conversion from 'int' to 'struct (\w+)'$", msg)
+    if m:
+        # step 80: `*((cr_Pad *) ((u8 *) p + off)) = 0;` (fn_80020204: a byte store at a variable offset into the typed
+        # array, which m2c casts to the element type): the store as a byte at that address (the width is the asm's;
+        # stb here)
+        st = m.group(1)
+        cm = re.search(r'\*\(\(\(%s \*\) (\(.*\))\)\) = ' % re.escape(st), s)
+        if cm:
+            lines[ln - 1] = s[:cm.start()] + '*((u8 *) %s) = ' % cm.group(1) + s[cm.end():]
+            return 'byte store through a struct pointer'
     m = re.match(r"illegal implicit conversion from '(.*)' to '(.*)'$", msg)
     if m and at is not None:
         a_t, t = m.group(1), m.group(2)
@@ -2639,6 +2705,13 @@ def repair(lines, e):
     if m:
         a_t, b_t = m.group(1), m.group(2)
         da, db_ = draft_type(a_t), draft_type(b_t)
+        if a_t.endswith('*') and b_t.endswith('*') and ' - &' in s:
+            # step 80: `cr_g_Scenario.part_bits[0] - &cr_g_Scenario` (fn_800EB518): the byte offset of a member, as the
+            # difference of two addresses of different types: both as byte pointers (the offset the original adds)
+            new = re.sub(r'([\w.>\-]+(?:\[[^\]]*\])*) - (&\w+)', r'(u8 *) \1 - (u8 *) \2', s, 1)
+            if new != s:
+                lines[ln - 1] = new
+                return 'pointer difference in bytes'
         if '(%s)' % da in s and '(' not in db_:
             lines[ln - 1] = s.replace('(%s)' % da, '(%s)' % db_, 1)
             return 'cast %s instead of %s' % (db_, da)
