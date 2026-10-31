@@ -184,7 +184,7 @@ refsyms = {}   # name -> {game: size} over every reference (unique names only)
 for t, ml, mi in refdata:
     for a, sz, n in ml: refsyms.setdefault(n, {})[t] = sz
 srcs = {}      # fdlibm wrapper source: name -> text, from reference source trees
-for f in glob.glob(os.path.join(G, 'tools/refs/*/src/**/w_*.c'), recursive=True):
+for f in sorted(glob.glob(os.path.join(G, 'tools/refs/*/src/**/w_*.c'), recursive=True), key=lambda p: p.replace('/', '\\')):   # Windows path order on every OS (the first file is cited)
     srcs.setdefault(os.path.basename(f)[2:-2], []).append((f, open(f, encoding='utf-8', errors='ignore').read()))
 
 

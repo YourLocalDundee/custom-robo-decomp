@@ -42,6 +42,9 @@ function Names($label) {
     if ($LASTEXITCODE) { throw 'symbols\descriptive.txt has problems (see above)' }
 }
 
+# 0. the reference checkouts are the setup's: their sources are read as text, other files give other names (step 68b)
+python -I "$g/tools/check_refs.py"
+if ($LASTEXITCODE) { throw 'reference checkouts differ from tools/setup.ps1 (see above)' }
 # 1. the committed starting point
 Set-Content -LiteralPath $sym -Value (Get-Content -LiteralPath $sym | Where-Object { $_ -notmatch '// (layout-proof|lib-candidate) ' })
 foreach ($m in 'sdk', 'rt', 'hsd') {

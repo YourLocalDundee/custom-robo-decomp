@@ -394,7 +394,7 @@
 // G3 0x80189918 tobj.c (passed to an assert/panic call, string 0x8044EFA0) - HSD_TlutAlloc
 // G3 0x8018999C tobj.c (passed to an assert/panic call, string 0x8044EFA0) - HSD_TObjTevAlloc
 // G3 0x801899F4 tobj.c (passed to an assert/panic call, string 0x8044EFA0) - HSD_ImageDescAlloc
-// G3 0x8018AFE0 tev.c (passed to an assert/panic call, string 0x8044EFE0) - fn_8018AFE0
+// G3 0x8018AFE0 tev.c (passed to an assert/panic call, string 0x8044EFE0) - HSD_Channel2Num
 // G3 0x8018B090 tev.c (passed to an assert/panic call, string 0x8044EFE0) - HSD_Index2TevStage
 // G3 0x8018B160 tev.c (passed to an assert/panic call, string 0x8044EFE0) - HSD_TevStage2Num
 // G3 0x8018B2F0 tev.c (passed to an assert/panic call, string 0x8044EFE0) - HSD_TexCoordID2Num
@@ -483,13 +483,13 @@
 // G3 0x801A33E4 fog.c (passed to an assert/panic call, string 0x8044F1B8) - HSD_FogSet
 // G3 0x801A36A0 fog.c (passed to an assert/panic call, string 0x8044F1B8) - HSD_FogLoadDesc
 // G3 0x801A37E8 fog.c (passed to an assert/panic call, string 0x8044F1B8) - HSD_FogAdjLoadDesc
-// G3 0x801A3C9C perf.c (passed to an assert/panic call, string 0x8044F1D8) - fn_801A3C9C
+// G3 0x801A3C9C perf.c (passed to an assert/panic call, string 0x8044F1D8) - HSD_PerfCountEnvelopeBlending
 // G3 0x801A3D3C list.c (passed to an assert/panic call, string 0x8044F1E8) - HSD_SListAlloc
 // G3 0x801A3D98 list.c (passed to an assert/panic call, string 0x8044F1E8) - HSD_SListAllocAndAppend
 // G3 0x801A3E18 list.c (passed to an assert/panic call, string 0x8044F1E8) - HSD_SListAllocAndPrepend
 // G3 0x801A3E98 list.c (passed to an assert/panic call, string 0x8044F1E8) - HSD_SListAppendList
 // G3 0x801A3F08 list.c (passed to an assert/panic call, string 0x8044F1E8) - HSD_SListPrependList
-// G3 0x801A3FEC memory.c (passed to an assert/panic call, string 0x8024D0A8) - fn_801A3FEC
+// G3 0x801A3FEC memory.c (passed to an assert/panic call, string 0x8024D0A8) - _HSD_MemSetCallbacks
 // G3 0x801A4388 shadow.c (passed to an assert/panic call, string 0x8024D0D0) - HSD_ShadowInit
 // G3 0x801A43F8 shadow.c (passed to an assert/panic call, string 0x8024D0D0) - HSD_ShadowSetSize
 // G3 0x801A4558 shadow.c (passed to an assert/panic call, string 0x8024D0D0) - HSD_ShadowStartRender

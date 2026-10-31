@@ -4482,7 +4482,7 @@ GZ2E01:PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/extras.c .text: none of its
 GKYE01:Runtime.PPCEABI.H/__init_cpp_exceptions.cpp .text: none of its functions is (uniquely) named in ours
 GKYE01:dolphin/mix.c .text: our range ReverbSTDFree .. do_src2 contains other functions: AXFXReverbStdInit, AXFXReverbStdShutdown, AXFXReverbStdCallback
 GKYE01:lobj.c .text: 27 functions in ours vs 42 in the reference (fewer, and an edge is not a named neighbour of another object: HSD_AObjSetCurrentFrame is in aobj.c | reference's own last function (HSD_CObjEraseScreen is not in this reference))
-GKYE01:displayfunc.c .text: end not proven (HSD_ZListInitAllocData .. _HSD_ZListClear; neighbour fn_8019C86C)
+GKYE01:displayfunc.c .text: end not proven (HSD_ZListInitAllocData .. HSD_JObjDisp; neighbour fn_8019C918)
 GKYE01:initialize.c .text: start not proven (HSD_InitComponent .. HSD_ObjInit; neighbour HSD_EraseRect)
 GKYE01:controller.c .text: none of its functions is (uniquely) named in ours
 GKYE01:rumble.c .text: none of its functions is (uniquely) named in ours

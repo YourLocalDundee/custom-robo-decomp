@@ -1,4 +1,4 @@
-c-callsite names (tools/check_c_callsites.py): 176 lines in symbols/symbols.txt, 176 OK, 0 FAIL; 2062 names derived from matched C call sites, 52 at a dtk default name, 2 differ from our name, 0 at two addresses, 0 sites without the same relocation
+c-callsite names (tools/check_c_callsites.py): 178 lines in symbols/symbols.txt, 178 OK, 0 FAIL; 2064 names derived from matched C call sites, 53 at a dtk default name, 2 differ from our name, 0 at two addresses, 0 sites without the same relocation
 
 OK   DSPCheckMailToDSP 0x8014A42C: 40 call site(s), all agree; e.g. dolphin/ax/AXOut __AXOutNewFrame+0x4C (0x80145894 REL24)
 OK   PSVECCrossProduct 0x8013A284: 3 call site(s), all agree; e.g. dolphin/mtx/mtx C_MTXLookAt+0x6C (0x80139BAC REL24)
@@ -149,7 +149,9 @@ OK   TEXGetGXTexObjFromPaletteCI 0x80159428: defined there by dolphin/texPalette
 OK   WriteCallback 0x80150C54: defined there by dolphin/card/CARDWrite.c (.text, size 0x170)
 OK   EraseCallback 0x80150DC4: defined there by dolphin/card/CARDWrite.c (.text, size 0xB0)
 OK   CARDWriteAsync 0x80150E74: defined there by dolphin/card/CARDWrite.c (.text, size 0x114)
+OK   CARDFormatAsync 0x8014FEA4: defined there by dolphin/card/CARDFormat.c (.text, size 0x48)
 OK   DVDReadDir 0x8013BC8C: defined there by dolphin/dvd/dvdfs.c (.text, size 0xA4)
+OK   defaultOptionalCommandChecker 0x8013BD30: defined there by dolphin/dvd/dvd.c (.text, size 0x4)
 OK   cbForStateCheckID3 0x8013C9DC: defined there by dolphin/dvd/dvd.c (.text, size 0xFC)
 OK   AXInit 0x80144760: defined there by dolphin/ax/AX.c (.text, size 0x24)
 OK   AXInitEx 0x80144784: defined there by dolphin/ax/AX.c (.text, size 0x4C)
@@ -213,6 +215,7 @@ UNNAMED ptcltgt_callback 0x8044FFE0 (main.elf: lbl_8044FFE0): 2 site(s), e.g. sy
 UNNAMED robj_alloc_data 0x8044B4F8 (main.elf: lbl_8044B4F8): 6 site(s), e.g. sysdolphin/baselib/robj HSD_RObjInitAllocData+0xA (0x801A0A7A ADDR16_HA)
 UNNAMED rvalue_alloc_data 0x8044B524 (main.elf: lbl_8044B524): 8 site(s), e.g. sysdolphin/baselib/robj HSD_RObjInitAllocData+0x22 (0x801A0A92 ADDR16_HA)
 UNNAMED sel$898 0x8024D91C (main.elf: lbl_8024D91C): 6 site(s), e.g. sysdolphin/baselib/texp AssignAlphaKonst+0x2E (0x801A9B4A ADDR16_HA)
+UNNAMED sptcl_callback 0x8044FFE8 (main.elf: lbl_8044FFE8): 2 site(s), e.g. sysdolphin/baselib/displayfunc HSD_JObjDisp+0x40 (0x8019C8AC EMB_SDA21)
 UNNAMED ufc_callbacks 0x8044FFD4 (main.elf: lbl_8044FFD4): 3 site(s), e.g. sysdolphin/baselib/jobj JObjUpdateFunc+0x754 (0x8019793C EMB_SDA21)
 UNNAMED up$1819 0x8024C2B0 (main.elf: lbl_8024C2B0): 2 site(s), e.g. sysdolphin/baselib/cobj CObjLoad+0x12E (0x80191746 ADDR16_HA)
 UNNAMED value0_3 0x80451D80 (main.elf: lbl_80451D80): 2 site(s), e.g. dolphin/axfx/reverb_std HandleReverb+0x26 (0x80148E3A ADDR16_HA)

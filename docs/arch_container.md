@@ -34,15 +34,22 @@ packages. The tool check is in the build log (`--progress=plain`).
 ## Run the pipeline in it
 
 The ISO folder read-only at `/games`, a folder for the log at `/logs` (writable by uid 1000), and optionally the
-`tools/downloads/` of an existing clone read-only at `/cache/downloads` (setup reuses a file there when its SHA-256
-matches `tools/pins.txt`; the git references are still cloned):
+`tools/downloads/` of an existing clone read-only at `/cache/downloads`. The cache is COPIED into the clone's own,
+writable `tools/downloads/`: setup reuses a file there when its SHA-256 matches `tools/pins.txt` and downloads every
+file the cache lacks into the same folder (a symlink to the read-only mount fails there with `curl: (23)`). The git
+references are still cloned. A cache from a Linux clone has every download; one from a Windows clone helps only with
+`compilers_*.zip` (its other files are the Windows builds, and its Ghidra is unpacked, not a `ghidra.zip`):
 
 ```bash
 docker run -d --name cr-arch -v "$HOME/Games:/games:ro" -v "$HOME/archtest/logs:/logs" \
   -v "$HOME/src/custom-robo-decomp/tools/downloads:/cache/downloads:ro" custom-robo-arch sleep infinity
-docker exec cr-arch bash -c 'git pull -q; [ -d /cache/downloads ] && ln -sfn /cache/downloads tools/downloads; nohup bash tools/from_scratch.sh "/games/Custom Robo (USA).iso" > /logs/from_scratch.log 2>&1 &'
+docker exec cr-arch bash -c 'git pull -q; mkdir -p tools/downloads; [ -d /cache/downloads ] && cp -a /cache/downloads/. tools/downloads/; nohup bash tools/from_scratch.sh "/games/Custom Robo (USA).iso" > /logs/from_scratch.log 2>&1 &'
 tail -f "$HOME/archtest/logs/from_scratch.log"
 ```
+
+From Git Bash on Windows (Docker Desktop), put `MSYS_NO_PATHCONV=1` in front of `docker run` / `docker exec`, so the
+container paths (`/games`, `/home/...`) are not turned into Windows paths; the host folders are then given as
+`D:/...`.
 
 It ends with the PASS / FAIL table of `tools/from_scratch.sh`; `docker rm -f cr-arch` removes the container.
 

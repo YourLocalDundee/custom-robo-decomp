@@ -61,7 +61,7 @@ def melee(src_dir):
     fdef = re.compile(r"^[A-Za-z_][\w\s\*]*?\b([A-Za-z_]\w*)\s*\([^;]*$")
     amac = re.compile(r"HSD_ASSERT(?:MSG|REPORT)?\s*\(\s*(0x[0-9A-Fa-f]+|\d+)\s*,\s*(.+?)\s*\)\s*;")
     araw = re.compile(r"__assert\s*\(\s*\w+\s*,\s*(0x[0-9A-Fa-f]+|\d+)\s*,\s*\"(.*?)\"\s*\)")
-    for path in Path(src_dir).rglob("*.c"):
+    for path in sorted(Path(src_dir).rglob("*.c"), key=lambda p: str(p).replace("/", "\\")):   # Windows path order on every OS
         fname = path.stem
         depth, cur = 0, None
         for line in path.read_text(encoding="utf-8", errors="replace").splitlines():

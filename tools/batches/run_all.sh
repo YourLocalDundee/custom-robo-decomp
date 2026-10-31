@@ -55,6 +55,8 @@ names() {
     "$PY" -I "$g/tools/lint_descriptive.py" || die 'symbols/descriptive.txt has problems (see above)'
 }
 
+# 0. the reference checkouts are the setup's: their sources are read as text, other files give other names (step 68b)
+"$PY" -I "$g/tools/check_refs.py" || die 'reference checkouts differ from tools/setup.sh (see above)'
 # 1. the committed starting point
 grepq -v -E '// (layout-proof|lib-candidate) ' "$sym" | crlf > "$sym.tmp" && mv -f "$sym.tmp" "$sym"
 for m in sdk rt hsd; do

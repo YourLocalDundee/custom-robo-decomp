@@ -4,6 +4,8 @@
 # (the configure.py CR_MATCHING objects compiled from decomp/src, every other one from asm), and checks the built main.dol is the retail one (SHA-1 6a73cd11...fb50b).
 #   1. tools/setup_decomp.ps1: template files, pinned build tools, your main.dol (skips what is done)
 #   2. tools/gen_dtk_symbols.py -> config symbols.txt (+ decomp/reports/symbols_report.txt)
+#   2a. tools/sync_game_names.py: a promoted game file (decomp/src/game) calls a function whose name changed since the
+#      previous symbols.txt by its old name: renamed, so the link finds it (batch 12 writes the file again)
 #   3. tools/gen_dtk_splits.py  -> config splits.txt  (+ decomp/reports/splits_report.txt): code objects from the
 #      reference layouts + library sources, data pieces per object from a sections-only scratch link's relocations
 #      (decomp/build/splitdata/, SHA-1 retail) checked against the references' piece sizes
@@ -38,8 +40,17 @@ $exe = if ($IsWindows) { '.exe' } else { '' }
 $ninja = "$g/tools/ninja/ninja$exe"
 
 & "$g/tools/setup_decomp.ps1"
+python -I "$g/tools/check_refs.py"   # gen_dtk_splits.py reads the reference sources: the setup's checkouts only
+if ($LASTEXITCODE) { throw 'reference checkouts differ from tools/setup.ps1 (see above)' }
+# the previous symbols.txt: the promoted game files (decomp/src/game) take the names that changed since (2a)
+$before = "$g/decomp/build/symbols_before_batch9.txt"
+New-Item -ItemType Directory -Force "$g/decomp/build" | Out-Null
+if (Test-Path -LiteralPath "$g/decomp/config/GXCE01/symbols.txt") { Copy-Item -LiteralPath "$g/decomp/config/GXCE01/symbols.txt" $before -Force }
+else { Remove-Item -LiteralPath $before -Force -ErrorAction SilentlyContinue }
 python -I "$g/tools/gen_dtk_symbols.py"
 if ($LASTEXITCODE) { throw 'gen_dtk_symbols.py failed' }
+python -I "$g/tools/sync_game_names.py" $before
+if ($LASTEXITCODE) { throw 'sync_game_names.py failed' }
 python -I "$g/tools/gen_dtk_splits.py"
 if ($LASTEXITCODE) { throw 'gen_dtk_splits.py failed' }
 python -I "$g/tools/gen_dtk_relocs.py"

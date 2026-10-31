@@ -2,6 +2,7 @@
 # Batch 9: the Phase 4 build (plan.md Phase 4 Milestones 1 + 2); batch9_decomp_build.ps1 for Linux / macOS, same steps:
 #   1. tools/setup_decomp.sh: template files, pinned build tools, your main.dol (skips what is done)
 #   2. tools/gen_dtk_symbols.py -> config symbols.txt (+ decomp/reports/symbols_report.txt)
+#   2a. tools/sync_game_names.py: promoted game files renamed to the names that changed since the previous symbols.txt
 #   3. tools/gen_dtk_splits.py  -> config splits.txt  (+ decomp/reports/splits_report.txt)
 #   3b. tools/gen_dtk_relocs.py -> the generated relocation-fix block of config.yml (+ decomp/reports/relocs_report.txt)
 #   4. python configure.py; ninja; a second, forced split must leave the config files byte-identical (a fixpoint)
@@ -21,7 +22,13 @@ retail=6a73cd111ef349b20be294511b8c51a8addfb50b
 ninja="$g/tools/ninja/ninja"
 
 "$g/tools/setup_decomp.sh"
+"$PY" -I "$g/tools/check_refs.py" || die 'reference checkouts differ from tools/setup.sh (see above)'   # gen_dtk_splits.py reads the reference sources: the setup's checkouts only
+# the previous symbols.txt: the promoted game files (decomp/src/game) take the names that changed since (2a)
+before="$d/build/symbols_before_batch9.txt"
+mkdir -p "$d/build"
+if [ -f "$cfg/symbols.txt" ]; then cp -f "$cfg/symbols.txt" "$before"; else rm -f "$before"; fi
 "$PY" -I "$g/tools/gen_dtk_symbols.py" || die 'gen_dtk_symbols.py failed'
+"$PY" -I "$g/tools/sync_game_names.py" "$before" || die 'sync_game_names.py failed'
 "$PY" -I "$g/tools/gen_dtk_splits.py" || die 'gen_dtk_splits.py failed'
 "$PY" -I "$g/tools/gen_dtk_relocs.py" || die 'gen_dtk_relocs.py failed'
 

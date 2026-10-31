@@ -458,7 +458,7 @@ __declspec(section ".sdata") extern cr_Chara *cr_g_CurrentChara;
 void HSD_MObjSetup(HSD_MObj *mobj, u32 rendermode);
 void fn_80095E6C(HSD_JObj *arg0, f32 (*arg1)[4], s32 arg2, s32 arg3);
 extern f32 lbl_8032344C[237];
-void fn_80198144(HSD_JObj *arg0, f32 (*arg1)[4], s32 arg2, s32 arg3);
+void HSD_JObjDispAll(HSD_JObj *arg0, f32 (*arg1)[4], s32 arg2, s32 arg3);
 
 void fn_800BCC60(u32 arg0) {
     s32 var_r31_6;
@@ -474,7 +474,7 @@ void fn_800BCC60(u32 arg0) {
                         fn_80095E6C(cr_g_CurrentChara->root_joint, (f32 (*)[4]) lbl_8032344C, (s32) arg0, 0x04000000);
                     }
                 } else {
-                    fn_80198144(cr_g_CurrentChara->root_joint, (f32 (*)[4]) lbl_8032344C, (s32) arg0, 0);
+                    HSD_JObjDispAll(cr_g_CurrentChara->root_joint, (f32 (*)[4]) lbl_8032344C, (s32) arg0, 0);
                 }
             }
         }

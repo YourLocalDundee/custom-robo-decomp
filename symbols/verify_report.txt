@@ -8,6 +8,7 @@ VERIFIED  80003400 __init_hardware                          ours=0x24 ref=0x24 a
 VERIFIED  80003424 __flush_cache                            ours=0x34 ref=0x34 melee
 VERIFIED  80003458 TRK_memset                               ours=0x30 ref=0x30 melee
 VERIFIED  80003488 TRK_memcpy                               ours=0x24 ref=0x24 melee
+VERIFIED  800053E0 __TRK_reset                              ours=0x2c ref=0x2c ac-decomp
 VERIFIED  8000540C memset                                   ours=0x30 ref=0x30 melee
 VERIFIED  8000543C __fill_mem                               ours=0xb8 ref=0xb8 ac-decomp
 VERIFIED  800054F4 memcpy                                   ours=0x50 ref=0x50 melee
@@ -126,6 +127,8 @@ VERIFIED  80136050 __OSUnmaskInterrupts                     ours=0x88 ref=0x88 m
 VERIFIED  801360D8 __OSDispatchInterrupt                    ours=0x344 ref=0x344 melee
 VERIFIED  8013641C ExternalInterruptHandler                 ours=0x50 ref=0x50 ac-decomp
 VERIFIED  8013646C __OSModuleInit                           ours=0x18 ref=0x18 melee
+VERIFIED  80136484 OSGetPhysicalMemSize                     ours=0xc ref=0xc melee
+MISMATCH  80136490 OnReset                                  ours=0x3c ref=0x50 melee
 VERIFIED  801364CC MEMIntrruptHandler                       ours=0x6c ref=0x6c melee
 VERIFIED  80136538 Config24MB                               ours=0x80 ref=0x80 melee
 VERIFIED  801365B8 Config48MB                               ours=0x80 ref=0x80 melee
@@ -254,6 +257,7 @@ VERIFIED  8013BA60 cbForReadAsync                           ours=0x30 ref=0x30 m
 VERIFIED  8013BA90 DVDReadPrio                              ours=0x118 ref=0x118 ac-decomp
 VERIFIED  8013BBA8 cbForReadSync                            ours=0x24 ref=0x24 ac-decomp
 VERIFIED  8013BBCC DVDOpenDir                               ours=0xc0 ref=0xc0 pikmin2
+VERIFIED  8013BC8C DVDReadDir                               ours=0xa4 ref=0xa4 pikmin2
 VERIFIED  8013BD30 defaultOptionalCommandChecker            ours=0x4 ref=0x4 ac-decomp
 VERIFIED  8013BD34 DVDInit                                  ours=0xcc ref=0xcc ac-decomp
 VERIFIED  8013BE00 stateReadingFST                          ours=0x94 ref=0x94 ac-decomp
@@ -274,6 +278,7 @@ VERIFIED  8013C738 cbForStateCheckID2a                      ours=0x74 ref=0x74 a
 VERIFIED  8013C7AC stateCheckID2                            ours=0x38 ref=0x38 melee
 VERIFIED  8013C7E4 cbForStateCheckID1                       ours=0x114 ref=0x114 melee
 VERIFIED  8013C8F8 cbForStateCheckID2                       ours=0xe4 ref=0xe4 ac-decomp
+VERIFIED  8013C9DC cbForStateCheckID3                       ours=0xfc ref=0xfc melee
 VERIFIED  8013CAD8 AlarmHandler                             ours=0x44 ref=0x44 ac-decomp
 VERIFIED  8013CB1C stateCoverClosed                         ours=0xcc ref=0xcc melee
 VERIFIED  8013CBE8 stateCoverClosed_CMD                     ours=0x30 ref=0x30 melee
@@ -333,6 +338,8 @@ VERIFIED  80140690 VIGetTvFormat                            ours=0x68 ref=0x68 a
 VERIFIED  801406F8 VIGetDTVStatus                           ours=0x3c ref=0x3c melee
 VERIFIED  80140734 __VIDisplayPositionToXY                  ours=0x21c ref=0x21c ac-decomp
 VERIFIED  80140950 __VIGetCurrentPosition                   ours=0x60 ref=0x60 ac-decomp
+VERIFIED  801409B0 ClampCircle                              ours=0x1a8 ref=0x1a8 ac-decomp
+VERIFIED  80140B58 PADClampCircle                           ours=0x10c ref=0x10c ac-decomp
 VERIFIED  80140C64 UpdateOrigin                             ours=0x1a4 ref=0x1a4 melee
 VERIFIED  80140E08 PADOriginCallback                        ours=0xc4 ref=0xc4 melee
 VERIFIED  80140ECC PADOriginUpdateCallback                  ours=0xcc ref=0xcc ac-decomp
@@ -340,6 +347,10 @@ VERIFIED  80140F98 PADProbeCallback                         ours=0xd8 ref=0xd8 m
 VERIFIED  80141070 PADTypeAndStatusCallback                 ours=0x32c ref=0x32c melee
 VERIFIED  8014139C PADReceiveCheckCallback                  ours=0x140 ref=0x140 ac-decomp
 VERIFIED  801414DC PADReset                                 ours=0x110 ref=0x110 ac-decomp
+VERIFIED  801415EC PADRecalibrate                           ours=0x114 ref=0x114 ac-decomp
+VERIFIED  80141700 PADRead                                  ours=0x300 ref=0x300 ac-decomp
+VERIFIED  80141A00 PADControlMotor                          ours=0xb8 ref=0xb8 ac-decomp
+VERIFIED  80141AB8 SPEC2_MakeStatus                         ours=0x470 ref=0x470 ac-decomp
 VERIFIED  80141F28 __PADDisableRecalibration                ours=0x7c ref=0x7c melee
 VERIFIED  80141FA4 AIRegisterDMACallback                    ours=0x44 ref=0x44 melee
 VERIFIED  80141FE8 AIInitDMA                                ours=0x88 ref=0x88 melee
@@ -373,6 +384,8 @@ VERIFIED  801444C4 __ARQCallbackHack                        ours=0x4 ref=0x4 mel
 VERIFIED  801444C8 __ARQInterruptServiceRoutine             ours=0xcc ref=0xcc melee
 VERIFIED  80144594 ARQInit                                  ours=0x70 ref=0x70 ac-decomp
 VERIFIED  80144604 ARQPostRequest                           ours=0x15c ref=0x15c melee
+VERIFIED  80144760 AXInit                                   ours=0x24 ref=0x24 bfbb
+VERIFIED  80144784 AXInitEx                                 ours=0x4c ref=0x4c bfbb
 VERIFIED  801447D0 __AXGetStackHead                         ours=0x18 ref=0x18 melee
 VERIFIED  801447E8 __AXServiceCallbackStack                 ours=0x74 ref=0x74 bfbb
 VERIFIED  8014485C __AXAllocInit                            ours=0xb4 ref=0xb4 melee
@@ -384,6 +397,7 @@ VERIFIED  801449F0 AXFreeVoice                              ours=0x80 ref=0x80 m
 VERIFIED  80144A70 AXAcquireVoice                           ours=0x174 ref=0x174 melee
 VERIFIED  80144BE4 AXSetVoicePriority                       ours=0xa8 ref=0xa8 melee
 VERIFIED  80144C8C __AXAuxInit                              ours=0xe4 ref=0xe4 bfbb
+VERIFIED  80144D70 __AXGetAuxAInput                         ours=0x34 ref=0x34 melee
 VERIFIED  80144DA4 __AXGetAuxAInputDpl2                     ours=0x20 ref=0x20 bfbb
 VERIFIED  80144DC4 __AXGetAuxAOutput                        ours=0x1c ref=0x1c melee
 VERIFIED  80144DE0 __AXGetAuxAOutputDpl2R                   ours=0x20 ref=0x20 bfbb
@@ -393,10 +407,14 @@ VERIFIED  80144E40 __AXGetAuxBInput                         ours=0x34 ref=0x34 m
 VERIFIED  80144E74 __AXGetAuxBOutput                        ours=0x1c ref=0x1c melee
 VERIFIED  80144E90 __AXGetAuxBForDPL2                       ours=0x1c ref=0x1c bfbb
 VERIFIED  80144EAC __AXGetAuxBOutputDPL2                    ours=0x1c ref=0x1c bfbb
+VERIFIED  80144EC8 __AXProcessAux                           ours=0x23c ref=0x23c bfbb
+VERIFIED  80145104 AXRegisterAuxACallback                   ours=0xc ref=0xc melee
 VERIFIED  80145110 AXRegisterAuxBCallback                   ours=0xc ref=0xc melee
 VERIFIED  8014511C __AXGetCommandListCycles                 ours=0x8 ref=0x8 melee
 VERIFIED  80145124 __AXGetCommandListAddress                ours=0x3c ref=0x3c melee
 VERIFIED  80145160 __AXNextFrame                            ours=0x6b0 ref=0x6b0 bfbb
+VERIFIED  80145810 __AXClInit                               ours=0x24 ref=0x24 bfbb
+UNSOURCED 80145834 AXSetMode                                ours=0x14 ref=None 
 VERIFIED  80145848 __AXOutNewFrame                          ours=0x1b8 ref=0x1b8 bfbb
 VERIFIED  80145A00 __AXOutAiCallback                        ours=0xbc ref=0xbc bfbb
 VERIFIED  80145ABC __AXDSPInitCallback                      ours=0xc ref=0xc melee
@@ -404,6 +422,8 @@ VERIFIED  80145AC8 __AXDSPResumeCallback                    ours=0x58 ref=0x58 m
 VERIFIED  80145B20 __AXDSPDoneCallback                      ours=0x2c ref=0x2c bfbb
 VERIFIED  80145B4C __AXOutInitDSP                           ours=0xcc ref=0xcc bfbb
 VERIFIED  80145C18 __AXOutInit                              ours=0x3a0 ref=0x3a0 bfbb
+MISMATCH  80145FB8 AXRegisterCallback                       ours=0x44 ref=0x8 melee
+VERIFIED  80145FFC __AXGetStudio                            ours=0xc ref=0xc melee
 VERIFIED  80146008 __AXPrintStudio                          ours=0x3f8 ref=0x3f8 melee
 VERIFIED  80146400 __AXSPBInit                              ours=0x2c ref=0x2c melee
 VERIFIED  8014642C __AXDepopVoice                           ours=0x94 ref=0x94 melee
@@ -412,6 +432,9 @@ VERIFIED  801464C8 __AXServiceVPB                           ours=0x74c ref=0x74c
 VERIFIED  80146C14 __AXSyncPBs                              ours=0x278 ref=0x278 bfbb
 VERIFIED  80146E8C __AXGetPBs                               ours=0xc ref=0xc melee
 VERIFIED  80146E98 __AXSetPBDefault                         ours=0x40 ref=0x40 bfbb
+VERIFIED  80146ED8 __AXVPBInit                              ours=0x200 ref=0x200 melee
+VERIFIED  801470D8 AXSetVoiceSrcType                        ours=0xc4 ref=0xc4 bfbb
+VERIFIED  8014719C AXSetVoiceState                          ours=0x5c ref=0x5c melee
 CLOSE     801471F8 AXSetVoiceMix                            ours=0x254 ref=0x25c melee
 VERIFIED  8014744C AXSetVoiceItdOn                          ours=0x64 ref=0x64 melee
 VERIFIED  801474B0 AXSetVoiceItdTarget                      ours=0x5c ref=0x5c melee
@@ -426,6 +449,32 @@ VERIFIED  80147808 AXSetVoiceAdpcm                          ours=0xa4 ref=0xa4 m
 VERIFIED  801478AC AXSetVoiceSrc                            ours=0x98 ref=0x98 melee
 VERIFIED  80147944 AXSetVoiceSrcRatio                       ours=0x98 ref=0x98 melee
 VERIFIED  801479DC AXSetVoiceAdpcmLoop                      ours=0x6c ref=0x6c melee
+VERIFIED  80147A48 __AXGetCurrentProfile                    ours=0x48 ref=0x48 melee
+CLOSE     80147A90 ReverbHICreate                           ours=0x588 ref=0x50c marioparty4
+VERIFIED  80148018 DoCrossTalk                              ours=0x190 ref=0x190 melee
+VERIFIED  801481A8 HandleReverb                             ours=0x50c ref=0x50c marioparty4
+MISMATCH  801486B4 ReverbHIFree                             ours=0x124 ref=0xfc melee
+VERIFIED  801487D8 AXFXReverbHiInit                         ours=0x70 ref=0x70 melee
+VERIFIED  80148848 AXFXReverbHiShutdown                     ours=0x4c ref=0x4c melee
+VERIFIED  80148894 AXFXReverbHiCallback                     ours=0x104 ref=0x104 melee
+CLOSE     80148998 ReverbSTDCreate                          ours=0x47c ref=0x428 marioparty4
+MISMATCH  801491C8 ReverbSTDFree                            ours=0x124 ref=0xfc melee
+VERIFIED  801492EC AXFXReverbStdInit                        ours=0x6c ref=0x6c melee
+VERIFIED  80149358 AXFXReverbStdShutdown                    ours=0x4c ref=0x4c melee
+VERIFIED  801493A4 AXFXReverbStdCallback                    ours=0x30 ref=0x30 melee
+VERIFIED  801493D4 do_src1                                  ours=0x198 ref=0x198 melee
+VERIFIED  8014956C do_src2                                  ours=0x1ec ref=0x1ec melee
+MISMATCH  80149758 AXFXChorusInit                           ours=0x248 ref=0x200 melee
+VERIFIED  801499A0 AXFXChorusShutdown                       ours=0x50 ref=0x50 melee
+MISMATCH  801499F0 AXFXChorusSettings                       ours=0x110 ref=0xc4 melee
+VERIFIED  80149B00 AXFXChorusCallback                       ours=0x350 ref=0x350 melee
+VERIFIED  80149E50 AXFXDelayCallback                        ours=0x1d0 ref=0x1d0 melee
+MISMATCH  8014A020 AXFXDelaySettings                        ours=0x2c8 ref=0x204 melee
+VERIFIED  8014A2E8 AXFXDelayInit                            ours=0x48 ref=0x48 melee
+MISMATCH  8014A330 AXFXDelayShutdown                        ours=0xa0 ref=0x90 melee
+MISMATCH  8014A3D0 __AXFXAllocFunction                      ours=0x28 ref=0xc tp
+MISMATCH  8014A3F8 __AXFXFreeFunction                       ours=0x28 ref=0xc tp
+VERIFIED  8014A420 AXFXSetHooks                             ours=0xc ref=0xc melee
 VERIFIED  8014A42C DSPCheckMailToDSP                        ours=0x10 ref=0x10 melee
 VERIFIED  8014A43C DSPCheckMailFromDSP                      ours=0x10 ref=0x10 melee
 VERIFIED  8014A44C DSPReadMailFromDSP                       ours=0x18 ref=0x18 melee
@@ -508,6 +557,9 @@ VERIFIED  80150608 CARDCreateAsync                          ours=0x220 ref=0x220
 VERIFIED  80150828 __CARDSeek                               ours=0x1b8 ref=0x1b8 melee
 VERIFIED  801509E0 ReadCallback                             ours=0x130 ref=0x130 melee
 VERIFIED  80150B10 CARDReadAsync                            ours=0x144 ref=0x144 ac-decomp
+VERIFIED  80150C54 WriteCallback                            ours=0x170 ref=0x170 melee
+VERIFIED  80150DC4 EraseCallback                            ours=0xb0 ref=0xb0 melee
+VERIFIED  80150E74 CARDWriteAsync                           ours=0x114 ref=0x114 melee
 VERIFIED  80150F88 DeleteCallback                           ours=0xa4 ref=0xa4 melee
 VERIFIED  8015102C CARDDeleteAsync                          ours=0x110 ref=0x110 melee
 VERIFIED  8015113C UpdateIconOffsets                        ours=0x1f8 ref=0x1f8 melee
@@ -533,6 +585,7 @@ VERIFIED  80152FB8 __GXFifoReadDisable                      ours=0x24 ref=0x24 m
 VERIFIED  80152FDC __GXFifoLink                             ours=0x34 ref=0x34 ac-decomp
 VERIFIED  80153010 __GXWriteFifoIntEnable                   ours=0x30 ref=0x30 ac-decomp
 VERIFIED  80153040 __GXWriteFifoIntReset                    ours=0x30 ref=0x30 ac-decomp
+VERIFIED  80153070 GXGetGPFifo                              ours=0x8 ref=0x8 ac-decomp
 VERIFIED  80153078 GXSetVtxDesc                             ours=0x26c ref=0x26c ac-decomp
 VERIFIED  801532E4 GXSetVtxDescv                            ours=0x288 ref=0x288 mkdd
 VERIFIED  8015356C __GXSetVCD                               ours=0xbc ref=0xbc ac-decomp
@@ -675,6 +728,9 @@ VERIFIED  80158A40 GXSetClipMode                            ours=0x28 ref=0x28 m
 VERIFIED  80158A68 __GXSetMatrixIndex                       ours=0x84 ref=0x84 melee
 VERIFIED  80158AEC GXSetGPMetric                            ours=0x848 ref=0x848 ac-decomp
 VERIFIED  80159334 GXClearGPMetric                          ours=0x10 ref=0x10 melee
+VERIFIED  80159344 TEXGet                                   ours=0x10 ref=0x10 ttyd
+CLOSE     80159354 TEXGetGXTexObjFromPalette                ours=0xd4 ref=0xdc ttyd
+UNSOURCED 80159428 TEXGetGXTexObjFromPaletteCI              ours=0x108 ref=None 
 VERIFIED  80159530 TRKNubMainLoop                           ours=0xf8 ref=0xf8 ac-decomp
 VERIFIED  80159628 TRKDestructEvent                         ours=0x24 ref=0x24 melee
 VERIFIED  8015964C TRKConstructEvent                        ours=0x18 ref=0x18 melee
@@ -773,6 +829,8 @@ VERIFIED  8015DC00 TRKSaveExtended1Block                    ours=0x1b8 ref=0x1b8
 VERIFIED  8015DDB8 TRKRestoreExtended1Block                 ours=0x1b8 ref=0x1b8 melee
 VERIFIED  8015DF70 InitMetroTRK                             ours=0x94 ref=0x94 melee
 VERIFIED  8015E008 InitMetroTRK_BBA                         ours=0x94 ref=0x94 ac-decomp
+VERIFIED  8015E09C TRK__write_aram                          ours=0x1ec ref=0x1ec ac-decomp
+VERIFIED  8015E288 TRK__read_aram                           ours=0x134 ref=0x134 ac-decomp
 VERIFIED  8015E3BC TRKInitializeTarget                      ours=0x4c ref=0x4c ac-decomp
 VERIFIED  8015E408 __TRK_copy_vectors                       ours=0x12c ref=0x12c ac-decomp
 VERIFIED  8015E534 TRKTargetTranslate                       ours=0x58 ref=0x58 ac-decomp
@@ -937,6 +995,8 @@ VERIFIED  80169394 powf                                     ours=0x24 ref=0x24 b
 VERIFIED  801693B8 tanf                                     ours=0x24 ref=0x24 marioparty4
 VERIFIED  801693DC sinf                                     ours=0x24 ref=0x24 bfbb
 VERIFIED  80169400 cosf                                     ours=0x24 ref=0x24 bfbb
+VERIFIED  80169424 sqrt                                     ours=0x20 ref=0x20 ac-decomp
+VERIFIED  80169444 EXI2_Init                                ours=0x4 ref=0x4 melee
 VERIFIED  80169448 EXI2_EnableInterrupts                    ours=0x4 ref=0x4 melee
 VERIFIED  8016944C EXI2_Poll                                ours=0x8 ref=0x8 melee
 VERIFIED  80169454 EXI2_ReadN                               ours=0x8 ref=0x8 melee
@@ -1106,10 +1166,13 @@ VERIFIED  8018AD48 HSD_StateGetNumTevStages                 ours=0x8 ref=0x8 mel
 VERIFIED  8018AD50 HSD_StateAssignTev                       ours=0x2c ref=0x2c melee
 VERIFIED  8018AD7C HSD_StateSetNumTevStages                 ours=0x30 ref=0x30 melee
 VERIFIED  8018ADAC HSD_SetupTevStage                        ours=0xf8 ref=0xf8 melee
+MISMATCH  8018AEA4 HSD_SetupTevStageAll                     ours=0x13c ref=0x88 kar_wowjinxy
+VERIFIED  8018AFE0 HSD_Channel2Num                          ours=0xb0 ref=0xb0 melee
 VERIFIED  8018B090 HSD_Index2TevStage                       ours=0xd0 ref=0xd0 melee
 VERIFIED  8018B160 HSD_TevStage2Num                         ours=0xd0 ref=0xd0 melee
 VERIFIED  8018B230 HSD_SetTevRegAll                         ours=0xc0 ref=0xc0 xd
 VERIFIED  8018B2F0 HSD_TexCoordID2Num                       ours=0xc8 ref=0xc8 melee
+VERIFIED  8018B3B8 _HSD_StateInvalidateColorChannel         ours=0x58 ref=0x58 melee
 VERIFIED  8018B410 _HSD_StateInvalidateTevStage             ours=0xc ref=0xc melee
 VERIFIED  8018B41C _HSD_StateInvalidateTevRegister          ours=0x20 ref=0x20 melee
 VERIFIED  8018B43C _HSD_StateInvalidateTexCoordGen          ours=0xc ref=0xc melee
@@ -1164,6 +1227,7 @@ CLOSE     8018D548 HSD_LObjGetLightVector                   ours=0x124 ref=0x128
 VERIFIED  8018D66C HSD_LObjSetup                            ours=0x164 ref=0x164 kar_wowjinxy
 CLOSE     8018D7D0 HSD_LObjSetupSpecularInit                ours=0x278 ref=0x284 kar_wowjinxy
 CLOSE     8018DA48 HSD_LObjSetupInit                        ours=0xbbc ref=0xbc8 kar_wowjinxy
+VERIFIED  8018E604 HSD_LObjSetCurrentAll                    ours=0x340 ref=0x340 kar_wowjinxy
 VERIFIED  8018E944 HSD_LObjGetCurrentByType                 ours=0x34 ref=0x34 melee
 VERIFIED  8018E978 HSD_LightID2Index                        ours=0xec ref=0xec melee
 VERIFIED  8018EA64 HSD_Index2LightID                        ours=0x70 ref=0x70 melee
@@ -1262,12 +1326,13 @@ VERIFIED  801971E8 JObjUpdateFunc                           ours=0x944 ref=0x944
 VERIFIED  80197B2C HSD_JObjAnim                             ours=0x164 ref=0x164 kar_wowjinxy
 VERIFIED  80197C90 JObjAnimAll                              ours=0x348 ref=0x348 kar_wowjinxy
 VERIFIED  80197FD8 HSD_JObjAnimAll                          ours=0x3c ref=0x3c kar_wowjinxy
+VERIFIED  80198014 setupInstanceMtx                         ours=0x130 ref=0x130 kar_wowjinxy
+VERIFIED  80198144 HSD_JObjDispAll                          ours=0x544 ref=0x544 kar_wowjinxy
 VERIFIED  80198688 HSD_CObjGetViewingMtxPtrDirect           ours=0x8 ref=0x8 kar_wowjinxy
 VERIFIED  801988FC HSD_JObjLoadJoint                        ours=0xa8 ref=0xa8 melee
 VERIFIED  801989A4 HSD_JObjResolveRefs                      ours=0xf8 ref=0xf8 kar_wowjinxy
 VERIFIED  80198A9C HSD_JObjResolveRefsAll                   ours=0x2d4 ref=0x2d4 kar_wowjinxy
 VERIFIED  80198D70 HSD_JObjRef                              ours=0x54 ref=0x54 kar_wowjinxy
-VERIFIED  80198DC4 HSD_IDGetData                            ours=0x2c ref=0x2c kar_wowjinxy
 VERIFIED  80198DF0 ref_INC                                  ours=0x4c ref=0x4c kar_wowjinxy
 VERIFIED  80198E3C HSD_JObjUnref                            ours=0x148 ref=0x148 kar_wowjinxy
 VERIFIED  80198F84 HSD_JObjUnrefThis                        ours=0xa8 ref=0xa8 kar_wowjinxy
@@ -1302,6 +1367,7 @@ VERIFIED  8019C548 zlist_sort                               ours=0x16c ref=0x16c
 VERIFIED  8019C6B4 _HSD_ZListSort                           ours=0x50 ref=0x50 melee
 VERIFIED  8019C704 _HSD_ZListDisp                           ours=0xc8 ref=0xc8 melee
 VERIFIED  8019C7CC _HSD_ZListClear                          ours=0xa0 ref=0xa0 melee
+EVIDENCE  8019C86C HSD_JObjDisp                             ours=0xac ref=0xd0 melee
 CLOSE     8019C920 HSD_EraseRect                            ours=0x344 ref=0x374 melee
 CLOSE     8019CC64 HSD_InitComponent                        ours=0x108 ref=0x118 melee
 VERIFIED  8019CD6C HSD_GXSetFifoObj                         ours=0x18 ref=0x18 melee
@@ -1327,6 +1393,7 @@ VERIFIED  8019E914 splArcLengthGetParameter                 ours=0x200 ref=0x200
 VERIFIED  8019EB14 splArcLengthPoint                        ours=0x48 ref=0x48 melee
 VERIFIED  8019F5E4 HSD_MtxGetTranslate                      ours=0x1c ref=0x1c melee
 VERIFIED  8019F600 HSD_MtxGetScale                          ours=0x4d8 ref=0x4d8 kar_wowjinxy
+VERIFIED  8019FAD8 HSD_MkRotationMtx                        ours=0x13c ref=0x13c xd
 CLOSE     8019FEEC HSD_MtxSRTQuat                           ours=0x1ac ref=0x1c4 kar_wowjinxy
 VERIFIED  801A0098 HSD_MtxScaledAdd                         ours=0xc4 ref=0xc4 melee
 VERIFIED  801A015C HSD_VecGetOrthogonal                     ours=0xe0 ref=0xe0 kar_wowjinxy
@@ -1392,6 +1459,7 @@ VERIFIED  801A38F8 FogUpdateFunc                            ours=0x230 ref=0x230
 VERIFIED  801A3B28 FogRelease                               ours=0xcc ref=0xcc kar_wowjinxy
 VERIFIED  801A3BF4 FogInfoInit                              ours=0x64 ref=0x64 kar_wowjinxy
 VERIFIED  801A3C58 FogAdjInfoInit                           ours=0x44 ref=0x44 melee
+VERIFIED  801A3C9C HSD_PerfCountEnvelopeBlending            ours=0x5c ref=0x5c melee
 VERIFIED  801A3CF8 HSD_ListInitAllocData                    ours=0x44 ref=0x44 melee
 VERIFIED  801A3D3C HSD_SListAlloc                           ours=0x5c ref=0x5c melee
 CLOSE     801A3D98 HSD_SListAllocAndAppend                  ours=0x80 ref=0x84 melee
@@ -1400,6 +1468,7 @@ VERIFIED  801A3E98 HSD_SListAppendList                      ours=0x70 ref=0x70 m
 VERIFIED  801A3F08 HSD_SListPrependList                     ours=0x50 ref=0x50 melee
 VERIFIED  801A3F58 HSD_SListRemove                          ours=0x50 ref=0x50 kar_wowjinxy
 VERIFIED  801A3FA8 ObjInfoInit                              ours=0x44 ref=0x44 melee
+VERIFIED  801A3FEC _HSD_MemSetCallbacks                     ours=0x74 ref=0x74 kar_wowjinxy
 VERIFIED  801A4060 _HSD_MemAlloc                            ours=0x2c ref=0x2c kar_wowjinxy
 VERIFIED  801A40EC HSD_Free                                 ours=0x30 ref=0x30 kar_wowjinxy
 VERIFIED  801A411C HSD_Alloc                                ours=0x38 ref=0x38 kar_wowjinxy
@@ -1468,4 +1537,26 @@ VERIFIED  801AE7B8 HSD_TExpSimplify2                        ours=0x1fc ref=0x1fc
 VERIFIED  801AE9B4 HSD_SaveContext                          ours=0x98 ref=0x98 kar_wowjinxy
 VERIFIED  801AEA4C __assert                                 ours=0x5c ref=0x5c kar_wowjinxy
 VERIFIED  801AEAA8 HSD_Panic                                ours=0x98 ref=0x98 kar_wowjinxy
-{'VERIFIED': 1435, 'MISMATCH': 3, 'CLOSE': 29, 'EVIDENCE': 3}
+VERIFIED  801AEB40 THPVideoDecode                           ours=0x244 ref=0x244 marioparty4
+VERIFIED  801AED84 __THPSetupBuffers                        ours=0x44 ref=0x44 marioparty4
+VERIFIED  801AEDC8 __THPReadFrameHeader                     ours=0x13c ref=0x13c marioparty4
+VERIFIED  801AEF04 __THPReadScaneHeader                     ours=0x11c ref=0x11c marioparty4
+VERIFIED  801AF020 __THPReadQuantizationTable               ours=0x3bc ref=0x3bc marioparty4
+VERIFIED  801AF3DC __THPReadHuffmanTableSpecification       ours=0x1e0 ref=0x1e0 marioparty4
+VERIFIED  801AF5BC __THPHuffGenerateSizeTable               ours=0xf0 ref=0xf0 marioparty4
+VERIFIED  801AF6AC __THPHuffGenerateCodeTable               ours=0x68 ref=0x68 marioparty4
+VERIFIED  801AF714 __THPHuffGenerateDecoderTables           ours=0x1bc ref=0x1bc melee
+VERIFIED  801AF8D0 __THPRestartDefinition                   ours=0x54 ref=0x54 marioparty4
+VERIFIED  801AF924 __THPPrepBitStream                       ours=0x24c ref=0x24c marioparty4
+VERIFIED  801AFB70 __THPDecompressYUV                       ours=0x10c ref=0x10c marioparty4
+VERIFIED  801AFC7C __THPDecompressiMCURow512x448            ours=0x1a88 ref=0x1a88 marioparty4
+VERIFIED  801B1704 __THPDecompressiMCURow640x480            ours=0x1a8c ref=0x1a8c marioparty4
+VERIFIED  801B3190 __THPDecompressiMCURowNxN                ours=0x1aac ref=0x1aac marioparty4
+VERIFIED  801B4C3C __THPHuffDecodeDCTCompY                  ours=0x67c ref=0x67c melee
+VERIFIED  801B52B8 __THPHuffDecodeDCTCompU                  ours=0x6a8 ref=0x6a8 melee
+VERIFIED  801B5960 __THPHuffDecodeDCTCompV                  ours=0x6a8 ref=0x6a8 melee
+VERIFIED  801B6008 THPInit                                  ours=0xa0 ref=0xa0 mkdd
+VERIFIED  801B60A8 THPAudioDecode                           ours=0x464 ref=0x464 marioparty4
+VERIFIED  801B650C __THPAudioGetNewSample                   ours=0x90 ref=0x90 marioparty4
+VERIFIED  801B659C __THPAudioInitialize                     ours=0x3c ref=0x3c marioparty4
+{'VERIFIED': 1509, 'MISMATCH': 14, 'UNSOURCED': 2, 'CLOSE': 32, 'EVIDENCE': 4}
