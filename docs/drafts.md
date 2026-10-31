@@ -354,10 +354,18 @@ edited. "Changed" = drafts whose text the rule changes (counted over the final m
     `cr_g_CurrentChara->motion_set->turn_r`).
 **Before -> after** (full runs; m2c, compiler, flags unchanged): compile 1,702 -> 1,703 of 1,751 (failures 47 -> 46 + 2 m2c: pointer/array required 11,
 illegal operand 9, explicit / implicit conversions 6 + 8, illegal type 7), **100% MATCH 350 ->
-439**, bytes equal after alignment 428,472 -> 482,760; histogram 0-9% 67 -> 48, 10-19% 93 -> 72, 20-29% 152 -> 106, 30-39% 294 -> 127, 40-49% 136 -> 275, 50-59% 159 -> 144, 60-69% 138 -> 143, 70-79% 156 -> 155, 80-89% 114 -> 134, 90-99% 43 -> 60. **Linked: 407 game objects** (405 promoted, 1 file object, 1 kept; was 342), the
-first FILE OBJECT among them: `game/fn_8005C4D0_fn_8005C4D0.c`, fn_8005C4D0 with its own int-to-float constant
-(.sdata2 0x804509A0-0x804509A8), which no other function uses (round 5's prediction); 0xABF4 bytes = 3.58% of the game
-code; 565 of 894 units from C, 16.72% of all code. Batch 9: main.dol retail SHA-1, every object 100%, static shift PASS.
+439**, bytes equal after alignment 428,472 -> 482,760; histogram 0-9% 67 -> 48, 10-19% 93 -> 72, 20-29%
+152 -> 106, 30-39% 294 -> 127, 40-49% 136 -> 275, 50-59% 159 -> 144, 60-69% 138 -> 143, 70-79% 156 -> 155, 80-89% 114 -> 134,
+90-99% 43 -> 60. **Linked: 408 game objects** (405 promoted, 2 file objects, 1 kept; was 342); the first two FILE
+OBJECTS: `game/fn_8005C4D0_fn_8005C4D0.c`, fn_8005C4D0 with its own int-to-float constant (.sdata2
+0x804509A0-0x804509A8), which no other function uses (round 5's prediction), and `game/fn_800AA130_fn_800AA130.c`,
+fn_800AA130 (a vowel test, a switch) with its own jump table (.data 0x8022B130-0x8022B204):
+`gen_dtk_splits.game_file_data` now takes a data section with relocations when every one is an ADDR32 into the file's
+own code (main.elf must relocate each word to that address; the words are left out of the byte compare), and
+`tools/shift_test.py` puts no insertion point into a piece of a C file with `#pragma force_active` (reassembled from
+dtk's asm, the unreferenced function lost its force_active and mwld stripped it: the control link was not retail).
+0xAC40 bytes = 3.58% of the game code; 566 of 896 units from C, 16.72% of all code, data from C 3.78%. Batch 9:
+main.dol retail SHA-1, every object 100% code + data, static shift PASS; checksums written.
 Not found / left for the next round:
 - the script-command head (`cr_S_BGM_STOP`, `cr_CHAR_MOVE` and about 35 more at 78-85%): the original saves r30 and
   never uses it, evaluates the log index `lbl_803BE358[2]` before the store's base and keeps the counter's address in
@@ -432,6 +440,12 @@ fn_800A54A4 / fn_800A5638 / cr_C_ACT_MOVE_LENG / cr_C_ACT_MOVE 458 (40), closed 
 across files, e.g. 0x80451290 by 52 functions). A function whose conversion constants only it uses links as a
 one-function file object as soon as it matches (10 such functions, e.g. fn_8001EB48, fn_80022830; nearest fn_8005C4D0
 at 85%).
+Step 69: **the first two file objects link**: fn_8005C4D0 (its int-to-float constant) and fn_800AA130 (its jump table:
+a data section of its own with relocations is taken when every relocation is an ADDR32 into the file's own code and
+main.elf relocates that word to the same address). Owned data that only its function uses, by the current drafts (the
+compiled draft's own data, so a draft that matches only with `float_literals` owns that constant too): fn_800EECD0
+36%, cr_FileSys_RegisterPath 42%, fn_8004FF64 51%, fn_800E4958 58%, fn_80021AB0 68%, fn_8002444C 68%, fn_80080E24 78%,
+fn_80053A20 86%, fn_80111EEC 93%: each links by itself once it matches.
 
 ## Using it
 
