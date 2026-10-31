@@ -1900,7 +1900,7 @@ typedef struct cr_ScriptState {
     /* +14C */ u32 map_bef_script[50];      // cr_MAP_BEF_SCRIPT sets an entry, cr_MAP_CLEAR_BEF_SCRIPT clears it
     /* +214 */ u32 map_init_script[50];     // cr_MAP_INIT_SCRIPT / cr_MAP_CLEAR_INIT_SCRIPT
     /* +2DC */ u32 map_no_enter_script[50]; // cr_MAP_NO_ENTER_SCRIPT / cr_MAP_CLEAR_NO_ENTER_SCRIPT
-    /* +3A4 */ char* script_name[16];       // per call depth: cr_SYS_CALL stores the called entry's second word; "NO_READ" at depth 0 in fn_800A0854
+    /* +3A4 */ void* script_name[16];       // per call depth: cr_SYS_CALL stores the called entry's second word (its name string); "NO_READ" at depth 0 in fn_800A0854. void *, not char *: m2c indexes an array of char * by bytes (step 81: cr_SYS_CALL 70 -> 85% with void *)
     /* +3E4 */ u32 unk_3e4;
     /* +3E8 */ u8 unk_3e8;
     /* +3E9 */ u8 unk_3e9[3];
@@ -1966,8 +1966,8 @@ typedef struct cr_ScenarioState {
     /* +280 */ u32 unk_280;
     /* +284 */ u8 unk_284;
     /* +285 */ u8 unk_285[3];
-    /* +288 */ u32 part_bits[5][8];     // per part category (0x20 bytes each): fn_800F21C8 ORs the save data's bitsets (0x803BF79C + 0x20 x category) into words 0-1 and 2-3; what the four 64-bit sets mean is unproven (docs/name_evidence.md, lead 0x803BF79C)
-    /* +328 */ u32 unk_328[2];
+    /* +288 */ u32 part_bits[5][8];     // per part category (0x20 bytes each): fn_800F21C8 ORs the save data's bitsets (cr_g_SaveData.unlocks.parts, 0x803BF79C + 0x20 x category) into words 0-1 and 2-3; with unk_328 this is the shape of cr_UnlockBits (step 81), the scenario's own unlock area (picked by cr_g_GameMode.flags bit 0x800000); kept as words because fn_800EB518's draft repair is written against it
+    /* +328 */ u32 unk_328[2];          // cr_UnlockBits.stages of this area: fn_80125C2C copies it to cr_g_UnlockBits.stages when cr_g_Customize.mode is 1
     /* +330 */ u8 unk_330;              // 2 in cr_Scenario_Reset
     /* +331 */ u8 pickup_battle;        // cr_SYS_PICKUP_BATTLE sets, cr_SYS_PICKUP_BATTLE_END clears
     /* +332 */ u8 unk_332[2];
@@ -1999,6 +1999,131 @@ typedef struct cr_GameMode {
     /* +46 */ u8 unk_46[2];
 } cr_GameMode;
 
+// ---- The save data, the unlock bitsets and two screens' state blocks (plan.md step 81) ------------------------
+
+// ASSERT_SIZE(cr_BattleRecord, 0xC)          3-word stride in cr_Battle_UpdateBodyRecords / cr_Records_BuildBodyRows / cr_Save_ResetData
+// ASSERT_SIZE(cr_UnlockBits, 0xA8)           cr_Save_ResetData copies the 42 words 0x803BF79C..0x803BF843 to 0x804198B0 (dtk's object
+//                                            there is 0xA8); the same shape again at 0x803BF844 and at cr_g_Scenario +0x288
+// ASSERT_SIZE(cr_SaveData, 0x1138)           dtk's one object at 0x803BE7DC; cr_Save_ResetData copies 0x1138 bytes from it into the
+//                                            save image (after a 0x10-byte header, before cr_g_GameMode's 0x48 bytes)
+// ASSERT_SIZE(cr_StageSelectorState, 0x354)  dtk's one object at 0x8041A244, addressed as one base by the 28 functions of the stage
+//                                            selector (cr_SEQ_STAGE_SELECTOR_FrameA / Leave, fn_8010E47C..fn_80113934)
+// ASSERT_SIZE(cr_CustomizeState, 0x1B54)     dtk's one object at 0x8041CDE4, addressed as one base by 22 functions (cr_SEQ_CUSTOMIZE_FrameA,
+//                                            fn_80125884..fn_8012F38C and the sequences that enter the customize screen)
+
+/// Battle counters of one part (cr_g_SaveData.body_records[body]): cr_Battle_UpdateBodyRecords adds 1 (capped at 999) to
+/// battles and to wins or losses from each robo's result bits.
+typedef struct cr_BattleRecord {
+    /* +00 */ u32 battles;
+    /* +04 */ u32 wins;
+    /* +08 */ u32 losses;
+} cr_BattleRecord;
+
+/// The unlock bitsets: five 0x20-byte part categories and the stages. cr_Bits_Set / cr_Bits_Clear / cr_Bits_Test address
+/// bits 0..63 of the set they are given (two words), so each category holds four 64-bit sets.
+typedef struct cr_UnlockBits {
+    /* +00 */ u32 parts[5][8];  // body, gun, bomb, pod, leg (cr_Save_ApplyUnlocks: unlock kinds 4 / 8 / 0x10 / 0x20 / 0x40 go to +0 / +0x20 / +0x40 / +0x60 / +0x80, and fn_80011E08 offsets the same kinds by 0 / cr_g_BodyCount / + cr_g_GunCount ...); set 0 of a category = the owned parts (cr_Text_MaskUnownedSpecialPart; cr_Save_ResetData sets bit 0 of each and clears bits 1..63); fn_800F21C8 ORs sets 0 and 1 of the save into cr_g_Scenario.part_bits
+    /* +A0 */ u32 stages[2];    // 64-bit set of the unlocked stages: cr_StageSelector_Init lists a stage of the id list 0x8023CF00 as open when its bit is set (cr_Bits_Test(cr_g_UnlockBits.stages, id)); cr_Save_ResetData sets bit 0x1D; cr_SYS_BATTLE_RESULT and cr_Save_ApplyUnlocks' kind-2 entries set bits
+} cr_UnlockBits;
+
+/// The save data (cr_g_SaveData, 0x803BE7DC): cr_Save_ResetData writes its defaults, cr_SEQ_BATTLE_FrameA counts the battles.
+typedef struct cr_SaveData {
+    /* +0000 */ u32 battles;                        // +1 on the first frame of every battle (cr_SEQ_BATTLE_FrameA)
+    /* +0004 */ u32 battles_by_mode[3];             // +1 at the same place in the entry cr_g_GameMode.unk_10 (0 / 1 / 2) names
+    /* +0010 */ s32 battles_finished;               // +1 (capped at 999) when the result timer runs out with result bits 0x220 and mode flags 0x8800000 clear (cr_SEQ_BATTLE_FrameA); cr_Save_ApplyUnlocks compares it with the battle thresholds of the unlock table lbl_801E1A24
+    /* +0014 */ u32 unk_014[3];
+    /* +0020 */ cr_BattleRecord body_records[64];   // cr_g_BodyBattleRecords (cr_Battle_UpdateBodyRecords, cr_Records_BuildBodyRows)
+    /* +0320 */ cr_BattleRecord unk_records[4][64]; // four more arrays of the same shape; only cr_Save_ResetData (clears them) addresses them
+    /* +0F20 */ u32 stage_battles[40];              // +1 per battle at [the stage id 0x803756A2] (cr_SEQ_BATTLE_FrameA); 40 = the end mark of the stage id list 0x8023CF00 (cr_StageSelector_Init)
+    /* +0FC0 */ cr_UnlockBits unlocks;              // the save's unlock bits (0x803BF79C); the other area is cr_g_Scenario.part_bits (0x803BFB9C), picked by cr_g_GameMode.flags bit 0x800000
+    /* +1068 */ cr_UnlockBits new_unlocks;          // cr_Save_ApplyUnlocks sets the bit of what it has just unlocked here as well (parts at 0x803BF844.., stages at 0x803BF8E4); fn_800F21C8 reads them; cr_Save_ResetData clears them
+    /* +1110 */ u32 used_parts[5][2];               // per category a 64-bit set: cr_SEQ_BATTLE_FrameA sets the bit of the first battle robo's body / gun / bomb / pod / leg (u16 at 0x8024E120 +0x1CC..+0x1D4) when mode flag 0x8000000 is set
+} cr_SaveData;
+
+/// The stage selector screen's state (cr_g_StageSelector, 0x8041A244). cr_StageSelector_Init fills it from the stage id
+/// list 0x8023CF00 and cr_g_UnlockBits.stages; cr_StageSelector_Update runs the handler table 0x8023BFEC[state] every frame.
+typedef struct cr_StageSelectorState {
+    /* +000 */ u8 state;              // index into the handler table 0x8023BFEC (cr_StageSelector_Update); 2 under mode flag 0x2000000 (cr_StageSelector_Init)
+    /* +001 */ u8 unk_001;            // cursor = unk_001 + unk_002 * 6 + unk_004 * 6 (cr_StageSelector_Init)
+    /* +002 */ u8 unk_002;
+    /* +003 */ u8 unk_003;
+    /* +004 */ u8 unk_004;            // 5 becomes 4 with unk_002 = 1 (cr_StageSelector_Init)
+    /* +005 */ u8 stage_count;        // stages listed in stage_ids (cr_StageSelector_Init)
+    /* +006 */ u8 stage;              // the selected stage id: = stage_ids[cursor]; cr_StageSelector_Init starts from the stage id 0x803756A2
+    /* +007 */ u8 cursor;             // index into stage_ids
+    /* +008 */ u32 timer;             // 0x3C in cr_StageSelector_Init
+    /* +00C */ u8 ready;              // 1 when the two animation states are 4 and their flags 1 (cr_StageSelector_Update)
+    /* +00D */ u8 unk_00d;
+    /* +00E */ u8 unk_00e[2];
+    /* +010 */ u32 flags;             // bit 1 (set under mode flag 0x2000000; seq flag 0x100 instead of camera mode), 2 (camera mode 0x10, return to the previous sequence), 4 (no cursor handling), 0x80 (a sound on exit); the most-read field (17 functions)
+    /* +014 */ s8 stage_ids[42];      // the listed stage ids from 0x8023CF00 (ids 10 and 11 and the unnamed ones skipped)
+    /* +03E */ u16 stage_msgs[42];    // per listed stage the u16 at 0x8020F802 + id * 0x340
+    /* +092 */ u8 stage_open[42];     // 1 when the stage's bit is set in cr_g_UnlockBits.stages (always 1 under flags 1 / 2)
+    /* +0BC */ u8 unk_0bc;
+    /* +0BD */ u8 unk_0bd;
+    /* +0BE */ u8 unk_0be;
+    /* +0BF */ u8 unk_0bf;            // 1: cr_StageSelector_Init presets stage 0x27
+    /* +0C0 */ u8 unk_0c0[2];
+    /* +0C2 */ u8 unk_0c2;
+    /* +0C3 */ u8 unk_0c3[7];         // bytes cleared by fn_80111040
+    /* +0CA */ u8 unk_0ca[2];
+    /* +0CC */ f32 unk_0cc;           // fn_8010E47C: two floats, then the u16s 600 / 0xF8 / 0x3E
+    /* +0D0 */ f32 unk_0d0;
+    /* +0D4 */ u32 unk_0d4;
+    /* +0D8 */ u16 unk_0d8;
+    /* +0DA */ u16 unk_0da;
+    /* +0DC */ u16 unk_0dc;
+    /* +0DE */ u16 unk_0de;
+    /* +0E0 */ u8 unk_0e0[0x5C];
+    /* +13C */ void* unk_13c;         // the object fn_8008EE04(9, ...) returns in fn_8010E47C
+    /* +140 */ u8 windows[8][0x34];   // eight text windows for the stage names (fn_8010E47C: fn_8008C5F0 setup, fn_8008EE04 object at +0x30 of each)
+    /* +2E0 */ u8 unk_2e0[0x68];
+    /* +348 */ u32 unk_348;
+    /* +34C */ u8 unk_34c;
+    /* +34D */ u8 unk_34d[3];
+    /* +350 */ u8 unk_350;
+    /* +351 */ u8 unk_351[3];
+} cr_StageSelectorState;
+
+/// The customize screen's state (cr_g_Customize, 0x8041CDE4). Only the head and the tail are known field by field.
+typedef struct cr_CustomizeState {
+    /* +0000 */ u8 mode;              // cr_Customize_SetMode's argument (cr_SEQ_CUSTOMIZE_FrameA, fn_80111CE8 pass it); fn_80125C2C branches on 1 / 2 / other
+    /* +0001 */ u8 prev_mode;         // the mode before cr_Customize_SetMode
+    /* +0002 */ u8 unk_0002;          // 0 in cr_Customize_SetMode and fn_80125C2C
+    /* +0003 */ u8 unk_0003;
+    /* +0004 */ u8 unk_0004;          // 0..3 from mode and cr_g_Scenario.slot_index (fn_80125C2C); cr_SEQ_BATTLE_FrameA reads
+    /* +0005 */ u8 unk_0005;
+    /* +0006 */ u8 unk_0006;          // 0 in fn_80125C2C; cr_SEQ_SCENARIO_Enter stores
+    /* +0007 */ u8 unk_0007;
+    /* +0008 */ u8 unk_0008[0x1A00];
+    /* +1A08 */ u32 unk_1a08[4];
+    /* +1A18 */ f32 unk_1a18;         // stfs in fn_80128F20 / fn_8012BD68 / fn_8012CE1C
+    /* +1A1C */ f32 unk_1a1c;
+    /* +1A20 */ f32 unk_1a20;
+    /* +1A24 */ u32 unk_1a24[5];
+    /* +1A38 */ u32 unk_1a38;
+    /* +1A3C */ u32 unk_1a3c;
+    /* +1A40 */ u32 unk_1a40;
+    /* +1A44 */ u32 unk_1a44;
+    /* +1A48 */ u32 unk_1a48;
+    /* +1A4C */ u32 unk_1a4c;
+    /* +1A50 */ u32 unk_1a50;
+    /* +1A54 */ u32 unk_1a54;
+    /* +1A58 */ u32 unk_1a58;
+    /* +1A5C */ u32 unk_1a5c;
+    /* +1A60 */ u32 unk_1a60;
+    /* +1A64 */ u32 unk_1a64;
+    /* +1A68 */ u8 unk_1a68[0xCC];
+    /* +1B34 */ u32 unk_1b34;
+    /* +1B38 */ u32 unk_1b38;
+    /* +1B3C */ u32 unk_1b3c;
+    /* +1B40 */ u32 unk_1b40;
+    /* +1B44 */ u32 unk_1b44;
+    /* +1B48 */ u32 unk_1b48;
+    /* +1B4C */ u32 unk_1b4c;
+    /* +1B50 */ u32 unk_1b50;
+} cr_CustomizeState;
+
 // ---- Prototypes of our descriptive functions (symbols/descriptive.txt) -----------------------------------
 
 void cr_FileSys_Init(void);
@@ -2027,5 +2152,10 @@ void cr_Cam_SetMode(u8 mode);
 void cr_Motion_Play(u32 request, u32 frame);
 void cr_Motion_PlayFromFrame1(u32 id);
 void cr_Scenario_Reset(void);
+// step 81: the 64-bit set helpers (word = bit >> 5, mask = 1 << (bit & 0x1F)) and the word copy cr_Save_ResetData uses
+void cr_Bits_Clear(u32* set, u32 bit);
+void cr_Bits_Set(u32* set, u32 bit);
+u32 cr_Bits_Test(u32* set, u32 bit);
+void cr_Mem_CopyWords(void* dst, void* src, u32 bytes);
 
 #endif

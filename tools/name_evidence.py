@@ -8,7 +8,7 @@ Sources (all from the game's own main.dol):
   3. robo bodies   - the body codes in the file names of the body pictures (archive 36, CR_S1_<code>.tpl) and the two
                     names at the start of each body stats record (0x801C6C44, 0x134 per body), by body number
                     (plan.md step 71, docs/robo_tables.md).
-  4. leads         - behaviour seen in the code that is not proven enough for a name yet (LEADS below, kept by hand).
+  4. leads         - behaviour seen in the code that is not proven enough for a name yet (LEADS below, kept by hand; plan.md steps 71, 79, 81).
 Writes docs/name_evidence.md (and docs/name_tables.tsv). Nothing is applied: names go into symbols/ by hand, quoting
 this evidence (CONTRIBUTING.md, "real names first").
 usage: python -I tools/name_evidence.py
@@ -42,8 +42,7 @@ LEADS = [
     ('0x80066948', '(message file, message) -> text of bmg/info*.bin; fn_80066948 is called from decomp/src'),
     ('0x801DE868', 'a second copy of the weapon / body request lists (16 weapon + 4 body requests, 0xFF ends, buffer '
                    'offsets); no code or data reference found'),
-    ('0x803BF79C', 'part bitsets, one save area (5 categories x 0x20 bytes = 4 x 64 bits); 0x803BFB9C is the other area, '
-                   'picked by mode flag 0x800000 of 0x80321D40; what the two areas and sets 2-4 mean is unproven'),
+    ('0x803BF79C', "the save's unlock bits (cr_g_SaveData.unlocks, a cr_UnlockBits since step 81: five part categories x four 64-bit sets, then the stage set); cr_g_Scenario.part_bits (0x803BFB9C, picked by cr_g_GameMode.flags bit 0x800000) has the same shape; set 0 of a category is the owned parts, sets 1-3 are not traced"),
     ('0x800F9014', 'part name + description for a menu cursor (the cr_Text_Get*Name of the category, '
                    'cr_Text_MaskUnownedSpecialPart, cr_Text_GetPartDescription into 0x80400604); fn_800F8820 not traced'),
     ('0x800A63C0', 'part viewer / new-part screen: category 0x803BFC95, part 0x803BFC96, opens chara.bin entry part x 5 '
@@ -51,13 +50,16 @@ LEADS = [
     ('0x80065DB0', 'two 0x28-byte windows at 0x8032CC20: state +0 = 3 when +8 is set (close request?); caller cr_SYS_WINDOW_CLOSE'),
     ('0x8012481C', 'menu sprites 0x8044F860 / 0x8044F85C: flag 1 and part ids chosen from bits 2..0x20; screen unknown'),
     # step 79: the next data objects of the base-register scan (addressed as one struct from `lis/addi` of the object), untyped
-    ('0x8041A244', '0x354-byte state block addressed as one base by 27 functions (49 byte / word fields); what it belongs to is not traced'),
-    ('0x804198B0', '42 words that cr_Save_ResetData copies from the save data 0x803BF79C.. (the part bitsets area): a working copy, name pending its readers'),
-    ('0x8041CDE4', '0x1B54-byte block, 19 functions: byte fields at +0..+6 and words at +0x1A18..; not traced'),
-    ('0x8031F020', '0x188-byte block read as 57 word fields by 7 functions; not traced'),
-    ('0x803BE7DC', 'the save data (0x1138): five 0x300-byte record arrays (cr_g_BodyBattleRecords is the first) and the part bitsets at +0xFC0; a struct would type cr_Save_ResetData / fn_800F21C8'),
-    ('0x8044F774', 'while it is set the script dispatcher runs only commands >= 0x121 (289..299) and flags the others as an error; its meaning is unproven'),
-    ('0x800A0804', 'calls fn_800F5448 / fn_800F21C8 with (slot, area) and clears bit 0x400 of cr_g_ScenarioSlotPtr->status: a load of a scenario slot; its draft is 95% with the typed pointer (one pointer load short)'),
+    ('0x8031F020', "the movie player's state (0x188): cr_SEQ_MOVIE_FrameB / FrameC and fn_800177F0 / fn_80017E10 / fn_8001838C / fn_80018630 / fn_80018844 (DVDOpen / DVDReadAsyncPrio / strcmp) read 57 word fields and the bytes +0xA4..+0xA7 from one base; cr_SEQ_MOVIE_FrameA addresses it as lbl_8031B5A0 + 0x3A80 (one base register for several .bss objects of the same source file); field meanings not traced"),
+    ('0x800A0804', '(n): fn_800F5448(n >> 1), fn_800F21C8(n >> 1, n & 1), then clears bit 0x400 of cr_g_ScenarioSlotPtr->status; called by cr_SEQ_SCENARIO_Enter: a load of save slot n >> 1 into the scenario if fn_800F21C8 (0x3280 bytes, ORs cr_g_SaveData.unlocks into cr_g_Scenario.part_bits and reads new_unlocks) is that load; its draft is 95% with the typed pointer (one pointer load short)'),
+    ('0x801E1A24', "the unlock table of cr_Save_ApplyUnlocks: 12-byte entries {battles_finished threshold (3, 6, 9, ...), kind << 16 (0x40000 body, 0x80000 gun, 0x100000 bomb, 0x200000 pod, 0x400000 leg, 0x10000 mode, 0x20000 stage), item}; dtk's 0x56C object is not a multiple of 12 and ends in a list 0x22..0x26 and three code pointers, so its end is open"),
+    ('0x80011E08', "(unlock entry*): queues the item per kind at 0x8031BF54 / 0x8031BFCC / 0x8031C044 / 0x8031C0BC / 0x8031C134 ..., parts offset by the category counts: the menus' new-item announcements, if those lists are what they show"),
+    ('0x803756A2', 'the current stage id (u8, inside lbl_8037569C of 0x25C4): cr_StageSelector_Init starts from it, cr_SEQ_BATTLE_FrameA counts the battle at cr_g_SaveData.stage_battles[it], fn_8010FD38 / fn_80111040 / fn_800B0CF8 / fn_800BB034 / fn_800BC5C8 write it; the object around it is not typed'),
+    ('0x8031B5A0', "0x784 by dtk, but cr_SEQ_MOVIE_FrameA keeps its address in r31 and addresses +0x3514..+0x3B0C through it (lbl_8031F020 and beyond): the logo / movie code's .bss objects 0x8031B5A0..0x8031F1A8 come from one source file; fn_80009A90 writes most of its first 0x240 bytes"),
+    ('0x80392A44', "4 object pointers: fn_80089FB8 / fn_8008A030 / fn_8008A0A8 clear / set bit 0 of each one's first word, fn_80089F40 ORs their +0x18 words; set by fn_8008ACEC, read by the customize screen (fn_80124F5C / fn_8012F3C4); kind of object unknown"),
+    ('0x8031BEC4', "the name entry screen's state (0x14: three words and a byte at +0x10) of cr_SEQ_NAME_ENTRY_FrameA and fn_8000B258 / fn_8000B42C / fn_8000B55C / fn_8000B878 / fn_8000C104; field meanings not traced"),
+    ('0x80330D1C', 'a 0x30-byte text window parameter block (byte, two floats, bytes, a float, four bytes, a byte, a float, a word) written whole by each of the nine window creators fn_800672AC / fn_80067904 / fn_80069DA4 / fn_8006A00C / fn_8006A1A8 / fn_8006A344 / fn_8006A4E0 / fn_8006A7D8 / fn_8006B144: the style of the window being created'),
+    ('0x80111CE8', "the stage selector's two exits (cr_StageSelector_Update result 0 / 1): fn_80111CE8 returns cr_g_SeqPrevious, or SEQ_MODE_SELECTOR unless cr_g_StageSelector.flags & 2, and calls cr_Customize_SetMode(cr_g_Customize.mode) when that is SEQ_MENU; fn_80111D50 not read"),
 ]
 
 
@@ -146,7 +148,7 @@ def main():
         en = ''.join(c if 0x20 <= ord(c) < 0x7F else '?' for c in cstr(rec + 0x20, 0x20).decode('latin1'))
         jp = cstr(rec, 0x20).decode('shift_jis', 'replace')
         lines.append(f'| {b} | {code} | {en} | {jp} |')
-    lines += ['', '## Leads (by hand, plan.md steps 71 and 79): behaviour seen, not proven enough for a name yet', '',
+    lines += ['', '## Leads (by hand, plan.md steps 71, 79 and 81): behaviour seen, not proven enough for a name yet', '',
               '| address | lead |', '|---|---|']
     lines += [f'| {a} | {t} |' for a, t in LEADS]
     lines.append('')
