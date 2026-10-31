@@ -58,7 +58,8 @@ M2C = os.path.join(G, 'tools/m2c')
 # on a u8 * where it loads a halfword. m2c knows the access width (its type is the load's), so m2c_run.py wraps it in
 # m2c's own M2C_FIELD(p, T *, 0) when the pointer's C element size (p's declared type; for `p + x` the pointer
 # operand's) is known and is not the access's (an untyped `void *` / integer base is left to the repair rules). The pinned m2c checkout is not changed: the wrapper patches the class at run time.
-M2C_WIDTH = r'''import m2c.translate as _t
+M2C_WIDTH = r'''import re
+import m2c.translate as _t
 _fmt = _t.StructAccess.format
 
 
@@ -93,12 +94,42 @@ def _scalar(ty):
 
 def _width_format(self, fmt):
     s = _fmt(self, fmt)
-    if not fmt.valid_syntax or self.offset != 0 or not s.startswith('*'):
+    if not fmt.valid_syntax or self.offset != 0:
         return s
     var = _t.late_unwrap(self.struct_var)
     want = self.type.get_size_bytes()
-    if not want or not _scalar(self.type) or s != '*' + var.format(fmt):
+    if not s.startswith('*'):
+        # step 69: m2c's own array spelling of `*(a + i)`, `lbl_801F10C0[(x * 4) & 0xFC]` on a u8[] where the code
+        # loads a word (fn_8001B3F0): the access's width at that byte offset
+        if want in (2, 4) and isinstance(var, _t.BinaryOp) and var.op == '+' and _target_size(var.left) == 1 \
+                and _t.late_unwrap(var.right).type.is_int() and s.startswith(var.left.format(fmt) + '[') \
+                and not re.fullmatch(r'sp[0-9A-F]+', _t.format_expr(var.right, fmt)):   # a stack slot m2c reuses as a pointer
+            t = _t.Type.ptr(self.type).format(fmt) if _scalar(self.type) else ('u32 *' if want == 4 else 'u16 *')
+            return 'M2C_FIELD(%s, %s, %s)' % (var.left.format(fmt), t, _t.format_expr(var.right, fmt))
+        inner = _t.late_unwrap(var.expr) if isinstance(var, _t.AddressOf) else None
+        if want in (2, 4) and isinstance(inner, _t.ArrayAccess) and _target_size(inner.ptr) == 1 \
+                and _t.late_unwrap(inner.index).type.is_int() \
+                and not re.fullmatch(r'sp[0-9A-F]+', _t.format_expr(inner.index, fmt)):
+            t = _t.Type.ptr(self.type).format(fmt) if _scalar(self.type) else ('u32 *' if want == 4 else 'u16 *')
+            return 'M2C_FIELD(%s, %s, %s)' % (inner.ptr.format(fmt), t, _t.format_expr(inner.index, fmt))
         return s
+    if not want or s != '*' + var.format(fmt):
+        return s
+    if not _scalar(self.type):
+        # step 69: a word / halfword m2c could not tell from a pointer (its int-or-pointer type) read from a byte array
+        # (`(u32) *(lbl_8024E120 + i * 0x33520) != 0`, dtk's untyped data: a lbz where the original has lwz:
+        # fn_8000768C, fn_800BC9A4, fn_8010D2D0): the access's own width
+        if want in (2, 4) and _target_size(var) == 1:
+            return 'M2C_FIELD(%s, %s, 0)' % (var.format(fmt), 'u32 *' if want == 4 else 'u16 *')
+        return s
+    if isinstance(var, _t.BinaryOp) and var.op == '+':
+        # step 69: `*(chara->motion_set + i * 2)` on a struct pointer (m2c's offset is in bytes, C would scale it by the
+        # struct): the access with its own width at that byte offset (cr_C_ACT_MOT: lhzx, the repair rule read a u32)
+        for p, n in ((var.left, var.right), (var.right, var.left)):
+            pt = _t.late_unwrap(p).type
+            tgt = pt.get_pointer_target() if pt.is_pointer() else None
+            if tgt is not None and tgt.is_struct() and _t.late_unwrap(n).type.is_int():
+                return 'M2C_FIELD(%s, %s, %s)' % (p.format(fmt), _t.Type.ptr(self.type).format(fmt), _t.format_expr(n, fmt))
     have = _target_size(var)
     if have is None or have == want:
         return s
@@ -111,8 +142,11 @@ _afmt = _t.ArrayAccess.format
 def _array_width_format(self, fmt):
     # `lbl_801F10C0[i]` on a u8[] where the code loads a word: the index is a byte offset there
     want = self.type.get_size_bytes()
-    if fmt.valid_syntax and want and want > 1 and _scalar(self.type) and _target_size(self.ptr) == 1:
-        return 'M2C_FIELD(%s, %s, %s)' % (self.ptr.format(fmt), _t.Type.ptr(self.type).format(fmt), _t.format_expr(self.index, fmt))
+    if fmt.valid_syntax and want and want > 1 and _target_size(self.ptr) == 1:
+        if _scalar(self.type):
+            return 'M2C_FIELD(%s, %s, %s)' % (self.ptr.format(fmt), _t.Type.ptr(self.type).format(fmt), _t.format_expr(self.index, fmt))
+        if want in (2, 4):   # step 69: m2c's int-or-pointer word (fn_8001B3F0), as in _width_format
+            return 'M2C_FIELD(%s, %s, %s)' % (self.ptr.format(fmt), 'u32 *' if want == 4 else 'u16 *', _t.format_expr(self.index, fmt))
     return _afmt(self, fmt)
 
 
@@ -165,10 +199,23 @@ def game_functions(with_lib=False):
     funcs, jt, lib = [], {}, {}
     for asm, obj in unit_files():
         cur, buf, addr, size, blk = None, [], 0, 0, None
+        nf, nl = len(funcs), len(lib)
+        local, daddr = {}, None   # a C object's own jump tables ("@16", step 69): renamed jumptable_<address>
         for l in open(asm, encoding='utf-8', errors='replace').read().split(chr(10)):
             m = HDR.match(l)
             if m:
                 addr, size = int(m.group(1), 16), int(m.group(2), 16)
+            m = re.match(r'^# \.\w+:0x[0-9A-Fa-f]+ \| 0x([0-9A-F]{8}) \|', l)
+            if m:
+                daddr = m.group(1)
+            m = re.match(r'^\.obj "(@\d+)", local', l)
+            if m and not cur and daddr:
+                local[m.group(1)] = 'jumptable_%s' % daddr
+                blk = [local[m.group(1)], []]
+                continue
+            if blk and re.match(r'^\s+\.rel \S+, (\.L_[0-9A-F]{8})\s*$', l):
+                blk[1].append('\t.4byte ' + re.match(r'^\s+\.rel \S+, (\.L_[0-9A-F]{8})', l).group(1))
+                continue
             m = FN.match(l)
             if m:
                 cur, buf = m.group(1), [l]
@@ -186,10 +233,23 @@ def game_functions(with_lib=False):
             if m:
                 blk = [m.group(1), []]
             elif blk and l.startswith('.endobj'):
-                jt[blk[0]] = blk[1]
+                if blk[0] in local.values() and not all(re.match(r'^\t\.4byte \.L_', x) for x in blk[1] if x.strip()):
+                    # a local object that is not a jump table (a constant, a string): not renamed, not copied
+                    local = {k: v for k, v in local.items() if v != blk[0]}
+                else:
+                    jt[blk[0]] = blk[1]
                 blk = None
             elif blk:
                 blk[1].append(l)
+        if local:
+            # the functions of this object name their table "@16"; the copied table is jumptable_<address>
+            def ren(t):
+                t = list(t)
+                t[3] = [re.sub(r'"(@\d+)"', lambda m: local.get(m.group(1), m.group(0)), x) for x in t[3]]
+                return tuple(t)
+            funcs[nf:] = [ren(f) for f in funcs[nf:]]
+            for k in list(lib)[nl:]:
+                lib[k] = ren(lib[k])
     funcs.sort(key=lambda f: f[1])
     return (funcs, jt, lib) if with_lib else (funcs, jt)
 
@@ -436,6 +496,44 @@ def narrow_returns(sigs, rets):
         if m:
             sigs[fn] = (sigs[fn][0], next(iter(ts)) + ' ' + sig[len(m.group(1)) + 1:])
             n += 1
+    return n
+
+
+EXTERN_PARAMS = re.compile(r'^(?:(?:unsigned |signed )?\w+(?: \*+)?) (\w+)\(([^;{}()]*)\);\s*/\* extern \*/', re.M)
+FLIP = {'u8': 's8', 's8': 'u8', 'u16': 's16', 's16': 'u16'}
+
+
+def narrow_params(sigs, params):
+    """callee parameter signedness (step 69): every first-pass caller declares its unknown callee with the argument
+    types its own code passes (`M2C_UNK fn_80098104(s32, u8, s32, f32); /* extern */`: it clears the high bits,
+    `clrlwi r4,r0,24`), the callee's own draft types its parameter by its own use (`s8 arg1`). When most of the callers
+    that type that argument say the byte / halfword type of the other signedness and the others only s32 / u32 (a
+    constant), the prototype (ctx_protos.h) takes the callers' type: as `s8` every caller's draft added an `extsb` (fn_8005C4D0's
+    `(s8) (u8) x`). The callee's own draft keeps its signature. params: {fn: [tuple of the types, per caller]}.
+    Changes sigs in place; returns how many parameters."""
+    n = 0
+    for fn, decls in params.items():
+        if fn not in sigs:
+            continue
+        sig = sigs[fn][1]
+        m = re.match(r'^(.*?\b%s\()(.*)(\);)$' % re.escape(fn), sig)
+        if not m or m.group(2).strip() in ('', 'void'):
+            continue
+        own = [p.strip() for p in m.group(2).split(',')]
+        changed = False
+        for i, p in enumerate(own):
+            pm = re.match(r'^(u8|s8|u16|s16) (\w+)$', p)
+            if not pm:
+                continue
+            # callers that pass a constant say M2C_UNK (ignored) or s32 / u32 (no width of their own)
+            got = [d[i] for d in decls if i < len(d) and d[i] != 'M2C_UNK']
+            flip = FLIP[pm.group(1)]
+            if got.count(flip) * 2 > len(got) and set(got) <= {flip, 's32', 'u32'}:
+                own[i] = '%s %s' % (FLIP[pm.group(1)], pm.group(2))
+                changed = True
+                n += 1
+        if changed:
+            sigs[fn] = (sigs[fn][0], m.group(1) + ', '.join(own) + m.group(3))
     return n
 
 
@@ -750,11 +848,36 @@ def drop_same_casts(body):
             vt_t, deref = vt[what]
             if vt_t == t and deref == bool(star) and not (m.start() > 0 and re.match(r'[\w)\]]', body[m.start() - 1])):
                 keep = False
+        elif what != 'M2C_FIELD(' and what in vt and not star and body[m.end():m.end() + 1] == '[':
+            # step 69: `(u8) lbl_8044F885[3] == 0` on a u8 array: the element's own type (cr_SEQ_MODE_SELECTOR_Leave)
+            e = body.find(']', m.end())
+            vt_t, deref = vt[what]
+            if e > 0 and '[' not in body[m.end() + 1:e] and deref and vt_t == t and cmp.match(body, e + 1) \
+                    and not (m.start() > 0 and re.match(r'[\w)\]]', body[m.start() - 1])):
+                keep = False
         if keep:
             out.append(body[i:m.end()])
         else:
             out.append(body[i:m.start()] + star + what)
         i = m.end()
+    return ''.join(out)
+
+
+def drop_same_field_casts(body):
+    """`(s32) M2C_FIELD(x, s32 *, n)` anywhere (not only in a comparison, drop_same_casts): a variant (step 69), since
+    the cast moves registers both ways at level 0 (fn_8001838C's `x.A8 = (s32) x.64; x.C0 = 0;` hands r6 / r7 out in
+    another order with it; cr_C_ACT_TURN_POINT needs its `(s16)`)"""
+    out, i = [], 0
+    for m in re.finditer(r'\((%s)\) M2C_FIELD\(' % '|'.join(SCALARS), body):
+        if m.start() < i:
+            continue
+        e = close_paren(body, m.end() - 1)
+        if e < 0 or not re.search(r', %s \*, [^,()]+$' % m.group(1), body[m.end():e]) \
+                or (m.start() > 0 and re.match(r'[\w)\]]', body[m.start() - 1])):
+            continue
+        out.append(body[i:m.start()])
+        i = m.start() + len(m.group(1)) + 3
+    out.append(body[i:])
     return ''.join(out)
 
 
@@ -794,9 +917,116 @@ def table_call_args(body):
     return ''.join(out)
 
 
+def table_call_self(body):
+    """`temp_r3 = table + i * 4; *temp_r3(temp_r3, x);`: a call through a table slot whose own address m2c also passes
+    as the first argument, because the original computed the slot's address in r3 (`add r3,r0,r3; lwz r12,0(r3);
+    mtctr r12; bctrl`, fn_8005C4D0; step 69): the slot's address is not an argument of the source's call. The other
+    registers m2c passes are kept (table_call_noargs, a variant, drops them as well)."""
+    return re.sub(r'(?<![\w)\]])(\*(\w+)\()\2(?:, |(?=\)))', r'\1', body)
+
+
+def table_call_noargs(body):
+    """a variant (step 69): `*temp(a, b);` -> `(*(M2C_UNK (**)()) temp)();` for a call through a pointer variable (the
+    repair rule's spelling of such a call): m2c passes whatever the argument registers held at the call
+    (fn_8005C4D0's r4 is still the script pointer it loaded the index through)"""
+    return re.sub(r'^([ \t]+)\*((?!M2C_)\w+)\([^()]*\);$', r'\1(*(M2C_UNK (**)()) \2)();', body, flags=re.M)
+
+
+def chain_assign(body):
+    """a variant (step 69): `A = v; B = v;` (v a name or a constant, A and B of the same type: two fields of the same
+    `T *` or two names) -> `B = A = v;`, the source's chained assignment: the compiler hands the second address another
+    register than for two statements (fn_80114214: `arg0->x6 = lbl->x6 = arg1` style, the base in r4)"""
+    pat = re.compile(r'^([ \t]+)(M2C_FIELD\([^;\n]*?, ([\w ]+\*), [^,()\n]+\)|\w+) = (\w+);\n\1(M2C_FIELD\([^;\n]*?, ([\w ]+\*), [^,()\n]+\)|\w+) = \4;$', re.M)
+
+    def fix(m):
+        if (m.group(3) or '') != (m.group(6) or '') or m.group(2) == m.group(5):
+            return m.group(0)
+        return '%s%s = %s = %s;' % (m.group(1), m.group(5), m.group(2), m.group(4))
+    return pat.sub(fix, body)
+
+
+def negate(cond):
+    """the negation of a condition, `x == 0` -> `x != 0` for one comparison, else `!(cond)`"""
+    m = re.fullmatch(r'(\w+) (==|!=) (\w+)', cond)
+    if m:
+        return '%s %s %s' % (m.group(1), '!=' if m.group(2) == '==' else '==', m.group(3))
+    return '!(%s)' % cond
+
+
+def invert_early_returns(body):
+    """a variant (step 69): `if (c) { return; } rest` at the end of the function (only closing braces after rest)
+    -> `if (!c) { rest }`: the same control flow, which the compiler lays out as `bne rest; b end` where m2c's
+    early return is one `beq end` (fn_80095D7C, Melee's HSD_JObjSetupMatrix inline: `if (dirty) Sub(jobj);`)"""
+    lines = body.split('\n')
+    for i in range(len(lines) - 2):
+        m = re.match(r'^(\s+)if \((.+)\) \{$', lines[i])
+        if not m or lines[i + 1] != m.group(1) + '    return;' or lines[i + 2] != m.group(1) + '}':
+            continue
+        ind = m.group(1)
+        j = i + 3
+        while j < len(lines) and (lines[j].startswith(ind) or not lines[j].strip()):
+            j += 1
+        rest = lines[i + 3:j]
+        if not any(x.strip() for x in rest) or any(re.search(r'\breturn\b|\bgoto\b|^\w+:', x.strip()) for x in rest):
+            continue
+        tail = lines[j:]
+        if not all(re.fullmatch(r'\s*\}?\s*', x) for x in tail):
+            continue
+        lines[i:j] = ['%sif (%s) {' % (ind, negate(m.group(2)))] + [('    ' + x) if x.strip() else x for x in rest] + [ind + '}']
+        return '\n'.join(lines)
+    return body
+
+
+def widen_masked_bytes(body):
+    """a variant (step 69): a local `u8 v;` (u16 alike) whose every assignment is `v = (u8) (E);` (or a load of a u8 field) becomes a u32 that
+    takes `(E) & 0xFF`: m2c types a register by the `rlwinm` that extracted its byte, but as a byte the compiler masks
+    it again where it is used (`rlwinm r0,r30,2,22,29` for `v * 4` where the original has `slwi r0,r30,2`;
+    fn_8005C628). The same values: v only ever holds the masked byte."""
+    for m in list(re.finditer(r'^    (u8|u16) (\w+);$', body, re.M)):
+        t, v = m.group(1), m.group(2)
+        n = re.escape(v)
+        asg = re.findall(r'^\s+%s = \(%s\) (.+);$' % (n, t), body, re.M)
+        # (also a byte / halfword loaded from a field of its own width, `v = M2C_FIELD(p, u8 *, 0x8C);`: the load
+        # zero-extends, so as a u32 it needs no mask either; fn_80077648 & co.'s `slwi` index)
+        loads = re.findall(r'^\s+%s = M2C_FIELD\([^;]*, %s \*, [^,()]+\);$' % (n, t), body, re.M)
+        writes = len(re.findall(r'\b%s\s*(?:[-+*/%%&|^]|<<|>>)?=(?!=)|\b%s\s*(?:\+\+|--)|(?:\+\+|--)\s*%s\b' % (n, n, n), body))
+        if not (asg or loads) or writes != len(asg) + len(loads):
+            continue
+        mask = '0xFF' if t == 'u8' else '0xFFFF'
+        body = body.replace(m.group(0), '    u32 %s;' % v, 1)
+        body = re.sub(r'^(\s+%s = )\(%s\) (.+);$' % (n, t),
+                      lambda a: '%s%s & %s;' % (a.group(1), a.group(2) if a.group(2).startswith('(')
+                                                and close_paren(a.group(2), 0) == len(a.group(2)) - 1 else '(' + a.group(2) + ')', mask),
+                      body, flags=re.M)
+    return body
+
+
+def redundant_returns(body):
+    """a variant (step 69): `if (c) { ...; return; }` followed by a `return;` of the same block (or by the end of the
+    function): the inner return is dropped. m2c writes a return wherever the code reaches the epilogue, the compiler
+    emits each one as its own `blr` in a leaf function; the original has one (fn_8008BA44's switch case: one blr after
+    the if where the draft had two). The same meaning."""
+    pat = re.compile(r'^([ \t]+)if \(([^\n]*)\) \{\n((?:\1    [^\n]*\n|[ \t]*\n)*?)\1    return;\n\1\}\n(?=\1return;\n|\}\n)', re.M)
+    return pat.sub(lambda m: '%sif (%s) {\n%s%s}\n' % (m.group(1), m.group(2), m.group(3), m.group(1)), body)
+
+
 def double_negation(body):
     """m2c prints a negation of a negation as `--(x)` (fnmsub forms), which C reads as a decrement (`not an lvalue`)"""
     return re.sub(r'(?<![\w)\]+-])--\(', '- -(', body)
+
+
+def narrow_int_casts(body):
+    """`(u8) (s32) (f * x)`: m2c's two casts of a float converted to a byte / halfword (its (s32) is the fctiwz); the
+    compiler converts `(u8) (s32) f` with an extra `clrlwi` after the fctiwz, `(u8) f` takes the converted word as it is,
+    as the original does (fn_8005C4D0's argument; step 69). For an integer operand both spellings are the same code."""
+    return re.sub(r'\((u8|s8|u16|s16)\) \(s32\) \(', r'(\1) (', body)
+
+
+def minus_one_stores(body):
+    """`lbl_8041A244[0x350] = -1U;` (m2c's -1 of an unsigned store, from `li r0,-1`): stored through a byte / halfword,
+    -1U is 0xFF / 0xFFFF to the compiler (`li r0,255`), the original stored the int -1 (`li r0,-1`; fn_80111E54; step
+    69). `= -1` gives the same bits for a word and the original's li for a byte / halfword."""
+    return re.sub(r'(?<![=!<>]) = -1U;', ' = -1;', body)
 
 
 def unsigned_const_stores(body):
@@ -860,7 +1090,8 @@ def assert_ternary(body):
     return pat.sub(lambda m: '%s(%s) ? (void) 0 : %s\n' % (m.group(1), m.group(2), m.group(3)), body)
 
 
-REGVAR = re.compile(r'^\s+[^;=()]*?\b(?:var|temp)_([rf])(\d+)_\w*(?:\[\w*\])*;\s*$')
+# (step 69: also m2c's --reg-vars names, `var_r29` without the `_N` suffix)
+REGVAR = re.compile(r'^\s+[^;=()]*?\b(?:var|temp)_([rf])(\d+)(?:_\w*)?(?:\[\w*\])*;\s*$')
 
 
 def top_level_binop(ex):
@@ -914,7 +1145,23 @@ def param_copies(body):
     return rename_param_copies(body, copy)
 
 
-def rename_param_copies(body, which):
+def assigned(name, text):
+    '''True when text assigns name (`name = `, `name += `, `name++`, `--name`)'''
+    n = re.escape(name)
+    return bool(re.search(r'\b%s\s*(?:[-+*/%%&|^]|<<|>>)?=(?!=)|\b%s\s*(?:\+\+|--)|(?:\+\+|--)\s*%s\b' % (n, n, n), text))
+
+
+def param_aliases(body):
+    '''`var_r31 = arg0;` among the first statements, with var_r31 assigned nowhere else and arg0 never assigned: the
+    two always hold the same value, so the copy is the parameter itself kept in its callee-saved register (as
+    param_copies, which only takes a parameter used once; m2c's --reg-vars drafts name the parameter after the copy as
+    well: fn_8001D05C; step 69). Not in a leaf function (param_copies says why); a variant leaves it out.'''
+    if W.get('leaf'):
+        return body
+    return rename_param_copies(body, lambda v, a: not param_home(v, a), alias=True)
+
+
+def rename_param_copies(body, which, alias=False):
     lines = body.split('\n')
     for i, l in enumerate(lines):
         dm = DEF.match(l)
@@ -927,10 +1174,12 @@ def rename_param_copies(body, which):
                 params[pm.group(2)] = re.sub(r'\s+', '', pm.group(1))
         text = '\n'.join(lines)
         for a, t in params.items():
-            if len(re.findall(r'\b%s\b' % a, text)) != 2:
+            if not alias and len(re.findall(r'\b%s\b' % a, text)) != 2:
                 continue
             cm = re.search(r'^    (\w+) = %s;\n' % a, text, re.M)
             if not cm:
+                continue
+            if alias and (assigned(a, text) or assigned(cm.group(1), text.replace(cm.group(0), ''))):
                 continue
             # only a copy among the first statements (the prologue's): a later `sp8 = arg1;` is a real local
             # (fn_8005A668)
@@ -949,6 +1198,151 @@ def rename_param_copies(body, which):
             text = re.sub(r'\b%s\b' % v, a, text)
         return text
     return body
+
+
+VOLATILE = re.compile(r'^(?:temp|var)_(?:r(?:0|[3-9]|1[0-2])|f(?:[0-9]|1[0-3]))_\w+$')
+SIMPLE_STMT = re.compile(r'^(\s+)(?!if\b|while\b|for\b|return\b|goto\b|case\b|default\b|switch\b|do\b)[^{}\n]*;$')
+LOCAL_DECL = re.compile(r'^    ([A-Za-z_][\w ]*?\**)\s*\b(\w+);$')
+FPTR_DECL = re.compile(r'^    ()[^;=\n]*?\(\*+(\w+)\)\([^;\n]*\);$')   # `M2C_UNK (**temp_r3_84)(M2C_UNK, u8 *);`
+CASTS = {'M2C_FIELD', 'u8', 's8', 'u16', 's16', 'u32', 's32', 'f32', 'f64', 'void'}
+
+
+def ctx_arrays():
+    """the names the context declares as arrays (`extern u32 lbl_803BE358[289];`), read once per process"""
+    if 'arrays' not in W:
+        try:
+            text = open(os.path.join(W['out'], 'ctx.h'), encoding='utf-8').read()
+        except OSError:
+            text = ''
+        W['arrays'] = set(re.findall(r'^(?:CR_SECTION\("[^"]+"\) )?extern [^;()\n]*?\b(\w+)\[\d*\];$', text, re.M))
+    return W['arrays']
+
+
+def address_only(ex):
+    """True when ex reads no memory through a pointer and calls nothing: names, `&name[i]`, `name[i]` of an array,
+    arithmetic and casts (a `*` only as a multiplication or in a cast)"""
+    if re.search(r'->|M2C_FIELD|\w\s*\(|\.', ex):
+        return False
+    s = re.sub(r'\((?:const |struct |unsigned |signed )*\w+(?: \*+)?\)', '', ex)
+    if re.search(r'(?:^|[^\w)\]\s])\s*\*', s):
+        return False
+    return all(m.group(1) in ctx_arrays() for m in re.finditer(r'\b(\w+)\s*\[', ex))
+
+
+def read_names(ex):
+    """the names whose value ex reads: not an array whose address only it takes (`&a[i]`, a bare `a`); `a[i]` reads a"""
+    arrays = ctx_arrays()
+    out = set()
+    for m in re.finditer(r'\b[A-Za-z_]\w*\b', ex):
+        n = m.group(0)
+        if n in CASTS:
+            continue
+        if n in arrays:
+            after = ex[m.end():].lstrip()
+            before = ex[:m.start()].rstrip()
+            if not after.startswith('[') or before.endswith('&'):
+                continue
+        out.add(n)
+    return out
+
+
+def written_base(stmt):
+    """the named object a simple statement writes (`lbl_803BE358[2] += 1;` -> lbl_803BE358, `x = ...` -> x,
+    `M2C_FIELD(&a[i], s32 *, 8) = ...` -> a), when it writes one named object and calls nothing; else None"""
+    m = re.match(r'^\s+(.+?)\s*(?:[-+*/%&|^]|<<|>>)?=(?!=)(.*);$', stmt) or re.match(r'^\s+(\w+)()(?:\+\+|--);$', stmt)
+    if not m or re.search(r'\b\w+\s*\(', m.group(2).replace('M2C_FIELD(', '(')):
+        return None
+    lhs = m.group(1)
+    for p in (r'^(\w+)$', r'^(\w+)\[(?:[^\[\]=]|\[[^\[\]]*\])*\]$',
+              r'^M2C_FIELD\(&(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?, [\w ]+\*, [^,()]+\)$',
+              r'^M2C_FIELD\((\w+), [\w ]+\*, [^,()]+\)$'):
+        lm = re.match(p, lhs)
+        if lm and (p == r'^(\w+)$' or lm.group(1) in ctx_arrays() or p.startswith(r'^M2C_FIELD\(&')):
+            return lm.group(1)
+    return None
+
+
+def inline_volatile_temps(body):
+    """a temporary m2c names after a volatile register (`temp_r0_9`, `temp_f1_27`: r0, r3-r12, f0-f13) assigned once
+    and used once was an expression of the source, not a variable: at level 0 the compiler gives every C local a
+    callee-saved register of its own (r31 / f31 down), so as a variable it took one the original never saves (the
+    `stw r30` / `lwz r30` class; fn_8008C3B4). Its expression goes back into its use (step 69):
+    - next to each other, or with statements in between that only update locals the expression does not read: in place;
+    - when the statements in between only update locals the expression reads (`temp = (i << 5) + 0x1B; i += 1;
+      p[temp] = 0xFF`: the scheduler moved the loop's `addi` before the store), the use comes first and those
+      statements after it, as the source had them (`p[(i << 5) + 0x1B] = 0xFF; i += 1;`), when the use does not read
+      them either.
+    Only within one block (same indentation, simple statements in between); a type narrower than 32 bits keeps its
+    cast."""
+    lines = body.split('\n')
+    dm = next((DEF.match(l) for l in lines if DEF.match(l)), None)
+    if not dm:
+        return body
+    locs = set(re.findall(r'^    [A-Za-z_][\w ]*?\**\s*\b(\w+)(?:\[\w*\])*;$', body, re.M))
+    locs |= set(re.findall(r'\b(f?arg\d+)\b', dm.group(3)))
+    while True:
+        for dk, l in enumerate(lines):
+            m = LOCAL_DECL.match(l) or FPTR_DECL.match(l)
+            if not m or not VOLATILE.match(m.group(2)):
+                continue
+            v, t = m.group(2), m.group(1).strip()
+            pat = re.compile(r'\b%s\b' % re.escape(v))
+            occ = [k for k, x in enumerate(lines) if k != dk and pat.search(x)]
+            if len(occ) != 2 or sum(len(pat.findall(lines[k])) for k in occ) != 2:
+                continue
+            i, j = occ
+            dmm = re.match(r'^(\s+)%s = (.+);$' % re.escape(v), lines[i])
+            if not dmm:
+                continue
+            ind, ex = dmm.group(1), dmm.group(2)
+            if not lines[j].startswith(ind) or lines[j][len(ind)] in ' }':
+                continue
+            mid = lines[i + 1:j]
+            if any(not SIMPLE_STMT.match(x) or not x.startswith(ind) or x[len(ind)] == ' ' for x in mid):
+                continue
+            ids = set(re.findall(r'\b[A-Za-z_]\w*\b', ex)) - CASTS
+            written, ok = set(), True
+            # an expression of locals only (no memory, no call): any simple statements may stand in between that do
+            # not assign those locals (fn_8001D05C: `temp_f1_27 = var_f31;` returned after three stores)
+            pure = ids <= locs and not re.search(r'[*\[]|\w\s*\(', re.sub(r'\((?:%s)\)' % '|'.join(SCALARS), '', ex))
+            if pure and not any(assigned(x, '\n'.join(mid)) for x in ids):
+                mid = []
+            elif mid and address_only(ex):
+                # an address of named objects (`&lbl_803BE358[lbl_8044F770]`: no load through a pointer, no call)
+                # past statements that only write named objects it does not read (`lbl_803BE358[2] += 1;`): two
+                # named objects never overlap, so the address is the same at the use (the script commands'
+                # common head, cr_S_BGM_STOP & co.; step 69)
+                bases = [written_base(x) for x in mid]
+                if all(bases) and not (set(bases) & read_names(ex)):
+                    mid = []
+            for x in mid:
+                lm = re.match(r'^\s+(\w+)\s*(?:[-+*/%&|^]|<<|>>)?=(?!=)(.*);$', x) or re.match(r'^\s+(\w+)(\+\+|--);$', x)
+                if not lm or lm.group(1) not in locs or re.search(r'[*\[]|\w\s*\(', lm.group(2)) \
+                        or (set(re.findall(r'\b[A-Za-z_]\w*\b', lm.group(2))) - locs - CASTS):
+                    ok = False
+                    break
+                written.add(lm.group(1))
+            if not ok:
+                continue
+            new = ex if re.fullmatch(r'[\w.]+', ex) or (ex.startswith('(') and close_paren(ex, 0) == len(ex) - 1) else '(' + ex + ')'
+            if t in ('u8', 's8', 'u16', 's16') or (t.endswith('*') and t not in ('void *', 'M2C_UNK *')):
+                # the temporary's own type: a narrower integer is truncated, and a pointer keeps its element type
+                # (fn_80005D38: `u16 *temp_r5 = lbl_80386378 + i * 0x34; *temp_r5 |= 2;` on the u8 array is a lhz / sth)
+                new = '(%s) %s' % (t, new if new.startswith('(') else '(' + new + ')')
+                if t.endswith('*'):
+                    new = '(%s)' % new   # `((cr_Chara *) (&a[i]))->flags`: the cast before the -> / [
+            use = pat.sub(lambda _: new, lines[j], count=1)
+            if written & ids:
+                uses = set(re.findall(r'\b[A-Za-z_]\w*\b', lines[j])) - {v}
+                if not SIMPLE_STMT.match(lines[j]) or (written & uses):
+                    continue
+                lines = lines[:i] + [use] + mid + lines[j + 1:]
+            else:
+                lines = lines[:i] + lines[i + 1:j] + [use] + lines[j + 1:]
+            del lines[dk]
+            break
+        else:
+            return '\n'.join(lines)
 
 
 def signed_fields(body):
@@ -972,6 +1366,108 @@ def signed_fields(body):
         i = e + 1
     out.append(body[i:])
     return ''.join(out)
+
+
+def unsigned_fields(body):
+    """`(u16) M2C_FIELD(x, s16 *, n)` -> `M2C_FIELD(x, u16 *, n)` (u8 / s8 alike; step 69): a field m2c typed signed by
+    another use, read here as unsigned; as written the compiler loads it signed and clears the sign again
+    (`lha r0 / clrlwi r0,r0,16` where the original has one `lhz`: cr_C_ACT_TURN_POINT). The same value. A variant:
+    cr_C_ACT_MOVE's `countdown = (u16) M2C_FIELD(p, s16 *, 0xC);` matches only as m2c wrote it."""
+    out, i = [], 0
+    for m in re.finditer(r'\((u8|u16)\) M2C_FIELD\(', body):
+        if m.start() < i:
+            continue
+        e = close_paren(body, m.end() - 1)
+        if e < 0:
+            continue
+        inner = body[m.end():e]
+        fm = re.search(r', s%s \*, ([^,()]+)$' % m.group(1)[1:], inner)
+        if not fm:
+            continue
+        out.append(body[i:m.start()] + 'M2C_FIELD(' + inner[:fm.start()] + ', %s *, %s)' % (m.group(1), fm.group(1)))
+        i = e + 1
+    out.append(body[i:])
+    return ''.join(out)
+
+
+DOL = os.path.join(D, 'orig/GXCE01/sys/main.dol')
+
+
+def dol_reader():
+    """read(addr, size) of main.dol (decomp/orig, read only), through the DOL header's section table"""
+    d = open(DOL, 'rb').read()
+    offs = struct.unpack('>18I', d[0:0x48])
+    addrs = struct.unpack('>18I', d[0x48:0x90])
+    sizes = struct.unpack('>18I', d[0x90:0xD8])
+
+    def read(a, n):
+        for o, s, z in zip(offs, addrs, sizes):
+            if s <= a and a + n <= s + z:
+                return d[o + a - s:o + a - s + n]
+        return None
+    return read
+
+
+def float_text(v, double):
+    """the shortest C literal that is exactly v (as f32, or as f64), or None (NaN / infinity)"""
+    if v != v or v in (float('inf'), float('-inf')):
+        return None
+    for digits in range(1, 18):
+        t = '%.*g' % (digits, v)
+        try:
+            back = float(t) if double else struct.unpack('>f', struct.pack('>f', float(t)))[0]
+        except OverflowError:
+            continue
+        if back == v:
+            break
+    if v == int(v) and abs(v) < 1e15:
+        t = '%d.0' % v
+    elif not re.search(r'[.eE]', t):
+        t += '.0'
+    elif t.startswith('.') or t.startswith('-.'):
+        t = t.replace('.', '0.', 1)
+    t += '' if double else 'f'
+    return '(%s)' % t if t.startswith('-') else t
+
+
+def pool_floats():
+    """{name: C literal} of the float / double constants of .sdata2 (dtk's data:float / data:double objects of
+    symbols.txt, their values from main.dol), read once per process"""
+    if 'floats' not in W:
+        out = {}
+        try:
+            read = dol_reader()
+        except OSError:
+            read = None
+        for l in open(os.path.join(D, 'config/GXCE01/symbols.txt'), encoding='utf-8') if read else ():
+            m = re.match(r'^(lbl_[0-9A-F]{8}) = \.sdata2:0x([0-9A-F]+); // type:object size:0x([48])\b.*\bdata:(float|double)\b', l)
+            if not m:
+                continue
+            a, double = int(m.group(2), 16), m.group(4) == 'double'
+            if int(m.group(3)) != (8 if double else 4):
+                continue
+            b = read(a, 8 if double else 4)
+            if b is None:
+                continue
+            t = float_text(struct.unpack('>d' if double else '>f', b)[0], double)
+            if t:
+                out[m.group(1)] = t
+        W['floats'] = out
+    return W['floats']
+
+
+def float_literals(body):
+    """a float / double constant of .sdata2 read by name (`M2C_FIELD(p, f32 *, 0x28) = lbl_80450CB0;`) written as the
+    literal it holds (`0.0f`): the source wrote literals, and the compiler allocates a literal's register differently
+    from an extern's (three stores of 0.0f load f0, f1, f0 with the second load moved up; three of an extern float f0,
+    f0, f0: fn_80079C70, fn_8001CA84; step 69). The literal is the compiler's own pool constant (the file's .sdata2
+    entry at that address: the compare masks the relocation); a variant, because the extern form matches elsewhere."""
+    fl = pool_floats()
+    if not fl:
+        return body
+    pat = re.compile(r'(?<![&\w])(lbl_[0-9A-F]{8})\b(?!\s*(?:\[|=[^=]|\+=|-=|\*=|/=))')
+    return '\n'.join(l if re.search(r'\bextern\b', l) else pat.sub(lambda m: fl.get(m.group(1), m.group(1)), l)
+                     for l in body.split('\n'))
 
 
 def void_null(body):
@@ -1196,9 +1692,12 @@ def byte_steps(body):
 def postprocess(body, skip=(), add=()):
     """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
     for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
-              signed_fields, compound_assign, drop_same_casts, while_loops, table_call_args, unsigned_const_stores,
+              signed_fields, unsigned_fields, compound_assign, drop_same_casts, drop_same_field_casts, while_loops,
+              table_call_args, table_call_self, table_call_noargs, narrow_int_casts, minus_one_stores,
+              unsigned_const_stores, redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign,
               double_negation, assert_ternary, mixed_externs, byte_steps, same_type_copies, param_regs, param_homes,
-              param_copies, register_order, narrow_minus_one, void_null):
+              param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, void_null,
+              float_literals):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -1206,9 +1705,24 @@ def postprocess(body, skip=(), add=()):
 
 # rules only a variant applies, and the variants a near draft is also tried with (one(), step 64), in this order:
 # (rules left out, optional rules applied)
-OPTIONAL = (void_null, param_homes)
+OPTIONAL = (void_null, param_homes, float_literals, drop_same_field_casts, table_call_noargs, unsigned_fields,
+            redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign)
 VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
-            ((), (void_null,)), ((register_order,), (void_null,)))
+            ((), (void_null,)), ((register_order,), (void_null,)),
+            # step 69
+            ((inline_volatile_temps,), ()), ((param_aliases,), ()), ((), (float_literals,)), ((), (drop_same_field_casts,)),
+            ((), (table_call_noargs,)), ((), (unsigned_fields,)), ((), (redundant_returns,)), ((), (widen_masked_bytes,)),
+            ((), (invert_early_returns,)), ((), (chain_assign,)))
+
+
+VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this
+REG_VARS = ','.join(['r%d' % i for i in range(14, 32)] + ['f%d' % i for i in range(14, 32)])
+
+
+def regvar_cleanup(body):
+    """m2c --reg-vars (REG_VARS) also turns the epilogue's restores it cannot read into statements
+    (`var_f31 = M2C_ERROR(/* psq_l unimplemented */);`): they go (the compiler writes its own epilogue)"""
+    return re.sub(r'^[ \t]*\w+ = M2C_ERROR\(/\* (?:psq_l|lfd|lwz|lmw) unimplemented \*/\);[ \t]*\n', '', body, flags=re.M)
 
 
 # ---- the repair loop: one fix per compiler message, checked by compiling again -------------------------------------------
@@ -1569,6 +2083,18 @@ def repair(lines, e):
     if msg == 'call of non-function':
         # `*(table + i * 4)(args)` / `*obj(args)` / `table[i](args)`: a call through a pointer m2c could not type; the
         # address is cast to a pointer to a pointer to an unprototyped function (the arguments pass as they are)
+        for m in re.finditer(r'M2C_FIELD\(', s):
+            # step 69: `M2C_FIELD(table + i * 4, u32 *, 0)(args)`, the width form of a word read from a byte array
+            # (M2C_WIDTH) that is a function pointer: the call through the slot at that address
+            e = close_paren(s, m.end() - 1)
+            if e < 0 or s[e + 1:e + 2] != '(':
+                continue
+            args, _ = split_args(s, m.end() - 1)
+            if args and len(args) == 3 and args[1].strip() == 'u32 *':
+                base, off = args[0].strip(), args[2].strip()
+                addr = unbracket(base) if off == '0' else '(u8 *) %s + %s' % (wrap(base), wrap(off))
+                lines[ln - 1] = table_call_args(s[:m.start()] + '(*(M2C_UNK (**)()) (' + addr + '))' + s[e + 1:])
+                return 'call through a function pointer'
         for m in re.finditer(r'\*\(', s):
             args, end = split_args(s, m.end() - 1)
             if args is not None and end < len(s) and s[end] == '(' and not s[m.start() - 1:m.start()].isalnum():
@@ -1798,8 +2324,11 @@ def one(job):
     c = os.path.join(out, 'c', name + '.c')
     o = os.path.join(out, 'obj', name + '.o')
     lg = os.path.join(out, 'log', name + '.txt')
-    rc, so, se = run([sys.executable, '-I', os.path.join(out, 'm2c_run.py'), '-t', 'ppc-mwcc-c', '--context',
-                      os.path.join(out, 'ctx_pp.c'), '--valid-syntax', '--deterministic-vars', '--stack-structs', '-f', name, a], 120)
+    def m2c(extra=()):
+        return run([sys.executable, '-I', os.path.join(out, 'm2c_run.py'), '-t', 'ppc-mwcc-c', '--context',
+                    os.path.join(out, 'ctx_pp.c'), '--valid-syntax', '--deterministic-vars', '--stack-structs']
+                   + list(extra) + ['-f', name, a], 120)
+    rc, so, se = m2c()
     body = so.replace('\r\n', '\n')
     if rc != 0 or not re.search(r'^\S.*\b%s\s*\(' % re.escape(name), body, re.M) or 'Decompilation failure' in body:
         msg = (se.strip().splitlines() or body.strip().splitlines() or ['no output'])[-1][:90]
@@ -1811,7 +2340,7 @@ def one(job):
         # the data objects m2c declares itself, and the functions it declares itself (`u8 fn_80099538(M2C_UNK); /*
         # extern */`: the return type this caller's code needs)
         return name, signature(name, body), (re.findall(r'^extern ([\w ]+ \**)(lbl_[0-9A-F]{8});', body, re.M),
-                                             re.findall(EXTERN_FN, body)), 0
+                                             re.findall(EXTERN_FN, body), re.findall(EXTERN_PARAMS, body)), 0
     m2c_body = body
     orig = orig_elf(orig_obj).func(name)
     W['leaf'] = not re.search(r'\bbl\s', open(a, encoding='utf-8').read())
@@ -1855,28 +2384,60 @@ def one(job):
     if p is None:
         open(lg, 'w', encoding='utf-8').write(eq)
         return name, 'compile failed', compile_error(eq) if '\n' in eq or 'Error' in eq else eq, 0
-    # VARIANTS (step 64): the two post-processing rules whose evidence is not in the draft itself (which register a
-    # local gets, whether the original worked on the parameter or on a copy) are tried both ways when the draft does not
-    # match and is close (40% or more): the variant that scores higher is kept (first one on a tie: the full rules)
-    if p < 100 and p >= 40:
+    # VARIANTS (step 64): the post-processing rules whose evidence is not in the draft itself (which register a local
+    # gets, whether the original worked on the parameter or on a copy, ...) are tried both ways when the draft does not
+    # match: the variant that scores higher is kept (the first one on a tie: the full rules).
+    # REG_VARS (step 69): the same function drafted by m2c with one variable per callee-saved register (m2c's own
+    # --reg-vars): at level 0 the compiler gives every C local a register of its own from r31 / f31 down and never
+    # shares one, so two m2c temporaries in the same callee-saved register were one variable of the source
+    # (fn_80017668: `temp_r31_23` and `temp_r31_76` are the one saved interrupt state; fn_8001D05C: the sum and its
+    # square root are one f31). m2c's default output splits them, and folds a value into its single use even when the
+    # original kept it in its register first (`f31 = x*x + ...; f31 = sqrt(f31)`). Tried with the same rules and
+    # VARIANTS. Then (step 69) a second round from the best one so far: each single VARIANT toggle added to it (two
+    # rules a draft needs together: fn_8005C628's widened byte and its table call without arguments).
+    tag = ''
+    if p < 100 and p >= VARIANT_MIN:
+        sources = [('', m2c_body)]
+        rc2, so2, _ = m2c(['--reg-vars', REG_VARS])
+        rbody = regvar_cleanup(so2.replace('\r\n', '\n'))
+        if rc2 == 0 and re.search(r'^\S.*\b%s\s*\(' % re.escape(name), rbody, re.M) and 'Decompilation failure' not in rbody:
+            sources.append(('reg-vars', rbody))
         seen = {body}
-        for k, (skip, add) in enumerate(VARIANTS):
-            vb = postprocess(m2c_body, skip, add)
+        best = ('', (), ())
+        k = 0
+
+        def attempt(src, skip, add):
+            nonlocal body, p, eq, fixes, best, k
+            vb = postprocess(dict(sources)[src], skip, add)
             if vb in seen:
-                continue
+                return
             seen.add(vb)
+            k += 1
             vc, vo = c[:-2] + '.v%d.c' % k, o[:-2] + '.v%d.o' % k
             vp, veq, vfixes = build(vb, vc, vo)
             if vp is not None and (vp, veq) > (p, eq):
                 shutil.copyfile(vc, c)
                 shutil.copyfile(vo, o)
-                body, p, eq, fixes = vb, vp, veq, vfixes
+                body, p, eq, fixes, best = vb, vp, veq, vfixes, (src, skip, add)
             for f in (vc, vo):
                 if os.path.exists(f):
                     os.remove(f)
-            if p == 100:
-                break
-    note = ' '.join(filter(None, ['M2C_ERROR' if 'M2C_ERROR' in body else '', ('%d fixes' % len(fixes)) if fixes else '']))
+        for src, _ in sources:
+            for skip, add in ((((), ()),) if src else ()) + VARIANTS:
+                if p == 100:
+                    break
+                attempt(src, skip, add)
+        if 80 <= p < 100 and best != ('', (), ()):
+            src, bskip, badd = best
+            for skip, add in VARIANTS:
+                if p == 100:
+                    break
+                if len(skip) + len(add) == 1 and not (set(skip) & set(badd)) and not (set(add) & set(bskip)):
+                    attempt(src, tuple(dict.fromkeys(bskip + skip)), tuple(dict.fromkeys(badd + add)))
+        src, bskip, badd = best
+        tag = ' '.join([src] + ['-' + f.__name__ for f in bskip] + ['+' + f.__name__ for f in badd]).strip()
+    note = ' '.join(filter(None, ['M2C_ERROR' if 'M2C_ERROR' in body else '', ('%d fixes' % len(fixes)) if fixes else '',
+                                  ('[%s]' % tag) if tag else '']))
     return name, '%d%%' % p if p < 100 else '100% MATCH', note, eq * 4
 
 
@@ -1998,26 +2559,29 @@ def main():
         # then see the callee's parameters) and the pointer types m2c infers for 4-byte data objects; the library
         # functions the game calls that have no prototype yet get theirs the same way
         ctx_pp = context(base + '#include "ctx_sdk.h"\n')
-        sigs, ptr, rets = {}, collections.defaultdict(set), collections.defaultdict(set)
+        sigs, ptr, rets, pars = {}, collections.defaultdict(set), collections.defaultdict(set), collections.defaultdict(list)
         p1 = [(n, ad, sz, o) for n, ad, sz, _, o in funcs] + [(n, lib[n][1], lib[n][2], lib[n][4]) for n in libcalled if n in und and n not in found]
         with cf.ProcessPoolExecutor(a.jobs, initializer=init, initargs=(out, ver, flags, True)) as ex:
             for name, sig, ext, _ in ex.map(one, p1, chunksize=4):
                 if sig:
                     sigs[name] = (starts[name], sig)
-                    externs, fdecls = ext
+                    externs, fdecls, fparams = ext
                     for t, lbl in externs:
                         if '*' in t:
                             ptr[lbl].add(t)
                     for t, fn in fdecls:
                         rets[fn].add(t.strip())
+                    for fn, ps in fparams:
+                        pars[fn].append(tuple(x.strip() for x in ps.split(',')))
         narrowed = narrow_returns(sigs, rets)
+        nparams = narrow_params(sigs, pars)
         ptrs = {n: (next(iter(ts)) if len(ts) == 1 and ts != {'void *'} else MIXED if len(ts) > 1 else 'u8 *')
                 for n, ts in ptr.items()}
         open(protos, 'w', encoding='utf-8', newline='\n').write(
             protos_text(sigs, ctx_pp) + '\n// data objects m2c typed as pointers in that pass (size 4; tools/draft_batch.py data_decls)\n'
             + ''.join('#define CR_PTR_%s %s\n' % (n, ptrs[n]) for n in sorted(ptrs)))
-        print('pass 1: %d prototypes (%d return types narrowed by their callers), %d pointer objects from the drafts (%d s)' % (
-            len(sigs), narrowed, len(ptrs), time.time() - t0))
+        print('pass 1: %d prototypes (%d return types narrowed by their callers, %d parameters signed / unsigned by them), %d pointer objects from the drafts (%d s)' % (
+            len(sigs), narrowed, nparams, len(ptrs), time.time() - t0))
     ptrs = dict(re.findall(r'^#define CR_PTR_(lbl_[0-9A-F]{8}) (.*)$', open(protos, encoding='utf-8').read(), re.M))
     context(base + '#include "ctx_sdk.h"\n' + data_decls(ptrs) + '\n#include "ctx_protos.h"\n')
     res = {}

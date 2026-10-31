@@ -4,8 +4,9 @@
 # docs/expected_checksums.txt holds on every OS.
 
 # python: "python3", or "python" where that is the only name (it must be Python 3.11+; the tools run it with -I)
+# (Windows' Store alias "python3" exists but only prints a message: it must actually run)
 PY=python3
-command -v python3 >/dev/null 2>&1 || PY=python
+python3 -c '' >/dev/null 2>&1 || PY=python
 
 die() { printf '%s\n' "$*" >&2; exit 1; }
 is_macos() { [ "$(uname -s)" = Darwin ]; }

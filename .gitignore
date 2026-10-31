@@ -39,8 +39,12 @@ BUILD_REPORT.md
 # Dolphin creates this when started from the repo folder
 User/
 
-# mod folders hold edited game models: keep them local
-mods/
+# mod folders hold edited game models: keep them local. Only a mod's recipe is committed (mod.json, notes.txt):
+# its models, patch and ISO are rebuilt from the user's own disc (docs/MODDING.md "Blender loop").
+mods/**
+!mods/*/
+!mods/*/mod.json
+!mods/*/notes.txt
 
 # Phase 4 build (decomp/): only decomp/config/ is ours. The template files, your DOL, the split asm / objects and
 # the linked main.dol are local (tools/setup_decomp.ps1 and the build make them).

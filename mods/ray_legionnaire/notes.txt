@@ -1,0 +1,25 @@
+ray_legionnaire - Ray 01 (robo 0, chara entries 000-004) as a Roman legionnaire. Test edit of the Blender loop
+(docs/MODDING.md "Blender loop", plan.md step 70).
+
+What the edit is (tools/blender/legionnaire.py):
+- crest: a tall red box (0.30 x model height) on a gold stand, front to back on top of the head, weighted to the
+  head role bone JOBJ_32
+- scutum: a red 0.30 x 0.50 (model height) shield with a gold rim, spine and boss, in front of the robo's left
+  forearm, weighted to arm_b_fore JOBJ_49 (left = up x forward; forward = hips -> toes, the bind pose's feet stand
+  toward glTF +Z / Blender -Y)
+- bronze body: the 512x512 CMP body texture recoloured to luminance x bronze
+- skeleton unchanged (55 joints, same order and names), so no roles file; roles and joint tree checked equal
+  after the rebuild
+
+Rebuild (Windows; needs the one-time build, Blender 4.2+ and HSDRawViewer from tools/setup.ps1):
+  pwsh tools\model_loop.ps1 -Mod ray_legionnaire -Script legionnaire -Entries 000,001,002,003,004 -Boot
+Output (local, never committed: they hold game data):
+  mods\ray_legionnaire\models\chara\chara_000.dat .. chara_004.dat
+  build\mods\ray_legionnaire\ray_legionnaire.iso
+  mods\ray_legionnaire\ray_legionnaire.crpatch
+
+Result of Oct 30, 2026: each entry 198,304 -> 200,480 bytes (+108 triangles in 4 new DObjs, 2 new materials);
+chara.BIN grew 0x206c800 -> 0x206f000 and moved to unused disc space at 0x278000; ISO SHA-1
+46ef821ec2a53a1f7d400f012065bf134fa4a4ea; patch 675,109 bytes (1,004,733 new bytes: mostly the 5 recoloured
+textures); applying the patch to a clean ISO gives the same SHA-1; boot_check 40 s: running, no warning dialog.
+Not yet seen in game: the in-person tester checks the crest, the shield and the bronze body in a battle.

@@ -6,14 +6,14 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 *lbl_8044F748;
-void fn_80098104(s32 arg0, s8 arg1);
+void fn_80098104(s32 arg0, u8 arg1);
 
 void fn_800A5438(void) {
     if (M2C_FIELD(lbl_8044F748, u16 *, 0x16C) < 0x2DU) {
         M2C_FIELD(lbl_8044F748, u16 *, 0x16C) += 1;
         return;
     }
-    fn_80098104(0x40077, 0x7F);
+    fn_80098104(0x40077, 0x7FU);
     M2C_FIELD(lbl_8044F748, u16 *, 0x16C) = 0U;
     M2C_FIELD(lbl_8044F748, s32 *, 4) += 1;
 }
