@@ -110,8 +110,8 @@ The game's script interpreter dispatches through `cr_g_ScrCmdFuncs` (0x8021C3F4,
 
 Not the Ghidra C above (that is never copied anywhere): the community's own matching C from the pinned reference
 decomps, compiled by the Phase 4 build (`decomp/`). Status: `decomp/reports/progress_report.txt` (Oct 31, 2026, plan.md
-step 77: 641 of 916 objects from C, 21.68% of main.dol's code: Dolphin SDK 98 of 98, MSL 49 of 49, Runtime 5 of 5,
-MetroTRK 29 of 29, HSD 21 of 30, game 439 (0xC65C bytes, 4.13% of the game code); 9 more C files in `decomp/src`
+step 80: 642 of 916 objects from C, 22.10% of main.dol's code: Dolphin SDK 98 of 98, MSL 49 of 49, Runtime 5 of 5,
+MetroTRK 29 of 29, HSD 22 of 30, game 439 (0xC65C bytes, 4.13% of the game code); 9 more C files in `decomp/src`
 compiled for objdiff only, each with its reason in `CR_NOT_MATCHING`); provenance of every file: `decomp/reports/sources_report.txt`. Game functions come into
 `decomp/src/game` another way (m2c drafts that match, promoted by script): [drafts.md](drafts.md).
 

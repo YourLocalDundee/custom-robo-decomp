@@ -480,6 +480,79 @@ pointer once where the original loads it twice). Result of the one full run: 100
 517,256 -> 512,448; 439 game objects linked; 218 handler drafts about 8 points lower (m2c folds the counter pointer temporary that
 reproduced the saved r30 into the typed member: a rule for the next round), 25 higher, 2 new compile failures.
 
+## Ninth generator (plan.md step 80, Oct 31, 2026)
+
+Round 8 (branch drafts3), aimed at the script-command head that round 3's types had cost 8 points on about 220
+drafts. Baseline: the step 79 generator on the step 79 build gives 477 at 100%, 1,700 compile, 512,448 bytes equal,
+192 drafts at 80-99%. Method as in rounds 6 and 7: a scratch compile-and-compare of hand-written spellings against
+the original's asm (dtk's asm for the original, `dtk elf disasm` for the compiled draft, difflib side by side), the
+pure head first (cr_CM_DUMMY_008: the 38-word handler that does nothing but the head), then the rule, then the full
+run. Every change is in `tools/draft_batch.py`; no draft is edited.
+1. **`script_counter_ptr`** (a default rule; the skip is a variant): the counter's address goes back into a local
+   pointer for the struct-typed form, `cmd_cnt = &cr_g_Script.cmd_count[cr_g_ScriptDepth];` right after the PC is
+   read, `(*cmd_cnt)++;` where the draft had `cr_g_Script.cmd_count[cr_g_ScriptDepth] += 1;`. Why the original saves
+   an r30 it never uses, found with micro-tests: at level 0 every C local gets a callee-saved register; the pointer
+   local is `addi r30, r4, 0xC` and the peephole then folds its only use back onto the base register that is still
+   live (`lwz r3, 0xc(r4); addi r0, r3, 1; stw r0, 0xc(r4)`), so the instruction goes and the save stays; when the
+   base register is clobbered first (the pointer set right before its use, or after the stores) the pointer is kept
+   and used (`stw r0, 0(r30)`, one word more). The rule puts 220 handler drafts back where the untyped drafts were
+   (cr_S_BGM_STOP 78 -> 85, cr_CHAR_MOVE 81 -> 85, cr_SYS_SEL_JP 70 -> 81); 26 kept the skip variant (cr_SYS_CALL,
+   the cr_E_WIN group: handlers that also set the depth, or whose tail m2c misreads).
+   **85% is the ceiling** of this head. Tried on the pure head and on cr_S_BGM_STOP, all compiled and compared: the
+   pointer set at each of the six positions, four spellings of the increment (`(*p)++`, `*p += 1`, `*p = *p + 1`,
+   `++*p`), three of the index step (`+= 1`/`&=`, `++`, `x = x + 1`/`x = x & 0x3F`, `%= 0x40`), `*pc` as `pc[0]`,
+   the PC advance as `pc + n` and as `x = x + n`, a local index, a local command word, a pointer to the history
+   array, a pointer to the state struct (as a local and as an inline function's parameter), the depth as a local
+   or as an inline's parameter, commuted subscripts, `volatile`, a block scope, declarations with initializers, and
+   all 120 orders of the five statements with and without the pointer (the compiler moves the PC store, which is
+   to another symbol, across the struct's stores: the order `history, index + 1, PC, mask, count` gains one word).
+   None reaches the original's schedule: it hoists the `addi r4, r4, cr_g_Script@l` of the history store into the
+   prologue and loads cr_g_ScriptDepth before the `lha` of the command word, where ours materialises that base as
+   `addi r0, rX` next to its `add` and loads the depth late; the register numbers say the original allocated the
+   depth value into r0 before the history store's base, which no statement order of ours reproduces. Left as the
+   scheduler's / allocator's (a different `-opt` or `-sched` setting for this file is the next thing to test).
+2. **Width of a load through a `void *` / integer base** (m2c_run.py `_width_format`): `*(arg0 + i * 4 + 0xAC)` of a
+   `void *` parameter that the repair loop makes `u8 *` compiled to `lbz` / `stb` where the original has `lwzx` /
+   `stwx` (fn_8008688C): the access gets its own width through M2C_FIELD as the byte-array case already did (a
+   word now; 96% stays: the original's `lwzx r0, r31, r0` keeps the sum `i * 4 + 0xAC` in a register where ours
+   folds the constant into a displacement, `add; lwz 0xac(r3)`). **Cycle 2** tried the offset as the macro's own
+   argument (`M2C_FIELD(arg0, u32 *, k)`, which does give the indexed load): 477 -> 461, it lost 16 matches whose
+   originals fold the constant (fn_8007A1D0, fn_8007A32C, fn_8007A6D8, fn_8007AAB4, fn_8007BD64, fn_800AB468,
+   fn_800ABA8C, fn_800AC0A8, fn_800AC2D0, fn_800AD5AC, fn_800AD984, fn_800ADD58, fn_800AE8AC, fn_800AEC80,
+   fn_800AF054, fn_800FAC00: 100% -> 82-84%; 19 drafts up by 2-4 points, bytes equal 518,020) and gained no match,
+   so it is reverted (`_split_field` keeps the note) and cycle 3 is cycle 1's generator again. The matched
+   byte-array drafts (fn_8000768C, fn_800BC9A4, fn_8010D2D0, fn_8001B3F0, cr_C_ACT_MOT) are unchanged.
+3. **A store through a pointer cast to a struct type** (`*((cr_Pad *) ((u8 *) p + off)) = 0`, fn_80020204: a byte at a
+   variable offset into cr_g_Pads; the compiler cannot assign an int to a struct): the repair loop stores a byte
+   there (compiles, 86%; the width is the asm's, not knowable from the C).
+4. **A pointer difference of two addresses** (`cr_g_Scenario.part_bits[0] - &cr_g_Scenario`, fn_800EB518: the byte
+   offset of a member as m2c spelled it; type mismatch): both as `u8 *` in the repair loop (compiles, 84%).
+**Before -> after** (cycle 1, full run; m2c, compiler, flags unchanged): compile 1,700 -> 1,703 of 1,751 (+ fn_80020204,
+fn_800EB518, cr_Chara_BuildModel; - cr_Scenario_Reset: m2c types a stack slot with a struct that has no `unk_470`),
+**100% MATCH 477 -> 477**, bytes equal after alignment 512,448 -> 518,120 (+5,672); histogram 0-9% 42 10-19% 61 20-29% 72 30-39% 115 40-49% 253 50-59% 142 60-69% 157 70-79% 176 80-89% 133 90-99% 75; 80-99%
+192 -> 208. Against the step 79 report 207 drafts up, 56 down (none of them a match; the ones down are handlers that
+chose the skip variant on a tie of the full rules, within 1 point). **Linked: 439 game objects** (435 promoted, 3 file
+objects, 1 kept), 0xC65C bytes = 4.13% of the game code; 642 of 916 units from C, 22.10% of main.dol's code: unchanged,
+no new match. Batch 9: main.dol retail SHA-1, static shift PASS.
+**Final state (cycle 3 = cycle 1's generator, verified)**: compile 1,703, 100% MATCH 477 (none), bytes equal
+518,120; histogram 0-9% 42 10-19% 61 20-29% 72 30-39% 115 40-49% 253 50-59% 142 60-69% 157 70-79% 176 80-89% 133 90-99% 75; 80-99% 208. Linked 439 game objects, 642 of 916 units from C,
+22.10% of main.dol's code; batch 9 retail SHA-1, static shift PASS, batch 8 0 FAIL, checksums written. No cycle
+gained 10, so the round stops here: the head's 220 drafts moved up 7 points each but none to 100%.
+Not found / left for the next round:
+- the script-command head's schedule (item 1: the family is at its 85% ceiling with the compiler flags as they are;
+  about 220 drafts, the single largest class: test `-sched` / `-opt` variants for this one file, then an inline
+  function with the argument count once a spelling matches);
+- cr_SYS_CALL and the depth-setting handlers (70%): `M2C_FIELD(cr_g_Script.script_name, s8 **, cr_g_ScriptDepth)`
+  indexes a pointer array by bytes (m2c's offset for `script_name[depth]`); fn_8008688C (96%): item 2's indexed
+  load needs the offset form that cycle 2 showed costs 16 matches elsewhere (a rule keyed on the variable part of
+  the offset, `(i * 4) & 0x3FC`, might separate the two);
+- round 7's leftovers unchanged: parameter register order (fn_80075258: `mr r30, r3` where the draft spills r3 and
+  reloads it), `|=` on an s8 local without `extsb` (fn_80061BE8), stack frames larger than the named slots
+  (fn_8002EBB0), `lha` through m2c-typed struct fields; the 46 compile failures (pointer/array required 9, illegal
+  operand 9, illegal implicit conversion 9, illegal type 7, cr_Scenario_Reset's stack struct);
+- file runs: fn_8006EEF8 (0xBCC bytes, 32%, 14 float and 18 integer callee-saved locals) still closes the smallest
+  run alone; fn_8002444C's constant pool order: not reached this round.
+
 ## Promoted to decomp/src/game (plan.md step 58)
 
 After the drafts, batch 12 runs `python -I tools/promote_drafts.py` (method: its docstring). Every 100% draft that can be
