@@ -162,7 +162,7 @@ One object of `decomp/config/GXCE01/splits.txt` goes from dtk's asm to C that li
 3. Build and compare, as often as needed (seconds per round):
    ```powershell
    cd decomp; python configure.py; ..\tools\ninja\ninja.exe; cd ..
-   decomp\build\tools\objdiff-cli.exe diff -p decomp -u main/sysdolphin/baselib/lobj.c  # or the objdiff GUI on decomp\, or decomp\build\GXCE01\report.json
+   decomp\build\tools\objdiff-cli.exe diff -p decomp -u main/sysdolphin/baselib/lobj -o -   # the unit is the object's path in decomp\objdiff.json, without .c (checked with the pinned 3.6.1: lobj.c is 'Unit not found'); -o - prints the JSON, without -o the interactive view opens; or the objdiff GUI on decomp\, or decomp\build\GXCE01\report.json
    python -I tools\check_c_objects.py --link-each                                        # links the candidate too, prints the SHA-1
    ```
    Adapt the C until every function is 100%: `#pragma` per function, Melee's / KAR's forms, the notes in decomp.md

@@ -191,7 +191,8 @@ Python tools are named by script only; run them with `python -I` (Windows) or `p
    `tools/check_c_objects.py --link-each` links the build with it taken from C: `retail` = it can be linked.
    The check stops until the file is listed: in `CR_NOT_MATCHING` (decomp/configure.py) with its reason, or in
    `CR_MATCHING`.
-3. If functions differ, adapt the source (objdiff GUI on `decomp/`, or `objdiff-cli diff -p decomp -u main/<object>`).
+3. If functions differ, adapt the source (objdiff GUI on `decomp/`, or `objdiff-cli diff -p decomp -u main/<object> -o -`,
+   the object's path without `.c`, e.g. `main/sysdolphin/baselib/lobj`; the unit names are in `decomp/objdiff.json`).
    A `fn_...` at 0% usually exists in the C under its real name (the link test shows it).
    If the link fails on an undefined name (the C calls / uses something our symbols leave as `fn_` / `lbl_`):
    `decomp/reports/c_callsites_report.txt` (`tools/check_c_callsites.py`, batch 9) lists every name the matched C's
@@ -384,7 +385,7 @@ The smallest open run (fn_8006EEF8..fn_8006FDD0) still waits on fn_8006EEF8 (han
   - Names: a main.dol function with no name whose masked instructions equal one C function compiled here, in the
     reference file's order, is that function (`why:` line; 10 found this way in iteration 9, 3 more by rule R7).
 - Per-function triage of a file compiled for objdiff: `objdiff-cli diff -p decomp -u main/sysdolphin/baselib/<file>
-  -o out.json [<symbol>]` (decomp/build/tools/objdiff-cli.exe) writes both sides' instructions with a `diff_kind`;
+  -o out.json [<symbol>]` (`<file>` without `.c`: `lobj`, not `lobj.c`) (decomp/build/tools/objdiff-cli.exe) writes both sides' instructions with a `diff_kind`;
   an `ARG_MISMATCH` where both sides have a relocation is only the data name (the split object's data is not the C's
   yet), everything else is a real difference.
 
