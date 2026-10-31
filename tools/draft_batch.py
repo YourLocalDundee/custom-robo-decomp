@@ -2104,6 +2104,136 @@ def script_counter_ptr(body):
     return '\n'.join(lines)
 
 
+def member_offsets():
+    """{struct: [(offset, type, name, dims)]} of symbols/cr_types.h (step 82), read once per process"""
+    if 'moffs' not in W:
+        structs, cur = {}, None
+        for l in open(os.path.join(G, 'symbols/cr_types.h'), encoding='utf-8'):
+            m = re.match(r'^typedef struct (\w+) \{', l)
+            if m:
+                cur = structs.setdefault(m.group(1), [])
+                continue
+            if l.startswith('}'):
+                cur = None
+                continue
+            m = re.match(r'^\s*/\* \+([0-9A-Fa-f]+) \*/ ([\w ]+?)(\**) (\w+)((?:\[[^\]]+\])*);', l) if cur is not None else None
+            if m:
+                cur.append((int(m.group(1), 16), m.group(2).strip() + m.group(3), m.group(4), m.group(5)))
+        W['moffs'] = structs
+    return W['moffs']
+
+
+def type_width(t):
+    """the byte width of a scalar / pointer type name ('u16' 2, 'HSD_JObj *' 4), None when unknown"""
+    t = t.strip()
+    if t.endswith('*'):
+        return 4
+    return LOCAL_SIZE.get(t)
+
+
+def split_slot_structs(body):
+    """step 82: m2c gives a stack slot one C type, but the original reused the slot for the addresses of two typed
+    globals (`sp48 = &cr_g_Scenario; ... sp48 = (cr_ScenarioState *) &cr_g_Script; sp48->unk_470 = 0;`), so the
+    members of the second are looked up in the first's struct and the draft does not compile (cr_Scenario_Reset,
+    cr_Save_ResetData, fn_8011023C). Every assignment of a typed global's address to a slot local starts a binding:
+    when a slot is bound to more than one struct type, or to a type other than its declared one, each binding gets
+    its own pointer local (`sp48_cr_g_Script`, typed with the global's struct) and the slot's uses up to the next
+    assignment of the slot are renamed to it."""
+    structs, globs = member_types()
+    lines = body.split('\n')
+    di = next((i for i, l in enumerate(lines) if DEF.match(l)), None)
+    if di is None:
+        return body
+    ASSIGN = re.compile(r'^(\s*)(sp[0-9A-F]+) = (?:\((?:struct )?[\w ]+?\**\) )?\(?&(cr_g_\w+)\)?;$')
+    SLOT = re.compile(r'^\s*(sp[0-9A-F]+) = ')
+    bind = {}
+    for l in lines[di:]:
+        m = ASSIGN.match(l)
+        if m and m.group(3) in globs and globs[m.group(3)] in structs:
+            bind.setdefault(m.group(2), set()).add(m.group(3))
+    todo = set()
+    for sp, gl in bind.items():
+        decl = re.search(r'^\s+([\w ]+?)\s*(\**)\s*\b%s;' % sp, body, re.M)
+        if not decl:
+            continue
+        types = {globs[g] for g in gl}
+        declared = decl.group(1).strip() if decl.group(2) == '*' else None
+        if len(types) > 1 or declared not in types:
+            todo.add(sp)
+    if not todo:
+        return body
+    out = lines[:di + 1]
+    cur = {}
+    added = []
+    for l in lines[di + 1:]:
+        m = ASSIGN.match(l)
+        if m and m.group(2) in todo and m.group(3) in globs:
+            nm = '%s_%s' % (m.group(2), m.group(3))
+            cur[m.group(2)] = nm
+            if (nm, globs[m.group(3)]) not in added:
+                added.append((nm, globs[m.group(3)]))
+            out.append('%s%s = &%s;' % (m.group(1), nm, m.group(3)))
+            continue
+        sm = SLOT.match(l)
+        if sm and sm.group(1) in cur:
+            cur.pop(sm.group(1))
+        for sp, nm in cur.items():
+            l = re.sub(r'(?<![\w.>])%s\b' % sp, nm, l)
+        out.append(l)
+    out[di + 1:di + 1] = ['    %s *%s;' % (t, nm) for nm, t in added]
+    return '\n'.join(out)
+
+
+def unsigned_not_mask(body):
+    """step 82: `cr_g_StageSelector.flags &= ~arg0;` on a u32 member with a signed operand: the original converted the
+    operand first (`&= ~(u32) arg0`), which gives the base register the scheduler's first choice (fn_80111E0C 77 ->
+    100%); with the s32 operand the compiler keeps the base in another register. Only a direct member of a global
+    struct: through a global pointer with an index (cr_F_CLR, `cr_g_ScenarioSlotPtr->flags[i] &= ~x`) the cast
+    costs three points."""
+    def fix(m):
+        if member_type(m.group(2)) not in ('u32', 'u16', 'u8'):
+            return m.group(0)
+        if not re.search(r'\bs32 \**%s\b' % m.group(3), body):
+            return m.group(0)
+        return '%s%s &= ~(u32) %s;' % (m.group(1), m.group(2), m.group(3))
+    return re.sub(r'^(\s*)(cr_g_\w+(?:\.\w+)+) &= ~(\w+);$', fix, body, flags=re.M)
+
+
+def member_array_index(body):
+    """step 82: `M2C_FIELD((&cr_g_StageSelector + ((var_r28 * 2) & 0x1FE)), u16 *, 0x3E)` is pointer arithmetic on the
+    struct (a step of sizeof: `mulli r6, r5, 0x354`); the struct has an array of that width at that offset, so the
+    access is `cr_g_StageSelector.stage_msgs[var_r28]` (fn_80111EEC 92 -> 100%)"""
+    structs, globs = member_types()
+    offs = member_offsets()
+
+    def fix(m):
+        g, idx, scale, t, off = m.group(1), m.group(2), int(m.group(3), 0), m.group(4), int(m.group(5), 16)
+        st = globs.get(g)
+        if st not in offs or type_width(t) != scale:
+            return m.group(0)
+        for o, mt, name, dims in offs[st]:
+            if o == off and dims.count('[') == 1 and type_width(mt) == scale and not mt.endswith('*'):
+                return '%s.%s[%s]' % (g, name, idx)
+        return m.group(0)
+    return re.sub(r'M2C_FIELD\(\(&(cr_g_\w+) \+ \(?\((\w+) \* (0x[0-9A-F]+|\d+)\)(?: & 0x[0-9A-F]+)?\)?\), ([\w ]+?\s?\**)\*, 0x([0-9A-F]+)\)', fix, body)
+
+
+def indexed_offset(body):
+    """step 82: `M2C_FIELD((arg0 + (((var_r30 * 4) & 0x3FC) + 0xAC)), u32 *, 0)` where the index is scaled by the access
+    width: an array of that element type at the constant offset. The compiler folds the constant into the load
+    (`add; lwz 0xac(r)`) where the original adds it to the index and loads indexed (`addi r0, r3, 0xac; lwzx`), the
+    form it gives `p->array[i]`; the offset as the macro's argument compiles so (fn_8008688C). Only through a pointer
+    variable (not a global's address: `lbl[i].field` folds in the original) and only when the scale is the width
+    (a record array's field, `(i * 0x78) + 0x2C` for an s32, folds too: round 8 lost 16 matches without this gate)."""
+    def fix(m):
+        base, idx, scale, mask, const, t = m.group(1), m.group(2), int(m.group(3), 0), m.group(4) or '', m.group(5), m.group(6)
+        if base.startswith('lbl_') or base.startswith('cr_g_') or type_width(t) != scale:
+            return m.group(0)
+        return 'M2C_FIELD((%s + ((%s * %s)%s)), %s *, %s)' % (base, idx, m.group(3), mask, t.strip(), const)
+    return re.sub(r'M2C_FIELD\(\((\w+) \+ \(\(\((\w+) \* (0x[0-9A-F]+|\d+)\)( & 0x[0-9A-F]+)?\) \+ (0x[0-9A-F]+)\)\), ([\w ]+?\s?\**)\*, 0\)', fix, body)
+
+
+
 def postprocess(body, skip=(), add=()):
     """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
     for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
@@ -2113,7 +2243,7 @@ def postprocess(body, skip=(), add=()):
               double_negation, assert_ternary, hsd_inlines, mixed_externs, byte_steps, same_type_copies, param_regs, param_homes,
               param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
               float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound,
-              script_counter_ptr):
+              script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, indexed_offset):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body

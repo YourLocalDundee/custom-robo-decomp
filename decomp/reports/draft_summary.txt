@@ -5,32 +5,31 @@ counts only; the drafts themselves are decompiled output and are never committed
 functions 1751
 m2c ok 1749
 m2c failed 2
-compile failed 46
-compiled 1703
-100% MATCH 477
-bytes matched 518064 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
+compile failed 43
+compiled 1706
+100% MATCH 480
+bytes matched 520140 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
 
-match % histogram of the 1703 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
-    0- 9%  43
-   10-19%  61
+match % histogram of the 1706 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
+    0- 9%  44
+   10-19%  62
    20-29%  72
-   30-39%  115
-   40-49%  254
-   50-59%  141
-   60-69%  154
-   70-79%  174
-   80-89%  136
-   90-99%  76
-  100%     477
+   30-39%  116
+   40-49%  253
+   50-59%  142
+   60-69%  152
+   70-79%  175
+   80-89%  135
+   90-99%  75
+  100%     480
 
 most common failures:
      10  compile: illegal implicit conversion from '*' to
       9  compile: illegal operand
-      9  compile: pointer/array required
+      7  compile: pointer/array required
       6  compile: illegal explicit conversion from '*' to
       6  compile: illegal type
       2  compile: illegal use of keyword
       2  compile: type mismatch
       2  m2c: */
-      1  compile: '*' is not a struct/union/class member
       1  compile: undefined identifier '*'
