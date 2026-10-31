@@ -5,15 +5,21 @@
 # then python -I tools/make_mod.py mods/<Mod> -> the ISO and the .crpatch, and optionally a 40 s boot in Dolphin.
 #   pwsh tools\model_loop.ps1 -Mod ray_legionnaire -Script legionnaire -Entries 000,001,002,003,004 [-Boot]
 #   pwsh tools\model_loop.ps1 -Mod rt_test -Script roundtrip -Entries 000          (no edit: the pipeline itself)
+#   pwsh tools\model_loop.ps1 -Mod rt_stage -Script roundtrip -Category bg_data -Entries 000   (a stage: every model)
+# Scenes (bg_data stages; also leg_effect, snr_obj): the export is one glb per scene model (scene_data_<n>.glb); the
+#   script runs once per model (it gets scene_data_<n>.glb as <in.glb>) and the imports are chained with --model <n>
+#   over the original .dat. -Models 0,3 limits it to those models (default: all). docs/MODDING.md "Stages".
 # Options: -Category chara (default; the only one with a roles file for the scripts), -Iso <clean.iso> (default: the
 #   repo's "Custom Robo (USA).iso"), -Blender <blender.exe> (default: $env:BLENDER, then Blender on PATH, then the
 #   newest "C:\Program Files\Blender Foundation\Blender *\blender.exe"), -Fresh (export again even if it exists),
-#   -Seconds 40 (boot time). Work files: build/model_loop/<Mod>/ (the export, the edited glb, the roles file).
+#   -Seconds 40 (boot time), -Models (scenes only, see above). Work files: build/model_loop/<Mod>/ (the export, the edited glb, the roles file).
 # Windows only for the export / import steps (HSDRawViewer is a Windows program); tools/model_loop.sh is the bash twin.
 param([Parameter(Mandatory)][string]$Mod, [Parameter(Mandatory)][string]$Script, [Parameter(Mandatory)][string[]]$Entries,
-      [string]$Category = 'chara', [string]$Iso, [string]$Blender, [switch]$Fresh, [switch]$Boot, [int]$Seconds = 40)
+      [string]$Category = 'chara', [string]$Iso, [string]$Blender, [switch]$Fresh, [switch]$Boot, [int]$Seconds = 40,
+      [string[]]$Models)
 $ErrorActionPreference = 'Stop'
 $Entries = @($Entries -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })   # 000,001 from pwsh -File too
+$Models = @($Models -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 $g = Split-Path $PSScriptRoot -Parent
 $exe = Join-Path $g 'tools/HSDLib/HSDRawViewer/bin/Release/net8.0-windows7.0/HSDRawViewer.exe'
 if (-not (Test-Path -LiteralPath $exe)) { throw "HSDRawViewer not built: $exe (pwsh tools\setup.ps1)" }
@@ -37,32 +43,48 @@ foreach ($e in $Entries) {
     $name = "${Category}_$e"
     $dat = Join-Path $g "models_dat/$Category/$name.dat"
     if (-not (Test-Path -LiteralPath $dat)) { throw "no $dat (run the one-time build first: README quick start)" }
-    # 1. export (the original .dat -> glb), once
-    $glb = Join-Path $work "export/$name/root0_joint.glb"
-    if ($Fresh -or -not (Test-Path -LiteralPath $glb)) {
+    # 1. export (the original .dat -> glb: root0_joint.glb, or scene_data_<n>.glb per scene model), once
+    $exportDir = Join-Path $work "export/$name"
+    $have = Get-ChildItem -LiteralPath $exportDir -Filter *.glb -ErrorAction SilentlyContinue
+    if ($Fresh -or -not $have) {
         & $exe --export (Join-Path $work 'export') glb $dat | Where-Object { $_ -match '^(ok|fail) ' }
-        if (-not (Test-Path -LiteralPath $glb)) { throw "export of $name failed" }
     }
+    $glbs = @(Get-ChildItem -LiteralPath $exportDir -Filter 'root0_joint.glb' -ErrorAction SilentlyContinue)
+    if (-not $glbs) {
+        $glbs = @(Get-ChildItem -LiteralPath $exportDir -Filter 'scene_data_*.glb' -ErrorAction SilentlyContinue |
+            Where-Object { $_.BaseName -match '^scene_data_(\d+)$' } | Sort-Object { [int]($_.BaseName -replace '\D', '') })
+        if ($Models) { $glbs = @($glbs | Where-Object { ($_.BaseName -replace '\D', '') -in $Models }) }
+    }
+    if (-not $glbs) { throw "export of $name failed (no root0_joint.glb or scene_data_<n>.glb in $exportDir)" }
     # 2. roles of the original entry (head, arms, legs as joint numbers), for the script
     $roles = Join-Path $work "$name.roles.json"
     if ($Category -eq 'chara') {
         python -I (Join-Path $g 'tools/robo_joints.py') roles (Join-Path $g "unpacked/chara/$e.bin") | Set-Content -LiteralPath $roles
         if ($LASTEXITCODE) { throw "robo_joints.py roles failed for $e" }
     } else { '{"C": {}}' | Set-Content -LiteralPath $roles }
-    # 3. Blender
-    $edited = Join-Path $work "$name.edited.glb"
-    $argsFile = Join-Path $work "$name.edited.args"
-    Remove-Item -LiteralPath $edited, $argsFile -ErrorAction SilentlyContinue
-    & $Blender -b --factory-startup --python-exit-code 1 --python $py -- $glb $edited $roles 2>&1 |
-        Where-Object { $_ -match '^(legionnaire|blender|[a-z_]+:)|Error|Traceback' }
-    if ($LASTEXITCODE -or -not (Test-Path -LiteralPath $edited)) { throw "Blender script $Script failed for $name" }
-    # 4. import over the original .dat (same skeleton) -> the mod's model
     $target = Join-Path $out "$name.dat"
-    # import options the script asked for (one per line in <edited>.args: --replace, --skeleton glb, --roles ...)
-    $iargs = @(if (Test-Path -LiteralPath $argsFile) { Get-Content -LiteralPath $argsFile | Where-Object { $_ } })
     Remove-Item -LiteralPath ([IO.Path]::ChangeExtension($target, '.roles.json')) -ErrorAction SilentlyContinue
-    & $exe --import $dat $edited $target @iargs | Where-Object { $_ -notmatch 'flags' }
-    if ($LASTEXITCODE) { throw "HSDRawViewer --import failed for $name" }
+    $current = $dat
+    for ($k = 0; $k -lt $glbs.Count; $k++) {
+        $glb = $glbs[$k].FullName
+        $model = if ($glbs[$k].BaseName -match '^scene_data_(\d+)$') { $Matches[1] } else { $null }
+        $tag = if ($null -ne $model) { "$name.m$model" } else { $name }
+        # 3. Blender
+        $edited = Join-Path $work "$tag.edited.glb"
+        $argsFile = Join-Path $work "$tag.edited.args"
+        Remove-Item -LiteralPath $edited, $argsFile -ErrorAction SilentlyContinue
+        & $Blender -b --factory-startup --python-exit-code 1 --python $py -- $glb $edited $roles 2>&1 |
+            Where-Object { $_ -match '^(legionnaire|blender|[a-z_]+:)|Error|Traceback' }
+        if ($LASTEXITCODE -or -not (Test-Path -LiteralPath $edited)) { throw "Blender script $Script failed for $tag" }
+        # 4. import over the original .dat (same skeleton) -> the mod's model; scene models one after the other
+        # import options the script asked for (one per line in <edited>.args: --replace, --skeleton glb, --roles ...)
+        $iargs = @(if (Test-Path -LiteralPath $argsFile) { Get-Content -LiteralPath $argsFile | Where-Object { $_ } })
+        if ($null -ne $model) { $iargs += '--model', $model }
+        $next = if ($k -eq $glbs.Count - 1) { $target } else { Join-Path $work "$tag.step.dat" }
+        & $exe --import $current $edited $next @iargs | Where-Object { $_ -notmatch 'flags' }
+        if ($LASTEXITCODE) { throw "HSDRawViewer --import failed for $tag" }
+        $current = $next
+    }
 }
 # 5. ISO + patch
 $args5 = @((Join-Path $g 'tools/make_mod.py'), (Join-Path $g "mods/$Mod"))

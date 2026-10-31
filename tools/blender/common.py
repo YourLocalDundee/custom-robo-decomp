@@ -36,9 +36,10 @@ def model_meshes():
     return [o for o in bpy.context.scene.objects if o.type == 'MESH' and o.visible_get()]
 
 
-def save(path):
+def save(path, **extra):
+    """Export with the loop's settings; `extra` adds exporter options (stage_pillar.py: export_vertex_color)."""
     bpy.ops.export_scene.gltf(
         filepath=path, export_format='GLB', export_yup=True, export_skins=True, export_animations=False,
         export_morph=False, export_materials='EXPORT', export_image_format='AUTO', export_texcoords=True,
-        export_normals=True, export_apply=False, export_def_bones=False, use_visible=True)
+        export_normals=True, export_apply=False, export_def_bones=False, use_visible=True, **extra)
     print(f'blender: wrote {path}')

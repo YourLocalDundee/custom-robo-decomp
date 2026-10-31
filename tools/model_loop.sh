@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Blender-to-game loop for one model edit (docs/MODDING.md "Blender loop"); bash twin of tools/model_loop.ps1.
-#   tools/model_loop.sh <mod> <script> <entries> [--boot] [--fresh] [--iso <clean.iso>] [--category chara]
+#   tools/model_loop.sh <mod> <script> <entries> [--boot] [--fresh] [--iso <clean.iso>] [--category chara] [--models 0,3]
 #   tools/model_loop.sh ray_legionnaire legionnaire 000,001,002,003,004
 #   tools/model_loop.sh rt_test roundtrip 000                        (no edit: the pipeline itself)
+#   tools/model_loop.sh rt_stage roundtrip 000 --category bg_data    (a stage: the script runs once per scene model,
+#       scene_data_<n>.glb, and the imports are chained with --model <n>; --models limits them; docs/MODDING.md "Stages")
 # For each entry: export (HSDRawViewer --export, once) -> Blender (tools/blender/<script>.py) -> HSDRawViewer --import
 # over the original .dat -> mods/<mod>/models/<category>/<name>.dat; then tools/make_mod.py -> ISO + .crpatch.
 # HSDRawViewer is a Windows program: under Git Bash on Windows every step runs; on Linux / macOS the export and import
@@ -16,7 +18,7 @@ g=$(dirname "$t")
 . "$t/common.sh"
 [ $# -ge 3 ] || die "usage: tools/model_loop.sh <mod> <script> <entries, e.g. 000,001> [--boot] [--fresh] [--iso X] [--category chara]"
 mod=$1; script=$2; entries=$3; shift 3
-boot=0; fresh=0; iso=""; category=chara; seconds=40
+boot=0; fresh=0; iso=""; category=chara; seconds=40; models=""
 while [ $# -gt 0 ]; do
     case "$1" in
         --boot | -Boot) boot=1 ;;
@@ -24,6 +26,7 @@ while [ $# -gt 0 ]; do
         --iso | -Iso) iso=$2; shift ;;
         --category | -Category) category=$2; shift ;;
         --seconds | -Seconds) seconds=$2; shift ;;
+        --models | -Models) models=$2; shift ;;
         *) die "unknown option $1" ;;
     esac
     shift
@@ -55,13 +58,21 @@ winpath() { if [ $windows = 1 ]; then cygpath -w "$1"; else printf '%s' "$1"; fi
 for e in ${entries//,/ }; do
     name="${category}_$e"
     dat="$g/models_dat/$category/$name.dat"
-    glb="$work/export/$name/root0_joint.glb"
-    # 1. export, once
-    if [ $hsd = 1 ] && { [ $fresh = 1 ] || [ ! -f "$glb" ]; }; then
+    exportdir="$work/export/$name"
+    # 1. export, once (root0_joint.glb, or scene_data_<n>.glb per scene model)
+    if [ $hsd = 1 ] && { [ $fresh = 1 ] || ! ls "$exportdir"/*.glb >/dev/null 2>&1; }; then
         [ -f "$dat" ] || die "no $dat (run the one-time build first: README quick start)"
         "$exe" --export "$(winpath "$work/export")" glb "$(winpath "$dat")" | grepq -E '^(ok|fail) ' || die "export of $name failed"
     fi
-    [ -f "$glb" ] || die "no export $glb (export it on Windows: pwsh tools/model_loop.ps1, or HSDRawViewer --export)"
+    glbs=()
+    if [ -f "$exportdir/root0_joint.glb" ]; then
+        glbs=("$exportdir/root0_joint.glb")
+    else
+        for n in $(ls "$exportdir" 2>/dev/null | sed -n 's/^scene_data_\([0-9]*\)\.glb$/\1/p' | sort -n); do
+            if [ -z "$models" ] || [[ ",$models," == *",$n,"* ]]; then glbs+=("$exportdir/scene_data_$n.glb"); fi
+        done
+    fi
+    [ ${#glbs[@]} -gt 0 ] || die "no export in $exportdir (export it on Windows: pwsh tools/model_loop.ps1, or HSDRawViewer --export)"
     # 2. roles of the original entry, for the script
     roles="$work/$name.roles.json"
     if [ "$category" = chara ]; then
@@ -69,24 +80,34 @@ for e in ${entries//,/ }; do
     else
         printf '{"C": {}}\r\n' > "$roles"
     fi
-    # 3. Blender
-    edited="$work/$name.edited.glb"
-    rm -f "$edited" "$work/$name.edited.args"
-    "$blender" -b --factory-startup --python-exit-code 1 --python "$(winpath "$py")" -- \
-        "$(winpath "$glb")" "$(winpath "$edited")" "$(winpath "$roles")" 2>&1 | grepq -E '^(legionnaire|blender|[a-z_]+:)|Error|Traceback' ||
-        die "Blender script $script failed for $name"
-    [ -f "$edited" ] || die "Blender script $script wrote no $edited"
-    # 4. import over the original .dat
-    if [ $hsd = 1 ]; then
-        # import options the script asked for (one per line in <edited>.args: --replace, --skeleton glb, --roles ...)
-        iargs=()
-        [ -f "$work/$name.edited.args" ] && mapfile -t iargs < <(tr -d '\r' < "$work/$name.edited.args")
-        rm -f "$out/$name.roles.json"
-        "$exe" --import "$(winpath "$dat")" "$(winpath "$edited")" "$(winpath "$out/$name.dat")" "${iargs[@]}" | grepq -v flags ||
-            die "HSDRawViewer --import failed for $name"
-    else
-        echo "model_loop: $name: edited glb at $edited; import it on Windows (HSDRawViewer --import) into $out/$name.dat"
-    fi
+    rm -f "$out/$name.roles.json"
+    current="$dat"
+    last=$(( ${#glbs[@]} - 1 ))
+    for k in "${!glbs[@]}"; do
+        glb=${glbs[$k]}
+        model=""; tag="$name"
+        case "$(basename "$glb")" in scene_data_*.glb) model=$(basename "$glb" .glb); model=${model#scene_data_}; tag="$name.m$model" ;; esac
+        # 3. Blender
+        edited="$work/$tag.edited.glb"
+        rm -f "$edited" "$work/$tag.edited.args"
+        "$blender" -b --factory-startup --python-exit-code 1 --python "$(winpath "$py")" -- \
+            "$(winpath "$glb")" "$(winpath "$edited")" "$(winpath "$roles")" 2>&1 | grepq -E '^(legionnaire|blender|[a-z_]+:)|Error|Traceback' ||
+            die "Blender script $script failed for $tag"
+        [ -f "$edited" ] || die "Blender script $script wrote no $edited"
+        # 4. import over the original .dat; scene models one after the other
+        if [ $hsd = 1 ]; then
+            # import options the script asked for (one per line in <edited>.args: --replace, --skeleton glb, --roles ...)
+            iargs=()
+            [ -f "$work/$tag.edited.args" ] && mapfile -t iargs < <(tr -d '\r' < "$work/$tag.edited.args")
+            [ -n "$model" ] && iargs+=(--model "$model")
+            if [ "$k" = "$last" ]; then next="$out/$name.dat"; else next="$work/$tag.step.dat"; fi
+            "$exe" --import "$(winpath "$current")" "$(winpath "$edited")" "$(winpath "$next")" "${iargs[@]}" | grepq -v flags ||
+                die "HSDRawViewer --import failed for $tag"
+            current="$next"
+        else
+            echo "model_loop: $tag: edited glb at $edited; import it on Windows (HSDRawViewer --import${model:+ --model $model}) into $out/$name.dat"
+        fi
+    done
 done
 # 5. ISO + patch from whatever models the mod folder has
 ls "$out"/*.dat >/dev/null 2>&1 || die "no models in $out yet: nothing to build"

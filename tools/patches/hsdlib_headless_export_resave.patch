@@ -85,12 +85,28 @@ index 0000000..a5cefa0
 +        }
 +    }
 +}
+diff --git a/HSDRawViewer/IO/GLTF/GLTFModelExporter.cs b/HSDRawViewer/IO/GLTF/GLTFModelExporter.cs
+index 8a02d5d..b99cb9b 100644
+--- a/HSDRawViewer/IO/GLTF/GLTFModelExporter.cs
++++ b/HSDRawViewer/IO/GLTF/GLTFModelExporter.cs
+@@ -374,6 +374,11 @@ namespace HSDRawViewer.IO.GLTF
+             result.Position =
+                 CreateVector3Accessor(model, positions);
+ 
++            // gameTesting patch: a zero-length normal in the game data (two stages) normalizes to NaN, which glTF refuses
++            for (int i = 0; i < normals.Length; i++)
++                if (!float.IsFinite(normals[i].X) || !float.IsFinite(normals[i].Y) || !float.IsFinite(normals[i].Z))
++                    normals[i] = Vector3.UnitY;
++
+             result.Normal =
+                 CreateVector3Accessor(model, normals);
+ 
 diff --git a/HSDRawViewer/ModelImport.cs b/HSDRawViewer/ModelImport.cs
 new file mode 100644
-index 0000000..4d6f621
+index 0000000..4ed10a4
 --- /dev/null
 +++ b/HSDRawViewer/ModelImport.cs
-@@ -0,0 +1,883 @@
+@@ -0,0 +1,1080 @@
 +using System;
 +using System.Collections.Generic;
 +using System.IO;
@@ -155,6 +171,18 @@ index 0000000..4d6f621
 +    ///  - without an image: the template's render mode without textures, diffuse = base colour (the step 70 material).
 +    ///  - glTF doubleSided material: no culling; single-sided: CULLFRONT with reversed winding (the game's own bodies).
 +    ///
++    /// Scenes (stages, effects, objects: a scene_data root, docs/MODDING.md "Stages"):
++    ///  --model N imports over model N of the scene_data root (the model --export wrote as scene_data_N.glb). Robo-only
++    ///    rules are off (block B's material joint, the one-atlas warning). A new mesh whose glb material is one of the
++    ///    template's own materials (the exporter's material name, e.g. a stage floor's) shares that template MObj as it
++    ///    is (render mode, every TObj and image; nothing re-encoded); other materials are made as above. When that
++    ///    material takes its colour from the vertices (render mode VERTEX, as stage floors do), the new PObjs get a
++    ///    CLR0 attribute (RGBA8, direct): the glb's COLOR_0, or white when the mesh has none.
++    ///  The output keeps the template's file layout (KeepLayout below): every struct that is still used and did not
++    ///    grow stays at its offset, new and grown structs are appended after the data (0x20-aligned), the relocation
++    ///    table and roots are rebuilt from that. An unedited scene is written back byte for byte (HSDLib's own Save
++    ///    lays the whole file out again, which the game's stage files do not survive byte-identically).
++    ///
 +    /// --roles: a roles file with bone NAMES ({"B_material_joint": "JOBJ_1", "C": {"head": "JOBJ_32", ...}}) is written
 +    ///   next to out.dat as &lt;out&gt;.roles.json with the output joint numbers (tools/make_mod.py reads it).
 +    /// Prints "import: ..." lines and a summary; exit code 1 on any error.
@@ -170,6 +198,7 @@ index 0000000..4d6f621
 +            public bool GlbSkeleton;
 +            public string Roles;
 +            public string EnvelopeJoint;
++            public int Model = -1;   // scene_data model (stages): --model N
 +        }
 +
 +        public static int Run(string templatePath, string glbPath, string outPath, string[] extra = null)
@@ -188,6 +217,7 @@ index 0000000..4d6f621
 +                            break;
 +                        case "--roles" when i + 1 < extra.Length: o.Roles = extra[++i]; break;
 +                        case "--envelope-joint" when i + 1 < extra.Length: o.EnvelopeJoint = extra[++i]; break;
++                        case "--model" when i + 1 < extra.Length && int.TryParse(extra[i + 1], out int mi) && mi >= 0: o.Model = mi; i++; break;
 +                        default: throw new ImportError($"unknown option {extra[i]}");
 +                    }
 +                }
@@ -225,11 +255,29 @@ index 0000000..4d6f621
 +        private static void Import(string templatePath, string glbPath, string outPath, Options opt)
 +        {
 +            var dat = new HSDRawFile(templatePath);
-+            var rootNode = dat.Roots.Find(r => r.Name.EndsWith("_joint"))
-+                ?? throw new ImportError($"{templatePath}: no *_joint root");
-+            if (dat.Roots.Count(r => r.Name.EndsWith("_joint")) != 1)
-+                throw new ImportError($"{templatePath}: more than one *_joint root (not supported)");
-+            var root = new HSD_JOBJ { _s = rootNode.Data._s };
++            var sceneNode = dat.Roots.Find(r => r.Name.EndsWith("scene_data"));
++            bool isScene = opt.Model >= 0 || (sceneNode != null && !dat.Roots.Any(r => r.Name.EndsWith("_joint")));
++            HSD_JOBJ root;
++            if (isScene)
++            {
++                // a stage / effect / object: import over one model of the scene (docs/MODDING.md "Stages")
++                if (sceneNode == null) throw new ImportError($"{templatePath}: --model needs a scene_data root");
++                var descs = new HSD_SOBJ { _s = sceneNode.Data._s }.JOBJDescs?.Array ?? new HSD_JOBJDesc[0];
++                if (opt.Model < 0)
++                    throw new ImportError($"{templatePath}: a scene_data file with {descs.Length} models; say which one with --model N (N of the exported scene_data_N.glb)");
++                if (opt.Model >= descs.Length || descs[opt.Model]?.RootJoint == null)
++                    throw new ImportError($"{templatePath}: scene_data has no model {opt.Model} (models 0..{descs.Length - 1})");
++                if (opt.Roles != null) throw new ImportError("--roles is for robo bodies, not scene models");
++                root = descs[opt.Model].RootJoint;
++            }
++            else
++            {
++                var rootNode = dat.Roots.Find(r => r.Name.EndsWith("_joint"))
++                    ?? throw new ImportError($"{templatePath}: no *_joint root (a scene_data file needs --model N)");
++                if (dat.Roots.Count(r => r.Name.EndsWith("_joint")) != 1)
++                    throw new ImportError($"{templatePath}: more than one *_joint root (not supported)");
++                root = new HSD_JOBJ { _s = rootNode.Data._s };
++            }
 +            List<HSD_JOBJ> tjoints = root.TreeList;   // pre-order = the exporter's JOBJ_n numbering
 +            var tindex = new Dictionary<HSDStruct, int>();
 +            for (int i = 0; i < tjoints.Count; i++) tindex[tjoints[i]._s] = i;
@@ -259,6 +307,17 @@ index 0000000..4d6f621
 +                }
 +            }
 +            var flatTemplate = dobjs.Values.FirstOrDefault()?.Mobj;
++            // scene mode: the template's materials by the exporter's material name (a new mesh may use one of them)
++            var templateMats = new Dictionary<string, HSD_MOBJ>();
++            if (isScene)
++                foreach (var (mname, om) in original)
++                {
++                    var mm = ExportedMesh.Match(mname);
++                    if (!mm.Success || !dobjs.TryGetValue((int.Parse(mm.Groups[1].Value), int.Parse(mm.Groups[2].Value)), out var td) || td.Mobj == null) continue;
++                    foreach (var pn in om.Polygons.Select(p => p.MaterialName).Where(n => n != null).Distinct())
++                        templateMats.TryAdd(pn, td.Mobj);
++                }
++            var sharedMats = new Dictionary<string, HSD_MOBJ>();   // new geometry on a template material
 +            int envTemplate = tjoints.FindIndex(j => j.Flags.HasFlag(JOBJ_FLAG.ENVELOPE_MODEL));
 +
 +            // 1. glb
@@ -356,10 +415,20 @@ index 0000000..4d6f621
 +                    if (poly.PrimitiveType != IOPrimitive.TRIANGLE)
 +                        throw new ImportError($"{mesh.Name}: primitive {poly.PrimitiveType} not supported");
 +                    string matName = poly.MaterialName ?? "";
-+                    var info = Material(matName, gltf, texTemplate, texMats);
-+                    bool textured = info.Diffuse != null;
++                    bool textured;
++                    if (isScene && templateMats.TryGetValue(matName, out var tm))
++                    {
++                        if (sharedMats.TryAdd(matName, tm))
++                            Console.WriteLine($"import: material {matName}: the template's own MObj, shared ({tm.RenderFlags})");
++                        textured = tm.Textures != null;
++                        if (!texMats.ContainsKey(matName))
++                            texMats[matName] = new MatInfo { Name = matName, DoubleSided = gltf.LogicalMaterials.FirstOrDefault(x => x.Name == matName)?.DoubleSided ?? false, Mobj = tm };
++                    }
++                    else
++                        textured = Material(matName, gltf, texTemplate, texMats).Diffuse != null;
 +                    if (textured && !mesh.HasUVSet(0))
 +                        throw new ImportError($"{mesh.Name}: material {matName} has a texture but the mesh has no UVs");
++                    bool clr = isScene && sharedMats.TryGetValue(matName, out var smv) && smv.RenderFlags.HasFlag(RENDER_MODE.VERTEX);
 +                    if (!groupMeshes.TryGetValue(matName, out var gm)) groupMeshes[matName] = gm = new SortedSet<string>();
 +                    gm.Add(mesh.Name);
 +                    for (int t = 0; t + 2 < poly.Indicies.Count; t += 3)
@@ -375,7 +444,7 @@ index 0000000..4d6f621
 +                            if (!rigid.TryGetValue((ji, matName), out var list)) rigid[(ji, matName)] = list = new List<GX_Vertex>();
 +                            Matrix4x4.Invert(jt.W, out var inv);
 +                            foreach (int vi in tri.Reverse())
-+                                list.Add(Vertex(mesh.Vertices[vi], inv, textured));
++                                list.Add(Vertex(mesh.Vertices[vi], inv, textured, clr));
 +                        }
 +                        else
 +                        {
@@ -387,7 +456,7 @@ index 0000000..4d6f621
 +                                // a single 1.0 weight under a SKELETON / SKELETON_ROOT DObj joint is in its joint's space
 +                                // (HSD; HSDRawViewer's exporter reads it so); under any other joint (Ray 01's J1) in the bind pose
 +                                if (w.Length == 1 && envLocal) Matrix4x4.Invert(w[0].j.W, out inv);
-+                                g.v.Add(Vertex(mesh.Vertices[tri[k]], inv, textured));
++                                g.v.Add(Vertex(mesh.Vertices[tri[k]], inv, textured, clr));
 +                                g.b.Add(w.Select(x => x.j.J).ToArray());
 +                                g.w.Add(w.Select(x => x.w).ToArray());
 +                                foreach (var x in w) enveloped.Add(outIndex[x.j.J._s]);
@@ -417,7 +486,7 @@ index 0000000..4d6f621
 +            int dropped = removed.Count;
 +
 +            // 5. new DObjs
-+            var gen = new POBJ_Generator();
++            var gen = new POBJ_Generator { VertexColorFormat = (GXCompType)GXCompTypeClr.RGBA8 };
 +            var addedTo = new SortedDictionary<int, int>();
 +            HSD_DOBJ AddDobj(Joint jt, string matName, Func<HSD_POBJ> makePobj, int tris, string kind)
 +            {
@@ -425,7 +494,8 @@ index 0000000..4d6f621
 +                gen.CullMode = info.DoubleSided ? GenCullMode.None : GenCullMode.Front;
 +                var d = new HSD_DOBJ
 +                {
-+                    Mobj = info.Diffuse != null ? (info.Mobj ??= TexturedMobj(texTemplate, info)) : NewMaterial(matName, gltf, flatTemplate, newMats),
++                    Mobj = sharedMats.TryGetValue(matName, out var sm) ? sm
++                        : info.Diffuse != null ? (info.Mobj ??= TexturedMobj(texTemplate, info)) : NewMaterial(matName, gltf, flatTemplate, newMats),
 +                    Pobj = makePobj(),
 +                };
 +                if (jt.J.Dobj == null) jt.J.Dobj = d; else jt.J.Dobj.Add(d);
@@ -435,18 +505,25 @@ index 0000000..4d6f621
 +                Console.WriteLine($"import: new {kind} DObj on JOBJ_{ji}: {tris} triangles, material {matName}{(info.Diffuse != null ? $" (texture {info.Diffuse.Width}x{info.Diffuse.Height} {info.Diffuse.Format})" : "")}{(info.DoubleSided ? ", two-sided" : "")}, from {string.Join(", ", groupMeshes[matName])}");
 +                return d;
 +            }
++            bool Tex(string matName) => sharedMats.TryGetValue(matName, out var sm) ? sm.Textures != null : texMats[matName].Diffuse != null;
++            bool Clr(string matName) => sharedMats.TryGetValue(matName, out var sm) && sm.RenderFlags.HasFlag(RENDER_MODE.VERTEX);
++            GXAttribName[] Attrs(string matName, bool env)
++            {
++                var a = new List<GXAttribName>();
++                if (env) a.Add(GXAttribName.GX_VA_PNMTXIDX);
++                a.Add(GXAttribName.GX_VA_POS); a.Add(GXAttribName.GX_VA_NRM);
++                if (Clr(matName)) a.Add(GXAttribName.GX_VA_CLR0);
++                if (Tex(matName)) { a.Add(GXAttribName.GX_VA_TEX0); a.Add(GXAttribName.GX_VA_TEX1); }
++                return a.ToArray();
++            }
 +            foreach (var ((ji, matName), verts) in rigid)
 +            {
-+                bool tex = texMats[matName].Diffuse != null;
-+                var attrs = tex ? new[] { GXAttribName.GX_VA_POS, GXAttribName.GX_VA_NRM, GXAttribName.GX_VA_TEX0, GXAttribName.GX_VA_TEX1 }
-+                                : new[] { GXAttribName.GX_VA_POS, GXAttribName.GX_VA_NRM };
++                var attrs = Attrs(matName, false);
 +                AddDobj(joints[ji], matName, () => gen.CreatePOBJsFromTriangleList(verts, attrs, null), verts.Count / 3, "rigid");
 +            }
 +            foreach (var (matName, g) in env)
 +            {
-+                bool tex = texMats[matName].Diffuse != null;
-+                var attrs = tex ? new[] { GXAttribName.GX_VA_PNMTXIDX, GXAttribName.GX_VA_POS, GXAttribName.GX_VA_NRM, GXAttribName.GX_VA_TEX0, GXAttribName.GX_VA_TEX1 }
-+                                : new[] { GXAttribName.GX_VA_PNMTXIDX, GXAttribName.GX_VA_POS, GXAttribName.GX_VA_NRM };
++                var attrs = Attrs(matName, true);
 +                AddDobj(envJoint, matName, () => gen.CreatePOBJsFromTriangleList(g.v, attrs, g.b, g.w), g.v.Count / 3, "envelope");
 +            }
 +
@@ -460,7 +537,7 @@ index 0000000..4d6f621
 +            }
 +
 +            gen.SaveChanges();
-+            UpdateFlags(root, joints, touched);
++            UpdateFlags(root, joints, touched, isScene);
 +
 +            // 7. block B's joint must keep a material (the game reads jobj->dobj->mobj)
 +            int bJoint = 1;
@@ -493,21 +570,24 @@ index 0000000..4d6f621
 +                File.WriteAllText(rolesOut, outRoles.ToJsonString(new JsonSerializerOptions { WriteIndented = true }) + "\n");
 +                Console.WriteLine($"import: roles -> {rolesOut}: B {bJoint}, C " + string.Join(" ", c.Select(kv => $"{kv.Key}={kv.Value}")));
 +            }
-+            if (bJoint >= joints.Count || joints[bJoint].J.Dobj?.Mobj == null)
++            if (!isScene && (bJoint >= joints.Count || joints[bJoint].J.Dobj?.Mobj == null))
 +                throw new ImportError($"block B's material joint JOBJ_{bJoint} has no DObj / material; the game reads its material (put a mesh on it, e.g. the envelope body)");
 +
 +            // the game draws a robo body with ONE material, the block B joint's (fn_800BCC60: HSD_MObjSetup once, then
 +            // its own joint walk): a mesh on a material with another image shows the block B image through its UVs
 +            var images = texMats.Values.Where(m => m.Diffuse != null).Select(m => m.Diffuse).Distinct().Count();
-+            if (images > 1)
++            if (!isScene && images > 1)
 +                Console.WriteLine($"import: warning: {images} different textures on {texMats.Count(m => m.Value.Diffuse != null)} materials; the game draws a robo body with the block B joint's material only (one atlas for the whole body, as its own bodies have)");
 +
-+            dat.Save(outPath);
++            if (isScene)
++                File.WriteAllBytes(outPath, KeepLayout.Save(dat, File.ReadAllBytes(templatePath)));
++            else
++                dat.Save(outPath);
 +            Console.WriteLine($"import: {Path.GetFileName(glbPath)} -> {outPath} ({new FileInfo(outPath).Length} bytes): joints {joints.Count} " +
 +                $"({(opt.GlbSkeleton ? $"glb skeleton, {joints.Count(j => j.New)} new, {tjoints.Count - joints.Count(j => !j.New)} dropped" : "template skeleton")}), " +
 +                $"template meshes kept {existing} (textures replaced {textures}, colours changed {colours}), dropped {dropped} (replaced {replaced}), " +
 +                $"new meshes {newMeshes} ({newTris} triangles; " + string.Join(", ", addedTo.Select(kv => $"JOBJ_{kv.Key}: {kv.Value}")) + $"), " +
-+                $"materials {texMats.Count(m => m.Value.Diffuse != null)} textured / {newMats.Count} flat, enveloped joints {enveloped.Count}");
++                $"materials {texMats.Count(m => m.Value.Diffuse != null)} textured / {newMats.Count} flat{(isScene ? $" / {sharedMats.Count} template" : "")}, enveloped joints {enveloped.Count}");
 +        }
 +
 +        /// <summary>The glb's joint tree (--skeleton glb), relinking the template's JOBJs it names and adding new ones.</summary>
@@ -664,7 +744,7 @@ index 0000000..4d6f621
 +            return r;
 +        }
 +
-+        private static GX_Vertex Vertex(IOVertex v, Matrix4x4 inv, bool uv)
++        private static GX_Vertex Vertex(IOVertex v, Matrix4x4 inv, bool uv, bool clr = false)
 +        {
 +            var p = Vector3.Transform(v.Position, inv);
 +            var n = Vector3.Normalize(Vector3.TransformNormal(v.Normal, inv));
@@ -674,6 +754,11 @@ index 0000000..4d6f621
 +                // the glTF reader flips V (1 - v); HSD's UVs are the glTF's as the exporter writes them (ModelImporter's FlipUVs)
 +                g.TEX0 = new GXVector2(v.UVs[0].X, 1 - v.UVs[0].Y);
 +                g.TEX1 = g.TEX0;
++            }
++            if (clr)
++            {
++                var c = v.Colors.Count > 0 ? v.Colors[0] : Vector4.One;
++                g.CLR0 = new GXColor4(c.X, c.Y, c.Z, c.W);
 +            }
 +            return g;
 +        }
@@ -952,9 +1037,9 @@ index 0000000..4d6f621
 +        /// <summary>
 +        /// Joint flags: joints whose DObjs changed get HSDLib's DObj-derived flags (OPA / XLU, LIGHTING, SPECULAR,
 +        /// ENVELOPE_MODEL; all cleared when no DObj is left); every joint gets the ROOT_OPA / ROOT_XLU / ROOT_TEXEDGE bits
-+        /// HSDLib computes (added, never removed). All other bits (SKELETON, IK types, billboards, ...) stay the template's.
++        /// HSDLib computes (added, never removed; only when some joint changed). All other bits (SKELETON, IK types, billboards, ...) stay the template's.
 +        /// </summary>
-+        private static void UpdateFlags(HSD_JOBJ root, List<Joint> joints, HashSet<HSDStruct> touched)
++        private static void UpdateFlags(HSD_JOBJ root, List<Joint> joints, HashSet<HSDStruct> touched, bool scene = false)
 +        {
 +            var before = joints.Select(j => j.J.Flags).ToArray();
 +            root.UpdateFlags();
@@ -965,21 +1050,149 @@ index 0000000..4d6f621
 +            {
 +                var j = joints[i].J;
 +                var now = j.Flags;
-+                var f = before[i] | (now & rootBits);
++                // the ROOT_* bits only when the model changed (a stage's own ROOT bits are not what HSDLib computes)
++                var f = before[i] | (touched.Count > 0 || joints.Any(x => x.New) ? now & rootBits : 0);
 +                if (touched.Contains(j._s) || joints[i].New)
 +                    f = (f & ~dobjBits) | (j.Dobj != null ? now & dobjBits : 0);
++                // scene models (stages): only add the OPA / XLU / LIGHTING / SPECULAR bits (and ROOT_OPA / ROOT_XLU) HSDLib
++                // finds for the new DObjs; never remove, never TEXEDGE (the stages' own joints do not carry the bits
++                // HSDLib would compute for their materials)
++                if (scene)
++                {
++                    f = before[i];
++                    if (touched.Count > 0 || joints.Any(x => x.New))
++                    {
++                        var add = JOBJ_FLAG.ROOT_OPA | JOBJ_FLAG.ROOT_XLU;
++                        if (touched.Contains(j._s) || joints[i].New)
++                            add |= JOBJ_FLAG.OPA | JOBJ_FLAG.XLU | JOBJ_FLAG.LIGHTING | JOBJ_FLAG.SPECULAR;
++                        f |= now & add;
++                    }
++                }
 +                j.Flags = f;
 +                if (f != before[i]) Console.WriteLine($"import: JOBJ_{i} flags {before[i]} -> {f}");
 +            }
 +        }
 +    }
++
++    /// <summary>
++    /// gameTesting patch: save an HSD .dat in its original file layout (scene mode of ModelImport). HSDLib split the
++    /// data block into structs at every pointer target when it read the file; a struct that is still reachable from
++    /// the roots and is not longer than its original slot is written back at its original offset, every other
++    /// reachable struct (new, or grown) is appended after the data block, 0x20-aligned. Pointer slots are rewritten;
++    /// the relocation table is the original one minus slots that stopped being pointers in reachable structs, plus
++    /// the new slots, sorted (the game's files have it sorted). Data that is no longer reachable stays in place,
++    /// untouched (dead, but harmless), so the result of an import without edits is the template, byte for byte.
++    /// </summary>
++    public static class KeepLayout
++    {
++        private static int U32(byte[] b, int o) => (b[o] << 24) | (b[o + 1] << 16) | (b[o + 2] << 8) | b[o + 3];
++        private static void W32(byte[] b, int o, int v) { b[o] = (byte)(v >> 24); b[o + 1] = (byte)(v >> 16); b[o + 2] = (byte)(v >> 8); b[o + 3] = (byte)v; }
++
++        public static byte[] Save(HSDRawFile dat, byte[] orig)
++        {
++            int dataSize = U32(orig, 4), relocCount = U32(orig, 8), rootCount = U32(orig, 12), refCount = U32(orig, 16);
++            int dataEnd = 0x20 + dataSize, rootTable = dataEnd + relocCount * 4, strings = rootTable + (rootCount + refCount) * 8;
++            if (refCount != 0 || dat.References.Count != 0) throw new InvalidDataException("KeepLayout: files with reference nodes are not supported");
++            if (dat.Roots.Count != rootCount) throw new InvalidDataException("KeepLayout: the roots changed");
++            // the original split: every pointer target and root starts a struct (HSDRawFile.Open does the same)
++            var relocs = new List<int>();
++            var starts = new SortedSet<int> { dataEnd };
++            for (int i = 0; i < relocCount; i++)
++            {
++                int slot = U32(orig, dataEnd + 4 * i) + 0x20;
++                relocs.Add(slot);
++                int target = U32(orig, slot) + 0x20;
++                if (target >= 0x20 && target < dataEnd) starts.Add(target);
++            }
++            for (int i = 0; i < rootCount; i++) starts.Add(U32(orig, rootTable + 8 * i) + 0x20);
++            var startList = starts.ToList();
++            int SlotEnd(int start) { int k = startList.BinarySearch(start); return k >= 0 && k + 1 < startList.Count ? startList[k + 1] : -1; }
++
++            // reachable structs, in a stable order
++            var all = new List<HSDStruct>();
++            var seen = new HashSet<HSDStruct>();
++            foreach (var r in dat.Roots)
++                foreach (var sub in r.Data._s.GetSubStructs())
++                    if (seen.Add(sub)) all.Add(sub);
++
++            var pos = new Dictionary<HSDStruct, int>();
++            var inPlace = new List<(int start, int end)>();
++            var appended = new List<HSDStruct>();
++            var claimed = new HashSet<int>();
++            foreach (var s in all)
++            {
++                int o = dat.GetOffsetFromStruct(s), end = o >= 0 ? SlotEnd(o) : -1;
++                if (o >= 0x20 && end > 0 && s.Length <= end - o && claimed.Add(o)) { pos[s] = o; inPlace.Add((o, o + s.Length)); }
++                else appended.Add(s);
++            }
++            int size = dataEnd;
++            foreach (var s in appended) { size = (size + 0x1F) & ~0x1F; pos[s] = size; size += s.Length; }
++            size = (size + 3) & ~3;
++
++            var data = new byte[size];
++            Array.Copy(orig, data, dataEnd);
++            foreach (var s in all) Array.Copy(s.GetData(), 0, data, pos[s], s.Length);
++            var slots = new HashSet<int>();
++            foreach (var s in all)
++                foreach (var (k, t) in s.References)
++                {
++                    W32(data, pos[s] + k, pos[t] - 0x20);
++                    slots.Add(pos[s] + k);
++                }
++            inPlace.Sort();
++            bool InReachable(int slot)
++            {
++                int lo = 0, hi = inPlace.Count - 1;
++                while (lo <= hi) { int m = (lo + hi) / 2; if (inPlace[m].end <= slot) lo = m + 1; else if (inPlace[m].start > slot) hi = m - 1; else return true; }
++                return false;
++            }
++            var reloc = new SortedSet<int>(slots);
++            foreach (int slot in relocs)
++            {
++                if (reloc.Contains(slot)) continue;
++                bool same = slot + 4 <= dataEnd && U32(data, slot) == U32(orig, slot);
++                bool wasPointer = U32(orig, slot) + 0x20 is int t && t >= 0x20 && t < dataEnd;
++                // dropped from a reachable struct (no longer a pointer there): leave it out; dead data keeps its slots
++                if (same && !(InReachable(slot) && wasPointer)) reloc.Add(slot);
++            }
++
++            var outp = new MemoryStream();
++            outp.Write(data, 0, data.Length);
++            var w4 = new byte[4];
++            foreach (int slot in reloc) { W32(w4, 0, slot - 0x20); outp.Write(w4, 0, 4); }
++            for (int i = 0; i < rootCount; i++)
++            {
++                if (dat.Roots[i].Name != ReadString(orig, strings + U32(orig, rootTable + 8 * i + 4)))
++                    throw new InvalidDataException("KeepLayout: root names / order changed");
++                W32(w4, 0, pos[dat.Roots[i].Data._s] - 0x20); outp.Write(w4, 0, 4);
++                W32(w4, 0, U32(orig, rootTable + 8 * i + 4)); outp.Write(w4, 0, 4);
++            }
++            int fsize = U32(orig, 0);   // the game's files: file size = end of the strings, then zero padding to 0x20
++            outp.Write(orig, strings, fsize - strings);
++            var result = outp.ToArray();
++            int newSize = result.Length;
++            int padTo = orig.Length % 0x20 == 0 ? (newSize + 0x1F) & ~0x1F : newSize + (orig.Length - fsize);
++            Array.Resize(ref result, padTo);
++            W32(result, 0, newSize);
++            W32(result, 4, size - 0x20);
++            W32(result, 8, reloc.Count);
++            return result;
++        }
++
++        private static string ReadString(byte[] b, int o)
++        {
++            int e = o;
++            while (e < b.Length && b[e] != 0) e++;
++            return System.Text.Encoding.ASCII.GetString(b, o, e - o);
++        }
++    }
 +}
 diff --git a/HSDRawViewer/ModelInfo.cs b/HSDRawViewer/ModelInfo.cs
 new file mode 100644
-index 0000000..8d39424
+index 0000000..f9ab4be
 --- /dev/null
 +++ b/HSDRawViewer/ModelInfo.cs
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,122 @@
 +using System;
 +using System.Linq;
 +using HSDRaw;
@@ -1024,8 +1237,30 @@ index 0000000..8d39424
 +                                string.Join(" ", list.Select((x, i) => (x, i)).Where(t => t.x.AOBJ != null).Select(t => $"{t.i}[{string.Join(",", t.x.AOBJ.FObjDesc?.List.Select(f => f.JointTrackType.ToString()) ?? new string[0])}] end {t.x.AOBJ.EndFrame}")));
 +                        }
 +                }
++                if (r.Name.EndsWith("scene_data"))
++                {
++                    // stages / effects / objects: a scene (models, cameras, lights, fog); --export writes model i as scene_data_i.glb
++                    var sobj = new HSD_SOBJ { _s = r.Data._s };
++                    var descs = sobj.JOBJDescs?.Array ?? new HSD_JOBJDesc[0];
++                    Console.WriteLine($"  scene: models {descs.Length}, cameras {sobj.Camera?.Array.Length ?? 0}, lights {sobj.Lights?.Array.Length ?? 0}" +
++                        $" ({string.Join(" ", sobj.Lights?.Array.Select(l => l.LightObject?.Flags.ToString() ?? "-") ?? new string[0])}), fog {(sobj.Fog != null ? "yes" : "no")}");
++                    for (int m = 0; m < descs.Length; m++)
++                    {
++                        var d = descs[m];
++                        Console.WriteLine($"  model {m}: joint anims {d.JointAnimations?.Array.Length ?? 0}, material anims {d.MaterialAnimations?.Array.Length ?? 0}, shape anims {d.ShapeAnimations?.Array.Length ?? 0}");
++                        if (d.RootJoint != null) Joints(d.RootJoint);
++                    }
++                    continue;
++                }
 +                if (!r.Name.EndsWith("_joint")) continue;
-+                var root = new HSD_JOBJ { _s = r.Data._s };
++                Joints(new HSD_JOBJ { _s = r.Data._s });
++            }
++            return 0;
++        }
++
++        private static void Joints(HSD_JOBJ root)
++        {
++            {
 +                var joints = root.TreeList;
 +                var idx = joints.Select((j, i) => (j, i)).ToDictionary(t => t.j._s, t => t.i);
 +                int[] par = new int[joints.Count]; par[0] = -1;
@@ -1077,12 +1312,11 @@ index 0000000..8d39424
 +                    }
 +                }
 +            }
-+            return 0;
 +        }
 +    }
 +}
 diff --git a/HSDRawViewer/Program.cs b/HSDRawViewer/Program.cs
-index 8eb6817..0ef3ba9 100644
+index 8eb6817..c272683 100644
 --- a/HSDRawViewer/Program.cs
 +++ b/HSDRawViewer/Program.cs
 @@ -15,6 +15,33 @@ namespace HSDRawViewer
@@ -1110,7 +1344,7 @@ index 8eb6817..0ef3ba9 100644
 +                return;
 +            }
 +            //   HSDRawViewer.exe --import <template.dat> <edited.glb> <out.dat>   (import over the template's joint tree, ModelImport.cs)
-+            //   options: [--replace] [--skeleton template|glb] [--roles <roles_by_name.json>] [--envelope-joint JOBJ_n]
++            //   options: [--replace] [--skeleton template|glb] [--roles <roles_by_name.json>] [--envelope-joint JOBJ_n] [--model N]
 +            if (args.Length >= 4 && args[0] == "--import")
 +            {
 +                System.Environment.ExitCode = ModelImport.Run(args[1], args[2], args[3], args[4..]);

@@ -57,7 +57,10 @@ def sync_entry_table(dol, arch, old_archive, new_archive):
         p = dol_offset(dol, u(desc))
         if dol[p:p + 128].split(b'\0')[0].decode('ascii', 'replace').lower() != arch.lower(): continue
         table = u(desc + 12)
-        if table in (0, 1): sys.exit(f'{arch}: main.dol has no entry table for it (kind {table}); not supported yet')
+        # kind 1 (bg_data): the game reads the archive's own header (its first 0x800 bytes) at boot
+        # (cr_FileSys_Init, fn_80021674; docs/stage_tables.md), so there is no copy in main.dol to update
+        if table == 1: return False
+        if table == 0: sys.exit(f'{arch}: main.dol has no entry table for it (kind {table}); not supported yet')
         t = dol_offset(dol, table)
         if dol[t + 8:t + 8 + 8 * old_n] != old_archive[8:8 + 8 * old_n] or u(table) != old_n:
             sys.exit(f'{arch}: main.dol entry table does not match the clean archive; refusing to patch it')
@@ -69,6 +72,9 @@ def sync_entry_table(dol, arch, old_archive, new_archive):
 
 
 CHARA_ENTRY_MAX = 0x3A000   # per-robo body load buffer (docs/robo_tables.md, part load requests)
+# stage entries (docs/stage_tables.md): the model (even entry) is read to the 0x100000-byte region at lbl_8044F2E8
+# (fn_80023CBC), the collision entry (odd) to the 0x8000-byte buffer lbl_8034C100 (fn_8011449C / fn_80114214)
+BG_MODEL_MAX, BG_COLLISION_MAX = 0x100000, 0x8000
 
 
 def robo_roles(dat_path, entry, template, all_entries):
@@ -138,6 +144,11 @@ def main():
                                  f'{CHARA_ENTRY_MAX:#x}-byte load buffer (docs/robo_tables.md)')
             else:
                 entries[idx] = dat
+                if cat == 'bg_data':
+                    limit = BG_COLLISION_MAX if idx % 2 else BG_MODEL_MAX
+                    if len(dat) > limit:
+                        sys.exit(f"{p}: {'collision' if idx % 2 else 'stage model'} entry is {len(dat):#x} bytes; the game's "
+                                 f'load buffer for it is {limit:#x} bytes (docs/stage_tables.md)')
             changed.append(f'{arch} entry {idx:03d} <- {p.relative_to(mod)}')
         out = stage / 'files' / arch
         out.parent.mkdir(parents=True, exist_ok=True)
