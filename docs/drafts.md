@@ -1,8 +1,8 @@
 # Game-code drafts: m2c, compile, compare (batch 12)
 
 Milestone 5 (game code to matching C, about 1,750 functions) needs a first C version of every function. This batch makes
-one for all of them, checks each against the original, and says where to start. The drafts take about 26 minutes, parallel
-(two m2c passes, the repair loop and the variants of every draft below 100%, plan.md step 69; 6.5 minutes after step 59,
+one for all of them, checks each against the original, and says where to start. The drafts take about 31 minutes, parallel
+(two m2c passes, the repair loop and the variants of every draft below 100%, plan.md steps 69 and 77; 6.5 minutes after step 59,
 2 minutes in the first version, step 57); after them the batch promotes
 the linkable matches into `decomp/src/game` and, when that folder changed, runs batch 9 again, which adds that build's time
 (with `-Sample` there is no promotion):
@@ -385,6 +385,87 @@ Not found / left for the next round:
 - epilogue order (`lwz r0` before `lwz r31` after a final store: fn_800A0804, 96 originals): the compiler gives the
   other order for every spelling tried (a label, do / while, an inline, a block, an unused local);
 - `-inline_volatile_temps` wins in 250 drafts that do not match: the expression form is not always the source's.
+
+## Eighth generator (plan.md step 77, Oct 31, 2026)
+
+Round 7 (branch drafts2), aimed at types first: a typed global or struct field fixes every draft that touches it.
+Baseline: the step 69 generator on the step 76 build gives 451 at 100%, 1,703 compile, 490,720 bytes equal. Method as
+in round 6 (scratch tools: an objdump side-by-side of draft and original, a classifier of the differing blocks, and a
+"measure" script that applies a candidate rule to every current draft below 100%, compiles and scores it, so a rule
+is ranked by the drafts it raises / lowers before a 30-minute full run). Every fix is in `tools/draft_batch.py` or in
+the types files; no draft is edited. Found by compiling hand-made variants of the near matches first, then written
+as rules:
+1. **Types: objects the code addresses from one base, declared as scalars** (symbols/cr_types.h, cr_globals.txt).
+   `cr_g_SeqCurrent` was a 4-byte `cr_Seq`, but dtk's object at 0x80321D88 is 0x48 bytes and the game code takes its
+   address 643 times (`lis/addi`, then a field offset); `cr_g_FileSysReady` was a `u8`, dtk's object at 0x80321CB4 is
+   0x8C bytes (the read queue that cr_globals.txt names field by field at addresses the code never reaches as symbols
+   of their own). m2c then wrote `M2C_FIELD(&cr_g_SeqCurrent, s32 *, 0x40) = 2`, and the address of a scalar compiles
+   differently from a member of a struct object (`li r0,2; stw` where the original keeps the 2 in r5 for a later
+   store; tested: a cast to a struct type, `(*(T *) &x).f`, does not reproduce it either, only an object declared
+   with the struct type). New structs `cr_SeqState` (current / previous / next sequence, the handlers' counters; 0x48)
+   and `cr_FileSysState` (ready flag, queue head / tail, chunk length, current read, the 32-slot ring; 0x8C) with
+   `/* +XX */` offsets and ASSERT_SIZE comments; the globals take them. Matched 6 (cr_SEQ_ENDING_FrameA, cr_SEQ_MENU_FrameA,
+   cr_SEQ_ILLUSTRATED_BOOK_FrameA, cr_SEQ_TITLE_Enter, fn_8000DE08, fn_80125BB0: round 6's `li r5,2` class, which
+   needed no inline function after all), fn_800191E8 too. `cr_FileSlot.read_buffer` is `u8 *` (the code advances it
+   by the bytes read; as `void *` two drafts stopped compiling once they read the slot through the typed queue).
+2. **Types of `lbl_` objects from the code** (`load_signs`, `data_decls`): a `2byte` object whose every halfword load
+   is `lha` is `s16` (12 objects; dtk calls every one u16: `(s16) lbl_801C6C00[0x20]` compiled to lhz + extsh); an
+   object the code reads or writes beyond its dtk size through its own address (`li r3,lbl_8044F87C@sda21; lbz
+   r0,1(r3)`) is declared with that extent when it still ends before the next symbol (5 objects, 150 + 60 + 56
+   accesses of the first three; dtk sized them by the first byte, and m2c wrote `M2C_FIELD(&lbl, u8 *, 1)` of a
+   scalar).
+3. **Stack locals as one struct** (`stack_struct`, a variant): m2c names a local `spN` only for a stack slot the
+   original read or wrote in memory, so the source kept that value in memory (a member of a local struct or array:
+   `Vec3 d; d.x = ...`). As scalars the compiler gave them registers (f30 / f31) and dropped the loads and stores. The
+   variant declares all `spN` of a draft as members of one local struct at their offsets (padding between) and
+   writes `sp.spN`. With it, **struct copies** (`struct_copies`): three word copies into consecutive members from
+   consecutive offsets of one pointer, one of them an integer word between floats, are one `Vec3` assignment (the
+   original copies through integer registers, `lwz` / `stw`: HSD_JObjGetTranslation's `*translate = jobj->translate`).
+   241 kept drafts use it; 8 matches need it (fn_8006FBE0, fn_8001E3B8, fn_8002B284, fn_80050F90, fn_80085280,
+   fn_80099DE0, fn_800AA024, fn_80029C84).
+4. **Compound assignment in a condition** (`assign_in_cond`): `t = X & C; X = t; if ((t != 0) && ...` -> `if (((X &=
+   C) != 0) && ...` (`rlwinm. r0; stw r0; beq`: the value the assignment stored is tested; as a temporary it took a
+   callee-saved register). Changed 25; fn_8006FBE0, fn_80045C08, fn_800459A0.
+5. **Aliases of a base plus an offset** (`alias_offsets`, a variant): `t = b + K;` and later `M2C_FIELD(b, T *, K)`:
+   m2c folds the access at offset 0 of the alias back into its base (fn_80029C84's two Vec4s of a camera at +0x28 and
+   +0x38, stored through r29 / r28 in the original) -> `M2C_FIELD(t, T *, 0)`; 3 matches (fn_80029C84, fn_80066904,
+   fn_8008F890).
+6. **Calls through a global's first word** (`global_call_self`): `((M2C_UNK (*)(u32 *)) *lbl_X)(lbl_X)` loses the
+   argument (the original's r3 holds only `X@ha`), and the test of that word before the call is a pointer test,
+   `(void *) *lbl_X != NULL` (with void_null `addi; li r0,0; lwz; cmplw`): fn_8006FB9C.
+7. **More variants**: `hsd_inlines` (m2c's expansion of HSD_JObjMtxIsDirty, this revision's assert line 605, back
+   into an inline function with its own `result`: right register count, no match yet; as a rule it lost
+   fn_80095A30), `pointer_tests` with void_null (`(u32) lbl_X != 0U` -> a null-pointer test: fn_800DF2A0's `li r0,0;
+   cmplw`), `drop_same_assign_casts` (`= (s16) lbl_801C6C00[0x20];` on an s16 array: the cast cost a register,
+   fn_80045B40). The variants are tried for every compiled draft below 100%; the draft step now takes about 31
+   minutes.
+**Before -> after** (cycle 1, full runs; m2c, compiler, flags unchanged): compile 1,703 -> 1,701 of 1,751, **100% MATCH
+451 -> 473** (22 new, none lost), bytes equal after alignment 490,720 -> 515,408; histogram 0-9% 46 -> 40, 10-19% 73
+-> 63, 20-29% 104 -> 77, 30-39% 121 -> 109, 40-49% 268 -> 258, 50-59% 128 -> 143, 60-69% 152 -> 159, 70-79% 156 ->
+165, 80-89% 133 -> 134, 90-99% 71 -> 80. **Linked: 436 game objects** (432 promoted, 3 file objects, 1 kept; was
+420), 0xC4D0 bytes = 4.10% of the game code (was 3.84%); 638 of 911 units from C, 21.65% of all code (was 21.48%).
+Batch 9: main.dol retail SHA-1, every object 100% code + data, static shift PASS; batch 8 0 FAIL; checksums written.
+**Cycle 2** (the two variants of item 7 and `read_buffer`): 473 -> **477** (fn_80045B40, fn_80015E18, fn_800199AC,
+fn_8010FD38, all with drop_same_assign_casts), compile 1,701 -> 1,703 (the two drafts of item 1's `read_buffer`),
+bytes equal 517,256; histogram 0-9% 40, 10-19% 63, 20-29% 77, 30-39% 109, 40-49% 257, 50-59% 143, 60-69% 158, 70-79%
+165, 80-89% 134, 90-99% 80, 100% 477. **Linked: 439 game objects** (435 promoted, 3 file objects, 1 kept), 0xC65C
+bytes = 4.13% of the game code; 641 of 916 units from C, **21.68% of all code**, data 5.89%; batch 9 retail SHA-1,
+static shift PASS, batch 8 0 FAIL, decomp checksums written. The cycle gained fewer than 10, so the round stops here
+(39 matched drafts with data of their own wait for their file runs).
+Not found / left for the next round:
+- **file runs**: the smallest, fn_8006EEF8..fn_8006FDD0 (7 functions, own int-to-float constants), now waits on one
+  function: fn_8006EEF8 (0xBCC bytes, 32%; the original keeps 14 float and 18 integer locals in callee-saved
+  registers, f18-f31 / r14-r31, the draft three floats: a hand decompilation); fn_8002444C matches and owns two
+  .sdata2 floats, but its compiled pool (literals merged, 88.0f once) does not lay out like the original's (two piece
+  starts); the next runs wait on 5 functions each (0x800057B8.., 0x8008A0A8..);
+- the script-command head (~40 drafts at 78-85%): a pointer to the command counter as a local reproduces the saved
+  but unused r30 (the variable's register survives, its value moves to r5), but no statement order or struct form
+  (also with the state as a struct object) gives the original's address scheduling (best 85%);
+- m2c's `*(p + off)` through a `void *` parameter that the repair loop made `u8 *` loads a byte where the original
+  loads a word (`lwzx`: fn_8008688C); parameter register order (fn_80075258 family: the parameters in r30 / r29
+  without copies come out swapped); `|=` on an s8 local without the `extsb` (fn_80061BE8); stack frames larger than
+  the struct of the named slots (fn_8002EBB0: 0x20 more, locals the code never touches);
+- `lha` vs `lhz` through struct fields typed by m2c (`(s16) chara->angle` of the s32 at +0x58 reads its low half).
 
 ## Promoted to decomp/src/game (plan.md step 58)
 

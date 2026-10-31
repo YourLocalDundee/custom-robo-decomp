@@ -227,6 +227,9 @@ game/cr_SEQ_OPTION_FrameB.c:
 game/fn_80015E04.c:
 	.text       start:0x80015E04 end:0x80015E18
 
+game/fn_80015E18.c:
+	.text       start:0x80015E18 end:0x80015E2C
+
 game/fn_80016064.c:
 	.text       start:0x80016064 end:0x80016074
 
@@ -274,6 +277,9 @@ game/fn_800191E8.c:
 
 game/cr_SEQ_LOGO_Enter.c:
 	.text       start:0x80019824 end:0x80019828
+
+game/fn_800199AC.c:
+	.text       start:0x800199AC end:0x800199F0
 
 game/cr_SEQ_LOGO_FrameB.c:
 	.text       start:0x8001AA98 end:0x8001AA9C
@@ -1128,6 +1134,9 @@ game/fn_8010DBA0.c:
 
 game/fn_8010E478.c:
 	.text       start:0x8010E478 end:0x8010E47C
+
+game/fn_8010FD38.c:
+	.text       start:0x8010FD38 end:0x8010FE6C
 
 game/fn_80110FE4.c:
 	.text       start:0x80110FE4 end:0x80110FEC
