@@ -62,7 +62,6 @@ Every command runs from the repo root. `tools/check_docs.py` checks this convent
 | [images/ray_legionnaire_v1_customize.jpg](images/ray_legionnaire_v1_customize.jpg) | Screenshot: the first edited robo model (Ray 01 legionnaire v1) in the Customize screen, Oct 30, 2026 |
 | [images/ray_legionnaire_v1_battle1.jpg](images/ray_legionnaire_v1_battle1.jpg), [images/ray_legionnaire_v1_battle2.jpg](images/ray_legionnaire_v1_battle2.jpg) | Screenshots: the same model in a battle, the added parts follow their bones, Oct 30, 2026 |
 | [community/discord_codes.md](community/discord_codes.md) | Codes and addresses from the community Discord, mapped to our functions (Oct 29, 2026) |
-| [robo_tables.md](robo_tables.md) | Every table, file and constant indexed by the body (robo) number, and what grows for a new body (step 71) |
 | [community/crbr_parts_expansion.md](community/crbr_parts_expansion.md) | DesiacX's CRBR-Parts-Expansion and Project Hive's sources mapped to our names: how they add part slots, record layouts, free space, textures, similar repos (step 72) |
 | [community/codes_gxce01.tsv](community/codes_gxce01.tsv) | The codes of community_codes.md as a table, one row per code. Research data of Oct 28, 2026: no tool in the repo writes it; keep it in step with community_codes.md |
 
