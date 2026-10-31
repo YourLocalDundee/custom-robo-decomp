@@ -51,7 +51,7 @@ __restore_gpr 8015F9E0 _restgpr_14
 
 ## unaff_r2 functions
 800095F4 FUN_800095f4
-80011AC0 FUN_80011ac0
+80011AC0 cr_Save_ApplyUnlocks
 8001F558 cr_Pad_StepIndex
 80022830 FUN_80022830
 80024EB0 FUN_80024eb0

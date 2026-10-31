@@ -268,7 +268,8 @@ Work on a branch happens in a second worktree next to the main checkout (plan.md
 work streams at a time, the main checkout merges and verifies). The gitignored big folders are not cloned again: they
 are junctions into the main checkout, so one copy of the tools, the references, the extracted disc and the Ghidra export
 serves every worktree. The recipe, for `D:\emulators\gameTesting` (main) and a worktree `D:\emulators\gameTesting-x`
-on branch `x` (`pwsh`, from the main checkout):
+on branch `x` (`pwsh`, from the main checkout; run as written on Oct 31, 2026: batch 9 passed in the worktree 50 s
+after the block, batch 8 10 s):
 
 ```powershell
 git worktree add ..\gameTesting-x -b x                    # from the current commit of the main checkout
@@ -283,8 +284,8 @@ foreach ($d in 'orig', 'tools') { New-Item -ItemType Junction -Path "$w\decomp\$
 New-Item -ItemType HardLink -Path "$w\Custom Robo (USA).iso" -Target "$m\Custom Robo (USA).iso" | Out-Null
 # copies: what a worktree writes itself
 Copy-Item "$m\decomp\configure.py" "$w\decomp\"                       # or: pwsh tools\setup_decomp.ps1 in the worktree (template + patch)
-Copy-Item -Recurse "$m\tools\dtk" "$w\tools\dtk"                     # dtk.exe + proj\ (dtk's analysis; batch 9 reads it, checksummed)
-Copy-Item -Recurse "$m\decomp\build" "$w\decomp\build"               # the build (about 190 MB): batch 9 / 12 rebuild it here; or let batch 9 make it (setup_decomp.ps1 refetches nothing)
+Copy-Item -Recurse -Force "$m\tools\dtk\*" "$w\tools\dtk"            # dtk.exe + proj\ (dtk's analysis; batch 9 reads it, checksummed) into the tracked folder (proj\config.yml is in git: without the \* the copy lands in tools\dtk\dtk\)
+# decomp\build is NOT copied: the worktree's first batch 9 makes it (setup_decomp.ps1 unpacks the pinned build tools from the shared tools\downloads, nothing is fetched; dtk splits and ninja builds everything: 50 s in all)
 ```
 
 Rules that follow from the layout:
@@ -298,8 +299,14 @@ Rules that follow from the layout:
 - `-Compare` in a worktree compares against the branch's `docs\expected_checksums.txt`, with the main checkout's
   Ghidra export: the `decompiled\*` and `symbols\*` lines differ as soon as the branch changes names (expected; the
   main checkout settles them after the merge).
-- Remove with `git worktree remove ..\gameTesting-x` after the merge (junctions are removed with the folder; the
-  targets are untouched).
+- Remove after the merge: first the junctions, then the worktree (`git worktree remove` deletes the files but leaves
+  every junction behind; `rmdir` removes a junction without touching its target):
+  ```powershell
+  Get-ChildItem -Recurse -Force ..\gameTesting-x | Where-Object LinkType -eq 'Junction' | ForEach-Object { cmd /c rmdir "`"$($_.FullName)`"" }
+  git worktree remove ..\gameTesting-x; git branch -d x
+  ```
+- `-Compare` (and anything reading `decompiled\`) in a worktree fails with "being used by another process" while the
+  main checkout's Ghidra rebuild is writing the export: wait for `run_all` / `rebuild_decomp.ps1` there to finish.
 
 ## 4. Models — same tools we used, in order (`from_scratch.ps1` / `from_scratch.sh` run the unpack, verify and round-trip lines; on Linux / macOS `python3 -I` and forward slashes)
 

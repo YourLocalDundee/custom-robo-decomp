@@ -300,7 +300,8 @@ pwsh tools\checksums.ps1 -Compare              # expected: only the decomp\ repo
   main checkout, so `draft_summary.txt`, `promote_report.txt` and the promoted files are the main build's (31 minutes).
 - When all checks pass and the differences are the intended ones: `pwsh tools\checksums.ps1 -Write`, then one plain
   commit with the regenerated reports, `docs\expected_checksums.txt`, and the plan.md "Resume here" bullet of the step
-  (what the numbers are now, what is left). Then `git worktree remove ..\<worktree>` and delete the branch.
+  (what the numbers are now, what is left). Then remove the junctions, `git worktree remove ..\<worktree>` and delete
+  the branch ([REPRODUCE.md](REPRODUCE.md#a-second-checkout-git-worktree), the removal lines).
 - Two worktrees that both change `decomp/configure.py`: regenerate the patch after the merge
   (`python -I tools\make_configure_patch.py` on the merged `decomp/configure.py`; `setup_decomp.ps1` must then apply it
   without a reject).
