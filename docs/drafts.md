@@ -730,6 +730,83 @@ compiled draft's own data, so a draft that matches only with `float_literals` ow
 36%, cr_FileSys_RegisterPath 42%, fn_8004FF64 51%, fn_800E4958 58%, fn_80021AB0 68%, fn_8002444C 68%, fn_80080E24 78%,
 fn_80053A20 86% (fn_80111EEC 93% then matched: the third file object): each links by itself once it matches.
 
+### Step 83: the run table, string literals, the pool order (Oct 31, 2026, branch fileobjs)
+
+The file runs after step 82 (promote_report.txt "file runs" with the drafts' sizes and match percentages; the runs
+ranked by how many functions still block them, a run of one function with a FILE OBJECT line is linked):
+
+| run (first..last) | span | functions | at 100% | blockers | blocker bytes | blockers (size, match) |
+|---|---|---|---|---|---|---|
+| fn_8002444C..fn_8002444C | 0x8002444C-0x80024578 | 1 | 1 | 0 | 0x0 | .sdata2: its relocations give two piece starts (0x804504E8, 0x804504F0) |
+| fn_8005C4D0..fn_8005C4D0 | 0x8005C4D0-0x8005C628 | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_8005C4D0_fn_8005C4D0.c (.sdata2 0x804509A0-0x804509A8) |
+| fn_800AA130..fn_800AA130 | 0x800AA130-0x800AA17C | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_800AA130_fn_800AA130.c (.data 0x8022B130-0x8022B204) |
+| fn_80111EEC..fn_80111EEC | 0x80111EEC-0x8011214C | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_80111EEC_fn_80111EEC.c (.sdata2 0x80451888-0x80451890) |
+| fn_8006EEF8..fn_8006FDD0 | 0x8006EEF8-0x8006FE38 | 7 | 6 | 1 | 0xBCC | fn_8006EEF8 (0xBCC, 32%) |
+| fn_8008A0A8..fn_8008BD50 | 0x8008A0A8-0x8008BED4 | 11 | 6 | 5 | 0x14AC | fn_8008A484 (0x22C, 56%), fn_8008A6B0 (0x200, 64%), fn_8008A8B0 (0x238, 57%), fn_8008AAE8 (0x204, 56%), fn_8008ACEC (0xC44, compile failed illegal type) |
+| fn_800057B8..fn_8000805C | 0x800057B8-0x8000860C | 16 | 11 | 5 | 0x171C | fn_800057B8 (0x3D0, 43%), fn_80005BC8 (0x170, 56%), cr_BattleRobo_InitFromLoadout (0x8B4, 36%), fn_80007CE4 (0x378, 65%), fn_8000805C (0x5B0, 67%) |
+| fn_8008057C..fn_800812A4 | 0x8008057C-0x80081430 | 11 | 4 | 7 | 0xC40 | fn_8008057C (0x418, 64%), fn_80080A94 (0xEC, 98%), fn_80080B80 (0xFC, 92%), fn_80080C7C (0x1A8, 63%), fn_80080E24 (0xFC, 78%), fn_80080FD8 (0x210, 92%) ... +1 more |
+| fn_80076B2C..fn_80079C70 | 0x80076B2C-0x80079CB8 | 31 | 19 | 12 | 0x24F8 | fn_80076B2C (0x764, 44%), fn_800779A8 (0x2B4, 57%), fn_80077C5C (0x2DC, 56%), fn_80078000 (0x438, 12%), fn_800784B0 (0x6B0, 47%), fn_80078B60 (0x140, 86%) ... +2 more |
+| fn_8007D0D4..fn_8007FCD8 | 0x8007D0D4-0x8008052C | 18 | 6 | 12 | 0x2FF4 | fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 77%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%), fn_8007DD60 (0x6A0, 38%) ... +2 more |
+| fn_8007D3C8..fn_8007FCD8 | 0x8007D3C8-0x8008052C | 14 | 2 | 12 | 0x2FF4 | fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 77%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%), fn_8007DD60 (0x6A0, 38%) ... +2 more |
+| fn_8007C094..fn_8007FCD8 | 0x8007C094-0x8008052C | 22 | 9 | 13 | 0x3BF0 | fn_8007C094 (0xBFC, compile failed illegal operand), fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 77%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%) ... +2 more |
+| fn_8010E47C..fn_80112A0C | 0x8010E47C-0x80112AB8 | 27 | 13 | 14 | 0x3E70 | fn_8010E47C (0x3A4, 75%), fn_8010E820 (0x1BC, 53%), fn_8010E9DC (0x180, 48%), fn_8010EB5C (0x520, 55%), fn_8010F07C (0x800, 12%), fn_8010F87C (0x4BC, 20%) ... +2 more |
+| cr_Bgm_GetVolume..fn_80098484 | 0x80096594-0x80098F4C | 25 | 8 | 17 | 0x272C | fn_800965F4 (0x160, 44%), fn_80096754 (0x160, 70%), fn_800968B4 (0x374, 57%), fn_80096C28 (0x100, 68%), fn_80096D28 (0x100, 75%), fn_80096E28 (0x94, 65%) ... +2 more |
+| fn_800527D4..fn_8005BE70 | 0x800527D4-0x8005BEC8 | 18 | 1 | 17 | 0x9610 | fn_800528B8 (0xE4, 68%), fn_8005299C (0xA94, 17%), fn_80053430 (0x5F0, 27%), fn_80053A20 (0x388, 96%), fn_80053DA8 (0x490, 26%), fn_80054238 (0x1ECC, 16%) ... +2 more |
+| fn_80081440..fn_80089140 | 0x80081440-0x80089550 | 27 | 3 | 24 | 0x77BC | fn_80081440 (0x4C8, 45%), fn_80081908 (0x24C, 7%), fn_80081B54 (0x248, 48%), fn_80081D9C (0x5C8, 34%), fn_80082364 (0x69C, 25%), fn_80082A00 (0x584, 21%) ... +2 more |
+| fn_80067904..fn_8006B3D0 | 0x80067904-0x8006B46C | 42 | 10 | 32 | 0x3920 | fn_80067904 (0xA54, 10%), fn_80068420 (0x26C, 58%), fn_8006868C (0x2EC, 68%), fn_80068988 (0xEC, 77%), cr_Text_CountChars (0xDC, 60%), fn_80068B84 (0xF8, 51%) ... +2 more |
+| fn_8001B1D4..fn_8001F060 | 0x8001B1D4-0x8001F350 | 72 | 31 | 41 | 0x3748 | fn_8001B29C (0xEC, 66%), cr_Rand_Float (0x68, 44%), cr_Vec3_Distance (0x1A8, 71%), fn_8001B6EC (0x668, 52%), cr_Vec3_RotateY (0x1B0, 87%), cr_Vec3_RotateAboutAxis (0x6A8, 70%) ... +2 more |
+| fn_80024148..fn_80036FB0 | 0x80024148-0x800373AC | 76 | 15 | 61 | 0x127EC | fn_8002419C (0x2B0, 18%), fn_80024634 (0x19C, 34%), cr_CamMode_DefaultStart (0x60, 70%), fn_80024848 (0x17C, 74%), cr_CAMMODE_SNR_AUTO_Y_ANG_Frame (0xC4, 63%), fn_80024A88 (0x13C, 69%) ... +2 more |
+| fn_8008A484..fn_80093AF0 | 0x8008A484-0x80093C30 | 87 | 25 | 62 | 0x8CA4 | fn_8008A484 (0x22C, 56%), fn_8008A6B0 (0x200, 64%), fn_8008A8B0 (0x238, 57%), fn_8008AAE8 (0x204, 56%), fn_8008ACEC (0xC44, compile failed illegal type), fn_8008BED4 (0x180, 96%) ... +2 more |
+| fn_801147B4..fn_80124F5C | 0x801147B4-0x80125884 | 79 | 16 | 63 | 0x10850 | fn_801147B4 (0x294, 70%), fn_80114A48 (0x470, 44%), fn_80114EB8 (0x284, 62%), fn_8011513C (0x470, 44%), fn_801155AC (0x36C, 85%), fn_80115918 (0x1F8, 49%) ... +2 more |
+| fn_8000768C..fn_801314D4 | 0x8000768C-0x80131910 | 1739 | 473 | 1266 | 0x11AF20 | fn_80007CE4 (0x378, 65%), fn_8000805C (0x5B0, 67%), fn_8000860C (0x180, 89%), cr_Game_Update (0x474, 75%), fn_80008CB0 (0x110, 37%), fn_80009018 (0x554, 79%) ... +2 more |
+
+**fn_8002444C** (the one-function run that matched but could not be placed: "two piece starts") is now the fourth file
+object. Its .sdata2 pool (0x804504E8-0x80450518) is 48, 56, 96, 88, "\x96\xb3\x82\xb5", 192, "\x97\x4c\x82\xe8", 72,
+"\x81\x96", 160: the float literals (88.0f once, merged by the compiler) with the call's Shift-JIS string literal
+AFTER its two floats, every string packed (5 or 3 bytes, the next float 4-aligned). Two things reproduce it byte for
+byte: (1) **`-str reuse,readonly`** for the game (configure.py; a literal of 8 bytes or less is then an .sdata2
+object of its own, longer ones go to .rodata, where the game's 2,565 strings are; with the default `-str reuse` the
+compiler puts them in .sdata / .data, which main.dol never has); the drafts write strings as externs, so no draft's
+code changes; (2) **the callee's parameter order**: fn_8006B144 takes `(f32 x, f32 y, const char *text)` (prototype
+in symbols/cr_types.h with this evidence; the registers f1, f2, r3 fit either order, the pool order only the one with
+the string last), and the draft generator's `float_literals` variant now also writes the **.sdata2 string literals**
+the draft takes the address of (`pool_strings`: dtk's `data:string` objects and the untyped .sdata2 objects whose
+bytes are a string followed by zeros, every byte a hex escape; only at `(s8 *) lbl_X` / `(s32) lbl_X`), so the draft
+owns its whole pool. The same hex-escape form in the promoted file compiles to the same bytes. The 5 other matched
+drafts that read .sdata2 strings (cr_SEQ_TITLE_FrameC, fn_8006FBE0, fn_80075120, fn_80094394, fn_80095A30) own no
+float, so their strings stay externs and they stay one-function objects (their strings are shared by 2-6 functions
+each: the SEQ FrameC functions, fn_80070170..fn_800730F8, fn_80095D7C..fn_80096374: one file each by the pool rule).
+
+**fn_8006EEF8** (0xBCC, the only blocker of the smallest run) was hand-written against the asm (scratch harness:
+compile with the game flags against the drafts' ctx.h, compare words with tools/draft_batch.py's compare, dtk elf
+disasm side by side): 32% -> **73%**, same length (755 words), not matched. The shape that gives the 73%: the vertex
+writes are `static inline` helpers with f32 parameters (`grid_pos(x, y, z)`, `grid_color(r, g, b, a)` on the
+write-gather pipe); at `-opt level=0` every inlined f32 argument that is not a plain variable or constant becomes a
+local of its own, the locals are coloured by use count into f31 downwards (the first 14: f18-f31), the rest get a stack
+slot each (0x8C, 0x88..0x08), which is the original's "12 three-float groups copied to the stack"; `Mtx m; Vec p, q;`
+in that order; `u16 n = 42` with `for (i = -n / 2; i <= n / 2; i++)` and `(f32) n * 0.5f`. Left, in the order they
+appear: (a) the original keeps **r30 unused** between i (r31) and alpha (r29): a tiny-function test shows the
+mechanism - a local referenced only in code the compiler removes (`if (0) { ... }`, an `if (x == 0) {}` with an empty
+body) keeps the register its use count earned, so 198 game functions with a register gap (none matched) have such a
+variable; no spelling of it ranked between i and alpha here (a 16-statement dead block did not); (b) `clrlwi r29,r27,24`
+on `alpha = up` after `up -= 0x1C` but a plain `mr` for `down`: not an `s32` / `u8` type difference, not `& 0xFF`, not a
+`(u8)` cast (all compile to `mr`); (c) the scheduler's register numbering in the vertex blocks (value / address pairs
+r5/r4 vs r0/r5 and the 0x4330 conversion temporaries), which moves with (a). Also tried without effect: the SDK's own
+`GXWGFifo` absolute declaration against `*(volatile f32 *) 0xCC008000`, colour parameters as u8 / u32 / int / a macro,
+one combined position+colour helper, declaration order (register assignment is by use count, not declaration order),
+constants held in variables (propagated away). The notes and the best C are in the step 83 log; the draft stays m2c's.
+
+**Data objects from C** (plan.md step 83, not built): eight typed .bss globals have exactly dtk's sizes (compile-time
+check against ctx.h): cr_SaveData 0x1138, cr_ScriptState 0x484, cr_ScenarioState 0x364, cr_UnlockBits 0xA8,
+cr_GameMode 0x48, cr_SeqState 0x48, cr_StageSelectorState 0x354, cr_CustomizeState 0x1B54; cr_g_Script, cr_g_SaveData
+and cr_g_Scenario are contiguous (0x803BE358-0x803BFC78, 8-aligned), and the compiler lays a file's globals out in
+reverse declaration order (.bss align 8), so one data file declaring them in reverse order compiles to that piece.
+What is missing is the unit kind: gen_dtk_splits.game_c_objects takes only files with function definitions (.text
+ranges), game_file_data only the data of a file with code; a data-only game unit needs its .bss / .data range from the
+compiled object's defined symbols at our addresses (the next dtk symbol must start exactly at its end, or the padding
+rule of step 65 applies), the first build without the object (the batch 9 fixpoint), shift_test's insertion points,
+and batch 9's 100% check (trivial for .bss; .data tables need every pointer relocated by name).
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.

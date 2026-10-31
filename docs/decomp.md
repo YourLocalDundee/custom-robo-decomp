@@ -110,8 +110,8 @@ The game's script interpreter dispatches through `cr_g_ScrCmdFuncs` (0x8021C3F4,
 
 Not the Ghidra C above (that is never copied anywhere): the community's own matching C from the pinned reference
 decomps, compiled by the Phase 4 build (`decomp/`). Status: `decomp/reports/progress_report.txt` (Oct 31, 2026, plan.md
-step 82: 645 of 920 objects from C, 22.17% of main.dol's code: Dolphin SDK 98 of 98, MSL 49 of 49, Runtime 5 of 5,
-MetroTRK 29 of 29, HSD 22 of 30, game 442 (0xCB18 bytes, 4.23% of the game code); 9 more C files in `decomp/src`
+step 83: 646 of 922 objects from C, 22.18% of main.dol's code, 5.90% of its data: Dolphin SDK 98 of 98, MSL 49 of 49, Runtime 5 of 5,
+MetroTRK 29 of 29, HSD 22 of 30, game 443 (0xCC44 bytes, 4.25% of the game code; 4 file objects); 9 more C files in `decomp/src`
 compiled for objdiff only, each with its reason in `CR_NOT_MATCHING`); provenance of every file: `decomp/reports/sources_report.txt`. Game functions come into
 `decomp/src/game` another way (m2c drafts that match, promoted by script): [drafts.md](drafts.md).
 
@@ -247,6 +247,12 @@ span 27 to 458 functions, with 1 to 54 of them at 100%. Some .sdata2 entries are
 example 0x8045113C by 0x800120D8 and 0x800B0CF8, and 0x80451168..84 by 118 functions over 0x80099EAC-0x800DB8A4).
 Those are either `const` globals or very large files, so the closed run grows to 1,642 functions. The rule never
 links a group it cannot prove, so such a run simply waits until all its functions match.
+Status after step 83 (Oct 31, 2026): 4 file objects. The run table with every blocker is in
+[drafts.md](drafts.md) ("Step 83"). Two more rules came from fn_8002444C's pool: the game is compiled with
+`-str reuse,readonly` (a string literal of 8 bytes or less is an .sdata2 object of its own, laid out between the
+float literals in argument order; longer ones are in .rodata), and a draft that owns its float literals owns the
+.sdata2 strings it takes the address of too (tools/draft_batch.py `pool_strings`), so the whole pool is one piece.
+The smallest open run (fn_8006EEF8..fn_8006FDD0) still waits on fn_8006EEF8 (hand-written to 73%: drafts.md).
 
 ### HSD (sysdolphin) notes (step 61, Oct 30, 2026)
 
