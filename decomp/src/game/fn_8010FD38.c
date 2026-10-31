@@ -7,7 +7,50 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void fn_8008D434(s32 arg0, s32 *arg1, u8 arg2, f32 farg0, f32 farg1);
 s32 fn_80066D3C(u16 arg0);
-extern u8 lbl_8041A244[852];
+typedef struct cr_StageSelectorState
+{
+  u8 state;
+  u8 unk_001;
+  u8 unk_002;
+  u8 unk_003;
+  u8 unk_004;
+  u8 stage_count;
+  u8 stage;
+  u8 cursor;
+  u32 timer;
+  u8 ready;
+  u8 unk_00d;
+  u8 unk_00e[2];
+  u32 flags;
+  s8 stage_ids[42];
+  u16 stage_msgs[42];
+  u8 stage_open[42];
+  u8 unk_0bc;
+  u8 unk_0bd;
+  u8 unk_0be;
+  u8 unk_0bf;
+  u8 unk_0c0[2];
+  u8 unk_0c2;
+  u8 unk_0c3[7];
+  u8 unk_0ca[2];
+  f32 unk_0cc;
+  f32 unk_0d0;
+  u32 unk_0d4;
+  u16 unk_0d8;
+  u16 unk_0da;
+  u16 unk_0dc;
+  u16 unk_0de;
+  u8 unk_0e0[0x5C];
+  void *unk_13c;
+  u8 windows[8][0x34];
+  u8 unk_2e0[0x68];
+  u32 unk_348;
+  u8 unk_34c;
+  u8 unk_34d[3];
+  u8 unk_350;
+  u8 unk_351[3];
+} cr_StageSelectorState;
+__declspec(section ".data") extern cr_StageSelectorState cr_g_StageSelector;
 extern f32 lbl_80451874;
 extern f32 lbl_80451878;
 void fn_8008CE9C(void);
@@ -54,23 +97,23 @@ s32 fn_8010FD38(void) {
     s32 var_r31_7;
 
     var_r31_7 = 0xFF;
-    fn_8008D434(fn_80066D3C(8U), (s32 *) &lbl_8041A244[0x348], 1U, lbl_80451874, lbl_80451878);
+    fn_8008D434(fn_80066D3C(8U), (s32 *) &cr_g_StageSelector.unk_348, 1U, lbl_80451874, lbl_80451878);
     fn_8008CE9C();
     if (cr_g_Pads->unk_14 & 0x100) {
         fn_80098290((s32) M2C_FIELD(lbl_8023CE54, u32 *, 0));
         fn_8008C8A8();
-        if (M2C_FIELD(lbl_8041A244, s32 *, 0x348) == 0) {
-            M2C_FIELD(lbl_8037569C, u8 *, 6) = lbl_8041A244[6];
+        if ((s32) cr_g_StageSelector.unk_348 == 0) {
+            M2C_FIELD(lbl_8037569C, u8 *, 6) = cr_g_StageSelector.stage;
             var_r31_7 = 0;
-            lbl_8044F5EC = lbl_8020F4C8 + ((s8) lbl_8041A244[6] * 0x340);
+            lbl_8044F5EC = lbl_8020F4C8 + ((s8) cr_g_StageSelector.stage * 0x340);
             M2C_FIELD(lbl_8037569C, u32 *, 0) = 0;
         } else {
-            M2C_FIELD(lbl_8041A244, u8 *, 0) = lbl_8041A244[0x34C];
+            cr_g_StageSelector.state = cr_g_StageSelector.unk_34c;
         }
     } else if (cr_g_Pads->unk_14 & 0x200) {
         fn_80098290((s32) lbl_8023CE54[1]);
         fn_8008C8A8();
-        M2C_FIELD(lbl_8041A244, u8 *, 0) = lbl_8041A244[0x34C];
+        cr_g_StageSelector.state = cr_g_StageSelector.unk_34c;
     }
     return var_r31_7;
 }

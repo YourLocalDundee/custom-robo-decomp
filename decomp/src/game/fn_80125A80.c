@@ -5,11 +5,49 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 lbl_8041CDE4[6996];
+typedef struct cr_CustomizeState
+{
+  u8 mode;
+  u8 prev_mode;
+  u8 unk_0002;
+  u8 unk_0003;
+  u8 unk_0004;
+  u8 unk_0005;
+  u8 unk_0006;
+  u8 unk_0007;
+  u8 unk_0008[0x1A00];
+  u32 unk_1a08[4];
+  f32 unk_1a18;
+  f32 unk_1a1c;
+  f32 unk_1a20;
+  u32 unk_1a24[5];
+  u32 unk_1a38;
+  u32 unk_1a3c;
+  u32 unk_1a40;
+  u32 unk_1a44;
+  u32 unk_1a48;
+  u32 unk_1a4c;
+  u32 unk_1a50;
+  u32 unk_1a54;
+  u32 unk_1a58;
+  u32 unk_1a5c;
+  u32 unk_1a60;
+  u32 unk_1a64;
+  u8 unk_1a68[0xCC];
+  u32 unk_1b34;
+  u32 unk_1b38;
+  u32 unk_1b3c;
+  u32 unk_1b40;
+  u32 unk_1b44;
+  u32 unk_1b48;
+  u32 unk_1b4c;
+  u32 unk_1b50;
+} cr_CustomizeState;
+__declspec(section ".data") extern cr_CustomizeState cr_g_Customize;
 
 void fn_80125A80(void) {
-    lbl_8041CDE4[4] = 0xA;
-    lbl_8041CDE4[1] = M2C_FIELD(lbl_8041CDE4, u8 *, 0);
-    M2C_FIELD(lbl_8041CDE4, u8 *, 0) = 4;
-    lbl_8041CDE4[2] = 0;
+    cr_g_Customize.unk_0004 = 0xA;
+    cr_g_Customize.prev_mode = cr_g_Customize.mode;
+    cr_g_Customize.mode = 4;
+    cr_g_Customize.unk_0002 = 0;
 }

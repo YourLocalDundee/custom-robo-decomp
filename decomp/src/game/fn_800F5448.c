@@ -5,7 +5,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-void fn_80023264(s32 *arg0, s32 *arg1, u32 arg2);
+void cr_Mem_CopyWords(void *dst, void *src, u32 bytes);
 typedef struct cr_ScenarioSlot
 {
   u32 status;
@@ -53,13 +53,13 @@ typedef struct cr_ScenarioState
 } cr_ScenarioState;
 __declspec(section ".data") extern cr_ScenarioState cr_g_Scenario;
 
-extern s32 *lbl_8044F308;
-extern s32 *lbl_8044F30C;
-extern s32 *lbl_8044F310;
+extern u8 *lbl_8044F308;
+extern u8 *lbl_8044F30C;
+extern u8 *lbl_8044F310;
 
 void fn_800F5448(s32 arg0) {
-    s32 *spC;
-    s32 *var_r31_0;
+    void *spC;
+    void *var_r31_0;
 
     switch (arg0) {                                  /* irregular */
     case 0:
@@ -73,5 +73,5 @@ void fn_800F5448(s32 arg0) {
         break;
     }
     spC = var_r31_0;
-    fn_80023264((s32 *) &cr_g_Scenario, var_r31_0, 0x364U);
+    cr_Mem_CopyWords(&cr_g_Scenario, var_r31_0, 0x364U);
 }

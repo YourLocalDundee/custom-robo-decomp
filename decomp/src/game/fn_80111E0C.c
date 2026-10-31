@@ -5,16 +5,16 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 lbl_8041A244[852];
+extern u8 cr_g_StageSelector[852];
 
 void fn_80111E0C(s32 arg0) {
     u8 var_r31_11;
 
-    M2C_FIELD(lbl_8041A244, s32 *, 0x10) &= ~arg0;
+    M2C_FIELD(cr_g_StageSelector, s32 *, 0x10) &= ~arg0;
     if (arg0 & 0x2C) {
         var_r31_11 = 0;
     } else {
-        var_r31_11 = M2C_FIELD(lbl_8041A244, u8 *, 0);
+        var_r31_11 = M2C_FIELD(cr_g_StageSelector, u8 *, 0);
     }
-    M2C_FIELD(lbl_8041A244, u8 *, 0) = var_r31_11;
+    M2C_FIELD(cr_g_StageSelector, u8 *, 0) = var_r31_11;
 }

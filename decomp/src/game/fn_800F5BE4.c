@@ -6,9 +6,34 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void fn_80015E18(void);
-void fn_80023264(s32 *arg0, s32 *arg1, u32 arg2);
+extern u8 *lbl_8044F304;
+void cr_Mem_CopyWords(void *dst, void *src, u32 bytes);
 __declspec(section ".rodata") extern char lbl_801C3CF0[5];
-extern u32 lbl_803BE7DC[1102];
+typedef struct cr_BattleRecord
+{
+  u32 battles;
+  u32 wins;
+  u32 losses;
+} cr_BattleRecord;
+typedef struct cr_UnlockBits
+{
+  u32 parts[5][8];
+  u32 stages[2];
+} cr_UnlockBits;
+typedef struct cr_SaveData
+{
+  u32 battles;
+  u32 battles_by_mode[3];
+  s32 battles_finished;
+  u32 unk_014[3];
+  cr_BattleRecord body_records[64];
+  cr_BattleRecord unk_records[4][64];
+  u32 stage_battles[40];
+  cr_UnlockBits unlocks;
+  cr_UnlockBits new_unlocks;
+  u32 used_parts[5][2];
+} cr_SaveData;
+__declspec(section ".data") extern cr_SaveData cr_g_SaveData;
 typedef struct cr_GameMode
 {
   u32 flags;
@@ -31,16 +56,15 @@ __declspec(section ".data") extern cr_GameMode cr_g_GameMode;
 extern u32 lbl_801C50D0[58];
 extern f32 lbl_8044F6D0[2];
 
-extern s32 *lbl_8044F304;
-extern s32 *lbl_8044F308;
-extern s32 *lbl_8044F30C;
-extern s32 *lbl_8044F310;
+extern u8 *lbl_8044F308;
+extern u8 *lbl_8044F30C;
+extern u8 *lbl_8044F310;
 extern s32 *lbl_8044F7EC;
 
 void fn_800F5BE4(void) {
-    s32 *sp8;
+    u8 *sp8;
     s32 *var_r31;
-    s32 *var_r30;
+    u8 *var_r30;
     s32 *var_r29;
     s32 var_r28;
     s32 var_r27;
@@ -51,22 +75,22 @@ void fn_800F5BE4(void) {
     fn_80015E18();
     var_r30 = lbl_8044F304;
     sp8 = var_r30;
-    fn_80023264(var_r30, (s32 *) lbl_801C3CF0, 0x10U);
-    var_r30 += 4;
-    fn_80023264(var_r30, (s32 *) lbl_803BE7DC, 0x1138U);
-    var_r30 += 0x44E;
-    fn_80023264(var_r30, (s32 *) &cr_g_GameMode, 0x48U);
-    var_r30 += 0x12;
-    fn_80023264(var_r30, (s32 *) lbl_801C50D0, 0x80U);
-    var_r30 += 0x20;
-    fn_80023264(var_r30, (s32 *) lbl_8044F6D0, 4U);
-    fn_80023264(var_r29, lbl_8044F310, 0x4000U);
+    cr_Mem_CopyWords(var_r30, lbl_801C3CF0, 0x10U);
+    var_r30 += 0x10;
+    cr_Mem_CopyWords(var_r30, &cr_g_SaveData, 0x1138U);
+    var_r30 += 0x1138;
+    cr_Mem_CopyWords(var_r30, &cr_g_GameMode, 0x48U);
+    var_r30 += 0x48;
+    cr_Mem_CopyWords(var_r30, lbl_801C50D0, 0x80U);
+    var_r30 += 0x80;
+    cr_Mem_CopyWords(var_r30, lbl_8044F6D0, 4U);
+    cr_Mem_CopyWords(var_r29, lbl_8044F310, 0x4000U);
     var_r29 += 0x1000;
-    fn_80023264(var_r29, lbl_8044F30C, 0x4000U);
+    cr_Mem_CopyWords(var_r29, lbl_8044F30C, 0x4000U);
     var_r29 += 0x1000;
-    fn_80023264(var_r29, lbl_8044F308, 0x4000U);
+    cr_Mem_CopyWords(var_r29, lbl_8044F308, 0x4000U);
     var_r29 += 0x1000;
-    fn_80023264(var_r29, lbl_8044F304, 0x2000U);
+    cr_Mem_CopyWords(var_r29, lbl_8044F304, 0x2000U);
     var_r31 = lbl_8044F7EC;
     var_r26 = 0;
     while (var_r26 < 3) {

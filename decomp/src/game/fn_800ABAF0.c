@@ -56,7 +56,7 @@ typedef struct cr_ScriptState
   u32 map_bef_script[50];
   u32 map_init_script[50];
   u32 map_no_enter_script[50];
-  char *script_name[16];
+  void *script_name[16];
   u32 unk_3e4;
   u8 unk_3e8;
   u8 unk_3e9[3];

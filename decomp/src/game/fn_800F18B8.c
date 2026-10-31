@@ -6,7 +6,7 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void cr_Scenario_Reset(void);
-void fn_80023264(s32 *arg0, s32 *arg1, u32 arg2);
+void cr_Mem_CopyWords(void *dst, void *src, u32 bytes);
 typedef struct cr_ScenarioSlot
 {
   u32 status;
@@ -55,13 +55,13 @@ typedef struct cr_ScenarioState
 __declspec(section ".data") extern cr_ScenarioState cr_g_Scenario;
 void fn_800EF39C(s32 arg0, s32 arg1);
 
-extern s32 *lbl_8044F308;
-extern s32 *lbl_8044F30C;
-extern s32 *lbl_8044F310;
+extern u8 *lbl_8044F308;
+extern u8 *lbl_8044F30C;
+extern u8 *lbl_8044F310;
 
 void fn_800F18B8(s32 arg0) {
-    s32 *sp8;
-    s32 *var_r31_0;
+    void *sp8;
+    void *var_r31_0;
 
     cr_Scenario_Reset();
     switch (arg0) {                                 /* irregular */
@@ -76,7 +76,7 @@ void fn_800F18B8(s32 arg0) {
         break;
     }
     sp8 = var_r31_0;
-    fn_80023264(var_r31_0, (s32 *) &cr_g_Scenario, 0x364U);
+    cr_Mem_CopyWords(var_r31_0, &cr_g_Scenario, 0x364U);
     fn_800EF39C(arg0, 0);
     fn_800EF39C(arg0, 1);
 }

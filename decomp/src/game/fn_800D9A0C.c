@@ -68,7 +68,7 @@ typedef struct cr_ScriptState
   u32 map_bef_script[50];
   u32 map_init_script[50];
   u32 map_no_enter_script[50];
-  char *script_name[16];
+  void *script_name[16];
   u32 unk_3e4;
   u8 unk_3e8;
   u8 unk_3e9[3];
@@ -117,11 +117,11 @@ typedef struct cr_GameMode
   u8 unk_46[2];
 } cr_GameMode;
 __declspec(section ".data") extern cr_GameMode cr_g_GameMode;
-void fn_800231EC(s32 arg0, u32 arg1);
+void cr_Bits_Clear(u32 *set, u32 bit);
 extern u16 lbl_801C5BD0[32];
-s32 fn_800231B4(s32 arg0, u32 arg1);
+u32 cr_Bits_Test(u32 *set, u32 bit);
 __declspec(section ".sdata") extern cr_ScenarioSlot *cr_g_ScenarioSlotPtr;
-void fn_80023228(s32 arg0, u32 arg1);
+void cr_Bits_Set(u32 *set, u32 bit);
 
 void fn_800D9A0C(void) {
     s32 var_r31;
@@ -165,15 +165,15 @@ void fn_800D9A0C(void) {
     }
     var_r31 = 0;
     while (var_r31 < var_r29) {
-        fn_800231EC((s32) &cr_g_Scenario.part_bits[0][2], (u32) M2C_FIELD((((u16 *) ((u8 *) lbl_801C5BD0 + (var_r31 * 0x10)))), u16 *, 2));
-        fn_800231EC((s32) &cr_g_Scenario.part_bits[1][2], (u32) M2C_FIELD((((u16 *) ((u8 *) lbl_801C5BD0 + (var_r31 * 0x10)))), u16 *, 4));
-        fn_800231EC((s32) &cr_g_Scenario.part_bits[2][2], (u32) M2C_FIELD((((u16 *) ((u8 *) lbl_801C5BD0 + (var_r31 * 0x10)))), u16 *, 6));
-        fn_800231EC((s32) &cr_g_Scenario.part_bits[3][2], (u32) M2C_FIELD((((u16 *) ((u8 *) lbl_801C5BD0 + (var_r31 * 0x10)))), u16 *, 8));
-        fn_800231EC((s32) &cr_g_Scenario.part_bits[4][2], (u32) M2C_FIELD((((u16 *) ((u8 *) lbl_801C5BD0 + (var_r31 * 0x10)))), u16 *, 0xA));
+        cr_Bits_Clear(&cr_g_Scenario.part_bits[0][2], (u32) M2C_FIELD((((u16 *) ((u8 *) lbl_801C5BD0 + (var_r31 * 0x10)))), u16 *, 2));
+        cr_Bits_Clear(&cr_g_Scenario.part_bits[1][2], (u32) M2C_FIELD((((u16 *) ((u8 *) lbl_801C5BD0 + (var_r31 * 0x10)))), u16 *, 4));
+        cr_Bits_Clear(&cr_g_Scenario.part_bits[2][2], (u32) M2C_FIELD((((u16 *) ((u8 *) lbl_801C5BD0 + (var_r31 * 0x10)))), u16 *, 6));
+        cr_Bits_Clear(&cr_g_Scenario.part_bits[3][2], (u32) M2C_FIELD((((u16 *) ((u8 *) lbl_801C5BD0 + (var_r31 * 0x10)))), u16 *, 8));
+        cr_Bits_Clear(&cr_g_Scenario.part_bits[4][2], (u32) M2C_FIELD((((u16 *) ((u8 *) lbl_801C5BD0 + (var_r31 * 0x10)))), u16 *, 0xA));
         var_r31 += 1;
     }
-    if (fn_800231B4((s32) cr_g_ScenarioSlotPtr->unk_98, var_r30) == 0U) {
+    if (cr_Bits_Test(cr_g_ScenarioSlotPtr->unk_98, var_r30) == 0) {
         cr_g_ScenarioSlotPtr->unk_92[1] += 1;
-        fn_80023228((s32) cr_g_ScenarioSlotPtr->unk_98, var_r30);
+        cr_Bits_Set(cr_g_ScenarioSlotPtr->unk_98, var_r30);
     }
 }

@@ -5,15 +5,15 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-void fn_80023264(s32 *arg0, s32 *arg1, u32 arg2);
+void cr_Mem_CopyWords(void *dst, void *src, u32 bytes);
 
-extern s32 *lbl_8044F308;
-extern s32 *lbl_8044F30C;
-extern s32 *lbl_8044F310;
+extern u8 *lbl_8044F308;
+extern u8 *lbl_8044F30C;
+extern u8 *lbl_8044F310;
 
 void fn_800EF2E0(s32 arg0, s32 arg1) {
-    s32 *var_r31_0;
-    s32 *var_r30_0;
+    void *var_r31_0;
+    void *var_r30_0;
 
     switch (arg0) {                                  /* switch 1; irregular */
     case 0:                                         /* switch 1 */
@@ -37,5 +37,5 @@ void fn_800EF2E0(s32 arg0, s32 arg1) {
         var_r31_0 = lbl_8044F308;
         break;
     }
-    fn_80023264(var_r30_0, var_r31_0, 0x4000U);
+    cr_Mem_CopyWords(var_r30_0, var_r31_0, 0x4000U);
 }

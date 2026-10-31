@@ -5,8 +5,13 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-void fn_80023228(s32 arg0, u32 arg1);
-extern u32 lbl_804198B0[42];
+void cr_Bits_Set(u32 *set, u32 bit);
+typedef struct cr_UnlockBits
+{
+  u32 parts[5][8];
+  u32 stages[2];
+} cr_UnlockBits;
+__declspec(section ".data") extern cr_UnlockBits cr_g_UnlockBits;
 void fn_800F6A30(void);
 void fn_80111E54(s32 arg0);
 typedef enum cr_Seq
@@ -53,7 +58,7 @@ void fn_80125978(void) {
 
     var_r31_6 = 0;
     while (var_r31_6 < 0x40U) {
-        fn_80023228((s32) &lbl_804198B0[0x28], (u32) var_r31_6);
+        cr_Bits_Set(cr_g_UnlockBits.stages, (u32) var_r31_6);
         var_r31_6 += 1;
     }
     fn_800F6A30();

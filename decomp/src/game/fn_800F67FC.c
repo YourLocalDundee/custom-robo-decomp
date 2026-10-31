@@ -9,9 +9,47 @@ u8 fn_80099538(s32 arg0);
 extern u8 lbl_80407250[16];
 void fn_80075950(void);
 void fn_80097488(s32 arg0, u8 arg1, u16 arg2);
-extern u8 lbl_8041CDE4[6996];
+typedef struct cr_CustomizeState
+{
+  u8 mode;
+  u8 prev_mode;
+  u8 unk_0002;
+  u8 unk_0003;
+  u8 unk_0004;
+  u8 unk_0005;
+  u8 unk_0006;
+  u8 unk_0007;
+  u8 unk_0008[0x1A00];
+  u32 unk_1a08[4];
+  f32 unk_1a18;
+  f32 unk_1a1c;
+  f32 unk_1a20;
+  u32 unk_1a24[5];
+  u32 unk_1a38;
+  u32 unk_1a3c;
+  u32 unk_1a40;
+  u32 unk_1a44;
+  u32 unk_1a48;
+  u32 unk_1a4c;
+  u32 unk_1a50;
+  u32 unk_1a54;
+  u32 unk_1a58;
+  u32 unk_1a5c;
+  u32 unk_1a60;
+  u32 unk_1a64;
+  u8 unk_1a68[0xCC];
+  u32 unk_1b34;
+  u32 unk_1b38;
+  u32 unk_1b3c;
+  u32 unk_1b40;
+  u32 unk_1b44;
+  u32 unk_1b48;
+  u32 unk_1b4c;
+  u32 unk_1b50;
+} cr_CustomizeState;
+__declspec(section ".data") extern cr_CustomizeState cr_g_Customize;
 void fn_80078438(void);
-void fn_80125884(u8 arg0);
+void cr_Customize_SetMode(u8 arg0);
 void fn_80124808(s8 arg0);
 __declspec(section ".sdata") extern u8 lbl_8044F885[11];
 
@@ -36,7 +74,7 @@ u32 fn_800F67FC(void) {
             lbl_80407250[0xC] = 0x20;
         }
     } else if (M2C_FIELD(lbl_80407250, u16 *, 2) & 0x80) {
-        *lbl_8041CDE4 = 1;
+        cr_g_Customize.mode = 1;
         var_r30 = 0xC;
         fn_80078438();
     } else if (!(M2C_FIELD(lbl_80407250, u16 *, 2) & 1) && !(M2C_FIELD(lbl_80407250, u16 *, 2) & 4) && !(M2C_FIELD(lbl_80407250, u16 *, 2) & 2)) {
@@ -57,8 +95,8 @@ u32 fn_800F67FC(void) {
         var_r30 = M2C_FIELD(lbl_80407250, u32 *, 4);
         fn_80078438();
         if (var_r30 == 0xC) {
-            fn_80125884(*lbl_8041CDE4);
-            if ((*lbl_8041CDE4 != 1) && (var_r31 != -1)) {
+            cr_Customize_SetMode(cr_g_Customize.mode);
+            if (((u8) cr_g_Customize.mode != 1) && (var_r31 != -1)) {
                 fn_80097488(var_r31, 0U, 0x1EU);
                 lbl_80407250[0xC] = 0x20;
             }

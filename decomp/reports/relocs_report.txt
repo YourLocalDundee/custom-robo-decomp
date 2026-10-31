@@ -168,9 +168,9 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x8039D8E0..0x803B76E8 .bss lbl_8039D8E0 .. lbl_803B76E8
   0x803B8C00..0x803E66B4 .bss lbl_803B8C00 .. lbl_803E66B4
   0x80400588..0x8040725C .bss lbl_80400588 .. lbl_80407250
-  0x80419958..0x8041A30E .bss lbl_80419958 .. lbl_8041A244
+  0x80419958..0x8041A30E .bss lbl_80419958 .. cr_g_StageSelector
   0x8041A598..0x8041CBFC .bss lbl_8041A598 .. lbl_8041CBFB
-  0x8041CC10..0x8041E930 .bss lbl_8041CC10 .. lbl_8041CDE4
+  0x8041CC10..0x8041E930 .bss lbl_8041CC10 .. cr_g_Customize
   0x8041EB80..0x8041EBA0 .bss DriveInfo .. gap_06_8041EBA0_bss
   0x8041EC98..0x8041F3C8 .bss RunQueue .. gap_06_8041ED98_bss
   0x8041F690..0x8041F75C .bss CommandList .. lbl_8041F720

@@ -22,7 +22,7 @@ typedef struct cr_ScriptState
   u32 map_bef_script[50];
   u32 map_init_script[50];
   u32 map_no_enter_script[50];
-  char *script_name[16];
+  void *script_name[16];
   u32 unk_3e4;
   u8 unk_3e8;
   u8 unk_3e9[3];
@@ -57,7 +57,7 @@ extern f32 lbl_80451388;
 extern f32 lbl_80451304;
 extern f32 lbl_80451280;
 void fn_800B1544(void);
-s32 fn_800231B4(s32 arg0, u32 arg1);
+u32 cr_Bits_Test(u32 *set, u32 bit);
 typedef struct cr_ScenarioSlot
 {
   u32 status;
@@ -82,7 +82,7 @@ void fn_800A4C38(void) {
         M2C_FIELD(lbl_8044F748, f32 *, 0xC) = (f32) lbl_80451280;
     }
     fn_800B1544();
-    if (fn_800231B4((s32) &cr_g_ScenarioSlotPtr->unk_b4, M2C_FIELD(lbl_8044F748, u16 *, 0x14E) - 0x36) != 0U) {
+    if (cr_Bits_Test(&cr_g_ScenarioSlotPtr->unk_b4, M2C_FIELD(lbl_8044F748, u16 *, 0x14E) - 0x36) != 0) {
         M2C_FIELD(lbl_8044F748, u8 *, 0x156) &= 0xFFFFFFFB;
         return;
     }

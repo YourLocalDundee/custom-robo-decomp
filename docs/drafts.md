@@ -553,6 +553,19 @@ Not found / left for the next round:
 - file runs: fn_8006EEF8 (0xBCC bytes, 32%, 14 float and 18 integer callee-saved locals) still closes the smallest
   run alone; fn_8002444C's constant pool order: not reached this round.
 
+## Naming round 4 types (plan.md step 81, Oct 31, 2026)
+
+Not a generator round: the save data (`cr_g_SaveData`, 0x803BE7DC, 0x1138, with `cr_BattleRecord` and two `cr_UnlockBits`), the unlock bits
+in use (`cr_g_UnlockBits`, 0x804198B0, 0xA8), the stage selector (`cr_g_StageSelector`, 0x8041A244, 0x354) and the customize screen
+(`cr_g_Customize`, 0x8041CDE4, 0x1B54) became typed structs in symbols/cr_types.h, with the scalar `cr_g_ScriptCharaAct` (0x8044F774) and nine
+function names (cr_Bits_Set / Clear / Test, cr_Mem_CopyWords, cr_Save_ApplyUnlocks, cr_StageSelector_Init / Update, cr_Customize_SetMode,
+cr_Scenario_Init). `cr_ScriptState.script_name` is now `void *[16]`: m2c writes `script_name[cr_g_ScriptDepth]` for it where the `char *[16]`
+gave a byte-offset `M2C_FIELD(cr_g_Script.script_name, s8 **, cr_g_ScriptDepth)` (cr_SYS_CALL 70 -> 80%; `u8 *` has the same problem, `s32` and
+`void *` do not). cr_Scenario_Reset's compile failure is not a struct: m2c reuses one stack slot (`sp48`) for `&cr_g_Scenario` and
+`&cr_g_Script`, so `sp48->unk_470` is typed with the wrong struct; the same slot reuse fails cr_Save_ResetData (`sp10[0x410]`), fn_8011023C
+(`sp50[6]`) and fn_800F21C8 - a generator rule for the next round (a slot that holds two globals' addresses is two locals).
+Result of the one full run: compile 1,703 -> 1,703 of 1,751, **100% MATCH 477 -> 477** (lost: fn_80111E0C 100->77, fn_80111EEC 100->92), bytes equal 518,120 -> 518,064; histogram 10-19% 61 -> 61 20-29% 72 -> 72 30-39% 115 -> 115 40-49% 253 -> 254 50-59% 142 -> 141 60-69% 157 -> 154 70-79% 176 -> 174 80-89% 133 -> 136 90-99% 75 -> 76; 80-99% 208 -> 212. Against the step 80 report 226 drafts up (cr_BattleRobo_InitFromLoadout 35->36, cr_Save_ApplyUnlocks 52->53, fn_80022830 32->34, cr_Mem_CopyWords 70->100, fn_8008E3F8 62->68, fn_8008FA8C 63->69), 22 down (cr_Bits_Clear 40->33, fn_8007E400 45->44, fn_8009AEC4 10->8, fn_800A0C20 97->86, fn_800AC158 78->75, fn_800AC910 64->53); newly compiling: fn_80020204 (86), cr_Chara_BuildModel (47), fn_800EB518 (86). **Linked: 441 game objects** (436 promoted, 3 file objects, 4 kept), 0xC704 bytes = 4.14% of the game code; 644 of 918 units from C, **22.11% of main.dol's code** (data 5.90%).
+
 ## Promoted to decomp/src/game (plan.md step 58)
 
 After the drafts, batch 12 runs `python -I tools/promote_drafts.py` (method: its docstring). Every 100% draft that can be

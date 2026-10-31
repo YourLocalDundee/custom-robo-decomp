@@ -474,7 +474,7 @@ typedef struct cr_ScenarioSlot
   u8 unk_bc[0x10];
 } cr_ScenarioSlot;
 __declspec(section ".sdata") extern cr_ScenarioSlot *cr_g_ScenarioSlotPtr;
-extern u32 lbl_8044F774;
+__declspec(section ".sdata") extern s32 cr_g_ScriptCharaAct;
 typedef void (*cr_SeqFunc)(void);
 __declspec(section ".data") extern cr_SeqFunc cr_g_ScrCmdFuncs[300];
 typedef struct cr_ScenarioState
@@ -530,7 +530,7 @@ void cr_C_ACT_MOT(void) {
         if ((s16 *) cr_g_ScriptPC != NULL) {
             if ((s32) cr_g_ScriptPC & 0x80000000) {
                 if (M2C_FIELD(cr_g_ScriptPC, s16 *, 0) < 0x12C) {
-                    if ((s32) lbl_8044F774 != 0) {
+                    if (cr_g_ScriptCharaAct != 0) {
                         if (M2C_FIELD(cr_g_ScriptPC, s16 *, 0) >= 0x121) {
                             cr_g_ScrCmdFuncs[M2C_FIELD(cr_g_ScriptPC, s16 *, 0)]();
                             return;

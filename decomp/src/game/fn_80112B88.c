@@ -5,12 +5,55 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 lbl_8041A244[852];
+typedef struct cr_StageSelectorState
+{
+  u8 state;
+  u8 unk_001;
+  u8 unk_002;
+  u8 unk_003;
+  u8 unk_004;
+  u8 stage_count;
+  u8 stage;
+  u8 cursor;
+  u32 timer;
+  u8 ready;
+  u8 unk_00d;
+  u8 unk_00e[2];
+  u32 flags;
+  s8 stage_ids[42];
+  u16 stage_msgs[42];
+  u8 stage_open[42];
+  u8 unk_0bc;
+  u8 unk_0bd;
+  u8 unk_0be;
+  u8 unk_0bf;
+  u8 unk_0c0[2];
+  u8 unk_0c2;
+  u8 unk_0c3[7];
+  u8 unk_0ca[2];
+  f32 unk_0cc;
+  f32 unk_0d0;
+  u32 unk_0d4;
+  u16 unk_0d8;
+  u16 unk_0da;
+  u16 unk_0dc;
+  u16 unk_0de;
+  u8 unk_0e0[0x5C];
+  void *unk_13c;
+  u8 windows[8][0x34];
+  u8 unk_2e0[0x68];
+  u32 unk_348;
+  u8 unk_34c;
+  u8 unk_34d[3];
+  u8 unk_350;
+  u8 unk_351[3];
+} cr_StageSelectorState;
+__declspec(section ".data") extern cr_StageSelectorState cr_g_StageSelector;
 
 void fn_80112B88(void *arg0) {
     void *temp_r31_13;
 
-    if (M2C_FIELD(lbl_8041A244, s32 *, 0x10) & 8) {
+    if (cr_g_StageSelector.flags & 8) {
         temp_r31_13 = M2C_FIELD(M2C_FIELD(M2C_FIELD(arg0, void **, 0x5C), void **, 0x1C), void **, 4);
         M2C_FIELD(arg0, s32 *, 0) |= 1;
         M2C_FIELD(arg0, s32 *, 0x10) += 1;

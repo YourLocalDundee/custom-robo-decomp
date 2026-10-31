@@ -9,7 +9,7 @@ void fn_80021014(void *arg0);
 typedef struct cr_FileSlot cr_FileSlot;
 extern cr_FileSlot *lbl_8044F600;
 void fn_800215F8(void *arg0);
-void fn_80074FBC(s32 arg0, void *arg1);
+void fn_80074FBC(void *arg0, void *arg1);
 extern u8 lbl_80379ED0[272];
 extern u32 lbl_80379970[344];
 typedef struct HSD_Archive HSD_Archive;
@@ -33,7 +33,7 @@ void fn_80077F38(void) {
     var_r31_11 = 0;
     lbl_8044F600 = NULL;
     while (var_r31_11 < (u32) *lbl_8044F2C0) {
-        fn_80074FBC((s32) (((u32 *) ((u8 *) lbl_8044F2C0 + M2C_FIELD(&lbl_8044F2C0[var_r31_11], s32 *, 4)))), lbl_80379ED0 + (var_r31_11 * 0x44));
+        fn_80074FBC(((u32 *) ((u8 *) lbl_8044F2C0 + M2C_FIELD(&lbl_8044F2C0[var_r31_11], s32 *, 4))), lbl_80379ED0 + (var_r31_11 * 0x44));
         *(((u32 *) ((u8 *) lbl_80379970 + (var_r31_11 * 4)))) = (unsigned long) (HSD_ArchiveGetPublicAddress((struct HSD_Archive *) (lbl_80379ED0 + (var_r31_11 * 0x44)), lbl_801C0B90));
         var_r31_11 += 1;
     }

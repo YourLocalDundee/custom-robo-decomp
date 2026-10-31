@@ -8,11 +8,11 @@ MSL                               49     49   0x00939C/0x00939C 100.00%   0x0014
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
 sysdolphin                        30     22   0x010568/0x026600  42.57%   0x003102/0x003DB2  79.44%    261/  472
-game                             439    439   0x00C65C/0x00C65C 100.00%   0x0000E4/0x0000E4 100.00%    439/  439
-automatic objects (unsplit)      266      0   0x000000/0x13D088   0.00%   0x000000/0x274084   0.00%      0/ 1523
-main.dol (all units)             916    642   0x060310/0x1B3430  22.10%   0x0276E4/0x29C418   5.90%   1799/ 3533
+game                             441    441   0x00C704/0x00C704 100.00%   0x0000E4/0x0000E4 100.00%    441/  441
+automatic objects (unsplit)      266      0   0x000000/0x13CFE0   0.00%   0x000000/0x274084   0.00%      0/ 1521
+main.dol (all units)             918    644   0x0603B8/0x1B3430  22.11%   0x0276E4/0x29C418   5.90%   1801/ 3533
 
-game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 439 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0xC65C bytes = 4.13% of the game code, 2.85% of all code
+game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 441 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0xC704 bytes = 4.14% of the game code, 2.86% of all code
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
 MSL/FILE_POS.c                                code 0x3C0/0x3C0  data 0x0/0x0  functions 3/3  linked from C
@@ -208,6 +208,8 @@ game/cr_C_ACT_TURN_POINT.c                    code 0xE4/0xE4  data 0x0/0x0  func
 game/cr_C_ACT_WAIT.c                          code 0x44/0x44  data 0x0/0x0  functions 1/1  linked from C
 game/cr_Cam_SetMode.c                         code 0x18/0x18  data 0x0/0x0  functions 1/1  linked from C
 game/cr_Chara_SetCurrentPointers.c            code 0x94/0x94  data 0x0/0x0  functions 1/1  linked from C
+game/cr_Customize_SetMode.c                   code 0x34/0x34  data 0x0/0x0  functions 1/1  linked from C
+game/cr_Mem_CopyWords.c                       code 0x50/0x50  data 0x0/0x0  functions 1/1  linked from C
 game/cr_Motion_LoadInfo.c                     code 0x294/0x294  data 0x0/0x0  functions 1/1  linked from C
 game/cr_SEQ_BATTLE_Enter.c                    code 0x4/0x4  data 0x0/0x0  functions 1/1  linked from C
 game/cr_SEQ_BATTLE_FrameB.c                   code 0x34/0x34  data 0x0/0x0  functions 1/1  linked from C
@@ -607,7 +609,6 @@ game/fn_80124BFC.c                            code 0x2C/0x2C  data 0x0/0x0  func
 game/fn_80124C28.c                            code 0x4/0x4  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80124C2C.c                            code 0x2C/0x2C  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80124C58.c                            code 0x48/0x48  data 0x0/0x0  functions 1/1  linked from C
-game/fn_80125884.c                            code 0x34/0x34  data 0x0/0x0  functions 1/1  linked from C
 game/fn_801258B8.c                            code 0x50/0x50  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80125908.c                            code 0x38/0x38  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80125940.c                            code 0x38/0x38  data 0x0/0x0  functions 1/1  linked from C
@@ -620,6 +621,7 @@ game/fn_80125AC8.c                            code 0x48/0x48  data 0x0/0x0  func
 game/fn_80125B10.c                            code 0x48/0x48  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80125B58.c                            code 0x58/0x58  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80125BB0.c                            code 0x24/0x24  data 0x0/0x0  functions 1/1  linked from C
+game/fn_80125BD4.c                            code 0x58/0x58  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80125C2C.c                            code 0x1A0/0x1A0  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8012B8DC.c                            code 0x124/0x124  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8012BA00.c                            code 0x24/0x24  data 0x0/0x0  functions 1/1  linked from C

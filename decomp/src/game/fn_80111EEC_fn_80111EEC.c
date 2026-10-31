@@ -6,7 +6,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 lbl_8041A244[852];
+extern u8 cr_g_StageSelector[852];
 extern u8 lbl_8023C6AC[416];
 extern f32 lbl_8044ECDC[2];
 extern f32 lbl_8044ECE8[2];
@@ -25,21 +25,21 @@ void fn_80111EEC(void) {
     u8 var_r27;
 
     var_r30 = 0;
-    var_r27 = lbl_8041A244[4];
+    var_r27 = cr_g_StageSelector[4];
     while (var_r30 < 2U) {
         var_r29 = 0;
         while (var_r29 < 6U) {
             sp8 = 0;
             var_r31 = var_r29 + (var_r30 * 6);
             var_r28 = var_r31 + (var_r27 * 6);
-            if ((s8) lbl_8041A244[5] <= (s32) var_r28) {
+            if ((s8) cr_g_StageSelector[5] <= (s32) var_r28) {
                 M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], u16 *, 0x10) = 0xFFFF;
-            } else if (M2C_FIELD(&lbl_8041A244[var_r28], u8 *, 0x92) != 0) {
-                M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], u16 *, 0x10) = M2C_FIELD(&lbl_8041A244[(var_r28 * 2) & 0x1FE], u16 *, 0x3E);
+            } else if (M2C_FIELD(&cr_g_StageSelector[var_r28], u8 *, 0x92) != 0) {
+                M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], u16 *, 0x10) = M2C_FIELD(&cr_g_StageSelector[(var_r28 * 2) & 0x1FE], u16 *, 0x3E);
             } else {
                 M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], s16 *, 0x10) = 0xB;
             }
-            if (lbl_8041A244[0xD] != 0) {
+            if (cr_g_StageSelector[0xD] != 0) {
                 if (M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], u16 *, 0x10) == 1) {
                     M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], s16 *, 0x10) = 0x11;
                 } else if (M2C_FIELD(&lbl_8023C6AC[(var_r31 << 5) & 0x1FE0], u16 *, 0x10) == 0x1F) {
