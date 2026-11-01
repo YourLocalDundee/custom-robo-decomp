@@ -640,20 +640,20 @@ src/game/fn_8013079C.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80130848.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80130988.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8013149C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
-src/game/data/cr_g_AreaBoxes.c  ours (no reference)
-src/game/data/cr_g_BattleMotionSets.c  ours (no reference)
-src/game/data/cr_g_BodyCount_cr_g_BombCount.c  ours (no reference)
-src/game/data/cr_g_CharaEntries.c  ours (no reference)
-src/game/data/cr_g_Charas.c  ours (no reference)
-src/game/data/cr_g_FileDescs.c  ours (no reference)
-src/game/data/cr_g_GameMode_cr_g_SeqCurrent.c  ours (no reference)
-src/game/data/cr_g_MessageFiles.c  ours (no reference)
-src/game/data/cr_g_MotionDataBit15_cr_g_MotionData.c  ours (no reference)
-src/game/data/cr_g_PackedArchives_cr_g_FileSysReady.c  ours (no reference)
-src/game/data/cr_g_PadStatus_cr_g_Pads.c  ours (no reference)
-src/game/data/cr_g_ScriptReturnStack.c  ours (no reference)
-src/game/data/cr_g_Script_cr_g_Scenario.c  ours (no reference)
-src/game/data/cr_g_UnlockBits.c  ours (no reference)
+src/game/data/cr_g_AreaBoxes.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_BattleMotionSets.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_BodyCount_cr_g_BombCount.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_CharaEntries.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_Charas.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_FileDescs.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_GameMode_cr_g_SeqCurrent.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_MessageFiles.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_MotionDataBit15_cr_g_MotionData.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_PackedArchives_cr_g_FileSysReady.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_PadStatus_cr_g_Pads.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_ScriptReturnStack.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_Script_cr_g_Scenario.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_UnlockBits.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/sysdolphin/baselib/aobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/aobj.c  changed (247 lines added / removed)
 src/sysdolphin/baselib/aobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/aobj.h  identical
 src/sysdolphin/baselib/bytecode.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/bytecode.c  changed (157 lines added / removed)
