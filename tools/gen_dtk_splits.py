@@ -418,6 +418,9 @@ def code_splits(ours, rejected, notes, audit=None):
     refinfo = {}  # ref tag -> (symbols, {object name: [(sec, start, end)]})
     cands = defaultdict(list)
     wow_syms = []
+    # step 97: doldecomp/kar's per-file HSD asm (the same revision) as the layout of a file's edge functions
+    wpath = next((G / "tools" / r / "symbols.txt" for r in REFS if r.split('/')[-1] == WOW), None)
+    kar_pre = kar_objects(read_syms(wpath)) if wpath is not None and wpath.exists() else {}
     for ref in REFS:
         d = G / "tools" / ref
         tagr = ref.split('/')[-1]
@@ -648,6 +651,20 @@ def code_splits(ours, rejected, notes, audit=None):
                                 f"this reference)") if own else None
                     return None
                 e1, e2 = edge(i - 1, F[0]), edge(j + 1, F[-1])
+                # step 97: an unnamed-by-this-reference HSD neighbour that doldecomp/kar's file of the same name
+                # (asm/sysdolphin/<stem>.s, the same HSD revision) has as its first / last function under the same
+                # name is this object's (debug.c's HSD_SaveContext, which Melee's debug.c does not have)
+                kk = kar_pre.get(Path(name).stem.lower()) if family(path) == "hsd" else None
+                if kk:
+                    kfirst, klast = kk[2].get(min(kk[2])), kk[2].get(max(kk[2]))
+                    if not e1 and i > 0 and funcs[i - 1][1] == sec and funcs[i - 1][0] == kfirst:
+                        i -= 1
+                        e1 = edge(i - 1, F[0])
+                        e1 = e1 and f"{e1} (doldecomp/kar {Path(name).stem}.s starts with {kfirst})"
+                    if not e2 and j + 1 < len(funcs) and funcs[j + 1][1] == sec and funcs[j + 1][0] == klast:
+                        j += 1
+                        e2 = edge(j + 1, F[-1])
+                        e2 = e2 and f"{e2} (doldecomp/kar {Path(name).stem}.s ends with {klast})"
                 if not e1:
                     r = size_run(i, j, True) or pool_edge(i, j, True)
                     if r:

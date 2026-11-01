@@ -14,7 +14,7 @@ padding per point: 0x100 bytes; points: 42
   11. 0x801F1200 .data    inside .data: the data-only game unit game/data/cr_g_FileDescs.c (every reference to it is a relocation) -> everything from here moves by +0xB00
   12. 0x801F5D30 .data    inside .data: the data piece of game/fn_80021AB0_fn_80021AB0.c (a proven object boundary) -> everything from here moves by +0xC00
   13. 0x8020B0C0 .data    inside .data: the start of the glue span 0x8020B0C0.. (a file's statics base) -> everything from here moves by +0xD00
-  14. 0x80249458 .data    inside .data: the data piece of dolphin/gx/GXFrameBuf.c (a proven object boundary) -> everything from here moves by +0xE00
+  14. 0x80249588 .data    inside .data: the data piece of dolphin/gx/GXLight.c (a proven object boundary) -> everything from here moves by +0xE00
   15. 0x8024DAD0 .data    inside .data: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0xF00
   16. 0x8024DB20 .bss     start of .bss -> everything from here moves by +0x1000
   17. 0x8024DC80 .bss     inside .bss: the data-only game unit game/data/cr_g_CharaEntries.c (every reference to it is a relocation) -> everything from here moves by +0x1100
@@ -33,7 +33,7 @@ padding per point: 0x100 bytes; points: 42
   30. 0x8044B710 .bss     inside .bss: the data piece of sysdolphin/baselib/list.c (a proven object boundary) -> everything from here moves by +0x1E00
   31. 0x8044C3C0 .sdata   start of .sdata -> everything from here moves by +0x1F00
   32. 0x8044ED50 .sdata   inside .sdata: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0x2000
-  33. 0x8044EE60 .sdata   inside .sdata: the data piece of dolphin/gx/GXTexture.c (a proven object boundary) -> everything from here moves by +0x2100
+  33. 0x8044EEA0 .sdata   inside .sdata: the data piece of MSL/printf.c (a proven object boundary) -> everything from here moves by +0x2100
   34. 0x8044F298 .sdata   inside .sdata: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x2200
   35. 0x8044F2A0 .sbss    start of .sbss -> everything from here moves by +0x2300
   36. 0x8044F898 .sbss    inside .sbss: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0x2400
@@ -45,7 +45,7 @@ padding per point: 0x100 bytes; points: 42
   42. 0x804529F8 .sdata2  inside .sdata2: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x2A00
 objects linked from C (batch 9, configure.py CR_MATCHING): 660 in both links, 659 of them moved by the padding; 27 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
-shifted main.dol: SHA-1 15ee8a0f863eb6cb228a065e711d9be6a6b38782 (2431360 bytes, retail 2425472)
+shifted main.dol: SHA-1 1743c1eabbef2a4b64adf423f672f1ff914f648a (2431360 bytes, retail 2425472)
 sections, unshifted -> shifted:
   .init    0x80003100 size 0x0024D0 -> 0x80003100 size 0x0024D0
   .text    0x800055E0 size 0x1B0FF8 -> 0x800055E0 size 0x1B12F8
@@ -65,10 +65,10 @@ sections, unshifted -> shifted:
 static check:
   symbols compared (unique names): 15158
   symbols moved by the wrong amount: 0
-  relocations of the unshifted build: 92814
+  relocations of the unshifted build: 92803
   relocations missing after the shift: 0
   relocation targets moved by the wrong amount: 0
-  relocations in the shifted build: 92814
+  relocations in the shifted build: 92803
   relocated values (data words, lis pairs, small-data, loads) different from their target: 0
   relocated branches that miss their target: 0
   numbers relocated as addresses (audit false positives) in the shifted build: 0

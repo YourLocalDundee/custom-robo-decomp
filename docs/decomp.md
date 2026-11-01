@@ -372,6 +372,22 @@ cr_g_PartOrderLeg 0x24 vs 0x22); the string tables (cr_g_SeqNames, cr_g_MotionNa
   typed); the unreferenced tables after the cuts (lbl_801DEBE0, lbl_801F8098); the next objects of the scan
   (docs/name_evidence.md "Leads").
 
+### HSD edges from doldecomp/kar's per-file asm (step 97, Nov 1, 2026)
+
+tools/gen_dtk_splits.py now lets a range grow over a neighbour that its own reference does not name, when
+doldecomp/kar's `asm/sysdolphin/<stem>.s` (the same HSD revision, tools/refs/kar) has that function as the file's
+first or last function under the same name. Two objects are proven by it:
+
+- **debug.c** .text 0x801AE9B4-0x801AEB40 (HSD_SaveContext, __assert, HSD_Panic; Melee's debug.c has no
+  HSD_SaveContext, kar's debug.s starts with it; the neighbours are texpdag.c's HSD_TExpSimplify2 and THPDec.c), with
+  its .data 0x8024DAA0-0x8024DAD0 and .sdata 0x8044F290-0x8044F298.
+- **memory.c** .text 0x801A40EC-0x801A4154 (HSD_Free, HSD_Alloc; kar's memory.s ends with HSD_Alloc, shadow.c's
+  HSD_ShadowInitAllocData follows).
+
+Both are asm objects for now (no C linked): sysdolphin is 32 split objects, 24 from C. Still open (splits_report.txt):
+shadow.c's start (its neighbour HSD_Alloc is now memory.c's last function, which this test does not use yet), archive.c's
+end, synth.c's end, axdriver.c's end, devcom.c's start, particle.c's start.
+
 ### HSD (sysdolphin) notes (step 61, Oct 30, 2026)
 
 - Custom Robo links the Kirby Air Ride revision of sysdolphin (tools/refs/kar, kar_wowjinxy: the same function sizes),
