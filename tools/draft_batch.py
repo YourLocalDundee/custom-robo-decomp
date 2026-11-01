@@ -753,6 +753,30 @@ def run(cmd, timeout, cwd=None, env=None):
         return -9, '', 'timeout'
 
 
+def pool_map(ex, fn, items, idle=900):
+    """ex.map with a watchdog: results in input order, but if NO job finishes for `idle` seconds while jobs are still
+    pending the run is stopped with a message instead of waiting forever (a pool worker that died or a child that never
+    returns leaves concurrent.futures waiting with no error: a batch 12 run hung that way for nine hours on Nov 1, 2026;
+    every m2c / compiler call has its own 120 s timeout, so a silent 15-minute gap is a hang, not work)."""
+    futs = [ex.submit(fn, it) for it in items]
+    pending = set(futs)
+    while pending:
+        done, pending = cf.wait(pending, timeout=idle, return_when=cf.FIRST_COMPLETED)
+        if not done:
+            print('draft_batch: no job finished in %d s with %d of %d pending: the worker pool is hung, stopping (rerun the batch)'
+                  % (idle, len(pending), len(futs)), file=sys.stderr, flush=True)
+            for f in pending:
+                f.cancel()
+            for pr in list(getattr(ex, '_processes', {}).values()):
+                try:
+                    pr.kill()
+                except Exception:
+                    pass
+            sys.exit(3)
+    for f in futs:
+        yield f.result()
+
+
 ERRMSG = re.compile(r'^#\s+Error:\s*\^?\s*$')
 
 
@@ -3272,7 +3296,7 @@ def main():
         sigs, ptr, rets, pars = {}, collections.defaultdict(set), collections.defaultdict(set), collections.defaultdict(list)
         p1 = [(n, ad, sz, o) for n, ad, sz, _, o in funcs] + [(n, lib[n][1], lib[n][2], lib[n][4]) for n in libcalled if n in und and n not in found]
         with cf.ProcessPoolExecutor(a.jobs, initializer=init, initargs=(out, ver, flags, True)) as ex:
-            for name, sig, ext, _ in ex.map(one, p1, chunksize=4):
+            for name, sig, ext, _ in pool_map(ex, one, p1):
                 if sig:
                     sigs[name] = (starts[name], sig)
                     externs, fdecls, fparams = ext
@@ -3296,7 +3320,7 @@ def main():
     context(base + '#include "ctx_sdk.h"\n' + data_decls(ptrs, load_signs(funcs), load_signs.extents) + '\n#include "ctx_protos.h"\n')
     res = {}
     with cf.ProcessPoolExecutor(a.jobs, initializer=init, initargs=(out, ver, flags)) as ex:
-        for name, status, note, eqb in ex.map(one, jobs, chunksize=4):
+        for name, status, note, eqb in pool_map(ex, one, jobs):
             res[name] = (status, note, eqb)
     # reports (address order, no times, no paths)
     cnt = collections.Counter()

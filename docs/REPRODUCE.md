@@ -39,7 +39,7 @@ bash tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
 ends with a PASS / FAIL table. Expect about an hour on a desktop: setup (downloads) 5-15 minutes, `run_all` about 40
 minutes (two Ghidra rebuilds on a fresh setup, 4 minutes each; batch 12 about 26 minutes), the archive / model / mod
 steps a few minutes (the glTF export of 1,006 models is the longest). Tested from an empty folder on Windows
-(Oct 31, 2026, a fresh local clone, 8 cores: **PASS** in 41 minutes, 2,489 s, with the pinned downloads already cached by setup; two Ghidra rebuilds, batch 12 1,441 s, batch 11 on the pinned Dolphin without a save) and on Ubuntu 26.04 (Oct 30, 2026: **PASS**,
+(Oct 31, 2026, a fresh local clone, 8 cores: **PASS** in 41 minutes, 2,489 s, with the pinned downloads already cached by setup; two Ghidra rebuilds, batch 12 1,441 s, batch 11 on the pinned Dolphin without a save; Nov 1, 2026, main a7afe26 at step 90, the same way: **PASS** in 64 minutes, 3,861 s, while two other builds shared the machine) and on Ubuntu 26.04 (Oct 30, 2026: **PASS**,
 90 minutes on 4 cores with the tools already downloaded). On Arch only the install block
 was verified (an `archlinux` container, Oct 30, 2026: [arch_container.md](arch_container.md)). The sections explain
 what each part does, so you can also run them one by one.
