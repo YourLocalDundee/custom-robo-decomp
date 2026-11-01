@@ -2297,6 +2297,53 @@ def indexed_offset(body):
 
 
 
+def fold_temp_compound(body):
+    """step 85: m2c's temporary for a caller-saved register that holds an address used twice in the next statement, as
+    the base of the load and of the store of one field (`temp_r3_44 = p->a->b; M2C_FIELD(temp_r3_44, f32 *, 0x14) =
+    (f32) ((f64) M2C_FIELD(temp_r3_44, f32 *, 0x14) + lbl_80450E70);`, or `M2C_FIELD(temp_r4_35, u16 *, 0x12) |=
+    0x2000;`): a local of the draft gets a callee-saved register (`lwz r30, 4(r3)`, saved and restored), while the
+    original evaluated the address once inside a compound assignment and kept it in r3 / r4 (`lwz r3, 4(r3); lfs f1,
+    0x14(r3); ...; stfs f0, 0x14(r3)`). Folded into `M2C_FIELD(ADDR, T *, OFF) op= RHS;` when the register is r3-r12
+    (a temporary, not a local the original kept across a call), the temporary has no other use, and, for the
+    `(f32) ((f64) x + C)` form, C is a double (a literal without an f suffix, or an .sdata2 double), so the arithmetic
+    stays the compiler's own f64 promotion. fn_80080B80 92 -> 100%, fn_80080FD8 (step 85)."""
+    doubles = {k for k, v in pool_floats().items() if not v.endswith('f')}
+    pat = re.compile(r'^([ \t]*)(temp_r(\d+)_\d+) = (.+);\n[ \t]*M2C_FIELD\(\2, ([\w ]+?) \*, (0x[0-9A-F]+|\d+)\) (?:'
+                     r'(<<|>>|[-+*/%&|^])= (.+)|= \(f32\) \(\(f64\) M2C_FIELD\(\2, f32 \*, \6\) ([-+*/]) (.+)\));$', re.M)
+
+    def fix(m):
+        ind, tmp, reg, addr, t, off = m.group(1), m.group(2), int(m.group(3)), m.group(4), m.group(5), m.group(6)
+        if not 3 <= reg <= 12 or len(re.findall(r'\b%s\b' % tmp, body)) != len(re.findall(r'\b%s\b' % tmp, m.group(0))) + 1:
+            return m.group(0)   # the declaration is the only other occurrence
+        if m.group(7):
+            op, rhs = m.group(7), m.group(8)
+        else:
+            op, rhs = m.group(9), m.group(10)
+            if t.strip() != 'f32' or not (re.fullmatch(r'-?\d+\.\d+(?:e-?\d+)?', rhs) or rhs in doubles):
+                return m.group(0)
+        if tmp in addr or tmp in rhs:
+            return m.group(0)
+        return '%sM2C_FIELD(%s, %s *, %s) %s= %s;' % (ind, addr, t, off, op, rhs)
+    out = pat.sub(fix, body)
+    if out != body:
+        for tmp in set(re.findall(r'\btemp_r\d+_\d+\b', body)):
+            if len(re.findall(r'\b%s\b' % tmp, out)) == 1:
+                out = re.sub(r'^[ \t]*[\w ]+?\s?\**%s;[ \t]*\n' % tmp, '', out, count=1, flags=re.M)
+    return out
+
+
+def store_literals(body):
+    """step 85, a variant: a float constant of .sdata2 written as the literal it holds only where it is a whole stored
+    value (`M2C_FIELD(p, f32 *, 0x14) = (f32) lbl_80450E5C;` -> `= 0.0f;`), the constants in arithmetic and compares
+    staying externs. The compiler schedules its own literal freely (the `lfs` of 0.0f moves above a store through a
+    pointer: an extern may alias with it, a literal cannot), while the same function's `x + 3.875f < 255.0f` matches
+    only with the externs (as literals the compiler swaps the operands: fn_80080A94 98 -> 100%, 91% with
+    float_literals). The literal is the draft's own pool constant like float_literals' (ownership for the file run)."""
+    fl = pool_floats()
+    if not fl:
+        return body
+    return re.sub(r'= (?:\(f32\) |\(f64\) )?(lbl_[0-9A-F]{8});$', lambda m: '= %s;' % fl[m.group(1)] if m.group(1) in fl else m.group(0), body, flags=re.M)
+
 def postprocess(body, skip=(), add=()):
     """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
     for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
@@ -2306,7 +2353,8 @@ def postprocess(body, skip=(), add=()):
               double_negation, assert_ternary, hsd_inlines, mixed_externs, byte_steps, same_type_copies, param_regs, param_homes,
               param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
               float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound,
-              script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, indexed_offset):
+              script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, indexed_offset, fold_temp_compound,
+              store_literals):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -2315,7 +2363,7 @@ def postprocess(body, skip=(), add=()):
 # rules only a variant applies, and the variants a near draft is also tried with (one(), step 64), in this order:
 # (rules left out, optional rules applied)
 OPTIONAL = (void_null, pointer_tests, drop_same_assign_casts, param_homes, float_literals, drop_same_field_casts, table_call_noargs, unsigned_fields, hsd_inlines, stack_struct, alias_offsets,
-            redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign, drop_same_member_casts, expand_ptr_compound)
+            redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign, drop_same_member_casts, expand_ptr_compound, store_literals)
 VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
             ((), (void_null,)), ((register_order,), (void_null,)),
             # step 69
@@ -2328,7 +2376,9 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             # step 79: struct-typed globals (cr_g_Script, cr_g_Scenario, cr_g_GameMode, cr_g_Pads)
             ((), (drop_same_member_casts,)), ((), (expand_ptr_compound,)), ((), (drop_same_member_casts, expand_ptr_compound)),
             # step 80: the script-command head without the counter pointer (the rule is on by default)
-            ((script_counter_ptr,), ()))
+            ((script_counter_ptr,), ()),
+            # step 85: the stored float constants as literals, the others externs
+            ((), (store_literals,)))
 
 
 VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this

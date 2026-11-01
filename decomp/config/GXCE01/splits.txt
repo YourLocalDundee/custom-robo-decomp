@@ -721,6 +721,9 @@ game/fn_8008052C.c:
 game/fn_80080994.c:
 	.text       start:0x80080994 end:0x80080A94
 
+game/fn_80080B80.c:
+	.text       start:0x80080B80 end:0x80080C7C
+
 game/fn_80080FB4.c:
 	.text       start:0x80080FB4 end:0x80080FD8
 
