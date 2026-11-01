@@ -54,6 +54,7 @@ Every command runs from the repo root. `tools/check_docs.py` checks this convent
 | [compiler.md](compiler.md) | Which CodeWarrior version and flags built each part of `main.dol` (batch 10), as applied in `decomp/configure.py` |
 | [drafts.md](drafts.md) | Batch 12: an m2c C draft of every game function, compiled and compared; promotion into `decomp/src/game` |
 | [scheduler_plan.md](scheduler_plan.md) | The GC/2.6 scheduler wall (handler head, fn_8006EEF8, gap registers): the plan to reverse-engineer the compiler's scheduler and break it; the next session's first task |
+| [sched_community.md](sched_community.md) | Phase A of the scheduler plan: what other projects already have on the mwcceppc scheduler (decompiled Scheduler.c, models, the GC/2.6 addresses), the documented options, the binary's dump strings, and what changes for Phase C |
 
 ## File formats and community research
 

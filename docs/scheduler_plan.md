@@ -77,6 +77,8 @@ whether the compiler has undocumented dump switches: `strings` the binary (Phase
 "dump", "sched", "dag", "-show", "ir". Deliverable: a short section in docs/drafts.md with links and the verdict.
 Anything found collapses Phase C.
 
+**Findings (Nov 2, 2026, docs/sched_community.md): Phase C mostly collapses.** The scheduler is already decompiled: rayanht/mwcc (a matching decompilation of mwcceppc GC/1.0-1.3) has `Scheduler.c` and the per-processor `MachineSimulation*.c`; the pick is not critical-path first but urgency (deadline reached), then the number of successors the issue makes ready, then height, then (first pass) an opcode rank, then program order; inspiredrobot/mwcc `SCHEDULER.md` (its docs folder) has the tables and a simulator that reproduced a Melee block, and zcanann/mwcc-rs reimplements it with the 2.x differences, tested against GC/2.6. cadmic/mwcc-debugger already maps our exact GC/2.6 binary (PCode structures, pass boundaries); from its call sites, GC/2.6 `Scheduler_Schedule(force)` is at 0x507C70 (called with 0 before register colouring, with 1 for the final pass after the peephole) and `schedule_block` at 0x507D70. Next: skip C3, read C4 against that source, replay the 1.x pick rule on the step 84 micro-programs first, hook on Windows with a proxy lmgr326b.dll in an analysis copy of the compiler folder (Savestate2A03/mwcc_debug's approach), and model both passes.
+
 ## 5. Phase B: the permuter in the background (about 2 hours to set up, then unattended)
 
 - Clone simonlindholm/decomp-permuter into tools/downloads (untrusted download: its own empty directory, hash
@@ -147,7 +149,7 @@ pipe (fn_8006EEF8's stores); anything the `speed` / `space` keywords switch.
 
 Name every function and structure in Ghidra (`sched_build_dag`, `sched_node_priority`, `sched_pick`,
 `SchedNode.height`, ...), export the decompiled C of the cluster to tools/sched/ghidra_export/, and write the
-recovered algorithm as pseudocode in `docs/sched_model.md`: the DAG rules, the priority formula, the tie-break
+recovered algorithm as pseudocode in `sched_model.md` (new, in docs): the DAG rules, the priority formula, the tie-break
 order, the latency tables as numbers.
 
 ### C5. Confirm by hooking before trusting the read (one day)
@@ -191,7 +193,7 @@ In this order, each verified with batch 9 (retail, static shift PASS), batch 8, 
 object or run changes: (1) cr_CM_DUMMY_008 to 100%, then the generator rule and a full batch 12 (expect most of the
 ~220 handlers to flip); (2) fn_8006EEF8 (closes the first data-owning run); (3) the gap-register functions that
 block the runs of docs/drafts.md "Step 85" (fn_80080FD8, run 4; then runs 2 and 3); (4) the 8 HSD near-miss files.
-Docs: plan.md step 87+ per phase, docs/drafts.md sections, docs/decomp.md status, docs/sched_model.md.
+Docs: plan.md step 87+ per phase, docs/drafts.md sections, docs/decomp.md status, sched_model.md (new, in docs).
 
 ## 8. How to run this with Opus workers
 
@@ -203,7 +205,7 @@ merges and verifies (docs/workflows.md section 14). Suggested packages, each wit
 |---|---|---|---|
 | W1 | A + B | 3 h | links and verdict; permuter running with its best score |
 | W2 | C1 + C2 + C3 | 2 days | the scheduler cluster (addresses, roles), the corpus size; STOP for the check |
-| W3 | C4 + C5 | 4 days | docs/sched_model.md, the hook log agreeing on cr_CM_DUMMY_008 |
+| W3 | C4 + C5 | 4 days | sched_model.md (new, in docs), the hook log agreeing on cr_CM_DUMMY_008 |
 | W4 | C6 | 2 days | replay.py at 100% on the corpus (or the fallback C8 started) |
 | W5 | C7 + D(1) | 2 days | cr_CM_DUMMY_008 at 100%, the rule, batch 12 numbers |
 | W6 | D(2)-(4) | as needed | runs closed, HSD files linked |
