@@ -1115,6 +1115,22 @@ dead local writes. The head stays at its 85% family ceiling; no generator rule, 
   load in the original and after it in m2c's form, 50 of 56 -> 56 of 56. Of the 15 drafts with the pattern, two go to
   100%: fn_800B4710 and fn_800A5C60. Full batch 12: 488 -> 490 at 100%, 46 compile failures, 521,988 bytes equal.
 
+### Step 96: three order rules for the schedule-only drafts (Nov 1, 2026, branch sched-i)
+
+- **`byte_compare_casts`** (a variant): a byte member compared through m2c's `(s32) X` written `(s32) (u8) X`. The
+  front end's extra `clrlwi` is deleted between the schedulings after taking an issue slot (fn_800B47F0: the element
+  offset's `mulli` after the `lbz`, 92 -> 99 of 99; `(s8) X` gives the same).
+- **`shift_mask_order`** and **`sink_const_global_stores`** (variants, also together): `(E << N) & M` written
+  `(E & (M >> N)) << N`; a constant store to a global moved below the simple statements after it, up to a control
+  statement, another constant store or a statement naming the global (m2c places it where its `stw` was
+  scheduled). fn_80037894 needs both (93 -> 104 of 104); the sink alone brings fn_80021AB0 and fn_800932D0 to 100%.
+- **`masked_index_field`** also rewrites the bare form `+ ((X * N) & MASK)` as `+ (X * N)` (fn_800B497C 73 of 73).
+- Full batch 12: 491 -> 496 at 100% (fn_80021AB0 as a file object with its .data, fn_80037894, fn_800932D0,
+  fn_800B47F0, fn_800B497C; fn_800A6068 is at 100% too but its pool entry is shared with 310 functions), 46 compile
+  failures, 523,032 bytes equal.
+- An `--only` run rewrites decomp/drafts for the named functions only and removes the other drafts' sources; run a
+  full batch 12 before reading other drafts.
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.

@@ -2463,8 +2463,62 @@ def masked_index_field(body):
     index) written as the byte arithmetic `*(T) (B + OFF + X * N)`. The original computed the element's address in
     one expression; the masked index and the field macro give the same words in another order (fn_800B4710: the
     call arguments of HSD_JObjDispAll, 50 -> 56 of 56; docs/drafts.md "Step 95")."""
-    return re.sub(r'M2C_FIELD\(&(\w+)\[\((\w+) \* (\d+)\) & 0x[0-9A-Fa-f]+\], ([^,()]+), (0x[0-9A-Fa-f]+|\d+)\)',
+    body = re.sub(r'M2C_FIELD\(&(\w+)\[\((\w+) \* (\d+)\) & 0x[0-9A-Fa-f]+\], ([^,()]+), (0x[0-9A-Fa-f]+|\d+)\)',
                   r'*(\4) (\1 + \5 + \2 * \3)', body)
+    # step 96: the bare form in an address sum, `+ ((X * N) & MASK)` -> `+ (X * N)` (fn_800B497C, 73 of 73)
+    return re.sub(r'\(\((\w+) \* (\d+)\) & 0x[0-9A-Fa-f]+\)', r'(\1 * \2)', body)
+
+
+def byte_compare_casts(body):
+    """step 96, a variant: a byte member compared through m2c's `(s32) X` (its reading of `lbz` + `cmpwi`) written
+    `(s32) (u8) X`. The second conversion is the front end's `clrlwi`, deleted between the two schedulings after it
+    took an issue slot in the first (fn_800B47F0: the `mulli` of the element offset after the `lbz`, 92 -> 99 of 99;
+    docs/drafts.md "Step 96")."""
+    cmp_ = r' (==|!=|<=|>=|<|>)'
+    body = re.sub(r'\(s32\) (M2C_FIELD\([^()]*, u8 \*, [^()]*\))' + cmp_, r'(s32) (u8) \1 \2', body)
+    return re.sub(r'\(s32\) (cr_g_\w+(?:\.\w+|\[[^\]()]*\])+)' + cmp_, r'(s32) (u8) \1 \2', body)
+
+
+def shift_mask_order(body):
+    """step 96, a variant: m2c's `(E << N) & M` (its reading of `clrlslwi`) written `(E & (M >> N)) << N` when M is
+    a mask shifted by N; with sink_const_global_stores fn_80037894 matches (docs/drafts.md "Step 96")."""
+    def f(m):
+        n, mask = int(m.group(2)), int(m.group(3), 16)
+        if mask & ((1 << n) - 1) or not mask:
+            return m.group(0)
+        return '(%s & 0x%X) << %d' % (m.group(1), mask >> n, n)
+    return re.sub(r'\(([\w.\[\]>-]+) << (\d+)\) & 0x([0-9A-Fa-f]+)', f, body)
+
+
+def sink_const_global_stores(body):
+    """step 96, a variant: a store of a constant to a global (`lbl_X = 0;`, `*lbl_X = 0;`, `lbl_X[0] = 0;`) moved down
+    past the simple statements that follow it at the same depth, up to the next control statement or a statement
+    that names the global. m2c places the store where its `stw` is in the scheduled code; the original wrote it
+    later and the scheduler issued it early (fn_80037894: after the two stores of the mode word; docs/drafts.md
+    "Step 96")."""
+    lines = body.split('\n')
+    store = re.compile(r'^(\s+)\*?(lbl_\w+)(?:\[\d+\])? = (?:0x[0-9A-Fa-f]+|\d+)U?;$')
+    k = 0
+    while k < len(lines):
+        m = store.match(lines[k])
+        if not m:
+            k += 1
+            continue
+        ind, g = m.group(1), m.group(2)
+        j = k + 1
+        while j < len(lines):
+            l = lines[j]
+            if (store.match(l) or not l.startswith(ind) or l.startswith(ind + ' ') or not l.rstrip().endswith(';')
+                    or l.strip().startswith(('return', 'break', 'goto', 'continue')) or re.search(r'\b%s\b' % g, l)
+                    or '(' in l.split(' = ', 1)[-1] and not re.match(r'^\s*[\w.\[\]>*-]+ [|&^+-]?= ', l)):
+                break
+            j += 1
+        if j > k + 1:
+            lines.insert(j - 1, lines.pop(k))
+            k = j
+        else:
+            k += 1
+    return '\n'.join(lines)
 
 
 def postprocess(body, skip=(), add=()):
@@ -2477,7 +2531,8 @@ def postprocess(body, skip=(), add=()):
               param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
               float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound,
               script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, struct_byte_offset, indexed_offset,
-              fold_temp_compound, store_literals, hoist_float_temps, widen_narrow_params, masked_index_field):
+              fold_temp_compound, store_literals, hoist_float_temps, widen_narrow_params, masked_index_field, byte_compare_casts, shift_mask_order,
+              sink_const_global_stores):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -2487,7 +2542,7 @@ def postprocess(body, skip=(), add=()):
 # (rules left out, optional rules applied)
 OPTIONAL = (void_null, pointer_tests, drop_same_assign_casts, param_homes, float_literals, drop_same_field_casts, table_call_noargs, unsigned_fields, hsd_inlines, stack_struct, alias_offsets,
             redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign, drop_same_member_casts, expand_ptr_compound, store_literals,
-            hoist_float_temps, widen_narrow_params, masked_index_field)
+            hoist_float_temps, widen_narrow_params, masked_index_field, byte_compare_casts, shift_mask_order, sink_const_global_stores)
 VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
             ((), (void_null,)), ((register_order,), (void_null,)),
             # step 69
@@ -2508,7 +2563,11 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             # step 93: narrow parameters declared int
             ((), (widen_narrow_params,)), ((register_order,), (widen_narrow_params,)),
             # step 95: a masked index into a field as byte arithmetic
-            ((), (masked_index_field,)), ((register_order,), (masked_index_field,)))
+            ((), (masked_index_field,)), ((register_order,), (masked_index_field,)),
+            # step 96: a byte member compared through (s32) (u8)
+            ((), (byte_compare_casts,)), ((register_order,), (byte_compare_casts,)),
+            # step 96: the mask before the shift; constant stores to globals later
+            ((), (shift_mask_order,)), ((), (sink_const_global_stores,)), ((), (shift_mask_order, sink_const_global_stores)))
 
 
 VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this

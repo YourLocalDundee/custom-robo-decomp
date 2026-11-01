@@ -12,9 +12,9 @@ padding per point: 0x100 bytes; points: 42
    9. 0x801C4F80 .data    start of .data -> everything from here moves by +0x900
   10. 0x801DEA78 .data    inside .data: the data-only game unit game/data/cr_g_SeqFrameA_cr_g_SeqLeave.c (every reference to it is a relocation) -> everything from here moves by +0xA00
   11. 0x801F1200 .data    inside .data: the data-only game unit game/data/cr_g_FileDescs.c (every reference to it is a relocation) -> everything from here moves by +0xB00
-  12. 0x8020B0C0 .data    inside .data: the start of the glue span 0x8020B0C0.. (a file's statics base) -> everything from here moves by +0xC00
-  13. 0x802427F0 .data    inside .data: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0xD00
-  14. 0x80249588 .data    inside .data: the data piece of dolphin/gx/GXLight.c (a proven object boundary) -> everything from here moves by +0xE00
+  12. 0x801F5D30 .data    inside .data: the data piece of game/fn_80021AB0_fn_80021AB0.c (a proven object boundary) -> everything from here moves by +0xC00
+  13. 0x8020B0C0 .data    inside .data: the start of the glue span 0x8020B0C0.. (a file's statics base) -> everything from here moves by +0xD00
+  14. 0x80249458 .data    inside .data: the data piece of dolphin/gx/GXFrameBuf.c (a proven object boundary) -> everything from here moves by +0xE00
   15. 0x8024DAD0 .data    inside .data: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0xF00
   16. 0x8024DB20 .bss     start of .bss -> everything from here moves by +0x1000
   17. 0x8024DC80 .bss     inside .bss: the data-only game unit game/data/cr_g_CharaEntries.c (every reference to it is a relocation) -> everything from here moves by +0x1100
@@ -43,9 +43,9 @@ padding per point: 0x100 bytes; points: 42
   40. 0x804504E8 .sdata2  inside .sdata2: the data piece of game/fn_8002444C_fn_8002444C.c (a proven object boundary) -> everything from here moves by +0x2800
   41. 0x804520A0 .sdata2  inside .sdata2: the data piece of MSL/e_log.c (a proven object boundary) -> everything from here moves by +0x2900
   42. 0x804529F8 .sdata2  inside .sdata2: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x2A00
-objects linked from C (batch 9, configure.py CR_MATCHING): 656 in both links, 655 of them moved by the padding; 26 holding a point, reassembled from asm
+objects linked from C (batch 9, configure.py CR_MATCHING): 660 in both links, 659 of them moved by the padding; 27 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
-shifted main.dol: SHA-1 3c1569fb91a6b191d5791ca0f2612cbb5e46df6b (2431360 bytes, retail 2425472)
+shifted main.dol: SHA-1 15ee8a0f863eb6cb228a065e711d9be6a6b38782 (2431360 bytes, retail 2425472)
 sections, unshifted -> shifted:
   .init    0x80003100 size 0x0024D0 -> 0x80003100 size 0x0024D0
   .text    0x800055E0 size 0x1B0FF8 -> 0x800055E0 size 0x1B12F8

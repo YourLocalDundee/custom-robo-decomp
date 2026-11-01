@@ -1,0 +1,93 @@
+/* Custom Robo game code, promoted by tools/promote_drafts.py; edit by hand only after removing this line.
+ * fn_80037894: .text 0x80037894-0x80037A34 (416 bytes), linked from this file (batch 9: retail SHA-1, objdiff 100%).
+ * One function per object: the game's own source files are not known yet, so this is not the original file.
+ * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
+#include "game/cr_game.h"
+
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+typedef enum cr_Seq
+{
+  SEQ_LOGO,
+  SEQ_MOVIE,
+  SEQ_TITLE,
+  SEQ_FIELD,
+  SEQ_BATTLE,
+  SEQ_MODE_SELECTOR,
+  SEQ_CUSTOMIZE,
+  SEQ_STAGE_SELECTOR,
+  SEQ_SCENARIO,
+  SEQ_OPTION,
+  SEQ_NAME_ENTRY,
+  SEQ_MEMORY_CARD,
+  SEQ_MENU,
+  SEQ_ILLUSTRATED_BOOK,
+  SEQ_ENDING
+} cr_Seq;
+typedef struct cr_SeqState
+{
+  cr_Seq current;
+  cr_Seq previous;
+  cr_Seq next;
+  u8 unk_0c[4];
+  u32 unk_10;
+  u8 unk_14[0x10];
+  u32 unk_24;
+  u32 unk_28;
+  u32 unk_2c;
+  u8 unk_30[4];
+  u32 unk_34;
+  s32 unk_38;
+  s16 unk_3c;
+  u8 unk_3e[2];
+  s32 unk_40;
+  u8 unk_44[4];
+} cr_SeqState;
+__declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
+extern u32 lbl_8044F488;
+extern u32 lbl_8044F490[2];
+extern u8 lbl_8044C458[8];
+extern s16 lbl_8044F48C;
+
+void fn_80037894(void) {
+
+    if (!(cr_g_SeqCurrent.unk_40 & 0x8000)) {
+        if (cr_g_SeqCurrent.unk_40 & 0x2000) {
+            cr_g_SeqCurrent.unk_40 &= 0xFFFFDFFF;
+        } else {
+            lbl_8044F488 = 8;
+        }
+        cr_g_SeqCurrent.unk_40 = (cr_g_SeqCurrent.unk_40 & 0xF) << 6;
+        cr_g_SeqCurrent.unk_40 |= 0x8000;
+        *lbl_8044F490 = 0;
+        switch ((cr_g_SeqCurrent.unk_40 & 0x3C0)) {                       /* irregular */
+        case 0x40:
+            M2C_FIELD(lbl_8044C458, u8 *, 0) = 0;
+            lbl_8044C458[1] = 0;
+            lbl_8044C458[2] = 0;
+            lbl_8044C458[3] = 0;
+            lbl_8044F48C = 0;
+            return;
+        case 0x80:
+            M2C_FIELD(lbl_8044C458, u8 *, 0) = 0;
+            lbl_8044C458[1] = 0;
+            lbl_8044C458[2] = 0;
+            lbl_8044C458[3] = 0xFF;
+            lbl_8044F48C = 0xFF;
+            return;
+        case 0x100:
+            M2C_FIELD(lbl_8044C458, u8 *, 0) = 0xFF;
+            lbl_8044C458[1] = 0xFF;
+            lbl_8044C458[2] = 0xFF;
+            lbl_8044C458[3] = 0;
+            lbl_8044F48C = 0;
+            return;
+        case 0x200:
+            M2C_FIELD(lbl_8044C458, u8 *, 0) = 0xFF;
+            lbl_8044C458[1] = 0xFF;
+            lbl_8044C458[2] = 0xFF;
+            lbl_8044C458[3] = 0xFF;
+            lbl_8044F48C = 0xFF;
+            return;
+        }
+    }
+}
