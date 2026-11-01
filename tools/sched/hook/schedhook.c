@@ -26,7 +26,9 @@ static int new_block;
 typedef u32(__cdecl *fn1)(u32);
 typedef u32(__cdecl *fn2)(u32, u32);
 static fn1 orig_sched, orig_block;
-static fn2 orig_pick;
+static fn2 orig_pick, orig_ins_after, orig_ins_before;
+static fn1 orig_delete;
+static int phase;   /* 1 between the first and the final scheduling pass */
 
 static void dump_alias(u32 al)
 {
@@ -70,6 +72,7 @@ static u32 __cdecl hook_sched(u32 force)
     dump_blocks('B');
     r = orig_sched(force);
     dump_blocks('A');
+    phase = (force & 0xff) ? 2 : 1;
     fflush(logf_);
     return r;
 }
@@ -119,6 +122,23 @@ static u32 __cdecl hook_pick(u32 list, u32 cycle)
     return r;
 }
 
+/* the PCode list edits (0x4DCF30 insert after, 0x4DCF70 insert before, 0x4DCFB0 delete): between the passes */
+static u32 __cdecl hook_ins_after(u32 pos, u32 n)
+{
+    if (phase == 1) { u32 b = RD32(pos + 8); fprintf(logf_, "+A blk=%08X idx=%d after=%08X ", b, b ? (int)RD32(b + 0x1c) : -1, pos); dump_ins(n); }
+    return orig_ins_after(pos, n);
+}
+static u32 __cdecl hook_ins_before(u32 pos, u32 n)
+{
+    if (phase == 1) { u32 b = RD32(pos + 8); fprintf(logf_, "+B blk=%08X idx=%d before=%08X ", b, b ? (int)RD32(b + 0x1c) : -1, pos); dump_ins(n); }
+    return orig_ins_before(pos, n);
+}
+static u32 __cdecl hook_delete(u32 p)
+{
+    if (phase == 1) { u32 b = RD32(p + 8); fprintf(logf_, "-D blk=%08X idx=%d ", b, b ? (int)RD32(b + 0x1c) : -1); dump_ins(p); }
+    return orig_delete(p);
+}
+
 static void *hook(u32 addr, int len, void *fn)
 {
     DWORD old;
@@ -151,5 +171,8 @@ BOOL WINAPI DllMain(HINSTANCE h, DWORD reason, LPVOID r)
     orig_sched = (fn1)hook(0x507C70, 6, hook_sched);
     orig_block = (fn1)hook(0x507D80, 7, hook_block);
     orig_pick = (fn2)hook(0x507F50, 7, hook_pick);
+    orig_ins_after = (fn2)hook(0x4DCF30, 5, hook_ins_after);
+    orig_ins_before = (fn2)hook(0x4DCF70, 5, hook_ins_before);
+    orig_delete = (fn1)hook(0x4DCFB0, 5, hook_delete);
     return TRUE;
 }

@@ -318,8 +318,47 @@ after the first pass, which also makes the final pass reschedule the block), for
 coalesced. No shape matched, so no draft_batch rule was written and batches 12 / 9 / 8 were not run. fn_8006EEF8 was
 not searched (its vertex blocks are final-pass blocks for the same reason).
 
-## 13. Next
+## 14. Step 91: the deleted instruction, the near-miss labels
 
-Generate C shapes that add a deletable instruction to the head (a copy into a local, a temporary that colouring
-merges, a second pointer local) and score each one's hook PCode with inverse.py: the right shape's first pass has to
-produce one of the DIRECT outputs. Then the same for the vertex blocks of fn_8006EEF8.
+The hook also logs, between the first and the final scheduling, every PCode insertion (`+A` after, `+B` before:
+0x4DCF30 / 0x4DCF70) and deletion (`-D`: 0x4DCFB0) with the instruction. For base.c the only real deletion is the
+folded counter pointer's `addi r31, rX, 0xc` (the other `-D` lines are the body moving into the prologue block); for
+fn_8006EEF8 the vertex blocks lose redundant `clrlwi rD, r29, 24` (the u8 alpha widened before its `stb`), a
+duplicate `lis 0xcc01` and the gap pointer's `addi r30, r1, ...`.
+
+**Synthetic instructions** (inverse.py `SYNTH`): one extra instruction placed anywhere in base.c's first-pass input
+(18 statement orders that keep the aliasing order x every position), removed from the first pass's output before
+colouring, both passes replayed against the original:
+
+| Extra instruction | Placements | Best of 38 |
+|---|---|---|
+| a duplicate of an existing instruction (dead), a `mr` from a register, a dead `li` | (all candidates: 36,111 evaluations) | below 38 |
+| a `mr` INTO an existing register, before its definition | 1,092 placements | **38** |
+| an in-place `rlwinm` / `extsh` on a register right after its definition (the PC local r30 after `pc = cr_g_ScriptPC`, or an address temporary) | 156 placements | **38** |
+
+So the original's first-pass input had one more integer instruction on a definition chain (most simply on the PC
+local, statements in the order counter pointer, PC, history, increment, mask, advance, count) that was deleted before
+the final pass. The C spellings tried give the same PCode as base.c (the front end folds them): `(s16 *)` casts,
+`+ 0`, `&pc[0]`, through `u32`, `& 0xFFFFFFFF`, `| 0`, `pc = pc;`, `pc += 0;`, a parameter, dead assignments
+(which stay: 39 words). A compiled sweep of 256 shapes (tools/sched/corpus/shp, the eight statement orders of the synthetic solutions x no
+extra / a second `pc = cr_g_ScriptPC;` / `pc = 0;` / `pc = (s16 *) cmd_cnt;` / a second counter-pointer assignment /
+`cmd_cnt = 0;` at three places x both declaration orders, scored with hd/pr.py) gives at best 18 of 38 by position
+(the step 84 ceiling); every extra statement stays in the code (39-40 words): the level-0 compiler does not delete
+dead local writes.
+
+**Labels**: tools/sched/label_drafts.py, docs/drafts.md "Step 91":
+
+| Label | Drafts | of them handlers (cr_*_ script commands) |
+|---|---|---|
+| structural (other instructions in at least one block) | 156 (96 + 60 with the frame too) | 22 |
+| schedule-only (every block has the original's instructions, in another order) | 36 (28 + 8 with the frame too) | 17 |
+| register-only (the body is the original once register numbers are masked) | 19 (17 + 2 with the frame too) | 0 |
+| frame (only the prologue / epilogue differ) | 2 | 0 |
+
+## 15. Next
+
+Find the C construct that the level-0 front end turns into an extra integer instruction on the PC local's
+chain and that a later pass deletes (the u8 widening of fn_8006EEF8's alpha is one such class: a `clrlwi` before a
+byte store); score candidates with inverse.py on their hook log. fn_8006EEF8's vertex blocks need the same search per
+block (blocks 32, 36, 40, 43 of the call-split listing; blocks 28, 29, 33, 37, 38, 41 differ only by the pool
+constants' names, which the file object owns).

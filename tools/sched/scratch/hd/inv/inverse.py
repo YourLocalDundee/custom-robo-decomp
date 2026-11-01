@@ -223,6 +223,7 @@ def evaluate(seq):
     for k, i in enumerate(seq):
         n = h.HIns.__new__(h.HIns); n.__dict__.update(i.__dict__); n.idx = k; n.mem = h.alias_mem(i); seq2.append(n)
     out = seq2 if 'DIRECT' in sys.argv else r.Scheduler(t, r.Config()).schedule(seq2)
+    out = [x for x in out if not getattr(x, 'synth', False)]
     if PT is not None:
         m = sum(1 for a, c in zip(out, PT) if a.addr == c)
         return m, m, [x.addr for x in out]
@@ -264,6 +265,54 @@ def evaluate(seq):
     fin = texts + ['addi r1, r1, 0x10', 'blr']
     ex = sum(1 for a, c in zip(fin, OT) if a == c)
     return ex + p1 * 0.1, ex, fin
+if 'SYNTH' in sys.argv:
+    # a synthetic instruction the passes between the schedulings delete: placed in the first pass's input, removed
+    # from its output before colouring
+    perms = [b[1] for b in best if legal([i for k in b[1] for i in groups[k]])]
+    def mk(op, defs, uses, like=None):
+        x = h.HIns.__new__(h.HIns)
+        if like is not None:
+            x.__dict__.update(like.__dict__)
+        else:
+            x.__dict__.update(ins[0].__dict__); x.flags = 0x80004000; x.alias = None; x.operands = []
+        x.op = x.mn = op; x.defs = list(defs); x.uses = list(uses); x.ops = list(defs) + list(uses)
+        x.synth = True; x.addr = 'SYN'; x.text = 'synthetic ' + op
+        return x
+    cands = []
+    for X in ins:
+        if X.defs and not (X.flags & 0x40004) and not X.op.startswith('b'):
+            cands.append(('dup ' + X.op + ' ' + ' '.join(X.operands[:3]), lambda X=X: mk(X.op, ['r900'], X.uses, X)))
+    vregs = sorted({d for X in ins for d in X.defs})
+    for v in vregs:
+        cands.append(('mr from ' + v, lambda v=v: mk('mr', ['r901'], [v])))
+        cands.append(('mr into ' + v, lambda v=v: mk('mr', [v], ['r902'])))
+    cands.append(('li', lambda: mk('li', ['r903'], [])))
+    if 'INPLACE' in sys.argv:
+        cands = [('inplace ' + op + ' ' + v, lambda v=v, op=op: mk(op, [v], [v])) for v in vregs for op in ('rlwinm', 'extsh')]
+    res = []
+    n = 0
+    for perm in perms:
+        base_seq = [i for k in perm for i in groups[k]]
+        for name, f in cands:
+            for pos in range(len(base_seq) + 1):
+                x = f()
+                seq = base_seq[:pos] + [x] + base_seq[pos:]
+                seen = set(); ok = True
+                for i in seq:
+                    if any(u not in seen for u in i.uses if u[0] in 'rf' and u != 'r1' and u != 'r902'):
+                        ok = False; break
+                    seen.update(i.defs)
+                if not ok:
+                    continue
+                n += 1
+                sc_, ex_, fin_ = evaluate(seq)
+                res.append((ex_, name, pos, perm))
+    res.sort(key=lambda z: -z[0])
+    print('SYNTH', n, 'evaluations; best', res[:12])
+    import collections as _c
+    full = [z for z in res if z[0] == 38]
+    print('38-solutions', len(full)); print(_c.Counter((z[1], z[3]) for z in full).most_common(40))
+    sys.exit(0)
 best_all = (-1, 0, None, None)
 N = int(sys.argv[4]) if len(sys.argv) > 4 else 3000
 for restart in range(int(sys.argv[3]) if len(sys.argv) > 3 else 5):
