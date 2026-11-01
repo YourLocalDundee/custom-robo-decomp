@@ -25,6 +25,7 @@ passes (docs/sched_model.md); step 88 (branch hsd3, not merged): HSD mtx.c from 
 | 5 | Splitting the 229 automatic objects | Extend gen_dtk_splits.py's evidence: the per-file pool rule (in use), the data-pool base rule of step 86, the 8-aligned section padding, duplicated string literals (one file never holds two equal literals with `-str reuse`), the .bss/.sbss reverse order; every split with its proof in splits_report.txt | (a) splits only where two independent rules agree; (b) leave automatic (byte-identical, shiftable through dtk's relocations) | the 229 count falls with each new split proven; batch 9 retail + static shift PASS; batch 11 PASS | nothing | 4-7 days | nothing |
 | 6 | One-function objects into source files | dtk-template's model: one `Object` per source file in configure.py, the file linked only when complete; promote_drafts.py's file objects grown run by run, data defined in the file; an unmatched function stays as an `asm` function inside the file only if a test proves it keeps the file shiftable | (a) the run stays dtk's extracted object until it matches (dtk-template's NonMatching); (b) split the file around the function (only where no file-pool data is touched) | the first multi-function run with its data (fn_8006EEF8..fn_8006FDD0) linked as one C file; batch 9 retail + static shift, batch 11 | roadblock 1 (closed runs), roadblock 5 (boundaries) | 2-4 days per pattern, then linear | roadblock 1 |
 | 7 | Fresh-clone run and script consolidation | Keep `from_scratch.ps1` -> `setup.ps1` + `run_all.ps1` with configure.py + ninja inside; one shared pinned-download function; the short check (batch 9 + 8 + checksums) as the local "CI"; drop or freeze what the Windows-only rule makes dead | (a) a self-hosted Windows runner running the short check (owner's machine, the ISO never leaves it); (b) no CI, the short check by hand at every merge (today) | `pwsh tools\from_scratch.ps1` PASS from an empty folder on Windows with every checksum matching; one download routine; the docs name one entry point | every other roadblock (run last) | 2-3 days | the owner's decisions on the `.sh` twins and CI |
+| 8 | More split evidence; the chunks with many unknowns (Nov 1, 2026) | Two new measurable split rules: the float-pool restart (a constant repeated in .sdata2 means a new file) and assert file names not yet used as anchors. Then the particle family named by compiling Melee / wowjinxy C, the unknown game chunks named from typed data, community addresses and a runtime trace | (a) one rule plus a C match; (b) leave the range automatic | section 8's done criterion | nothing | 3-6 days | nothing |
 
 ## 1. The GC/2.6 instruction-scheduler wall
 
@@ -402,6 +403,73 @@ problems.
 2. With the owner's answer on the `.sh` twins: delete them or mark them frozen in REPRODUCE.md and docs/tools.md.
 3. Fresh clone into a new folder and run from_scratch.ps1; record the time and table in REPRODUCE.md.
 
+## 8. More ways to split, and the chunks with many unknowns (research, Nov 1, 2026)
+
+Written after steps 97-99 (main 51fb1e7). Measured on main.dol with throwaway scripts unless marked; the numbers can be
+recomputed from `decomp/config/GXCE01/symbols.txt` and main.dol.
+
+**What did not work (Verified, step 98).** wowjinxy/KAR's C files cannot prove file ranges: its memory.c defines
+shadow.c's functions, its tev.c state.c's, its texpdag.c texp.c's. A generator rule that trusted them was tried and
+reverted. doldecomp/kar's asm files are only as good as kar's own splits: its random.s starts with HSD_ArchiveFree,
+and text_804452A0.s is an automatic split. So kar's asm counts as evidence only at a file's first and last function.
+
+**New split evidence.**
+
+- **Float-pool restart (Verified, measured).** mwcc pools a file's floating-point constants in .sdata2 once per value
+  (Inferred: standard mwcc behaviour, which the per-file pool rule already relies on). So when a value reappears,
+  another file has started somewhere after its previous copy. Measured: 1,707 4- or 8-byte .sdata2 objects; 0.0f
+  appears 78 times, 1.0f 62, 0.5f 32, -1.0f 26, 2.0f 24. Cutting greedily at the first repeat gives at least **99**
+  pools, against 60 .sdata2 pieces in splits.txt today. Each repeat proves a boundary inside an interval (between the
+  two copies), not at a point. The padding rule (section 5) or a pool user's code edge then pins it. The code that
+  loads each pool entry follows its pool, which turns the .sdata2 intervals into .text intervals.
+- **Assert and file-name strings not yet anchors (Verified: strings in main.dol).** main.dol holds 53 `.c` / `.h` names.
+  Besides the HSD files these are game and middleware files: dvd.c, dvdfs.c, dvdsche.c, background.c,
+  seq_movie.c, sprite.c, vi.c, pslist.c, psinterpret.c, generator.c, psdisp.c. The G3 notes (symbols/game_real.txt,
+  220 lines) place the functions that pass them. A run of functions between two G3 notes of the same file is that
+  file's. dvdsche.c is a concrete lead for devcom.c's end: wowjinxy's devcom.c ends with kar_dvdsche_* functions, and
+  main.dol has a separate dvdsche.c name. "memory.c" is a lead for memory.c's real start (_HSD_Mem*).
+- **Byte-identical functions (Verified, measured; weak).** 10 groups of exactly equal functions (unmasked, at least
+  0x10 bytes): two copies of one header inline, or two files' identical statics, which would be two files. But one
+  group is 124 copies of a script handler that come from one generated file, so this needs a second rule. With
+  relocations masked there are 81 groups, mostly handler families: no use as split evidence.
+- **Call-graph locality (Inferred).** A function called only from neighbours inside one range is probably a `static`
+  of that file. A function called from many distant ranges is probably global API. Weak on its own, useful as the
+  second rule.
+- **Runtime trace (Inferred).** Dolphin's debugger can log the functions that run per scene (title, customize, battle,
+  story) using a symbol map exported from symbols.txt. Functions that only ever run in one scene group by feature.
+  This helps naming more than splitting. Desktop only (no cross-system testing).
+- **Ghidra BSim (Verified as a tool; Inferred for us).** It compares decompiler feature vectors and ignores constants
+  and register names. Ghidra documents it as working across compilers and architectures; small functions match with
+  low confidence. Possible use: match HSD / particle functions against Melee's and KAR's binaries when C does not
+  compile equal. No other game shares Noise's game code (the DS Custom Robo Arena is ARM and another codebase), so it
+  does not help the game code.
+- **dtk / ppcdis (Verified: their docs).** Neither documents a boundary heuristic beyond relocations, .ctors / extab
+  pairing and user configuration. Map files and asserts remain the community's sources.
+
+**The chunks with many unknowns, and the best way to each.**
+
+| Chunk | Unknowns | Best method (measured where possible) | Then |
+|---|---|---|---|
+| Particle family 0x80179C14-0x80186490 (particle, generator, psdisp, psdisptev, psappsrt, pslist; 68 functions, 1 named) | file edges, names | Compile Melee 598987cf's and wowjinxy's particle-family C with our flags and compare (as step 98): **15 of 68 exact** (e.g. psClearPointJObj, psGetNewIDNum, psSetupTevCommon, psAttachGeneratorAppSRT, _psListDelete; 7 named only kar_particle_* in wowjinxy) and 13 more at 90% or above. Name the exact ones (batch 8 size check), then the edges fall to the existing rules | port per function, as HSD |
+| HSD edges left (axdriver end, devcom start, particle end, random start) | 1 small function each | devcom / axdriver: fn_80170EAC calls synth's counter, KAR has no such function, so read its caller (0x80098EDC). random: archive.c's tail by its .data / .bss order (docs/decomp.md step 98) | name or prove by data order |
+| shadow.c (5 of 16 not equal) | 4 near misses + fn_801A4998 | Melee shadow.c is compiled in branch hsd-shadow; take wowjinxy's version per function where it scores higher (StartRender 0.915) | objdiff per function |
+| The 232 unproven code ranges (dtk automatic objects) | boundaries | Float-pool restart + padding (two rules agree), G3 runs, the per-file pool rule | section 5's done criterion |
+| Typed data left (step 90 list) | layouts | Base-register scan (in use); community layouts: robo part records at 0x801C6C64 with stride 0x134 (seiken's Dolphin Memory Engine map), movement stats as reduced / unmodified / boosted triples that leg values 1 / 100 / 200 pick and interpolate, panzer_maya's v2.py parts reader, DesiacX's CRBR-Parts-Expansion | gen_data_c.py units |
+| Unnamed game functions | names | Typed globals (reader rule); community code addresses as anchors: 0x80079DFC / 0x80079ED0 draw the damage / combo counters, 0x800466A4 sets the tag invulnerability frames, frame counter 0x8044F2A2, P1-in-egg 0x803872B2, song id 0x803B7682, stage id 0x803756A2 (agrees with symbols/unverified.txt); the scene trace | batch 8 |
+
+**Choice.** First the particle family's exact names: they are measured, cheap and unblock edges. Then the float-pool
+restart as a reported rule in splits_report.txt, accepted only where it agrees with padding or a G3 run. Community
+addresses are leads to be verified in the code before any name.
+
+**Done criterion.** particle family: the exact matches named (batch 8 0 FAIL) and at least one of its objects split;
+splits_report.txt prints the pool-restart intervals; the 232 unproven code ranges fall; batch 9 retail SHA-1 + static shift PASS,
+batch 11 PASS.
+
+**First three steps.**
+1. Name the 15 exact particle-family functions, each with a `why:` line (compiled C equal); batch 8, batch 9.
+2. Add the float-pool restart intervals to gen_dtk_splits.py's report (report only), next to the padding candidates.
+3. Read 0x80098EDC (fn_80170EAC's caller) and the archive.c tail's data order, to close two HSD edges.
+
 ## What to decide
 
 1. **A native toolchain for the compiler hook (roadblock 1).** The proxy DLL needs a 32-bit C compiler: MSVC Build
@@ -443,4 +511,10 @@ Web (fetched Oct 31, 2026):
 - https://github.com/KakarottoCake/decomp-triage (README: buckets, levers)
 - Through docs/sched_community.md (not re-fetched): https://github.com/rayanht/mwcc, https://github.com/inspiredrobot/mwcc,
   https://github.com/Batenkaitos-dev/mh2-decomp, https://github.com/Limero/thug2
+- Fetched Nov 1, 2026 (section 8): https://raw.githubusercontent.com/encounter/dtk-template/main/docs/splits.md,
+  https://raw.githubusercontent.com/encounter/decomp-toolkit/main/docs/other_approaches.md, https://github.com/SeekyCt/ppcdis,
+  https://ghidra.re/ghidra_docs/GhidraClass/BSim/BSimTutorial_Intro.html,
+  https://www.pentestpartners.com/security-blog/fuzzy-matching-with-ghidra-bsim-a-guide/; community notes the owner passed on
+  (Discord, Nov 1, 2026: seiken's Dolphin Memory Engine map, DesiacX's codes, https://github.com/DesiacX/CRBR-Parts-Expansion,
+  https://gitlab.com/panzer_maya/robo/-/blob/master/v2.py).
 - Not reachable: decomp.me's site and API (HTTP 403), decomp.dev/doldecomp/kar (404).
