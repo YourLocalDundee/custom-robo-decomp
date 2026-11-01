@@ -113,6 +113,8 @@ def sources_report():
                 if not m:
                     if data.startswith(b'/* Custom Robo game code, promoted by tools/promote_drafts.py'):
                         rows.append(f'{rel}  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py')
+                    elif data.startswith(b'/* Custom Robo game data, written by tools/gen_data_c.py'):
+                        rows.append(f"{rel}  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py")
                     else:
                         rows.append(f'{rel}  ours (no reference)')
                     continue
@@ -190,7 +192,8 @@ def main(argv):
         m = r['measures']
         auto = u['metadata'].get('auto_generated')
         lib = 'automatic objects (unsplit)' if auto else name.split('/')[0]
-        L = libs.setdefault(lib, dict(objects=0, c=0, code=0, data=0, ccode=0, cdata=0, mcode=0, mdata=0, fn=0, cfn=0))
+        L = libs.setdefault(lib, dict(objects=0, c=0, code=0, data=0, ccode=0, cdata=0, mcode=0, mdata=0, fn=0, cfn=0,
+                                      dunits=0, ddata=0))
         tc, td = int(m.get('total_code', 0)), int(m.get('total_data', 0))
         mc, md = int(m.get('matched_code', 0)), int(m.get('matched_data', 0))
         L['objects'] += 1
@@ -224,6 +227,9 @@ def main(argv):
                 L['ccode'] += tc
                 L['cdata'] += td
                 L['cfn'] += m.get('total_functions', 0)
+                if name.startswith('game/data/'):   # a data-only game unit (tools/gen_data_c.py, plan.md step 86)
+                    L['dunits'] += 1
+                    L['ddata'] += td
         elif has_src:
             if cname not in not_matching:
                 errors.append(f'{cname}: decomp/src has it, but it is neither in CR_MATCHING nor in CR_NOT_MATCHING')
@@ -278,11 +284,13 @@ def main(argv):
         mm = re.match(r'^\s+\.text\s+start:0x([0-9A-Fa-f]+)', ln)
         if mm and cur and not cur.startswith('game/') and int(mm.group(1), 16) >= gstart:
             gend = min(gend or 1 << 32, int(mm.group(1), 16))
-    gl = libs.get('game', dict(c=0, ccode=0))
+    gl = libs.get('game', dict(c=0, ccode=0, cdata=0, dunits=0, ddata=0))
     if gend:
-        out += ['', f'game code (.text 0x{gstart:08X}-0x{gend:08X}, 0x{gend - gstart:X} bytes): {gl["c"]} objects from C '
+        out += ['', f'game code (.text 0x{gstart:08X}-0x{gend:08X}, 0x{gend - gstart:X} bytes): {gl["c"] - gl["dunits"]} objects from C '
                     f'(one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0x{gl["ccode"]:X} bytes = '
-                    f'{pc(gl["ccode"], gend - gstart).strip()} of the game code, {pc(gl["ccode"], tot["code"]).strip()} of all code']
+                    f'{pc(gl["ccode"], gend - gstart).strip()} of the game code, {pc(gl["ccode"], tot["code"]).strip()} of all code',
+                f'game data (decomp/src/game/data, tools/gen_data_c.py): {gl["dunits"]} data-only units from C, 0x{gl["ddata"]:X} bytes; '
+                f'all game data from C (with the file objects pools): 0x{gl["cdata"]:X} bytes = {pc(gl["cdata"], tot["data"]).strip()} of all data']
     out += ['', '== C objects (decomp/src): objdiff matched bytes, and whether linked']
     out += [r for _, r in sorted(rows)]
     srows, serr = sources_report()

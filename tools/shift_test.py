@@ -8,6 +8,8 @@ On a scratch copy of batch 9's build (decomp/build/shift/; the real build is nev
        - inside every data section (.rodata .data .bss .sdata .sbss .sdata2): the start of the first, the middle
          and the last data piece of a split (non-automatic) object, i.e. the per-object data boundaries that
          tools/gen_dtk_splits.py proved (a wrong boundary shows up as a relocation target moved by the wrong amount);
+       - the start of every data-only game unit's piece (decomp/src/game/data, plan.md step 86) that is not inside a
+         glue span: every reference to such a unit is a relocation to its own symbols, so it must move cleanly;
        - inside .rodata / .data / .bss: the first glue-span start at or after the middle of the section. A glue span
          (tools/reloc_audit.py) begins where the code builds other objects' addresses from one base plus constant
          offsets, which is how CodeWarrior addresses a file's statics (from the start of that file's section): so it
@@ -130,6 +132,12 @@ def points(elf, objs, c, units, pad):
         for a in pick:
             pts.append((a, sec, unit_at(sec, a)[1],
                         f'inside {sec}: the data piece of {unit_at(sec, a)[1]} (a proven object boundary)'))
+    # the data-only game units (decomp/src/game/data, plan.md step 86): every piece start outside a glue span is a point,
+    # so each unit's own relocations are checked (inside a span the unit moves only with its file's data pool)
+    for a, sec, n in where:
+        if n.startswith('game/data/') and sec in DATA_SPLIT and secs[sec][0] < a < secs[sec][1] \
+                and not any(g0 < a <= g1 for g0, g1 in c['glue']):
+            pts.append((a, sec, n, f'inside {sec}: the data-only game unit {n} (every reference to it is a relocation)'))
     for a, sec, n, why in pts:
         for g0, g1 in c['glue']:
             if g0 < a <= g1: raise SystemExit(f'insertion point 0x{a:08X} is inside the glue span 0x{g0:08X}..0x{g1:08X}')

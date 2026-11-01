@@ -149,6 +149,14 @@ GAME code: no reference exists. Two ways a game object is split:
      not where a file starts or ends: only where both ends are proven: its first and last function have a G3 note
      for it, and the functions right outside have G3 notes for OTHER files (on the current data this proves none);
      a G3 object that overlaps a C file's object is dropped.
+  3. DATA-ONLY GAME UNITS (plan.md step 86): a file decomp/src/game/data/<name>.c defines data objects and no code
+     (tools/gen_data_c.py writes it from main.dol's bytes and our types). It is compiled first (compile_game_data) and
+     its pieces come from its own object: the defined symbols are symbols of ours at their addresses, one piece per
+     section, bytes and relocations main.dol's, dtk symbol starts at both ends (data_unit_pieces; the trailing-padding
+     rule of merge_c_data applies). A dtk default symbol inside one of the C's objects is dropped from symbols.txt
+     (SYM_DROP: dtk saw cr_g_Pads as three objects). Inside a glue span (tools/reloc_audit.py: one file's code
+     addresses its data from one base) the unit moves only with that file's data; outside one, the shift test pads
+     at its start.
   Everything else of the game code stays in dtk automatic objects (listed in the report).
 
 Output is byte-identical on every run (LF, as dtk writes it; the batch checks dtk leaves it unchanged).
@@ -1832,6 +1840,8 @@ def game_c_objects(funcs, game_end):
     for i, f in enumerate(funcs):
         idx[f[0]].append(i)
     for p in sorted(GAME_SRC.rglob("*.c")):
+        if p.parent == GAME_DATA_SRC:
+            continue   # a data-only game unit: game_data_units
         rel = "game/" + p.relative_to(GAME_SRC).as_posix()
         names = [m.group(1) for m in map(CDEF.match, p.read_text(encoding="utf-8").splitlines()) if m]
         if not names:
@@ -1955,6 +1965,211 @@ def game_data(audit, objs, data, ours, rejected):
                          f"by its code: file objects, plan.md step 63)")
     return lines
 
+# ---------------------------------------------------------------------------------------------------- game data units
+GAME_DATA_SRC = GAME_SRC / "data"
+GAME_DATA_OBJ = G / "decomp/build/gamedata"
+SYM_DROP = set()   # (section, address): a dtk default symbol inside a data unit's symbol, removed from symbols.txt (the C
+# defines the whole object: cr_g_Pads is one cr_Pad[4] where dtk saw three objects); gen_c_symbols would drop it after
+# the first link, but that link already needs the C's layout (an asm object naming it would not resolve)
+
+
+def game_compiler():
+    """the game compiler command with configure.py's game flags (tools/draft_batch.py reads them from the source)"""
+    sys.path.insert(0, str(G / "tools/m2c"))
+    import draft_batch as db
+    ver, flags = db.game_flags()
+    return db.mwcc_cmd(ver) + flags
+
+
+def compile_game_data():
+    """every decomp/src/game/data/*.c compiled with the game flags into decomp/build/gamedata/ (before the split: the
+    unit's ranges come from its own compiled object, and configure.py only knows the objects of splits.txt)
+    -> {"game/data/<file>.c": .o path}"""
+    import subprocess
+    out = {}
+    files = sorted(GAME_DATA_SRC.glob("*.c")) if GAME_DATA_SRC.exists() else []
+    if not files:
+        return out
+    GAME_DATA_OBJ.mkdir(parents=True, exist_ok=True)
+    cmd = game_compiler()
+    for p in files:
+        o = GAME_DATA_OBJ / (p.stem + ".o")
+        r = subprocess.run(cmd + ["-c", "-o", str(o), str(p)], cwd=G / "decomp", stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT, text=True)
+        if r.returncode:
+            raise SystemExit(f"decomp/src/game/data/{p.name} does not compile with the game flags:\n{r.stdout[-2000:]}")
+        out["game/data/" + p.name] = o
+    return out
+
+
+def data_unit_pieces(opath, ours, elf, dobjs):
+    """A DATA-ONLY GAME UNIT (plan.md step 86, docs/decomp.md "Game data objects"): a C file in decomp/src/game/data that
+    defines data objects and no code (tools/gen_data_c.py writes it from main.dol's bytes and our types). Its pieces
+    come from its own compiled object, one per section:
+      - every data symbol the object defines is a symbol of ours (same name, same section, exactly one address; a C
+        global the drafts' context knows), and the symbols of one section sit at the same distances as in the
+        object, so they give ONE piece start; the piece is the object's section placed there, aligned as the object's
+        section (8: the compiler's section alignment with -align powerpc);
+      - it starts on a dtk symbol start; every dtk symbol inside it is one of the C's symbols at its offset, or a
+        default-named one (lbl_) inside a C symbol, which goes (SYM_DROP: the C defines the whole object); a dtk
+        symbol of another size than the C's is cut at the C's end when only zeros follow (C_OVERHANG, the trailing
+        padding rule of merge_c_data) and refused otherwise;
+      - an initialised section's bytes are main.dol's, every relocated word going where main.elf relocates the same
+        site: a name of ours + addend, or one of the object's own symbols (the piece start + its offset);
+      - it ends at the C's last byte: the next dtk symbol starts there, or only zeros follow up to it (whose they are
+        is merge_c_data's padding rule).
+    -> ({section: (start, end)}, [(address, name, section, size, binding)], {section: alignment},
+        {section: (dtk name, address, size) running on over the end}, "" or why the unit is not proven)"""
+    secs, syms, rels = read_obj(opath)
+    if any(s[0] in CODE and s[2] for s in secs):
+        return {}, [], {}, {}, "defines code (a data-only unit may not)"
+    name_addr = defaultdict(set)
+    for n, sec, a, sz, isf in ours:
+        name_addr[(n, sec)].add(a)
+    secr = {s[1]: (s[3], s[3] + s[4]) for s in elf.alloc}
+
+    def zeros(sec, a, b):
+        for s_ in elf.alloc:
+            if s_[1] == sec and s_[3] <= a and b <= s_[3] + s_[4]:
+                return s_[2] != 1 or not any(elf.d[s_[5] + a - s_[3]: s_[5] + b - s_[3]])
+        return False
+    sec_start, dsyms = {}, {}
+    for i, s in enumerate(secs):
+        if s[0] not in DATA or not s[2]:
+            continue
+        ss = sorted((v, sz, n, b) for n, v, sz, t, b, shn in syms if shn == i and t == 1 and sz)
+        if not ss:
+            return {}, [], {}, {}, f"its {s[0]} has no sized symbol (a string pool or an unnamed object: not handled)"
+        starts = set()
+        for v, sz, n, b in ss:
+            aa = name_addr.get((n, s[0]), set())
+            if len(aa) != 1:
+                return {}, [], {}, {}, f"{n} is not exactly one symbol of ours in {s[0]} ({len(aa)})"
+            starts.add(next(iter(aa)) - v)
+        if len(starts) != 1:
+            return {}, [], {}, {}, (f"{s[0]}: its symbols give {len(starts)} piece starts ("
+                                    + ", ".join(f"0x{x:08X}" for x in sorted(starts)) + ")")
+        sec_start[i] = next(iter(starts))
+        dsyms[i] = ss
+    pieces, defs, salign, over = {}, [], {}, {}
+    for i, start in sorted(sec_start.items(), key=lambda x: x[1]):
+        name, typ, size, align, data = secs[i]
+        end = start + size
+        lo, hi = secr.get(name, (0, 0))
+        if not (lo <= start and end <= hi):
+            return {}, [], {}, {}, f"{name} piece 0x{start:08X}-0x{end:08X} is not inside main.dol's {name}"
+        if start % max(align, 1):
+            return {}, [], {}, {}, f"{name} piece starts at 0x{start:08X}, not {align}-aligned as the object's section"
+        if start not in dobjs.info:
+            return {}, [], {}, {}, f"{name} piece 0x{start:08X} does not start on a dtk symbol"
+        # the dtk symbols inside: the C's, or default-named inside a C symbol (dropped)
+        last = dsyms[i][-1]
+        k = bisect.bisect_left(dobjs.starts, start)
+        while k < len(dobjs.starts) and dobjs.starts[k] < end:
+            a = dobjs.starts[k]
+            dn, dsz = dobjs.info[a]
+            k += 1
+            c = next(((v, sz, n, b) for v, sz, n, b in dsyms[i] if start + v <= a < start + v + sz), None)
+            if c is None:
+                return {}, [], {}, {}, f"{name}: dtk's {dn} (0x{a:08X}) lies between the C's symbols"
+            v, sz, n, b = c
+            if a != start + v:
+                if not DEFAULT.match(dn):
+                    return {}, [], {}, {}, f"{name}: our {dn} (0x{a:08X}) lies inside the C's {n} (0x{start + v:08X}+0x{sz:X})"
+                SYM_DROP.add((name, a))
+            elif dsz > sz:
+                # dtk's object is larger than the C's: the rest must be zeros, alignment padding up to the next C symbol
+                # (the bytes compare below covers it), or, after the last symbol, the overhang merge_c_data cuts off
+                if c != last:
+                    nxt_c = min(start + v2 for v2, sz2, n2, b2 in dsyms[i] if v2 > v)
+                    if a + dsz > nxt_c or not zeros(name, start + v + sz, a + dsz):
+                        return {}, [], {}, {}, f"{name}: dtk's {dn} is 0x{dsz:X} bytes, the C's {n} 0x{sz:X} (the rest is not zero padding)"
+                else:
+                    if a + dsz - end >= C_PAD or not zeros(name, end, a + dsz):
+                        return {}, [], {}, {}, f"{name}: dtk's {dn} is 0x{dsz:X} bytes, the C's {n} 0x{sz:X} (the rest is not zero padding after the piece)"
+                    over[name] = (dn, a, dsz)
+            elif dsz < sz:
+                # dtk saw the object in parts (the parts inside are default-named: dropped above): the first part takes
+                # the C's size, so dtk's split relocates into it as symbol + offset and makes no new symbol there
+                SYM_TRIM[(name, a)] = sz
+        # bytes: main.dol's, relocated words going where main.elf relocates them
+        if data is not None:
+            sec = next(x for x in elf.alloc if x[1] == name)
+            got = bytearray(elf.d[sec[5] + start - sec[3]: sec[5] + end - sec[3]])
+            for off, typ_, si, add in rels.get(i, []):
+                tn, tv, tsz, tt, tb, tshn = syms[si]
+                r = elf.relocs.get(start + off)
+                if typ_ != R_ADDR32 or r is None or r[0] != R_ADDR32:
+                    return {}, [], {}, {}, f"{name} 0x{start + off:08X}: main.elf has no 32-bit relocation there (the C has one to {tn})"
+                if tshn == 0:
+                    aa = {a for (n_, s_), v_ in name_addr.items() if n_ == tn for a in v_}
+                    want = next(iter(aa)) + add if len(aa) == 1 else None
+                elif tshn in sec_start:
+                    want = sec_start[tshn] + tv + add
+                else:
+                    want = None
+                if want is None or r[1] != want & 0xFFFFFFFF:
+                    return {}, [], {}, {}, (f"{name} 0x{start + off:08X}: main.elf points at 0x{r[1]:08X}, the C at {tn}+0x{add:X}"
+                                            + (f" = 0x{want:08X}" if want is not None else " (no address of ours)"))
+                got[off:off + 4] = data[off:off + 4]
+            if bytes(got) != data:
+                d = next(j for j in range(size) if got[j] != data[j])
+                return {}, [], {}, {}, f"{name} 0x{start:08X}: main.dol's bytes differ from the object's at +0x{d:X}"
+            mine = {start + off for off, typ_, si, add in rels.get(i, [])}
+            stray = [a for a in elf.relocs if start <= a < end and a not in mine]
+            if stray:
+                return {}, [], {}, {}, (f"{name} 0x{stray[0]:08X}: main.elf relocates this word, the C holds a number there "
+                                        "(the type needs a pointer)")
+        # the end: the next dtk symbol, or zeros up to it
+        k = bisect.bisect_left(dobjs.starts, end)
+        nxt = dobjs.starts[k] if k < len(dobjs.starts) and dobjs.starts[k] < hi else hi
+        if nxt > end:
+            if nxt - end >= C_PAD:
+                return {}, [], {}, {}, f"{name} ends at 0x{end:08X}, the next dtk symbol starts at 0x{nxt:08X}: 0x{nxt - end:X} bytes of nobody's"
+            if not zeros(name, end, nxt):
+                return {}, [], {}, {}, f"{name} ends at 0x{end:08X}, non-zero bytes follow up to the next dtk symbol 0x{nxt:08X}"
+        pieces[name] = (start, end)
+        salign[name] = align or 1
+        for v, sz, n, b in dsyms[i]:
+            defs.append((start + v, n, name, sz, b))
+    return pieces, defs, salign, over, ""
+
+
+def game_data_units(ours, audit):
+    """the data-only game units (decomp/src/game/data) -> ({path: {sec: (a, b)}}, report lines, {address: C name})
+    A unit that is not proven stops the run: its file is wrong (regenerate it with tools/gen_data_c.py) or a type or
+    name changed under it (symbols/cr_types.h, symbols/cr_globals.txt, the config symbols.txt).
+    Each line says whether the piece lies inside a glue span (tools/reloc_audit.py: the code of one file addresses its
+    data from one base plus constant offsets, so a unit inside the span can only move together with that file's whole
+    data; outside one, every reference is a relocation to the unit's own symbols and the shift test pads there)."""
+    import reloc_audit as ra
+    elf, dobjs, rng, events, raw, rels = audit
+    glue = ra.classify(elf, dobjs, events, rels)["glue"]
+    out, lines, need = {}, [], {}
+    for path, o in sorted(compile_game_data().items()):
+        pieces, defs, salign, over, why = data_unit_pieces(o, ours, elf, dobjs)
+        if why:
+            raise SystemExit(f"game data unit decomp/src/{path}: {why}")
+        for sec, al in salign.items():
+            C_SALIGN[(path, sec)] = al
+        for sec, ov in over.items():
+            C_OVERHANG[(path, sec)] = ov
+        for a, n, sec, sz, b in defs:
+            C_DEFS.append((a, n, path, sec, sz, b))
+            if b == 1:
+                need[a] = n
+        out[path] = pieces
+        for sec, (a, b) in sorted(pieces.items(), key=lambda x: x[1]):
+            names = [n for a_, n, s_, sz, b_ in defs if s_ == sec]
+            g = next(((x, y) for x, y in glue if x < b and a <= y), None)
+            lines.append(f"{path:<48} {sec:<7} 0x{a:08X}-0x{b:08X} {len(names):>3} sym  a data-only game unit: its own "
+                         f"compiled object's symbols at our addresses ({', '.join(names)})"
+                         + (", bytes = main.dol" if sec not in (".bss", ".sbss", ".sbss2") else "")
+                         + (f"; inside the glue span 0x{g[0]:08X}..0x{g[1]:08X} (its file's data pool: moves only with it)" if g
+                            else "; outside every glue span (a shift-test insertion point)"))
+    return out, lines, need
+
+
 def game_splits(funcs, chosen, rejected):
     g3 = read_g3()
     idx_of = {s[2]: i for i, s in enumerate(funcs)}
@@ -2008,12 +2223,16 @@ def splits_text(objs, data=None):
 
 def trim_symbols():
     """cut the dtk symbols that run on over the end of a C piece (SYM_TRIM, merge_c_data) in symbols.txt: dtk
-    rejects a split that ends inside a symbol; the bytes cut off are the zeros after the C's last byte"""
-    if not SYM_TRIM:
+    rejects a split that ends inside a symbol; the bytes cut off are the zeros after the C's last byte. Also drop the
+    default symbols inside a data unit's objects (SYM_DROP, data_unit_pieces): the C object's own symbols replace
+    every symbol of its ranges after the link (tools/gen_c_symbols.py), but the first link already needs its layout"""
+    if not SYM_TRIM and not SYM_DROP:
         return
     out = []
     for ln in OURS.read_text(encoding="utf-8").split("\n"):
         m = SYM.match(ln)
+        if m and (m.group(2), int(m.group(3), 16)) in SYM_DROP:
+            continue   # a dtk default symbol inside a data unit's object (data_unit_pieces)
         if m and (m.group(2), int(m.group(3), 16)) in SYM_TRIM:
             ln = re.sub(r"size:0x[0-9A-Fa-f]+", f"size:0x{SYM_TRIM[(m.group(2), int(m.group(3), 16))]:X}", ln)
         out.append(ln)
@@ -2047,6 +2266,11 @@ def main(argv) -> int:
             data, dlines, dgaps = data_splits(objs, by_path, refinfo, rejected, notes, audit, cdata)
             cdata, clines, need, cwhole = c_data(audit[0], ours, objs, data, rejected)
             clines += game_data(audit, objs, data, ours, rejected)
+            gdata, glines, gneed = game_data_units(ours, audit)
+            objs += [(p, {}) for p in sorted(gdata)]   # (no code: their pieces alone place them; dtk resolves the link order)
+            cdata.update(gdata)
+            need.update(gneed)
+            clines += glines
             dgaps = merge_c_data(objs, data, cdata, dlines, clines, rejected, audit[0])
             at = defaultdict(list)
             for n, sec, a, sz, isf in ours:
@@ -2090,7 +2314,8 @@ def main(argv) -> int:
             dsec[s] += 1
     head = [
         "decomp/config/GXCE01/splits.txt: generated by tools/gen_dtk_splits.py (method: its docstring).",
-        f"objects split: {len(objs)} ({len(lib)} library, {len(objs) - len(lib)} game); code: "
+        f"objects split: {len(objs)} ({len(lib)} library, {len(objs) - len(lib)} game, of them "
+        f"{sum(1 for p, _ in objs if p.startswith('game/data/'))} data-only units); code: "
         + ", ".join(f"{k} {v}" for k, v in sorted(fam.items())),
         f"functions inside split objects: {sum(nf(a, b) for _, secs in objs for (a, b) in secs.values())} of {len(funcs)}",
         f"unproven code ranges (dtk automatic objects): {len(gaps)}, {sum(nf(a, b) for _, a, b in gaps)} functions",
@@ -2116,6 +2341,10 @@ def main(argv) -> int:
                  "the revision whose function sizes equal ours)"] + notes
     head += ["", "== data pieces (path, section, range, data symbols, evidence: core symbols used only by the object, "
                  "unattributed symbols before/after it, the references whose piece has this size)"] + dlines
+    head += ["", "== data-only game units (decomp/src/game/data, tools/gen_data_c.py: a C file defining data objects only; its pieces "
+                 "are its compiled object's sections at our symbols' addresses, plan.md step 86)"]
+    head += [f"{p:<48} {s_:<7} 0x{a:08X}-0x{b:08X} size 0x{b - a:X}" for p, secs in sorted(data.items()) if p.startswith("game/data/")
+             for s_, (a, b) in sorted(secs.items(), key=lambda x: x[1])] or ["none"]
     head += ["", "== objects whose every function is a function of their C file (bytes and relocations = main.dol's; the C proves their data)"] + cwhole
     head += ["", "== C definitions (the C file matches its whole object: each of its functions and placed data symbols is at this "
                  "address; tools/check_c_callsites.py checks the // c-define lines of symbols/symbols.txt against them)"]

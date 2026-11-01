@@ -111,8 +111,8 @@ The game's script interpreter dispatches through `cr_g_ScrCmdFuncs` (0x8021C3F4,
 
 Not the Ghidra C above (that is never copied anywhere): the community's own matching C from the pinned reference
 decomps, compiled by the Phase 4 build (`decomp/`). Status: `decomp/reports/progress_report.txt` (Oct 31, 2026, plan.md
-step 85: 647 of 924 objects from C, 22.20% of main.dol's code, 5.90% of its data; 483 game drafts at 100%: Dolphin SDK 98 of 98, MSL 49 of 49, Runtime 5 of 5,
-MetroTRK 29 of 29, HSD 22 of 30, game 444 (0xCD40 bytes, 4.27% of the game code; 4 file objects); 9 more C files in `decomp/src`
+step 86: 661 of 949 objects from C, 22.20% of main.dol's code, 12.49% of its data; 483 game drafts at 100%: Dolphin SDK 98 of 98, MSL 49 of 49, Runtime 5 of 5,
+MetroTRK 29 of 29, HSD 22 of 30, game 444 code objects (0xCD40 bytes, 4.27% of the game code; 4 file objects) + 14 data-only units (0x2C060 bytes of game data, [Game data objects](#game-data-objects-step-86-oct-31-2026)); 9 more C files in `decomp/src`
 compiled for objdiff only, each with its reason in `CR_NOT_MATCHING`); provenance of every file: `decomp/reports/sources_report.txt`. Game functions come into
 `decomp/src/game` another way (m2c drafts that match, promoted by script): [drafts.md](drafts.md).
 
@@ -256,6 +256,77 @@ float literals in argument order; longer ones are in .rodata), and a draft that 
 .sdata2 strings it takes the address of too (tools/draft_batch.py `pool_strings`), so the whole pool is one piece.
 The smallest open run (fn_8006EEF8..fn_8006FDD0) still waits on fn_8006EEF8 (hand-written to 73%: drafts.md).
 Status after step 85 (Oct 31, 2026, branch fileruns): still 4 file objects, no run closed. fn_8006EEF8's frame is now exact (548 of 755 words; what is left is the compiler's schedule inside its vertex blocks), and two of fn_8008057C..fn_800812A4's seven blockers match through two new generator rules (fn_80080B80, fn_80080A94). The hand-match recipes that came out of it (callee-saved registers by use count, a saved-and-unused register is a folded pointer local to a stack object, u8-to-u32 `clrlwi`, owned literals scheduled freely) and the updated run table are in [drafts.md](drafts.md) "Step 85".
+
+### Game data objects (step 86, Oct 31, 2026)
+
+The third kind of game unit (tools/gen_dtk_splits.py, docstring "GAME code" item 3): a C file in `decomp/src/game/data/`
+that defines data objects and no code. Its bytes are the game's data, generated, not typed: `tools/gen_data_c.py` takes
+globals of `symbols/cr_globals.txt` (name, section, address, `cr_types.h` type), writes their definitions (for
+.data / .sdata / .rodata / .sdata2 an initialiser from main.dol's bytes, element by element along the type: numbers,
+the shortest float literal with the same bits, pointers as the name of ours at the relocation target, function pointers
+as the function's name; .bss / .sbss zero), compiles the file with the game flags and places it with the same rule batch
+9 uses (`gen_dtk_splits.data_unit_pieces`): every defined symbol is one of ours at its address, the symbols of one
+section sit at the object's distances (one piece start per section), the piece starts on a dtk symbol start, the
+bytes equal main.dol's with every relocated word going where main.elf relocates it, and it ends at the C's last byte
+(the next dtk symbol starts there, or only zeros follow: the trailing-padding rule of step 65). Only a file that
+passes is written. `tools/gen_c_symbols.py` then gives the unit its own symbols, objdiff must report 100% data, main.dol
+stays retail, and `tools/shift_test.py` pads at the start of every unit that is not inside a glue span (below).
+
+**How to add one.** Pick globals that are contiguous in main.dol (the next starts where the previous ends), typed in
+`symbols/cr_types.h` with dtk's object size (or a size dtk's symbols can be cut / merged to, below), in one section:
+`python -I tools/gen_data_c.py NAME [NAME ...]` writes `decomp/src/game/data/<first>_<last>.c` (`--check` only
+verifies); add the list to `UNITS` in the tool (so `--all` regenerates it after a type or name change), run batch 9
+(retail SHA-1, every C object 100%, relocations OK, static shift PASS), then batch 11 (the shifted build boots).
+A unit is never edited by hand; after a rename in `symbols/` batch 9's `sync_game_names.py` renames the identifiers,
+and a type change means regenerating (`--all`). The drafts' context (`decomp/drafts/ctx_pp.c`, batch 12) must exist.
+
+**Rules found (GC/2.6 with the game flags).**
+- The compiler lays `.data` / `.sdata` / `.rodata` / `.sdata2` out in declaration order and `.bss` / `.sbss` in REVERSE
+  declaration order (measured; step 83 saw the .bss half), with natural alignment between the objects; a global of 8
+  bytes or less goes to the small-data section whatever the file says (`-sdata 8 -sdata2 8`). The generated file orders
+  its definitions accordingly.
+- Every section of the compiled object is 8-aligned (`-align powerpc`), so a unit's piece must start 8-aligned: a
+  typed global at a 4-aligned address (cr_g_StageSelector 0x8041A244, cr_g_Customize 0x8041CDE4, cr_g_FileSlots
+  0x80320184, cr_g_ScrCmdNames 0x8021BF44, cr_g_PartOrderBody 0x8023B73A) can only come with the untyped object before it.
+- dtk's symbol sizes are not the types': the C's size wins when the difference is mechanical. dtk saw cr_g_Pads as
+  three objects (0x14 + 0x8 + 0x274 = one `cr_Pad[4]`) and cr_g_BattleMotionSets as 34 objects of 0x4C: the default
+  `lbl_` symbols inside the C's object are dropped from the config `symbols.txt` and the first takes the C's size
+  (`SYM_DROP` / `SYM_TRIM`; the first link already needs that layout, before `gen_c_symbols.py` runs). dtk's
+  cr_g_FileDescs was 0xC0 = the 43 pointers + 0x14 zero bytes: the C has 43, the zeros start an automatic object
+  (step 65's rule). A dtk object that runs on into OTHER data blocks the unit: cr_g_CamModeFuncs (dtk 0xE0, the 42
+  pointers then 14 floats), cr_g_CharaMotionSets (0x19C vs 0xE0), the SEQ handler tables (cr_g_SeqFrameA 0x78 holds
+  cr_g_SeqNames; cr_g_SeqFrameC 0xCBC runs to 0x801DF7E8) - a symbol split with evidence for the rest is the lever.
+- A table of strings needs the file's own string pool: with `-str reuse,readonly` the compiler puts a `char *` table's
+  literals into the unit's .rodata (longer than 8 bytes; shorter ones into .sdata2), so the strings must be contiguous
+  in main.dol and used by nothing else. cr_g_SeqNames' 15 strings open .rodata (0x801B6620) but the code uses
+  "SEQ_LOGO" directly (0x80009A9A, 0x8000CFB6, 0x80015E3A): the table cannot come alone. The generator stops on a
+  string pool, a pointer into the middle of a symbol, a pointer slot holding a number, a union or a bit field.
+- **Glue spans are the game's data pools.** `tools/reloc_audit.py`'s glue spans (constant-offset arithmetic from one
+  dtk object into another) are 89 ranges of game data; 0x803B8C00..0x803E66B4 (0x2DAB4 bytes of .bss) is addressed from
+  the one base lbl_803B8C00 by 2,674 accesses in 62 functions (fn_800A0E64 309, cr_AreaBoxes_Update 156,
+  cr_Chara_UpdateAll 133, cr_CM_PLAYER_RESET, cr_SYS_RET, cr_MAP_SET ...), while 280 other functions address
+  cr_g_Script by its own symbol: the 62 are the file that DEFINES the data, and CodeWarrior addresses a file's own data
+  from one base (its data pool), other files' data by symbol. A unit inside a glue span is byte-identical and links,
+  but it can only move together with that file's whole data (dtk's relocations of the 62 functions name the base, not
+  the unit's symbols); `shift_test.py` refuses points inside a span, as before. Outside a span every reference to the
+  unit is a relocation to its symbols, and the shift test now pads at each such unit's start (7 of the 14).
+  Consequence for the end state: a file's data definitions must live in the file with its code (compiled, the pool
+  comes back as base + offsets); the data units are the interim form that proves the types and the bytes.
+
+**Status after step 86:** 14 units, 0x2C060 bytes (180,320) of game data from C, main.dol's data from C 5.90% -> 12.49%
+(0x53774 of 0x29C418), 661 of 949 units. Inside the 0x803B8C00 pool: cr_g_Script + cr_g_SaveData + cr_g_Scenario
+(.bss 0x803BE358-0x803BFC78), cr_g_AreaBoxes (0x700), cr_g_Charas (0x267C0, 24 cr_Chara), cr_g_ScriptReturnStack (0x40);
+in the file system's pool: cr_g_PackedArchives + cr_g_FileSysReady (0x80321148-0x80321D40); in the pad's:
+cr_g_PadStatus + cr_g_Pads (0x8031FEA8-0x80320168); in the robo tables' (.data): cr_g_BattleMotionSets (0x801C51B8, 34 x
+0x4C, the motion IDs as numbers). Outside every span: cr_g_CharaEntries (0x8024DC80, 0x320), cr_g_MotionDataBit15 +
+cr_g_MotionData (0x8032A8C8-0x8032C1C8), cr_g_MessageFiles (0x80330BC0, 0x15C), cr_g_GameMode + cr_g_SeqCurrent
+(0x80321D40-0x80321DD0), cr_g_UnlockBits (0x804198B0, 0xA8), cr_g_FileDescs (.data 0x801F1200, 43 pointers to the
+cr_FileDesc arrays by name) and the four part counts (.sdata 0x8044C3C0-0x8044C3D0: 34, 29, 64, 52, the section's first
+object). Left, with the blocker: the 4-aligned starts above; the dtk objects running on into unnamed data
+(cr_g_CamModeFuncs, cr_g_CharaYOffset + cr_g_CharaMotionSets, the six SEQ tables, cr_g_CamPtrs and cr_g_ScrCmdNames /
+cr_g_ScrCmdFuncs, which have no dtk symbol of their own); cr_g_BodyData (34 x 0x78, word 2 a pointer: needs the record
+struct in cr_types.h, today `u8[4080]`); cr_g_PartOrderLists with its five u16 lists (2-aligned start, dtk's
+cr_g_PartOrderLeg 0x24 vs 0x22); the string tables (cr_g_SeqNames, cr_g_MotionNames, cr_g_CamModeNames).
 
 ### HSD (sysdolphin) notes (step 61, Oct 30, 2026)
 
