@@ -404,3 +404,40 @@ six float drafts: the four at 100%.
    address (`lis cr_g_Script@ha` of `history_index += 1`), on top of the `(s16) *pc` store; score candidates with
    `python -I tools/sched/shape_eval.py DIR` (sources under tools/sched/corpus) and `inverse.py LOG 3 6 5000`.
 3. fn_8006EEF8's four vertex blocks with the same method; the other schedule-only groups with permute_stmts.py.
+
+## 17. Step 93: the issue slot of a deleted instruction; the head's address
+
+**The mechanism, shown on fn_8001F6BC.** A deleted instruction changes the code through the first pass's issue
+slots, not only through heights. In the call block of fn_8001F6BC (`cr_g_Pads[arg0].unk_92 = arg1;
+PADControlMotor(arg0, 1);`) the 750 model issues two integer instructions a cycle. With `u16 arg1` the first pass
+issues `mulli` and `lis` in cycle 0, the `addi` is not ready in cycle 1, and the argument moves `mr r3` / `li r4`
+fill the gap, above the store. With `s32 arg1` the front end adds `clrlwi rX, arg1, 16` before the `sth`. It is ready
+in cycle 0 and has the store as successor, so it takes the second slot. `lis` moves to cycle 1, and the
+`addi` / `add` / `sth` chain comes before the arguments: the original's order, 39 of 39 words. The hook log shows
+the `rlwinm` deleted between the passes. Generator variant `widen_narrow_params` (docs/drafts.md "Step 93").
+
+**What this says about the synthetic search.** inverse.py SYNTH tried leaf instructions (`dup`, `mr from`, `li`):
+they have no successor, so their height is that of a leaf and they never win an early slot. A real deleted
+conversion feeds one consumer. Mode `REDIRECT` (step 93) inserts a conversion `r904 = op(u)` feeding one consumer of
+`u` and gives the consumer `u` back before colouring. On the head (B1, the first 6 statement orders, 438
+evaluations) it reaches 26 of 38, below `INPLACE`. `OPS=` chooses the opcodes of `INPLACE` / `REDIRECT`. `INPLACE`
+with `OPS=addi,mr,addis,ori` gives 38 of 38 for every opcode, again only on r48. The working positions (19-30) lie
+after the `addi r49, r48`: the synthetic instruction does not feed that `addi`. It reads and redefines r48 after its
+last use, like a second assignment to a variable held in the `lis` register.
+
+**C tried for the head's address** (tools/sched/corpus/s93*, gitignored): 22 spellings of the increment's address,
+cr_g_Script declared as an array (`->`, `[0]`), defined in the unit (plain, static, initialised): all give B1's
+first-pass PCode (29 inverse, 12 by position). A literal address `(cr_ScriptState *) 0x803BE358` emits `lis` + a
+load with the low half in the displacement (no `addi`). Local pointer / value variables (`s = &cr_g_Script;
+s->history_index += 1;`, reassigned for the mask, `i = cr_g_Script.history_index; ... = i + 1`): the copies stay
+(39-43 words, 1-6 by position). The reference compiler (rayanht/mwcc, Operands.c `Operands_Normalize`,
+PCodeUtilities.c `PCodeUtilities_EmitAddress`) builds a global's address as `lis` then `addi` into a new register
+and copies only after the `addi` (a `mr` for an offset-0 address forced into a register).
+
+## 18. Next
+
+1. The head: a construct that redefines the increment's `lis` register after the `addi` and is deleted (a variable
+   that the front end keeps in that register, assigned twice), scored with shape_eval.py.
+2. Apply the issue-slot view to fn_8006EEF8's blocks 32 / 36 / 40 / 43 (the deleted u8 `clrlwi` of the alpha):
+   which declared type of the alpha gives the conversion at the right place.
+3. The 12 schedule-only drafts outside the head (group_near.py): a conversion or copy that takes an issue slot.

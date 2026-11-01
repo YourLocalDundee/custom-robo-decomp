@@ -2443,6 +2443,21 @@ def hoist_float_temps(body):
     return body[:i + 4] + '\n'.join(new) + body[j:]
 
 
+def widen_narrow_params(body):
+    """step 93, a variant: the u8 / s8 / u16 / s16 parameters declared s32. m2c types a parameter by its uses (a `sth`
+    of it makes it u16); the original passed an int, so the front end converted it at the narrow store and the
+    passes between the two schedulings deleted the conversion after it had taken an issue slot in the first pass
+    (fn_8001F6BC: `PADControlMotor` arguments after the store, 39 of 39 with `s32 arg1`; docs/drafts.md "Step 93")."""
+    i = body.find(') {\n')
+    if i < 0:
+        return body
+    k = body.rfind('(', 0, i)
+    if k < 0:
+        return body
+    sig = re.sub(r'\b(?:u8|s8|u16|s16) (arg\d+)\b', r's32 \1', body[k:i])
+    return body[:k] + sig + body[i:]
+
+
 def postprocess(body, skip=(), add=()):
     """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
     for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
@@ -2453,7 +2468,7 @@ def postprocess(body, skip=(), add=()):
               param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
               float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound,
               script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, struct_byte_offset, indexed_offset,
-              fold_temp_compound, store_literals, hoist_float_temps):
+              fold_temp_compound, store_literals, hoist_float_temps, widen_narrow_params):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -2463,7 +2478,7 @@ def postprocess(body, skip=(), add=()):
 # (rules left out, optional rules applied)
 OPTIONAL = (void_null, pointer_tests, drop_same_assign_casts, param_homes, float_literals, drop_same_field_casts, table_call_noargs, unsigned_fields, hsd_inlines, stack_struct, alias_offsets,
             redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign, drop_same_member_casts, expand_ptr_compound, store_literals,
-            hoist_float_temps)
+            hoist_float_temps, widen_narrow_params)
 VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
             ((), (void_null,)), ((register_order,), (void_null,)),
             # step 69
@@ -2480,7 +2495,9 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             # step 85: the stored float constants as literals, the others externs
             ((), (store_literals,)),
             # step 92: float temporaries before the stores
-            ((), (hoist_float_temps,)))
+            ((), (hoist_float_temps,)),
+            # step 93: narrow parameters declared int
+            ((), (widen_narrow_params,)), ((register_order,), (widen_narrow_params,)))
 
 
 VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this

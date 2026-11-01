@@ -225,12 +225,20 @@ fblk = [b for b in h.parse(log, t.names) if b.pass_ == 1][0]
 FPRO = [x for x in fblk.ins[:3]]
 FEPI = [x for x in fblk.ins if x.op == 'lwz' and 'r1' in x.uses]
 import copy
+def _unredir(x):
+    # REDIRECT (step 93): a consumer that read the synthetic conversion's result reads the original register again
+    if not hasattr(x, 'redir'):
+        return x
+    y = h.HIns.__new__(h.HIns); y.__dict__.update(x.__dict__)
+    y.uses = [x.redir if z == 'r904' else z for z in x.uses]; y.ops = [x.redir if z == 'r904' else z for z in x.ops]
+    return y
 def evaluate(seq):
     seq2 = []
     for k, i in enumerate(seq):
         n = h.HIns.__new__(h.HIns); n.__dict__.update(i.__dict__); n.idx = k; n.mem = h.alias_mem(i); seq2.append(n)
     out = seq2 if 'DIRECT' in sys.argv else r.Scheduler(t, r.Config()).schedule(seq2)
     out = [x for x in out if not getattr(x, 'synth', False) and not (x.addr in DELETED and x.defs != [FP])]
+    out = [_unredir(x) for x in out]
     if PT is not None:
         m = sum(1 for a, c in zip(out, PT) if a.addr == c)
         return m, m, [x.addr for x in out]
@@ -295,7 +303,33 @@ if 'SYNTH' in sys.argv:
         cands.append(('mr into ' + v, lambda v=v: mk('mr', [v], ['r902'])))
     cands.append(('li', lambda: mk('li', ['r903'], [])))
     if 'INPLACE' in sys.argv:
-        cands = [('inplace ' + op + ' ' + v, lambda v=v, op=op: mk(op, [v], [v])) for v in vregs for op in ('rlwinm', 'extsh')]
+        cands = [('inplace ' + op + ' ' + v, lambda v=v, op=op: mk(op, [v], [v])) for v in vregs for op in (next((a[4:].split(',') for a in sys.argv if a.startswith('OPS=')), ['rlwinm', 'extsh']))]
+    if 'REDIRECT' in sys.argv:
+        # step 93: a conversion of a register feeding ONE of its consumers (fn_8001F6BC: the `clrlwi` of an int
+        # parameter before its `sth`), deleted between the passes; every (consumer, register, position) is tried
+        ops_ = next((a[4:].split(',') for a in sys.argv if a.startswith('OPS=')), ['rlwinm'])
+        nperm = int(next((a[6:] for a in sys.argv if a.startswith('PERMS=')), '6'))
+        res = []; n = 0
+        for perm in perms[:nperm]:
+            base_seq = [i for k in perm for i in groups[k]]
+            for yi, Y in enumerate(base_seq):
+                for u in sorted(set(z for z in Y.uses if z in vregs)):
+                    dk = max([k for k in range(yi) if u in base_seq[k].defs] or [-1])
+                    for op in ops_:
+                        Y2 = h.HIns.__new__(h.HIns); Y2.__dict__.update(Y.__dict__)
+                        Y2.uses = ['r904' if z == u else z for z in Y.uses]
+                        Y2.ops = ['r904' if z == u else z for z in Y.ops]; Y2.redir = u
+                        for pos in range(dk + 1, yi + 1):
+                            seq = base_seq[:yi] + [Y2] + base_seq[yi + 1:]
+                            seq = seq[:pos] + [mk(op, ['r904'], [u])] + seq[pos:]
+                            n += 1
+                            sc_, ex_, fin_ = evaluate(seq)
+                            res.append((ex_, '%s %s for %s %s' % (op, u, Y.op, ' '.join(Y.operands[:3])), pos, perm))
+        res.sort(key=lambda z: -z[0])
+        print('REDIRECT', n, 'evaluations; best', res[:12])
+        import collections as _c
+        print(_c.Counter((z[0], z[1]) for z in res if z[0] >= 30).most_common(30))
+        sys.exit(0)
     res = []
     n = 0
     for perm in perms:

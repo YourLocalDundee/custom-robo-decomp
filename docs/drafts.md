@@ -1086,6 +1086,27 @@ dead local writes. The head stays at its 85% family ceiling; no generator rule, 
   (docs/sched_model.md section 15). Applied to the 21 handler drafts whose head the pattern finds, the `(s16)` store is
   worse (16 lower by position, 4 equal, 1 higher), so it is not a rule.
 
+### Step 93: narrow parameters declared int; the head's address is canonical (Nov 1, 2026, branch sched-f)
+
+- **`widen_narrow_params`** (a variant, tools/draft_batch.py): the u8 / s8 / u16 / s16 parameters of a draft declared
+  s32. m2c types a parameter by its uses (a `sth` of it makes it u16). When the original passed an int, the front end
+  emits a `clrlwi` before the narrow store, the first scheduling places it, and the passes between the schedulings
+  delete it. The deleted instruction takes an issue slot in the first pass and moves the instructions after it.
+  fn_8001F6BC: with `u16 arg1` the call block issues `mulli` and `lis` together and the `PADControlMotor` arguments
+  move above the store (34 of 39); with `s32 arg1` the `clrlwi` takes the second slot of that cycle and the block
+  is the original's (39 of 39). `(u16) arg1` at the store or `s16 arg1` give the same. Full batch 12: 487 -> 488 at
+  100% (fn_8001F6BC promoted), 46 compile failures unchanged; the variant also raised fn_80071974, fn_80090298,
+  fn_80096E28 and fn_800F6A44 (draft_report.txt).
+- **The handler head** (docs/sched_model.md section 17): every spelling of the increment's address gives the same
+  first-pass PCode (22 spellings: `->`, `(*&x).`, `[0]`, casts through u8 * / u32 / s32, negative indexes, a
+  volatile access; cr_g_Script declared as an array, defined in the unit, static, initialised). A literal address
+  `(cr_ScriptState *) 0x803BE358` drops the `addi` (the low half goes into the displacement). Local pointer or
+  value variables for the increment / mask add copies that stay in the code (39-43 words). Best stays B1 of step 92.
+- **group_near.py** skips a labelled draft that no longer compiles instead of stopping (the four step 92 drafts and
+  fn_8001F6BC are promoted now). Run it after a full batch 12 in the same checkout: a worktree's decomp/drafts copied
+  from another checkout keeps that checkout's ctx_protos.h, and a batch 12 run before batch 9 rebuilds the worktree's
+  asm writes a ctx_protos.h with stale types (85 compile failures, 470 at 100% in this step's first run).
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.

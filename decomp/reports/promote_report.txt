@@ -1,8 +1,8 @@
 m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md steps 58, 63)
 one object per function, or one per file of consecutive functions that share their constant pool (file objects); batch 9 links them and checks the SHA-1
 
-drafts at 100% MATCH: 487
-promoted: 443 (51820 bytes = 0xCA6C)
+drafts at 100% MATCH: 488
+promoted: 444 (51976 bytes = 0xCB08)
 file objects: 4 (4 functions, 1328 bytes = 0x530)
 left out: 40
 kept from earlier runs (draft no longer 100%): 1
@@ -134,6 +134,7 @@ removed (function name no longer ours): 0
 8001E5E4  fn_8001E5E4                                     40
 8001E684  fn_8001E684                                     44
 8001F654  fn_8001F654                                    104
+8001F6BC  fn_8001F6BC                                    156
 80020A40  fn_80020A40                                     32
 80020A60  fn_80020A60                                     16
 800215F8  fn_800215F8                                    124
@@ -455,7 +456,7 @@ removed (function name no longer ours): 0
 
 == file runs of the drafts with data of their own (range, first..last, functions; the users of every entry the run's drafts own, closed: plan.md steps 63, 64)
 800057B8-8000860C  fn_800057B8..fn_8000805C  16 functions, 11 at 100%: not available yet (5 not matched: fn_800057B8, fn_80005BC8, cr_BattleRobo_InitFromLoadout, fn_80007CE4, fn_8000805C)
-8000768C-80131910  fn_8000768C..fn_801314D4  1739 functions, 480 at 100%: not available yet (1259 not matched: fn_80007CE4, fn_8000805C, fn_8000860C, cr_Game_Update, fn_80008CB0, fn_80009018 ...)
+8000768C-80131910  fn_8000768C..fn_801314D4  1739 functions, 481 at 100%: not available yet (1258 not matched: fn_80007CE4, fn_8000805C, fn_8000860C, cr_Game_Update, fn_80008CB0, fn_80009018 ...)
 8001B1D4-8001F350  fn_8001B1D4..fn_8001F060  72 functions, 36 at 100%: not available yet (36 not matched: fn_8001B29C, cr_Rand_Float, cr_Vec3_Distance, fn_8001B6EC, cr_Vec3_RotateY, cr_Vec3_RotateAboutAxis ...)
 80024148-800373AC  fn_80024148..fn_80036FB0  76 functions, 15 at 100%: not available yet (61 not matched: fn_8002419C, fn_80024634, cr_CamMode_DefaultStart, fn_80024848, cr_CAMMODE_SNR_AUTO_Y_ANG_Frame, fn_80024A88 ...)
 8002444C-80024578  fn_8002444C..fn_8002444C  1 functions, 1 at 100%: FILE OBJECT game/fn_8002444C_fn_8002444C.c (.sdata2 0x804504E8-0x80450518)

@@ -11,7 +11,10 @@ rows = [f for f in rows if len(f) >= 3 and f[2].split('+')[0] in ('schedule-only
 groups = collections.Counter(); out = []
 for f in rows:
     n, kind = f[0], f[2]
-    ours = L.compile_draft(n); orig = corpus.listing(os.path.join(G, 'decomp', 'drafts', 'asm', n + '.s'))[n]
+    ours = L.compile_draft(n); orig = corpus.listing(os.path.join(G, 'decomp', 'drafts', 'asm', n + '.s')).get(n)
+    if not ours or not orig:
+        groups[(kind.split('+')[0], 'not compiled')] += 1; out.append('%-36s %-20s not compiled' % (n, kind))
+        continue
     ob, tb = rp.body_blocks([L.norm(t) for t in ours]), rp.body_blocks([L.norm(t) for t in orig])
     diff = [k for k, ((a, _, _), (b, _, _)) in enumerate(zip(ob, tb)) if [rp.mask(x) for x in a] != [rp.mask(x) for x in b]]
     head = any(any('cr_g_Script@ha' in x for x in tb[k][0]) and any('0x4c(' in x for x in tb[k][0]) for k in diff)

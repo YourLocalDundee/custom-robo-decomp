@@ -7,8 +7,8 @@ m2c ok 1749
 m2c failed 2
 compile failed 46
 compiled 1703
-100% MATCH 487
-bytes matched 521428 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
+100% MATCH 488
+bytes matched 521580 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
 
 match % histogram of the 1703 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
     0- 9%  43
@@ -17,11 +17,11 @@ match % histogram of the 1703 compiled drafts (100% = every word equal, relocati
    30-39%  112
    40-49%  130
    50-59%  263
-   60-69%  153
-   70-79%  170
-   80-89%  136
-   90-99%  73
-  100%     487
+   60-69%  152
+   70-79%  171
+   80-89%  134
+   90-99%  74
+  100%     488
 
 most common failures:
      12  compile: illegal operand
