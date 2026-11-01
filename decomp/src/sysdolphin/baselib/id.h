@@ -25,7 +25,13 @@ void HSD_IDRemoveByIDFromTable(HSD_IDTable* table, HSD_IDKey id);
 void* HSD_IDGetDataFromTable(HSD_IDTable* table, HSD_IDKey id, s32* success);
 void _HSD_IDForgetMemory(void* low, void* high);
 
-static inline void* HSD_IDGetData(HSD_IDKey id, s32* success)
+/* Custom Robo (step 88): extern inline in jobj.c (its copy is main.dol's fn_80198DC4) */
+#ifdef HSD_JOBJ_EXTERN_INLINE
+inline
+#else
+static inline
+#endif
+    void* HSD_IDGetData(HSD_IDKey id, s32* success)
 {
     return HSD_IDGetDataFromTable(NULL, id, success);
 }

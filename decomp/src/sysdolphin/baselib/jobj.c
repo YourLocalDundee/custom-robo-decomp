@@ -1,4 +1,17 @@
-/* Custom Robo: from doldecomp/melee @ 24e685d57535c478a2e94802c85b31c2ba54ee67, src/sysdolphin/baselib/jobj.c */ #include "jobj.h"
+/* Custom Robo: from doldecomp/melee @ 24e685d57535c478a2e94802c85b31c2ba54ee67, src/sysdolphin/baselib/jobj.c */ /* Custom Robo (step 88): the auto-inline size limit this file was built with: the recursive *All functions inline as
+ * many levels as main.dol's (HSD_JObjReqAnimAllByFlags 6, HSD_JObjSetFlagsAll / ClearFlagsAll 5, SetMtxDirtySub 6) from
+ * 580 up to 590; at the default one level less, at 600 HSD_JObjResolveRefsAll one more */
+#pragma inline_max_size(580)
+
+/* Custom Robo (step 88): the out-of-line copies of jobj.h's inlines keep their dtk names */
+#define HSD_JOBJ_EXTERN_INLINE
+#define HSD_JObjMtxIsDirty fn_80196568
+#define HSD_JObjSetupMatrix fn_80198690
+#define HSD_IDGetData fn_80198DC4
+#define HSD_JObjReqAnimAll fn_80196C50
+#define JObjLoad fn_80198700
+#define HSD_JObjClearFlagsAll fn_801995CC
+#include "jobj.h"
 
 #include <math.h>
 #include <string.h>
@@ -53,6 +66,17 @@ void HSD_JObjCheckDepend(HSD_JObj* jobj)
         break;
     }
 }
+
+/* Custom Robo (step 88): mwcc emits the out-of-line copy of an extern inline right after the first function that calls
+ * it out of line; in main.dol HSD_JObjMtxIsDirty's copy (fn_80196568) follows HSD_JObjCheckDepend, so a function
+ * that main.dol does not keep (no caller: the linker strips it) calls it there */
+#pragma push
+#pragma dont_inline on
+static void jobj_order_dummy(HSD_JObj* jobj)
+{
+    HSD_JObjMtxIsDirty(jobj);
+}
+#pragma pop
 
 /* Custom Robo: HSD_JObjCheckDepend as inlined into HSD_JObjAnim (and through it JObjAnimAll) in main.dol: the same
  * test written with if instead of Melee's / wowjinxy's switch (main.dol branches straight past it with one bne there;
@@ -263,17 +287,11 @@ void HSD_JObjRemoveAnimAll(HSD_JObj* jobj)
 
 void HSD_JObjReqAnimByFlags(HSD_JObj* jobj, u32 flags, f32 frame)
 {
-    bool has_dobj;
     if (jobj != NULL) {
         if (flags & 1) {
             HSD_AObjReqAnim(jobj->aobj, frame);
         }
-        if (jobj->flags & (JOBJ_PTCL | JOBJ_SPLINE)) {
-            has_dobj = false;
-        } else {
-            has_dobj = true;
-        }
-        if (has_dobj) {
+        if (union_type_dobj(jobj)) {
             HSD_DObjReqAnimAllByFlags(jobj->u.dobj, frame, flags);
         }
         HSD_RObjReqAnimAllByFlags(jobj->robj, frame, flags);
@@ -586,40 +604,52 @@ void HSD_JObjAnimAll(HSD_JObj* jobj)
     }
 }
 
+/* wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 jobj.c setupInstanceMtx / HSD_JObjDispAll (step 88; Melee
+ * inlines the instance matrix into HSD_JObjDispAll) */
+void setupInstanceMtx(MtxPtr vmtx, HSD_JObj* jobj, Mtx mtx)
+{
+    HSD_CObj* cobj;
+
+    HSD_JObjSetupMatrix(jobj);
+    HSD_JObjSetupMatrix(jobj->child);
+    PSMTXInverse(jobj->child->mtx, mtx);
+    PSMTXConcat(jobj->mtx, mtx, mtx);
+    if (vmtx) {
+        PSMTXConcat(vmtx, mtx, mtx);
+    } else {
+        cobj = HSD_CObjGetCurrent();
+        if (cobj != NULL) {
+            PSMTXConcat(HSD_CObjGetViewingMtxPtrDirect(cobj), mtx, mtx);
+        }
+    }
+}
+
 void HSD_JObjDispAll(HSD_JObj* jobj, Mtx vmtx, u32 flags, u32 rendermode)
 {
-    MtxPtr new_var = vmtx;
+    HSD_JObj* child;
+
     if (jobj != NULL) {
         if (jobj->flags & JOBJ_INSTANCE) {
             if (!(jobj->flags & JOBJ_HIDDEN)) {
                 Mtx mtx;
-
-                u8 _[8];
-
-                HSD_CObj* cobj;
-                HSD_JObjSetupMatrix(jobj);
-                HSD_JObjSetupMatrix(jobj->child);
-                PSMTXInverse(jobj->child->mtx, mtx);
-                PSMTXConcat(jobj->mtx, mtx, mtx);
-                cobj = HSD_CObjGetCurrent();
-                HSD_ASSERT(0x355, cobj);
-                PSMTXConcat(HSD_CObjGetViewingMtxPtrDirect(cobj), mtx, mtx);
+                setupInstanceMtx(vmtx, jobj, mtx);
                 HSD_JObjDispAll(jobj->child, mtx, flags, rendermode);
             }
         } else {
             if (jobj->flags & (flags << 0x12)) {
-                HSD_JObjDisp(jobj, new_var, flags, rendermode);
+                HSD_JObjDisp(jobj, vmtx, flags, rendermode);
             }
             if (jobj->flags & (flags << 0x1C)) {
-                HSD_JObj* child = jobj->child;
+                child = jobj->child;
                 while (child != NULL) {
-                    HSD_JObjDispAll(child, new_var, flags, rendermode);
+                    HSD_JObjDispAll(child, vmtx, flags, rendermode);
                     child = child->next;
                 }
             }
         }
     }
 }
+
 
 void HSD_JObjSetDefaultClass(HSD_ClassInfo* info)
 {
@@ -629,32 +659,37 @@ void HSD_JObjSetDefaultClass(HSD_ClassInfo* info)
     default_class = info;
 }
 
+/* Custom Robo (step 88): JObjLoad (fn_80198700) as wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 jobj.c
+ * (the children loaded in a loop, -1 when one fails) with Melee's particle list (the bank words marked) */
 static inline HSD_JObj* JObjLoadJointSub(HSD_Joint* joint, HSD_JObj* parent)
 {
     HSD_JObj* jobj;
     HSD_ClassInfo* info;
+
     if (joint == NULL) {
-        return NULL;
-    }
-    if (joint->class_name == NULL ||
-        !(info = hsdSearchClassInfo(joint->class_name)))
-    {
-        jobj = HSD_JObjAlloc();
+        jobj = NULL;
     } else {
-        jobj = hsdNew(info);
-        HSD_ASSERT(981, jobj); /* Custom Robo: main.dol passes 981 (0x3d5) here, Melee 972 */
+        if (joint->class_name == NULL ||
+            (info = hsdSearchClassInfo(joint->class_name)) == NULL)
+        {
+            jobj = HSD_JObjAlloc();
+        } else {
+            jobj = hsdNew(info);
+            HSD_ASSERT(981, jobj); /* Custom Robo: main.dol passes 981 (0x3d5) here, Melee 972 */
+        }
+        HSD_JOBJ_METHOD(jobj)->load(jobj, joint, parent);
     }
-    HSD_JOBJ_METHOD(jobj)->load(jobj, joint, parent);
     return jobj;
 }
 
 s32 JObjLoad(HSD_JObj* jobj, HSD_Joint* joint, HSD_JObj* parent)
 {
-    if (!(joint->flags & JOBJ_INSTANCE)) {
-        jobj->child = JObjLoadJointSub(joint->child, jobj);
-    }
-    jobj->next = JObjLoadJointSub(joint->next, parent);
-    jobj->parent = parent;
+    HSD_Joint* childjoint;
+    HSD_JObj* child;
+
+    jobj->child = NULL;
+    jobj->next = NULL;
+    jobj->parent = NULL;
     jobj->flags |= joint->flags;
     if (union_type_spline(jobj)) {
         jobj->u.spline = joint->u.spline;
@@ -683,6 +718,16 @@ s32 JObjLoad(HSD_JObj* jobj, HSD_Joint* joint, HSD_JObj* parent)
     }
     HSD_IDInsertToTable(NULL, (HSD_IDKey) joint, jobj);
     jobj->id = (HSD_IDKey) joint;
+
+    if (!(joint->flags & JOBJ_INSTANCE)) {
+        for (childjoint = joint->child; childjoint != NULL; childjoint = childjoint->next) {
+            child = JObjLoadJointSub(childjoint, jobj);
+            if (child == NULL) {
+                return -1;
+            }
+            HSD_JObjAddChild(jobj, child);
+        }
+    }
     return 0;
 }
 
@@ -713,7 +758,7 @@ void HSD_JObjResolveRefs(HSD_JObj* jobj, HSD_Joint* joint)
     if (!!(jobj->flags & JOBJ_INSTANCE)) {
         HSD_JObjUnref(jobj->child);
         jobj->child =
-            HSD_IDGetDataFromTable(NULL, (HSD_IDKey) joint->child, NULL);
+            HSD_IDGetData((HSD_IDKey) joint->child, NULL);
         HSD_ASSERT(1119, jobj->child); /* Custom Robo: main.dol passes 1119 (0x45f) here, Melee 1108 */
         HSD_JObjRef(jobj->child);
     }
@@ -1018,10 +1063,7 @@ void HSD_JObjSetFlags(HSD_JObj* jobj, u32 flags)
 {
     if (jobj != NULL) {
         if ((jobj->flags ^ flags) & JOBJ_CLASSICAL_SCALE) {
-            // manually inlined HSD_JObjSetMtxDirty
-            if (jobj != NULL && !HSD_JObjMtxIsDirty(jobj)) {
-                HSD_JObjSetMtxDirtySub(jobj);
-            }
+            HSD_JObjSetMtxDirty(jobj);
         }
         jobj->flags |= flags;
     }
@@ -1044,10 +1086,7 @@ void HSD_JObjClearFlags(HSD_JObj* jobj, u32 arg1)
 {
     if (jobj != NULL) {
         if ((jobj->flags ^ arg1) & JOBJ_CLASSICAL_SCALE) {
-            // manually inlined HSD_JObjSetMtxDirty
-            if (jobj != NULL && !HSD_JObjMtxIsDirty(jobj)) {
-                HSD_JObjSetMtxDirtySub(jobj);
-            }
+            HSD_JObjSetMtxDirty(jobj);
         }
         jobj->flags &= ~arg1;
     }
@@ -1121,7 +1160,6 @@ HSD_JObj* jobj_get_effector_checked(HSD_JObj* eff)
     }
 }
 
-extern const Vec3 HSD_JObj_803B94C4;
 
 /// @todo Variables @c var_f27 and @c var_f28 are used uninitialized
 ///       whenever 'if' condition is false.
@@ -1138,6 +1176,7 @@ void resolveIKJoint1(HSD_JObj* jobj)
     f32 temp_f5;
     f32 temp_f5_2;
     Vec3 spBC = { 1.0F, 1.0F, 1.0F };
+    static const Vec3 HSD_JObj_803B94C4 = { 0.0F, 0.0F, 0.0F };
     f32 var_f1;
     f32 var_f29;
     f32 var_f29_2;
@@ -1232,10 +1271,9 @@ void resolveIKJoint1(HSD_JObj* jobj)
             temp_f5 = temp_f30 * temp_f30;
             var_f28 = var_f29 * var_f29;
             temp_f1_7 = temp_f5 - var_f28;
-            temp_f1_8 = 0.25F * (((2.0F * (temp_f5 + var_f28)) - temp_f31) -
+            var_f27 = 0.25F * (((2.0F * (temp_f5 + var_f28)) - temp_f31) -
                                  ((temp_f1_7 * temp_f1_7) / temp_f31));
-            var_f27 = temp_f1_8;
-            if (temp_f1_8 < 0.0F) {
+            if (var_f27 < 0.0F) {
                 var_f27 = 0.0F;
             }
             temp_f5_2 = (temp_f5 - var_f27) / temp_f31;
@@ -1275,11 +1313,28 @@ void resolveIKJoint1(HSD_JObj* jobj)
     }
 }
 
-const Vec3 HSD_JObj_803B94C4 = { 0.0F, 0.0F, 0.0F };
-const Vec3 HSD_JObj_803B94D0 = { 1.0F, 1.0F, 1.0F };
+
+/* Custom Robo (step 88): MSL's inline acosf (bl acos, frsp) */
+double acos(double);
+static inline f32 msl_acosf(f32 x)
+{
+    return acos(x);
+}
+
+static inline f32 jobj_acos_clamped(f32 x)
+{
+    if (x >= 1.0F) {
+        return 0.0F;
+    }
+    if (x <= -1.0F) {
+        return M_PI;
+    }
+    return msl_acosf(x);
+}
 
 void resolveIKJoint2(HSD_JObj* jobj)
 {
+    static const Vec3 HSD_JObj_803B94D0 = { 1.0F, 1.0F, 1.0F };
     Vec3 spA0;
     Vec3 sp94;
     Vec3 sp88;
@@ -1352,13 +1407,7 @@ void resolveIKJoint2(HSD_JObj* jobj)
         }
         VECNormalize(&sp28, &sp28);
         temp_f1_4 = VECDotProduct(&sp28, &sp7C);
-        if (temp_f1_4 >= 1.0F) {
-            var_f1_2 = 0.0F;
-        } else if (temp_f1_4 <= -1.0F) {
-            var_f1_2 = M_PI;
-        } else {
-            var_f1_2 = acosf(temp_f1_4);
-        }
+        var_f1_2 = jobj_acos_clamped(temp_f1_4);
         if (var_r30 == 0) {
             var_f1_2 = -var_f1_2;
         }
