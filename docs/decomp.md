@@ -390,6 +390,46 @@ A neighbour that kar's asm places in exactly one other file also counts as that 
 (no C linked): sysdolphin is 33 split objects, 24 from C. Still open (splits_report.txt): archive.c's end, synth.c's
 end, axdriver.c's end, devcom.c's start, particle.c's start (their neighbours are unnamed fn_ functions).
 
+### HSD edge neighbours named (step 98, Nov 1, 2026)
+
+The five neighbours step 97 left were compared with every function of doldecomp/kar's asm (masked: call targets,
+address halves, small-data offsets; tools/compiler_probe/revisions.py `mask_words`) and with Melee's (598987cf) and
+wowjinxy/KAR's C compiled with our HSD flags (tools/compiler_probe/probe.py `compile_one` / `compare`). kar's asm has
+only axdriver.s and particle.s of these files, and neither neighbour is that file's first or last function, so the
+names come from the C:
+
+| Address | Name | Evidence |
+|---|---|---|
+| 0x801A5634 | HSD_ArchiveLocateExtern | Melee and wowjinxy archive.c compile equal; 0xD4 |
+| 0x801A5A48 | HSD_ArchiveFree | wowjinxy archive.c compiles equal; kar asm func_8041E540 equal |
+| 0x8017933C | HSD_SynthPStreamStart | kar asm func_8044E2E0 equal, the KAR map's name; 0x3B8 |
+| 0x80179C14 | psInitDataBankLocate | Melee's u16 version switch (0, 0x40..0x43); psInitDataBankLoad calls it |
+| 0x80170ECC | HSD_DevComStdCallback | wowjinxy devcom.c compiles equal; asserts with devcom.c |
+| 0x8017004C | HSD_AudioSFXSetupAux | Melee axdriver.c compiles equal |
+| 0x801700BC | HSD_AudioSFXGetDefaultAuxParam | Melee axdriver.c: 70 of 71 words equal |
+
+fn_8016FF44 has Melee HSD_AudioGetAuxHeapSize's frame (the type / NULL check, the preDelay * 32000 terms) and equals kar
+axdriver.s func_804446F0, but stays unnamed: 0x108 against Melee's 0x2D8 fails batch 8's size check.
+
+New split objects: **synth.c** .text 0x80172DD8-0x80179C14 (fn_80179740 at its end asserts with synth.c) and
+**archive.c** .text 0x801A5558-0x801A5708 (Melee's range; sysdolphin 35 objects, 24 from C).
+
+What is still open (splits_report.txt) and what is known about it:
+
+- **archive.c end / random.c start.** The real archive.c probably goes on to 0x801A5E7C (HSD_Randf). fn_801A5708
+  reads a file with the strings that follow "HSD_ArchiveParse: byte-order mismatch" in .data 0x8024D268 and calls
+  HSD_ArchiveFree. fn_801A5AE8, fn_801A5B08 and fn_801A5C68 are its path helpers, and their .bss (0x8044B7B0,
+  0x8044BBB0) follows shadow.c's. kar's asm starts random.s with HSD_ArchiveFree; the wowjinxy map ends archive.c at
+  0x801A5AE8.
+- **Why wowjinxy's C files cannot prove a range.** A rule that let them prove ranges was tried and dropped. Its memory.c
+  holds shadow.c's functions, its tev.c holds state.c's, and its texpdag.c holds texp.c's.
+- **axdriver.c end / devcom.c start.** fn_80170708 .. fn_80170DEC equal functions that the KAR map names
+  kar_axdriver_* (in kar's text_804452A0.s, an automatic split). fn_80170EAC (0x20) only calls fn_801796F4 (synth's
+  list counter). KAR has no such function: there, devcom.c's HSD_DevComStdCallback directly follows
+  kar_axdriver_is_slot_playing.
+- **particle.c end.** fn_8017A0E4 uses psInitDataBankLoad's lbl_80449558. The particle family (particle, generator,
+  psdisp, psdisptev, psappsrt) is unsplit up to dobj.c 0x80186490.
+
 ### HSD (sysdolphin) notes (step 61, Oct 30, 2026)
 
 - Custom Robo links the Kirby Air Ride revision of sysdolphin (tools/refs/kar, kar_wowjinxy: the same function sizes),

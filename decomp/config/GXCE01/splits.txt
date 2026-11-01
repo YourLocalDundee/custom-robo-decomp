@@ -2228,6 +2228,9 @@ dolphin/si/SISamplingRate.c:
 	.data       start:0x8024A358 end:0x8024A3EC
 	.sbss       start:0x8044FD40 end:0x8044FD44
 
+sysdolphin/baselib/synth.c:
+	.text       start:0x80172DD8 end:0x80179C14
+
 sysdolphin/baselib/dobj.c:
 	.text       start:0x80186490 end:0x80186B44
 	.data       start:0x8024B4F8 end:0x8024B615
@@ -2396,6 +2399,9 @@ sysdolphin/baselib/shadow.c:
 	.text       start:0x801A4154 end:0x801A5558
 	.data       start:0x8024D0D0 end:0x8024D268
 	.bss        start:0x8044B780 end:0x8044B7B0
+
+sysdolphin/baselib/archive.c:
+	.text       start:0x801A5558 end:0x801A5708
 
 sysdolphin/baselib/bytecode.c:
 	.text       start:0x801A5F10 end:0x801A74D8

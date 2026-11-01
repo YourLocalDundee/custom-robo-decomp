@@ -7,10 +7,10 @@ dolphin                           98     98   0x033700/0x033700 100.00%   0x01F9
 MSL                               49     49   0x00939C/0x00939C 100.00%   0x0014BA/0x0014BA 100.00%     85/   85
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
-sysdolphin                        33     24   0x01444C/0x027BF8  50.99%   0x003397/0x004127  79.18%    325/  493
+sysdolphin                        35     24   0x01444C/0x02EBE4  43.36%   0x003397/0x004127  79.18%    325/  549
 game                             482    482   0x00DDC0/0x00DDC0 100.00%   0x1546CB/0x1546CB 100.00%    456/  456
-automatic objects (unsplit)      290      0   0x000000/0x13A32C   0.00%   0x000000/0x11F724   0.00%      0/ 1485
-main.dol (all units)             986    687   0x065958/0x1B3430  23.34%   0x17BF60/0x29C414  56.86%   1880/ 3533
+automatic objects (unsplit)      291      0   0x000000/0x133340   0.00%   0x000000/0x11F724   0.00%      0/ 1429
+main.dol (all units)             989    687   0x065958/0x1B3430  23.34%   0x17BF60/0x29C414  56.86%   1880/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 456 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0xDDC0 bytes = 4.61% of the game code, 3.18% of all code
 game data (decomp/src/game/data, tools/gen_data_c.py): 26 data-only units from C, 0x154583 bytes; all game data from C (with the file objects pools): 0x1546CB bytes = 50.94% of all data
