@@ -660,7 +660,7 @@ src/sysdolphin/baselib/bytecode.c  doldecomp/melee @ 24e685d57535 src/sysdolphin
 src/sysdolphin/baselib/bytecode.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/bytecode.h  identical
 src/sysdolphin/baselib/class.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/class.c  changed (11 lines added / removed)
 src/sysdolphin/baselib/class.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/class.h  identical
-src/sysdolphin/baselib/cobj.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/cobj.c  changed (71 lines added / removed)
+src/sysdolphin/baselib/cobj.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/cobj.c  changed (310 lines added / removed)
 src/sysdolphin/baselib/cobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/cobj.h  changed (3 lines added / removed)
 src/sysdolphin/baselib/debug.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/debug.h  identical
 src/sysdolphin/baselib/displayfunc.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/displayfunc.c  changed (311 lines added / removed)

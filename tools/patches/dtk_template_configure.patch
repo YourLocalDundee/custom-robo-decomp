@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,452 @@ def MatchingFor(*versions):
+@@ -284,18 +307,453 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -471,6 +471,9 @@ diff --git a/configure.py b/configure.py
 +    # step 88 (hsd3): mtx.c, every function written from main.dol or ported from wowjinxy/KAR (fn_8019EB5C /
 +    # fn_8019F2AC / fn_8019FC14 = KAR's HSD_MtxInverseConcat / GetRotationMtx / SRT; MSL's double sin / cos / asin / atan2)
 +    "sysdolphin/baselib/mtx.c",
++    # step 88: cobj.c (MSL inline tanf / fabsf / atan2f, KAR's setup*HalfCamera / SetUpVector / SetFar as fn_ names,
++    # the screen pass in double over the game's reference size, the inline depth that calls fabs out of line in SetRoll)
++    "sysdolphin/baselib/cobj.c",
 +    # step 76 (libs2): powf (BfBB math.h's inline, out of line); reverb_std.c with DLcreate's "<< 2" as in reverb_hi.c
 +    "MSL/exponentialsf.c",
 +    "dolphin/axfx/reverb_std.c",
@@ -482,8 +485,6 @@ diff --git a/configure.py b/configure.py
 +CR_NOT_MATCHING = {
 +    "sysdolphin/baselib/texpdag.c":
 +        "code: 3 of 11 functions equal in objdiff (Melee's texpdag.c adapted: HSD_TExpSchedule reads a_dst for alpha inputs, HSD_TExpSimplify2 the TETev a_range byte, texp.h, order_dag's dep_bits an int): CalcDistance 99.1% (r3 / r4 swapped in its inlined recursive copies; statement order, declaration order, signedness, index-only and for-header forms tried), assign_reg 0x1B0 here vs 0x1B4, HSD_TExpMakeDag 0x4B0 vs 0x4A8, SimplifySrc 0x498 vs 0x414, SimplifyThis 0x840 vs 0x7EC, SimplifyByMerge 0x17C8 vs 0xA04, HSD_TExpSimplify 0x90 vs 0x88, CalcTevRange not in Melee's C (wowjinxy/KAR has C for all of them, none equal: 90-99.6%, its SimplifyByMerge 0xC9C 32%) (another revision; doldecomp/kar has only asm): adapt to this revision; step 78: the optimizer pragma sweep on CalcDistance / SimplifyThis / assign_reg: no gain",
-+    "sysdolphin/baselib/cobj.c":
-+        "code: 38 of 48 functions equal in objdiff (Melee's cobj.c with this revision's assert lines; HSD_CObjGetUpVector, HSD_CObjGetViewingMtxPtr, CObjInfoInit's update method, CObjResetFlags from wowjinxy/KAR's cobj.c; step 61 iteration 7): step 61 iteration 9: HSD_CObjSetMtxDirty / SetAspect / SetScissor / SetScissorx4 / SetViewportf / SetViewportfx4 named by their bytes (Melee's C equal); unnamed, not in Melee's C: fn_8018F830, fn_8018FA94, fn_8018FD60 (0xCC, HSD_CObjSetupViewingMtx by its caller; 0x13C in KAR), fn_80190BBC; HSD_CObjEraseScreen 97% (double tan + frsp here), HSD_CObjSetCurrent 0x504 here 86%, upvec2roll 63%, roll2upvec 84%, HSD_CObjSetRoll 0x428 here 83% (wowjinxy's 46-88%) (another revision): adapt to this revision; step 78: the optimizer pragma sweep on HSD_CObjEraseScreen, CObjInfoInit (string offsets, as jobj): no gain",
 +    "sysdolphin/baselib/jobj.c":
 +        "code: 31 of 48 functions equal in objdiff (Melee's jobj.c with this revision's assert lines, jobj.h's set inlines too; JObjUpdateFunc, JObjInfoInit, HSD_JObjSetupMatrixSub's / HSD_JObjAnim's update method, HSD_JObjSetPtclTargetCallback from wowjinxy/KAR's jobj.c; step 61 iteration 7): unnamed, no C: fn_80196568 (0x58), fn_80196C50, fn_80198014, fn_80198144, fn_80198690, fn_80198700 (0x1FC, the load method; wowjinxy's JObjLoad 0x214), fn_801995CC (step 61 iteration 9: HSD_JObjGetDObj / HSD_JObjGetFlags named by their bytes); HSD_JObjSetMtxDirty and HSD_IDGetData have no C in any reference; HSD_JObjReqAnimAllByFlags 82%, HSD_JObjResolveRefsAll 98% (an extra NULL check), ref_INC 90% (no NULL check here), HSD_JObjSetFlagsAll 87%, resolveIKJoint1 99.6% (one fmuls register), resolveIKJoint2 99.2% (frsp before fneg here), HSD_JObjSetMtxDirtySub 85% (another revision): adapt to this revision; step 78: the optimizer pragma sweep on resolveIKJoint1 / 2, HSD_JObjResolveRefsAll, ref_INC, JObjInfoInit (its string offsets: main.dol's .data has strings of dead-stripped functions, as lobj.c's had): no gain",
 +    "sysdolphin/baselib/texp.c":

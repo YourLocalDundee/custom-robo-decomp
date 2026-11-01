@@ -17,8 +17,36 @@
 #include <dolphin/mtx.h>
 #include <dolphin/vi.h> // IWYU pragma: keep
 
-static HSD_ClassInfo* default_class;
+/* Custom Robo (step 88): functions main.dol leaves unnamed, by size and place in KAR's cobj.c (doldecomp/kar symbols):
+ * setupTopHalfCamera 0x264, setupBottomHalfCamera 0x2CC (equal sizes), HSD_CObjSetupViewingMtx (0xCC here, 0x13C in
+ * KAR; main.dol's HSD_CObjGetViewingMtxPtr calls it), HSD_CObjSetUpVector (0x2FC here, 0x334 in KAR, between
+ * HSD_CObjGetUpVector and HSD_CObjSetMtxDirty), HSD_CObjSetFar (0x10, between GetFar and SetScissor) */
+#define setupTopHalfCamera fn_8018F830
+#define setupBottomHalfCamera fn_8018FA94
+#define HSD_CObjSetupViewingMtx fn_8018FD60
+#define HSD_CObjSetUpVector fn_80190BBC
+#define HSD_CObjSetFar fn_80191484
+void HSD_CObjSetFar(HSD_CObj* cobj, float far);
+void HSD_CObjSetUpVector(HSD_CObj* cobj, Vec3* up);
+
+/* Custom Robo (step 88): main.dol calls the SDK's C_ matrix functions by those names, and MSL's double tan through
+ * an inline tanf (bl tan, frsp) */
+void C_MTXFrustum(Mtx m, f32 t, f32 b, f32 l, f32 r, f32 n, f32 f);
+void C_MTXPerspective(Mtx m, f32 fovY, f32 aspect, f32 n, f32 f);
+void C_MTXOrtho(Mtx m, f32 t, f32 b, f32 l, f32 r, f32 n, f32 f);
+#define MTXFrustum C_MTXFrustum
+#define MTXPerspective C_MTXPerspective
+#define MTXOrtho C_MTXOrtho
+double tan(double);
+static inline f32 msl_tanf(f32 x)
+{
+    return tan(x);
+}
+#define tanf msl_tanf
+
+/* Custom Robo: .sbss statics go in reverse order of definition: main.dol has default_class before current */
 static HSD_CObj* current;
+static HSD_ClassInfo* default_class;
 
 #define DegToRad(a) ((a) * 0.01745329252F)
 
@@ -30,6 +58,13 @@ static void CObjRelease(HSD_Class* o);
 static void CObjAmnesia(HSD_ClassInfo* info);
 
 HSD_CObjInfo hsdCObj = { CObjInfoInit };
+
+/* wowjinxy/KAR cobj.c: the assert strings of a function main.dol does not keep, in its .data after hsdCObj */
+#pragma push
+#pragma force_active on
+static char ref_width_assert[] = "ref_width > 0";
+static char ref_height_assert[] = "ref_height > 0";
+#pragma pop
 
 void HSD_CObjEraseScreen(HSD_CObj* cobj, s32 enable_color, s32 enable_alpha,
                          s32 enable_depth)
@@ -239,13 +274,21 @@ static bool setupOffscreenCamera(HSD_CObj* cobj)
     return true;
 }
 
+/* Custom Robo (step 88): this revision scales by the render mode over the game's reference size (s32 .sdata words
+ * lbl_8044F050 / lbl_8044F054 = 640 / 480, wowjinxy/KAR cobj.c CObjRefWidth / CObjRefHeight) in double, as wowjinxy's
+ * HSD_CObjSetCurrent case 0 */
+#define CObjRefWidth lbl_8044F050
+#define CObjRefHeight lbl_8044F054
+s32 CObjRefWidth = 640;
+s32 CObjRefHeight = 480;
+
 static bool setupNormalCamera(HSD_CObj* cobj)
 {
     GXProjectionType projection_type;
     Mtx44 p;
 
-    f32 x_scale;
-    f32 y_scale;
+    f64 x_scale;
+    f64 y_scale;
 
     f32 top;
     f32 bottom;
@@ -257,8 +300,8 @@ static bool setupNormalCamera(HSD_CObj* cobj)
 
     GXRenderModeObj* rmode = HSD_VIGetRenderMode();
 
-    x_scale = (f32) rmode->fbWidth / (f32) rmode->viWidth;
-    y_scale = (f32) rmode->efbHeight / (f32) rmode->viHeight;
+    x_scale = rmode->fbWidth / (f64) CObjRefWidth;
+    y_scale = rmode->efbHeight / (f64) CObjRefHeight;
 
     left = cobj->viewport.xmin * x_scale;
     right = cobj->viewport.xmax * x_scale;
@@ -315,12 +358,7 @@ static bool setupTopHalfCamera(HSD_CObj* cobj)
     left = cobj->viewport.xmin;
     right = cobj->viewport.xmax;
     top = cobj->viewport.ymin;
-    bottom =
-#ifdef MUST_MATCH
-        bottom =
-#endif
-            cobj->viewport.ymax;
-    bottom = bottom < rmode->efbHeight ? bottom : rmode->efbHeight;
+    bottom = cobj->viewport.ymax < rmode->efbHeight ? cobj->viewport.ymax : rmode->efbHeight;
     width = right - left;
     height = bottom - top;
     GXSetScissor(left, top, width, height);
@@ -468,7 +506,12 @@ void HSD_CObjSetupViewingMtx(HSD_CObj* cobj)
 
     if (!(cobj->flags & 2) && HSD_CObjMtxIsDirty(cobj)) {
         HSD_CObjGetEyePosition(cobj, &eyepos);
-        HSD_CObjGetUpVector(cobj, &up_vec);
+        /* Custom Robo: this revision falls back to +Y (wowjinxy/KAR's HSD_CObjSetupViewingMtx) */
+        if (HSD_CObjGetUpVector(cobj, &up_vec) == 0) {
+            up_vec.x = 0.0F;
+            up_vec.y = 1.0F;
+            up_vec.z = 0.0F;
+        }
         HSD_CObjGetInterest(cobj, &interest);
         C_MTXLookAt(cobj->view_mtx, &eyepos, &up_vec, &interest);
         HSD_WObjClearFlags(cobj->eyepos, 2);
@@ -503,7 +546,7 @@ bool HSD_CObjSetCurrent(HSD_CObj* cobj)
         result = setupBottomHalfCamera(cobj);
         break;
     default:
-        HSD_Panic(__FILE__, 624, "unkown type of render pass.\n");
+        HSD_Panic(__FILE__, 663 /* Custom Robo: main.dol passes 663 (0x297) here, Melee 624 */, "unkown type of render pass.\n");
         return false;
     }
     if (!result) {
@@ -568,27 +611,6 @@ void HSD_CObjSetEyePosition(HSD_CObj* cobj, Vec3* position)
     HSD_WObjSetPosition(HSD_CObjGetEyePositionWObj(cobj), position);
 }
 
-int HSD_CObjGetEyeVector(HSD_CObj* cobj, Vec3* eye)
-{
-    Vec3 eyepos;
-    Vec3 interest;
-
-    if (cobj && cobj->eyepos && cobj->interest && eye) {
-        HSD_CObjGetEyePosition(cobj, &eyepos);
-        HSD_CObjGetInterest(cobj, &interest);
-        VECSubtract(&interest, &eyepos, eye);
-        if (vec_normalize_check(eye, eye) == 0) {
-            return 0;
-        }
-    }
-    if (eye) {
-        eye->x = 0.0f;
-        eye->y = 0.0f;
-        eye->z = -1.0f;
-    }
-    return -1;
-}
-
 float HSD_CObjGetEyeDistance(HSD_CObj* cobj)
 {
     Vec3 position;
@@ -608,33 +630,87 @@ float HSD_CObjGetEyeDistance(HSD_CObj* cobj)
 
 static Vec3 orig = { 0.0F, 0.0F, 0.0F };
 static Vec3 uy = { 0.0F, 1.0F, 0.0F };
-static Vec3 uy2 = { 0.0F, 1.0F, 0.0F };
+
+/* Custom Robo (step 88): this revision's helpers (wowjinxy/KAR cobj.c): the zero test in double (__fabs against the
+ * double FLT_MIN), HSD_CObjGetEyeVector returning TRUE on success without the default eye, MSL's inline fabsf / atan2f
+ * (__fabs then frsp; bl atan2 then frsp) */
+/* MSL's inline double fabs (math.h under MWERKS_GEKKO): one inline level more, so where the inline depth runs out
+ * (HSD_CObjSetRoll -> roll2upvec -> the eye vector -> the zero test) main.dol calls its out-of-line copy */
+#define msl_fabs fn_8016938C
+inline double msl_fabs(double x)
+{
+    return __fabs(x);
+}
+
+static inline s32 cobj_vec_normalize_check(Vec3* src, Vec3* dst)
+{
+    if (msl_fabs(src->x) <= (f64) FLT_MIN && msl_fabs(src->y) <= (f64) FLT_MIN && msl_fabs(src->z) <= (f64) FLT_MIN) {
+        return -1;
+    }
+    PSVECNormalize(src, dst);
+    return 0;
+}
+
+static inline s32 cobj_GetEyeVector(HSD_CObj* cobj, Vec3* eye)
+{
+    Vec3 eyepos;
+    Vec3 interest;
+
+    if (cobj == NULL || cobj->eyepos == NULL || cobj->interest == NULL) {
+        return 0;
+    }
+    HSD_CObjGetEyePosition(cobj, &eyepos);
+    HSD_CObjGetInterest(cobj, &interest);
+    PSVECSubtract(&interest, &eyepos, eye);
+    return cobj_vec_normalize_check(eye, eye) == 0;
+}
+
+static inline f32 msl_fabsf(f32 x)
+{
+    return msl_fabs(x);
+}
+
+double atan2(double, double);
+static inline f32 msl_atan2f(f32 y, f32 x)
+{
+    return atan2(y, x);
+}
+
+static inline f32 calc_roll(f32 x, f32 y)
+{
+    if (y == 0.0F) {
+        if (x >= 0.0F) {
+            return 1.5707964F;
+        }
+        return -1.5707964F;
+    }
+    return msl_atan2f(x, y);
+}
+
+/* wowjinxy/KAR cobj.c HSD_CObjGetEyeVector (not in main.dol: every call inlined, the linker strips it) */
+int HSD_CObjGetEyeVector(HSD_CObj* cobj, Vec3* eye)
+{
+    return cobj_GetEyeVector(cobj, eye);
+}
 
 static float upvec2roll(HSD_CObj* cobj, Vec3* up)
 {
+    Mtx mtx;
     Vec3 v;
     Vec3 eye;
-    Mtx vmtx;
     f32 dot;
 
-    if (HSD_CObjGetEyeVector(cobj, &eye) != 0) {
-        dot = 0.0f;
-    } else {
-        dot = fabsf(VECDotProduct(up, &eye));
-        dot = 1.0f - dot;
-        if (dot < FLT_MIN) {
-            dot = 0.0f;
-        } else {
-            C_MTXLookAt(vmtx, &orig, &uy, &eye);
-            PSMTXMultVecSR(vmtx, up, &v);
-            if (fabsf_bitwise(v.y) == 0.0f) {
-                dot = -v.x >= 0.0f ? 1.5707963267948966 : -1.5707963267948966;
-            } else {
-                dot = atan2f(-v.x, v.y);
-            }
-        }
+    if (!cobj_GetEyeVector(cobj, &eye)) {
+        return 0.0F;
     }
-    return dot;
+    dot = msl_fabsf(PSVECDotProduct(up, &eye));
+    dot = 1.0F - dot;
+    if (dot < FLT_MIN) {
+        return 0.0F;
+    }
+    C_MTXLookAt(mtx, &orig, &uy, &eye);
+    PSMTXMultVecSR(mtx, up, &v);
+    return calc_roll(-v.x, v.y);
 }
 
 static inline f32 vec_get_x(Vec3* v)
@@ -647,21 +723,20 @@ static inline f64 vec_get_abs_y(Vec3* v)
     return fabsf(v->y);
 }
 
+/* wowjinxy/KAR cobj.c roll2upvec with this file's helpers */
 static int roll2upvec(HSD_CObj* cobj, Vec3* up, float roll)
 {
-    int res;
+    Mtx m;
     Vec3 eye;
     Vec3 v0;
     Vec3 v1;
-    Mtx m;
 
-    res = HSD_CObjGetEyeVector(cobj, &eye);
-    if (res != 0) {
-        return res;
+    if (!cobj_GetEyeVector(cobj, &eye)) {
+        return 0;
     }
-    if (1.0 - vec_get_abs_y(&eye) < 0.0001) {
+    if (1.0 - msl_fabsf(eye.y) < 0.0001) {
         v0.x = sqrtf(eye.y * eye.y + eye.z * eye.z);
-        v0.y = eye.y * (-vec_get_x(&eye) / v0.x);
+        v0.y = eye.y * (-eye.x / v0.x);
         v0.z = eye.z * (-eye.x / v0.x);
     } else {
         v0.y = sqrtf(eye.x * eye.x + eye.z * eye.z);
@@ -670,8 +745,8 @@ static int roll2upvec(HSD_CObj* cobj, Vec3* up, float roll)
     }
     PSMTXRotAxisRad(m, &eye, -roll);
     PSMTXMultVecSR(m, &v0, &v1);
-    VECNormalize(&v1, up);
-    return 0;
+    PSVECNormalize(&v1, up);
+    return 1;
 }
 
 static inline f32 cobj_get_up_x(Vec3* up)
@@ -680,6 +755,8 @@ static inline f32 cobj_get_up_x(Vec3* up)
 }
 
 /* wowjinxy/KAR cobj.c HSD_CObjGetUpVector (Melee: a default up vector when there is none, another revision) */
+#pragma push
+#pragma dont_inline on
 int HSD_CObjGetUpVector(HSD_CObj* cobj, Vec3* up)
 {
     if (cobj == NULL || up == NULL) {
@@ -691,26 +768,38 @@ int HSD_CObjGetUpVector(HSD_CObj* cobj, Vec3* up)
     }
     return roll2upvec(cobj, up, cobj->u.roll);
 }
+#pragma pop
+
+/* wowjinxy/KAR cobj.c HSD_CObjSetUpVector (main.dol: the assert line 976) */
+static inline s32 cobj_vec_normalize_check2(Vec3* src, Vec3* dst)
+{
+    if (!src || !dst) {
+        return -1;
+    }
+    if (msl_fabs(src->x) <= (f64) FLT_MIN && msl_fabs(src->y) <= (f64) FLT_MIN && msl_fabs(src->z) <= (f64) FLT_MIN) {
+        return -1;
+    }
+    PSVECNormalize(src, dst);
+    return 0;
+}
+
 
 void HSD_CObjSetUpVector(HSD_CObj* cobj, Vec3* up)
 {
-    Vec3 v;
+    Vec3 normalized;
+
     if (!cobj || !up) {
         return;
     }
-    if ((cobj->flags & 1) != 0) {
-        if (vec_normalize_check(up, &v)) {
-            up = &uy2;
-        } else {
-            up = &v;
+    if (cobj->flags & 1) {
+        if (cobj_vec_normalize_check2(up, &normalized) != 0) {
+            OSReport("illegal up vector.");
+            __assert(__FILE__, 976, "0");
         }
-
-        if (cobj->u.up.x != cobj_get_up_x(up) || cobj->u.up.y != up->y ||
-            cobj->u.up.z != up->z)
-        {
+        if (cobj->u.up.x != normalized.x || cobj->u.up.y != normalized.y || cobj->u.up.z != normalized.z) {
             HSD_CObjSetMtxDirty(cobj);
+            cobj->u.up = normalized;
         }
-        cobj->u.up = *up;
     } else {
         HSD_CObjSetRoll(cobj, upvec2roll(cobj, up));
     }
@@ -781,15 +870,17 @@ MtxPtr HSD_CObjGetInvViewingMtxPtrDirect(HSD_CObj* cobj)
 /* Custom Robo: wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 cobj.c's HSD_CObjSetupViewingMtx is fn_8018FD60
  * here (unnamed; 0xCC in main.dol vs 0x13C in KAR, not ported): main.dol's HSD_CObjGetViewingMtxPtr calls it and
  * returns cobj->view_mtx (addi r3, r31, 0x54) as wowjinxy's does */
-#define HSD_CObjSetupViewingMtx fn_8018FD60
 void HSD_CObjSetupViewingMtx(HSD_CObj* cobj);
 
 /* wowjinxy/KAR cobj.c HSD_CObjGetViewingMtxPtr */
+#pragma push
+#pragma dont_inline on
 MtxPtr HSD_CObjGetViewingMtxPtr(HSD_CObj* cobj)
 {
     HSD_CObjSetupViewingMtx(cobj);
     return cobj->view_mtx;
 }
+#pragma pop
 
 MtxPtr HSD_CObjGetInvViewingMtxPtr(HSD_CObj* cobj)
 {
@@ -824,7 +915,7 @@ void HSD_CObjSetRoll(HSD_CObj* cobj, float roll)
         HSD_CObjSetUpVector(cobj, &up);
     } else {
         if (cobj->u.roll != roll) {
-            cobj->flags |= 0xC0000000;
+            HSD_CObjSetMtxDirty(cobj);
         }
         cobj->u.roll = roll;
     }

@@ -34,11 +34,11 @@ padding per point: 0x100 bytes; points: 35
   31. 0x80450080 .sbss    inside .sbss: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x1F00
   32. 0x804501A0 .sdata2  start of .sdata2 -> everything from here moves by +0x2000
   33. 0x804504E8 .sdata2  inside .sdata2: the data piece of game/fn_8002444C_fn_8002444C.c (a proven object boundary) -> everything from here moves by +0x2100
-  34. 0x80452120 .sdata2  inside .sdata2: the data piece of MSL/e_pow.c (a proven object boundary) -> everything from here moves by +0x2200
+  34. 0x804520A0 .sdata2  inside .sdata2: the data piece of MSL/e_log.c (a proven object boundary) -> everything from here moves by +0x2200
   35. 0x804529F8 .sdata2  inside .sdata2: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x2300
-objects linked from C (batch 9, configure.py CR_MATCHING): 641 in both links, 640 of them moved by the padding; 21 holding a point, reassembled from asm
+objects linked from C (batch 9, configure.py CR_MATCHING): 642 in both links, 641 of them moved by the padding; 21 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
-shifted main.dol: SHA-1 e2cbaabb87e54712cb4b49f6429266aac9839f5d (2430848 bytes, retail 2425472)
+shifted main.dol: SHA-1 70d80bf5be753891de5762fe64c008e750879788 (2430848 bytes, retail 2425472)
 sections, unshifted -> shifted:
   .init    0x80003100 size 0x0024D0 -> 0x80003100 size 0x0024D0
   .text    0x800055E0 size 0x1B0FF8 -> 0x800055E0 size 0x1B12F8
@@ -56,7 +56,7 @@ sections, unshifted -> shifted:
   _stack_addr  0x80462AC0 -> 0x80464DC0
   __ArenaLo    0x80464AC0 -> 0x80466DC0
 static check:
-  symbols compared (unique names): 15156
+  symbols compared (unique names): 15152
   symbols moved by the wrong amount: 0
   relocations of the unshifted build: 92808
   relocations missing after the shift: 0
