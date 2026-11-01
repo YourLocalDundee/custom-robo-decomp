@@ -883,6 +883,115 @@ nothing but the head) as the target, then 60 micro-programs on the compiler to l
 215. Linked: 443 game objects (438 promoted, 4 file objects, 1 kept: fn_800A0804), 646 of 922 units from C, 22.18% of
 main.dol's code; batch 9 retail SHA-1, static shift PASS, batch 8 0 FAIL, checksums written.
 
+### Step 85: file runs by hand - the register rules of level 0, two generator rules (Oct 31, 2026, branch fileruns)
+
+Goal: close the cheapest file runs of the step 83 table by hand-matching their blockers. Method as in step 83: a
+scratch harness (the step 83 `hm.py`: one C file compiled with the game flags against the drafts' ctx.h, words
+compared with tools/draft_batch.py's compare, `dtk elf disasm` side by side; `cc.py` for micro-programs), first on
+fn_8006EEF8 (the smallest run's only blocker), then on the three 90%+ blockers of fn_8008057C..fn_800812A4. No draft
+was edited; the two fixes that generalise went into tools/draft_batch.py.
+
+**What the compiler does with locals at `-opt level=0` (micro-programs, GC/2.6, game flags; this corrects step 84
+item 1):**
+1. **Callee-saved registers go by use count, from r31 down; the declaration order is only the tie-break.** `u32 alpha;
+   s32 i; u32 beta;` with i used most gives i r31, alpha r30, beta r29; `s32 i; u32 alpha; u32 beta; s32 k;` with k used
+   27 times gives k r31, i r30. Step 84's `int a; int b; int c;` test had equal counts, which is why it read as
+   declaration order. A local that is read keeps its rank; a local that is only written (`dead++;`, `if (i) dead = 1;
+   else dead = 2;`, `dead = dead;`, or any local referenced only in code the compiler removes, `if (0) { dead = 1;
+   GXSetNumChans(dead); }`) is appended AFTER the live locals (it still gets a saved register when its writes survive
+   to allocation, none when the compiler drops them first), so it can never make a gap between two live locals.
+2. **A gap register (saved, never used) between two live locals is a pointer local to a stack object, assigned (not
+   initialised) and used through members only**: `Vec *pp; ... pp = &p; pp->x = ...;` ranks by its use count like any
+   local and takes its register, and then the peephole folds every `pp->m` onto `r1` (`stfs f0, 0xc(r1)`) and drops
+   the `addi r30, r1, 8`, leaving the register saved and unused. With an initialiser (`Vec *pp = &p;`) the `addi` stays
+   and the accesses go through the register; as a call argument (`PSMTXMultVec(m, pp, pp)`) it stays too (`mr r4,
+   r30`). The stores through the pointer are still pointer stores for the scheduler (they conflict with every memory
+   access, step 84 item 3), so where the pointer is used changes the schedule of that block.
+3. **`clrlwi rD, rS, 24` on a copy** is the widening of a u8 local into a wider one: `u32 alpha; u8 up; ... alpha =
+   up;` (the compiler keeps a u8 register local untruncated after `up -= 0x1C`, so the copy into a u32 truncates);
+   `alpha = down` with `s32 down` is a plain `mr`. Two u8 locals copy with `mr` whatever the casts.
+4. **Initialisers run in declaration order; an assignment statement runs where it stands**: `li r27, 0xfc; li r26,
+   0; li r28, 0x2a` with n's register above up's and down's is `u16 n; u8 up = 0xFC; s32 down = 0; ... n = 42;`.
+5. **A pool constant the compiler owns moves freely, an extern does not**: `lfs f0, 0.0f` is scheduled above a `stb`
+   through a pointer parameter when it is the file's own literal; written as `extern f32 lbl_80450E5C` it waits behind
+   the store (an extern may alias with the pointer). The same function's `x + 3.875f < 255.0f` matches only with the
+   externs: as literals the compiler swaps the `fadds` operands (fn_80080A94, generator rule `store_literals` below).
+
+**fn_8006EEF8** (0xBCC, the only blocker of fn_8006EEF8..fn_8006FDD0): step 83's 73% (557 of 755 words) had the frame
+wrong; with the rules above the frame is now exact - r31 i, **r30 the gap** (`Vec *pp;` declared between i and alpha,
+`pp = &p;` before the second p group of each branch and that group's three stores through it: 8 uses, between alpha's
+11 and i's 18), r29 `u32 alpha`, r28 `u16 n` (assigned `n = 42;` after the declarations), r27 `u8 up = 0xFC`, r26
+`s32 down = 0`, `clrlwi r29, r27, 24` on `alpha = up`, the three initial `li` in the original's order, 755 words. Score
+548 of 755 by position (72.6%; 673 of 755 with the register numbers masked). What is left is the scheduler's priority
+inside the vertex blocks that follow a `GXBegin`: the original hoists the pool loads of the next conversion (`lfd`
+0x4330..., `lfs` 0.5f) above the write-gather stores and issues each store's `lis 0xcc01` late, ours hoists the `lis`
+and issues the loads late; the else branch's first group schedules the u16 conversion first in the original and in
+our odd branch, the s32 one first in our else branch (the same source: the pointer stores of rule 2 perturb whichever
+group carries them, and every placement of the pointer over the four p groups, with 1-3 members through it, was
+tried: 503-548). Also without effect: volatile or not on the pipe union, `*(volatile f32 *) 0xCC008000`, the SDK's
+`GXWGFifo`, a far extern symbol for the pipe (much worse: 643 words), colour parameters u8 / u32 / macro, one
+position+colour helper, the six orders of the three-float groups (per group and globally). The run stays open; the
+best C (`v13.c`) and the harness are in the step 85 log, the draft stays m2c's.
+
+**fn_8008057C..fn_800812A4's near-misses**, hand-matched and then put into the generator (3+ drafts carry each
+pattern):
+- **fn_80080B80 92 -> 100%, `fold_temp_compound` (default)**: m2c's `temp_r3_44 = p->a->b; M2C_FIELD(temp_r3_44, f32 *,
+  0x14) = (f32) ((f64) M2C_FIELD(temp_r3_44, f32 *, 0x14) + lbl_80450E70);` makes the temporary a local of the draft
+  (a callee-saved register, `lwz r30, 4(r3)`, saved and restored); the original evaluated the address once inside a
+  compound assignment and kept it in r3 (`lwz r3, 4(r3); lfs f1, 0x14(r3); ...; stfs f0, 0x14(r3)`). The rule folds
+  `temp_rN = ADDR; FIELD(temp) op= RHS` and the `(f32) ((f64) FIELD(temp) + C)` form into `FIELD(ADDR) op= RHS;` when
+  the register is r3-r12 (a temporary: a local the original kept across a call would be callee-saved), the temporary
+  has no other use, and C is a double (a literal without f suffix or an .sdata2 double), then drops the declaration.
+  The `|=` / `&=` form occurs in 67 drafts, the f64 form in 3.
+- **fn_80080A94 98 -> 100%, `store_literals` (a variant)**: rule 5 above; the 0.0f written as the literal only where a
+  constant is a whole stored value (`= (f32) lbl_80450E5C;` -> `= 0.0f;`), the constants in arithmetic and compares
+  left as externs (`float_literals`, which converts all of them, gives 91%). Like `float_literals` the draft then owns
+  that pool constant (the file run's data).
+- **fn_80080FD8 92 -> 93%** (the fold applied to its `|=` and `+= 0.1` temporaries): the original saves r27-r31 and
+  uses only r31 (arg0), r30 (`var_r30`) and r28 (`var_r28`): two more rule-2 pointer locals, in r29 and r27, whose
+  placement is unknown (not tried: the run has four more blockers at 54-78%).
+
+**Before -> after** (full batch 12 runs): compile 1,706 -> 1,706 of 1,751, **100% MATCH 480 -> 483**
+(cr_Vec3_Normalize 98% -> 100%, fn_80080A94 98% -> 100%, fn_80080B80 92% -> 100%), bytes equal 521,296 -> 521,432; 80-99% 215 -> 213; 170 drafts up (cr_Vec3_Normalize 98 -> 100% through store_literals too, fn_8007D638 77 -> 92%, about 120 handler drafts by one point through the fold), 11 down by 1-4 points (fn_8006B144 31 -> 27%, fn_800FEFF8 93 -> 90%, fn_800FBDF8 86 -> 83%, cr_CM_WAIT 52 -> 49%: a folded temporary where the original did keep a local or evaluated the address twice), 0 match lost.
+Linked: **444 game objects (439 promoted, 4 file objects, 1 kept)**, 647 of 924 units from C, **22.20% of main.dol's code**,
+5.90% of its data. Checks: batch 9 retail SHA-1, every C object 100%, relocations OK, static shift PASS; batch 8 0 FAIL;
+checksums written (the 3 decompiled\ lines kept at the committed values). No run closed, so batch 11 was not run.
+
+The run table after step 85 (promote_report.txt "file runs"). fn_80080A94 now owns its 0.0f, so its run is recomputed from its
+pool: fn_80080A94..fn_800812A4, 9 functions, 5 at 100%, 4 blockers (was fn_8008057C..fn_800812A4, 11 functions, 7 blockers);
+fn_80080A94 and cr_Vec3_Normalize match but wait for their runs ("has data of its own"), fn_80080B80 is promoted:
+
+| run (first..last) | span | functions | at 100% | blockers | blocker bytes | blockers (size, match) |
+|---|---|---|---|---|---|---|
+| fn_8002444C..fn_8002444C | 0x8002444C-0x80024578 | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_8002444C_fn_8002444C.c (.sdata2 0x804504E8-0x80450518) |
+| fn_8005C4D0..fn_8005C4D0 | 0x8005C4D0-0x8005C628 | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_8005C4D0_fn_8005C4D0.c (.sdata2 0x804509A0-0x804509A8) |
+| fn_800AA130..fn_800AA130 | 0x800AA130-0x800AA17C | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_800AA130_fn_800AA130.c (.data 0x8022B130-0x8022B204) |
+| fn_80111EEC..fn_80111EEC | 0x80111EEC-0x8011214C | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_80111EEC_fn_80111EEC.c (.sdata2 0x80451888-0x80451890) |
+| fn_8006EEF8..fn_8006FDD0 | 0x8006EEF8-0x8006FE38 | 7 | 6 | 1 | 0xBCC | fn_8006EEF8 (0xBCC, 32%) |
+| fn_80080A94..fn_800812A4 | 0x80080A94-0x80081430 | 9 | 5 | 4 | 0x640 | fn_80080C7C (0x1A8, 63%), fn_80080E24 (0xFC, 78%), fn_80080FD8 (0x210, 93%), fn_800812A4 (0x18C, 54%) |
+| fn_80080C7C..fn_800812A4 | 0x80080C7C-0x80081430 | 7 | 3 | 4 | 0x640 | fn_80080C7C (0x1A8, 63%), fn_80080E24 (0xFC, 78%), fn_80080FD8 (0x210, 93%), fn_800812A4 (0x18C, 54%) |
+| fn_8008A0A8..fn_8008BD50 | 0x8008A0A8-0x8008BED4 | 11 | 6 | 5 | 0x14AC | fn_8008A484 (0x22C, 56%), fn_8008A6B0 (0x200, 63%), fn_8008A8B0 (0x238, 57%), fn_8008AAE8 (0x204, 55%), fn_8008ACEC (0xC44, compile failed illegal type) |
+| fn_800057B8..fn_8000805C | 0x800057B8-0x8000860C | 16 | 11 | 5 | 0x171C | fn_800057B8 (0x3D0, 43%), fn_80005BC8 (0x170, 56%), cr_BattleRobo_InitFromLoadout (0x8B4, 36%), fn_80007CE4 (0x378, 65%), fn_8000805C (0x5B0, 67%) |
+| fn_80076B2C..fn_80079C70 | 0x80076B2C-0x80079CB8 | 31 | 19 | 12 | 0x24F8 | fn_80076B2C (0x764, 44%), fn_800779A8 (0x2B4, 57%), fn_80077C5C (0x2DC, 56%), fn_80078000 (0x438, 12%), fn_800784B0 (0x6B0, 47%), fn_80078B60 (0x140, 86%) ... +6 more |
+| fn_8007D0D4..fn_8007FCD8 | 0x8007D0D4-0x8008052C | 18 | 6 | 12 | 0x2FF4 | fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 92%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%), fn_8007DD60 (0x6A0, 38%) ... +6 more |
+| fn_8007D3C8..fn_8007FCD8 | 0x8007D3C8-0x8008052C | 14 | 2 | 12 | 0x2FF4 | fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 92%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%), fn_8007DD60 (0x6A0, 38%) ... +6 more |
+| fn_8007C094..fn_8007FCD8 | 0x8007C094-0x8008052C | 22 | 9 | 13 | 0x3BF0 | fn_8007C094 (0xBFC, compile failed illegal operand), fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 92%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%) ... +7 more |
+| fn_8010E47C..fn_80112A0C | 0x8010E47C-0x80112AB8 | 27 | 13 | 14 | 0x3E70 | fn_8010E47C (0x3A4, 75%), fn_8010E820 (0x1BC, 53%), fn_8010E9DC (0x180, 48%), fn_8010EB5C (0x520, 55%), fn_8010F07C (0x800, 12%), fn_8010F87C (0x4BC, 18%) ... +8 more |
+| cr_Bgm_GetVolume..fn_80098484 | 0x80096594-0x80098F4C | 25 | 8 | 17 | 0x272C | fn_800965F4 (0x160, 44%), fn_80096754 (0x160, 70%), fn_800968B4 (0x374, 57%), fn_80096C28 (0x100, 68%), fn_80096D28 (0x100, 75%), fn_80096E28 (0x94, 65%) ... +11 more |
+| fn_800527D4..fn_8005BE70 | 0x800527D4-0x8005BEC8 | 18 | 1 | 17 | 0x9610 | fn_800528B8 (0xE4, 68%), fn_8005299C (0xA94, 17%), fn_80053430 (0x5F0, 27%), fn_80053A20 (0x388, 96%), fn_80053DA8 (0x490, 26%), fn_80054238 (0x1ECC, 16%) ... +11 more |
+| fn_80081440..fn_80089140 | 0x80081440-0x80089550 | 27 | 3 | 24 | 0x77BC | fn_80081440 (0x4C8, 45%), fn_80081908 (0x24C, 7%), fn_80081B54 (0x248, 48%), fn_80081D9C (0x5C8, 34%), fn_80082364 (0x69C, 25%), fn_80082A00 (0x584, 21%) ... +18 more |
+| fn_80067904..fn_8006B3D0 | 0x80067904-0x8006B46C | 42 | 10 | 32 | 0x3920 | fn_80067904 (0xA54, 10%), fn_80068420 (0x26C, 58%), fn_8006868C (0x2EC, 68%), fn_80068988 (0xEC, 77%), cr_Text_CountChars (0xDC, 60%), fn_80068B84 (0xF8, 51%) ... +26 more |
+| fn_8001B1D4..fn_8001F060 | 0x8001B1D4-0x8001F350 | 72 | 32 | 40 | 0x3680 | fn_8001B29C (0xEC, 66%), cr_Rand_Float (0x68, 44%), cr_Vec3_Distance (0x1A8, 71%), fn_8001B6EC (0x668, 52%), cr_Vec3_RotateY (0x1B0, 87%), cr_Vec3_RotateAboutAxis (0x6A8, 70%) ... +34 more |
+| fn_80024148..fn_80036FB0 | 0x80024148-0x800373AC | 76 | 15 | 61 | 0x127EC | fn_8002419C (0x2B0, 18%), fn_80024634 (0x19C, 34%), cr_CamMode_DefaultStart (0x60, 70%), fn_80024848 (0x17C, 74%), cr_CAMMODE_SNR_AUTO_Y_ANG_Frame (0xC4, 63%), fn_80024A88 (0x13C, 69%) ... +55 more |
+| fn_8008A484..fn_80093AF0 | 0x8008A484-0x80093C30 | 87 | 25 | 62 | 0x8CA4 | fn_8008A484 (0x22C, 56%), fn_8008A6B0 (0x200, 63%), fn_8008A8B0 (0x238, 57%), fn_8008AAE8 (0x204, 55%), fn_8008ACEC (0xC44, compile failed illegal type), fn_8008BED4 (0x180, 96%) ... +56 more |
+| fn_801147B4..fn_80124F5C | 0x801147B4-0x80125884 | 79 | 16 | 63 | 0x10850 | fn_801147B4 (0x294, 70%), fn_80114A48 (0x470, 44%), fn_80114EB8 (0x284, 62%), fn_8011513C (0x470, 44%), fn_801155AC (0x36C, 85%), fn_80115918 (0x1F8, 49%) ... +57 more |
+| fn_8000768C..fn_801314D4 | 0x8000768C-0x80131910 | 1739 | 476 | 1263 | 0x11AC70 | fn_80007CE4 (0x378, 65%), fn_8000805C (0x5B0, 67%), fn_8000860C (0x180, 89%), cr_Game_Update (0x474, 75%), fn_80008CB0 (0x110, 37%), fn_80009018 (0x554, 79%) ... +1257 more |
+
+**Left**: fn_8006EEF8's vertex-block schedule (the compiler's priority, as the handler head of step 84: not a spelling),
+fn_80080FD8's two gap pointers, the other blockers of the table; rule 2 is the mechanism behind the register gaps of
+the ~198 unmatched game functions that save a register they never use (step 83): each needs a pointer local to a
+stack object with the right use count, which a generator cannot guess but a hand match can.
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.
