@@ -992,6 +992,35 @@ fn_80080FD8's two gap pointers, the other blockers of the table; rule 2 is the m
 the ~198 unmatched game functions that save a register they never use (step 83): each needs a pointer local to a
 stack object with the right use count, which a generator cannot guess but a hand match can.
 
+### Step 91: the near misses labelled, the handler head's missing instruction (Oct 31, 2026, branch sched-d)
+
+**Labels** (tools/sched/label_drafts.py -> decomp/reports/sched_labels.txt): the 213 drafts at 80-99% of the last
+batch 12, compiled again and compared with the original block by block (blocks end at branches, labels and calls, as
+the compiler's PCode does; registers masked):
+
+| Label | Drafts | of them handlers (cr_*_ script commands) |
+|---|---|---|
+| structural (other instructions in at least one block) | 156 (96 + 60 with the frame too) | 22 |
+| schedule-only (every block has the original's instructions, in another order) | 36 (28 + 8 with the frame too) | 17 |
+| register-only (the body is the original once register numbers are masked) | 19 (17 + 2 with the frame too) | 0 |
+| frame (only the prologue / epilogue differ) | 2 | 0 |
+
+A schedule-only draft needs only the right first-pass input order (a statement order or expression shape); a
+register-only one is the colouring (locals' use counts, step 85 rule 1); structural ones need the generator.
+The handlers at 80-99% are 39 of the ~220 script-command drafts (the others are below 80%).
+
+**cr_CM_DUMMY_008** (docs/sched_model.md section 14): base.c's first-pass PCode, with one extra integer instruction
+that the passes after the first scheduling delete, reproduces the original's 38 words exactly in the replay: a
+copy into a register just before its definition (any of 1,092 placements found) or an in-place operation on the PC
+local right after its load (156 placements); without it the ceiling is 25 of 38. The hook shows what the compiler
+deletes between the passes for base.c: only the folded counter pointer's `addi`; for fn_8006EEF8 also redundant
+`clrlwi` of the u8 alpha before its `stb` and duplicate `lis`. No C spelling tried produces the extra instruction:
+A compiled sweep of 256 shapes (tools/sched/corpus/shp, the eight statement orders of the synthetic solutions x no
+extra / a second `pc = cr_g_ScriptPC;` / `pc = 0;` / `pc = (s16 *) cmd_cnt;` / a second counter-pointer assignment /
+`cmd_cnt = 0;` at three places x both declaration orders, scored with hd/pr.py) gives at best 18 of 38 by position
+(the step 84 ceiling); every extra statement stays in the code (39-40 words): the level-0 compiler does not delete
+dead local writes. The head stays at its 85% family ceiling; no generator rule, no batch run.
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.

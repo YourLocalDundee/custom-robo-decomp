@@ -82,6 +82,8 @@ Anything found collapses Phase C.
 
 **Step 89 (Oct 31, 2026, branch sched-c, docs/sched_model.md sections 10-13):** C5 done: a replacement lmgr326b.dll in the analysis copy of the compiler folder logs the compiler's scheduler input, DAG and picks, and the replay matches it on 118 of 118 scheduled blocks of the corpus (both passes). What was missing in step 87 was in the input: a call ends a PCode block, the final pass reschedules every block changed after the first pass (flag 8 cleared by any insertion / deletion), pointer locals carry set aliases. C7 for cr_CM_DUMMY_008: the original is reachable from base.c's instructions after the first pass but not as base.c's first pass (best 25 of 38): the source had an instruction deleted later. Next: shapes with a deletable copy, scored with the inverse search.
 
+**Step 91 (Oct 31, 2026, branch sched-d, docs/sched_model.md section 14):** the handler head needs one more integer instruction in the first-pass input that a later pass deletes (synthetic: 38 of 38; without it 25); no C spelling tried produces it. The near misses are labelled (tools/sched/label_drafts.py): 36 of the 213 drafts at 80-99% are schedule-only.
+
 ## 5. Phase B: the permuter in the background (about 2 hours to set up, then unattended)
 
 - Clone simonlindholm/decomp-permuter into tools/downloads (untrusted download: its own empty directory, hash
