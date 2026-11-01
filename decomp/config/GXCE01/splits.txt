@@ -1006,6 +1006,9 @@ game/fn_800A5844.c:
 game/fn_800A5890.c:
 	.text       start:0x800A5890 end:0x800A5894
 
+game/fn_800A5C60.c:
+	.text       start:0x800A5C60 end:0x800A5F3C
+
 game/fn_800AA130_fn_800AA130.c:
 	.text       start:0x800AA130 end:0x800AA17C
 	.data       start:0x8022B130 end:0x8022B204
@@ -1066,6 +1069,9 @@ game/fn_800B1B18.c:
 
 game/fn_800B1B1C.c:
 	.text       start:0x800B1B1C end:0x800B1B2C
+
+game/fn_800B4710.c:
+	.text       start:0x800B4710 end:0x800B47F0
 
 game/fn_800B5418.c:
 	.text       start:0x800B5418 end:0x800B54E8

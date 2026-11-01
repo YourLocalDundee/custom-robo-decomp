@@ -1107,6 +1107,14 @@ dead local writes. The head stays at its 85% family ceiling; no generator rule, 
   from another checkout keeps that checkout's ctx_protos.h, and a batch 12 run before batch 9 rebuilds the worktree's
   asm writes a ctx_protos.h with stale types (85 compile failures, 470 at 100% in this step's first run).
 
+### Step 95: a masked index into a field as byte arithmetic (Nov 1, 2026, branch sched-h)
+
+- **`masked_index_field`** (a variant, tools/draft_batch.py): m2c reads a `clrlslwi` on a u8 / u16 index as
+  `M2C_FIELD(&B[(X * N) & MASK], T, OFF)`; the variant writes `*(T) (B + OFF + X * N)`. The words are the same; the
+  order differs. fn_800B4710 (schedule-only, the HSD_JObjDispAll arguments): `li r6, 0` issues before the jobj's
+  load in the original and after it in m2c's form, 50 of 56 -> 56 of 56. Of the 15 drafts with the pattern, two go to
+  100%: fn_800B4710 and fn_800A5C60. Full batch 12: 488 -> 490 at 100%, 46 compile failures, 521,988 bytes equal.
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.

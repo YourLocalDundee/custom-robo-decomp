@@ -2458,6 +2458,15 @@ def widen_narrow_params(body):
     return body[:k] + sig + body[i:]
 
 
+def masked_index_field(body):
+    """step 95, a variant: m2c's `M2C_FIELD(&B[(X * N) & MASK], T, OFF)` (its reading of a `clrlslwi` on a u8 / u16
+    index) written as the byte arithmetic `*(T) (B + OFF + X * N)`. The original computed the element's address in
+    one expression; the masked index and the field macro give the same words in another order (fn_800B4710: the
+    call arguments of HSD_JObjDispAll, 50 -> 56 of 56; docs/drafts.md "Step 95")."""
+    return re.sub(r'M2C_FIELD\(&(\w+)\[\((\w+) \* (\d+)\) & 0x[0-9A-Fa-f]+\], ([^,()]+), (0x[0-9A-Fa-f]+|\d+)\)',
+                  r'*(\4) (\1 + \5 + \2 * \3)', body)
+
+
 def postprocess(body, skip=(), add=()):
     """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
     for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
@@ -2468,7 +2477,7 @@ def postprocess(body, skip=(), add=()):
               param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
               float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound,
               script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, struct_byte_offset, indexed_offset,
-              fold_temp_compound, store_literals, hoist_float_temps, widen_narrow_params):
+              fold_temp_compound, store_literals, hoist_float_temps, widen_narrow_params, masked_index_field):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -2478,7 +2487,7 @@ def postprocess(body, skip=(), add=()):
 # (rules left out, optional rules applied)
 OPTIONAL = (void_null, pointer_tests, drop_same_assign_casts, param_homes, float_literals, drop_same_field_casts, table_call_noargs, unsigned_fields, hsd_inlines, stack_struct, alias_offsets,
             redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign, drop_same_member_casts, expand_ptr_compound, store_literals,
-            hoist_float_temps, widen_narrow_params)
+            hoist_float_temps, widen_narrow_params, masked_index_field)
 VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
             ((), (void_null,)), ((register_order,), (void_null,)),
             # step 69
@@ -2497,7 +2506,9 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             # step 92: float temporaries before the stores
             ((), (hoist_float_temps,)),
             # step 93: narrow parameters declared int
-            ((), (widen_narrow_params,)), ((register_order,), (widen_narrow_params,)))
+            ((), (widen_narrow_params,)), ((register_order,), (widen_narrow_params,)),
+            # step 95: a masked index into a field as byte arithmetic
+            ((), (masked_index_field,)), ((register_order,), (masked_index_field,)))
 
 
 VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this
