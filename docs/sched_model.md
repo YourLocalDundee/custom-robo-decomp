@@ -19,13 +19,26 @@ fixed point of the final pass, but no statement order of that C gives the origin
 what is missing is the source, not the scheduler. fn_8006EEF8's vertex blocks still disagree inside the first pass
 (section 6).
 
+**Step 89 (Oct 31, 2026, branch sched-c): the hook.** A replacement lmgr326b.dll in the analysis copy of the
+compiler folder logs the compiler's own scheduler input, DAG and every pick (section 10). Against it **the replay is
+exact: on all 59 corpus files, 118 of 118 scheduled blocks (both passes) get the compiler's DAG from the logged PCode
+and the compiler's pick sequence from the logged DAG** (tools/sched/corpus_report.txt, last lines). The disagreements
+left in the listing-based measurement (79 of 89 blocks through both passes after this step's fixes) are all in the
+input, not in the scheduler: the no-schedule listing is not the first pass's PCode (section 11). The hook settled the
+q-vector pick (a call ends a PCode block, so heights and deadlines are per call segment), the flag meanings, the alias
+sets of pointer locals, and what clears flag 8 (an instruction inserted into or deleted from a block after the first
+pass). Inverse search for cr_CM_DUMMY_008 (section 12): base.c's PCode admits a first-pass output order that the
+final pass turns into the original's 38 words exactly, but no input order of that PCode makes the first pass produce
+it (best 25 of 38): the original's first-pass input holds instructions base.c's does not.
+
 ## 1. Sources (reference only: tools/downloads, gitignored, never run)
 
 | Repository | Commit (shallow clone, Oct 31, 2026) | What was used |
 |---|---|---|
 | https://github.com/rayanht/mwcc | 92f893fbcbb23d9833be5fc24ac9e069090f8729 | `src/backend/Scheduler.c` (the 1.x algorithm), `MachineSimulation750.c` / `603.c` (the 1.x unit simulations and tables) |
 | https://github.com/inspiredrobot/mwcc | ef08e865561446c072f457eaf89bde9030cccb30 | its docs folder: SCHEDULER.md (the GC/1.2.5 model, the rank table) and PASS_PIPELINE.md |
-| https://github.com/zcanann/mwcc-rs | c00fecefe48b73be47af50f447822697bd8a1683 | `crates/pipeline/mwcc-pcode-to-machine-code/src/schedule.rs` (its 2.x switches, compared in section 5) |
+| https://github.com/zcanann/mwcc-rs | c00fecefe48b73be47af50f447822697bd8a1683 | `crates/pipeline/mwcc-pcode-to-machine-code/src/schedule.rs` (its 2.x switches, compared in section 5; hypotheses only: its own parity status reports no exactly matching functions, so it is not a tested oracle) |
+| https://github.com/Savestate2A03/mwcc_debug | c18a6d7b3f0b2ad9a7865bfdde0e73260f56273d | the approach of the hook (a replacement lmgr326b.dll that answers the licence calls and patches the compiler from DllMain); none of its code is used |
 | https://github.com/cadmic/mwcc-debugger | bad9cea2423bed957188c930086f9dabe669d30c | the GC/2.6 addresses: opcode table 0x5C0FA8 (471 records of 18 bytes), PCode block list 0x5EA748, the pass breakpoints |
 
 The GC/2.6 binary read here is an analysis copy, `tools/sched/bin/mwcceppc.exe` (gitignored, SHA-1
@@ -127,12 +140,15 @@ The pipeline (sched_community.md section 4): initial code -> first scheduling (v
 Schedule(0)`) -> peephole forward -> register colouring -> prologue / epilogue -> peephole -> final scheduling
 (`Scheduler_Schedule(1)`, physical registers). Measured with the replay:
 
-1. **The final pass reschedules only the blocks that received the epilogue.** A block scheduled in the first pass
-   keeps flag 8 and the final pass skips it; leaf blocks without frame code come out exactly in first-pass order (the
-   final pass run on them breaks 21 of 63 blocks), and the entry block of fn_8006EEF8 keeps its prologue in front of
-   the first-pass body (rescheduling it moves 40 of its 105 words). Measured: "final pass on every block" 36 / 63,
-   "on every block with frame code" 57 / 63 (61 / 63 fixed points), "on the epilogue blocks" 57 / 63 (62 / 63).
-   What clears the flag of the epilogue block is not read yet.
+1. **The final pass reschedules only the blocks changed after the first pass** (step 89, from the hook's block
+   flags before and after each pass): the first pass sets flag 8 on every block it schedules, and the PCode insert
+   and delete functions clear it (`and word [block+0x2A], 0xFFF7` at 0x4DCF60 / 0x4DCFA2 next to the count increment
+   and at 0x4DCFE9 next to the decrement; the scheduler's own append, 0x4DCFF0, leaves it). So a block is
+   rescheduled when colouring, the prologue / epilogue code or the peephole inserted or deleted an instruction in it:
+   in a leaf function the body is merged with the prologue block (flags 5) and gets the frame code; in fn_8006EEF8
+   (calls: the prologue stays a block of its own) the vertex blocks lose an instruction to the peephole (48 -> 47, 101
+   -> 99) and are rescheduled. Step 87's "only the epilogue blocks" was the visible part of this rule. **A call ends
+   a PCode block** (fn_8006EEF8 is 50 blocks), so heights and deadlines are per call segment.
 2. **Frame code keeps its order** (the stfd / psq_st pairs, stmw, lmw, the LR save and restore; the 0x80 list is the
    likely carrier) and its loads / stores have no alias, so they are ordered against every memory access (the step
    84 "prologue / epilogue bound everything").
@@ -217,16 +233,93 @@ of 598 words instead of 243): the next package's hook decides it.
 | the fold on virtual registers in the first pass | p2 54 / 63 |
 | every memory access ordered in the final pass | p2 51 / 63 |
 
-## 9. Next
+## 9. The functions named in the Ghidra project
 
-The hook (sched_community.md section 5 item 3): a proxy lmgr326b.dll in an analysis copy of the GC/2.6 folder that
-breaks at `schedule_block` 0x507D80 and the pick 0x507F50 and prints, per block, the PCode in (opcode, operands,
-flags at +0x14, alias at +0x18) and each pick's candidates (height +0x16, deadline +0x14, release count), using
-cadmic's layouts. It answers: the pass-1 input of fn_8006EEF8's vertex blocks (and the q-segment pick of section 6),
-which instructions carry flags 0x80 / 0x100 / 0x1000000 / 0x20000000, what clears flag 8 of the epilogue block, and
-the alias sets of pointer accesses. With the hook's input the replay is tested without the no-schedule compile and
-without the register mapping. The functions named in the Ghidra project: Scheduler_Schedule 0x507C70,
-schedule_block_body 0x507D80, init_register_owner_lists 0x508550, build_sched_dependencies 0x508090,
-sched_register_deps 0x508390, add_dependency 0x508480, sched_store_deps 0x5082E0, select_ready_node 0x507F50,
-sched_operand_conflict 0x507BF0, alias_may_alias 0x511CE0, sched_once_init (the alias set-up) 0x511F20, m750_*
-0x57A240-0x57A830.
+Scheduler_Schedule 0x507C70, schedule_block_body 0x507D80, init_register_owner_lists 0x508550,
+build_sched_dependencies 0x508090, sched_register_deps 0x508390, add_dependency 0x508480, sched_store_deps
+0x5082E0, select_ready_node 0x507F50, sched_operand_conflict 0x507BF0, alias_may_alias 0x511CE0, sched_once_init (the
+alias set-up) 0x511F20, m750_* 0x57A240-0x57A830.
+
+## 10. The hook (step 89)
+
+`tools/sched/hook/schedhook.c` builds a replacement lmgr326b.dll for the **analysis copy** of the compiler folder,
+`tools/sched/bin/` (gitignored; the build's decomp/build/compilers is never touched). It answers the compiler's three
+licence calls (ordinals 189-191: lp_checkin, lp_checkout, lp_errstring) as the shipped stub does, and when the
+environment variable SCHEDLOG names a file and the binary is the GC/2.6 build (the string `Metrowerks` at 0x58D224)
+it patches a jump at three entry points from DllMain and writes:
+
+| Line | Hooked at | What |
+|---|---|---|
+| `S` / `B` / `A` | Scheduler_Schedule 0x507C70 | the pass argument, every block (index +0x1C, count +0x28, flags +0x2A) before and after the pass |
+| `K` / `I` | schedule_block_body 0x507D80 | the block and each PCode instruction: opcode +0x20, flags +0x14, source line +0x1C, the alias +0x18 (type +0x2C, object +0x10, offset +0x14, size +0x18, index +0x28, a set's member bits from +0x24), the operands (12 bytes each from +0x24) |
+| `N` | the first pick of a block | the DAG: per node the instruction, latency +0x10, height +0x16, deadline +0x14, predecessor count +0x18, earliest cycle +0x12, every edge with its latency |
+| `P` | select_ready_node 0x507F50 | each pick: the cycle, every ready candidate (height, deadline, release count, the model's check) and the one chosen |
+
+Built with Microsoft Visual Studio 18 Community, MSVC 14.51.36231 (cl 19.51.36260 for x86) and the Windows SDK
+10.0.26100.0 (`pwsh tools/sched/hook/build.ps1` finds them with vswhere): **analysis-only, not pinned** (setup.ps1 does
+not install a native toolchain; the owner decides whether to pin one). Tools: `python -I tools/sched/hooklog.py
+FILE.c` (one compile through the analysis copy with the game flags, the log in tools/sched/corpus), `--all` (every
+corpus file), `python -I tools/sched/hookcheck.py LOG ...` (the replay against the log: DAG and picks);
+`replay.py --corpus` adds the hook totals to the corpus report.
+
+## 11. What the hook settled
+
+- **The replay is exact against the compiler**: 118 of 118 scheduled blocks of the 59 corpus logs, both passes, DAG
+  and pick sequence. The fixes it took: a register operand that is both used and defined counts as a def only
+  (0x508390 takes `flags & 2`: a call's argument registers, `stwu`'s r1); lmw / stmw latency + PCode operand count - 2
+  where the PCode lists every saved register (stmw r14: 20 operands, latency 20); memory edges through the logged 2.x
+  aliases (type 0 object, 1 range, 2 set with member bits; `alias_may_alias` 0x511CE0 reimplemented in
+  hookcheck.Alias): loads (flags 0x20002) wait for later aliasing stores, stores (0x40004) for later aliasing loads
+  and stores; the barrier flags 0x1000000 / 0x100 and the in-order flag 0x80. The pick and the 750 machine needed no
+  change.
+- **(a) fn_8006EEF8 and the q-vector pick.** A call ends a PCode block, so the q segment (16 instructions before
+  PSMTXMultVec) is a block of its own: max height 10, and the heights decide between the `stw` and the `lfs`. Step
+  87's listing replay treated the whole 285-instruction run as one block, so its deadlines were wrong. With blocks
+  split at calls (replay.py `SPLIT_CALLS`) fn_8006EEF8's listing replay goes from 2 of 4 to 24 of 30 first-pass
+  blocks; the vertex blocks still differ in the listing replay because they are rescheduled by the final pass after
+  the peephole deleted an instruction (section 4 item 1), which the no-schedule listing does not show.
+- **(b) Flags** (counted over every logged instruction): 0x1 branch, 0x2 load, 0x4 store, 0x8 call, 0x10 a copy (mr),
+  0x20 an access through a pointer (set alias), 0x40 seen on float loads / stores of constants and stack vectors (not
+  decoded), **0x80 the in-order list: volatile accesses (the write-gather pipe's stb / stfs) and the frame saves /
+  restores**, **0x100 a barrier: the frame's psq_l / psq_st**, 0x2000 / 0x4000000 on add, 0x4000 / 0x80000000 on
+  simple integer ops, 0x400000 / 0x8000000 on addi, **0x1000000 a barrier: calls**, 0x2000000 calls, branches and
+  stwu, **0x20000000 calls and branches** (getLatency's +2 is masked by flags & 9, so it never applies), 0x40000000
+  float arithmetic.
+- **(c) Pointer-local aliases.** An access through a pointer local gets a set alias (type 2) whose members are the
+  objects whose address is taken or that are global, not every object: in m_o7 the epilogue's set does not hold the
+  local stored at 8(r1), so the frame code does not wait for it. The listing replay's "pointer local = worst case" is
+  right for globals and too strong for private stack objects.
+- **(d) What clears flag 8**: section 4 item 1.
+
+The listing-based corpus report (79 of 89 blocks through both passes, 63 of 69 first-pass-only, after this step's
+fixes: calls end blocks, the "changed" final-pass rule, the stmw latency) keeps its value as the measure of what a
+no-schedule compile can tell; its remaining misses are input differences: the vertex blocks of fn_8006EEF8 (the
+deleted instruction), m_r1 / m_r7 (pointer-local aliases and colouring), m_o5 (a load the unscheduled compile drops).
+
+## 12. The inverse search for cr_CM_DUMMY_008 (scheduler_plan.md C7)
+
+`tools/sched/scratch/hd/inv/inverse.py` works on the hook's PCode of a C file: it anneals over first-pass input orders
+(a definition before its uses; accesses of different statements that alias keep their order), replays the first
+pass, colours the result with the original's registers (one consistent virtual -> physical map; the folded counter
+pointer's uses rewritten onto its base), replays the final pass with the logged prologue and epilogue, and counts the
+original's words. Self-test: base.c's own order gives the compiler's 38 words exactly.
+
+| Search | Result (words of 38 equal to the original, registers included) |
+|---|---|
+| base.c's 7 statements in every order (1,260; 18 keep the aliasing order) | 25 |
+| any instruction-level input order of base.c's 32 PCode instructions (annealing, 6-8 restarts of 4,000-6,000 steps; with and without the aliasing-order rule; the counter pointer or the PC load given an object alias) | 24-25 |
+| the first pass's OUTPUT order searched directly (DIRECT) | **38**: an order exists that the final pass turns into the original |
+| input orders scored against that one output order (PTARGET) | 8 of 32 positions |
+| other pointer-local shapes: a history-element pointer (i_hist.c), a pointer to history_index (i_idx.c), a state pointer (i_state.c) | 28 / 0 / 0 even as DIRECT (the compiler on them: 12, 4, 2 of 38 by position) |
+
+So the original's words are consistent with base.c's instruction semantics after the first pass, but not as a first
+pass of base.c's PCode: the original's first-pass input had instructions that are gone from the final code (deleted
+after the first pass, which also makes the final pass reschedule the block), for example a copy the colouring
+coalesced. No shape matched, so no draft_batch rule was written and batches 12 / 9 / 8 were not run. fn_8006EEF8 was
+not searched (its vertex blocks are final-pass blocks for the same reason).
+
+## 13. Next
+
+Generate C shapes that add a deletable instruction to the head (a copy into a local, a temporary that colouring
+merges, a second pointer local) and score each one's hook PCode with inverse.py: the right shape's first pass has to
+produce one of the DIRECT outputs. Then the same for the vertex blocks of fn_8006EEF8.

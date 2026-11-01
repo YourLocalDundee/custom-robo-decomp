@@ -348,6 +348,8 @@ def annotate_memory(block, regval=None):
 
 def may_alias(a, b, cfg):
     """two memory objects (non-const); None = a pointer access"""
+    if hasattr(a, 'may') and hasattr(b, 'may'):     # logged 2.x aliases (hookcheck.Alias)
+        return a.may(b)
     if a is None or b is None:
         other = b if a is None else a
         if other is None:
@@ -362,6 +364,11 @@ def may_alias(a, b, cfg):
     if a[1] is None or b[1] is None:
         return True
     return a[1] < b[1] + b[2] and b[1] < a[1] + a[2]
+
+
+def is_write(ins):
+    f = getattr(ins, 'flags', None)
+    return bool(f & 4) if f is not None else is_store(ins.op)
 
 
 def gpr_conflict(ins, other):
@@ -422,7 +429,7 @@ class Sim750:
     def store_ok(self, ins):
         """a store does not issue while the second load / store stage holds a store (instruction flag 4)"""
         o = self.st[self.LSU2]
-        return not (self.store_rule and o is not None and is_store(ins.op) and is_store(o.op))
+        return not (self.store_rule and o is not None and is_write(ins) and is_write(o))
 
     def issue(self, ins):
         u, lat, s0, s1, s2, ser = self.info(ins)
@@ -526,7 +533,10 @@ class Config:
         self.store_rule = True      # a store waits while LSU stage 2 holds a store
         self.frame_inorder = True   # prologue / epilogue instructions keep their relative order
         self.fold = 'target'                   # the forward peephole's addi fold after the first pass
-        self.final_blocks = 'epilogue'  # final pass on: 'all' blocks | 'frame' only blocks that got frame code (the
+        self.final_blocks = 'changed'  # 'changed': blocks the passes between changed (an instruction
+                                      # inserted or deleted clears flag 8: 0x4DCF60 / 0x4DCFE9), a leaf
+                                      # function's frame block (prologue and epilogue merged into it)
+                                      # 'epilogue' /  final pass on: 'all' blocks | 'frame' only blocks that got frame code (the
                                      # first pass marks a block scheduled, flag 8, and the final pass skips it)
         for k, v in kw.items():
             setattr(self, k, v)
@@ -564,7 +574,9 @@ class Scheduler:
         if ins.rec:
             lat += 2
         if ins.op in ('lmw', 'stmw'):
-            lat += 1        # + PCode operand count - 2 (rD, d, rA)
+            # + PCode operand count - 2; the PCode lists rD, rA, d and every further register up to r31
+            n = len(ins.operands) if hasattr(ins, 'operands') else 3 + 31 - int(ins.ops[0][1:])
+            lat += n - 2
         return lat
 
     def omit_class(self, r):
@@ -636,12 +648,12 @@ class Scheduler:
                 else:
                     reads.append(n)
             # frame code keeps its order (the 0x80 instruction list of GC/2.6: each depends on every later one, 0)
-            if cfg.frame_inorder and ins.phys == 'frame':
+            if (cfg.frame_inorder and ins.phys == 'frame') or (getattr(ins, 'flags', 0) or 0) & 0x80:
                 for m in in_order:
                     self.add_dep(n, m, cfg.frame_inorder == 'lat')
                 in_order.append(n)
             # barriers
-            if self.serialize(ins):
+            if self.serialize(ins) or (getattr(ins, 'flags', 0) or 0) & 0x1000100:
                 for m in later:
                     self.add_dep(n, m, False)
                 barriers.append(n)
@@ -666,8 +678,11 @@ class Scheduler:
         """block: list of Ins in program order -> scheduled list of Ins"""
         if len(block) <= 2:
             return list(block)
+        return self.run(self.build(block, final), final, trace)
+
+    def run(self, nodes, final=False, trace=None):
+        """the cycle loop over a built DAG (nodes in program order) -> the scheduled list of instructions"""
         cfg = self.cfg
-        nodes = self.build(block, final)
         sim = (Sim750 if cfg.model == '750' else Sim603)(self.model['ops'])
         sim.iu_conflict = cfg.iu_conflict
         sim.store_rule = cfg.store_rule
@@ -735,6 +750,9 @@ def is_block_end(text):
     return op.startswith('b') and op not in ('bl', 'bctrl', 'blrl')
 
 
+SPLIT_CALLS = [True]    # a call ends a PCode block (the hook: fn_8006EEF8 is 50 blocks, one per call)
+
+
 def blocks_of(lines):
     """listing lines (with 'LBL:' markers) -> list of blocks (lists of instruction text)"""
     out, cur = [], []
@@ -745,7 +763,7 @@ def blocks_of(lines):
             cur = []
             continue
         cur.append(l)
-        if is_block_end(l):
+        if is_block_end(l) or (SPLIT_CALLS[0] and l.split(None, 1)[0] in ('bl', 'bctrl', 'blrl')):
             out.append(cur)
             cur = []
     if cur:
@@ -916,7 +934,7 @@ def run_final(sched, block_texts, frames=None):
     out = []
     for k, b in enumerate(block_texts):
         fb = sched.cfg.final_blocks
-        if frames is not None and ((fb == 'frame' and not frames[k]) or
+        if frames is not None and ((fb in ('frame', 'changed') and not frames[k]) or
                                    (fb == 'epilogue' and not (frames[k] and b and b[-1].startswith('blr')))):
             out.append(list(b))
             continue
@@ -1010,6 +1028,18 @@ def fold_to_target(p1, tbody):
     return [t for t in out if t is not None]
 
 
+def resched_flags(p1_blocks, target_blocks, listing):
+    """which blocks the final pass schedules ('changed'): a leaf function's blocks with frame code (merged with the
+    prologue / epilogue blocks), and every block whose instructions differ from the first pass's (colouring, the
+    peephole: an insertion or deletion clears flag 8)"""
+    leaf = not any(t.split(None, 1)[0] in ('bl', 'bctrl', 'blrl') for t in listing if not t.startswith('LBL:'))
+    out = []
+    for p1, (tb, tf, _) in zip(p1_blocks, target_blocks):
+        changed = sorted(mask(t) for t in p1) != sorted(mask(t) for t in tb)
+        out.append(bool((tf and leaf) or changed))
+    return out
+
+
 def two_pass(sched_final, p1_blocks, target_blocks):
     """the replay of both passes: the first pass's order with the compiler's physical registers (each instruction
     mapped onto the target's instruction by map_registers, the post-colouring addi fold by fold_to_target) and the
@@ -1089,7 +1119,8 @@ def measure(man, tables, cfg, detail=None):
                 if detail is not None and a != b:
                     detail.append((fid, fn, k, a, b, c))
             full = two_pass(s2, p1, sb)
-            fin = run_final(s2, full, [bool(f) for _, f, _ in sb])
+            rs = resched_flags(p1, sb, lst['sched']) if cfg.final_blocks == 'changed' else [bool(f) for _, f, _ in sb]
+            fin = run_final(s2, full, rs)
             tgt = blocks_of(lst['sched'])
             for r, b in zip(fin, tgt):
                 if len(b) <= 2:
@@ -1100,7 +1131,7 @@ def measure(man, tables, cfg, detail=None):
                 p, l, n = score(a2, b2)
                 fc['p2_pos'] += p
                 fc['p2_words'] += n
-            fix = run_final(s2, tgt, [bool(f) for _, f, _ in sb])
+            fix = run_final(s2, tgt, rs)
             for r, b in zip(fix, tgt):
                 if len(b) <= 2:
                     continue
@@ -1116,7 +1147,8 @@ def originals(man, tables, cfg, out):
     for fn, orig in sorted(man['originals'].items()):
         s = Scheduler(tables, cfg)
         ob = blocks_of(orig)
-        frames = [bool(f) for _, f, _ in body_blocks(orig)]
+        leaf = not any(t.startswith(('bl ', 'bctrl', 'blrl')) for t in orig)
+        frames = [bool(f) and leaf for _, f, _ in body_blocks(orig)]
         fin = run_final(s, ob, frames)
         moved = [k for k, (x, y) in enumerate(zip(fin, ob)) if x != y]
         out.append('%s original: the final pass replayed on the original words is %s' % (
@@ -1135,7 +1167,8 @@ def originals(man, tables, cfg, out):
         if len(ob) != len(p1):
             out.append('%s %s: block count differs (%d / %d)' % (fid, fn, len(p1), len(ob)))
             continue
-        fin = run_final(s, two_pass(s, p1, ob), [bool(f) for _, f, _ in ob])
+        rs = resched_flags(p1, ob, orig) if cfg.final_blocks == 'changed' else [bool(f) for _, f, _ in ob]
+        fin = run_final(s, two_pass(s, p1, ob), rs)
         ot = blocks_of(orig)
         st = blocks_of(lst['sched'])
         A = [mask(t) for b in fin for t in b]
@@ -1216,6 +1249,22 @@ def main():
     bad = [k for k, v in man['files'].items() if not v['ok']]
     lines += ['', 'Not compiled: ' + (', '.join(bad) or 'none'), '', 'The targets (default configuration):']
     originals(man, tables, cfg, lines)
+    logs = sorted(f for f in os.listdir(CORPUS) if f.endswith('.hook.txt'))
+    if logs:
+        sys.path.insert(0, HERE)
+        import hookcheck
+        lines += ['', 'Against the compiler itself (the hook log of each corpus file: tools/sched/hooklog.py --all; '
+                  'tools/sched/hookcheck.py): the replay DAG built from the logged PCode vs the logged DAG, and the '
+                  'replay cycle loop on the logged DAG vs the logged picks, both passes:']
+        tot = collections.Counter()
+        for f in logs:
+            r = hookcheck.check(os.path.join(CORPUS, f))
+            tot.update(r)
+            if r['dag_ok'] != r['blocks'] or r['pick_ok'] != r['blocks']:
+                lines.append('  %-24s %d blocks, DAG equal %d, picks equal %d' % (f, r['blocks'], r['dag_ok'],
+                                                                                 r['pick_ok']))
+        lines.append('  total: %d logs, %d blocks scheduled, DAG equal %d, picks equal %d' % (
+            len(logs), tot['blocks'], tot['dag_ok'], tot['pick_ok']))
     with open(a.report, 'w', encoding='utf-8', newline='\r\n') as fh:
         fh.write('\n'.join(lines) + '\n')
     print('\n'.join(lines[:12] + lines[-20:]))
