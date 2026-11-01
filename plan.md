@@ -6,7 +6,7 @@ This file is the project log and roadmap. Reference documentation (formats, tool
 
 ## Fresh session: start here
 
-This file is the carry-over between sessions. Read, in this order: (1) [Resume here](#resume-here-updated-oct-31-2026) below: the first bullet is the current top task, the next bullets the state of every recent step, the roadblock-map bullet the ranked queue of what comes after; (2) the docs those bullets link to, only the ones the task needs (the index of every doc: [docs/README.md](docs/README.md); the status numbers: [README.md](README.md) and `decomp/reports/progress_report.txt` of the last full run); (3) the numbered log "What's done" further down only when a bullet points at a step. The worktree recipe and the verification steps of a merge: [docs/workflows.md](docs/workflows.md#14-work-in-a-worktree-and-merge-it-back), [docs/REPRODUCE.md](docs/REPRODUCE.md).
+This file is the carry-over between sessions. Read, in this order: (1) [Resume here](#resume-here-updated-nov-1-2026) below: the first bullet is the current top task, the next bullets the state of every recent step, the roadblock-map bullet the ranked queue of what comes after; (2) the docs those bullets link to, only the ones the task needs (the index of every doc: [docs/README.md](docs/README.md); the status numbers: [README.md](README.md) and `decomp/reports/progress_report.txt` of the last full run); (3) the numbered log "What's done" further down only when a bullet points at a step. The worktree recipe and the verification steps of a merge: [docs/workflows.md](docs/workflows.md#14-work-in-a-worktree-and-merge-it-back), [docs/REPRODUCE.md](docs/REPRODUCE.md).
 
 ## File sources
 
