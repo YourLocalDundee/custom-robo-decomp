@@ -153,7 +153,7 @@ One object of `decomp/config/GXCE01/splits.txt` goes from dtk's asm to C that li
 [CONTRIBUTING.md](../CONTRIBUTING.md#matching-a-library-file-phase-4), [decomp.md](decomp.md#building-library-objects-from-c-phase-4-milestone-4-oct-29-2026).
 
 1. Pick the object: `CR_NOT_MATCHING` in `decomp/configure.py` (its reason says what blocks it), or a split object
-   without a C file. Today only HSD objects are left (8 of 30: lobj, pobj, texp, displayfunc, mtx, cobj, jobj, texpdag;
+   without a C file. Today only HSD objects are left (6 of 30: lobj, pobj, texp, displayfunc, jobj, texpdag;
    the reason per file is in `CR_NOT_MATCHING`).
 2. Import the reference C with its provenance line (never Ghidra's C, never a draft):
    ```powershell

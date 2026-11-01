@@ -456,6 +456,51 @@ cr_g_PartOrderLeg 0x24 vs 0x22); the string tables (cr_g_SeqNames, cr_g_MotionNa
   - MSL: this revision's bytecode.c calls the double sin / cos / ... and rounds (`(f32) sin(x)`), not sinf.
   - Names: a main.dol function with no name whose masked instructions equal one C function compiled here, in the
     reference file's order, is that function (`why:` line; 10 found this way in iteration 9, 3 more by rule R7).
+- Step 88 (plan.md step 88, branch hsd3, Oct 31, 2026; mtx.c and cobj.c linked: HSD 24 of 30 objects from C). What
+  made the asm-only functions and several near-misses equal, worth trying first on the next file:
+  - **MSL's inline float math.** This revision's `sinf` / `cosf` / `tanf` / `acosf` / `atan2f` / `fabsf` are MSL inlines
+    (`return sin(x);`): main.dol calls the double function and rounds (`bl sin`, `frsp`). Write a `static inline f32
+    msl_sinf(f32 x) { return sin(x); }` and call it: `(f32) sin(x)` written directly gives the same instructions with
+    other registers (mtx.c HSD_MtxSRT, cobj.c the camera halves / HSD_CObjEraseScreen, jobj.c resolveIKJoint2's acos).
+  - **One inline level more or less moves registers and calls.** mwcc inlines up to a nesting depth and then calls
+    the function: in main.dol HSD_CObjSetRoll -> roll2upvec -> the eye vector -> the zero test calls MSL's
+    out-of-line `fabs` (fn_8016938C), the same test one level up uses `fabs` inline. So a test written with `__fabs`
+    is one level short: route it through an inline `double fabs` (cobj.c msl_fabs, lobj.c TryNormalize's lobj_fabs:
+    HSD_LObjSetupSpecularInit equal). A clamp or angle written as a small inline helper (jobj.c the acos clamp, cobj.c
+    calc_roll) or as one variable (resolveIKJoint1) is the same kind of difference. The reverse holds too: mtx.c's
+    determinant matched written out in the function, not through Melee's / wowjinxy's inline.
+  - **The auto-inline size budget** decides how many levels of a recursive `*All` function inline (jobj.c
+    HSD_JObjReqAnimAllByFlags 6, SetFlagsAll / ClearFlagsAll 5, SetMtxDirtySub 6): `#pragma inline_max_size(580)` at
+    the top of jobj.c gives main.dol's levels (580-590; 600 inlines HSD_JObjResolveRefsAll one level too deep), and the
+    callee's body size counts (HSD_JObjReqAnimByFlags with `union_type_dobj()`, not a `has_dobj` variable).
+  - **Extern inline accessors (KAR's jobj.h `inline`).** main.dol's jobj.o has the out-of-line copies of
+    HSD_JObjMtxIsDirty (fn_80196568), HSD_JObjSetMtxDirty, HSD_JObjSetupMatrix (fn_80198690), HSD_JObjRef, ref_INC,
+    HSD_IDGetData (fn_80198DC4) and HSD_CObjGetViewingMtxPtrDirect, each right after the first function that calls it
+    out of line (mwcc emits a weak copy there). jobj.c defines `HSD_JOBJ_EXTERN_INLINE` before its includes, and
+    jobj.h / object.h / id.h / cobj.h declare those accessors `inline` (non-static) under it; every other C file keeps
+    the static inlines. A function main.dol does not keep can place a copy where main.dol has it (jobj.c
+    jobj_order_dummy: no caller, the linker strips it). A weak copy of a function another object defines strongly
+    (cobj.c's fabs) is dropped at the link.
+  - **`!p`, not `p == NULL`, in inlined helpers.** After inlining, mwcc folds `!p` when p is the address of a local
+    but keeps `p == NULL` as a run-time test (`addic.`): cobj.c HSD_CObjSetUpVector inlined into HSD_CObjSetRoll,
+    jobj.c setupInstanceMtx (`if (vmtx)`).
+  - **Melee's double-scale camera and the game's reference size.** cobj.c's screen pass scales the viewport by
+    `rmode->fbWidth / (f64) 640` (s32 .sdata words lbl_8044F050 / lbl_8044F054 that the game also reads), in double.
+  - **Data:** .sbss statics in reverse order of definition (cobj.c `current` before `default_class` in the source);
+    the assert strings of functions main.dol does not keep as `#pragma force_active` static arrays (cobj.c
+    "ref_width > 0"); constant vectors as function statics so they land in .rodata after the local initialiser
+    (jobj.c); literals instead of extern constants so the C proves its own .sdata2 pool in main.dol's order (mtx.c).
+  - **Unnamed functions by KAR's layout:** mtx.c fn_8019EB5C / fn_8019F2AC / fn_8019FC14 = KAR's HSD_MtxInverseConcat /
+    HSD_MtxGetRotationMtx / HSD_MtxSRT, cobj.c fn_8018F830 / fn_8018FA94 / fn_80190BBC / fn_80191484 = setupTopHalfCamera /
+    setupBottomHalfCamera / HSD_CObjSetUpVector / HSD_CObjSetFar, jobj.c fn_80196C50 / fn_80198700 / fn_801995CC =
+    HSD_JObjReqAnimAll / JObjLoad / HSD_JObjClearFlagsAll (same size and place in doldecomp/kar's symbols); the C
+    keeps the real name and `#define`s it to the dtk name, so nothing is named by the C alone.
+  - **Left after step 88** (per function, `CR_NOT_MATCHING`): displayfunc.c mkHBillBoardMtx / mkBillBoardMtx 99.9%,
+    jobj.c HSD_JObjDispAll 97.2%, lobj.c HSD_LObjSetupInit 99.1% (register allocation only); texp.c TExp2TevDesc 98.0% /
+    HSD_TExpSetReg 99.6%, pobj.c PObjLoad 99.1% / drawShapeAnim 97.1% (unchanged by the step 88 levers); texpdag.c 7 of
+    11 (CalcTevRange equal now; SimplifyByMerge 33%, SimplifySrc 88%, HSD_TExpSimplify 88%, SimplifyThis 96%,
+    MakeDag / assign_reg 97-98%, CalcDistance 99.1%); the unsplit edges (shadow.c, archive.c, debug.c, synth.c,
+    axdriver.c, devcom.c, particle.c: plan.md step 88).
 - Per-function triage of a file compiled for objdiff: `objdiff-cli diff -p decomp -u main/sysdolphin/baselib/<file>
   -o out.json [<symbol>]` (`<file>` without `.c`: `lobj`, not `lobj.c`) (decomp/build/tools/objdiff-cli.exe) writes both sides' instructions with a `diff_kind`;
   an `ARG_MISMATCH` where both sides have a relocation is only the data name (the split object's data is not the C's
