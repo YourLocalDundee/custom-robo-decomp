@@ -219,14 +219,19 @@ extern f32 lbl_805DC8B8[];
 
 /* Custom Robo: main.dol compares with FLT_MIN as a double of .sdata2 (lfd 1.1754943508222875e-38), kar's lbl_805DC8B8 is
  * a float */
+static inline double lobj_fabs(double x)
+{
+    return __fabs(x);
+}
+
 inline BOOL TryNormalize(Vec* v)
 {
     if (!v || !v) {
         return ~0;
     }
-    if (__fabs(v->x) <= 1.1754943508222875e-38 &&
-        __fabs(v->y) <= 1.1754943508222875e-38 &&
-        __fabs(v->z) <= 1.1754943508222875e-38) {
+    if (lobj_fabs(v->x) <= 1.1754943508222875e-38 &&
+        lobj_fabs(v->y) <= 1.1754943508222875e-38 &&
+        lobj_fabs(v->z) <= 1.1754943508222875e-38) {
         return ~0;
     }
     PSVECNormalize(v, v);
@@ -293,8 +298,8 @@ void HSD_LObjSetup(HSD_LObj* lobj, GXColor color, f32 arg8)
  * 1.0F; FLT_MIN as the double TryNormalize compares with) */
 static inline BOOL TryNormalize2(Vec* src, Vec* dst)
 {
-    if (__fabs(src->x) <= 1.1754943508222875e-38 && __fabs(src->y) <= 1.1754943508222875e-38 &&
-        __fabs(src->z) <= 1.1754943508222875e-38) {
+    if (lobj_fabs(src->x) <= 1.1754943508222875e-38 && lobj_fabs(src->y) <= 1.1754943508222875e-38 &&
+        lobj_fabs(src->z) <= 1.1754943508222875e-38) {
         return ~0;
     }
     PSVECNormalize(src, dst);
