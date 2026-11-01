@@ -1130,6 +1130,10 @@ dead local writes. The head stays at its 85% family ceiling; no generator rule, 
   failures, 523,032 bytes equal.
 - An `--only` run rewrites decomp/drafts for the named functions only and removes the other drafts' sources; run a
   full batch 12 before reading other drafts.
+- Left (tried, no gain): fn_80075950 (134 of 155; the slot-table store of loops 2-5 completes before the next
+  statement's `lis` in the original: the table as a 1-D / 2-D typed array, with the offset in the index, a `for`
+  loop, the buffer address as a multiply: 119-134); fn_800EB518 is a register-count difference (the original keeps
+  the switch byte in r24 and saves r22-r31, ours r20-r31), not an order one.
 
 ## Using it
 
