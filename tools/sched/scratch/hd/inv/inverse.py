@@ -40,12 +40,19 @@ T = [dsig(x) for x in body if not x.startswith('blr')]
 blocks = h.parse(log, t.names)
 b = [x for x in blocks if x.pass_ == 0][0]
 ins = b.ins
+# instructions the passes between the schedulings delete (the hook's -D lines that never reach the final pass)
+_final, _deleted, _f = set(), set(), False
+for _l in open(log, encoding='latin1'):
+    if _l.startswith('S force=1'): _f = True
+    if _f and _l.startswith('I '): _final.add(_l.split()[1])
+    if _l.startswith('-D '): _deleted.add(_l.split()[4])
+DELETED = {a for a in _deleted if a not in _final}
 FP, FOFF = None, 0
 for i in ins:
     if i.op == 'addi' and i.defs and i.defs[0][0] == 'r' and 14 <= int(i.defs[0][1:]) < 32:
         nums = [o for o in i.operands if o[0] == 'M']
         if nums: FP, FOFF = i.defs[0], int(nums[0][1:].split(':')[0])
-print('folded pointer', FP, FOFF)
+print('folded pointer', FP, FOFF, 'deleted between the passes', sorted(i.op + ' ' + ' '.join(i.operands[:3]) for i in ins if i.addr in DELETED))
 print('PCode', len(ins), 'original body', len(T))
 print(sorted(collections.Counter(hsig(i) for i in ins).items()))
 print(sorted(collections.Counter(T).items()))
@@ -194,7 +201,7 @@ def legal(seq):
         seen.update(i.defs)
     pos = {i.addr: k for k, i in enumerate(seq)}
     return all(pos[a] < pos[b2] for a, b2 in conf) if MEMKEEP else True
-MEMKEEP = True
+MEMKEEP = 'NOMEM' not in sys.argv
 PT = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'P_target.txt')).read().split() if 'PTARGET' in sys.argv else None
 def evaluate(seq):
     seq2 = []
@@ -223,7 +230,7 @@ def evaluate(seq):
     for k, i in enumerate(seq):
         n = h.HIns.__new__(h.HIns); n.__dict__.update(i.__dict__); n.idx = k; n.mem = h.alias_mem(i); seq2.append(n)
     out = seq2 if 'DIRECT' in sys.argv else r.Scheduler(t, r.Config()).schedule(seq2)
-    out = [x for x in out if not getattr(x, 'synth', False)]
+    out = [x for x in out if not getattr(x, 'synth', False) and not (x.addr in DELETED and x.defs != [FP])]
     if PT is not None:
         m = sum(1 for a, c in zip(out, PT) if a.addr == c)
         return m, m, [x.addr for x in out]
