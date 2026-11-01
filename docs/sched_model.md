@@ -438,6 +438,10 @@ and copies only after the `addi` (a `mr` for an offset-0 address forced into a r
 
 1. The head: a construct that redefines the increment's `lis` register after the `addi` and is deleted (a variable
    that the front end keeps in that register, assigned twice), scored with shape_eval.py.
-2. Apply the issue-slot view to fn_8006EEF8's blocks 32 / 36 / 40 / 43 (the deleted u8 `clrlwi` of the alpha):
-   which declared type of the alpha gives the conversion at the right place.
+2. fn_8006EEF8's vertex blocks. Done in step 94 as far as types go: the colour helper's alpha parameter declared
+   `const u16` (tools/sched/scratch/fr/v14.c) raises v13.c from 485 to 531 of 755 by position (539 -> 601 in sequence;
+   v13.c scores 485 with the current headers, 548 in step 85). Every other combination is lower or equal: alpha local
+   u8 / s8 / u16 / s16 / s32 / int x parameter u8 / u16 / u32 / s32 / int (35), the r / g / b parameters u8 / u16 / u32
+   (27, constants: no effect), the index s16 / int / long x the count u16 / s32 / u32 / s16 / int (20). What is left in
+   each vertex block: the original issues the int-to-float constant's `lfd` early and ours late.
 3. The 12 schedule-only drafts outside the head (group_near.py): a conversion or copy that takes an issue slot.
