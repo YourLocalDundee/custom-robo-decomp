@@ -418,7 +418,7 @@ SHA-1, so a player gets exactly the mod author's ISO. Needs only Python 3 — no
 
 ## Source-route modding (Phase 4, work in progress)
 
-The patch route above changes bytes in place, so anything new must fit where the old thing was (or use Gecko / free space). The Phase 4 build (batch 9, [REPRODUCE.md](REPRODUCE.md) section 2b) rebuilds `main.dol` from split objects, and since plan.md step 51 it is **shiftable**: every pointer in code and data is a relocation (dtk's mistakes are fixed by `tools/gen_dtk_relocs.py`), so code and data can move and grow and the linker updates every reference. The static test (`tools/shift_test.py`, batch 9) adds 0x100 bytes at 30 points in code and data (`decomp/reports/shift_report.txt`), and batch 11 (Windows) boots that build to the title screen.
+The patch route above changes bytes in place, so anything new must fit where the old thing was (or use Gecko / free space). The Phase 4 build (batch 9, [REPRODUCE.md](REPRODUCE.md) section 2b) rebuilds `main.dol` from split objects, and since plan.md step 51 it is **shiftable**: every pointer in code and data is a relocation (dtk's mistakes are fixed by `tools/gen_dtk_relocs.py`), so code and data can move and grow and the linker updates every reference. The static test (`tools/shift_test.py`, batch 9) adds 0x100 bytes at 30 or more points in code and data (35 at step 86: the start of every data-only game unit outside a glue span is one) (`decomp/reports/shift_report.txt`), and batch 11 (Windows) boots that build to the title screen.
 
 What this enables: a bigger table (a new robo slot in the motion / model / name tables) or new code is an edit of the split asm or the C plus a relink, with no free-space hacks.
 

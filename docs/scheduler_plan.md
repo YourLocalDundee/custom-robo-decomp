@@ -1,9 +1,8 @@
 # The GC/2.6 scheduler wall: the plan to break it
 
-Written Nov 2, 2026 at the end of the step 77-86 session, for the next session. This is the FIRST task of that
-session (user decision, Nov 2, 2026), ahead of everything else in plan.md. It is written for an Opus model to follow
-one step after the next, alone or orchestrating one Opus worker at a time (the project's rule: at most two Opus
-agents at once, normally one; no agent above Opus more than one).
+Written Oct 31, 2026 at the end of the step 77-86 session, for the next session. This is the FIRST task of that
+session, ahead of everything else in plan.md. It is written to be followed one step after the next, one worker at a
+time.
 
 ## 1. What the wall is
 
@@ -77,7 +76,7 @@ whether the compiler has undocumented dump switches: `strings` the binary (Phase
 "dump", "sched", "dag", "-show", "ir". Deliverable: a short section in docs/drafts.md with links and the verdict.
 Anything found collapses Phase C.
 
-**Findings (Nov 2, 2026, docs/sched_community.md): Phase C mostly collapses.** The scheduler is already decompiled: rayanht/mwcc (a matching decompilation of mwcceppc GC/1.0-1.3) has `Scheduler.c` and the per-processor `MachineSimulation*.c`; the pick is not critical-path first but urgency (deadline reached), then the number of successors the issue makes ready, then height, then (first pass) an opcode rank, then program order; inspiredrobot/mwcc `SCHEDULER.md` (its docs folder) has the tables and a simulator that reproduced a Melee block, and zcanann/mwcc-rs reimplements it with the 2.x differences, tested against GC/2.6. cadmic/mwcc-debugger already maps our exact GC/2.6 binary (PCode structures, pass boundaries); from its call sites, GC/2.6 `Scheduler_Schedule(force)` is at 0x507C70 (called with 0 before register colouring, with 1 for the final pass after the peephole) and `schedule_block` at 0x507D70. Next: skip C3, read C4 against that source, replay the 1.x pick rule on the step 84 micro-programs first, hook on Windows with a proxy lmgr326b.dll in an analysis copy of the compiler folder (Savestate2A03/mwcc_debug's approach), and model both passes.
+**Findings (Oct 31, 2026, docs/sched_community.md): Phase C mostly collapses.** The scheduler is already decompiled: rayanht/mwcc (a matching decompilation of mwcceppc GC/1.0-1.3) has `Scheduler.c` and the per-processor `MachineSimulation*.c`; the pick is not critical-path first but urgency (deadline reached), then the number of successors the issue makes ready, then height, then (first pass) an opcode rank, then program order; inspiredrobot/mwcc `SCHEDULER.md` (its docs folder) has the tables and a simulator that reproduced a Melee block, and zcanann/mwcc-rs reimplements it with the 2.x differences, tested against GC/2.6. cadmic/mwcc-debugger already maps our exact GC/2.6 binary (PCode structures, pass boundaries); from its call sites, GC/2.6 `Scheduler_Schedule(force)` is at 0x507C70 (called with 0 before register colouring, with 1 for the final pass after the peephole) and `schedule_block` at 0x507D70. Next: skip C3, read C4 against that source, replay the 1.x pick rule on the step 84 micro-programs first, hook on Windows with a proxy lmgr326b.dll in an analysis copy of the compiler folder (Savestate2A03/mwcc_debug's approach), and model both passes.
 
 ## 5. Phase B: the permuter in the background (about 2 hours to set up, then unattended)
 
@@ -195,10 +194,10 @@ object or run changes: (1) cr_CM_DUMMY_008 to 100%, then the generator rule and 
 block the runs of docs/drafts.md "Step 85" (fn_80080FD8, run 4; then runs 2 and 3); (4) the 8 HSD near-miss files.
 Docs: plan.md step 87+ per phase, docs/drafts.md sections, docs/decomp.md status, sched_model.md (new, in docs).
 
-## 8. How to run this with Opus workers
+## 8. How to run this in packages
 
 One worker at a time, in a git worktree (docs/REPRODUCE.md "A second checkout"), branch per package, plain commit
-messages (CONTRIBUTING.md: no attribution lines), Windows only, CRLF docs, check_docs 0 problems; the main checkout
+messages (CONTRIBUTING.md), Windows only, CRLF docs, check_docs 0 problems; the main checkout
 merges and verifies (docs/workflows.md section 14). Suggested packages, each with a hand-back report:
 
 | Package | Phase | Budget | Report back |

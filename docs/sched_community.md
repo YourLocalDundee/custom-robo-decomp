@@ -1,6 +1,6 @@
 # The GC/2.6 scheduler: what the community already has (Phase A)
 
-Written Nov 2, 2026 (docs/scheduler_plan.md section 4, branch sched-a). Reading and web research only: no build,
+Written Oct 31, 2026 (docs/scheduler_plan.md section 4, branch sched-a). Reading and web research only: no build,
 no compile, no Dolphin. The one local action was a read-only string scan of
 `decomp/build/compilers/GC/2.6/mwcceppc.exe` and a look at a few bytes of it (section 4 below).
 
@@ -58,7 +58,7 @@ PCode reaches the scheduler).
 Searches that found nothing more: "mwcc instruction scheduling priority", "metrowerks scheduler latency table",
 the CodeWarrior manuals for a description of the priority (none goes beyond "optimized for the specific
 processor"). Ninji's decompilation of the Mac-hosted CodeWarrior compiler (git.wuffs.org/MWCC), cited by two of
-the projects above as the reference for the backend, returned 404 on Nov 2, 2026; not needed now that rayanht's
+the projects above as the reference for the backend, returned 404 on Oct 31, 2026; not needed now that rayanht's
 Windows GC decompilation has the same file. decomp.me and the big GC decomps (Melee, Twilight Princess, Pikmin 2)
 were not read further once the compiler projects above turned up: they build at -O4,p and handle schedule-only
 diffs with the same per-symptom tricks.

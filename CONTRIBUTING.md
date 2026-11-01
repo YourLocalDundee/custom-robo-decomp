@@ -113,8 +113,7 @@ type the globals that hold it in `symbols/cr_globals.txt`.
   ([docs/README.md](docs/README.md#commands-in-these-docs)); `python -I tools\check_docs.py` must report 0 problems
   before every commit that touches a doc or a script that names one. Counts in a doc name the report they come from
   (`decomp/reports/*.txt`, `symbols/*.txt`); when they disagree, the report of the last full run is right.
-- **Commit messages**: plain, one message that says what changed and what the numbers are now. No attribution,
-  co-author or session trailers, no tool or assistant names, in commits, code comments or docs. Commit the regenerated
+- **Commit messages**: plain, one message that says what changed and what the numbers are now. Commit the regenerated
   reports and `docs/expected_checksums.txt` (`pwsh tools\checksums.ps1 -Write`) together with the change that made
   them differ, and say so in the message.
 - **Branches**: a work stream runs in its own git worktree (junctions for the big gitignored folders:

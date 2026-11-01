@@ -282,8 +282,8 @@ modding"), not a `.crpatch`.
 Every work stream (a library file, a generator round, a naming round, a model) runs on its own branch in a second
 worktree with junctions into the main checkout for the big gitignored folders; the recipe and its rules:
 [REPRODUCE.md, "A second checkout (git worktree)"](REPRODUCE.md#a-second-checkout-git-worktree). On the branch: the
-work, batch 9 (and batch 12 for drafts, batch 8 for names), the docs of the step, plain commits (no attribution
-lines, [CONTRIBUTING.md](../CONTRIBUTING.md#rules-for-everything)). Then, **in the main checkout**:
+work, batch 9 (and batch 12 for drafts, batch 8 for names), the docs of the step, plain commits
+([CONTRIBUTING.md](../CONTRIBUTING.md#rules-for-everything)). Then, **in the main checkout**:
 
 ```powershell
 git merge --no-ff <branch>                     # or a fast-forward; resolve plan.md / docs by keeping both sides' steps
