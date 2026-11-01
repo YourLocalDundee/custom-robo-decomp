@@ -20,6 +20,7 @@ G = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAME = os.path.join(G, 'decomp/src/game')
 CFG = os.path.join(G, 'decomp/config/GXCE01/symbols.txt')
 MARK = "/* Custom Robo game code, promoted by tools/promote_drafts.py"
+MARK_DATA = "/* Custom Robo game data, written by tools/gen_data_c.py"   # the data-only units (decomp/src/game/data)
 AUTO = re.compile(r'^(fn_|lbl_|jumptable_|@|gap_|FUN_|func_|sub_)')
 SYM = re.compile(r'^(\S+) = (\.\w+):0x([0-9A-Fa-f]+);')
 IDENT = re.compile(r'\b[A-Za-z_]\w*\b')
@@ -50,11 +51,14 @@ def main():
         if AUTO.match(n) and not AUTO.match(m) or not AUTO.match(n) and not AUTO.match(m):
             renames[n] = m
     changed = 0
-    for f in sorted(os.listdir(GAME)) if os.path.isdir(GAME) else []:
-        p = os.path.join(GAME, f)
+    files = [(GAME, f) for f in sorted(os.listdir(GAME))] if os.path.isdir(GAME) else []
+    data = os.path.join(GAME, 'data')
+    files += [(data, 'data/' + f) for f in sorted(os.listdir(data))] if os.path.isdir(data) else []
+    for d, f in files:
+        p = os.path.join(d, os.path.basename(f))
         if not f.endswith('.c'): continue
         text = open(p, encoding='utf-8', newline='').read()
-        if not text.startswith(MARK): continue
+        if not text.startswith(MARK) and not text.startswith(MARK_DATA): continue
         ids = set(IDENT.findall(text))
         here = {n: m for n, m in renames.items() if n in ids}
         clash = [m for m in here.values() if m in ids]

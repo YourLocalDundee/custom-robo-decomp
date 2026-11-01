@@ -12,7 +12,7 @@ code (constant propagation, per pointer kind; "missed" = dtk made no relocation)
   relocated addresses used as numbers (bit mask / signed compare): 4 uses, 1 lis
 data: 12634 relocated words; unrelocated words in the moving range: 0
   relocated into the middle of a function: 1688 words in 83 tables; jump tables (the function holding the targets has a bctr and references the table): 82 (5 not named jumptable_ by dtk); not a jump table: 1
-glue (constant-offset arithmetic from one dtk object into another): 9305 accesses, 89 spans; padding must not be inserted inside a span
+glue (constant-offset arithmetic from one dtk object into another): 9038 accesses, 88 spans; padding must not be inserted inside a span
 
 fixes written: add_relocations 48, block_relocations 5
   add   .init:0x800036E4 hi TRKInterruptHandler  // MAT in pad_00_800034AC_init: value 0x8015C094 = TRKInterruptHandler+0x0; high half (lis) at 0x800036E4
@@ -92,7 +92,7 @@ named pointer tables (symbols/cr_globals.txt), words in their extent:
   ok   0x801F7FF0 cr_g_CamModeFuncs (cr_CamModeFunc[42], 42 pointers): 42 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x80205C94 cr_g_MotionInfo (u32*[1095], 1095 pointers): 1094 relocated words, 1 NULL, 0 unrelocated in-range words
   ok   0x80206DB0 cr_g_MotionNames (cr_MotionName[1095], struct data to 0x8020A108): 3285 relocated words, 1 NULL, 0 unrelocated in-range words
-  ok   0x801C51B8 cr_g_BattleMotionSets (cr_BattleMotionSet[34], struct data to 0x801C5204): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x801C51B8 cr_g_BattleMotionSets (cr_BattleMotionSet[34], struct data to 0x801C5BD0): 0 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x8044C3C0 cr_g_BodyCount (s32, struct data to 0x8044C3C4): 0 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x8044C3C4 cr_g_LegCount (s32, struct data to 0x8044C3C8): 0 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x8044C3C8 cr_g_GunCount (s32, struct data to 0x8044C3CC): 0 relocated words, 0 NULL, 0 unrelocated in-range words
@@ -154,7 +154,6 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x8024D4D8..0x8024D604 .data hsdClass .. lbl_8024D5E0
   0x8024D680..0x8024D9D0 .data lbl_8024D680 .. lbl_8024D95C
   0x8031B5A0..0x8031F0E0 .bss lbl_8031B5A0 .. lbl_8031F020
-  0x8031FED8..0x8031FF73 .bss cr_g_Pads .. lbl_8031FEF4
   0x80320168..0x80321CBA .bss lbl_80320168 .. cr_g_FileSysReady
   0x80321DD0..0x80329B44 .bss lbl_80321DD0 .. lbl_80329B10
   0x80329B60..0x8032A89C .bss lbl_80329B60 .. lbl_8032A884

@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 1299
+files: 1313
 
 src/MSL/FILE_POS.c  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
@@ -640,6 +640,20 @@ src/game/fn_8013079C.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80130848.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80130988.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8013149C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/data/cr_g_AreaBoxes.c  ours (no reference)
+src/game/data/cr_g_BattleMotionSets.c  ours (no reference)
+src/game/data/cr_g_BodyCount_cr_g_BombCount.c  ours (no reference)
+src/game/data/cr_g_CharaEntries.c  ours (no reference)
+src/game/data/cr_g_Charas.c  ours (no reference)
+src/game/data/cr_g_FileDescs.c  ours (no reference)
+src/game/data/cr_g_GameMode_cr_g_SeqCurrent.c  ours (no reference)
+src/game/data/cr_g_MessageFiles.c  ours (no reference)
+src/game/data/cr_g_MotionDataBit15_cr_g_MotionData.c  ours (no reference)
+src/game/data/cr_g_PackedArchives_cr_g_FileSysReady.c  ours (no reference)
+src/game/data/cr_g_PadStatus_cr_g_Pads.c  ours (no reference)
+src/game/data/cr_g_ScriptReturnStack.c  ours (no reference)
+src/game/data/cr_g_Script_cr_g_Scenario.c  ours (no reference)
+src/game/data/cr_g_UnlockBits.c  ours (no reference)
 src/sysdolphin/baselib/aobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/aobj.c  changed (247 lines added / removed)
 src/sysdolphin/baselib/aobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/aobj.h  identical
 src/sysdolphin/baselib/bytecode.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/bytecode.c  changed (157 lines added / removed)

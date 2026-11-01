@@ -8,11 +8,12 @@ MSL                               49     49   0x00939C/0x00939C 100.00%   0x0014
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
 sysdolphin                        30     22   0x010568/0x026600  42.57%   0x003102/0x003DB2  79.44%    261/  472
-game                             444    444   0x00CD40/0x00CD40 100.00%   0x000114/0x000114 100.00%    444/  444
-automatic objects (unsplit)      269      0   0x000000/0x13C9A4   0.00%   0x000000/0x274054   0.00%      0/ 1518
-main.dol (all units)             924    647   0x0609F4/0x1B3430  22.20%   0x027714/0x29C418   5.90%   1804/ 3533
+game                             458    458   0x00CD40/0x00CD40 100.00%   0x02C174/0x02C174 100.00%    444/  444
+automatic objects (unsplit)      280      0   0x000000/0x13C9A4   0.00%   0x000000/0x247FF4   0.00%      0/ 1518
+main.dol (all units)             949    661   0x0609F4/0x1B3430  22.20%   0x053774/0x29C418  12.49%   1804/ 3533
 
 game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 444 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0xCD40 bytes = 4.27% of the game code, 2.95% of all code
+game data (decomp/src/game/data, tools/gen_data_c.py): 14 data-only units from C, 0x2C060 bytes; all game data from C (with the file objects pools): 0x2C174 bytes = 6.60% of all data
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
 MSL/FILE_POS.c                                code 0x3C0/0x3C0  data 0x0/0x0  functions 3/3  linked from C
@@ -264,6 +265,20 @@ game/cr_SEQ_STAGE_SELECTOR_FrameB.c           code 0x4/0x4  data 0x0/0x0  functi
 game/cr_SEQ_TITLE_Enter.c                     code 0x8C/0x8C  data 0x0/0x0  functions 1/1  linked from C
 game/cr_SEQ_TITLE_FrameB.c                    code 0x4/0x4  data 0x0/0x0  functions 1/1  linked from C
 game/cr_SEQ_TITLE_FrameC.c                    code 0xC0/0xC0  data 0x0/0x0  functions 1/1  linked from C
+game/data/cr_g_AreaBoxes.c                    code 0x0/0x0  data 0x700/0x700  functions 0/0  linked from C
+game/data/cr_g_BattleMotionSets.c             code 0x0/0x0  data 0xA18/0xA18  functions 0/0  linked from C
+game/data/cr_g_BodyCount_cr_g_BombCount.c     code 0x0/0x0  data 0x10/0x10  functions 0/0  linked from C
+game/data/cr_g_CharaEntries.c                 code 0x0/0x0  data 0x320/0x320  functions 0/0  linked from C
+game/data/cr_g_Charas.c                       code 0x0/0x0  data 0x267C0/0x267C0  functions 0/0  linked from C
+game/data/cr_g_FileDescs.c                    code 0x0/0x0  data 0xAC/0xAC  functions 0/0  linked from C
+game/data/cr_g_GameMode_cr_g_SeqCurrent.c     code 0x0/0x0  data 0x90/0x90  functions 0/0  linked from C
+game/data/cr_g_MessageFiles.c                 code 0x0/0x0  data 0x15C/0x15C  functions 0/0  linked from C
+game/data/cr_g_MotionDataBit15_cr_g_MotionData.c code 0x0/0x0  data 0x1900/0x1900  functions 0/0  linked from C
+game/data/cr_g_PackedArchives_cr_g_FileSysReady.c code 0x0/0x0  data 0xBF8/0xBF8  functions 0/0  linked from C
+game/data/cr_g_PadStatus_cr_g_Pads.c          code 0x0/0x0  data 0x2C0/0x2C0  functions 0/0  linked from C
+game/data/cr_g_ScriptReturnStack.c            code 0x0/0x0  data 0x40/0x40  functions 0/0  linked from C
+game/data/cr_g_Script_cr_g_Scenario.c         code 0x0/0x0  data 0x1920/0x1920  functions 0/0  linked from C
+game/data/cr_g_UnlockBits.c                   code 0x0/0x0  data 0xA8/0xA8  functions 0/0  linked from C
 game/fn_800055E0.c                            code 0x4/0x4  data 0x0/0x0  functions 1/1  linked from C
 game/fn_800055E4.c                            code 0x4/0x4  data 0x0/0x0  functions 1/1  linked from C
 game/fn_800055E8.c                            code 0x124/0x124  data 0x0/0x0  functions 1/1  linked from C
