@@ -34,7 +34,7 @@ checked mechanically against main.dol (tools/dtk/proj/main.dol) and the index:
   "called by X" / "called from X" / "called per ... by X"    -> X calls this function (index references)
   "calls X" / "address stored ... by X"           -> this function references X / X references this function
   "slot K of N modes in T" / "also slot K of modes A and B"  -> count / positions in the table
-  quoted text "..."                               -> a string in main.dol (and, when the why names a function using
+  quoted text "..."                               -> a string in main.dol (Ghidra's strings, else its bytes; and, when the why names a function using
                                                     it, that function references it)
   every 0x8xxxxxxx address / FUN_ / cr_ name mentioned -> exists (function start, named function or mapped section)
   cr_globals datatype T*[N] / T[N]                -> for code-pointer and char* tables: all N words are code / strings
@@ -899,7 +899,11 @@ def check_game(r, ours, dol, all_names, glob_addr, names_at):
         q = m.group(1)
         if q in ('%s',): continue
         users = [a for a, v in ours.gstr.items() if v and norm(q) in norm(v)]
-        if not users: bad.append(f'string "{q}" not found in the game'); continue
+        if not users:
+            # not one of Ghidra's strings: a name inside a data record (cr_g_BodyStats' "Ray 01") is still in main.dol's bytes
+            if dol.d.find(q.encode('ascii', 'ignore') + bytes(1)) >= 0:
+                ok.append(f'"{q[:30]}" is in the data of main.dol (not a string Ghidra listed)'); continue
+            bad.append(f'string "{q}" not found in the game'); continue
         fs = set()
         for a in users: fs |= ours.refd.get(a, set())
         named = [resolve(t) for t in re.findall(r'FUN_[0-9a-fA-F]{8}|cr_\w+', why[max(0, m.start() - 60): m.end() + 60])]

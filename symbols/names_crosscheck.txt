@@ -1865,10 +1865,10 @@ OK          8015B5F4 TRKDoDisconnect                      cand_sdk    R3 ac-deco
 OK          8015D198 TRKTargetAccessFP                    cand_sdk    R3 ac-decomp/GAFU01_00       independent: callers | evidence: callers: caller TRKDoReadRegisters; size: size within 10% of ac-decomp/GAFU01_00 | size 0x50C/ac-decomp/GAFU01_00 0x50C=1.00 (44 refs) ; callees partly explained (1.00), no swapped callee
 OK          801C5BD0 cr_g_BattleLoadouts                  cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_BattleLoadouts
 OK          801C5C10 cr_g_BodyData                        cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_BodyData ; cr_CAMMODE_CUSTOMIZE_Start references cr_g_BodyData
-OK          801C6C44 cr_g_BodyStats                       cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_BodyStats
-OK          801C952C cr_g_LegData                         cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_LegData
-OK          801CA560 cr_g_GunData                         cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_GunData
-OK          801D4860 cr_g_BombData                        cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_BombData
+OK          801C6C44 cr_g_BodyStats                       cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_BodyStats ; "Ray 01" is in the data of main.dol (not a string Ghidra listed)
+OK          801C952C cr_g_LegData                         cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_LegData ; "Inceptor Leg" is in the data of main.dol (not a string Ghidra listed)
+OK          801CA560 cr_g_GunData                         cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_GunData ; "Striker Gun" is in the data of main.dol (not a string Ghidra listed)
+OK          801D4860 cr_g_BombData                        cr_globals  why                          checked: cr_BattleRobo_InitFromLoadout references cr_g_BombData ; "Bobcat Bomb" is in the data of main.dol (not a string Ghidra listed)
 OK          801DEA78 cr_g_SeqFrameA                       cr_globals  why                          checked: FUN_8000878c references cr_g_SeqFrameA ; 15 words are code pointers
 OK          801DEAB4 cr_g_SeqNames                        cr_globals  why                          checked: 15 words point to strings
 OK          801DEAF0 cr_g_SeqFrameB                       cr_globals  why                          checked: FUN_800055e8 references cr_g_SeqFrameB ; 15 words are code pointers

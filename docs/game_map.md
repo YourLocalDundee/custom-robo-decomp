@@ -104,43 +104,43 @@ Functions below 0x80131000: 1761 (1270 still `FUN_`). All functions in the expor
 
 | addr | lines | callers | hints |
 |---|---|---|---|
-| 800A63C0 | 1408 | 1 | light,model,~anim,~file-io,~math |
+| 800A63C0 | 1411 | 1 | light,model,~anim,~file-io,~math |
 | 800F21C8 | 1171 | 1 | ~file-io,~input,~math,~model,~render,~video |
-| 800A0E64 | 1042 | 0 | model,video,~file-io,~input,~render |
-| 8010A5CC | 1007 | 1 | light,model |
+| 8004B0A0 | 1055 | 1 | math,~input,~model |
+| 800A0E64 | 1036 | 0 | model,video,~file-io,~input,~render |
+| 8010A5CC | 1022 | 1 | light,model |
 | 800ECA28 | 989 | 1 | memcard,~memory |
-| 8004B0A0 | 981 | 1 | math,~input,~model |
 | 800B81C4 | 925 | 0 | math,model |
 | 80128F20 | 923 | 0 |  |
 | 80054238 | 906 | 1 |  |
-| 800DBAD0 | 899 | 1 | math,~model |
+| 800DBAD0 | 895 | 1 | math,~model |
 | 8009AEC4 | 884 | 1 | model,~camera,~file-io,~input,~math,~render,~video |
 | 800DF4C8 | 787 | 1 | ~math |
+| 80049924 | 699 | 0 | ~math,~model |
 | 8002745C | 697 | 1 | math |
-| 80049924 | 676 | 0 | ~math,~model |
 | 80070170 | 633 | 0 | math,model,~anim |
-| 80042AB8 | 608 | 1 | math,~anim,~model |
-| 8003FE98 | 580 | 1 | math,model |
+| 80042AB8 | 605 | 1 | math,~anim,~model |
+| 8003FE98 | 578 | 1 | math,model |
 | 8005ED28 | 572 | 3 |  |
-| 8003DD38 | 554 | 1 | math,model |
+| 8003DD38 | 552 | 1 | math,model |
 | 8002B3C4 | 490 | 3 | math |
 | 800EF39C | 488 | 3 |  |
-| 800F96A4 | 463 | 1 |  |
+| 80041358 | 472 | 1 | ~math,~model |
+| 800F96A4 | 465 | 1 |  |
+| 8003C4F0 | 460 | 1 | math,~model |
 | 80009A90 | 459 | 1 |  |
-| 80041358 | 454 | 1 | ~math,~model |
-| 8006B848 | 453 | 1 | ~math,~model |
+| 8006B848 | 455 | 1 | ~math,~model |
 | 8002CC54 | 439 | 4 | math |
-| 8003C4F0 | 416 | 1 | math,~model |
 | 80090710 | 414 | 1 | render |
-| 80109314 | 403 | 1 |  |
+| 80109314 | 407 | 1 |  |
+| 8003B528 | 406 | 1 | ~anim,~input,~math,~model |
 | 80060284 | 380 | 1 |  |
 | 8012F3C4 | 378 | 1 |  |
-| 8003B528 | 360 | 1 | ~anim,~input,~math,~model |
+| 800E6348 | 354 | 1 | ~math |
 | 80006658 | 350 | 1 |  |
 | 800AFE3C | 349 | 12 |  |
-| 800E6348 | 349 | 1 | ~math |
-| 8006C970 | 341 | 1 | model,~math |
+| 8006C970 | 343 | 1 | model,~math |
 | 80098484 | 331 | 1 | ~audio,~file-io |
-| 800E5938 | 329 | 1 | math |
+| 800E5938 | 331 | 1 | math |
 | 80056104 | 326 | 7 |  |
-| 8012646C | 321 | 0 |  |
+| 80039FAC | 322 | 3 | math,model,~anim |
