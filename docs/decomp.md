@@ -390,6 +390,25 @@ A neighbour that kar's asm places in exactly one other file also counts as that 
 (no C linked): sysdolphin is 33 split objects, 24 from C. Still open (splits_report.txt): archive.c's end, synth.c's
 end, axdriver.c's end, devcom.c's start, particle.c's start (their neighbours are unnamed fn_ functions).
 
+### HSD objects from C, step 99 (Nov 1, 2026)
+
+Three of the objects steps 97-98 split now link from C (decomp/src/sysdolphin/baselib, configure.py CR_MATCHING):
+
+- **memory.c** (.text 0x801A40EC-0x801A4154): wowjinxy/KAR's HSD_Free and HSD_Alloc. Each calls one slot of the
+  memory callback table: HSD_MemCallbackState in wowjinxy, main.dol's lbl_8044B768, in the automatic object before.
+- **debug.c** (.text 0x801AE9B4-0x801AEB40, .data, .sdata): __assert and HSD_Panic come from Melee 598987cf.
+  HSD_Panic calls HSD_SaveContext where Melee calls OSSaveContext. The context is lbl_8044BFB0 and the panic callback
+  lbl_80450068, both in automatic objects. HSD_SaveContext itself is an `asm` function, transcribed from doldecomp/kar's
+  debug.s: `stmw r0`, GQR0-7, CR, LR, CTR, XER, SRR0/1 and `state |= 1`, then a tail call to OSFillFPUContext. It was asm
+  in the original too, like the SDK's OSSaveContext in OSContext.c.
+- **archive.c** (.text 0x801A5558-0x801A5708): Melee's HSD_ArchiveGetPublicAddress, HSD_ArchiveGetExtern and
+  HSD_ArchiveLocateExtern, with Melee's archive.h copied next to it. HSD_ArchiveParse is not in main.dol's code.
+
+**shadow.c (next).** wowjinxy's shadow.c and memory.c compile equal for 11 of the 16 functions, among them
+fn_801A4800 = HSD_ShadowEndRender (0x198) and fn_801A4ABC = HSD_ShadowSetActive (0x1C8). Still different:
+HSD_ShadowStartRender (0.915), makeMatrix (0.717), HSD_ShadowSetViewingRect (0.619) and HSD_ViewingRectInit (0.538).
+fn_801A4998 (0x124, between EndRender and SetActive) is in no reference.
+
 ### HSD edge neighbours named (step 98, Nov 1, 2026)
 
 The five neighbours step 97 left were compared with every function of doldecomp/kar's asm (masked: call targets,

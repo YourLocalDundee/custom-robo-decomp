@@ -1177,9 +1177,11 @@ dolphin/thp/THPAudio.c                             3 functions
 dolphin/thp/THPDec.c                              19 functions
 dolphin/vi/vi.c                                   22 functions
 sysdolphin/baselib/aobj.c                         15 functions
+sysdolphin/baselib/archive.c                       3 functions
 sysdolphin/baselib/bytecode.c                      1 functions
 sysdolphin/baselib/class.c                        12 functions
 sysdolphin/baselib/cobj.c                         48 functions
+sysdolphin/baselib/debug.c                         3 functions
 sysdolphin/baselib/dobj.c                         16 functions
 sysdolphin/baselib/fobj.c                         11 functions
 sysdolphin/baselib/fog.c                          11 functions
@@ -1187,6 +1189,7 @@ sysdolphin/baselib/hash.c                          1 functions
 sysdolphin/baselib/id.c                            5 functions
 sysdolphin/baselib/initialize.c                   18 functions
 sysdolphin/baselib/list.c                          7 functions
+sysdolphin/baselib/memory.c                        2 functions
 sysdolphin/baselib/mobj.c                         26 functions
 sysdolphin/baselib/mtx.c                          16 functions
 sysdolphin/baselib/objalloc.c                      5 functions
@@ -2583,6 +2586,11 @@ DEF 0x801A3E98 HSD_SListAppendList sysdolphin/baselib/list.c .text size:0x70 glo
 DEF 0x801A3F08 HSD_SListPrependList sysdolphin/baselib/list.c .text size:0x50 global
 DEF 0x801A3F58 HSD_SListRemove sysdolphin/baselib/list.c .text size:0x50 global
 DEF 0x801A3FA8 ObjInfoInit sysdolphin/baselib/object.c .text size:0x44 global
+DEF 0x801A40EC HSD_Free sysdolphin/baselib/memory.c .text size:0x30 global
+DEF 0x801A411C HSD_Alloc sysdolphin/baselib/memory.c .text size:0x38 global
+DEF 0x801A5558 HSD_ArchiveGetPublicAddress sysdolphin/baselib/archive.c .text size:0xA4 global
+DEF 0x801A55FC HSD_ArchiveGetExtern sysdolphin/baselib/archive.c .text size:0x38 global
+DEF 0x801A5634 HSD_ArchiveLocateExtern sysdolphin/baselib/archive.c .text size:0xD4 global
 DEF 0x801A5F10 HSD_ByteCodeEval sysdolphin/baselib/bytecode.c .text size:0x15C8 global
 DEF 0x801A74D8 hsdInitClassInfo sysdolphin/baselib/class.c .text size:0xE8 global
 DEF 0x801A75C0 GetMemoryEntry sysdolphin/baselib/class.c .text size:0x264 global
@@ -2597,6 +2605,9 @@ DEF 0x801A7B40 _hsdClassInfoInit sysdolphin/baselib/class.c .text size:0x9C glob
 DEF 0x801A7BDC hsdNew sysdolphin/baselib/class.c .text size:0xC8 global
 DEF 0x801A7CA4 hsdSearchClassInfo sysdolphin/baselib/class.c .text size:0x40 global
 DEF 0x801A7CE4 HSD_HashSearch sysdolphin/baselib/hash.c .text size:0x100 global
+DEF 0x801AE9B4 HSD_SaveContext sysdolphin/baselib/debug.c .text size:0x98 global
+DEF 0x801AEA4C __assert sysdolphin/baselib/debug.c .text size:0x5C global
+DEF 0x801AEAA8 HSD_Panic sysdolphin/baselib/debug.c .text size:0x98 global
 DEF 0x801AEB40 THPVideoDecode dolphin/thp/THPDec.c .text size:0x244 global
 DEF 0x801AED84 __THPSetupBuffers dolphin/thp/THPDec.c .text size:0x44 local
 DEF 0x801AEDC8 __THPReadFrameHeader dolphin/thp/THPDec.c .text size:0x13C global
@@ -3095,6 +3106,8 @@ DEF 0x8024D61C unused5 sysdolphin/baselib/class.c .data size:0xA global
 DEF 0x8024D628 @315 sysdolphin/baselib/class.c .data size:0xC local
 DEF 0x8024D634 @316 sysdolphin/baselib/class.c .data size:0x2E local
 DEF 0x8024D668 @68 sysdolphin/baselib/hash.c .data size:0x17 local
+DEF 0x8024DAA0 @20 sysdolphin/baselib/debug.c .data size:0x16 local
+DEF 0x8024DAB8 @30 sysdolphin/baselib/debug.c .data size:0x16 local
 DEF 0x8024DAD0 @3 dolphin/thp/THPDec.c .data size:0x3C local
 DEF 0x8024DC80 cr_g_CharaEntries game/data/cr_g_CharaEntries.c .bss size:0x320 global
 DEF 0x8024E120 cr_g_BattleRobos game/data/cr_g_BattleRobos.c .bss size:0xCD480 global
@@ -3357,6 +3370,7 @@ DEF 0x8044F238 @614 sysdolphin/baselib/bytecode.c .sdata size:0x1 local
 DEF 0x8044F23C @615 sysdolphin/baselib/bytecode.c .sdata size:0x6 local
 DEF 0x8044F248 @13 sysdolphin/baselib/class.c .sdata size:0x8 local
 DEF 0x8044F250 @67 sysdolphin/baselib/hash.c .sdata size:0x7 local
+DEF 0x8044F290 @21 sysdolphin/baselib/debug.c .sdata size:0x1 local
 DEF 0x8044F298 __THPVersion dolphin/thp/THPDec.c .sdata size:0x4 global
 DEF 0x8044F898 BootInfo dolphin/os/OS.c .sbss size:0x4 local
 DEF 0x8044F89C BI2DebugFlag dolphin/os/OS.c .sbss size:0x4 local
@@ -4280,6 +4294,8 @@ sysdolphin/baselib/cobj.c                        .data   0x8024C188-0x8024C2DD  
 sysdolphin/baselib/cobj.c                        .sdata  0x8044F050-0x8044F06A   5 sym  of 5 in the C (0 stripped), 5 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/cobj.c                        .sbss   0x8044FFA8-0x8044FFB0   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
 sysdolphin/baselib/cobj.c                        .sdata2 0x80452700-0x80452768  17 sym  of 17 in the C (0 stripped), 17 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/debug.c                       .data   0x8024DAA0-0x8024DACE   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/debug.c                       .sdata  0x8044F290-0x8044F291   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/dobj.c                        .data   0x8024B4F8-0x8024B615   8 sym  of 8 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/dobj.c                        .sdata  0x8044EF88-0x8044EF99   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/dobj.c                        .sbss   0x8044FEF8-0x8044FF00   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
@@ -4692,6 +4708,7 @@ game/data/cr_g_UnlockBits.c                      .bss    0x804198B0-0x80419958  
 .data   0x8024D268-0x8024D438 size 0x1D0
 .data   0x8024D4D5-0x8024D4D8 size 0x3
 .data   0x8024D67F-0x8024D680 size 0x1
+.data   0x8024DACE-0x8024DAD0 size 0x2
 .bss    0x8024DB20-0x8024DC80 size 0x160
 .bss    0x8024DFA0-0x8024E120 size 0x180
 .bss    0x8031B5A0-0x8031FEA8 size 0x4908
