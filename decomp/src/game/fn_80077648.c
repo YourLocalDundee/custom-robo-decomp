@@ -14,7 +14,7 @@ typedef struct HSD_Joint HSD_Joint;
 HSD_JObj *HSD_JObjLoadJoint(HSD_Joint *);
 void HSD_JObjAddAnimAll(HSD_JObj *, HSD_AnimJoint *, HSD_MatAnimJoint *, HSD_ShapeAnimJoint *);
 
-extern u8 *lbl_8044F348;
+extern u8 *cr_g_CurrentBattleRobo;
 
 void fn_80077648(HSD_JObj **arg0, s8 arg1) {
     s32 *var_r31;
@@ -23,7 +23,7 @@ void fn_80077648(HSD_JObj **arg0, s8 arg1) {
     HSD_AnimJoint *var_r26;
     u32 var_r25;
 
-    var_r25 = M2C_FIELD(lbl_8044F348, u8 *, 0x8C);
+    var_r25 = M2C_FIELD(cr_g_CurrentBattleRobo, u8 *, 0x8C);
     var_r31 = M2C_FIELD((lbl_80379940 + (var_r25 * 4)), s32 **, 0);
     *arg0 = HSD_JObjLoadJoint(*M2C_FIELD((*var_r31 + (arg1 * 4)), HSD_Joint ***, 0));
     var_r26 = NULL;

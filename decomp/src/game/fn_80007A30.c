@@ -6,7 +6,7 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void fn_80023394(s8 *arg0, u32 arg1);
-extern u8 lbl_8024E120[840832];
+extern u8 cr_g_BattleRobos[840832];
 extern u8 lbl_8024DFA0[352];
 extern u32 lbl_80377C60[128];
 
@@ -14,7 +14,7 @@ void fn_80007A30(void) {
     s32 var_r31;
     s32 var_r30;
 
-    fn_80023394((s8 *) lbl_8024E120, 0xCD480U);
+    fn_80023394((s8 *) cr_g_BattleRobos, 0xCD480U);
     var_r31 = 0;
     while (var_r31 < 4) {
         M2C_FIELD((lbl_8024DFA0 + (var_r31 * 0x58)), s32 *, 4) = 0;

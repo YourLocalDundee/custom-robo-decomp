@@ -5,8 +5,8 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 lbl_8024E120[840832];
-extern u16 lbl_801C5BD0[32];
+extern u8 cr_g_BattleRobos[840832];
+extern u16 cr_g_BattleLoadouts[32];
 void fn_80078F00(s8 *arg0, u32 arg1);
 extern u8 lbl_80386588[160];
 typedef struct HSD_JObj HSD_JObj;
@@ -18,23 +18,23 @@ void fn_8008688C(u8 *arg0) {
     u8 var_r30_205;
     u8 temp_r29_229;
 
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), s32 *, 0x1D8) &= 0xEFFFFFFF;
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), s8 *, 0x8D) = (s8) *(((u16 *) ((u8 *) lbl_801C5BD0 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x10))));
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x20) = (f32) M2C_FIELD(arg0, f32 *, 0x94);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x24) = (f32) M2C_FIELD(arg0, f32 *, 0x98);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x28) = (f32) M2C_FIELD(arg0, f32 *, 0x9C);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x3343C) = (f32) M2C_FIELD(arg0, f32 *, 0x94);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33440) = (f32) M2C_FIELD(arg0, f32 *, 0x98);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33444) = (f32) M2C_FIELD(arg0, f32 *, 0x9C);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33448) = (f32) M2C_FIELD(arg0, f32 *, 0x94);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x3344C) = (f32) M2C_FIELD(arg0, f32 *, 0x98);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33450) = (f32) M2C_FIELD(arg0, f32 *, 0x9C);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33454) = (f32) M2C_FIELD(arg0, f32 *, 0x94);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33458) = (f32) M2C_FIELD(arg0, f32 *, 0x98);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x3345C) = (f32) M2C_FIELD(arg0, f32 *, 0x9C);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33460) = (f32) M2C_FIELD(arg0, f32 *, 0x94);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33464) = (f32) M2C_FIELD(arg0, f32 *, 0x98);
-    M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33468) = (f32) M2C_FIELD(arg0, f32 *, 0x9C);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), s32 *, 0x1D8) &= 0xEFFFFFFF;
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), s8 *, 0x8D) = (s8) *(((u16 *) ((u8 *) cr_g_BattleLoadouts + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x10))));
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x20) = (f32) M2C_FIELD(arg0, f32 *, 0x94);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x24) = (f32) M2C_FIELD(arg0, f32 *, 0x98);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x28) = (f32) M2C_FIELD(arg0, f32 *, 0x9C);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x3343C) = (f32) M2C_FIELD(arg0, f32 *, 0x94);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33440) = (f32) M2C_FIELD(arg0, f32 *, 0x98);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33444) = (f32) M2C_FIELD(arg0, f32 *, 0x9C);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33448) = (f32) M2C_FIELD(arg0, f32 *, 0x94);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x3344C) = (f32) M2C_FIELD(arg0, f32 *, 0x98);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33450) = (f32) M2C_FIELD(arg0, f32 *, 0x9C);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33454) = (f32) M2C_FIELD(arg0, f32 *, 0x94);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33458) = (f32) M2C_FIELD(arg0, f32 *, 0x98);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x3345C) = (f32) M2C_FIELD(arg0, f32 *, 0x9C);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33460) = (f32) M2C_FIELD(arg0, f32 *, 0x94);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33464) = (f32) M2C_FIELD(arg0, f32 *, 0x98);
+    M2C_FIELD((cr_g_BattleRobos + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x33520)), f32 *, 0x33468) = (f32) M2C_FIELD(arg0, f32 *, 0x9C);
     M2C_FIELD(arg0, s32 *, 0) = 0;
     if (M2C_FIELD(arg0, u32 *, 0x20) != 0) {
         fn_80078F00(M2C_FIELD((lbl_80386588 + (M2C_FIELD(arg0, u8 *, 0x2B7) * 0x14)), s8 **, 4), M2C_FIELD(arg0, u32 *, 0x20));

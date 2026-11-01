@@ -5,7 +5,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 lbl_8024E120[840832];
+extern u8 cr_g_BattleRobos[840832];
 typedef struct cr_GameMode
 {
   u32 flags;
@@ -35,7 +35,7 @@ extern u32 lbl_80377C60[128];
 struct HSD_JObj;
 void fn_80023394(s8 *arg0, u32 arg1);
 
-extern u8 *lbl_8044F348;
+extern u8 *cr_g_CurrentBattleRobo;
 
 void fn_8000768C(void) {
     s32 var_r31;
@@ -43,21 +43,21 @@ void fn_8000768C(void) {
 
     var_r31 = 0;
     while (var_r31 < 4) {
-        if ((M2C_FIELD((lbl_8024E120 + (var_r31 * 0x33520)), u32 *, 0) != 0U) || ((s32) cr_g_GameMode.unk_10 == 2)) {
-            lbl_8044F348 = lbl_8024E120 + (var_r31 * 0x33520);
-            fn_800442EC(lbl_8044F348 + 0x1E20);
-            fn_800412F8((s32) (lbl_8044F348 + 0x28D40));
-            fn_8003F1E8((s32) (lbl_8044F348 + 0x2E2E0));
-            HSD_JObjUnref(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x333C0));
-            HSD_JObjUnref(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x333C4));
-            HSD_JObjUnref(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x333C8));
-            HSD_JObjUnref(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x333CC));
-            HSD_JObjUnref(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x333D0));
-            HSD_JObjUnref(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x333D4));
-            HSD_JObjUnref(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x333D8));
-            HSD_JObjUnref(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x1DCC));
-            HSD_JObjUnref(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x1DD0));
-            HSD_JObjUnref(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x1E08));
+        if ((M2C_FIELD((cr_g_BattleRobos + (var_r31 * 0x33520)), u32 *, 0) != 0U) || ((s32) cr_g_GameMode.unk_10 == 2)) {
+            cr_g_CurrentBattleRobo = cr_g_BattleRobos + (var_r31 * 0x33520);
+            fn_800442EC(cr_g_CurrentBattleRobo + 0x1E20);
+            fn_800412F8((s32) (cr_g_CurrentBattleRobo + 0x28D40));
+            fn_8003F1E8((s32) (cr_g_CurrentBattleRobo + 0x2E2E0));
+            HSD_JObjUnref(M2C_FIELD(cr_g_CurrentBattleRobo, HSD_JObj **, 0x333C0));
+            HSD_JObjUnref(M2C_FIELD(cr_g_CurrentBattleRobo, HSD_JObj **, 0x333C4));
+            HSD_JObjUnref(M2C_FIELD(cr_g_CurrentBattleRobo, HSD_JObj **, 0x333C8));
+            HSD_JObjUnref(M2C_FIELD(cr_g_CurrentBattleRobo, HSD_JObj **, 0x333CC));
+            HSD_JObjUnref(M2C_FIELD(cr_g_CurrentBattleRobo, HSD_JObj **, 0x333D0));
+            HSD_JObjUnref(M2C_FIELD(cr_g_CurrentBattleRobo, HSD_JObj **, 0x333D4));
+            HSD_JObjUnref(M2C_FIELD(cr_g_CurrentBattleRobo, HSD_JObj **, 0x333D8));
+            HSD_JObjUnref(M2C_FIELD(cr_g_CurrentBattleRobo, HSD_JObj **, 0x1DCC));
+            HSD_JObjUnref(M2C_FIELD(cr_g_CurrentBattleRobo, HSD_JObj **, 0x1DD0));
+            HSD_JObjUnref(M2C_FIELD(cr_g_CurrentBattleRobo, HSD_JObj **, 0x1E08));
         }
         var_r31 += 1;
     }
@@ -81,5 +81,5 @@ void fn_8000768C(void) {
         }
         var_r31 += 1;
     }
-    fn_80023394((s8 *) lbl_8024E120, 0xCD480U);
+    fn_80023394((s8 *) cr_g_BattleRobos, 0xCD480U);
 }

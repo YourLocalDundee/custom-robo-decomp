@@ -5,7 +5,7 @@ A game global of symbols/cr_globals.txt (our cr_g_ name, its section and address
 becomes a C definition: a zero-initialised object for .bss / .sbss, an initialiser generated from main.dol's bytes for
 .data / .sdata / .rodata / .sdata2, element by element along the type (scalars as numbers, floats as the shortest
 literal with the same bits, pointers as the name of ours at the target address that main.elf's relocation gives there,
-function pointers as the function's name). Several globals that are contiguous in main.dol go into one file; the
+function pointers as the function's name). Several globals that are contiguous in main.dol (or apart by the zero padding that aligns the next one) go into one file; the
 compiler lays .data / .sdata / .rodata / .sdata2 out in declaration order and .bss / .sbss in REVERSE declaration order
 (measured, GC/2.6 with the game flags), every section 8-aligned, so the file declares them in that order. The types
 come out of the drafts' context (decomp/drafts/ctx_pp.c: the HSD / SDK headers + symbols/cr_types.h preprocessed; run
@@ -14,7 +14,9 @@ The file is then compiled with the game flags and placed by tools/gen_dtk_splits
 (data_unit_pieces: one piece start per section from the object's symbols at our addresses, bytes and relocations
 main.dol's, dtk symbol starts at both ends); only a file that passes is written. Batch 9 repeats the check, links the
 unit and verifies the retail SHA-1, objdiff 100% and the shift test.
-Not handled (the tool stops and says so): a pointer into the middle of a symbol, a pointer slot holding a number, a
+A pointer into the middle of a symbol is written `&name[i]` when that symbol is a typed global of ours, an array of what
+the pointer points at, and the target is the start of element i (step 90).
+Not handled (the tool stops and says so): any other pointer into the middle of a symbol, a pointer slot holding a number, a
 string literal (the file's own .rodata pool: the strings would have to come with the unit), unions, bit fields, a type
 whose size is not dtk's object size (the remainder would be another object's), a global of 8 bytes or less in .data /
 .bss (the compiler puts it in .sdata / .sbss).
@@ -22,6 +24,7 @@ Usage: python -I tools/gen_data_c.py NAME [NAME ...]            one unit of thes
        python -I tools/gen_data_c.py --all                      write every unit of UNITS again (after a type / name change)
        python -I tools/gen_data_c.py --check NAME ...           generate and verify, write nothing
 """
+import bisect
 import copy
 import re
 import shutil
@@ -45,7 +48,7 @@ MARK = "/* Custom Robo game data, written by tools/gen_data_c.py"
 NL = "\n"
 GLINE = re.compile(r"^\s*(cr_g_\w+)\s*=\s*(\.[\w.]+):0x([0-9A-Fa-f]+);\s*//\s*type:object\s+datatype:(\S+)")
 DTYPE = re.compile(r"^([A-Za-z_]\w*)\s*(\**)\s*((?:\[\d+\])*)$")
-# the units written so far (plan.md step 86): --all writes every one again
+# the units written so far (plan.md steps 86 and 90): --all writes every one again
 UNITS = [
     # .bss, inside the glue span 0x803B8C00..0x803E66B4 (one file's data pool: these move only with it)
     ["cr_g_Script", "cr_g_SaveData", "cr_g_Scenario"],
@@ -58,13 +61,31 @@ UNITS = [
     # .bss outside every glue span (shift-test insertion points)
     ["cr_g_CharaEntries"],
     ["cr_g_MotionDataBit15", "cr_g_MotionData"],
-    ["cr_g_MessageFiles"],
+    ["cr_g_MessageFiles", "cr_g_WindowStyle", "cr_g_TextRecords"],           # step 90: the window style and the text records after it
     ["cr_g_GameMode", "cr_g_SeqCurrent"],
     ["cr_g_UnlockBits"],
+    # step 90 (naming round 5): the battle robos, the file system's loader + slots, the cameras, the buffers
+    ["cr_g_BattleRobos"],                                                     # 4 x 0x33520
+    ["cr_g_EntryTableLoad", "cr_g_FileSlots"],                                # cr_g_FileSlots' 4-aligned start comes with the object before it
+    ["cr_g_Cams", "cr_g_CamSystem"],
+    ["cr_g_CardWorkArea"],
+    ["cr_g_ScenarioBuffer"],
+    ["cr_g_ModelSlots"],
     # initialised data
     ["cr_g_BattleMotionSets"],                                                # .data, inside a glue span
     ["cr_g_FileDescs"],                                                       # .data, outside (43 pointers; dtk's 0xC0 object ends in 0x14 zero bytes)
     ["cr_g_BodyCount", "cr_g_LegCount", "cr_g_GunCount", "cr_g_BombCount"],   # .sdata, the section start
+    # step 90: the robo tables (the records cr_BattleRobo_InitFromLoadout copies), the part menu lists
+    ["cr_g_BattleLoadouts", "cr_g_BodyData", "cr_g_BattleParams", "cr_g_BodyStats", "cr_g_LegData"],   # cr_g_BodyData's motion_set -> &cr_g_BattleMotionSets[i]
+    ["cr_g_GunData", "cr_g_BombData"],
+    ["cr_g_PartOrderLeg", "cr_g_PartOrderLists"],                             # 2 bytes of alignment padding between them
+    # step 90: tables dtk saw as one object with what follows (cuts: symbols/data_splits.txt)
+    # the six sequence tables are one pool: cr_Game_Update reaches cr_g_SeqEnter / cr_g_SeqLeave as cr_g_SeqFrameA's base
+    # + 0xF0 / + 0x12C, so they move (and are kept by the linker) only together; cr_g_SeqNames points at the SEQ_ strings
+    # of .rodata by their symbols (the strings stay in their automatic object)
+    ["cr_g_SeqFrameA", "cr_g_SeqNames", "cr_g_SeqFrameB", "cr_g_SeqFrameC", "cr_g_SeqEnter", "cr_g_SeqLeave"],
+    ["cr_g_CamModeFuncs"],
+    ["cr_g_CharaYOffset", "cr_g_CharaMotionSets"],
 ]
 INTS = {"char": (1, True), "signed char": (1, True), "unsigned char": (1, False), "short": (2, True),
         "unsigned short": (2, False), "int": (4, True), "unsigned int": (4, False), "unsigned": (4, False),
@@ -181,6 +202,14 @@ class Gen:
         self.elf = ra.Elf(str(p))
         self.dobjs = ra.Objects(self.elf)
         self.globals = read_globals()
+        # a name of cr_globals.txt that batch 9 has not applied yet: the dtk symbol at its address takes it here (the
+        # config symbols.txt keeps the old name until batch 9, whose sync_game_names.py renames the promoted files from it)
+        for n, (sec, a, dtype) in self.globals.items():
+            if n not in self.name_addr and a in self.at and not self.at[a][3]:
+                old = self.at[a][0]
+                self.name_addr[n] = {a}
+                self.at[a] = (n,) + self.at[a][1:]
+                self.ours = [(n if (x[0], x[2]) == (old, a) else x[0],) + tuple(x[1:]) for x in self.ours]
         self.externs = {}   # name -> declaration line
 
     def bytes_at(self, a, n):
@@ -220,8 +249,9 @@ class Gen:
                     return "NULL"
                 raise Stop(f"0x{a:08X}: a pointer slot holds 0x{w:08X} without a relocation")
             tgt = r[1]
-            if tgt not in self.at:
-                raise Stop(f"0x{a:08X}: points into the middle of a symbol (0x{tgt:08X})")
+            if tgt not in self.at or (re.match(r"lbl_[0-9A-F]{8}$", self.at[tgt][0]) and self.container(tgt)):
+                # (a dtk default symbol inside a typed global of ours is one of its elements: batch 9 drops it, SYM_DROP)
+                return self.element_pointer(a, tgt, t)
             n, sec, sz, isf = self.at[tgt]
             if k == "fptr":
                 if not isf:
@@ -248,6 +278,42 @@ class Gen:
                 raise Stop(f"0x{a:08X}+0x{end:X}: non-zero padding at the end of struct {t['name']}")
             return self.braces(vals, indent, all(mt["k"] in ("int", "float", "ptr", "fptr") for _, _, mt in t["members"]))
         raise Stop(f"value of a {k}")
+
+    def container(self, tgt):
+        """the typed global of ours (cr_globals.txt) whose bytes hold tgt after its start, or None"""
+        for n, (sec, base, dtype) in self.globals.items():
+            if base < tgt and n in self.name_addr:
+                m = DTYPE.match(dtype)
+                try:
+                    size = 4 if m.group(2) else self.types.of_name(m.group(1))["size"]
+                except (Stop, AttributeError):
+                    continue
+                for d in re.findall(r"\[(\d+)\]", m.group(3)):
+                    size *= int(d)
+                if tgt < base + size:
+                    return n
+        return None
+
+    def element_pointer(self, a, tgt, t):
+        """a pointer into the middle of a symbol: `&name[i]` when the symbol is a typed global of ours (cr_globals.txt)
+        whose type is an array of what the pointer points at and the target is the start of element i (step 90:
+        cr_g_BodyData's records point at their cr_g_BattleMotionSets entry); anything else stops"""
+        if t["k"] != "ptr":
+            raise Stop(f"0x{a:08X}: a function pointer into the middle of a symbol (0x{tgt:08X})")
+        n = self.container(tgt)
+        if n is None:
+            raise Stop(f"0x{a:08X}: points into the middle of a symbol (0x{tgt:08X}) that is no typed global of ours")
+        sec, base, dtype = self.globals[n]
+        m = DTYPE.match(dtype)
+        pointee = self.types.pointee_name(t["to"])
+        if not m or not m.group(3) or m.group(2) or pointee != m.group(1):
+            raise Stop(f"0x{a:08X}: points into {n} ({dtype}), not at an element of type {pointee}")
+        esz = self.types.of_name(m.group(1))["size"]
+        dims = [int(d) for d in re.findall(r"\[(\d+)\]", m.group(3))]
+        if len(dims) != 1 or (tgt - base) % esz or not 0 <= (tgt - base) // esz < dims[0]:
+            raise Stop(f"0x{a:08X}: points at 0x{tgt:08X}, not at the start of an element of {n} ({dtype})")
+        self.declare_data(n, t["to"])
+        return f"&{n}[{(tgt - base) // esz}]"
 
     def braces(self, vals, indent, flat):
         pad = "    " * (indent + 1)
@@ -320,11 +386,13 @@ class Gen:
                 raise Stop(f"{n}: {t['size']} bytes in {sec}: the compiler would put it in the small-data section")
             items.append((a, n, sec, dtype, decl, t))
         items.sort()
-        for (a0, n0, s0, _, _, t0), (a1, n1, s1, _, _, _) in zip(items, items[1:]):
+        for (a0, n0, s0, _, _, t0), (a1, n1, s1, _, _, t1) in zip(items, items[1:]):
             if s0 != s1:
                 raise Stop(f"{n0} ({s0}) and {n1} ({s1}) are in different sections: one unit holds one section's run")
-            if a0 + t0["size"] != a1:
-                raise Stop(f"{n0} ends at 0x{a0 + t0['size']:08X}, {n1} starts at 0x{a1:08X}: not contiguous")
+            # contiguous, or the gap is the compiler's alignment padding before the next one (zero bytes)
+            e0 = a0 + t0["size"]
+            if not (e0 <= a1 == (e0 + t1["align"] - 1) & -t1["align"]) or any(self.bytes_at(e0, a1 - e0)):
+                raise Stop(f"{n0} ends at 0x{e0:08X}, {n1} starts at 0x{a1:08X}: not contiguous")
         sec = items[0][2]
         zero = sec in (".bss", ".sbss")
         defs = []
@@ -352,7 +420,10 @@ class Gen:
             text += "/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h */" + NL + NL.join(self.emitter.out) + NL + NL
         if self.externs:
             text += "/* what the pointers point at (names of decomp/config/GXCE01/symbols.txt) */" + NL + NL.join(v for k, v in sorted(self.externs.items())) + NL + NL
-        text += NL.join(d for a, d in order) + NL
+        # mwld strips a data symbol nothing names (dtk's asm objects keep theirs): a table the code reaches as another
+        # table's base + offset (cr_g_SeqEnter = cr_g_SeqFrameA + 0xF0) would go, and everything after it would move
+        text += ("/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */" + NL
+                 + "#pragma force_active on" + NL + NL.join(d for a, d in order) + NL + "#pragma force_active reset" + NL)
         return stem, text, [(a, n, t["size"]) for a, n, s, dtype, decl, t in items]
 
     def verify(self, stem, text):

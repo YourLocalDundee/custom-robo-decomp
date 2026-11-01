@@ -123,6 +123,9 @@ typedef struct cr_ScenarioState
   u32 unk_354[4];
 } cr_ScenarioState;
 
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
 cr_ScenarioState cr_g_Scenario;
 cr_SaveData cr_g_SaveData;
 cr_ScriptState cr_g_Script;
+#pragma force_active reset

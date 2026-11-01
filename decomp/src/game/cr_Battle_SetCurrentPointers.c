@@ -15,20 +15,20 @@ __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_0678;
 __declspec(section ".sdata") extern f32 *cr_g_CurrentCharaLimbParams;
 extern f32 lbl_8044F540;
 
-extern u8 *lbl_8044F348;
+extern u8 *cr_g_CurrentBattleRobo;
 extern u8 *lbl_8044F534;
 extern u8 *lbl_8044F53C;
 
 void cr_Battle_SetCurrentPointers(void) {
-    cr_g_CurrentChara_0e4c = lbl_8044F348 + 0x974;
-    cr_g_CurrentChara_11cc = lbl_8044F348 + 0xCF4;
-    cr_g_CurrentChara_06dc = lbl_8044F348 + 0x53C;
-    cr_g_CurrentChara_09e8 = lbl_8044F348 + 0x848;
-    cr_g_CurrentChara_026c = lbl_8044F348 + 0x70;
-    cr_g_CurrentChara_154c = lbl_8044F348 + 0x1074;
-    cr_g_CurrentChara_0678 = lbl_8044F348 + 0x4BC;
-    cr_g_CurrentCharaLimbParams = M2C_FIELD(lbl_8044F348, f32 **, 0x85C);
-    lbl_8044F540 = M2C_FIELD(lbl_8044F348, f32 *, 0x17F8);
-    lbl_8044F53C = lbl_8044F348 + 0x20;
-    lbl_8044F534 = lbl_8044F348 + 0x60;
+    cr_g_CurrentChara_0e4c = cr_g_CurrentBattleRobo + 0x974;
+    cr_g_CurrentChara_11cc = cr_g_CurrentBattleRobo + 0xCF4;
+    cr_g_CurrentChara_06dc = cr_g_CurrentBattleRobo + 0x53C;
+    cr_g_CurrentChara_09e8 = cr_g_CurrentBattleRobo + 0x848;
+    cr_g_CurrentChara_026c = cr_g_CurrentBattleRobo + 0x70;
+    cr_g_CurrentChara_154c = cr_g_CurrentBattleRobo + 0x1074;
+    cr_g_CurrentChara_0678 = cr_g_CurrentBattleRobo + 0x4BC;
+    cr_g_CurrentCharaLimbParams = M2C_FIELD(cr_g_CurrentBattleRobo, f32 **, 0x85C);
+    lbl_8044F540 = M2C_FIELD(cr_g_CurrentBattleRobo, f32 *, 0x17F8);
+    lbl_8044F53C = cr_g_CurrentBattleRobo + 0x20;
+    lbl_8044F534 = cr_g_CurrentBattleRobo + 0x60;
 }

@@ -9,7 +9,7 @@ extern u8 lbl_8023BA84[836];
 extern u8 lbl_8024DFA0[352];
 typedef struct HSD_JObj HSD_JObj;
 void HSD_JObjUnref(HSD_JObj *jobj);
-extern u8 lbl_8024E120[840832];
+extern u8 cr_g_BattleRobos[840832];
 extern u32 lbl_80377C60[128];
 struct HSD_JObj;
 
@@ -24,7 +24,7 @@ void fn_8010D2D0(u8 arg0, u16 arg1) {
         }
         var_r30 = 0;
         while (var_r30 < 0x14U) {
-            M2C_FIELD((lbl_8024E120 + (arg0 * 0x33520) + (var_r30 * 4)), s32 *, 0x864) = 0;
+            M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520) + (var_r30 * 4)), s32 *, 0x864) = 0;
             var_r30 += 1;
         }
         return;
@@ -40,7 +40,7 @@ void fn_8010D2D0(u8 arg0, u16 arg1) {
             HSD_JObjUnref(M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), HSD_JObj **, 4));
             M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), s32 *, 4) = 0;
         }
-        M2C_FIELD((lbl_8024E120 + (arg0 * 0x33520)), s32 *, 0x944) = 0;
+        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x944) = 0;
         return;
     case 1:
         if (M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), u32 *, 8) != 0U) {
@@ -51,7 +51,7 @@ void fn_8010D2D0(u8 arg0, u16 arg1) {
             HSD_JObjUnref(M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), HSD_JObj **, 0xC));
             M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), s32 *, 0xC) = 0;
         }
-        M2C_FIELD((lbl_8024E120 + (arg0 * 0x33520)), s32 *, 0x948) = 0;
+        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x948) = 0;
         return;
     case 2:
         if (M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), u32 *, 0x10) != 0U) {
@@ -70,8 +70,8 @@ void fn_8010D2D0(u8 arg0, u16 arg1) {
             HSD_JObjUnref(M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), HSD_JObj **, 0x1C));
             M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), s32 *, 0x1C) = 0;
         }
-        M2C_FIELD((lbl_8024E120 + (arg0 * 0x33520)), s32 *, 0x950) = 0;
-        M2C_FIELD((lbl_8024E120 + (arg0 * 0x33520)), s32 *, 0x94C) = 0;
+        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x950) = 0;
+        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x94C) = 0;
         return;
     case 3:
         if (M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), u32 *, 0x20) != 0U) {
@@ -98,10 +98,10 @@ void fn_8010D2D0(u8 arg0, u16 arg1) {
             HSD_JObjUnref(M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), HSD_JObj **, 0x34));
             M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), s32 *, 0x34) = 0;
         }
-        M2C_FIELD((lbl_8024E120 + (arg0 * 0x33520)), s32 *, 0x954) = 0;
-        M2C_FIELD((lbl_8024E120 + (arg0 * 0x33520)), s32 *, 0x958) = 0;
-        M2C_FIELD((lbl_8024E120 + (arg0 * 0x33520)), s32 *, 0x95C) = 0;
-        M2C_FIELD((lbl_8024E120 + (arg0 * 0x33520)), s32 *, 0x960) = 0;
+        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x954) = 0;
+        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x958) = 0;
+        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x95C) = 0;
+        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x960) = 0;
         return;
     }
 }

@@ -36,4 +36,7 @@ typedef struct cr_CharaEntrySlot
   cr_CharaEntryHeader *entry;
 } cr_CharaEntrySlot;
 
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
 cr_CharaEntrySlot cr_g_CharaEntries[100];
+#pragma force_active reset

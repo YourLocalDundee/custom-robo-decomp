@@ -6,7 +6,7 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 lbl_8044F461;
-extern u8 lbl_8024E120[840832];
+extern u8 cr_g_BattleRobos[840832];
 extern u8 lbl_80321E90[5088];
 extern u32 lbl_80387160[796];
 extern u32 lbl_8037569C[2417];
@@ -17,12 +17,12 @@ void fn_80026F58(s32 arg0) {
 
     var_r31 = 0;
     while (var_r31 < (u8) lbl_8044F461) {
-        if (!(M2C_FIELD((lbl_8024E120 + (var_r31 * 0x33520)), s32 *, 0x1D8) & 0x10100000)) {
-            M2C_FIELD((lbl_8024E120 + (var_r31 * 0x33520)), s32 *, 0x1D8) &= 0xFFDFFFFF;
+        if (!(M2C_FIELD((cr_g_BattleRobos + (var_r31 * 0x33520)), s32 *, 0x1D8) & 0x10100000)) {
+            M2C_FIELD((cr_g_BattleRobos + (var_r31 * 0x33520)), s32 *, 0x1D8) &= 0xFFDFFFFF;
             if (!((&lbl_80321E90[(arg0 * 4) & 0x3FC])[var_r31] & 1)) {
-                M2C_FIELD((lbl_8024E120 + (var_r31 * 0x33520)), s32 *, 0x1D8) |= 0x200000;
+                M2C_FIELD((cr_g_BattleRobos + (var_r31 * 0x33520)), s32 *, 0x1D8) |= 0x200000;
             }
-        } else if ((M2C_FIELD((lbl_8024E120 + (var_r31 * 0x33520)), s32 *, 0x1D8) & 0x10000000) && !(M2C_FIELD((((u32 *) ((u8 *) lbl_80387160 + (var_r31 * 0x31C)))), u8 *, 0x2E5) & 1)) {
+        } else if ((M2C_FIELD((cr_g_BattleRobos + (var_r31 * 0x33520)), s32 *, 0x1D8) & 0x10000000) && !(M2C_FIELD((((u32 *) ((u8 *) lbl_80387160 + (var_r31 * 0x31C)))), u8 *, 0x2E5) & 1)) {
             M2C_FIELD(((u32 *) ((u8 *) lbl_80387160 + (var_r31 * 0x31C))), u8 *, 0x2E5) &= 0xFC;
             if (!((&lbl_80321E90[(arg0 * 4) & 0x3FC])[var_r31] & 1)) {
                 M2C_FIELD(((u32 *) ((u8 *) lbl_80387160 + (var_r31 * 0x31C))), u8 *, 0x2E5) |= 2;

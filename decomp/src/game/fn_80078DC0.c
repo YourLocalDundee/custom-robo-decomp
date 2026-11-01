@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 lbl_80379FE0[432];
 
-extern u8 *lbl_8044F348;
+extern u8 *cr_g_CurrentBattleRobo;
 
 void fn_80078DC0(void *arg0) {
     s32 var_r31_10;
@@ -17,8 +17,8 @@ void fn_80078DC0(void *arg0) {
     }
     var_r31_10 = 0;
     while (var_r31_10 < 8) {
-        if (M2C_FIELD(arg0, u32 *, 0x90) == (u32) M2C_FIELD((lbl_80379FE0 + (M2C_FIELD(lbl_8044F348, u8 *, 0x8C) * 0x6C) + (var_r31_10 * 0xC)), u32 *, 4)) {
-            *(lbl_80379FE0 + (M2C_FIELD(lbl_8044F348, u8 *, 0x8C) * 0x6C) + (var_r31_10 * 0xC)) = 0;
+        if (M2C_FIELD(arg0, u32 *, 0x90) == (u32) M2C_FIELD((lbl_80379FE0 + (M2C_FIELD(cr_g_CurrentBattleRobo, u8 *, 0x8C) * 0x6C) + (var_r31_10 * 0xC)), u32 *, 4)) {
+            *(lbl_80379FE0 + (M2C_FIELD(cr_g_CurrentBattleRobo, u8 *, 0x8C) * 0x6C) + (var_r31_10 * 0xC)) = 0;
         }
         var_r31_10 += 1;
     }

@@ -13,4 +13,7 @@ typedef struct cr_UnlockBits
   u32 stages[2];
 } cr_UnlockBits;
 
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
 cr_UnlockBits cr_g_UnlockBits;
+#pragma force_active reset

@@ -61,6 +61,8 @@ extern cr_FileDesc lbl_801F5D00[];
 extern cr_FileDesc lbl_801F5D10[];
 extern cr_FileDesc lbl_801F5D20[];
 
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
 cr_FileDesc *cr_g_FileDescs[43] = {
     lbl_801F21E0, lbl_801F2210, lbl_801F2270, lbl_801F2220, lbl_801F2230, lbl_801F2240, lbl_801F2250,
     lbl_801F2260, lbl_801F5CF0, lbl_801F5D00, lbl_801F5D10, lbl_801F5D20, lbl_801F3890, lbl_801F4F30,
@@ -70,3 +72,4 @@ cr_FileDesc *cr_g_FileDescs[43] = {
     lbl_801F4690, lbl_801F5090, lbl_801F52C0, lbl_801F5610, lbl_801F58B0, lbl_801F5B80, lbl_801F28C0,
     lbl_801F2C60
 };
+#pragma force_active reset

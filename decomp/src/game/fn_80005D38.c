@@ -9,13 +9,13 @@ typedef struct HSD_JObj HSD_JObj;
 void fn_8006E778(HSD_JObj *arg0);
 extern u8 lbl_80386378[208];
 
-extern u8 *lbl_8044F348;
+extern u8 *cr_g_CurrentBattleRobo;
 
 void fn_80005D38(void) {
 
-    if (!(M2C_FIELD(lbl_8044F348, s32 *, 0x1D8) & 0x10000000)) {
-        fn_8006E778(M2C_FIELD(lbl_8044F348, HSD_JObj **, 0x860));
-        *((u16 *) (lbl_80386378 + (M2C_FIELD(lbl_8044F348, u8 *, 0x8C) * 0x34))) |= 2;
-        M2C_FIELD(lbl_8044F348, s32 *, 4) += 1;
+    if (!(M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 0x1D8) & 0x10000000)) {
+        fn_8006E778(M2C_FIELD(cr_g_CurrentBattleRobo, HSD_JObj **, 0x860));
+        *((u16 *) (lbl_80386378 + (M2C_FIELD(cr_g_CurrentBattleRobo, u8 *, 0x8C) * 0x34))) |= 2;
+        M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 4) += 1;
     }
 }

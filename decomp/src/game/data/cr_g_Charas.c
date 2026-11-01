@@ -476,4 +476,7 @@ typedef struct cr_Chara
   u32 unk_19a4;
 } cr_Chara;
 
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
 cr_Chara cr_g_Charas[24];
+#pragma force_active reset

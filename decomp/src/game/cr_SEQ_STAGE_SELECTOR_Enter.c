@@ -65,8 +65,8 @@ __declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 extern u8 lbl_8031F240[40];
 extern u32 lbl_8044F504;
 extern u32 lbl_8037569C[2417];
-extern u16 lbl_801C5BD0[32];
-extern u8 lbl_8024E120[840832];
+extern u16 cr_g_BattleLoadouts[32];
+extern u8 cr_g_BattleRobos[840832];
 
 void cr_SEQ_STAGE_SELECTOR_Enter(void) {
     if ((cr_g_GameMode.flags & 0x02000000) && ((enum cr_Seq) cr_g_SeqCurrent.previous == SEQ_BATTLE)) {
@@ -75,13 +75,13 @@ void cr_SEQ_STAGE_SELECTOR_Enter(void) {
         cr_g_GameMode.unk_10 = M2C_FIELD(lbl_8031F240, u32 *, 4);
         lbl_8044F504 = M2C_FIELD(lbl_8031F240, u32 *, 0xC);
         M2C_FIELD(lbl_8037569C, u8 *, 6) = M2C_FIELD(lbl_8031F240, u8 *, 0);
-        M2C_FIELD(lbl_801C5BD0, u16 *, 0) = M2C_FIELD(lbl_8031F240, u16 *, 0x10);
-        lbl_801C5BD0[8] = M2C_FIELD(lbl_8031F240, u16 *, 0x12);
-        lbl_801C5BD0[0x10] = M2C_FIELD(lbl_8031F240, u16 *, 0x14);
-        lbl_801C5BD0[0x18] = M2C_FIELD(lbl_8031F240, u16 *, 0x16);
-        M2C_FIELD(lbl_8024E120, s32 *, 0x1D8) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x18);
-        M2C_FIELD(lbl_8024E120, s32 *, 0x336F8) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x1C);
-        M2C_FIELD(lbl_8024E120, s32 *, 0x66C18) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x20);
-        M2C_FIELD(lbl_8024E120, s32 *, 0x9A138) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x24);
+        M2C_FIELD(cr_g_BattleLoadouts, u16 *, 0) = M2C_FIELD(lbl_8031F240, u16 *, 0x10);
+        cr_g_BattleLoadouts[8] = M2C_FIELD(lbl_8031F240, u16 *, 0x12);
+        cr_g_BattleLoadouts[0x10] = M2C_FIELD(lbl_8031F240, u16 *, 0x14);
+        cr_g_BattleLoadouts[0x18] = M2C_FIELD(lbl_8031F240, u16 *, 0x16);
+        M2C_FIELD(cr_g_BattleRobos, s32 *, 0x1D8) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x18);
+        M2C_FIELD(cr_g_BattleRobos, s32 *, 0x336F8) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x1C);
+        M2C_FIELD(cr_g_BattleRobos, s32 *, 0x66C18) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x20);
+        M2C_FIELD(cr_g_BattleRobos, s32 *, 0x9A138) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x24);
     }
 }

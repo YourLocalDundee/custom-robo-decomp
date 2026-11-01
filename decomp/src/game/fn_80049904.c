@@ -8,10 +8,10 @@
 extern u32 lbl_8044F4C8;
 extern u32 lbl_8044F4D8;
 
-extern u8 *lbl_8044F348;
+extern u8 *cr_g_CurrentBattleRobo;
 
 s32 fn_80049904(void) {
-    lbl_8044F4C8 = M2C_FIELD(lbl_8044F348, u32 *, 0x1D8);
-    lbl_8044F4D8 = M2C_FIELD(lbl_8044F348, u32 *, 0x4CC);
+    lbl_8044F4C8 = M2C_FIELD(cr_g_CurrentBattleRobo, u32 *, 0x1D8);
+    lbl_8044F4D8 = M2C_FIELD(cr_g_CurrentBattleRobo, u32 *, 0x4CC);
     return 1;
 }

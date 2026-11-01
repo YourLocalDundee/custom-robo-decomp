@@ -5,11 +5,11 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 lbl_80330D4C[79876];
+extern u8 cr_g_TextRecords[79876];
 
 void fn_8008E05C(void *arg0, void *arg1, s32 arg2) {
     M2C_FIELD(arg1, u16 *, 8) = 0xFFFE;
     M2C_FIELD(arg0, void **, 0x1C) = arg1;
-    M2C_FIELD(M2C_FIELD(arg0, void **, 0x1C), void **, 4) = (void *) (lbl_80330D4C + (arg2 << 5));
+    M2C_FIELD(M2C_FIELD(arg0, void **, 0x1C), void **, 4) = (void *) (cr_g_TextRecords + (arg2 << 5));
     M2C_FIELD(M2C_FIELD(M2C_FIELD(arg0, void **, 0x1C), void **, 4), u16 *, 0x10) = 0xFFFF;
 }
