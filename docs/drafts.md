@@ -1069,6 +1069,23 @@ extra / a second `pc = cr_g_ScriptPC;` / `pc = 0;` / `pc = (s16 *) cmd_cnt;` / a
 (the step 84 ceiling); every extra statement stays in the code (39-40 words): the level-0 compiler does not delete
 dead local writes. The head stays at its 85% family ceiling; no generator rule, no batch run.
 
+### Step 92: float temporaries first; the head's second deletable instruction (Oct 31 - Nov 1, 2026, branch sched-e)
+
+- **`hoist_float_temps`** (a variant, tools/draft_batch.py): in a draft whose body is a flat list of one-line
+  statements, each float temporary `var_fNN = EXPR;` moves up past the stores m2c interleaved with it (never past a
+  store to a field it reads, the statement that assigns a local it reads, or another temporary). Found with
+  tools/sched/permute_stmts.py: fn_8001CCD4, fn_8001CD64, fn_8001CDF4 (36 of 36 words) and fn_8001D254 (63 of 63)
+  match with the temporaries first; `draft_batch.py --only` with the rule: the four at 100% (fn_80076404 and
+  cr_Vec3_RotateY unchanged). A full batch 12 with the rule was not completed in this step (docs/sched_model.md
+  section 16).
+- **Grouping of the near misses** (tools/sched/group_near.py): schedule-only 36 = 20 in the script-command head block
+  only + 7 float blocks + 9 other; register-only 19 = no block differs once registers are masked.
+- **The handler head**: the history store written `(s16) *pc` gives the compiler an `extsh` it deletes later (the
+  first real construct of the deleted-instruction class); best compiled 20 of 38 by position (was 18), inverse
+  ceiling 29 of 38 (was 25); one more deletable instruction on the increment statement's address is still missing
+  (docs/sched_model.md section 15). Applied to the 21 handler drafts whose head the pattern finds, the `(s16)` store is
+  worse (16 lower by position, 4 equal, 1 higher), so it is not a rule.
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.

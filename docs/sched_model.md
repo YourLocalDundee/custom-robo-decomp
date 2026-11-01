@@ -355,10 +355,52 @@ dead local writes.
 | register-only (the body is the original once register numbers are masked) | 19 (17 + 2 with the frame too) | 0 |
 | frame (only the prologue / epilogue differ) | 2 | 0 |
 
-## 15. Next
+## 15. Step 92: the deleted instruction's class, the float-temporary rule
 
-Find the C construct that the level-0 front end turns into an extra integer instruction on the PC local's
-chain and that a later pass deletes (the u8 widening of fn_8006EEF8's alpha is one such class: a `clrlwi` before a
-byte store); score candidates with inverse.py on their hook log. fn_8006EEF8's vertex blocks need the same search per
-block (blocks 32, 36, 40, 43 of the call-split listing; blocks 28, 29, 33, 37, 38, 41 differ only by the pool
-constants' names, which the file object owns).
+**cr_CM_DUMMY_008.** `tools/sched/shape_eval.py` scores a C shape by its hook compile (the deleted instructions),
+its word score (scratch/hd/pr.py) and the inverse search over its own first-pass PCode (`inverse.py` now removes every
+instruction the hook saw deleted between the passes before colouring; `NOMEM` drops the aliasing-order rule):
+
+| Shape (tools/sched/corpus/s92, gitignored) | Words | By position | First-pass PCode | Deleted between the passes | Inverse best |
+|---|---|---|---|---|---|
+| B1 / B2 / B5: the history store as `(s16) *pc` (also `(s16) (s32)`, `(s16) (u32)`) | 38 | 12 | 33 | the counter pointer's addi **and an `extsh` after the `lha`** | **29** |
+| B3 `(s32) (s16) (u16) *pc`, B4 `*(u16 *) pc`, B6 `(u8)` index, B7 `(u8)` mask store, B8 / B9 `(s16)` / `(u16)` depth | 39-41 | 3-7 | 33-35 | the addi only (the conversion stays) | 0 |
+| A1 / A2 / A4: inline functions taking the PC or the counter pointer as a parameter | 38 | 18 | 32 | the addi only (the front end substitutes the argument: no copy) | 24 |
+| A3 inline returning `*p`, A5 comma expression, A6 ternary, A7 / A8 inline returning the pointer | 40-45 | 1-3 | 9-33 | the addi or nothing | 0-20 |
+
+- **The `(s16) *pc` store is the first real construct of class B**: the front end emits `extsh` after the `lha` and
+  the passes delete it. With it the inverse ceiling rises from 25 to 29 of 38 (instruction-level annealing, with or
+  without the aliasing-order rule), and the compiled score from 18 to **20 of 38 by position** (statement order PC,
+  history, increment, counter pointer, mask, count, advance; tools/sched/corpus/s92p: the 210 legal statement orders x
+  2 declaration orders; s92q: 180 combinations with the increment / mask / advance spelled `+= 1`, `++`, `x = x + 1`,
+  with casts, `x = x & 0x3F`, `cr_g_ScriptPC = cr_g_ScriptPC + 2`, `++; ++`: best 20).
+- **What is still missing**: `inverse.py SYNTH` on the `(s16)` shape finds 38 of 38 with one more deletable
+  integer instruction: an in-place operation on the increment statement's `lis cr_g_Script@ha` (378 placements, all
+  on that register: r48 in the log). No C spelling found: the increment / mask through inline helpers taking
+  `&cr_g_Script.history_index` (tools/sched/corpus/s92s, 50 shapes) fold away like A1-A4 (best 19-20).
+- **The `(s16)` store in the handler drafts** (tools/sched/corpus/s92r, the 21 handler drafts at 80-99% whose
+  head the pattern finds): by position 16 lower, 4 equal, 1 higher; aligned words 19 lower, 1 equal, 1 higher. Not
+  made a rule.
+
+**fn_8006EEF8**: not worked on in this step (blocks 32, 36, 40, 43 of the call-split listing; the deleted
+`clrlwi` of the u8 alpha is the known class B instance there).
+
+**The near misses, grouped** (tools/sched/group_near.py over decomp/reports/sched_labels.txt): of the 36
+schedule-only drafts, 20 differ only in the script-command head block (13 without a frame difference), 7 in a float
+block, 9 elsewhere; the 19 register-only drafts differ in no block once registers are masked (colouring: locals' use
+counts, step 85 rule 1). `tools/sched/permute_stmts.py NAME` permutes a flat draft's statements (locals defined before
+use) and compiles each order: **fn_8001CCD4, fn_8001CD64, fn_8001CDF4 (36 of 36) and fn_8001D254 (63 of 63) match
+when the float temporaries come before the stores**; fn_80076404 reaches 45 of 51 (300 orders). The generator variant
+`hoist_float_temps` (tools/draft_batch.py, docs/drafts.md "Step 92") writes that order; `draft_batch.py --only` on the
+six float drafts: the four at 100%.
+
+## 16. Next
+
+1. Run batch 12 in this worktree (the decomp/drafts folder of the worktree was emptied by the stopped runs) and watch
+   it progress (decomp/drafts/c fills; the first-pass ctx_protos.h is written within minutes); then batch 9 (retail
+   SHA-1, static shift PASS) and batch 8 (0 FAIL); report the drafts flipped by `hoist_float_temps` (expected: the
+   four above and any other flat float draft).
+2. The handler head: find a C construct that adds one deletable integer instruction on the increment statement's
+   address (`lis cr_g_Script@ha` of `history_index += 1`), on top of the `(s16) *pc` store; score candidates with
+   `python -I tools/sched/shape_eval.py DIR` (sources under tools/sched/corpus) and `inverse.py LOG 3 6 5000`.
+3. fn_8006EEF8's four vertex blocks with the same method; the other schedule-only groups with permute_stmts.py.

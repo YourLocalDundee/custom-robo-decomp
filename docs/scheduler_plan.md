@@ -84,6 +84,8 @@ Anything found collapses Phase C.
 
 **Step 91 (Oct 31, 2026, branch sched-d, docs/sched_model.md section 14):** the handler head needs one more integer instruction in the first-pass input that a later pass deletes (synthetic: 38 of 38; without it 25); no C spelling tried produces it. The near misses are labelled (tools/sched/label_drafts.py): 36 of the 213 drafts at 80-99% are schedule-only.
 
+**Step 92 (Nov 1, 2026, branch sched-e, docs/sched_model.md sections 15-16):** `(s16) *pc` is a real construct of the deleted-instruction class (an extsh the passes delete): the head's inverse ceiling is 29 of 38 with it, compiled 20; a second deletable instruction on the increment's address is still missing. A generator variant from statement-order search (float temporaries first) matches four schedule-only drafts; its full batch 12 is the next thing to run.
+
 ## 5. Phase B: the permuter in the background (about 2 hours to set up, then unattended)
 
 - Clone simonlindholm/decomp-permuter into tools/downloads (untrusted download: its own empty directory, hash

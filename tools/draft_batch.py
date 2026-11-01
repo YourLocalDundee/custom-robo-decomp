@@ -2395,6 +2395,54 @@ def store_literals(body):
         return body
     return re.sub(r'= (?:\(f32\) |\(f64\) )?(lbl_[0-9A-F]{8});$', lambda m: '= %s;' % fl[m.group(1)] if m.group(1) in fl else m.group(0), body, flags=re.M)
 
+def hoist_float_temps(body):
+    """step 92, a variant: in a function whose body is a flat list of one-line statements (no blocks), every float
+    temporary (`var_fNN = EXPR;`) moves up to the earliest place its operands allow, so the temporaries come before
+    the stores m2c interleaved with them. m2c places a temporary where its result is formed in the scheduled code;
+    the original wrote the temporaries first, and the scheduler interleaves (docs/drafts.md "Step 92": fn_8001CCD4,
+    fn_8001CD64, fn_8001CDF4, fn_8001D254 -> 100%). A temporary stays below a store to the same field it reads
+    (`M2C_FIELD(b, T *, off)` with the same base and offset), and below the statement that assigns a local it reads."""
+    i = body.find(') {\n')
+    j = body.find('\n}', i)
+    if i < 0 or j < 0 or '{' in body[i + 4:j] or '}' in body[i + 4:j]:
+        return body
+    lines = body[i + 4:j].split('\n')
+    stmts = [l for l in lines if l.startswith('    ') and not l.startswith('     ') and l.rstrip().endswith(';')
+             and ' = ' in l]
+    if len(stmts) < 3 or not any(re.match(r'^    var_f\d+ = ', s) for s in stmts):
+        return body
+    first = lines.index(stmts[0])
+    if lines[first:first + len(stmts)] != stmts:
+        return body
+    field = re.compile(r'M2C_FIELD\((\w+), [\w ]+\*, (\w+)\)')
+    out = []
+    for s in stmts:
+        t = re.match(r'^    (var_f\d+) = (.*);$', s)
+        if not t:
+            out.append(s)
+            continue
+        rhs = t.group(2)
+        reads = set(field.findall(rhs))
+        locs = set(re.findall(r'\b(var_\w+|temp_\w+)\b', rhs))
+        k = len(out)
+        while k > 0:
+            p = out[k - 1]
+            lhs = p.split(' = ', 1)[0].strip()
+            if lhs in locs or re.search(r'\b%s\b' % t.group(1), p):
+                break
+            w = field.match(lhs)
+            if w and (w.group(1), w.group(2)) in reads:
+                break
+            if not w:
+                break
+            k -= 1
+        out.insert(k, s)
+    if out == stmts:
+        return body
+    new = lines[:first] + out + lines[first + len(stmts):]
+    return body[:i + 4] + '\n'.join(new) + body[j:]
+
+
 def postprocess(body, skip=(), add=()):
     """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
     for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
@@ -2405,7 +2453,7 @@ def postprocess(body, skip=(), add=()):
               param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
               float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound,
               script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, struct_byte_offset, indexed_offset,
-              fold_temp_compound, store_literals):
+              fold_temp_compound, store_literals, hoist_float_temps):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -2414,7 +2462,8 @@ def postprocess(body, skip=(), add=()):
 # rules only a variant applies, and the variants a near draft is also tried with (one(), step 64), in this order:
 # (rules left out, optional rules applied)
 OPTIONAL = (void_null, pointer_tests, drop_same_assign_casts, param_homes, float_literals, drop_same_field_casts, table_call_noargs, unsigned_fields, hsd_inlines, stack_struct, alias_offsets,
-            redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign, drop_same_member_casts, expand_ptr_compound, store_literals)
+            redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign, drop_same_member_casts, expand_ptr_compound, store_literals,
+            hoist_float_temps)
 VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
             ((), (void_null,)), ((register_order,), (void_null,)),
             # step 69
@@ -2429,7 +2478,9 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             # step 80: the script-command head without the counter pointer (the rule is on by default)
             ((script_counter_ptr,), ()),
             # step 85: the stored float constants as literals, the others externs
-            ((), (store_literals,)))
+            ((), (store_literals,)),
+            # step 92: float temporaries before the stores
+            ((), (hoist_float_temps,)))
 
 
 VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this
