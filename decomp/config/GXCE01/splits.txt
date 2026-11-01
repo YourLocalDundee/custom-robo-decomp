@@ -2208,6 +2208,8 @@ sysdolphin/baselib/lobj.c:
 
 sysdolphin/baselib/cobj.c:
 	.text       start:0x8018F548 end:0x80191BEC
+	.data       start:0x8024C188 end:0x8024C2DD
+	.sdata      start:0x8044F050 end:0x8044F070
 	.sbss       start:0x8044FFA8 end:0x8044FFB0
 	.sdata2     start:0x80452700 end:0x80452768
 

@@ -80,6 +80,15 @@ static inline bool ref_DEC(void* o)
     return HSD_OBJ(o)->ref_count-- == 0;
 }
 
+#ifdef HSD_JOBJ_EXTERN_INLINE
+/* Custom Robo (step 88): jobj.c's revision: extern inline, no NULL test (HSD_JObjRef makes it); its copy is main.dol's
+ * ref_INC in jobj.o */
+inline void ref_INC(void* o)
+{
+    HSD_OBJ(o)->ref_count++;
+    HSD_ASSERT(93, HSD_OBJ(o)->ref_count != HSD_OBJ_NOREF);
+}
+#else
 static inline void ref_INC(void* o)
 {
     if (o != NULL) {
@@ -87,6 +96,7 @@ static inline void ref_INC(void* o)
         HSD_ASSERT(93, HSD_OBJ(o)->ref_count != HSD_OBJ_NOREF);
     }
 }
+#endif
 
 static inline int ref_CNT(void* o)
 {

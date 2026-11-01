@@ -1240,6 +1240,129 @@ int SimplifyByMerge(HSD_TExp* arg0)
     return result;
 }
 
+/* wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 texpdag.c CalcTevRange (step 88) */
+void CalcTevRange(HSD_TExp* texp)
+{
+    HSD_TETev* tev = &texp->tev;
+    s32 range;
+
+    range = 0;
+    if (tev->c_in[3].sel != HSD_TE_0) {
+        switch (HSD_TExpGetType(tev->c_in[3].exp)) {
+        case HSD_TE_TEV:
+            if (tev->c_in[3].sel == HSD_TE_RGB) {
+                if (tev->c_in[3].exp->tev.c_clamp != 1 && tev->c_in[3].exp->tev.c_range == 1) {
+                    tev->c_range = 1;
+                    goto alpha;
+                }
+                range = 0x100;
+            } else {
+                if (tev->c_in[3].exp->tev.a_clamp != 1 && tev->c_in[3].exp->tev.a_range == 1) {
+                    tev->c_range = 1;
+                    goto alpha;
+                }
+                range = 0x100;
+            }
+            break;
+        default:
+            range = 0x100;
+            break;
+        }
+    }
+
+    {
+        s32 i;
+        for (i = 0; i < 3; i++) {
+            if (tev->c_in[i].sel != HSD_TE_0) {
+                if (tev->c_op == GX_TEV_SUB) {
+                    tev->c_range = 1;
+                    goto alpha;
+                }
+                range += 0x100;
+                break;
+            }
+        }
+    }
+
+    switch (tev->c_bias) {
+    case GX_TB_ADDHALF:
+        range += 0x80;
+        break;
+    case GX_TB_SUBHALF:
+        tev->c_range = 1;
+        goto alpha;
+    }
+
+    switch (tev->c_scale) {
+    case GX_CS_SCALE_2:
+        range <<= 1;
+        break;
+    case GX_CS_SCALE_4:
+        range <<= 2;
+        break;
+    case GX_CS_DIVIDE_2:
+        range /= 2;
+        break;
+    }
+    tev->c_range = (range > 0x100);
+
+alpha:
+    range = 0;
+    if (tev->a_in[3].sel != HSD_TE_0) {
+        switch (HSD_TExpGetType(tev->a_in[3].exp)) {
+        case HSD_TE_TEV:
+            if (tev->a_in[3].exp->tev.a_clamp != 1 && tev->a_in[3].exp->tev.a_range == 1) {
+                tev->a_range = 1;
+                return;
+            }
+            range = 0x100;
+            break;
+        default:
+            range = 0x100;
+            break;
+        }
+    }
+
+    {
+        s32 i;
+        for (i = 0; i < 3; i++) {
+            if (tev->a_in[i].sel != HSD_TE_0) {
+                if (tev->a_op == GX_TEV_SUB) {
+                    tev->a_range = 1;
+                    return;
+                }
+                range += 0x100;
+                break;
+            }
+        }
+    }
+
+    switch (tev->a_bias) {
+    case GX_TB_ADDHALF:
+        range += 0x80;
+        break;
+    case GX_TB_SUBHALF:
+        tev->a_range = 1;
+        return;
+    }
+
+    switch (tev->a_scale) {
+    case GX_CS_SCALE_2:
+        range <<= 1;
+        break;
+    case GX_CS_SCALE_4:
+        range <<= 2;
+        break;
+    case GX_CS_DIVIDE_2:
+        range /= 2;
+        break;
+    }
+    tev->a_range = (range > 0x100);
+}
+
+/* Custom Robo (step 88): this revision ends with CalcTevRange (wowjinxy/KAR texpdag.c) */
+#pragma push
+#pragma dont_inline on
 int HSD_TExpSimplify(HSD_TExp* texp_)
 {
     HSD_TExp* texp = texp_;
@@ -1256,8 +1379,10 @@ int HSD_TExpSimplify(HSD_TExp* texp_)
     if (SimplifyByMerge(texp) != 0) {
         res = true;
     }
+    CalcTevRange(texp);
     return res;
 }
+#pragma pop
 
 int HSD_TExpSimplify2(HSD_TExp* texp_)
 {

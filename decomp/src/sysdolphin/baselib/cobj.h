@@ -224,7 +224,13 @@ void HSD_CObjInit(HSD_CObj* cobj, HSD_CObjDesc* desc);
 HSD_CObj* HSD_CObjLoadDesc(HSD_CObjDesc* desc);
 void HSD_CObjSetDefaultClass(HSD_ClassInfo* info);
 
-static inline MtxPtr HSD_CObjGetViewingMtxPtrDirect(HSD_CObj* cobj)
+/* Custom Robo (step 88): extern inline in jobj.c (its copy follows HSD_JObjDispAll in main.dol's jobj.o) */
+#ifdef HSD_JOBJ_EXTERN_INLINE
+inline
+#else
+static inline
+#endif
+    MtxPtr HSD_CObjGetViewingMtxPtrDirect(HSD_CObj* cobj)
 {
     return cobj->view_mtx;
 }

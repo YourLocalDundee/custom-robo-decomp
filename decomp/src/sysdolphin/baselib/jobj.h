@@ -227,7 +227,14 @@ static inline HSD_RObj* HSD_JObjGetRObj(HSD_JObj* jobj)
     return jobj->robj;
 }
 
-static inline bool HSD_JObjMtxIsDirty(HSD_JObj* jobj)
+/* Custom Robo (step 88): jobj.c of this revision has the header's accessors as extern inline functions (KAR's jobj.h
+ * "inline"): their out-of-line copies are global functions in main.dol's jobj.o; jobj.c defines HSD_JOBJ_EXTERN_INLINE */
+#ifdef HSD_JOBJ_EXTERN_INLINE
+inline
+#else
+static inline
+#endif
+    bool HSD_JObjMtxIsDirty(HSD_JObj* jobj)
 {
     bool result;
     HSD_ASSERT(605, jobj); /* Custom Robo: main.dol passes 605 (0x25d) here, Melee 564 */
@@ -260,6 +267,16 @@ static
     HSD_JObjSetupMatrixSub(jobj);
 }
 
+#ifdef HSD_JOBJ_EXTERN_INLINE
+/* Custom Robo (step 88): KAR's jobj.h inline (jobj.c only) */
+inline void HSD_JObjSetMtxDirty(HSD_JObj* jobj)
+{
+    if (jobj == NULL || HSD_JObjMtxIsDirty(jobj)) {
+        return;
+    }
+    HSD_JObjSetMtxDirtySub(jobj);
+}
+#else
 /// Why does this seem to be a define while the others are inline functions?
 #define HSD_JObjSetMtxDirty(jobj)                                             \
     {                                                                         \
@@ -267,6 +284,7 @@ static
             HSD_JObjSetMtxDirtySub(jobj);                                     \
         }                                                                     \
     }
+#endif
 
 /// @todo See #lb_800117F4
 static inline void HSD_JObjSetMtxDirtyInline(HSD_JObj* jobj)
@@ -713,10 +731,19 @@ static inline void HSD_JObjCopyMtx(HSD_JObj* jobj, Mtx mtx)
     PSMTXCopy(mtx, jobj->mtx);
 }
 
+#ifdef HSD_JOBJ_EXTERN_INLINE
+inline void HSD_JObjRef(HSD_JObj* jobj)
+{
+    if (jobj != NULL) {
+        ref_INC(jobj);
+    }
+}
+#else
 static inline void HSD_JObjRef(HSD_JObj* jobj)
 {
     ref_INC(jobj);
 }
+#endif
 
 static inline void HSD_JObjRefThis(HSD_JObj* jobj)
 {

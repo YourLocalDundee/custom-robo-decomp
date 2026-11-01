@@ -89,101 +89,194 @@ Vec3 zOne = { 0, 0, 1 };
 Vec3 yOne = { 0, 1, 0 };
 Vec3 zOne2 = { 0, 0, 1 };
 
+/* wowjinxy/KAR displayfunc.c mkVBillBoardMtx (cb94b15), HSD_FloatEpsilon[0] as main.dol's .sdata2 FLT_EPSILON */
+#define BB_EPSILON 1.1920929e-7F
+
+/* wowjinxy/KAR displayfunc.c displayfunc_sqrtf */
+static inline f32 bb_sqrtf(f32 x)
+{
+    volatile f32 y;
+
+    if (x > 0.0F) {
+        f64 guess = __frsqrte((f64) x);
+        guess = 0.5 * guess * __fnmsub(x, guess * guess, 3.0);
+        guess = 0.5 * guess * __fnmsub(x, guess * guess, 3.0);
+        guess = 0.5 * guess * __fnmsub(x, guess * guess, 3.0);
+        y = (f32) (x * guess);
+        return y;
+    }
+    return x;
+}
+
+static inline f32 bb_col_mag(MtxPtr mtx, s32 col)
+{
+    return bb_sqrtf(mtx[0][col] * mtx[0][col] + mtx[1][col] * mtx[1][col] + mtx[2][col] * mtx[2][col]);
+}
+static const Vec bb_unit_z = { 0.0F, 0.0F, 1.0F };
+
 static void mkVBillBoardMtx(HSD_JObj* jobj, MtxPtr src, MtxPtr dst)
 {
-    Vec3 pos, ax, ay, az;
-    float sx, sz;
+    Vec pos, ax, ay, az, ay_n;
+    f32 sx, sz;
+    f32 mag;
 
-    HSD_MtxColVec(src, 3, &pos);
-    HSD_MtxColVec(src, 1, &ay);
+    pos.x = src[0][3];
+    pos.y = src[1][3];
+    pos.z = src[2][3];
+
+    ay.x = src[0][1];
+    ay.y = src[1][1];
+    ay.z = src[2][1];
+
+    PSVECScale(&ay, &ay_n, 1.0F / (BB_EPSILON + PSVECMag(&ay)));
 
     sx = HSD_MtxColMag(src, 0);
     sz = HSD_MtxColMag(src, 2);
 
     if (jobj->flags & JOBJ_PBILLBOARD) {
-        VECCrossProduct(&pos, &ay, &ax);
+        PSVECScale(&pos, &az, -1.0F / (BB_EPSILON + PSVECMag(&pos)));
+        PSVECCrossProduct(&ay_n, &az, &ax);
     } else {
-        VECCrossProduct(&ay, &zOne, &ax);
+        Vec zOne = bb_unit_z;
+        PSVECCrossProduct(&ay_n, &zOne, &ax);
     }
-    VECCrossProduct(&ax, &ay, &az);
-    sx /= VECMag(&ax);
-    sz /= VECMag(&az);
 
-    dst[0][0] = sx * ax.x;
-    dst[1][0] = sx * ax.y;
-    dst[2][0] = sx * ax.z;
+    mag = PSVECMag(&ax);
+    if (!(mag < BB_EPSILON)) {
+        sx /= mag;
+        PSVECCrossProduct(&ax, &ay_n, &az);
+        sz /= BB_EPSILON + PSVECMag(&az);
 
-    HSD_MtxSetColVec(dst, 1, &ay);
+        dst[0][0] = sx * ax.x;
+        dst[1][0] = sx * ax.y;
+        dst[2][0] = sx * ax.z;
 
-    dst[0][2] = sz * az.x;
-    dst[1][2] = sz * az.y;
-    dst[2][2] = sz * az.z;
+        dst[0][1] = ay.x;
+        dst[1][1] = ay.y;
+        dst[2][1] = ay.z;
 
-    HSD_MtxSetColVec(dst, 3, &pos);
+        dst[0][2] = sz * az.x;
+        dst[1][2] = sz * az.y;
+        dst[2][2] = sz * az.z;
+
+        dst[0][3] = pos.x;
+        dst[1][3] = pos.y;
+        dst[2][3] = pos.z;
+    } else {
+        PSMTXCopy(src, dst);
+    }
 }
 
+/* wowjinxy/KAR displayfunc.c mkHBillBoardMtx, the position as scalars (main.dol keeps it in f27-f29) */
 static void mkHBillBoardMtx(HSD_JObj* jobj, MtxPtr src, MtxPtr dst)
 {
-    Vec3 pos, ax, ay, az;
-    Vec3 uy;
-    float sy, sz;
+    Vec ax, ay, az, ax_n;
+    f32 px, py, pz;
+    f32 sy, sz;
+    f32 mag;
 
-    HSD_MtxColVec(src, 3, &pos);
-    HSD_MtxColVec(src, 0, &ax);
+    px = src[0][3];
+    py = src[1][3];
+    pz = src[2][3];
+
+    ax.x = src[0][0];
+    ax.y = src[1][0];
+    ax.z = src[2][0];
+
+    PSVECScale(&ax, &ax_n, 1.0F / (BB_EPSILON + PSVECMag(&ax)));
 
     sy = HSD_MtxColMag(src, 1);
     sz = HSD_MtxColMag(src, 2);
 
     if (jobj->flags & JOBJ_PBILLBOARD) {
-        uy.y = sqrtf(pos.x * pos.x + pos.z * pos.z);
-        uy.x = -pos.y / uy.y * pos.x;
-        uy.z = -pos.y / uy.y * pos.z;
-        VECCrossProduct(&ax, &uy, &az);
+        f32 t;
+
+        mag = BB_EPSILON + bb_sqrtf(px * px + pz * pz);
+        t = -py / mag;
+        ay.x = px * t;
+        ay.y = mag;
+        ay.z = pz * t;
+        PSVECNormalize(&ay, &ay);
     } else {
-        VECCrossProduct(&ax, &yOne, &az);
+        ay.x = 0.0F;
+        ay.y = 1.0F;
+        ay.z = 0.0F;
     }
-    VECCrossProduct(&az, &ax, &ay);
-    sy /= VECMag(&ay);
-    sz /= VECMag(&az);
 
-    HSD_MtxSetColVec(dst, 0, &ax);
+    PSVECCrossProduct(&ax_n, &ay, &az);
+    mag = PSVECMag(&az);
+    if (!(mag < BB_EPSILON)) {
+        sz /= mag;
+        PSVECCrossProduct(&az, &ax_n, &ay);
+        sy /= BB_EPSILON + PSVECMag(&ay);
 
-    dst[0][1] = sy * ay.x;
-    dst[1][1] = sy * ay.y;
-    dst[2][1] = sy * ay.z;
+        dst[0][0] = ax.x;
+        dst[1][0] = ax.y;
+        dst[2][0] = ax.z;
 
-    dst[0][2] = sz * az.x;
-    dst[1][2] = sz * az.y;
-    dst[2][2] = sz * az.z;
+        dst[0][1] = sy * ay.x;
+        dst[1][1] = sy * ay.y;
+        dst[2][1] = sy * ay.z;
 
-    HSD_MtxSetColVec(dst, 3, &pos);
+        dst[0][2] = sz * az.x;
+        dst[1][2] = sz * az.y;
+        dst[2][2] = sz * az.z;
+
+        dst[0][3] = px;
+        dst[1][3] = py;
+        dst[2][3] = pz;
+    } else {
+        PSMTXCopy(src, dst);
+    }
 }
 
+/* wowjinxy/KAR displayfunc.c mkBillBoardMtx; this revision's fallback writes ay and shares the stores with the main case */
 static void mkBillBoardMtx(HSD_JObj* jobj, MtxPtr src, MtxPtr dst)
 {
-    Vec3 ax, ay, *az, pos;
-    float sx, sy, sz;
+    Vec ax, ay, az, pos;
+    f32 sx, sy, sz;
+    f32 mag;
 
-    sx = HSD_MtxColMag(src, 0);
-    sz = HSD_MtxColMag(src, 2);
+    sx = bb_col_mag(src, 0);
+    sz = bb_col_mag(src, 2);
 
-    HSD_MtxColVec(src, 1, &ay);
-    sy = VECMag(&ay);
-    HSD_MtxColVec(src, 3, &pos);
+    ay.x = src[0][1];
+    ay.y = src[1][1];
+    ay.z = src[2][1];
+    sy = PSVECMag(&ay);
+
+    pos.x = src[0][3];
+    pos.y = src[1][3];
+    pos.z = src[2][3];
 
     if (jobj->flags & JOBJ_PBILLBOARD) {
-        VECCrossProduct(&pos, &ay, &ax);
-        VECCrossProduct(&ax, &pos, &ay);
-        az = &pos;
-        sz /= -VECMag(az);
+        PSVECScale(&pos, &az, -1.0F / (BB_EPSILON + PSVECMag(&pos)));
     } else {
-        VECCrossProduct(&ay, &zOne2, &ax);
-        VECCrossProduct(&zOne2, &ax, &ay);
-        az = &zOne2;
-        sz /= VECMag(&zOne2);
+        az.x = 0.0F;
+        az.y = 0.0F;
+        az.z = 1.0F;
     }
-    sx /= VECMag(&ax);
-    sy /= VECMag(&ay);
+
+    PSVECScale(&ay, &ay, 1.0F / (BB_EPSILON + sy));
+
+    PSVECCrossProduct(&ay, &az, &ax);
+    mag = PSVECMag(&ax);
+    if (mag >= BB_EPSILON) {
+        sx /= mag;
+        PSVECCrossProduct(&az, &ax, &ay);
+        sy /= BB_EPSILON + PSVECMag(&ay);
+    } else {
+        f32 t;
+
+        mag = BB_EPSILON + bb_sqrtf(az.x * az.x + az.z * az.z);
+        ay.y = mag;
+        mag = -az.y / mag;
+        ay.x = az.x * mag;
+        ay.z = az.z * mag;
+
+        PSVECCrossProduct(&ay, &az, &ax);
+        sx /= BB_EPSILON + PSVECMag(&ax);
+    }
 
     dst[0][0] = sx * ax.x;
     dst[1][0] = sx * ax.y;
@@ -193,11 +286,13 @@ static void mkBillBoardMtx(HSD_JObj* jobj, MtxPtr src, MtxPtr dst)
     dst[1][1] = sy * ay.y;
     dst[2][1] = sy * ay.z;
 
-    dst[0][2] = sz * az->x;
-    dst[1][2] = sz * az->y;
-    dst[2][2] = sz * az->z;
+    dst[0][2] = sz * az.x;
+    dst[1][2] = sz * az.y;
+    dst[2][2] = sz * az.z;
 
-    HSD_MtxSetColVec(dst, 3, &pos);
+    dst[0][3] = pos.x;
+    dst[1][3] = pos.y;
+    dst[2][3] = pos.z;
 }
 
 static void mkRBillBoardMtx(HSD_JObj* jobj, MtxPtr src, MtxPtr dst)
