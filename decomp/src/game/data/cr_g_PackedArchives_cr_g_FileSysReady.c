@@ -85,5 +85,8 @@ typedef struct cr_FileSysState
   cr_FileSlot *queue[32];
 } cr_FileSysState;
 
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
 cr_FileSysState cr_g_FileSysReady;
 cr_PackedArchive cr_g_PackedArchives[43];
+#pragma force_active reset

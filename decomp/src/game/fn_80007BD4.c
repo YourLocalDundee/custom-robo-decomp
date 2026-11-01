@@ -4,14 +4,15 @@
  * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
 #include "game/cr_game.h"
 
-extern u8 *lbl_8044F348;
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+__declspec(section ".sdata") extern u8 *cr_g_CurrentBattleRobo;
 
 void fn_80007BD4(s32 arg0) {
     if (arg0 == 0) {
-        M2C_FIELD(lbl_8044F348, s32 *, 0x950) = (s32) M2C_FIELD(lbl_8044F348, s32 *, 0x91C);
-        M2C_FIELD(lbl_8044F348, s32 *, 0x94C) = (s32) M2C_FIELD(lbl_8044F348, s32 *, 0x920);
+        M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 0x950) = (s32) M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 0x91C);
+        M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 0x94C) = (s32) M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 0x920);
         return;
     }
-    M2C_FIELD(lbl_8044F348, s32 *, 0x950) = (s32) M2C_FIELD(lbl_8044F348, s32 *, 0x924);
-    M2C_FIELD(lbl_8044F348, s32 *, 0x94C) = (s32) M2C_FIELD(lbl_8044F348, s32 *, 0x928);
+    M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 0x950) = (s32) M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 0x924);
+    M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 0x94C) = (s32) M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 0x928);
 }

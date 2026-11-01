@@ -64,5 +64,8 @@ typedef struct cr_SeqState
   u8 unk_44[4];
 } cr_SeqState;
 
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
 cr_SeqState cr_g_SeqCurrent;
 cr_GameMode cr_g_GameMode;
+#pragma force_active reset

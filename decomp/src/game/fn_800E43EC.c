@@ -5,23 +5,57 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 lbl_8024E120[840832];
+typedef struct cr_BattleMotionSet cr_BattleMotionSet;
+typedef struct cr_BodyData
+{
+  f32 unk_00;
+  f32 unk_04;
+  cr_BattleMotionSet *motion_set;
+  f32 unk_0c[27];
+} cr_BodyData;
+typedef struct cr_BattleRobo
+{
+  void (*update)(void);
+  u8 unk_00004[0x6C];
+  f32 unk_00070;
+  f32 hp;
+  u8 unk_00078[0x14];
+  u8 index;
+  u8 unk_0008d;
+  u16 unk_0008e;
+  u8 unk_00090[0x13C];
+  u16 parts[5];
+  u8 unk_001d6[0x161E];
+  cr_BodyData body_data;
+  u8 unk_0186c[0x32C];
+  u8 body_stats[0x134];
+  u8 unk_01ccc[0x15C];
+  u8 gun_data[0x28C];
+  u8 unk_020b4[0x26C94];
+  u8 bomb_data[0x17C];
+  u8 unk_28ec4[0x5424];
+  u8 pod_data[0x174];
+  u8 unk_2e45c[0x4EAC];
+  u8 leg_data[0x8F];
+  u8 unk_33397[0x189];
+} cr_BattleRobo;
+__declspec(section ".data") extern cr_BattleRobo cr_g_BattleRobos[4];
 void fn_800E4618(void *arg0, void *arg1);
 extern f32 lbl_8045151C;
 void fn_800E4770(void *arg0);
 
 void fn_800E43EC(u8 *arg0) {
-    if (M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, s8 *, 0x6B) * 0x33520)), u8 *, 0xE6) == 0) {
-        if (M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, s8 *, 0x6B) * 0x33520)), s16 *, 0x18A2) == 1) {
+    if (cr_g_BattleRobos[M2C_FIELD(arg0, s8 *, 0x6B)].unk_00090[0x56] == 0) {
+        if (M2C_FIELD(&cr_g_BattleRobos[M2C_FIELD(arg0, s8 *, 0x6B)], s16 *, 0x18A2) == 1) {
             fn_800E4618(arg0, arg0 + 0x378A);
         }
-        if (M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, s8 *, 0x6B) * 0x33520)), s16 *, 0x18A2) == 2) {
+        if (M2C_FIELD(&cr_g_BattleRobos[M2C_FIELD(arg0, s8 *, 0x6B)], s16 *, 0x18A2) == 2) {
             fn_800E4618(arg0, arg0 + 0x378C);
         }
-        if (M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, s8 *, 0x6B) * 0x33520)), s16 *, 0x18A2) == 3) {
+        if (M2C_FIELD(&cr_g_BattleRobos[M2C_FIELD(arg0, s8 *, 0x6B)], s16 *, 0x18A2) == 3) {
             fn_800E4618(arg0, arg0 + 0x378E);
         }
-        if (M2C_FIELD((lbl_8024E120 + (M2C_FIELD(arg0, s8 *, 0x6B) * 0x33520)), s16 *, 0x18A2) == 4) {
+        if (M2C_FIELD(&cr_g_BattleRobos[M2C_FIELD(arg0, s8 *, 0x6B)], s16 *, 0x18A2) == 4) {
             fn_800E4618(arg0, arg0 + 0x3790);
         }
         if (M2C_FIELD(arg0, u8 *, 0x17B7) != 0) {

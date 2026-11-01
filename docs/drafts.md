@@ -961,36 +961,84 @@ The run table after step 85 (promote_report.txt "file runs"). fn_80080A94 now ow
 pool: fn_80080A94..fn_800812A4, 9 functions, 5 at 100%, 4 blockers (was fn_8008057C..fn_800812A4, 11 functions, 7 blockers);
 fn_80080A94 and cr_Vec3_Normalize match but wait for their runs ("has data of its own"), fn_80080B80 is promoted:
 
-| run (first..last) | span | functions | at 100% | blockers | blocker bytes | blockers (size, match) |
-|---|---|---|---|---|---|---|
-| fn_8002444C..fn_8002444C | 0x8002444C-0x80024578 | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_8002444C_fn_8002444C.c (.sdata2 0x804504E8-0x80450518) |
-| fn_8005C4D0..fn_8005C4D0 | 0x8005C4D0-0x8005C628 | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_8005C4D0_fn_8005C4D0.c (.sdata2 0x804509A0-0x804509A8) |
-| fn_800AA130..fn_800AA130 | 0x800AA130-0x800AA17C | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_800AA130_fn_800AA130.c (.data 0x8022B130-0x8022B204) |
-| fn_80111EEC..fn_80111EEC | 0x80111EEC-0x8011214C | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_80111EEC_fn_80111EEC.c (.sdata2 0x80451888-0x80451890) |
-| fn_8006EEF8..fn_8006FDD0 | 0x8006EEF8-0x8006FE38 | 7 | 6 | 1 | 0xBCC | fn_8006EEF8 (0xBCC, 32%) |
-| fn_80080A94..fn_800812A4 | 0x80080A94-0x80081430 | 9 | 5 | 4 | 0x640 | fn_80080C7C (0x1A8, 63%), fn_80080E24 (0xFC, 78%), fn_80080FD8 (0x210, 93%), fn_800812A4 (0x18C, 54%) |
-| fn_80080C7C..fn_800812A4 | 0x80080C7C-0x80081430 | 7 | 3 | 4 | 0x640 | fn_80080C7C (0x1A8, 63%), fn_80080E24 (0xFC, 78%), fn_80080FD8 (0x210, 93%), fn_800812A4 (0x18C, 54%) |
-| fn_8008A0A8..fn_8008BD50 | 0x8008A0A8-0x8008BED4 | 11 | 6 | 5 | 0x14AC | fn_8008A484 (0x22C, 56%), fn_8008A6B0 (0x200, 63%), fn_8008A8B0 (0x238, 57%), fn_8008AAE8 (0x204, 55%), fn_8008ACEC (0xC44, compile failed illegal type) |
-| fn_800057B8..fn_8000805C | 0x800057B8-0x8000860C | 16 | 11 | 5 | 0x171C | fn_800057B8 (0x3D0, 43%), fn_80005BC8 (0x170, 56%), cr_BattleRobo_InitFromLoadout (0x8B4, 36%), fn_80007CE4 (0x378, 65%), fn_8000805C (0x5B0, 67%) |
-| fn_80076B2C..fn_80079C70 | 0x80076B2C-0x80079CB8 | 31 | 19 | 12 | 0x24F8 | fn_80076B2C (0x764, 44%), fn_800779A8 (0x2B4, 57%), fn_80077C5C (0x2DC, 56%), fn_80078000 (0x438, 12%), fn_800784B0 (0x6B0, 47%), fn_80078B60 (0x140, 86%) ... +6 more |
-| fn_8007D0D4..fn_8007FCD8 | 0x8007D0D4-0x8008052C | 18 | 6 | 12 | 0x2FF4 | fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 92%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%), fn_8007DD60 (0x6A0, 38%) ... +6 more |
-| fn_8007D3C8..fn_8007FCD8 | 0x8007D3C8-0x8008052C | 14 | 2 | 12 | 0x2FF4 | fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 92%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%), fn_8007DD60 (0x6A0, 38%) ... +6 more |
-| fn_8007C094..fn_8007FCD8 | 0x8007C094-0x8008052C | 22 | 9 | 13 | 0x3BF0 | fn_8007C094 (0xBFC, compile failed illegal operand), fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 92%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%) ... +7 more |
-| fn_8010E47C..fn_80112A0C | 0x8010E47C-0x80112AB8 | 27 | 13 | 14 | 0x3E70 | fn_8010E47C (0x3A4, 75%), fn_8010E820 (0x1BC, 53%), fn_8010E9DC (0x180, 48%), fn_8010EB5C (0x520, 55%), fn_8010F07C (0x800, 12%), fn_8010F87C (0x4BC, 18%) ... +8 more |
-| cr_Bgm_GetVolume..fn_80098484 | 0x80096594-0x80098F4C | 25 | 8 | 17 | 0x272C | fn_800965F4 (0x160, 44%), fn_80096754 (0x160, 70%), fn_800968B4 (0x374, 57%), fn_80096C28 (0x100, 68%), fn_80096D28 (0x100, 75%), fn_80096E28 (0x94, 65%) ... +11 more |
-| fn_800527D4..fn_8005BE70 | 0x800527D4-0x8005BEC8 | 18 | 1 | 17 | 0x9610 | fn_800528B8 (0xE4, 68%), fn_8005299C (0xA94, 17%), fn_80053430 (0x5F0, 27%), fn_80053A20 (0x388, 96%), fn_80053DA8 (0x490, 26%), fn_80054238 (0x1ECC, 16%) ... +11 more |
-| fn_80081440..fn_80089140 | 0x80081440-0x80089550 | 27 | 3 | 24 | 0x77BC | fn_80081440 (0x4C8, 45%), fn_80081908 (0x24C, 7%), fn_80081B54 (0x248, 48%), fn_80081D9C (0x5C8, 34%), fn_80082364 (0x69C, 25%), fn_80082A00 (0x584, 21%) ... +18 more |
-| fn_80067904..fn_8006B3D0 | 0x80067904-0x8006B46C | 42 | 10 | 32 | 0x3920 | fn_80067904 (0xA54, 10%), fn_80068420 (0x26C, 58%), fn_8006868C (0x2EC, 68%), fn_80068988 (0xEC, 77%), cr_Text_CountChars (0xDC, 60%), fn_80068B84 (0xF8, 51%) ... +26 more |
-| fn_8001B1D4..fn_8001F060 | 0x8001B1D4-0x8001F350 | 72 | 32 | 40 | 0x3680 | fn_8001B29C (0xEC, 66%), cr_Rand_Float (0x68, 44%), cr_Vec3_Distance (0x1A8, 71%), fn_8001B6EC (0x668, 52%), cr_Vec3_RotateY (0x1B0, 87%), cr_Vec3_RotateAboutAxis (0x6A8, 70%) ... +34 more |
-| fn_80024148..fn_80036FB0 | 0x80024148-0x800373AC | 76 | 15 | 61 | 0x127EC | fn_8002419C (0x2B0, 18%), fn_80024634 (0x19C, 34%), cr_CamMode_DefaultStart (0x60, 70%), fn_80024848 (0x17C, 74%), cr_CAMMODE_SNR_AUTO_Y_ANG_Frame (0xC4, 63%), fn_80024A88 (0x13C, 69%) ... +55 more |
-| fn_8008A484..fn_80093AF0 | 0x8008A484-0x80093C30 | 87 | 25 | 62 | 0x8CA4 | fn_8008A484 (0x22C, 56%), fn_8008A6B0 (0x200, 63%), fn_8008A8B0 (0x238, 57%), fn_8008AAE8 (0x204, 55%), fn_8008ACEC (0xC44, compile failed illegal type), fn_8008BED4 (0x180, 96%) ... +56 more |
-| fn_801147B4..fn_80124F5C | 0x801147B4-0x80125884 | 79 | 16 | 63 | 0x10850 | fn_801147B4 (0x294, 70%), fn_80114A48 (0x470, 44%), fn_80114EB8 (0x284, 62%), fn_8011513C (0x470, 44%), fn_801155AC (0x36C, 85%), fn_80115918 (0x1F8, 49%) ... +57 more |
+| run (first..last) | span | functions | at 100% | blockers | blocker bytes | blockers (size, match) |
+|---|---|---|---|---|---|---|
+| fn_8002444C..fn_8002444C | 0x8002444C-0x80024578 | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_8002444C_fn_8002444C.c (.sdata2 0x804504E8-0x80450518) |
+| fn_8005C4D0..fn_8005C4D0 | 0x8005C4D0-0x8005C628 | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_8005C4D0_fn_8005C4D0.c (.sdata2 0x804509A0-0x804509A8) |
+| fn_800AA130..fn_800AA130 | 0x800AA130-0x800AA17C | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_800AA130_fn_800AA130.c (.data 0x8022B130-0x8022B204) |
+| fn_80111EEC..fn_80111EEC | 0x80111EEC-0x8011214C | 1 | 1 | 0 | 0x0 | FILE OBJECT game/fn_80111EEC_fn_80111EEC.c (.sdata2 0x80451888-0x80451890) |
+| fn_8006EEF8..fn_8006FDD0 | 0x8006EEF8-0x8006FE38 | 7 | 6 | 1 | 0xBCC | fn_8006EEF8 (0xBCC, 32%) |
+| fn_80080A94..fn_800812A4 | 0x80080A94-0x80081430 | 9 | 5 | 4 | 0x640 | fn_80080C7C (0x1A8, 63%), fn_80080E24 (0xFC, 78%), fn_80080FD8 (0x210, 93%), fn_800812A4 (0x18C, 54%) |
+| fn_80080C7C..fn_800812A4 | 0x80080C7C-0x80081430 | 7 | 3 | 4 | 0x640 | fn_80080C7C (0x1A8, 63%), fn_80080E24 (0xFC, 78%), fn_80080FD8 (0x210, 93%), fn_800812A4 (0x18C, 54%) |
+| fn_8008A0A8..fn_8008BD50 | 0x8008A0A8-0x8008BED4 | 11 | 6 | 5 | 0x14AC | fn_8008A484 (0x22C, 56%), fn_8008A6B0 (0x200, 63%), fn_8008A8B0 (0x238, 57%), fn_8008AAE8 (0x204, 55%), fn_8008ACEC (0xC44, compile failed illegal type) |
+| fn_800057B8..fn_8000805C | 0x800057B8-0x8000860C | 16 | 11 | 5 | 0x171C | fn_800057B8 (0x3D0, 43%), fn_80005BC8 (0x170, 56%), cr_BattleRobo_InitFromLoadout (0x8B4, 36%), fn_80007CE4 (0x378, 65%), fn_8000805C (0x5B0, 67%) |
+| fn_80076B2C..fn_80079C70 | 0x80076B2C-0x80079CB8 | 31 | 19 | 12 | 0x24F8 | fn_80076B2C (0x764, 44%), fn_800779A8 (0x2B4, 57%), fn_80077C5C (0x2DC, 56%), fn_80078000 (0x438, 12%), fn_800784B0 (0x6B0, 47%), fn_80078B60 (0x140, 86%) ... +6 more |
+| fn_8007D0D4..fn_8007FCD8 | 0x8007D0D4-0x8008052C | 18 | 6 | 12 | 0x2FF4 | fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 92%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%), fn_8007DD60 (0x6A0, 38%) ... +6 more |
+| fn_8007D3C8..fn_8007FCD8 | 0x8007D3C8-0x8008052C | 14 | 2 | 12 | 0x2FF4 | fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 92%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%), fn_8007DD60 (0x6A0, 38%) ... +6 more |
+| fn_8007C094..fn_8007FCD8 | 0x8007C094-0x8008052C | 22 | 9 | 13 | 0x3BF0 | fn_8007C094 (0xBFC, compile failed illegal operand), fn_8007D3C8 (0x270, 82%), fn_8007D638 (0x1C8, 92%), fn_8007D800 (0x220, 89%), fn_8007DA20 (0x60, 79%), fn_8007DA80 (0x170, 66%) ... +7 more |
+| fn_8010E47C..fn_80112A0C | 0x8010E47C-0x80112AB8 | 27 | 13 | 14 | 0x3E70 | fn_8010E47C (0x3A4, 75%), fn_8010E820 (0x1BC, 53%), fn_8010E9DC (0x180, 48%), fn_8010EB5C (0x520, 55%), fn_8010F07C (0x800, 12%), fn_8010F87C (0x4BC, 18%) ... +8 more |
+| cr_Bgm_GetVolume..fn_80098484 | 0x80096594-0x80098F4C | 25 | 8 | 17 | 0x272C | fn_800965F4 (0x160, 44%), fn_80096754 (0x160, 70%), fn_800968B4 (0x374, 57%), fn_80096C28 (0x100, 68%), fn_80096D28 (0x100, 75%), fn_80096E28 (0x94, 65%) ... +11 more |
+| fn_800527D4..fn_8005BE70 | 0x800527D4-0x8005BEC8 | 18 | 1 | 17 | 0x9610 | fn_800528B8 (0xE4, 68%), fn_8005299C (0xA94, 17%), fn_80053430 (0x5F0, 27%), fn_80053A20 (0x388, 96%), fn_80053DA8 (0x490, 26%), fn_80054238 (0x1ECC, 16%) ... +11 more |
+| fn_80081440..fn_80089140 | 0x80081440-0x80089550 | 27 | 3 | 24 | 0x77BC | fn_80081440 (0x4C8, 45%), fn_80081908 (0x24C, 7%), fn_80081B54 (0x248, 48%), fn_80081D9C (0x5C8, 34%), fn_80082364 (0x69C, 25%), fn_80082A00 (0x584, 21%) ... +18 more |
+| fn_80067904..fn_8006B3D0 | 0x80067904-0x8006B46C | 42 | 10 | 32 | 0x3920 | fn_80067904 (0xA54, 10%), fn_80068420 (0x26C, 58%), fn_8006868C (0x2EC, 68%), fn_80068988 (0xEC, 77%), cr_Text_CountChars (0xDC, 60%), fn_80068B84 (0xF8, 51%) ... +26 more |
+| fn_8001B1D4..fn_8001F060 | 0x8001B1D4-0x8001F350 | 72 | 32 | 40 | 0x3680 | fn_8001B29C (0xEC, 66%), cr_Rand_Float (0x68, 44%), cr_Vec3_Distance (0x1A8, 71%), fn_8001B6EC (0x668, 52%), cr_Vec3_RotateY (0x1B0, 87%), cr_Vec3_RotateAboutAxis (0x6A8, 70%) ... +34 more |
+| fn_80024148..fn_80036FB0 | 0x80024148-0x800373AC | 76 | 15 | 61 | 0x127EC | fn_8002419C (0x2B0, 18%), fn_80024634 (0x19C, 34%), cr_CamMode_DefaultStart (0x60, 70%), fn_80024848 (0x17C, 74%), cr_CAMMODE_SNR_AUTO_Y_ANG_Frame (0xC4, 63%), fn_80024A88 (0x13C, 69%) ... +55 more |
+| fn_8008A484..fn_80093AF0 | 0x8008A484-0x80093C30 | 87 | 25 | 62 | 0x8CA4 | fn_8008A484 (0x22C, 56%), fn_8008A6B0 (0x200, 63%), fn_8008A8B0 (0x238, 57%), fn_8008AAE8 (0x204, 55%), fn_8008ACEC (0xC44, compile failed illegal type), fn_8008BED4 (0x180, 96%) ... +56 more |
+| fn_801147B4..fn_80124F5C | 0x801147B4-0x80125884 | 79 | 16 | 63 | 0x10850 | fn_801147B4 (0x294, 70%), fn_80114A48 (0x470, 44%), fn_80114EB8 (0x284, 62%), fn_8011513C (0x470, 44%), fn_801155AC (0x36C, 85%), fn_80115918 (0x1F8, 49%) ... +57 more |
 | fn_8000768C..fn_801314D4 | 0x8000768C-0x80131910 | 1739 | 476 | 1263 | 0x11AC70 | fn_80007CE4 (0x378, 65%), fn_8000805C (0x5B0, 67%), fn_8000860C (0x180, 89%), cr_Game_Update (0x474, 75%), fn_80008CB0 (0x110, 37%), fn_80009018 (0x554, 79%) ... +1257 more |
 
 **Left**: fn_8006EEF8's vertex-block schedule (the compiler's priority, as the handler head of step 84: not a spelling),
 fn_80080FD8's two gap pointers, the other blockers of the table; rule 2 is the mechanism behind the register gaps of
 the ~198 unmatched game functions that save a register they never use (step 83): each needs a pointer local to a
 stack object with the right use count, which a generator cannot guess but a hand match can.
+
+## Step 90: naming round 5 types, draft round 10 (plan.md step 90, Nov 1, 2026, branch data2)
+
+Baseline: the step 86 generator and names run again in this worktree give the committed counts exactly (483 at 100%,
+1,706 compile, 43 compile failures, 521,432 bytes equal). The types of naming round 5 (docs/decomp.md "Game data
+objects", step 90) then went through the full run, and the drafts they touch were compared function by function.
+1. **First full run with the new types**: 100% MATCH 483 -> 482, compile failures 43 -> 61, bytes equal 521,432 ->
+   513,780; 19 drafts up (cr_BattleRobo_InitBody 69 -> 86, fn_80079214 43 -> 53, fn_800798CC 51 -> 60, fn_8006A00C /
+   fn_8006A1A8 / fn_8006A344 16 -> 22: cr_g_WindowStyle's float fields), 33 down, 18 of them to compile failures.
+   The failures had three causes, each measured with `--only` on the 23 drafts (out of tree, `--out
+   decomp/build/drafts_try`):
+   - **A struct whose first member is an array.** m2c reads the word at +0 of `cr_g_BattleRobos[i]` as the struct
+     itself: `if ((u32) cr_g_BattleRobos[i] != 0U)` ("illegal explicit conversion from 'struct cr_BattleRobo'"),
+     `cr_g_BattleRobos[n] = fn_80005B88;` (fn_80089550 / fn_80089BB0 store a function there). The word is the robo's
+     update function, as cr_Chara.update is (non-zero = in use): typed `void (*update)(void)`, 13 of the 18 compile
+     again and fn_8000768C is 100% again (fn_80092A5C 86, fn_8003633C 53 -> 56, fn_800294D8 48 -> 53,
+     cr_CAMMODE_DICE_WAIT_Frame 26 -> 29).
+   - **A struct-typed global that is a file's data-pool base.** The file system reaches cr_g_ArchiveDvdEntry and
+     cr_g_FileSlots from the base of the object before them (+0xF34, +0x1C): m2c writes `*(&cr_g_EntryTableLoad +
+     0xF34 + i * 4)` (pointer arithmetic scaled by the struct), and with a rule that makes the sum bytes
+     (`(u8 *) &cr_g_EntryTableLoad + ...`, tried) it then writes `((u8 *) &cr_g_EntryTableLoad + 0xF34)->messages[i]`
+     ("not a struct/union/class"). cr_g_EntryTableLoad is declared `u8[28]` (as cr_g_Cams is): cr_FileSys_Init 37,
+     fn_80021674 16, cr_Archive_OpenRequestList 17 as before; the struct cr_EntryTableLoad documents the fields. The
+     rule was not kept (nothing else triggers it). Same for cr_g_ModelSlots (`u8[48128]`): fn_80078F94 clears a slot
+     with a byte loop through a pointer m2c types `cr_ModelSlot *` (`*var = 0`); 91% again.
+   - **Byte offsets through a typed robo pointer** (`*((cr_BattleRobo *) ((u8 *) p + off)) |= 1`, `&(u8 *)
+     p->body_data - ...`): fn_80063DA4 (80), fn_8003B37C (61), fn_8003AFF0 (52), fn_8004F6D4 (45), fn_80041358 (13) do
+     not compile. Left for the next round: m2c needs the member at a variable byte offset of the robo; the struct is
+     mostly `unk_` arrays, so a rule would have to choose the access width from the instruction, which the draft no
+     longer shows.
+2. **Second full run** (the types above): the rule below on, the full run gives **100% MATCH 483 -> 483**, compile
+   1,706 -> 1,703 (46 failures: the five robo drafts above and cr_CAMMODE_CUSTOMIZE_Frame, 1% before; three drafts
+   compile for the first time, fn_8006B46C 47, fn_8006B848 14, fn_8006C970 16), bytes equal 521,432 -> 521,292;
+   histogram 0-9% 43, 10-19% 61, 20-29% 75, 30-39% 112, 40-49% 130, 50-59% 263, 60-69% 153, 70-79% 170, 80-89% 140,
+   90-99% 73. Up against the baseline: cr_BattleRobo_InitBody 69 -> 86, fn_80079214 43 -> 53, fn_800798CC 51 -> 60,
+   fn_8006A00C / fn_8006A1A8 / fn_8006A344 16 -> 22, fn_800294D8 48 -> 53, fn_8003633C 53 -> 56 and 15 more by 1-3
+   points; down: the five compile failures, fn_80024BC4 31 -> 22, fn_800E36BC 22 -> 18 and eight more by 1-3 points.
+   Promoted 439 (+4 file objects, 1 kept), 470 game units, 673 of 970 units from C. The drafts the new types touch at
+   90-99% (cr_CAMMODE_MIDDLE_Frame 90, fn_80075258..fn_800755E8 96, fn_80079544 95, fn_80078F94 91 ...) are the same
+   as before the types (only the names changed in them), so no rule was written for them.
+3. **`struct_byte_offset`** (default): `M2C_FIELD((&cr_g_BattleRobos[arg0] + (var_r30 * 4)), s32 *, 0x864) = 0;` -
+   m2c adds a byte offset to the address of a struct-typed global or of one of its elements, and C scales the sum by
+   the struct's size (here the store would land 0x33520 * 4 * i bytes away). When the multiplier is no multiple of the
+   struct's size (ASSERT_SIZE of symbols/cr_types.h, `struct_sizes()`) the sum is bytes: `(u8 *) &cr_g_BattleRobos[arg0]
+   + (var_r30 * 4)`. fn_8010D2D0 65 -> 100% (it was promoted from the first run, when the robo's first member was a u8
+   array that m2c indexed instead); on the 17 drafts with the pattern (`--only`, stock against patched) 9 up
+   (fn_8003B1BC 60 -> 69, fn_8012BD68 43 -> 47, fn_800E6E34 3 -> 7 ...), none down; member_array_index's
+   `mulli 0x354` case (a multiple) is left alone.
 
 ### Step 91: the near misses labelled, the handler head's missing instruction (Oct 31, 2026, branch sched-d)
 

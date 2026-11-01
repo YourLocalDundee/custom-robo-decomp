@@ -53,5 +53,8 @@ typedef struct cr_Pad
   u8 unk_a3;
 } cr_Pad;
 
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
 cr_Pad cr_g_Pads[4];
 PADStatus cr_g_PadStatus[4];
+#pragma force_active reset

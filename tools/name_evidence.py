@@ -29,13 +29,6 @@ KINDS = [('UPPER_NAME', re.compile(r'[A-Z][A-Z0-9_]{3,}')),
 # Hand-kept leads (plan.md step 71): what the code shows, not enough for a cr_ name yet (or the address is used by name
 # in a C file of decomp/src, so it cannot be renamed here). Printed as section 4.
 LEADS = [
-    ('0x8024E120', 'battle robos: 4 x 0x33520 bytes (body +0x1CC, HP +0x74, body stats copy +0x1B98); used as lbl_8024E120 '
-                   'in decomp/src, so it keeps its lbl_ name until that C is renamed with it'),
-    ('0x8044F348', 'current battle robo pointer (cr_Battle_SetCurrentPointers); lbl_8044F348 in decomp/src'),
-    ('0x801C6C44', 'body stats table (34 x 0x134; names at +0x00 / +0x20, special-part byte +0x45, u16 +0x40 = 1000 for '
-                   'Ray 01 and 30000 for R Type 3, HP-like but unproven); lbl_801C6C44 in another stream\'s C'),
-    ('0x801C5BD0', 'battle loadouts (4 x 0x10: team, body, gun, bomb, pod, leg, HP, controller); lbl_801C5BD0 in another '
-                   'stream\'s C'),
     ('0x8023BA84', 'part load requests (4 players x 5 categories x 0x14, 0xFF end); lbl_8023BA84 in another stream\'s C'),
     ('0x80075950', 'loads the gun / bomb / pod / leg effect entries and the body\'s attack_effect entry of the 4 loadouts; '
                    'fn_80075950 is used by name in another stream\'s C'),
@@ -51,6 +44,11 @@ LEADS = [
     ('0x8012481C', 'menu sprites 0x8044F860 / 0x8044F85C: flag 1 and part ids chosen from bits 2..0x20; screen unknown'),
     # step 79: the next data objects of the base-register scan (addressed as one struct from `lis/addi` of the object), untyped
     ('0x8031F020', "the movie player's state (0x188): cr_SEQ_MOVIE_FrameB / FrameC and fn_800177F0 / fn_80017E10 / fn_8001838C / fn_80018630 / fn_80018844 (DVDOpen / DVDReadAsyncPrio / strcmp) read 57 word fields and the bytes +0xA4..+0xA7 from one base; cr_SEQ_MOVIE_FrameA addresses it as lbl_8031B5A0 + 0x3A80 (one base register for several .bss objects of the same source file); field meanings not traced"),
+    # step 90: the next objects of the base-register scan (tools/base_scan.py top 40 --default), not typed yet
+    ('0x80329B60', 'after cr_g_CamSystem (0xA84, 413 accesses in 19 functions): the battle code (fn_800456B8 .. fn_8004B0A0) reads / writes three Vec3 at +0xA60 / +0xA6C / +0xA78 and word triples at +0xA0C..+0xA5C from one base; the first 0xA0C bytes are not addressed from it'),
+    ('0x803E83B8', '4 records of 0x3798 bytes indexed by cr_BattleRobo.index (fn_800DBAD0: base + robo->index * 0x3798; the byte +0x6A is a robo number); users fn_80071974, fn_800DDCD4, fn_800E29B8'),
+    ('0x80344550', "48 records of 0x284 bytes: fn_80072A58 copies them from a loaded file when the file's byte +6 is 0x18 (pointer lbl_8044F5DC)"),
+    ('0x8041CC10', "the customize file's .bss: fn_8012F3C4 / fn_80125DCC / fn_8012C25C address +0xFC..+0x1D4 (= cr_g_Customize) from this base; dtk's eight objects 0x8041CC10..0x8041CDD8 have almost no reader of their own, so cr_g_Customize cannot become a unit yet"),
     ('0x800A0804', '(n): fn_800F5448(n >> 1), fn_800F21C8(n >> 1, n & 1), then clears bit 0x400 of cr_g_ScenarioSlotPtr->status; called by cr_SEQ_SCENARIO_Enter: a load of save slot n >> 1 into the scenario if fn_800F21C8 (0x3280 bytes, ORs cr_g_SaveData.unlocks into cr_g_Scenario.part_bits and reads new_unlocks) is that load; its draft is 95% with the typed pointer (one pointer load short)'),
     ('0x801E1A24', "the unlock table of cr_Save_ApplyUnlocks: 12-byte entries {battles_finished threshold (3, 6, 9, ...), kind << 16 (0x40000 body, 0x80000 gun, 0x100000 bomb, 0x200000 pod, 0x400000 leg, 0x10000 mode, 0x20000 stage), item}; dtk's 0x56C object is not a multiple of 12 and ends in a list 0x22..0x26 and three code pointers, so its end is open"),
     ('0x80011E08', "(unlock entry*): queues the item per kind at 0x8031BF54 / 0x8031BFCC / 0x8031C044 / 0x8031C0BC / 0x8031C134 ..., parts offset by the category counts: the menus' new-item announcements, if those lists are what they show"),
@@ -58,7 +56,6 @@ LEADS = [
     ('0x8031B5A0', "0x784 by dtk, but cr_SEQ_MOVIE_FrameA keeps its address in r31 and addresses +0x3514..+0x3B0C through it (lbl_8031F020 and beyond): the logo / movie code's .bss objects 0x8031B5A0..0x8031F1A8 come from one source file; fn_80009A90 writes most of its first 0x240 bytes"),
     ('0x80392A44', "4 object pointers: fn_80089FB8 / fn_8008A030 / fn_8008A0A8 clear / set bit 0 of each one's first word, fn_80089F40 ORs their +0x18 words; set by fn_8008ACEC, read by the customize screen (fn_80124F5C / fn_8012F3C4); kind of object unknown"),
     ('0x8031BEC4', "the name entry screen's state (0x14: three words and a byte at +0x10) of cr_SEQ_NAME_ENTRY_FrameA and fn_8000B258 / fn_8000B42C / fn_8000B55C / fn_8000B878 / fn_8000C104; field meanings not traced"),
-    ('0x80330D1C', 'a 0x30-byte text window parameter block (byte, two floats, bytes, a float, four bytes, a byte, a float, a word) written whole by each of the nine window creators fn_800672AC / fn_80067904 / fn_80069DA4 / fn_8006A00C / fn_8006A1A8 / fn_8006A344 / fn_8006A4E0 / fn_8006A7D8 / fn_8006B144: the style of the window being created'),
     ('0x80111CE8', "the stage selector's two exits (cr_StageSelector_Update result 0 / 1): fn_80111CE8 returns cr_g_SeqPrevious, or SEQ_MODE_SELECTOR unless cr_g_StageSelector.flags & 2, and calls cr_Customize_SetMode(cr_g_Customize.mode) when that is SEQ_MENU; fn_80111D50 not read"),
 ]
 

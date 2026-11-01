@@ -1,0 +1,11 @@
+// Cuts in decomp-toolkit's data objects (plan.md step 90): where dtk saw one object, the code shows two. Applied by
+// tools/gen_dtk_symbols.py: the dtk object around the address ends there, a new object lbl_<address> takes the rest of
+// its bytes (a name of symbols/cr_globals.txt at the address then applies to it). The bytes and main.dol do not change.
+// Format:  .section:0xADDR // why: <the code that addresses the parts apart, or the typed table that ends there>
+
+.data:0x801DEAB4 // why: cr_g_SeqFrameA (15 handlers indexed by the sequence number, 0x3C bytes) ends here and cr_g_SeqNames (15 pointers to the SEQ_ strings, no code pointers) starts: dtk's cr_g_SeqFrameA object is 0x78, both tables
+.data:0x801DEB68 // why: cr_g_SeqEnter: cr_Game_Update calls [cr_g_SeqCurrent] of the 15 handlers at cr_g_SeqFrameA + 0xF0 (addi r3, r30, 0xf0; the six sequence tables are addressed from one base); inside dtk's 0xCBC-byte cr_g_SeqFrameC object
+.data:0x801DEBA4 // why: cr_g_SeqLeave: cr_Game_Update calls [cr_g_SeqCurrent] of the 15 handlers at cr_g_SeqFrameA + 0x12C (from the same base); inside dtk's cr_g_SeqFrameC object
+.data:0x801DEBE0 // why: the end of cr_g_SeqLeave's 15 handlers: the words after it are no code pointers (0x01000000, 0x01000078 ...), no relocation points into 0x801DEBE0..0x801DF7E8 and no code addresses it (an unreferenced table, up to dtk's next object lbl_801DF7E8)
+.data:0x801F8098 // why: the end of cr_g_CamModeFuncs' 42 handlers (21 camera modes x start / frame, called as table[mode * 2 + started]); the 0x38 bytes after it are 7 (byte, float) pairs that nothing relocates or addresses, up to dtk's next object lbl_801F80D0
+.data:0x8021B240 // why: fn_800A0E64 indexes a table of 47 file-name pointers ("RPG_WRD01.BIN" ...) at its .data base lbl_8021AF28 + 0x318 (lwzx): cr_g_CharaMotionSets' 56 motion-set pointers end here (dtk's object 0x19C ran on over the name table)

@@ -24,4 +24,7 @@ typedef struct cr_AreaBox
   u8 unk_2c[0x14];
 } cr_AreaBox;
 
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
 cr_AreaBox cr_g_AreaBoxes[28];
+#pragma force_active reset

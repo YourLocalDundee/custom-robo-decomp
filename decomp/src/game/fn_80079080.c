@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void HSD_StateInvalidate(int mask);
 extern u32 lbl_8044F608[2];
-extern u32 lbl_8037A400[12032];
+__declspec(section ".data") extern u8 cr_g_ModelSlots[48128];
 typedef struct HSD_JObj HSD_JObj;
 typedef f32 Mtx[3][4];
 void HSD_JObjDispAll(HSD_JObj *jobj, Mtx vmtx, u32 flags, u32 rendermode);
@@ -19,7 +19,7 @@ void fn_80079080(void) {
 
     HSD_StateInvalidate(-1);
     var_r31_9 = 0;
-    *lbl_8044F608 = (u32) lbl_8037A400;
+    *lbl_8044F608 = (u32) cr_g_ModelSlots;
     while (var_r31_9 < 0x100) {
         if (M2C_FIELD(*lbl_8044F608, u32 *, 0) != 0U) {
             HSD_JObjDispAll(M2C_FIELD(*lbl_8044F608, HSD_JObj **, 0x90), (f32 (*)[4]) lbl_8032344C, 7U, 0U);

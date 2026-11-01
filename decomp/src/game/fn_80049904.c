@@ -6,12 +6,11 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u32 lbl_8044F4C8;
+__declspec(section ".sdata") extern u8 *cr_g_CurrentBattleRobo;
 extern u32 lbl_8044F4D8;
 
-extern u8 *lbl_8044F348;
-
 s32 fn_80049904(void) {
-    lbl_8044F4C8 = M2C_FIELD(lbl_8044F348, u32 *, 0x1D8);
-    lbl_8044F4D8 = M2C_FIELD(lbl_8044F348, u32 *, 0x4CC);
+    lbl_8044F4C8 = M2C_FIELD(cr_g_CurrentBattleRobo, u32 *, 0x1D8);
+    lbl_8044F4D8 = M2C_FIELD(cr_g_CurrentBattleRobo, u32 *, 0x4CC);
     return 1;
 }

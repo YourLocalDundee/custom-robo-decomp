@@ -6,10 +6,9 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 lbl_801DEA6C[12];
-
-extern u8 *lbl_8044F348;
+__declspec(section ".sdata") extern u8 *cr_g_CurrentBattleRobo;
 
 void fn_80005B88(void) {
 
-    (*(M2C_UNK (**)()) (lbl_801DEA6C + (M2C_FIELD(lbl_8044F348, s32 *, 4) * 4)))();
+    (*(M2C_UNK (**)()) (lbl_801DEA6C + (M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 4) * 4)))();
 }

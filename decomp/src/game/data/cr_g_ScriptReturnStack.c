@@ -6,4 +6,7 @@
  * The game's own source files are not known: this unit is one contiguous run of its data, not the original file. */
 #include "game/cr_game.h"
 
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
 s16 *cr_g_ScriptReturnStack[16];
+#pragma force_active reset

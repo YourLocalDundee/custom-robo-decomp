@@ -5,20 +5,19 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+__declspec(section ".sdata") extern u8 *cr_g_CurrentBattleRobo;
 extern u8 lbl_80379FE0[432];
 typedef struct HSD_JObj HSD_JObj;
 void HSD_JObjUnref(HSD_JObj *jobj);
-
-extern u8 *lbl_8044F348;
 
 void fn_80078CA0(void) {
     s32 var_r31_6;
     u32 temp_r30_9;
 
     var_r31_6 = 0;
-    temp_r30_9 = M2C_FIELD(lbl_8044F348, u8 *, 0x8C);
+    temp_r30_9 = M2C_FIELD(cr_g_CurrentBattleRobo, u8 *, 0x8C);
     while (var_r31_6 < 8) {
-        *(lbl_80379FE0 + (M2C_FIELD(lbl_8044F348, u8 *, 0x8C) * 0x6C) + (var_r31_6 * 0xC)) = 0;
+        *(lbl_80379FE0 + (M2C_FIELD(cr_g_CurrentBattleRobo, u8 *, 0x8C) * 0x6C) + (var_r31_6 * 0xC)) = 0;
         HSD_JObjUnref(M2C_FIELD((lbl_80379FE0 + (temp_r30_9 * 0x6C) + (var_r31_6 * 0xC)), HSD_JObj **, 4));
         var_r31_6 += 1;
     }

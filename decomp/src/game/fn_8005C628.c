@@ -13,6 +13,7 @@ typedef struct
 } Vec;
 typedef Vec Point3d;
 extern u8 *lbl_8044F590;
+__declspec(section ".sdata") extern u8 *cr_g_CurrentBattleRobo;
 void fn_80097CA8(s32 arg0, Point3d *arg1);
 void fn_80098290(s32 arg0);
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_0678;
@@ -20,7 +21,6 @@ extern u16 lbl_8044F58C;
 extern u32 lbl_8044F588;
 extern u8 lbl_801F9DDC[44];
 
-extern u8 *lbl_8044F348;
 extern Point3d *lbl_8044F53C;
 
 void fn_8005C628(void) {
@@ -28,7 +28,7 @@ void fn_8005C628(void) {
     u32 temp_r30_14;
 
     temp_r31_9 = M2C_FIELD(lbl_8044F590, u16 **, 4);
-    temp_r30_14 = ((u32) M2C_FIELD(lbl_8044F348, u32 *, 0x33498) >> 8U) & 0xFF;
+    temp_r30_14 = ((u32) M2C_FIELD(cr_g_CurrentBattleRobo, u32 *, 0x33498) >> 8U) & 0xFF;
     if (M2C_FIELD(temp_r31_9, u16 *, 8) != 0xFFFF) {
         fn_80097CA8(M2C_FIELD((M2C_FIELD(temp_r31_9, s32 *, 4) + (temp_r30_14 * 4)), s32 *, 0), lbl_8044F53C);
     } else {

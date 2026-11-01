@@ -17,8 +17,14 @@ game/data/cr_g_BodyCount_cr_g_BombCount.c:
 game/data/cr_g_CharaEntries.c:
 	.bss        start:0x8024DC80 end:0x8024DFA0
 
+game/data/cr_g_BattleRobos.c:
+	.bss        start:0x8024E120 end:0x8031B5A0
+
 game/data/cr_g_PadStatus_cr_g_Pads.c:
 	.bss        start:0x8031FEA8 end:0x80320168
+
+game/data/cr_g_EntryTableLoad_cr_g_FileSlots.c:
+	.bss        start:0x80320168 end:0x80321084
 
 game/data/cr_g_PackedArchives_cr_g_FileSysReady.c:
 	.bss        start:0x80321148 end:0x80321D40
@@ -26,11 +32,20 @@ game/data/cr_g_PackedArchives_cr_g_FileSysReady.c:
 game/data/cr_g_GameMode_cr_g_SeqCurrent.c:
 	.bss        start:0x80321D40 end:0x80321DD0
 
+game/data/cr_g_Cams_cr_g_CamSystem.c:
+	.bss        start:0x80324BD0 end:0x80329B60
+
 game/data/cr_g_MotionDataBit15_cr_g_MotionData.c:
 	.bss        start:0x8032A8C8 end:0x8032C1C8
 
-game/data/cr_g_MessageFiles.c:
-	.bss        start:0x80330BC0 end:0x80330D1C
+game/data/cr_g_MessageFiles_cr_g_TextRecords.c:
+	.bss        start:0x80330BC0 end:0x8034454C
+
+game/data/cr_g_ModelSlots.c:
+	.bss        start:0x8037A400 end:0x80386000
+
+game/data/cr_g_ScenarioBuffer.c:
+	.bss        start:0x8039F120 end:0x803B7120
 
 game/data/cr_g_AreaBoxes.c:
 	.bss        start:0x803BAF28 end:0x803BB628
@@ -44,14 +59,32 @@ game/data/cr_g_Charas.c:
 game/data/cr_g_ScriptReturnStack.c:
 	.bss        start:0x803E6648 end:0x803E6688
 
+game/data/cr_g_CardWorkArea.c:
+	.bss        start:0x803F6420 end:0x80400420
+
 game/data/cr_g_UnlockBits.c:
 	.bss        start:0x804198B0 end:0x80419958
 
 game/data/cr_g_BattleMotionSets.c:
 	.data       start:0x801C51B8 end:0x801C5BD0
 
+game/data/cr_g_BattleLoadouts_cr_g_LegData.c:
+	.data       start:0x801C5BD0 end:0x801CA55F
+
+game/data/cr_g_GunData_cr_g_BombData.c:
+	.data       start:0x801CA560 end:0x801D9590
+
+game/data/cr_g_SeqFrameA_cr_g_SeqLeave.c:
+	.data       start:0x801DEA78 end:0x801DEBE0
+
 game/data/cr_g_FileDescs.c:
 	.data       start:0x801F1200 end:0x801F12AC
+
+game/data/cr_g_CamModeFuncs.c:
+	.data       start:0x801F7FF0 end:0x801F8098
+
+game/data/cr_g_CharaYOffset_cr_g_CharaMotionSets.c:
+	.data       start:0x8021B080 end:0x8021B240
 
 game/fn_800055E0.c:
 	.text       start:0x800055E0 end:0x800055E4
@@ -961,6 +994,9 @@ game/fn_800A5890.c:
 game/fn_800AA130_fn_800AA130.c:
 	.text       start:0x800AA130 end:0x800AA17C
 	.data       start:0x8022B130 end:0x8022B204
+
+game/data/cr_g_PartOrderLeg_cr_g_PartOrderLists.c:
+	.data       start:0x8023B898 end:0x8023B8D0
 
 game/fn_800AA17C.c:
 	.text       start:0x800AA17C end:0x800AA2E4

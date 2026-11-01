@@ -2124,6 +2124,173 @@ typedef struct cr_CustomizeState {
     /* +1B50 */ u32 unk_1b50;
 } cr_CustomizeState;
 
+// ---- The battle robos, their loadouts and body data, the entry-table loader, the camera block (plan.md step 90) ----
+
+// ASSERT_SIZE(cr_BattleLoadout, 0x10)  cr_BattleRobo_InitFromLoadout reads 0x801C5BD0 + cr_g_BattleRoboIndex * 0x10 (slwi 4)
+// ASSERT_SIZE(cr_BodyData, 0x78)       cr_BattleRobo_InitFromLoadout copies 0x78 bytes from 0x801C5C10 + body * 0x78 (mulli 0x78);
+//                                      34 of them = dtk's object at 0x801C5C10 (0xFF0)
+// ASSERT_SIZE(cr_BattleRobo, 0x33520)  the code steps 0x33520 between robos (lis 3; addi 0x3520; mullw: fn_80007CE4, fn_8000805C ...);
+//                                      4 of them = dtk's object at 0x8024E120 (0xCD480)
+// ASSERT_SIZE(cr_EntryTableLoad, 0x1C) dtk's one object at 0x80320168 (0x1C, up to cr_g_FileSlots)
+// ASSERT_SIZE(cr_CamSystem, 0x50)      dtk's one object at 0x80329B10 (0x50, up to lbl_80329B60), addressed from one base by
+//                                      29 functions (the cr_CAMMODE_ handlers, cr_Cam_Update, cr_SEQ_BATTLE_FrameA ...)
+
+/// One battle robo's loadout (cr_g_BattleLoadouts[4]): what cr_BattleRobo_InitFromLoadout copies into the robo it sets up.
+typedef struct cr_BattleLoadout {
+    /* +0 */ u16 unk_0;      // stored as the byte cr_BattleRobo.unk_0008d (lhzx, stb +0x8D); 0 in all four retail entries
+    /* +2 */ u16 parts[5];   // body, gun, bomb, pod, leg numbers: copied to cr_BattleRobo.parts (sth +0x1CC..+0x1D4)
+    /* +C */ u16 hp;         // converted to float and stored at cr_BattleRobo +0x74 (hp) and +0x70; 1000 in all four entries
+    /* +E */ u16 unk_e;      // copied to cr_BattleRobo.unk_0008e (sth +0x8E); 0, 1, 2, 3 in the four entries
+} cr_BattleLoadout;
+
+/// A body's record (cr_g_BodyData[34], indexed by the body number): copied whole into the battle robo (cr_BattleRobo.body_data).
+typedef struct cr_BodyData {
+    /* +00 */ f32 unk_00;                       // with unk_04: frame the robo in cr_CAMMODE_CUSTOMIZE_Start / Frame and fn_800A63C0
+    /* +04 */ f32 unk_04;
+    /* +08 */ cr_BattleMotionSet* motion_set;   // the body's entry of cr_g_BattleMotionSets (all 34 relocated, record i -> set i); fn_80101730 copies it to the battle object +0x554
+    /* +0C */ f32 unk_0c[27];                   // floats only (1.0 triples and small offsets); not traced
+} cr_BodyData;
+
+/// A battle robo (cr_g_BattleRobos[4]; the current one is cr_g_CurrentBattleRobo). Only what cr_BattleRobo_InitFromLoadout
+/// writes is typed: the loadout's fields and the copies of the five part records.
+typedef struct cr_BattleRobo {
+    /* +00000 */ void (*update)(void);  // non-zero = the robo is in use (fn_8000768C, fn_8003633C, fn_80092A5C ... test it before they touch the robo); fn_80089550 / fn_80089BB0 store fn_80005B88
+    /* +00004 */ u8 unk_00004[0x6C];
+    /* +00070 */ f32 unk_00070;           // = the loadout's hp as float, like hp (cr_BattleRobo_InitFromLoadout)
+    /* +00074 */ f32 hp;                  // = the loadout's hp as float (cr_BattleRobo_InitFromLoadout); the community's "Robo 1 HP" code writes 0x8024E194 = robo 0 +0x74, robos 2-4 at + n * 0x33520
+    /* +00078 */ u8 unk_00078[0x14];
+    /* +0008C */ u8 index;                // cr_g_BattleRoboIndex (cr_BattleRobo_InitFromLoadout); the most-read byte of the robo (98 reads in 28 functions)
+    /* +0008D */ u8 unk_0008d;            // cr_BattleLoadout.unk_0
+    /* +0008E */ u16 unk_0008e;           // cr_BattleLoadout.unk_e
+    /* +00090 */ u8 unk_00090[0x13C];
+    /* +001CC */ u16 parts[5];            // body, gun, bomb, pod, leg (cr_BattleLoadout.parts): body indexes cr_g_BodyData and the body stats, the others their part tables below
+    /* +001D6 */ u8 unk_001d6[0x161E];
+    /* +017F4 */ cr_BodyData body_data;   // cr_g_BodyData[body] (lwz/stw loop of 15 x 8 bytes to +0x17F4)
+    /* +0186C */ u8 unk_0186c[0x32C];
+    /* +01B98 */ u8 body_stats[0x134];    // the body's 0x134-byte record of 0x801C6C44 (34 records; lhz/sth loop of 0x4D x 4 bytes)
+    /* +01CCC */ u8 unk_01ccc[0x15C];
+    /* +01E28 */ u8 gun_data[0x28C];      // the gun's 0x28C-byte record of 0x801CA560 (64 records = dtk's 0xA300); fn_80044174(robo +0x1E20, gun) follows
+    /* +020B4 */ u8 unk_020b4[0x26C94];
+    /* +28D48 */ u8 bomb_data[0x17C];     // the bomb's 0x17C-byte record of 0x801D4860 (52 records = dtk's 0x4D30); fn_80041140(robo +0x28D40, bomb) follows
+    /* +28EC4 */ u8 unk_28ec4[0x5424];
+    /* +2E2E8 */ u8 pod_data[0x174];      // the pod's 0x174-byte record of 0x801D9590; fn_8003F048(robo +0x2E2E0, pod) follows
+    /* +2E45C */ u8 unk_2e45c[0x4EAC];
+    /* +33308 */ u8 leg_data[0x8F];       // the leg's 0x8F-byte record of 0x801C952C (byte copy)
+    /* +33397 */ u8 unk_33397[0x189];
+} cr_BattleRobo;
+
+// ASSERT_SIZE(cr_BattleParams, 0x44)  dtk's one object at 0x801C6C00 (0x44, between cr_g_BodyData and cr_g_BodyStats)
+// ASSERT_SIZE(cr_BodyStats, 0x134)     cr_BattleRobo_InitFromLoadout copies 0x134 bytes from 0x801C6C44 + body * 0x134 (mulli 0x134)
+// ASSERT_SIZE(cr_LegData, 0x8F)        cr_BattleRobo_InitFromLoadout copies 0x8F bytes from 0x801C952C + leg * 0x8F (mulli 0x8F)
+// ASSERT_SIZE(cr_GunData, 0x28C)       cr_BattleRobo_InitFromLoadout copies 0x28C bytes from 0x801CA560 + gun * 0x28C (mulli 0x28C)
+// ASSERT_SIZE(cr_BombData, 0x17C)      cr_BattleRobo_InitFromLoadout copies 0x17C bytes from 0x801D4860 + bomb * 0x17C (mulli 0x17C)
+// ASSERT_SIZE(cr_ModelSlot, 0xBC)      fn_80079080 steps 0x2F words per slot over 0x100 slots from 0x8037A400
+
+/// Constants of the battle code (cr_g_BattleParams).
+typedef struct cr_BattleParams {
+    /* +00 */ s16 unk_00;        // fn_8004B0A0 converts it to a number (900)
+    /* +02 */ s16 unk_02;
+    /* +04 */ f32 unk_04;        // fn_8004B0A0 multiplies it into lbl_8044F4B4 (2.0)
+    /* +08 */ s16 unk_08[30];    // +0x18 (unk_08[8]): fn_8004B0A0 stores it at the robo's +0xE2
+} cr_BattleParams;
+
+/// A body's stats record (cr_g_BodyStats[34]), copied to cr_BattleRobo.body_stats.
+typedef struct cr_BodyStats {
+    /* +000 */ char name_jp[0x20];   // the body's name in Shift-JIS
+    /* +020 */ char name[0x20];      // the body's English name ("Ray 01", ...)
+    /* +040 */ u16 unk_040;          // 1000 for Ray 01, 30000 for R Type 3 (docs/name_evidence.md lead 0x801C6C44)
+    /* +042 */ u8 unk_042[0xF2];
+} cr_BodyStats;
+
+/// A leg's record (cr_g_LegData[29]), copied to cr_BattleRobo.leg_data.
+typedef struct cr_LegData {
+    /* +00 */ char name_jp[0x20];    // the leg's name in Shift-JIS
+    /* +20 */ char name[0x20];       // the leg's English name ("Inceptor Leg", ...)
+    /* +40 */ u8 unk_40[0x4F];
+} cr_LegData;
+
+/// A gun's record (cr_g_GunData[64]), copied to cr_BattleRobo.gun_data.
+typedef struct cr_GunData {
+    /* +000 */ char name_jp[0x20];   // the gun's name in Shift-JIS
+    /* +020 */ char name[0x20];      // the gun's English name ("Striker Gun", ...)
+    /* +040 */ u8 unk_040[0x24C];
+} cr_GunData;
+
+/// A bomb's record (cr_g_BombData[52]), copied to cr_BattleRobo.bomb_data.
+typedef struct cr_BombData {
+    /* +000 */ char name_jp[0x20];   // the bomb's name in Shift-JIS
+    /* +020 */ char name[0x20];      // the bomb's English name ("Bobcat Bomb", ...)
+    /* +040 */ u8 unk_040[0x13C];
+} cr_BombData;
+
+/// One of the 256 model slots of cr_g_ModelSlots.
+typedef struct cr_ModelSlot {
+    /* +00 */ u32 used;              // fn_80079080 draws the slot and fn_80078F94 frees it when it is not 0
+    /* +04 */ u8 unk_04[0x8C];
+    /* +90 */ HSD_JObj* jobj;        // HSD_JObjDispAll(jobj, the camera matrix 0x8032344C, 7, 0) in fn_80079080; freed with fn_8017EE20
+    /* +94 */ u8 unk_94[0x28];
+} cr_ModelSlot;
+
+// ASSERT_SIZE(cr_WindowStyle, 0x30)   dtk's one object at 0x80330D1C (0x30), written field by field by the nine window creators
+// ASSERT_SIZE(cr_TextRecord, 0x20)    fn_8008E09C clears 0x13800 bytes from 0x80330D4C and sets the u16 +0x10 of 0x9C0 records of 0x20
+
+/// The parameters of the text window being created (cr_g_WindowStyle): each of the nine window creators fn_800672AC /
+/// fn_80067904 / fn_80069DA4 / fn_8006A00C / fn_8006A1A8 / fn_8006A344 / fn_8006A4E0 / fn_8006A7D8 / fn_8006B144 writes it whole.
+typedef struct cr_WindowStyle {
+    /* +00 */ u8 unk_00;          // lbz / stb in all nine
+    /* +01 */ u8 unk_01[3];
+    /* +04 */ f32 unk_04;         // stfs in all nine
+    /* +08 */ f32 unk_08;         // lfs / stfs in all nine
+    /* +0C */ u8 unk_0c;
+    /* +0D */ u8 unk_0d;
+    /* +0E */ u8 unk_0e[6];
+    /* +14 */ f32 unk_14;         // stfs in eight
+    /* +18 */ u8 unk_18[4];       // four stb in eight
+    /* +1C */ u8 unk_1c;
+    /* +1D */ u8 unk_1d[7];
+    /* +24 */ f32 unk_24;
+    /* +28 */ u8 unk_28;          // fn_80067904, fn_8006A7D8
+    /* +29 */ u8 unk_29[3];
+    /* +2C */ u32 unk_2c;         // fn_80067904, fn_80069D20, fn_8006A7D8
+} cr_WindowStyle;
+
+/// One of the 0x9C0 records of cr_g_TextRecords.
+typedef struct cr_TextRecord {
+    /* +00 */ u8 unk_00[0x10];
+    /* +10 */ u16 unk_10;         // 0xFFFF in every record after fn_8008E09C; fn_8000CB64 resets the first 0x80, fn_8008E05C the one it hands out
+    /* +12 */ u8 unk_12[0xE];
+} cr_TextRecord;
+
+/// The state of fn_80021674, which reads the entry table of each packed archive (cr_g_ArchiveDvdEntry != -1) in turn into
+/// cr_g_PackedArchives, and the record of the built-in message file "MESGbmg1" (0x801F12C0) that cr_FileSys_Init sets up.
+typedef struct cr_EntryTableLoad {
+    /* +00 */ u32 messages[3];            // fn_80066F58(this, "MESGbmg1"): +0 = its INF1 block, +4 = its DAT1 block (the 0xC-byte record of cr_g_MessageFiles); fn_80021AB0 passes it to fn_80066EEC
+    /* +0C */ s32 dvd_entry;              // the DVD entry of the archive being read (fn_80021674 stores it in cr_PackedArchive.dvd_entry)
+    /* +10 */ u32* header;                // 0x800-byte buffer from cr_Heap2_AllocAligned: the archive's first sector ([1] = entry count, then offset / size pairs); freed after the copy
+    /* +14 */ s32 archive;                // the archive whose table is read (0..0x2B; 0 in cr_FileSys_Init, +1 after each)
+    /* +18 */ cr_FileSlot* slot;          // the cr_g_FileSlots slot of the read (state 3 = done); 0 in cr_FileSys_Init
+} cr_EntryTableLoad;
+
+/// The camera block next to the four cameras (cr_g_Cams): cr_Cam_Init sets the two pointer arrays.
+typedef struct cr_CamSystem {
+    /* +00 */ u8 unk_00[8];               // passed as a pointer by cr_CAMMODE_STAGE_INFO_Start / STAGE_SELECT_Start, fn_8002648C, fn_800294D8
+    /* +08 */ u8 unk_08;                  // read in 20 functions (the cr_CAMMODE_ handlers, cr_Cam_Update)
+    /* +09 */ u8 unk_09;                  // written by fn_80027170, fn_8002F7E4, cr_CAMMODE_SNR_CHARA_Start
+    /* +0A */ u8 unk_0a[2];
+    /* +0C */ u8* cams[4];                // cr_Cam_Init: cr_g_Cams + i * 0x13D0 (the four 0x13D0-byte camera objects); fn_8002557C reads them (was cr_g_CamPtrs)
+    /* +1C */ u8* unk_1c[4];              // cr_Cam_Init: 0x8032338C + i * 0x30
+    /* +2C */ u8 unk_2c;                  // cr_CAMMODE_MIDDLE_Frame
+    /* +2D */ u8 unk_2d[3];
+    /* +30 */ u8 unk_30;                  // read / written in 8 functions (cr_CAMMODE_MIDDLE_Frame, cr_SEQ_BATTLE_FrameA, fn_80071974 ...)
+    /* +31 */ u8 unk_31[3];
+    /* +34 */ u32 unk_34;
+    /* +38 */ u32 unk_38;
+    /* +3C */ u32 unk_3c;                 // cr_CAMMODE_MIDDLE_Frame
+    /* +40 */ u32 unk_40;                 // written by cr_SEQ_BATTLE_FrameA
+    /* +44 */ u32 unk_44;                 // cr_CAMMODE_MIDDLE_Frame
+    /* +48 */ u32 unk_48[2];
+} cr_CamSystem;
+
 // ---- Prototypes of our descriptive functions (symbols/descriptive.txt) -----------------------------------
 
 void cr_FileSys_Init(void);

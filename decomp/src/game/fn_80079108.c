@@ -46,7 +46,7 @@ __declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 void fn_8018CCDC(void *arg0);
 void fn_80078B60(void);
 extern u32 lbl_8044F608[2];
-extern u32 lbl_8037A400[12032];
+__declspec(section ".data") extern u8 cr_g_ModelSlots[48128];
 void fn_8017EE20(void *arg0);
 typedef struct HSD_JObj HSD_JObj;
 void HSD_JObjAnimAll(HSD_JObj *);
@@ -61,7 +61,7 @@ void fn_80079108(void) {
     if (!(cr_g_SeqCurrent.unk_38 & 0x4000)) {
         fn_8018CCDC(fn_80078B60);
         var_r30_18 = 0;
-        *lbl_8044F608 = (u32) lbl_8037A400;
+        *lbl_8044F608 = (u32) cr_g_ModelSlots;
         while (var_r30_18 < 0x100) {
             if (M2C_FIELD(*lbl_8044F608, u32 *, 8) != 0U) {
                 temp_r31_27 = *lbl_8044F608;

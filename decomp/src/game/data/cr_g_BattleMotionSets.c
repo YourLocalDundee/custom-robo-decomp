@@ -49,6 +49,8 @@ typedef struct cr_BattleMotionSet
   u16 change_4a;
 } cr_BattleMotionSet;
 
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
 cr_BattleMotionSet cr_g_BattleMotionSets[34] = {
     {
         16, 21, 15, 19, 13, 9, 3, 82, 1, 11, 71, 70, 72, 73, 66, 67, 68, 65, 79, 80, 86, 82, 81, 83, 84,
@@ -187,3 +189,4 @@ cr_BattleMotionSet cr_g_BattleMotionSets[34] = {
         85, 75, 74, 77, 76, 78, 262, 200, 163, 164, 234, 64, 64
     }
 };
+#pragma force_active reset

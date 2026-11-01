@@ -98,13 +98,19 @@ named pointer tables (symbols/cr_globals.txt), words in their extent:
   ok   0x8044C3C8 cr_g_GunCount (s32, struct data to 0x8044C3CC): 0 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x8044C3CC cr_g_BombCount (s32, struct data to 0x8044C3D0): 0 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x8044C3D0 cr_g_PodCount (s32, struct data to 0x8044C3D8): 0 relocated words, 1 NULL, 0 unrelocated in-range words
-  ok   0x801C5C10 cr_g_BodyData (u8[4080], struct data to 0x801C6C00): 34 relocated words, 208 NULL, 0 unrelocated in-range words
+  ok   0x801C5C10 cr_g_BodyData (cr_BodyData[34], struct data to 0x801C6C00): 34 relocated words, 208 NULL, 0 unrelocated in-range words
   ok   0x8023B73A cr_g_PartOrderBody (u16[35], struct data to 0x8023B780): 0 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x8023B780 cr_g_PartOrderGun (u16[53], struct data to 0x8023B7EA): 0 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x8023B7EA cr_g_PartOrderBomb (u16[42], struct data to 0x8023B83E): 0 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x8023B83E cr_g_PartOrderPod (u16[45], struct data to 0x8023B898): 0 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x8023B898 cr_g_PartOrderLeg (u16[17], struct data to 0x8023B8BC): 0 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x8023B8BC cr_g_PartOrderLists (u16*[5], 5 pointers): 5 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x801C5BD0 cr_g_BattleLoadouts (cr_BattleLoadout[4], struct data to 0x801C5C10): 0 relocated words, 2 NULL, 0 unrelocated in-range words
+  ok   0x801C6C00 cr_g_BattleParams (cr_BattleParams, struct data to 0x801C6C44): 0 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x801C6C44 cr_g_BodyStats (cr_BodyStats[34], struct data to 0x801C952C): 0 relocated words, 694 NULL, 0 unrelocated in-range words
+  ok   0x801C952C cr_g_LegData (cr_LegData[29], struct data to 0x801CA55F): 0 relocated words, 419 NULL, 0 unrelocated in-range words
+  ok   0x801CA560 cr_g_GunData (cr_GunData[64], struct data to 0x801D4860): 0 relocated words, 4858 NULL, 0 unrelocated in-range words
+  ok   0x801D4860 cr_g_BombData (cr_BombData[52], struct data to 0x801D9590): 0 relocated words, 2257 NULL, 0 unrelocated in-range words
 
 glue spans (start .. end, section, the dtk objects at both ends):
   0x801B6620..0x801B6A29 .rodata lbl_801B6620 .. lbl_801B69CB
@@ -154,8 +160,8 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x8024D4D8..0x8024D604 .data hsdClass .. lbl_8024D5E0
   0x8024D680..0x8024D9D0 .data lbl_8024D680 .. lbl_8024D95C
   0x8031B5A0..0x8031F0E0 .bss lbl_8031B5A0 .. lbl_8031F020
-  0x80320168..0x80321CBA .bss lbl_80320168 .. cr_g_FileSysReady
-  0x80321DD0..0x80329B44 .bss lbl_80321DD0 .. lbl_80329B10
+  0x80320168..0x80321CBA .bss cr_g_EntryTableLoad .. cr_g_FileSysReady
+  0x80321DD0..0x80329B44 .bss lbl_80321DD0 .. cr_g_CamSystem
   0x80329B60..0x8032A89C .bss lbl_80329B60 .. lbl_8032A884
   0x8032C1C8..0x8032C26C .bss lbl_8032C1C8 .. lbl_8032C234
   0x8032C2B0..0x8032CCD0 .bss lbl_8032C2B0 .. lbl_8032CC20
