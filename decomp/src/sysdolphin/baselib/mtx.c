@@ -7,56 +7,20 @@
 #define EPSILON 0.0000000001f
 #define FLOAT_MIN 1.1754943E-38f
 
+/* Custom Robo (step 88): the three functions of this revision that main.dol leaves unnamed (no call site in matched
+ * C names them yet) keep their dtk names, so objdiff pairs them and nothing is named by the C alone */
+#define HSD_MtxInverseConcat fn_8019EB5C
+#define HSD_MtxGetRotationMtx fn_8019F2AC
+#define HSD_MtxSRT fn_8019FC14
+
 HSD_ObjAllocData HSD_Mtx_804C2310;
 HSD_ObjAllocData HSD_Mtx_804C233C;
 
-/// Calculates the determinant of the top 3x3 section of a 3x4 matrix
-static inline f32 HSD_CalcDeterminantMatrix3x4(Mtx m)
-{
-    return m[0][0] * m[1][1] * m[2][2] + m[0][1] * m[1][2] * m[2][0] +
-           m[0][2] * m[1][0] * m[2][1] - m[2][0] * m[1][1] * m[0][2] -
-           m[1][0] * m[0][1] * m[2][2] - m[0][0] * m[2][1] * m[1][2];
-}
-
-void HSD_MtxInverse(Mtx src, Mtx dest)
-{
-    Mtx tempMatrix;
-    Mtx* m;
-    f32 det = HSD_CalcDeterminantMatrix3x4(src);
-
-    if (fabsf_bitwise(det) < EPSILON) {
-        MTXIdentity(dest);
-        return;
-    }
-
-    if (src == dest) {
-        MTXCopy(src, tempMatrix);
-        m = &tempMatrix;
-    } else {
-        m = (Mtx*) src;
-    }
-
-    det = 1.0f / det;
-
-    dest[0][0] = ((*m)[1][1] * (*m)[2][2] - (*m)[2][1] * (*m)[1][2]) * det;
-    dest[0][1] = -((*m)[0][1] * (*m)[2][2] - (*m)[2][1] * (*m)[0][2]) * det;
-    dest[0][2] = ((*m)[0][1] * (*m)[1][2] - (*m)[1][1] * (*m)[0][2]) * det;
-    dest[1][0] = -((*m)[1][0] * (*m)[2][2] - (*m)[2][0] * (*m)[1][2]) * det;
-    dest[1][1] = ((*m)[0][0] * (*m)[2][2] - (*m)[2][0] * (*m)[0][2]) * det;
-    dest[1][2] = -((*m)[0][0] * (*m)[1][2] - (*m)[1][0] * (*m)[0][2]) * det;
-    dest[2][0] = ((*m)[1][0] * (*m)[2][1] - (*m)[2][0] * (*m)[1][1]) * det;
-    dest[2][1] = -((*m)[0][0] * (*m)[2][1] - (*m)[2][0] * (*m)[0][1]) * det;
-    dest[2][2] = ((*m)[0][0] * (*m)[1][1] - (*m)[1][0] * (*m)[0][1]) * det;
-
-    dest[0][3] = -(dest[0][2] * src[2][3] -
-                   (-dest[0][0] * src[0][3] - dest[0][1] * src[1][3]));
-    dest[1][3] = -(dest[1][2] * src[2][3] -
-                   (-dest[1][0] * src[0][3] - dest[1][1] * src[1][3]));
-    dest[2][3] = -(dest[2][2] * src[2][3] -
-                   (-dest[2][0] * src[0][3] - dest[2][1] * src[1][3]));
-}
-
-void HSD_MtxInverseConcat(Mtx inv, Mtx src, Mtx dest)
+/* Custom Robo: HSD_MtxInverseConcat (fn_8019EB5C, 0x430) is wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 mtx.c HSD_MtxInverseConcat
+ * (0x440 in KAR, the first function of mtx.c there and here) with this revision's singular test: main.dol compares the
+ * determinant with 0.0F (fcmpu) and returns FALSE without the copy; the determinant written out in the function (through wowjinxy's / Melee's inline
+ * HSD_CalcDeterminantMatrix3x4 the registers differ: 95-98%), Melee's cofactor expressions without its new_var */
+int HSD_MtxInverseConcat(Mtx inv, Mtx src, Mtx dest)
 {
     Mtx m;
     f32 det;
@@ -74,22 +38,21 @@ void HSD_MtxInverseConcat(Mtx inv, Mtx src, Mtx dest)
     f32 temp12;
     f32 new_var; ///< @todo try to get rid of this
 
-    det = HSD_CalcDeterminantMatrix3x4(inv);
+    det = inv[0][0] * inv[1][1] * inv[2][2] + inv[0][1] * inv[1][2] * inv[2][0] +
+           inv[0][2] * inv[1][0] * inv[2][1] - inv[2][0] * inv[1][1] * inv[0][2] -
+           inv[1][0] * inv[0][1] * inv[2][2] - inv[0][0] * inv[2][1] * inv[1][2];
 
-    if (fabsf_bitwise(det) < EPSILON) {
-        if (src != dest) {
-            MTXCopy(src, dest);
-        }
+    if (0.0F == det) {
+        return 0;
     } else {
         det = 1.0f / det;
         temp1 = ((inv[1][1] * inv[2][2]) - (inv[2][1] * inv[1][2])) * det;
         temp2 = (-((inv[0][1] * inv[2][2]) - (inv[2][1] * inv[0][2]))) * det;
-        new_var = inv[1][1];
         temp3 = (-((inv[1][0] * inv[2][2]) - (inv[2][0] * inv[1][2]))) * det;
-        temp7 = ((inv[0][1] * inv[1][2]) - (new_var * inv[0][2])) * det;
+        temp7 = ((inv[0][1] * inv[1][2]) - (inv[1][1] * inv[0][2])) * det;
         temp4 = ((inv[0][0] * inv[2][2]) - (inv[2][0] * inv[0][2])) * det;
         temp8 = (-((inv[0][0] * inv[1][2]) - (inv[1][0] * inv[0][2]))) * det;
-        temp5 = ((inv[1][0] * inv[2][1]) - (inv[2][0] * new_var)) * det;
+        temp5 = ((inv[1][0] * inv[2][1]) - (inv[2][0] * inv[1][1])) * det;
         temp6 = (-((inv[0][0] * inv[2][1]) - (inv[2][0] * inv[0][1]))) * det;
         temp9 = ((inv[0][0] * inv[1][1]) - (inv[1][0] * inv[0][1])) * det;
         temp10 = -((temp7 * inv[2][3]) -
@@ -97,7 +60,7 @@ void HSD_MtxInverseConcat(Mtx inv, Mtx src, Mtx dest)
         temp11 = -((temp8 * inv[2][3]) -
                    (((-temp3) * inv[0][3]) - (temp4 * inv[1][3])));
         temp12 = -((temp9 * inv[2][3]) -
-                   (((-temp5) * (new_var = inv[0][3])) - (temp6 * inv[1][3])));
+                   (((-temp5) * inv[0][3]) - (temp6 * inv[1][3])));
 
         if (inv == dest || src == dest) {
             m[0][0] =
@@ -152,66 +115,23 @@ void HSD_MtxInverseConcat(Mtx inv, Mtx src, Mtx dest)
             dest[2][3] = temp9 * src[2][3] +
                          (temp5 * src[0][3] + temp6 * src[1][3]) + temp12;
         }
+        return 1;
     }
 }
 
-void HSD_MtxInverseTranspose(Mtx src, Mtx dest)
-{
-    Mtx* m;
-    Mtx tempMatrix;
-    f32 det = HSD_CalcDeterminantMatrix3x4(src);
-
-    m = (Mtx*) src;
-
-    if (fabsf_bitwise(det) < EPSILON) {
-        if (*m != dest) {
-            MTXCopy(*m, dest);
-        }
-    } else {
-        if (*m == dest) {
-            MTXCopy(*m, tempMatrix);
-            m = &tempMatrix;
-        }
-
-        det = 1.0f / det;
-
-        // This needs to be in a different order than in HSD_MtxInverse for
-        // some reason
-        dest[0][0] =
-            (((*m)[1][1] * (*m)[2][2]) - ((*m)[2][1] * (*m)[1][2])) * det;
-        dest[1][0] =
-            -(((*m)[0][1] * (*m)[2][2]) - ((*m)[2][1] * (*m)[0][2])) * det;
-        dest[2][0] =
-            (((*m)[0][1] * (*m)[1][2]) - ((*m)[1][1] * (*m)[0][2])) * det;
-        dest[0][1] =
-            -(((*m)[1][0] * (*m)[2][2]) - ((*m)[2][0] * (*m)[1][2])) * det;
-        dest[1][1] =
-            (((*m)[0][0] * (*m)[2][2]) - ((*m)[2][0] * (*m)[0][2])) * det;
-        dest[2][1] =
-            -(((*m)[0][0] * (*m)[1][2]) - ((*m)[1][0] * (*m)[0][2])) * det;
-        dest[0][2] =
-            (((*m)[1][0] * (*m)[2][1]) - ((*m)[2][0] * (*m)[1][1])) * det;
-        dest[1][2] =
-            -(((*m)[0][0] * (*m)[2][1]) - ((*m)[2][0] * (*m)[0][1])) * det;
-        dest[2][2] =
-            (((*m)[0][0] * (*m)[1][1]) - ((*m)[1][0] * (*m)[0][1])) * det;
-        dest[0][3] = 0;
-        dest[1][3] = 0;
-        dest[2][3] = 0;
-    }
-}
+/* Custom Robo: HSD_MtxGetRotation as wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 mtx.c (mtx_calcVal compares
+ * x with 0.0F, kar_asin / kar_atan2 / the cosine are MSL's double asin / atan2 / cos here: bl asin, bl atan2, bl cos
+ * then frsp), the length tests against FLT_MIN (main.dol's .sdata2 1.1754944e-38F) */
+double asin(double);
+double atan2(double, double);
+double cos(double);
 
 static inline f32 calcVal(f32 x, f32 y)
 {
-    if (fabsf_bitwise(x) <= FLOAT_MIN) {
-        if (y >= 0) {
-            return M_PI / 2;
-        } else {
-            return -M_PI / 2;
-        }
-    } else {
-        return atan2f(y, x);
+    if (0.0F == x) {
+        return y >= 0.0F ? (f32) (M_PI / 2) : (f32) (-M_PI / 2);
     }
+    return (f32) atan2(y, x);
 }
 
 void HSD_MtxGetRotation(Mtx m, Vec3* vec)
@@ -224,28 +144,26 @@ void HSD_MtxGetRotation(Mtx m, Vec3* vec)
 
     length0 = sqrtf(m[0][0] * m[0][0] + m[1][0] * m[1][0] + m[2][0] * m[2][0]);
     if (!(length0 < FLOAT_MIN)) {
-        length1 =
-            sqrtf(m[0][1] * m[0][1] + m[1][1] * m[1][1] + m[2][1] * m[2][1]);
+        length1 = sqrtf(m[0][1] * m[0][1] + m[1][1] * m[1][1] + m[2][1] * m[2][1]);
         if (!(length1 < FLOAT_MIN)) {
-            length2 = sqrtf(m[0][2] * m[0][2] + m[1][2] * m[1][2] +
-                            m[2][2] * m[2][2]);
+            length2 = sqrtf(m[0][2] * m[0][2] + m[1][2] * m[1][2] + m[2][2] * m[2][2]);
             if (!(length2 < FLOAT_MIN)) {
                 testVal_1 = -m[2][0];
                 testVal_1 /= length0;
 
-                if (testVal_1 >= 1.0f) {
+                if (testVal_1 >= 1.0F) {
                     val_01 = M_PI / 2;
-                } else if (testVal_1 <= -1) {
+                } else if (testVal_1 <= -1.0F) {
                     val_01 = -M_PI / 2;
                 } else {
-                    val_01 = asinf(testVal_1);
+                    val_01 = (f32) asin(testVal_1);
                 }
 
                 vec->y = val_01;
 
-                if (cosf(vec->y) >= FLOAT_MIN) {
-                    f32 testVal_2_pre = m[2][2] / length2;
+                if ((f32) cos(vec->y) >= FLOAT_MIN) {
                     f32 testVal_3_pre = m[2][1] / length1;
+                    f32 testVal_2_pre = m[2][2] / length2;
 
                     vec->x = calcVal(testVal_2_pre, testVal_3_pre);
                     vec->z = calcVal(m[0][0], m[1][0]);
@@ -253,15 +171,121 @@ void HSD_MtxGetRotation(Mtx m, Vec3* vec)
                 }
 
                 vec->x = calcVal(m[1][1], m[0][1]);
-                vec->z = 0;
+                vec->z = 0.0F;
                 return;
             }
         }
     }
 
-    vec->x = 0;
-    vec->y = 0;
-    vec->z = 0;
+    {
+        f32 zero = 0.0F;
+        vec->x = zero;
+        vec->y = zero;
+        vec->z = zero;
+    }
+}
+
+/* Custom Robo: HSD_MtxGetRotationMtx (fn_8019F2AC, 0x338) is wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 mtx.c HSD_MtxGetRotationMtx
+ * (doldecomp/kar's symbols: HSD_MtxGetRotationMtx 0x338 at the same place, between HSD_MtxGetRotation and
+ * HSD_MtxGetTranslate), Vec3 = wowjinxy's Vec */
+void HSD_MtxGetRotationMtx(Mtx v0, Mtx dest, char axis0, char axis1)
+{
+    Vec3 vAxis0, vAxis1, vAxis2;
+    f32 zero;
+
+    switch (axis0) {
+    case 'x':
+    case 'X':
+        vAxis0.x = v0[0][0];
+        vAxis0.y = v0[1][0];
+        vAxis0.z = v0[2][0];
+        PSVECNormalize(&vAxis0, &vAxis0);
+        switch (axis1) {
+        case 'z':
+        case 'Z':
+            vAxis2.x = v0[0][2];
+            vAxis2.y = v0[1][2];
+            vAxis2.z = v0[2][2];
+            PSVECNormalize(&vAxis2, &vAxis2);
+            PSVECCrossProduct(&vAxis2, &vAxis0, &vAxis1);
+            PSVECCrossProduct(&vAxis0, &vAxis1, &vAxis2);
+            break;
+        default:
+            vAxis1.x = v0[0][1];
+            vAxis1.y = v0[1][1];
+            vAxis1.z = v0[2][1];
+            PSVECNormalize(&vAxis1, &vAxis1);
+            PSVECCrossProduct(&vAxis0, &vAxis1, &vAxis2);
+            PSVECCrossProduct(&vAxis2, &vAxis0, &vAxis1);
+            break;
+        }
+        break;
+    case 'y':
+    case 'Y':
+        vAxis1.x = v0[0][1];
+        vAxis1.y = v0[1][1];
+        vAxis1.z = v0[2][1];
+        PSVECNormalize(&vAxis1, &vAxis1);
+        switch (axis1) {
+        case 'x':
+        case 'X':
+            vAxis0.x = v0[0][0];
+            vAxis0.y = v0[1][0];
+            vAxis0.z = v0[2][0];
+            PSVECNormalize(&vAxis0, &vAxis0);
+            PSVECCrossProduct(&vAxis0, &vAxis1, &vAxis2);
+            PSVECCrossProduct(&vAxis1, &vAxis2, &vAxis0);
+            break;
+        default:
+            vAxis2.x = v0[0][2];
+            vAxis2.y = v0[1][2];
+            vAxis2.z = v0[2][2];
+            PSVECNormalize(&vAxis2, &vAxis2);
+            PSVECCrossProduct(&vAxis1, &vAxis2, &vAxis0);
+            PSVECCrossProduct(&vAxis0, &vAxis1, &vAxis2);
+            break;
+        }
+        break;
+    default:
+        vAxis2.x = v0[0][2];
+        vAxis2.y = v0[1][2];
+        vAxis2.z = v0[2][2];
+        PSVECNormalize(&vAxis2, &vAxis2);
+        switch (axis1) {
+        case 'y':
+        case 'Y':
+            vAxis1.x = v0[0][1];
+            vAxis1.y = v0[1][1];
+            vAxis1.z = v0[2][1];
+            PSVECNormalize(&vAxis1, &vAxis1);
+            PSVECCrossProduct(&vAxis1, &vAxis2, &vAxis0);
+            PSVECCrossProduct(&vAxis2, &vAxis0, &vAxis1);
+            break;
+        default:
+            vAxis0.x = v0[0][0];
+            vAxis0.y = v0[1][0];
+            vAxis0.z = v0[2][0];
+            PSVECNormalize(&vAxis0, &vAxis0);
+            PSVECCrossProduct(&vAxis2, &vAxis0, &vAxis1);
+            PSVECCrossProduct(&vAxis1, &vAxis2, &vAxis0);
+            break;
+        }
+        break;
+    }
+
+    zero = 0.0F;
+    dest[0][0] = vAxis0.x;
+    dest[1][0] = vAxis0.y;
+    dest[2][0] = vAxis0.z;
+    dest[0][1] = vAxis1.x;
+    dest[1][1] = vAxis1.y;
+    dest[2][1] = vAxis1.z;
+    dest[0][2] = vAxis2.x;
+    dest[1][2] = vAxis2.y;
+    dest[2][2] = vAxis2.z;
+    dest[0][3] = zero;
+    dest[1][3] = zero;
+    dest[2][3] = zero;
 }
 
 /// These parameters may not be right
@@ -273,27 +297,17 @@ void HSD_MtxGetTranslate(Mtx mat, Vec3* vec)
 }
 
 /* Custom Robo: HSD_MtxGetScale is from wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57, src/sysdolphin/mtx.c
- * (the same HSD revision as main.dol, 0x4D8 here; Melee's above is 0x198), adapted: wowjinxy's extern constants are
- * main.dol's .sdata2 objects of the same values (HSDMtxFloatZero 0.0F = lbl_804528A0, FloatOne 1.0F = lbl_804528A4,
- * DoubleHalf 0.5 = lbl_804528A8, DoubleThree 3.0 = lbl_804528B0, FloatEps 1e-10F = lbl_804528C8, DoubleZero 0.0 =
- * lbl_804528D0, DoubleNegOne -1.0 = lbl_804528D8; each read by HSD_MtxGetScale, 0x8019F600..0x8019FAD8 in main.dol, values from
- * the split object), extern as in wowjinxy, so this function does not depend on the order of the literal pool;
- * PSVECScale with the SDK's argument order (Melee's mtx.h; wowjinxy declares it scale first, the same registers),
- * Vec3 = wowjinxy's Vec */
-extern const f32 lbl_804528A0;
-extern const f32 lbl_804528A4;
-extern const f64 lbl_804528A8;
-extern const f64 lbl_804528B0;
-extern const f32 lbl_804528C8;
-extern const f64 lbl_804528D0;
-extern const f64 lbl_804528D8;
-#define HSDMtxFloatZero lbl_804528A0
-#define HSDMtxFloatOne lbl_804528A4
-#define HSDMtxDoubleHalf lbl_804528A8
-#define HSDMtxDoubleThree lbl_804528B0
-#define HSDMtxFloatEps lbl_804528C8
-#define HSDMtxDoubleZero lbl_804528D0
-#define HSDMtxDoubleNegOne lbl_804528D8
+ * (the same HSD revision as main.dol, 0x4D8 here; Melee's is 0x198), adapted: wowjinxy's extern constants are literals of
+ * the same values (step 88: the file's .sdata2 pool is then main.dol's, in its order: 0.0F 1.0F 0.5 3.0 FLT_MIN pi/2
+ * -1.0F -pi/2 1e-10F 0.0 -1.0 FLT_EPSILON); PSVECScale with the SDK's argument order (Melee's mtx.h; wowjinxy declares
+ * it scale first, the same registers), Vec3 = wowjinxy's Vec */
+#define HSDMtxFloatZero 0.0F
+#define HSDMtxFloatOne 1.0F
+#define HSDMtxDoubleHalf 0.5
+#define HSDMtxDoubleThree 3.0
+#define HSDMtxFloatEps 1e-10F
+#define HSDMtxDoubleZero 0.0
+#define HSDMtxDoubleNegOne -1.0
 
 /* wowjinxy/KAR mtx.c mtx_sqrtf (static inline there and here) */
 static inline f32 mtx_sqrtf(f32 x)
@@ -415,6 +429,9 @@ void HSD_MtxGetScale(Mtx arg0, Vec3* arg1)
     }
 }
 
+/* Custom Robo: this revision calls MSL's double sin / cos (bl sin, frsp) */
+double sin(double);
+
 void HSD_MkRotationMtx(Mtx arg0, Vec3* arg1)
 {
     f32 sinX;
@@ -426,12 +443,12 @@ void HSD_MkRotationMtx(Mtx arg0, Vec3* arg1)
     f32 temp1;
     f32 temp2;
 
-    sinX = sinf(arg1->x);
-    cosX = cosf(arg1->x);
-    sinY = sinf(arg1->y);
-    cosY = cosf(arg1->y);
-    sinZ = sinf(arg1->z);
-    cosZ = cosf(arg1->z);
+    sinX = sin(arg1->x);
+    cosX = cos(arg1->x);
+    sinY = sin(arg1->y);
+    cosY = cos(arg1->y);
+    sinZ = sin(arg1->z);
+    cosZ = cos(arg1->z);
 
     temp1 = sinX * sinY;
     arg0[0][0] = cosY * cosZ;
@@ -449,13 +466,25 @@ void HSD_MkRotationMtx(Mtx arg0, Vec3* arg1)
     arg0[2][3] = 0;
 }
 
-void HSD_MtxQuat(Mtx arg0, Quaternion* arg1)
+/* Custom Robo: HSD_MtxSRT (fn_8019FC14, 0x2D8) is wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 mtx.c HSD_MtxSRT (0x2EC in
+ * KAR, at the same place: after HSD_MkRotationMtx, before HSD_MtxSRTQuat) with MSL's double sin / cos (KAR: its own
+ * approximations) and mtx_safe_recip's epsilon as main.dol's .sdata2 FLT_EPSILON */
+static inline f32 mtx_safe_recip(f32 x)
 {
-    MTXQuat(arg0, arg1);
+    if (x >= 0.0F) {
+        return 1.0F / (x + 1.1920929e-7F);
+    }
+    return 1.0F / (x - 1.1920929e-7F);
 }
+
+/* MSL's inline float sinf / cosf of this revision (return sin(x)): written as (f32) sin(x) directly, cosZ's register
+ * differs (step 88) */
+static inline f32 msl_sinf(f32 x) { return sin(x); }
+static inline f32 msl_cosf(f32 x) { return cos(x); }
 
 void HSD_MtxSRT(Mtx m, Vec3* vec1, Vec3* vec2, Vec3* vec3, Vec3* vec4)
 {
+    f32 sinX, cosX, sinY, cosY, sinZ, cosZ;
     f32 vec1x_2;
     f32 vec1y_2;
     f32 vec1z_2;
@@ -466,21 +495,21 @@ void HSD_MtxSRT(Mtx m, Vec3* vec1, Vec3* vec2, Vec3* vec3, Vec3* vec4)
     f32 vec1y;
     f32 vec1z;
 
-    f32 sinX = sinf(vec2->x);
-    f32 cosX = cosf(vec2->x);
-    f32 sinY = sinf(vec2->y);
-    f32 cosY = cosf(vec2->y);
-    f32 sinZ = sinf(vec2->z);
-    f32 cosZ = cosf(vec2->z);
+    sinX = msl_sinf(vec2->x);
+    cosX = msl_cosf(vec2->x);
+    sinY = msl_sinf(vec2->y);
+    cosY = msl_cosf(vec2->y);
+    sinZ = msl_sinf(vec2->z);
+    cosZ = msl_cosf(vec2->z);
 
     vec1x_2 = vec1x_1 = vec1x = vec1->x;
     vec1y_2 = vec1y_1 = vec1y = vec1->y;
     vec1z_2 = vec1z_1 = vec1z = vec1->z;
 
     if (vec4 != NULL) {
-        f32 temp1 = 1.0 / vec4->x;
-        f32 temp2 = 1.0 / vec4->y;
-        f32 temp3 = 1.0 / vec4->z;
+        f32 temp1 = mtx_safe_recip(vec4->x);
+        f32 temp2 = mtx_safe_recip(vec4->y);
+        f32 temp3 = mtx_safe_recip(vec4->z);
 
         vec1y_2 *= vec4->y * temp1;
         vec1z_2 *= vec4->z * temp1;
@@ -493,42 +522,46 @@ void HSD_MtxSRT(Mtx m, Vec3* vec1, Vec3* vec2, Vec3* vec3, Vec3* vec4)
     m[0][0] = cosZ * (vec1x_2 * cosY);
     m[1][0] = sinZ * (vec1x_1 * cosY);
     m[2][0] = -vec1x * sinY;
-    m[0][1] = vec1y_2 * ((cosZ * (sinX * sinY)) - (cosX * sinZ));
-    m[1][1] = vec1y_1 * ((sinZ * (sinX * sinY)) + (cosX * cosZ));
+    m[0][1] = vec1y_2 * __fmsubs(cosZ, sinX * sinY, cosX * sinZ);
+    m[1][1] = vec1y_1 * __fmadds(sinZ, sinX * sinY, cosX * cosZ);
     m[2][1] = cosY * (vec1y * sinX);
-    m[0][2] = vec1z_2 * ((cosZ * (cosX * sinY)) + (sinX * sinZ));
-    m[1][2] = vec1z_1 * ((sinZ * (cosX * sinY)) - (sinX * cosZ));
+    m[0][2] = vec1z_2 * __fmadds(cosZ, cosX * sinY, sinX * sinZ);
+    m[1][2] = vec1z_1 * __fmsubs(sinZ, cosX * sinY, sinX * cosZ);
     m[2][2] = cosY * (vec1z * cosX);
     m[0][3] = vec3->x;
     m[1][3] = vec3->y;
     m[2][3] = vec3->z;
 }
 
-void HSD_MtxSRTQuat(Mtx arg0, Vec3* arg1, Quaternion* arg2, Vec3* arg3,
-                    Vec3* arg4)
+/* wowjinxy/KAR mtx.c HSD_MtxSRTQuat (this revision: the scale reciprocals by mtx_safe_recip); main.dol scales
+ * temp[2][1] before temp[1][2] (its store order) */
+void HSD_MtxSRTQuat(Mtx arg0, Vec3* arg1, Quaternion* arg2, Vec3* arg3, Vec3* arg4)
 {
     Mtx temp;
 
-    MTXScale(arg0, arg1->x, arg1->y, arg1->z);
+    PSMTXScale(arg0, arg1->x, arg1->y, arg1->z);
+    PSMTXQuat(temp, arg2);
 
     if (arg4 != NULL) {
-        MTXScale(temp, arg4->x, arg4->y, arg4->z);
-        MTXConcat(temp, arg0, arg0);
+        f32 rx = mtx_safe_recip(arg4->x);
+        f32 ry = mtx_safe_recip(arg4->y);
+        f32 rz = mtx_safe_recip(arg4->z);
+
+        temp[0][1] *= arg4->y * rx;
+        temp[0][2] *= arg4->y * rx;
+        temp[1][0] *= arg4->x * ry;
+        temp[1][2] *= arg4->z * ry;
+        temp[2][0] *= arg4->x * rz;
+        temp[2][1] *= arg4->y * rz;
     }
 
-    MTXQuat(temp, arg2);
-    MTXConcat(temp, arg0, arg0);
+    PSMTXConcat(temp, arg0, arg0);
 
-    if (arg4 != NULL) {
-        MTXScale(temp, 1.0 / arg4->x, 1.0 / arg4->y, 1.0 / arg4->z);
-        MTXConcat(temp, arg0, arg0);
-    }
-
-    PSMTXTrans(temp, arg3->x, arg3->y, arg3->z);
-    MTXConcat(temp, arg0, arg0);
+    arg0[0][3] = arg3->x;
+    arg0[1][3] = arg3->y;
+    arg0[2][3] = arg3->z;
 }
 
-/// might be a fakematch?
 void HSD_MtxScaledAdd(Mtx arg0, Mtx arg1, Mtx arg2, f32 arg3)
 {
     f32* arr0 = (&arg0[0][0]);
@@ -558,26 +591,26 @@ void HSD_VecGetOrthogonal(Vec3* v, Vec3* out)
 
     if (v->x <= v->y) {
         if (v->x <= v->z) {
-            e.y = HSDMtxFloatZero;
-            e.x = HSDMtxFloatOne;
-            e.z = HSDMtxFloatZero;
+            e.x = 1.0F;
+            e.y = 0.0F;
+            e.z = 0.0F;
             PSVECCrossProduct(&e, v, out);
         } else {
-            e.x = HSDMtxFloatZero;
-            e.y = HSDMtxFloatZero;
-            e.z = HSDMtxFloatOne;
+            e.x = 0.0F;
+            e.y = 0.0F;
+            e.z = 1.0F;
             PSVECCrossProduct(&e, v, out);
         }
     } else {
         if (v->y <= v->z) {
-            e.x = HSDMtxFloatZero;
-            e.y = HSDMtxFloatOne;
-            e.z = HSDMtxFloatZero;
+            e.x = 0.0F;
+            e.y = 1.0F;
+            e.z = 0.0F;
             PSVECCrossProduct(&e, v, out);
         } else {
-            e.x = HSDMtxFloatZero;
-            e.y = HSDMtxFloatZero;
-            e.z = HSDMtxFloatOne;
+            e.x = 0.0F;
+            e.y = 0.0F;
+            e.z = 1.0F;
             PSVECCrossProduct(&e, v, out);
         }
     }
@@ -615,22 +648,12 @@ void HSD_MtxFree(void* arg0)
     }
 }
 
-HSD_ObjAllocData* HSD_VecGetAllocData(void)
-{
-    return &HSD_Mtx_804C2310;
-}
-
 void HSD_VecInitAllocData(void)
 {
-    HSD_ObjAllocInit(HSD_VecGetAllocData(), sizeof(Vec), 4);
-}
-
-HSD_ObjAllocData* HSD_MtxGetAllocData(void)
-{
-    return &HSD_Mtx_804C233C;
+    HSD_ObjAllocInit(&HSD_Mtx_804C2310, sizeof(Vec), 4);
 }
 
 void HSD_MtxInitAllocData(void)
 {
-    HSD_ObjAllocInit(HSD_MtxGetAllocData(), sizeof(Mtx), 4);
+    HSD_ObjAllocInit(&HSD_Mtx_804C233C, sizeof(Mtx), 4);
 }

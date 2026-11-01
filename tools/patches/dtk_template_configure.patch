@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,451 @@ def MatchingFor(*versions):
+@@ -284,18 +307,452 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -468,6 +468,9 @@ diff --git a/configure.py b/configure.py
 +    "sysdolphin/baselib/bytecode.c",
 +    "sysdolphin/baselib/robj.c",
 +    "sysdolphin/baselib/fobj.c",
++    # step 88 (hsd3): mtx.c, every function written from main.dol or ported from wowjinxy/KAR (fn_8019EB5C /
++    # fn_8019F2AC / fn_8019FC14 = KAR's HSD_MtxInverseConcat / GetRotationMtx / SRT; MSL's double sin / cos / asin / atan2)
++    "sysdolphin/baselib/mtx.c",
 +    # step 76 (libs2): powf (BfBB math.h's inline, out of line); reverb_std.c with DLcreate's "<< 2" as in reverb_hi.c
 +    "MSL/exponentialsf.c",
 +    "dolphin/axfx/reverb_std.c",
@@ -477,8 +480,6 @@ diff --git a/configure.py b/configure.py
 +# "data": the C defines data main.dol keeps in a dtk automatic object (the data split must give this object that
 +# piece first); "link": the C calls functions / uses data our symbols do not name yet.
 +CR_NOT_MATCHING = {
-+    "sysdolphin/baselib/mtx.c":
-+        "code: 9 of 16 functions equal in objdiff (Melee's mtx.c, HSD_VecAlloc / HSD_MtxAlloc with this revision's assert lines, HSD_MtxGetScale (0x4D8) from wowjinxy/KAR's mtx.c with its .sdata2 constants at main.dol's addresses, step 61 iteration 7): our first five functions (0x8019EB5C..0x8019FC14, sizes 0x430 0x320 0x338 0x13C 0x2D8) are not equal (step 61 iteration 9: 0x8019EF8C is HSD_MtxGetRotation by robj.c's call, rule R7, no C here yet; 0x8019FAD8 HSD_MkRotationMtx 82%; the other three have no C), HSD_MtxSRTQuat 0x1AC here vs 0x110 (28%; wowjinxy's 85%), HSD_VecGetOrthogonal (from wowjinxy) 99.6% (f0 / f1 swapped in the first branch; four statement orders tried) (another revision; doldecomp/kar has only asm): adapt to this revision; step 78: the optimizer pragma sweep on HSD_VecGetOrthogonal: no gain",
 +    "sysdolphin/baselib/texpdag.c":
 +        "code: 3 of 11 functions equal in objdiff (Melee's texpdag.c adapted: HSD_TExpSchedule reads a_dst for alpha inputs, HSD_TExpSimplify2 the TETev a_range byte, texp.h, order_dag's dep_bits an int): CalcDistance 99.1% (r3 / r4 swapped in its inlined recursive copies; statement order, declaration order, signedness, index-only and for-header forms tried), assign_reg 0x1B0 here vs 0x1B4, HSD_TExpMakeDag 0x4B0 vs 0x4A8, SimplifySrc 0x498 vs 0x414, SimplifyThis 0x840 vs 0x7EC, SimplifyByMerge 0x17C8 vs 0xA04, HSD_TExpSimplify 0x90 vs 0x88, CalcTevRange not in Melee's C (wowjinxy/KAR has C for all of them, none equal: 90-99.6%, its SimplifyByMerge 0xC9C 32%) (another revision; doldecomp/kar has only asm): adapt to this revision; step 78: the optimizer pragma sweep on CalcDistance / SimplifyThis / assign_reg: no gain",
 +    "sysdolphin/baselib/cobj.c":

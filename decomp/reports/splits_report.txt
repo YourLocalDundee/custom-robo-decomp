@@ -1154,6 +1154,7 @@ sysdolphin/baselib/id.c                            5 functions
 sysdolphin/baselib/initialize.c                   18 functions
 sysdolphin/baselib/list.c                          7 functions
 sysdolphin/baselib/mobj.c                         26 functions
+sysdolphin/baselib/mtx.c                          16 functions
 sysdolphin/baselib/objalloc.c                      5 functions
 sysdolphin/baselib/object.c                        1 functions
 sysdolphin/baselib/perf.c                          1 functions
@@ -2417,6 +2418,22 @@ DEF 0x8019E17C splGetSplinePoint sysdolphin/baselib/spline.c .text size:0x490 gl
 DEF 0x8019E60C splArcLength sysdolphin/baselib/spline.c .text size:0x308 global
 DEF 0x8019E914 splArcLengthGetParameter sysdolphin/baselib/spline.c .text size:0x200 global
 DEF 0x8019EB14 splArcLengthPoint sysdolphin/baselib/spline.c .text size:0x48 global
+DEF 0x8019EB5C fn_8019EB5C sysdolphin/baselib/mtx.c .text size:0x430 global
+DEF 0x8019EF8C HSD_MtxGetRotation sysdolphin/baselib/mtx.c .text size:0x320 global
+DEF 0x8019F2AC fn_8019F2AC sysdolphin/baselib/mtx.c .text size:0x338 global
+DEF 0x8019F5E4 HSD_MtxGetTranslate sysdolphin/baselib/mtx.c .text size:0x1C global
+DEF 0x8019F600 HSD_MtxGetScale sysdolphin/baselib/mtx.c .text size:0x4D8 global
+DEF 0x8019FAD8 HSD_MkRotationMtx sysdolphin/baselib/mtx.c .text size:0x13C global
+DEF 0x8019FC14 fn_8019FC14 sysdolphin/baselib/mtx.c .text size:0x2D8 global
+DEF 0x8019FEEC HSD_MtxSRTQuat sysdolphin/baselib/mtx.c .text size:0x1AC global
+DEF 0x801A0098 HSD_MtxScaledAdd sysdolphin/baselib/mtx.c .text size:0xC4 global
+DEF 0x801A015C HSD_VecGetOrthogonal sysdolphin/baselib/mtx.c .text size:0xE0 global
+DEF 0x801A023C HSD_VecAlloc sysdolphin/baselib/mtx.c .text size:0x4C global
+DEF 0x801A0288 HSD_VecFree sysdolphin/baselib/mtx.c .text size:0x34 global
+DEF 0x801A02BC HSD_MtxAlloc sysdolphin/baselib/mtx.c .text size:0x4C global
+DEF 0x801A0308 HSD_MtxFree sysdolphin/baselib/mtx.c .text size:0x34 global
+DEF 0x801A033C HSD_VecInitAllocData sysdolphin/baselib/mtx.c .text size:0x30 global
+DEF 0x801A036C HSD_MtxInitAllocData sysdolphin/baselib/mtx.c .text size:0x30 global
 DEF 0x801A039C HSD_MulColor sysdolphin/baselib/util.c .text size:0x6C global
 DEF 0x801A0408 HSD_GetNbBits sysdolphin/baselib/util.c .text size:0xC0 global
 DEF 0x801A04C8 HSD_Index2PosNrmMtx sysdolphin/baselib/util.c .text size:0xA0 global
@@ -3071,6 +3088,8 @@ DEF 0x80449DB8 aobj_alloc_data sysdolphin/baselib/aobj.c .bss size:0x2C global
 DEF 0x80449E10 fobj_alloc_data sysdolphin/baselib/fobj.c .bss size:0x2C global
 DEF 0x80449EA0 HSD_VIData sysdolphin/baselib/video.c .bss size:0x1F4 global
 DEF 0x8044A0A0 garbage sysdolphin/baselib/video.c .bss size:0x1400 local
+DEF 0x8044B4A0 HSD_Mtx_804C2310 sysdolphin/baselib/mtx.c .bss size:0x2C global
+DEF 0x8044B4CC HSD_Mtx_804C233C sysdolphin/baselib/mtx.c .bss size:0x2C global
 DEF 0x8044B4F8 robj_alloc_data sysdolphin/baselib/robj.c .bss size:0x2C global
 DEF 0x8044B524 rvalue_alloc_data sysdolphin/baselib/robj.c .bss size:0x2C global
 DEF 0x8044B550 hsd_iddata sysdolphin/baselib/id.c .bss size:0x2C local
@@ -3173,6 +3192,9 @@ DEF 0x8044F10C lbl_8044F10C sysdolphin/baselib/initialize.c .sdata size:0x4 glob
 DEF 0x8044F110 lbl_8044F110 sysdolphin/baselib/initialize.c .sdata size:0x4 global
 DEF 0x8044F114 @84 sysdolphin/baselib/initialize.c .sdata size:0x5 local
 DEF 0x8044F120 @261 sysdolphin/baselib/video.c .sdata size:0x8 local
+DEF 0x8044F128 @396 sysdolphin/baselib/mtx.c .sdata size:0x6 local
+DEF 0x8044F130 @397 sysdolphin/baselib/mtx.c .sdata size:0x4 local
+DEF 0x8044F134 @410 sysdolphin/baselib/mtx.c .sdata size:0x4 local
 DEF 0x8044F138 @277 sysdolphin/baselib/util.c .sdata size:0x7 local
 DEF 0x8044F140 @278 sysdolphin/baselib/util.c .sdata size:0x2 local
 DEF 0x8044F148 @267 sysdolphin/baselib/objalloc.c .sdata size:0x5 local
@@ -3815,6 +3837,18 @@ DEF 0x80452888 @153 sysdolphin/baselib/spline.c .sdata2 size:0x8 local
 DEF 0x80452890 @249 sysdolphin/baselib/spline.c .sdata2 size:0x4 local
 DEF 0x80452894 @286 sysdolphin/baselib/spline.c .sdata2 size:0x4 local
 DEF 0x80452898 @287 sysdolphin/baselib/spline.c .sdata2 size:0x4 local
+DEF 0x804528A0 @106 sysdolphin/baselib/mtx.c .sdata2 size:0x4 local
+DEF 0x804528A4 @107 sysdolphin/baselib/mtx.c .sdata2 size:0x4 local
+DEF 0x804528A8 @189 sysdolphin/baselib/mtx.c .sdata2 size:0x8 local
+DEF 0x804528B0 @190 sysdolphin/baselib/mtx.c .sdata2 size:0x8 local
+DEF 0x804528B8 @191 sysdolphin/baselib/mtx.c .sdata2 size:0x4 local
+DEF 0x804528BC @192 sysdolphin/baselib/mtx.c .sdata2 size:0x4 local
+DEF 0x804528C0 @193 sysdolphin/baselib/mtx.c .sdata2 size:0x4 local
+DEF 0x804528C4 @194 sysdolphin/baselib/mtx.c .sdata2 size:0x4 local
+DEF 0x804528C8 @292 sysdolphin/baselib/mtx.c .sdata2 size:0x4 local
+DEF 0x804528D0 @293 sysdolphin/baselib/mtx.c .sdata2 size:0x8 local
+DEF 0x804528D8 @294 sysdolphin/baselib/mtx.c .sdata2 size:0x8 local
+DEF 0x804528E0 @351 sysdolphin/baselib/mtx.c .sdata2 size:0x4 local
 DEF 0x804528E8 @59 sysdolphin/baselib/robj.c .sdata2 size:0x8 local
 DEF 0x804528F0 @242 sysdolphin/baselib/robj.c .sdata2 size:0x4 local
 DEF 0x804528F8 @244 sysdolphin/baselib/robj.c .sdata2 size:0x8 local
@@ -4117,6 +4151,9 @@ sysdolphin/baselib/mobj.c                        .data   0x8024BE78-0x8024BFE1  
 sysdolphin/baselib/mobj.c                        .sdata  0x8044EFF0-0x8044F011   6 sym  of 6 in the C (0 stripped), 6 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/mobj.c                        .sbss   0x8044FF68-0x8044FF78   4 sym  of 4 in the C (0 stripped), 4 at a verified use (code)
 sysdolphin/baselib/mobj.c                        .sdata2 0x804526B0-0x804526BC   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/mtx.c                         .bss    0x8044B4A0-0x8044B4F8   2 sym  of 2 in the C (0 stripped), 2 at a verified use (code)
+sysdolphin/baselib/mtx.c                         .sdata  0x8044F128-0x8044F138   3 sym  of 3 in the C (0 stripped), 3 at a verified use (code), bytes = main.dol
+sysdolphin/baselib/mtx.c                         .sdata2 0x804528A0-0x804528E4  12 sym  of 12 in the C (0 stripped), 12 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/objalloc.c                    .data   0x8024CC50-0x8024CC92   4 sym  of 4 in the C (0 stripped), 2 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/objalloc.c                    .sdata  0x8044F148-0x8044F14D   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code), bytes = main.dol
 sysdolphin/baselib/objalloc.c                    .sbss   0x80450040-0x80450044   1 sym  of 1 in the C (0 stripped), 1 at a verified use (code)
@@ -4187,6 +4224,8 @@ game/data/cr_g_UnlockBits.c                      .bss    0x804198B0-0x80419958  
 0x80439BF8 gTRKEventQueue (ours: lbl_80439BF8)
 0x80449D5C tevreg_alloc_data (ours: no symbol)
 0x80449D88 chan_alloc_data (ours: no symbol)
+0x8044B4A0 HSD_Mtx_804C2310 (ours: lbl_8044B4A0)
+0x8044B4CC HSD_Mtx_804C233C (ours: lbl_8044B4CC)
 0x8044B4F8 robj_alloc_data (ours: lbl_8044B4F8)
 0x8044B524 rvalue_alloc_data (ours: lbl_8044B524)
 0x8044EDF8 __AIVersion (ours: lbl_8044EDF8)
@@ -4524,7 +4563,7 @@ game/data/cr_g_UnlockBits.c                      .bss    0x804198B0-0x80419958  
 .sdata2 0x80452964-0x804529B0 size 0x4C
 .sbss2  0x80452A20-0x80452AC0 size 0xA0
 
-== rejected candidates (682)
+== rejected candidates (681)
 GALE01:Runtime/__va_arg.c .text: start not proven (__va_arg .. __va_arg; neighbour MWInitializeCriticalSection)
 GALE01:Runtime/Gecko_ExceptionPPC.c .text: none of its functions is (uniquely) named in ours
 GALE01:Runtime/Gecko_setjmp.c .text: none of its functions is (uniquely) named in ours
@@ -5200,10 +5239,9 @@ data from C MSL/alloc.c .bss: __malloc_pool (+0x38) may be after the piece (no b
 data from C MetroTRK/dolphin_trk_glue.c .bss: _MetroTRK_Has_Framing (+0x4) may be after the piece (no bytes to tell, the neighbour is unproven)
 data from C dolphin/gx/GXFifo.c .sbss: __GXCurrentBP (+0x1C) may be after the piece (no bytes to tell, the neighbour is unproven)
 data from C sysdolphin/baselib/cobj.c: 10 of 48 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/displayfunc.c: 3 of 16 functions of the object are not verified C functions (another revision): its data is not proven
+data from C sysdolphin/baselib/displayfunc.c: 2 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/jobj.c: 14 of 48 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/lobj.c: 2 of 27 functions of the object are not verified C functions (another revision): its data is not proven
-data from C sysdolphin/baselib/mtx.c: 7 of 16 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/pobj.c: 2 of 23 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/texp.c: 2 of 22 functions of the object are not verified C functions (another revision): its data is not proven
 data from C sysdolphin/baselib/texpdag.c: 8 of 11 functions of the object are not verified C functions (another revision): its data is not proven
