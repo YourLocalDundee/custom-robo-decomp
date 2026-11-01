@@ -1,0 +1,142 @@
+fn_80080FD8: 92% (122 of 132 words; orig 132, mine 132)
+   stwu r1, -0x50(r1)                               | stwu r1, -0x50(r1)
+   mflr r0                                          | mflr r0
+   stw r0, 0x54(r1)                                 | stw r0, 0x54(r1)
+   stfd f31, 0x40(r1)                               | stfd f31, 0x40(r1)
+   psq_st f31, 0x48(r1), 0, qr0                     | psq_st f31, 0x48(r1), 0, qr0
+   stfd f30, 0x30(r1)                               | stfd f30, 0x30(r1)
+   psq_st f30, 0x38(r1), 0, qr0                     | psq_st f30, 0x38(r1), 0, qr0
+   stmw r27, 0x1c(r1)                               | stmw r27, 0x1c(r1)
+   lhz r0, lbl_8044F63A@sda21(r0)                   | lhz r0, lbl_8044F63A@sda21(r0)
+   mr r31, r3                                       | mr r31, r3
+R  lfs f31, lbl_80450E7C@sda21(r0)                  | lfs f31, "@732"@sda21(r0)
+   clrlwi. r0, r0, 31                               | clrlwi. r0, r0, 31
+   bne .L_8008104C                                  | bne .L_00000074
+R  lfs f1, lbl_80450E7C@sda21(r0)                   | lfs f1, "@732"@sda21(r0)
+   li r3, 0x0                                       | li r3, 0x0
+   lwz r4, 0x5c(r31)                                | lwz r4, 0x5c(r31)
+   li r0, 0x0                                       | li r0, 0x0
+R  lfs f0, lbl_80450E5C@sda21(r0)                   | lfs f0, "@733"@sda21(r0)
+   stfs f1, 0x0(r4)                                 | stfs f1, 0x0(r4)
+   lwz r4, 0x5c(r31)                                | lwz r4, 0x5c(r31)
+   lwz r4, 0x1c(r4)                                 | lwz r4, 0x1c(r4)
+   lwz r4, 0x4(r4)                                  | lwz r4, 0x4(r4)
+   stfs f0, 0x14(r4)                                | stfs f0, 0x14(r4)
+   stb r3, 0x57(r31)                                | stb r3, 0x57(r31)
+   stw r0, 0x14(r31)                                | stw r0, 0x14(r31)
+   lwz r0, 0x0(r31)                                 | lwz r0, 0x0(r31)
+   clrrwi r0, r0, 1                                 | clrrwi r0, r0, 1
+   stw r0, 0x0(r31)                                 | stw r0, 0x0(r31)
+   b .L_800811C4                                    | b .L_000001EC
+   .L_8008104C:                                     | .L_00000074:
+   lwz r3, 0x5c(r31)                                | lwz r3, 0x5c(r31)
+R  lfs f0, lbl_80450E40@sda21(r0)                   | lfs f0, "@734"@sda21(r0)
+   lwz r3, 0x1c(r3)                                 | lwz r3, 0x1c(r3)
+R  lwz r4, 0x4(r3)                                  | lwz r27, 0x4(r3)
+R  lhz r0, 0x12(r4)                                 | lhz r0, 0x12(r27)
+   ori r3, r0, 0x2000                               | ori r3, r0, 0x2000
+R  sth r3, 0x12(r4)                                 | sth r3, 0x12(r27)
+   lwz r3, 0x5c(r31)                                | lwz r3, 0x5c(r31)
+   lwz r3, 0x1c(r3)                                 | lwz r3, 0x1c(r3)
+   lwz r3, 0x4(r3)                                  | lwz r3, 0x4(r3)
+   lfs f1, 0x14(r3)                                 | lfs f1, 0x14(r3)
+   fcmpo cr0, f1, f0                                | fcmpo cr0, f1, f0
+   bge .L_800810A0                                  | bge .L_000000C8
+   lwz r3, 0x5c(r31)                                | lwz r3, 0x5c(r31)
+R  lfd f0, lbl_80450EA0@sda21(r0)                   | lfd f1, "@735"@sda21(r0)
+   lwz r3, 0x1c(r3)                                 | lwz r3, 0x1c(r3)
+R  lwz r3, 0x4(r3)                                  | lwz r28, 0x4(r3)
+R  lfs f1, 0x14(r3)                                 | lfs f0, 0x14(r28)
+   fadd f0, f1, f0                                  | fadd f0, f1, f0
+   frsp f0, f0                                      | frsp f0, f0
+R  stfs f0, 0x14(r3)                                | stfs f0, 0x14(r28)
+   .L_800810A0:                                     | .L_000000C8:
+   lis r3, lbl_802191D8@ha                          | lis r3, lbl_802191D8@ha
+R  lfs f0, lbl_80450EA8@sda21(r0)                   | lfs f0, "@736"@sda21(r0)
+   addi r3, r3, lbl_802191D8@l                      | addi r3, r3, lbl_802191D8@l
+R  li r28, 0x0                                      | li r29, 0x0
+   lfs f30, 0x40(r3)                                | lfs f30, 0x40(r3)
+   fcmpo cr0, f30, f0                               | fcmpo cr0, f30, f0
+   ble .L_800810C0                                  | ble .L_000000E8
+R  li r28, 0x1                                      | li r29, 0x1
+   .L_800810C0:                                     | .L_000000E8:
+R  clrlwi. r0, r28, 24                              | clrlwi. r0, r29, 24
+   beq .L_800811B8                                  | beq .L_000001E0
+R  lfs f0, lbl_80450E88@sda21(r0)                   | lfs f0, "@738"@sda21(r0)
+   lwz r30, 0x5c(r31)                               | lwz r30, 0x5c(r31)
+   fsubs f0, f0, f31                                | fsubs f0, f0, f31
+R  lfs f2, lbl_80450EAC@sda21(r0)                   | lfs f2, "@737"@sda21(r0)
+R  lfs f1, lbl_80450E98@sda21(r0)                   | lfs f1, "@739"@sda21(r0)
+   lfs f3, 0x0(r30)                                 | lfs f3, 0x0(r30)
+   fadds f2, f2, f0                                 | fadds f2, f2, f0
+R  lfs f0, lbl_80450E88@sda21(r0)                   | lfs f0, "@738"@sda21(r0)
+   fdivs f1, f2, f1                                 | fdivs f1, f2, f1
+   fadds f1, f3, f1                                 | fadds f1, f3, f1
+   fcmpo cr0, f1, f0                                | fcmpo cr0, f1, f0
+   bge .L_80081120                                  | bge .L_00000148
+R  lfs f0, lbl_80450E88@sda21(r0)                   | lfs f0, "@738"@sda21(r0)
+R  lfs f2, lbl_80450EAC@sda21(r0)                   | lfs f2, "@737"@sda21(r0)
+   fsubs f1, f0, f31                                | fsubs f1, f0, f31
+R  lfs f0, lbl_80450E98@sda21(r0)                   | lfs f0, "@739"@sda21(r0)
+   lfs f3, 0x0(r30)                                 | lfs f3, 0x0(r30)
+   fadds f1, f2, f1                                 | fadds f1, f2, f1
+   fdivs f0, f1, f0                                 | fdivs f0, f1, f0
+   fadds f0, f3, f0                                 | fadds f0, f3, f0
+   stfs f0, 0x0(r30)                                | stfs f0, 0x0(r30)
+   b .L_80081128                                    | b .L_00000150
+   .L_80081120:                                     | .L_00000148:
+R  lfs f0, lbl_80450E88@sda21(r0)                   | lfs f0, "@738"@sda21(r0)
+   stfs f0, 0x0(r30)                                | stfs f0, 0x0(r30)
+   .L_80081128:                                     | .L_00000150:
+   lwz r0, 0x14(r31)                                | lwz r0, 0x14(r31)
+   cmpwi r0, 0x0                                    | cmpwi r0, 0x0
+   bne .L_80081144                                  | bne .L_0000016C
+   lis r3, 0x2                                      | lis r3, 0x2
+   bl fn_80098290                                   | bl fn_80098290
+   li r0, 0x1                                       | li r0, 0x1
+   stw r0, 0x14(r31)                                | stw r0, 0x14(r31)
+   .L_80081144:                                     | .L_0000016C:
+   lbz r3, 0x57(r31)                                | lbz r3, 0x57(r31)
+   lis r0, 0x4330                                   | lis r0, 0x4330
+   stw r0, 0x8(r1)                                  | stw r0, 0x8(r1)
+R  lfd f2, lbl_80450E68@sda21(r0)                   | lfd f2, "@742"@sda21(r0)
+   stw r3, 0xc(r1)                                  | stw r3, 0xc(r1)
+   lfs f3, lbl_80450EB0@sda21(r0)                   | lfs f3, lbl_80450EB0@sda21(r0)
+   lfd f1, 0x8(r1)                                  | lfd f1, 0x8(r1)
+R  lfs f0, lbl_80450E64@sda21(r0)                   | lfs f0, "@740"@sda21(r0)
+   fsubs f1, f1, f2                                 | fsubs f1, f1, f2
+   fadds f1, f3, f1                                 | fadds f1, f3, f1
+   fcmpo cr0, f1, f0                                | fcmpo cr0, f1, f0
+   bge .L_800811AC                                  | bge .L_000001D4
+   lbz r3, 0x57(r31)                                | lbz r3, 0x57(r31)
+   lis r0, 0x4330                                   | lis r0, 0x4330
+   stw r0, 0x8(r1)                                  | stw r0, 0x8(r1)
+R  lfd f2, lbl_80450E68@sda21(r0)                   | lfd f2, "@742"@sda21(r0)
+   stw r3, 0xc(r1)                                  | stw r3, 0xc(r1)
+   lfs f0, lbl_80450EB0@sda21(r0)                   | lfs f0, lbl_80450EB0@sda21(r0)
+   lfd f1, 0x8(r1)                                  | lfd f1, 0x8(r1)
+   fsubs f1, f1, f2                                 | fsubs f1, f1, f2
+   fadds f0, f1, f0                                 | fadds f0, f1, f0
+   fctiwz f0, f0                                    | fctiwz f0, f0
+   stfd f0, 0x10(r1)                                | stfd f0, 0x10(r1)
+   lwz r0, 0x14(r1)                                 | lwz r0, 0x14(r1)
+   stb r0, 0x57(r31)                                | stb r0, 0x57(r31)
+   b .L_800811B8                                    | b .L_000001E0
+   .L_800811AC:                                     | .L_000001D4:
+   lhz r3, lbl_8044F63A@sda21(r0)                   | lhz r3, lbl_8044F63A@sda21(r0)
+   rlwinm r0, r3, 0, 16, 30                         | rlwinm r0, r3, 0, 16, 30
+   sth r0, lbl_8044F63A@sda21(r0)                   | sth r0, lbl_8044F63A@sda21(r0)
+   .L_800811B8:                                     | .L_000001E0:
+   lwz r0, 0x0(r31)                                 | lwz r0, 0x0(r31)
+   ori r0, r0, 0x1                                  | ori r0, r0, 0x1
+   stw r0, 0x0(r31)                                 | stw r0, 0x0(r31)
+   .L_800811C4:                                     | .L_000001EC:
+   psq_l f31, 0x48(r1), 0, qr0                      | psq_l f31, 0x48(r1), 0, qr0
+   lfd f31, 0x40(r1)                                | lfd f31, 0x40(r1)
+   psq_l f30, 0x38(r1), 0, qr0                      | psq_l f30, 0x38(r1), 0, qr0
+   lfd f30, 0x30(r1)                                | lfd f30, 0x30(r1)
+   lmw r27, 0x1c(r1)                                | lmw r27, 0x1c(r1)
+   lwz r0, 0x54(r1)                                 | lwz r0, 0x54(r1)
+   mtlr r0                                          | mtlr r0
+   addi r1, r1, 0x50                                | addi r1, r1, 0x50
+   blr                                              | blr

@@ -1,0 +1,1 @@
+{"objects": 646, "units": 646, "units_total": 922, "code_pct": "22.18", "data_pct": "5.90", "game_objs": 443, "game_bytes": "0xCC44", "game_pct": "4.25", "promoted": 438, "fileobjs": 4, "kept": 1, "matches": 480, "compiled": "1,706", "bytes_eq": "520,092 (was 520,140: fn_80015E2C, a caller of fn_8006B144, moved with the prototype)", "hist80_99": 210, "shift11": "BATCH11_RESULT"}

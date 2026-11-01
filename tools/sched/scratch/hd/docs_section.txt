@@ -1,0 +1,75 @@
+## Eleventh generator: the script-command head, read to the end (plan.md step 84, Oct 31, 2026)
+
+Round 10 (branch handlers), the head of the ~300 script-command handlers alone: 220 drafts sit at 78-85% because the
+first 38 words of every handler come out in another order with other register numbers (step 80's `script_counter_ptr`,
+step 82's flag / processor / pragma sweep). Method: a scratch harness (hd/pr.py in the step 84 log: one C file compiled
+with the game flags against the original's asm, `dtk elf disasm`, three scores: words equal by position, by sequence
+alignment, and by sequence alignment with the register numbers masked), the pure handler cr_CM_DUMMY_008 (38 words,
+nothing but the head) as the target, then 60 micro-programs on the compiler to learn how it allocates and schedules.
+**No C shape reproduces the head; the 85% ceiling stands.** What was learned, so the next round does not repeat it:
+1. **Register allocation is done after scheduling.** The same source compiled without `schedule` allocates r3 to every
+   base (`lis r3 / addi r3, r3` five times); with it the hoisted bases get r3, r5, r4, r8, r3. So the original's
+   register numbers carry no information about its source order beyond the schedule itself, and the "pre-schedule
+   order reconstruction" the brief asked for is not possible from the numbers: only the ORDER of the 38 words is.
+   Locals do keep their rule: the callee-saved registers go in declaration order from r31 down (micro-tests: `int a; int
+   b; int c;` is r31 / r30 / r29 whatever the use order; a block-scoped local comes after the enclosing ones); an
+   assigned-but-never-read local goes to the stack (`stw r0, 8(r1)`), a never-assigned one gets nothing, a dead `p = pc
+   + 1` goes to a temporary (r9): the saved-and-unused r30 of every handler can only be a pointer local whose loads /
+   stores the peephole folded back onto a live base (step 80's reading holds; `&cmd_count[depth]` and
+   `&cmd_history[idx]` both fold, both compiled, both below the ceiling).
+2. **Where the unused register sits** (the original's saved registers against the draft's locals, 246 handlers): r30
+   in 182 handlers, r29 in 23, r27 in 15, r28 / r26 / r25 in 7 each, r24, r22. cr_CM_WAIT is cam r31, pc r30, X r29;
+   cr_F_CHK_BIT is pc r31, bit r30, X r29, word r28, mask r27; cr_CHAR_MOVE is chara r31, pc r30, i r29, found r28,
+   cur r27, X r26, id r25. So the folded pointer is declared at a different place in each handler, after the
+   handler's own locals in most of them and between them in others: it is not a macro's local at a fixed position (a
+   block, an inline's parameter and a declaration inside a statement list were tested: the compiler rejects
+   declarations after statements, a block's locals come last). Pointer declared after the PC local is the one thing
+   that matters for the pure handlers, and the generator had it first (item 7).
+3. **The scheduler's dependence model** (micro-programs; this is what the DAG looks like): two accesses to one symbol
+   at different constant offsets are independent (`A.i += 1; A.i &= 0x3F; A.j = 1` stores A.j before the `+= 1`),
+   a variable-indexed access (`A.arr[dep]`) conflicts with every access of its symbol, a load or store through a
+   pointer local conflicts with every memory access (`(*p)++` after `G1 += 1` keeps the G1 store before its load, and
+   before it when written before), different symbols are free (`stw PC` moves across the struct's stores), the
+   prologue / epilogue stack stores and loads bound everything (no global load is issued before `stw r30, 8(r1)`),
+   stores to one address stay in order, loads pass loads. Independent statements come out in the same order whatever
+   their source order (`A.i = 1; B.arr[dep] = 2; C.i += 1` and its five permutations give one listing up to the final
+   stores, which keep source order among themselves): the priority is structural, not the source order.
+4. **No simple list scheduler reproduces it.** A simulator over the unscheduled compile (that DAG, 144 policies: top-down
+   / bottom-up, critical-path priority, load latency 1-3, 1-4 instructions per cycle, 1-2 memory ops per cycle,
+   source-order or reverse tie-break, stack barriers on / off) gets at most 23 of 38 words of the pure head in order
+   and 55% over six micro-programs. The visible facts a policy must explain and none does: the `lis` of the mask
+   statement is hoisted above the `lis` of the increment it depends on (positions 4 and 10 in the original; ours has
+   the increment's first), the count statement's `lis` stays at 17 while its depth load moves up to 14 (ours: `lis`
+   at 7, the load at 21), and `addi` of a hoisted `lis` waits behind two more `lis`. Under any critical-path
+   priority the increment's chain is taller than the mask's (its store feeds the mask's load), so the original's order
+   is not a critical-path schedule of the DAG of item 3; the compiler's priority or dependence model has a component
+   these micro-programs did not isolate.
+5. **Shapes tried, all compiled and scored on cr_CM_DUMMY_008 (18 of 38 words by position is the ceiling, 21 with the
+   registers masked):** the 120 statement orders of the five statements with the counter pointer at each of its
+   positions (360 files: best 18 / 19 / 21, `hist, inc, adv, mask, cnt` with the pointer first), the 120 orders with
+   a history pointer instead (best 12), the 120 orders of the direct form without a pointer (best 9 / 20, 36 words:
+   no r30), the pointer set in the same statement as its use, the post-increment inside the index
+   (`cmd_history[history_index++]`: 35 words, no reload), a comma expression, the whole head as a comma expression,
+   the PC advance as `+= n` / `= cr_g_ScriptPC + n` / `pc + n`, the command word in a local, `register`, `volatile`
+   on the state and on the PC, `(&cr_g_Script)->` member access, a state pointer local (30 words), a pointer to the
+   index, an inline function with the state / PC / depth / count as parameters (the inliner substitutes the address
+   arguments: 16), `#pragma scheduling off` with the original's own order (the unscheduled allocation is r3 for every
+   base: 1 word by position, so the "hand-ordered C with scheduling off" fallback cannot give these bytes either),
+   compilers GC/2.0, 2.5, 2.6, 2.7 (the same 18), 3.0a3-3.0a5 (another schedule, 14 / 22; 3.0a5.2: 8). Nothing moved
+   the 85% family. Left as the compiler's schedule; the next lever for it would be the compiler's own scheduler
+   (its DAG and priority read from the binary, or from a build log), not more C spellings.
+6. **The pool symbols of a C file object** (the fn_8002444C regression of the step 83 run, batch 12 479 instead of
+   480): tools/gen_c_symbols.py writes the C object's own local symbols into decomp/config/GXCE01/symbols.txt
+   (`@22 = .sdata2:0x804504E8; ... data:float`), dtk's next asm names the constants `"@22"@sda21`, m2c declared
+   `extern f32 @22;` and the draft did not compile. draft_batch now names a C object's non-jump-table local symbol
+   `lbl_<address>` in the functions' asm (game_functions, next to the step 69 jump-table rename), and pool_floats /
+   pool_strings / data_decls take `@NN` objects of symbols.txt under that name (`pool_name`), so the draft is the one
+   that matched before the object was built from C (float_literals): fn_8002444C 100% again, still built from its
+   draft (promote_report.txt: not "kept"). gen_c_symbols.py is unchanged: objdiff needs the C object's own names.
+7. **`script_counter_ptr` declares the pointer after the PC local**, not first: with `u32 *cmd_cnt;` above `s16
+   *var_r31;` the two registers were swapped (item 1) and the 40 cr_*_DUMMY_* handlers and 6 more were at 44%; now 50%
+   (the pure head's own ceiling by position). No handler reached 100%; the family's ceiling is unchanged.
+**Before -> after** (full run; m2c, compiler, flags unchanged): compile {COMPILE_B} -> {COMPILE_A} of 1,751, **100% MATCH
+{MATCH_B} -> {MATCH_A}**, bytes equal after alignment {BYTES_B} -> {BYTES_A}; histogram {HIST}; 80-99% {HI_B} ->
+{HI_A}. Linked: {LINKED} game objects ({PROMOTED} promoted, 4 file objects{KEPT}), {UNITS} units from C, {CODE}% of
+main.dol's code; batch 9 retail SHA-1, static shift PASS, batch 8 0 FAIL, checksums written.

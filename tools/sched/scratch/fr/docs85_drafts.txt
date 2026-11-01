@@ -1,0 +1,85 @@
+
+### Step 85: file runs by hand - the register rules of level 0, two generator rules (Oct 31, 2026, branch fileruns)
+
+Goal: close the cheapest file runs of the step 83 table by hand-matching their blockers. Method as in step 83: a
+scratch harness (the step 83 `hm.py`: one C file compiled with the game flags against the drafts' ctx.h, words
+compared with tools/draft_batch.py's compare, `dtk elf disasm` side by side; `cc.py` for micro-programs), first on
+fn_8006EEF8 (the smallest run's only blocker), then on the three 90%+ blockers of fn_8008057C..fn_800812A4. No draft
+was edited; the two fixes that generalise went into tools/draft_batch.py.
+
+**What the compiler does with locals at `-opt level=0` (micro-programs, GC/2.6, game flags; this corrects step 84
+item 1):**
+1. **Callee-saved registers go by use count, from r31 down; the declaration order is only the tie-break.** `u32 alpha;
+   s32 i; u32 beta;` with i used most gives i r31, alpha r30, beta r29; `s32 i; u32 alpha; u32 beta; s32 k;` with k used
+   27 times gives k r31, i r30. Step 84's `int a; int b; int c;` test had equal counts, which is why it read as
+   declaration order. A local that is read keeps its rank; a local that is only written (`dead++;`, `if (i) dead = 1;
+   else dead = 2;`, `dead = dead;`, or any local referenced only in code the compiler removes, `if (0) { dead = 1;
+   GXSetNumChans(dead); }`) is appended AFTER the live locals (it still gets a saved register when its writes survive
+   to allocation, none when the compiler drops them first), so it can never make a gap between two live locals.
+2. **A gap register (saved, never used) between two live locals is a pointer local to a stack object, assigned (not
+   initialised) and used through members only**: `Vec *pp; ... pp = &p; pp->x = ...;` ranks by its use count like any
+   local and takes its register, and then the peephole folds every `pp->m` onto `r1` (`stfs f0, 0xc(r1)`) and drops
+   the `addi r30, r1, 8`, leaving the register saved and unused. With an initialiser (`Vec *pp = &p;`) the `addi` stays
+   and the accesses go through the register; as a call argument (`PSMTXMultVec(m, pp, pp)`) it stays too (`mr r4,
+   r30`). The stores through the pointer are still pointer stores for the scheduler (they conflict with every memory
+   access, step 84 item 3), so where the pointer is used changes the schedule of that block.
+3. **`clrlwi rD, rS, 24` on a copy** is the widening of a u8 local into a wider one: `u32 alpha; u8 up; ... alpha =
+   up;` (the compiler keeps a u8 register local untruncated after `up -= 0x1C`, so the copy into a u32 truncates);
+   `alpha = down` with `s32 down` is a plain `mr`. Two u8 locals copy with `mr` whatever the casts.
+4. **Initialisers run in declaration order; an assignment statement runs where it stands**: `li r27, 0xfc; li r26,
+   0; li r28, 0x2a` with n's register above up's and down's is `u16 n; u8 up = 0xFC; s32 down = 0; ... n = 42;`.
+5. **A pool constant the compiler owns moves freely, an extern does not**: `lfs f0, 0.0f` is scheduled above a `stb`
+   through a pointer parameter when it is the file's own literal; written as `extern f32 lbl_80450E5C` it waits behind
+   the store (an extern may alias with the pointer). The same function's `x + 3.875f < 255.0f` matches only with the
+   externs: as literals the compiler swaps the `fadds` operands (fn_80080A94, generator rule `store_literals` below).
+
+**fn_8006EEF8** (0xBCC, the only blocker of fn_8006EEF8..fn_8006FDD0): step 83's 73% (557 of 755 words) had the frame
+wrong; with the rules above the frame is now exact - r31 i, **r30 the gap** (`Vec *pp;` declared between i and alpha,
+`pp = &p;` before the second p group of each branch and that group's three stores through it: 8 uses, between alpha's
+11 and i's 18), r29 `u32 alpha`, r28 `u16 n` (assigned `n = 42;` after the declarations), r27 `u8 up = 0xFC`, r26
+`s32 down = 0`, `clrlwi r29, r27, 24` on `alpha = up`, the three initial `li` in the original's order, 755 words. Score
+548 of 755 by position (72.6%; 673 of 755 with the register numbers masked). What is left is the scheduler's priority
+inside the vertex blocks that follow a `GXBegin`: the original hoists the pool loads of the next conversion (`lfd`
+0x4330..., `lfs` 0.5f) above the write-gather stores and issues each store's `lis 0xcc01` late, ours hoists the `lis`
+and issues the loads late; the else branch's first group schedules the u16 conversion first in the original and in
+our odd branch, the s32 one first in our else branch (the same source: the pointer stores of rule 2 perturb whichever
+group carries them, and every placement of the pointer over the four p groups, with 1-3 members through it, was
+tried: 503-548). Also without effect: volatile or not on the pipe union, `*(volatile f32 *) 0xCC008000`, the SDK's
+`GXWGFifo`, a far extern symbol for the pipe (much worse: 643 words), colour parameters u8 / u32 / macro, one
+position+colour helper, the six orders of the three-float groups (per group and globally). The run stays open; the
+best C (`v13.c`) and the harness are in the step 85 log, the draft stays m2c's.
+
+**fn_8008057C..fn_800812A4's near-misses**, hand-matched and then put into the generator (3+ drafts carry each
+pattern):
+- **fn_80080B80 92 -> 100%, `fold_temp_compound` (default)**: m2c's `temp_r3_44 = p->a->b; M2C_FIELD(temp_r3_44, f32 *,
+  0x14) = (f32) ((f64) M2C_FIELD(temp_r3_44, f32 *, 0x14) + lbl_80450E70);` makes the temporary a local of the draft
+  (a callee-saved register, `lwz r30, 4(r3)`, saved and restored); the original evaluated the address once inside a
+  compound assignment and kept it in r3 (`lwz r3, 4(r3); lfs f1, 0x14(r3); ...; stfs f0, 0x14(r3)`). The rule folds
+  `temp_rN = ADDR; FIELD(temp) op= RHS` and the `(f32) ((f64) FIELD(temp) + C)` form into `FIELD(ADDR) op= RHS;` when
+  the register is r3-r12 (a temporary: a local the original kept across a call would be callee-saved), the temporary
+  has no other use, and C is a double (a literal without f suffix or an .sdata2 double), then drops the declaration.
+  The `|=` / `&=` form occurs in 67 drafts, the f64 form in 3.
+- **fn_80080A94 98 -> 100%, `store_literals` (a variant)**: rule 5 above; the 0.0f written as the literal only where a
+  constant is a whole stored value (`= (f32) lbl_80450E5C;` -> `= 0.0f;`), the constants in arithmetic and compares
+  left as externs (`float_literals`, which converts all of them, gives 91%). Like `float_literals` the draft then owns
+  that pool constant (the file run's data).
+- **fn_80080FD8 92 -> 93%** (the fold applied to its `|=` and `+= 0.1` temporaries): the original saves r27-r31 and
+  uses only r31 (arg0), r30 (`var_r30`) and r28 (`var_r28`): two more rule-2 pointer locals, in r29 and r27, whose
+  placement is unknown (not tried: the run has four more blockers at 54-78%).
+
+**Before -> after** (full batch 12 runs): compile {compile_before} -> {compile_after} of 1,751, **100% MATCH {match_before} -> {match_after}**
+({new_matches}), bytes equal {bytes_before} -> {bytes_after}; 80-99% {near_before} -> {near_after}; {ups} drafts up (cr_Vec3_Normalize 98 -> 100% through store_literals too, fn_8007D638 77 -> 92%, about 120 handler drafts by one point through the fold), {downs} down by 1-4 points (fn_8006B144 31 -> 27%, fn_800FEFF8 93 -> 90%, fn_800FBDF8 86 -> 83%, cr_CM_WAIT 52 -> 49%: a folded temporary where the original did keep a local or evaluated the address twice), {lost} match lost.
+Linked: **{objs} game objects ({promoted} promoted, {fileobjs} file objects, {kept} kept)**, {units} of {units_all} units from C, **{code_pct}% of main.dol's code**,
+{data_pct}% of its data. Checks: batch 9 retail SHA-1, every C object 100%, relocations OK, static shift PASS; batch 8 0 FAIL;
+checksums written (the 3 decompiled\ lines kept at the committed values). No run closed, so batch 11 was not run.
+
+The run table after step 85 (promote_report.txt "file runs"). fn_80080A94 now owns its 0.0f, so its run is recomputed from its
+pool: fn_80080A94..fn_800812A4, 9 functions, 5 at 100%, 4 blockers (was fn_8008057C..fn_800812A4, 11 functions, 7 blockers);
+fn_80080A94 and cr_Vec3_Normalize match but wait for their runs ("has data of its own"), fn_80080B80 is promoted:
+
+{run_table}
+
+**Left**: fn_8006EEF8's vertex-block schedule (the compiler's priority, as the handler head of step 84: not a spelling),
+fn_80080FD8's two gap pointers, the other blockers of the table; rule 2 is the mechanism behind the register gaps of
+the ~198 unmatched game functions that save a register they never use (step 83): each needs a pointer local to a
+stack object with the right use count, which a generator cannot guess but a hand match can.

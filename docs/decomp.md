@@ -249,7 +249,7 @@ span 27 to 458 functions, with 1 to 54 of them at 100%. Some .sdata2 entries are
 example 0x8045113C by 0x800120D8 and 0x800B0CF8, and 0x80451168..84 by 118 functions over 0x80099EAC-0x800DB8A4).
 Those are either `const` globals or very large files, so the closed run grows to 1,642 functions. The rule never
 links a group it cannot prove, so such a run simply waits until all its functions match.
-Status after step 83 (Oct 31, 2026): 4 file objects. The run table with every blocker is in
+The open blocker for the runs and for most near-misses is the compiler's scheduler priority: [scheduler_plan.md](scheduler_plan.md) (the next session's first task). Status after step 83 (Oct 31, 2026): 4 file objects. The run table with every blocker is in
 [drafts.md](drafts.md) ("Step 83"). Two more rules came from fn_8002444C's pool: the game is compiled with
 `-str reuse,readonly` (a string literal of 8 bytes or less is an .sdata2 object of its own, laid out between the
 float literals in argument order; longer ones are in .rodata), and a draft that owns its float literals owns the

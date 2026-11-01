@@ -1,0 +1,69 @@
+fn_80080B80: 90% (59 of 65 words; orig 63, mine 65)
+   stwu r1, -0x10(r1)                               | stwu r1, -0x10(r1)
+   mflr r0                                          | mflr r0
+   stw r0, 0x14(r1)                                 | stw r0, 0x14(r1)
+   stw r31, 0xc(r1)                                 | stw r31, 0xc(r1)
+   mr r31, r3                                       | mr r31, r3
+I                                                   | stw r30, 0x8(r1)
+   lhz r0, lbl_8044F63A@sda21(r0)                   | lhz r0, lbl_8044F63A@sda21(r0)
+   rlwinm. r0, r0, 0, 24, 24                        | rlwinm. r0, r0, 0, 24, 24
+   bne .L_80080BC4                                  | bne .L_00000048
+   lwz r3, 0x5c(r31)                                | lwz r3, 0x5c(r31)
+R  lfs f0, lbl_80450E40@sda21(r0)                   | lfs f0, "@722"@sda21(r0)
+   lwz r3, 0x1c(r3)                                 | lwz r3, 0x1c(r3)
+   lwz r3, 0x4(r3)                                  | lwz r3, 0x4(r3)
+   stfs f0, 0x14(r3)                                | stfs f0, 0x14(r3)
+   lwz r0, 0x0(r31)                                 | lwz r0, 0x0(r31)
+   clrrwi r0, r0, 1                                 | clrrwi r0, r0, 1
+   stw r0, 0x0(r31)                                 | stw r0, 0x0(r31)
+   b .L_80080C68                                    | b .L_000000EC
+   .L_80080BC4:                                     | .L_00000048:
+   lwz r4, 0x5c(r31)                                | lwz r4, 0x5c(r31)
+   lis r3, cr_g_SeqCurrent@ha                       | lis r3, cr_g_SeqCurrent@ha
+   addi r3, r3, cr_g_SeqCurrent@l                   | addi r3, r3, cr_g_SeqCurrent@l
+   lwz r4, 0x1c(r4)                                 | lwz r4, 0x1c(r4)
+   lwz r5, 0x4(r4)                                  | lwz r5, 0x4(r4)
+   lhz r0, 0x12(r5)                                 | lhz r0, 0x12(r5)
+   ori r4, r0, 0x1000                               | ori r4, r0, 0x1000
+   sth r4, 0x12(r5)                                 | sth r4, 0x12(r5)
+   lwz r4, 0x5c(r31)                                | lwz r4, 0x5c(r31)
+   lwz r4, 0x1c(r4)                                 | lwz r4, 0x1c(r4)
+   lwz r5, 0x4(r4)                                  | lwz r5, 0x4(r4)
+   lhz r0, 0x12(r5)                                 | lhz r0, 0x12(r5)
+   ori r4, r0, 0x2000                               | ori r4, r0, 0x2000
+   sth r4, 0x12(r5)                                 | sth r4, 0x12(r5)
+   lwz r0, 0x38(r3)                                 | lwz r0, 0x38(r3)
+   rlwinm. r0, r0, 0, 17, 17                        | rlwinm. r0, r0, 0, 17, 17
+   bne .L_80080C68                                  | bne .L_000000EC
+   lbz r3, 0x57(r31)                                | lbz r3, 0x57(r31)
+   addi r0, r3, 0x4                                 | addi r0, r3, 0x4
+   cmpwi r0, 0xff                                   | cmpwi r0, 0xff
+   bge .L_80080C54                                  | bge .L_000000D8
+   lwz r3, 0x5c(r31)                                | lwz r3, 0x5c(r31)
+R  lfd f0, lbl_80450E70@sda21(r0)                   | lfd f1, "@723"@sda21(r0)
+   lwz r3, 0x1c(r3)                                 | lwz r3, 0x1c(r3)
+R  lwz r3, 0x4(r3)                                  | lwz r30, 0x4(r3)
+R  lfs f1, 0x14(r3)                                 | lfs f0, 0x14(r30)
+   fadd f0, f1, f0                                  | fadd f0, f1, f0
+   frsp f0, f0                                      | frsp f0, f0
+R  stfs f0, 0x14(r3)                                | stfs f0, 0x14(r30)
+   lbz r3, 0x57(r31)                                | lbz r3, 0x57(r31)
+   addi r0, r3, 0x4                                 | addi r0, r3, 0x4
+   stb r0, 0x57(r31)                                | stb r0, 0x57(r31)
+   lwz r0, 0x0(r31)                                 | lwz r0, 0x0(r31)
+   ori r0, r0, 0x1                                  | ori r0, r0, 0x1
+   stw r0, 0x0(r31)                                 | stw r0, 0x0(r31)
+   b .L_80080C68                                    | b .L_000000EC
+   .L_80080C54:                                     | .L_000000D8:
+   lhz r0, lbl_8044F63A@sda21(r0)                   | lhz r0, lbl_8044F63A@sda21(r0)
+   li r3, 0xc                                       | li r3, 0xc
+   rlwinm r4, r0, 0, 23, 21                         | rlwinm r4, r0, 0, 23, 21
+   sth r4, lbl_8044F63A@sda21(r0)                   | sth r4, lbl_8044F63A@sda21(r0)
+   bl fn_8008F6E8                                   | bl fn_8008F6E8
+   .L_80080C68:                                     | .L_000000EC:
+   lwz r0, 0x14(r1)                                 | lwz r0, 0x14(r1)
+   lwz r31, 0xc(r1)                                 | lwz r31, 0xc(r1)
+I                                                   | lwz r30, 0x8(r1)
+   mtlr r0                                          | mtlr r0
+   addi r1, r1, 0x10                                | addi r1, r1, 0x10
+   blr                                              | blr

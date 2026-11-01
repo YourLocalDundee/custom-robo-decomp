@@ -1,0 +1,30 @@
+draft and check: tools/draft_batch.py (m2c pinned in tools/pins.txt, compiler GC/2.6, flags: configure.py game set)
+addr      function                                       bytes  status         note
+8002444C  fn_8002444C                                    300  100% MATCH     1 fixes [+float_literals]
+800BEC1C  cr_F_DUMMY_008                                 152  50%            [reg-vars]
+800C4934  cr_S_BGM_STOP                                  512  85%            
+800C74CC  cr_CM_DUMMY_008                                152  50%            [reg-vars]
+800C7D18  cr_CM_WAIT                                     220  49%            [reg-vars]
+
+functions 5
+m2c ok 5
+m2c failed 0
+compile failed 0
+compiled 5
+100% MATCH 1
+bytes matched 996 of 1336 (aligned equal words of the compiled drafts, of the bytes of all 5 functions)
+
+match % histogram of the 5 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
+    0- 9%  0
+   10-19%  0
+   20-29%  0
+   30-39%  0
+   40-49%  1
+   50-59%  2
+   60-69%  0
+   70-79%  0
+   80-89%  1
+   90-99%  0
+  100%     1
+
+most common failures:
