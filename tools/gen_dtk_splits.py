@@ -633,6 +633,11 @@ def code_splits(ours, rejected, notes, audit=None):
                         return f"reference's own {'first' if ref_end is F[0] else 'last'} function" if funcs[i if ref_end is F[0] else j][0] == ref_end[0] else None
                     if where.get(nb) and name not in where[nb]:
                         return f"{nb} is in {sorted(where[nb])[0]}"
+                    if family(path) == "hsd":
+                        # step 97: doldecomp/kar's per-file asm (the same revision) places it in exactly one other file
+                        kf = [st for st, kv in kar_pre.items() if nb in kv[2].values()]
+                        if len(kf) == 1 and kf[0] != Path(name).stem.lower():
+                            return f"{nb} is in {kf[0]}.c (doldecomp/kar asm/sysdolphin/{kf[0]}.s)"
                     if defs.get(nb) and all(f != family(path) for f, _ in defs[nb]):
                         # the pinned sources define it only in another library (step 65: HSD_Panic, sysdolphin's, before
                         # the SDK's THPDec.c): no file of this library holds it, so it is another object's

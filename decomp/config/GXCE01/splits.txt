@@ -2392,6 +2392,11 @@ sysdolphin/baselib/object.c:
 sysdolphin/baselib/memory.c:
 	.text       start:0x801A40EC end:0x801A4154
 
+sysdolphin/baselib/shadow.c:
+	.text       start:0x801A4154 end:0x801A5558
+	.data       start:0x8024D0D0 end:0x8024D268
+	.bss        start:0x8044B780 end:0x8044B7B0
+
 sysdolphin/baselib/bytecode.c:
 	.text       start:0x801A5F10 end:0x801A74D8
 	.data       start:0x8024D438 end:0x8024D4D5

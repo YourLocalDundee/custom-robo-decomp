@@ -384,9 +384,11 @@ first or last function under the same name. Two objects are proven by it:
 - **memory.c** .text 0x801A40EC-0x801A4154 (HSD_Free, HSD_Alloc; kar's memory.s ends with HSD_Alloc, shadow.c's
   HSD_ShadowInitAllocData follows).
 
-Both are asm objects for now (no C linked): sysdolphin is 32 split objects, 24 from C. Still open (splits_report.txt):
-shadow.c's start (its neighbour HSD_Alloc is now memory.c's last function, which this test does not use yet), archive.c's
-end, synth.c's end, axdriver.c's end, devcom.c's start, particle.c's start.
+A neighbour that kar's asm places in exactly one other file also counts as that file's (the edge test): this proves
+**shadow.c** .text 0x801A4154-0x801A5558 (HSD_Alloc before it is memory.c's), with .data 0x8024D0D0-0x8024D268 and
+.bss 0x8044B780-0x8044B7B0, and names texpdag.c's and object.c's other neighbours. All three are asm objects for now
+(no C linked): sysdolphin is 33 split objects, 24 from C. Still open (splits_report.txt): archive.c's end, synth.c's
+end, axdriver.c's end, devcom.c's start, particle.c's start (their neighbours are unnamed fn_ functions).
 
 ### HSD (sysdolphin) notes (step 61, Oct 30, 2026)
 
