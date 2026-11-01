@@ -21,7 +21,7 @@ The game's own names, found in main.dol. Use these before inventing a `cr_` name
 | string | used by |
 |---|---|
 | `ORIGINAL` | FUN_80105e74 |
-| `NO_READ` | FUN_800a0854 |
+| `NO_READ` | cr_Scenario_Init |
 
 ### lower_snake: 1131 strings, 32 referenced directly by code
 
@@ -79,14 +79,14 @@ The game's own names, found in main.dol. Use these before inventing a `cr_` name
 | `psdisp.c` | FUN_8018144c |
 | `pslist.c` | FUN_80186010, FUN_801860ec |
 | `object.h` | HSD_AObjLoadDesc |
-| `object.h` | FUN_8018e604 |
+| `object.h` | HSD_LObjSetCurrentAll |
 | `object.h` | HSD_PObjResolveRefsAll |
 | `object.h` | HSD_JObjRef, HSD_JObjResolveRefs, HSD_JObjResolveRefsAll, HSD_JObjSetCurrent |
 | `displayfunc.c` | HSD_JObjMakePositionMtx, _HSD_mkEnvelopeModelNodeMtx |
 | `initialize.c` | FUN_8019cebc, FUN_8019d15c, FUN_8019d2a0, HSD_AllocateXFB |
 | `objalloc.c` | HSD_ObjAllocAddFree, HSD_ObjAllocInit |
 | `object.h` | HSD_RObjResolveRefsAll, HSD_RvalueResolveRefsAll |
-| `memory.c` | FUN_801a3fec |
+| `memory.c` | _HSD_MemSetCallbacks |
 | `shadow.c` | FUN_801a4800, FUN_801a4998, FUN_801a4abc, HSD_ShadowInit |
 | `object.h` | HSD_ShadowAddObject |
 | `bytecode.c` | HSD_ByteCodeEval |
@@ -98,16 +98,16 @@ The game's own names, found in main.dol. Use these before inventing a `cr_` name
 | `jobj.h` | FUN_8017f1dc, FUN_80180728 |
 | `dobj.c` | DObjLoad, HSD_DObjAlloc, HSD_DObjLoadDesc |
 | `tobj.c` | HSD_ImageDescAlloc, HSD_Index2TexCoord, HSD_Index2TexMap, HSD_Index2TexMtx |
-| `tev.c` | FUN_8018afe0, HSD_Index2TevStage, HSD_TevStage2Num, HSD_TexCoordID2Num |
+| `tev.c` | HSD_Channel2Num, HSD_Index2TevStage, HSD_TevStage2Num, HSD_TexCoordID2Num |
 | `mobj.c` | HSD_MObjAddShadowTexture, HSD_MObjAlloc, HSD_MObjLoadDesc, HSD_MaterialAlloc |
 | `aobj.c` | FUN_8018ccdc, HSD_AObjAlloc |
 | `lobj.c` | HSD_LObjLoadDesc, HSD_LObjSetPosition, HSD_LObjSetupInit, HSD_LObjSetupSpecularInit |
-| `lobj.h` | FUN_8018e604 |
+| `lobj.h` | HSD_LObjSetCurrentAll |
 | `cobj.c` | CObjLoad, CObjRelease, FUN_80190bbc, HSD_CObjAlloc |
 | `fobj.c` | FObjLoadData, HSD_FObjAlloc, HSD_FObjInterpretAnim |
 | `pobj.c` | HSD_PObjAlloc, HSD_PObjDisp, HSD_PObjLoadDesc, HSD_PObjResolveRefsAll |
 | `jobj.h` | SetupEnvelopeModelMtx, SetupSharedVtxModelMtx |
-| `jobj.h` | FUN_80196568, FUN_80198014, FUN_80198144, FUN_80198690 |
+| `jobj.h` | FUN_80196568, FUN_80198690, FUN_801995cc, HSD_JObjAnim |
 | `jobj.c` | FUN_80198700, HSD_JObjAddChild, HSD_JObjAlloc, HSD_JObjLoadJoint |
 | `jobj.h` | HSD_JObjDispDObj |
 | `video.c` | FUN_8019dc90, HSD_VICopyEFB2XFBPtr, HSD_VIPreRetraceCB |
@@ -119,7 +119,7 @@ The game's own names, found in main.dol. Use these before inventing a `cr_` name
 | `wobj.c` | HSD_WObjAlloc, HSD_WObjLoadDesc, WObjUpdateFunc |
 | `jobj.h` | HSD_WObjGetPosition, HSD_WObjSetPositionX, HSD_WObjSetPositionY, HSD_WObjSetPositionZ |
 | `fog.c` | HSD_FogAdjLoadDesc, HSD_FogLoadDesc, HSD_FogSet |
-| `perf.c` | FUN_801a3c9c |
+| `perf.c` | HSD_PerfCountEnvelopeBlending |
 | `list.c` | HSD_SListAlloc, HSD_SListAllocAndAppend, HSD_SListAllocAndPrepend, HSD_SListAppendList |
 | `class.c` | GetMemoryEntry, hsdInitClassInfo |
 | `hash.c` | HSD_HashSearch |
@@ -297,10 +297,6 @@ Codes from the body pictures `sprite/parts_illustrated_book/body_tpl/CR_S1_<code
 
 | address | lead |
 |---|---|
-| 0x8024E120 | battle robos: 4 x 0x33520 bytes (body +0x1CC, HP +0x74, body stats copy +0x1B98); used as lbl_8024E120 in decomp/src, so it keeps its lbl_ name until that C is renamed with it |
-| 0x8044F348 | current battle robo pointer (cr_Battle_SetCurrentPointers); lbl_8044F348 in decomp/src |
-| 0x801C6C44 | body stats table (34 x 0x134; names at +0x00 / +0x20, special-part byte +0x45, u16 +0x40 = 1000 for Ray 01 and 30000 for R Type 3, HP-like but unproven); lbl_801C6C44 in another stream's C |
-| 0x801C5BD0 | battle loadouts (4 x 0x10: team, body, gun, bomb, pod, leg, HP, controller); lbl_801C5BD0 in another stream's C |
 | 0x8023BA84 | part load requests (4 players x 5 categories x 0x14, 0xFF end); lbl_8023BA84 in another stream's C |
 | 0x80075950 | loads the gun / bomb / pod / leg effect entries and the body's attack_effect entry of the 4 loadouts; fn_80075950 is used by name in another stream's C |
 | 0x80066948 | (message file, message) -> text of bmg/info*.bin; fn_80066948 is called from decomp/src |
@@ -311,6 +307,10 @@ Codes from the body pictures `sprite/parts_illustrated_book/body_tpl/CR_S1_<code
 | 0x80065DB0 | two 0x28-byte windows at 0x8032CC20: state +0 = 3 when +8 is set (close request?); caller cr_SYS_WINDOW_CLOSE |
 | 0x8012481C | menu sprites 0x8044F860 / 0x8044F85C: flag 1 and part ids chosen from bits 2..0x20; screen unknown |
 | 0x8031F020 | the movie player's state (0x188): cr_SEQ_MOVIE_FrameB / FrameC and fn_800177F0 / fn_80017E10 / fn_8001838C / fn_80018630 / fn_80018844 (DVDOpen / DVDReadAsyncPrio / strcmp) read 57 word fields and the bytes +0xA4..+0xA7 from one base; cr_SEQ_MOVIE_FrameA addresses it as lbl_8031B5A0 + 0x3A80 (one base register for several .bss objects of the same source file); field meanings not traced |
+| 0x80329B60 | after cr_g_CamSystem (0xA84, 413 accesses in 19 functions): the battle code (fn_800456B8 .. fn_8004B0A0) reads / writes three Vec3 at +0xA60 / +0xA6C / +0xA78 and word triples at +0xA0C..+0xA5C from one base; the first 0xA0C bytes are not addressed from it |
+| 0x803E83B8 | 4 records of 0x3798 bytes indexed by cr_BattleRobo.index (fn_800DBAD0: base + robo->index * 0x3798; the byte +0x6A is a robo number); users fn_80071974, fn_800DDCD4, fn_800E29B8 |
+| 0x80344550 | 48 records of 0x284 bytes: fn_80072A58 copies them from a loaded file when the file's byte +6 is 0x18 (pointer lbl_8044F5DC) |
+| 0x8041CC10 | the customize file's .bss: fn_8012F3C4 / fn_80125DCC / fn_8012C25C address +0xFC..+0x1D4 (= cr_g_Customize) from this base; dtk's eight objects 0x8041CC10..0x8041CDD8 have almost no reader of their own, so cr_g_Customize cannot become a unit yet |
 | 0x800A0804 | (n): fn_800F5448(n >> 1), fn_800F21C8(n >> 1, n & 1), then clears bit 0x400 of cr_g_ScenarioSlotPtr->status; called by cr_SEQ_SCENARIO_Enter: a load of save slot n >> 1 into the scenario if fn_800F21C8 (0x3280 bytes, ORs cr_g_SaveData.unlocks into cr_g_Scenario.part_bits and reads new_unlocks) is that load; its draft is 95% with the typed pointer (one pointer load short) |
 | 0x801E1A24 | the unlock table of cr_Save_ApplyUnlocks: 12-byte entries {battles_finished threshold (3, 6, 9, ...), kind << 16 (0x40000 body, 0x80000 gun, 0x100000 bomb, 0x200000 pod, 0x400000 leg, 0x10000 mode, 0x20000 stage), item}; dtk's 0x56C object is not a multiple of 12 and ends in a list 0x22..0x26 and three code pointers, so its end is open |
 | 0x80011E08 | (unlock entry*): queues the item per kind at 0x8031BF54 / 0x8031BFCC / 0x8031C044 / 0x8031C0BC / 0x8031C134 ..., parts offset by the category counts: the menus' new-item announcements, if those lists are what they show |
@@ -318,6 +318,5 @@ Codes from the body pictures `sprite/parts_illustrated_book/body_tpl/CR_S1_<code
 | 0x8031B5A0 | 0x784 by dtk, but cr_SEQ_MOVIE_FrameA keeps its address in r31 and addresses +0x3514..+0x3B0C through it (lbl_8031F020 and beyond): the logo / movie code's .bss objects 0x8031B5A0..0x8031F1A8 come from one source file; fn_80009A90 writes most of its first 0x240 bytes |
 | 0x80392A44 | 4 object pointers: fn_80089FB8 / fn_8008A030 / fn_8008A0A8 clear / set bit 0 of each one's first word, fn_80089F40 ORs their +0x18 words; set by fn_8008ACEC, read by the customize screen (fn_80124F5C / fn_8012F3C4); kind of object unknown |
 | 0x8031BEC4 | the name entry screen's state (0x14: three words and a byte at +0x10) of cr_SEQ_NAME_ENTRY_FrameA and fn_8000B258 / fn_8000B42C / fn_8000B55C / fn_8000B878 / fn_8000C104; field meanings not traced |
-| 0x80330D1C | a 0x30-byte text window parameter block (byte, two floats, bytes, a float, four bytes, a byte, a float, a word) written whole by each of the nine window creators fn_800672AC / fn_80067904 / fn_80069DA4 / fn_8006A00C / fn_8006A1A8 / fn_8006A344 / fn_8006A4E0 / fn_8006A7D8 / fn_8006B144: the style of the window being created |
 | 0x80111CE8 | the stage selector's two exits (cr_StageSelector_Update result 0 / 1): fn_80111CE8 returns cr_g_SeqPrevious, or SEQ_MODE_SELECTOR unless cr_g_StageSelector.flags & 2, and calls cr_Customize_SetMode(cr_g_Customize.mode) when that is SEQ_MENU; fn_80111D50 not read |
 

@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void HSD_StateInvalidate(int mask);
 extern u32 lbl_8044F608[2];
-extern u32 cr_g_ModelSlots[12032];
+__declspec(section ".data") extern u8 cr_g_ModelSlots[48128];
 typedef struct HSD_JObj HSD_JObj;
 typedef f32 Mtx[3][4];
 void HSD_JObjDispAll(HSD_JObj *jobj, Mtx vmtx, u32 flags, u32 rendermode);

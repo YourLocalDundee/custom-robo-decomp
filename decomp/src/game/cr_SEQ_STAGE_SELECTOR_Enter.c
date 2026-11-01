@@ -65,8 +65,49 @@ __declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 extern u8 lbl_8031F240[40];
 extern u32 lbl_8044F504;
 extern u32 lbl_8037569C[2417];
-extern u16 cr_g_BattleLoadouts[32];
-extern u8 cr_g_BattleRobos[840832];
+typedef struct cr_BattleLoadout
+{
+  u16 unk_0;
+  u16 parts[5];
+  u16 hp;
+  u16 unk_e;
+} cr_BattleLoadout;
+__declspec(section ".data") extern cr_BattleLoadout cr_g_BattleLoadouts[4];
+typedef struct cr_BattleMotionSet cr_BattleMotionSet;
+typedef struct cr_BodyData
+{
+  f32 unk_00;
+  f32 unk_04;
+  cr_BattleMotionSet *motion_set;
+  f32 unk_0c[27];
+} cr_BodyData;
+typedef struct cr_BattleRobo
+{
+  void (*update)(void);
+  u8 unk_00004[0x6C];
+  f32 unk_00070;
+  f32 hp;
+  u8 unk_00078[0x14];
+  u8 index;
+  u8 unk_0008d;
+  u16 unk_0008e;
+  u8 unk_00090[0x13C];
+  u16 parts[5];
+  u8 unk_001d6[0x161E];
+  cr_BodyData body_data;
+  u8 unk_0186c[0x32C];
+  u8 body_stats[0x134];
+  u8 unk_01ccc[0x15C];
+  u8 gun_data[0x28C];
+  u8 unk_020b4[0x26C94];
+  u8 bomb_data[0x17C];
+  u8 unk_28ec4[0x5424];
+  u8 pod_data[0x174];
+  u8 unk_2e45c[0x4EAC];
+  u8 leg_data[0x8F];
+  u8 unk_33397[0x189];
+} cr_BattleRobo;
+__declspec(section ".data") extern cr_BattleRobo cr_g_BattleRobos[4];
 
 void cr_SEQ_STAGE_SELECTOR_Enter(void) {
     if ((cr_g_GameMode.flags & 0x02000000) && ((enum cr_Seq) cr_g_SeqCurrent.previous == SEQ_BATTLE)) {
@@ -75,10 +116,10 @@ void cr_SEQ_STAGE_SELECTOR_Enter(void) {
         cr_g_GameMode.unk_10 = M2C_FIELD(lbl_8031F240, u32 *, 4);
         lbl_8044F504 = M2C_FIELD(lbl_8031F240, u32 *, 0xC);
         M2C_FIELD(lbl_8037569C, u8 *, 6) = M2C_FIELD(lbl_8031F240, u8 *, 0);
-        M2C_FIELD(cr_g_BattleLoadouts, u16 *, 0) = M2C_FIELD(lbl_8031F240, u16 *, 0x10);
-        cr_g_BattleLoadouts[8] = M2C_FIELD(lbl_8031F240, u16 *, 0x12);
-        cr_g_BattleLoadouts[0x10] = M2C_FIELD(lbl_8031F240, u16 *, 0x14);
-        cr_g_BattleLoadouts[0x18] = M2C_FIELD(lbl_8031F240, u16 *, 0x16);
+        cr_g_BattleLoadouts->unk_0 = M2C_FIELD(lbl_8031F240, u16 *, 0x10);
+        cr_g_BattleLoadouts[1].unk_0 = M2C_FIELD(lbl_8031F240, u16 *, 0x12);
+        cr_g_BattleLoadouts[2].unk_0 = M2C_FIELD(lbl_8031F240, u16 *, 0x14);
+        cr_g_BattleLoadouts[3].unk_0 = M2C_FIELD(lbl_8031F240, u16 *, 0x16);
         M2C_FIELD(cr_g_BattleRobos, s32 *, 0x1D8) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x18);
         M2C_FIELD(cr_g_BattleRobos, s32 *, 0x336F8) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x1C);
         M2C_FIELD(cr_g_BattleRobos, s32 *, 0x66C18) = (s32) M2C_FIELD(lbl_8031F240, s32 *, 0x20);

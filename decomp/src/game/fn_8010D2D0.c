@@ -9,7 +9,41 @@ extern u8 lbl_8023BA84[836];
 extern u8 lbl_8024DFA0[352];
 typedef struct HSD_JObj HSD_JObj;
 void HSD_JObjUnref(HSD_JObj *jobj);
-extern u8 cr_g_BattleRobos[840832];
+typedef struct cr_BattleMotionSet cr_BattleMotionSet;
+typedef struct cr_BodyData
+{
+  f32 unk_00;
+  f32 unk_04;
+  cr_BattleMotionSet *motion_set;
+  f32 unk_0c[27];
+} cr_BodyData;
+typedef struct cr_BattleRobo
+{
+  void (*update)(void);
+  u8 unk_00004[0x6C];
+  f32 unk_00070;
+  f32 hp;
+  u8 unk_00078[0x14];
+  u8 index;
+  u8 unk_0008d;
+  u16 unk_0008e;
+  u8 unk_00090[0x13C];
+  u16 parts[5];
+  u8 unk_001d6[0x161E];
+  cr_BodyData body_data;
+  u8 unk_0186c[0x32C];
+  u8 body_stats[0x134];
+  u8 unk_01ccc[0x15C];
+  u8 gun_data[0x28C];
+  u8 unk_020b4[0x26C94];
+  u8 bomb_data[0x17C];
+  u8 unk_28ec4[0x5424];
+  u8 pod_data[0x174];
+  u8 unk_2e45c[0x4EAC];
+  u8 leg_data[0x8F];
+  u8 unk_33397[0x189];
+} cr_BattleRobo;
+__declspec(section ".data") extern cr_BattleRobo cr_g_BattleRobos[4];
 extern u32 lbl_80377C60[128];
 struct HSD_JObj;
 
@@ -24,7 +58,7 @@ void fn_8010D2D0(u8 arg0, u16 arg1) {
         }
         var_r30 = 0;
         while (var_r30 < 0x14U) {
-            M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520) + (var_r30 * 4)), s32 *, 0x864) = 0;
+            M2C_FIELD(((u8 *) &cr_g_BattleRobos[arg0] + (var_r30 * 4)), s32 *, 0x864) = 0;
             var_r30 += 1;
         }
         return;
@@ -40,7 +74,7 @@ void fn_8010D2D0(u8 arg0, u16 arg1) {
             HSD_JObjUnref(M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), HSD_JObj **, 4));
             M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), s32 *, 4) = 0;
         }
-        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x944) = 0;
+        M2C_FIELD(&cr_g_BattleRobos[arg0], s32 *, 0x944) = 0;
         return;
     case 1:
         if (M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), u32 *, 8) != 0U) {
@@ -51,7 +85,7 @@ void fn_8010D2D0(u8 arg0, u16 arg1) {
             HSD_JObjUnref(M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), HSD_JObj **, 0xC));
             M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), s32 *, 0xC) = 0;
         }
-        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x948) = 0;
+        M2C_FIELD(&cr_g_BattleRobos[arg0], s32 *, 0x948) = 0;
         return;
     case 2:
         if (M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), u32 *, 0x10) != 0U) {
@@ -70,8 +104,8 @@ void fn_8010D2D0(u8 arg0, u16 arg1) {
             HSD_JObjUnref(M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), HSD_JObj **, 0x1C));
             M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), s32 *, 0x1C) = 0;
         }
-        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x950) = 0;
-        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x94C) = 0;
+        M2C_FIELD(&cr_g_BattleRobos[arg0], s32 *, 0x950) = 0;
+        M2C_FIELD(&cr_g_BattleRobos[arg0], s32 *, 0x94C) = 0;
         return;
     case 3:
         if (M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), u32 *, 0x20) != 0U) {
@@ -98,10 +132,10 @@ void fn_8010D2D0(u8 arg0, u16 arg1) {
             HSD_JObjUnref(M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), HSD_JObj **, 0x34));
             M2C_FIELD((((u32 *) ((u8 *) lbl_80377C60 + ((arg0 << 7) & 0x7F80)))), s32 *, 0x34) = 0;
         }
-        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x954) = 0;
-        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x958) = 0;
-        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x95C) = 0;
-        M2C_FIELD((cr_g_BattleRobos + (arg0 * 0x33520)), s32 *, 0x960) = 0;
+        M2C_FIELD(&cr_g_BattleRobos[arg0], s32 *, 0x954) = 0;
+        M2C_FIELD(&cr_g_BattleRobos[arg0], s32 *, 0x958) = 0;
+        M2C_FIELD(&cr_g_BattleRobos[arg0], s32 *, 0x95C) = 0;
+        M2C_FIELD(&cr_g_BattleRobos[arg0], s32 *, 0x960) = 0;
         return;
     }
 }

@@ -2154,7 +2154,8 @@ typedef struct cr_BodyData {
 /// A battle robo (cr_g_BattleRobos[4]; the current one is cr_g_CurrentBattleRobo). Only what cr_BattleRobo_InitFromLoadout
 /// writes is typed: the loadout's fields and the copies of the five part records.
 typedef struct cr_BattleRobo {
-    /* +00000 */ u8 unk_00000[0x70];
+    /* +00000 */ void (*update)(void);  // non-zero = the robo is in use (fn_8000768C, fn_8003633C, fn_80092A5C ... test it before they touch the robo); fn_80089550 / fn_80089BB0 store fn_80005B88
+    /* +00004 */ u8 unk_00004[0x6C];
     /* +00070 */ f32 unk_00070;           // = the loadout's hp as float, like hp (cr_BattleRobo_InitFromLoadout)
     /* +00074 */ f32 hp;                  // = the loadout's hp as float (cr_BattleRobo_InitFromLoadout); the community's "Robo 1 HP" code writes 0x8024E194 = robo 0 +0x74, robos 2-4 at + n * 0x33520
     /* +00078 */ u8 unk_00078[0x14];

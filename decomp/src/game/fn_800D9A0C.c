@@ -118,7 +118,14 @@ typedef struct cr_GameMode
 } cr_GameMode;
 __declspec(section ".data") extern cr_GameMode cr_g_GameMode;
 void cr_Bits_Clear(u32 *set, u32 bit);
-extern u16 cr_g_BattleLoadouts[32];
+typedef struct cr_BattleLoadout
+{
+  u16 unk_0;
+  u16 parts[5];
+  u16 hp;
+  u16 unk_e;
+} cr_BattleLoadout;
+__declspec(section ".data") extern cr_BattleLoadout cr_g_BattleLoadouts[4];
 u32 cr_Bits_Test(u32 *set, u32 bit);
 __declspec(section ".sdata") extern cr_ScenarioSlot *cr_g_ScenarioSlotPtr;
 void cr_Bits_Set(u32 *set, u32 bit);
@@ -165,11 +172,11 @@ void fn_800D9A0C(void) {
     }
     var_r31 = 0;
     while (var_r31 < var_r29) {
-        cr_Bits_Clear(&cr_g_Scenario.part_bits[0][2], (u32) M2C_FIELD((((u16 *) ((u8 *) cr_g_BattleLoadouts + (var_r31 * 0x10)))), u16 *, 2));
-        cr_Bits_Clear(&cr_g_Scenario.part_bits[1][2], (u32) M2C_FIELD((((u16 *) ((u8 *) cr_g_BattleLoadouts + (var_r31 * 0x10)))), u16 *, 4));
-        cr_Bits_Clear(&cr_g_Scenario.part_bits[2][2], (u32) M2C_FIELD((((u16 *) ((u8 *) cr_g_BattleLoadouts + (var_r31 * 0x10)))), u16 *, 6));
-        cr_Bits_Clear(&cr_g_Scenario.part_bits[3][2], (u32) M2C_FIELD((((u16 *) ((u8 *) cr_g_BattleLoadouts + (var_r31 * 0x10)))), u16 *, 8));
-        cr_Bits_Clear(&cr_g_Scenario.part_bits[4][2], (u32) M2C_FIELD((((u16 *) ((u8 *) cr_g_BattleLoadouts + (var_r31 * 0x10)))), u16 *, 0xA));
+        cr_Bits_Clear(&cr_g_Scenario.part_bits[0][2], (u32) cr_g_BattleLoadouts[var_r31].parts[0]);
+        cr_Bits_Clear(&cr_g_Scenario.part_bits[1][2], (u32) cr_g_BattleLoadouts[var_r31].parts[1]);
+        cr_Bits_Clear(&cr_g_Scenario.part_bits[2][2], (u32) cr_g_BattleLoadouts[var_r31].parts[2]);
+        cr_Bits_Clear(&cr_g_Scenario.part_bits[3][2], (u32) cr_g_BattleLoadouts[var_r31].parts[3]);
+        cr_Bits_Clear(&cr_g_Scenario.part_bits[4][2], (u32) cr_g_BattleLoadouts[var_r31].parts[4]);
         var_r31 += 1;
     }
     if (cr_Bits_Test(cr_g_ScenarioSlotPtr->unk_98, var_r30) == 0) {

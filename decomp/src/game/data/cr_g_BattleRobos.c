@@ -57,7 +57,8 @@ typedef struct cr_BodyData
 } cr_BodyData;
 typedef struct cr_BattleRobo
 {
-  u8 unk_00000[0x70];
+  void (*update)(void);
+  u8 unk_00004[0x6C];
   f32 unk_00070;
   f32 hp;
   u8 unk_00078[0x14];

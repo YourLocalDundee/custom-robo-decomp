@@ -5,11 +5,10 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+__declspec(section ".sdata") extern u8 *cr_g_CurrentBattleRobo;
 typedef struct HSD_JObj HSD_JObj;
 void fn_8006E778(HSD_JObj *arg0);
 extern u8 lbl_80386378[208];
-
-extern u8 *cr_g_CurrentBattleRobo;
 
 void fn_80005D38(void) {
 

@@ -110,9 +110,9 @@ The game's script interpreter dispatches through `cr_g_ScrCmdFuncs` (0x8021C3F4,
 ## Building library objects from C (Phase 4 Milestone 4, Oct 29, 2026)
 
 Not the Ghidra C above (that is never copied anywhere): the community's own matching C from the pinned reference
-decomps, compiled by the Phase 4 build (`decomp/`). Status: `decomp/reports/progress_report.txt` (Oct 31, 2026, plan.md
-step 86: 661 of 949 objects from C, 22.20% of main.dol's code, 12.49% of its data; 483 game drafts at 100%: Dolphin SDK 98 of 98, MSL 49 of 49, Runtime 5 of 5,
-MetroTRK 29 of 29, HSD 22 of 30, game 444 code objects (0xCD40 bytes, 4.27% of the game code; 4 file objects) + 14 data-only units (0x2C060 bytes of game data, [Game data objects](#game-data-objects-step-86-oct-31-2026)); 9 more C files in `decomp/src`
+decomps, compiled by the Phase 4 build (`decomp/`). Status: `decomp/reports/progress_report.txt` (Nov 1, 2026, plan.md
+step 90: 673 of 970 objects from C, 22.20% of main.dol's code, 56.83% of its data; 483 game drafts at 100%: Dolphin SDK 98 of 98, MSL 49 of 49, Runtime 5 of 5,
+MetroTRK 29 of 29, HSD 22 of 30, game 444 code objects (0xCD40 bytes, 4.27% of the game code; 4 file objects) + 26 data-only units (0x154583 bytes of game data, [Game data objects](#game-data-objects-step-86-oct-31-2026)); 9 more C files in `decomp/src`
 compiled for objdiff only, each with its reason in `CR_NOT_MATCHING`); provenance of every file: `decomp/reports/sources_report.txt`. Game functions come into
 `decomp/src/game` another way (m2c drafts that match, promoted by script): [drafts.md](drafts.md).
 
@@ -327,6 +327,50 @@ object). Left, with the blocker: the 4-aligned starts above; the dtk objects run
 cr_g_ScrCmdFuncs, which have no dtk symbol of their own); cr_g_BodyData (34 x 0x78, word 2 a pointer: needs the record
 struct in cr_types.h, today `u8[4080]`); cr_g_PartOrderLists with its five u16 lists (2-aligned start, dtk's
 cr_g_PartOrderLeg 0x24 vs 0x22); the string tables (cr_g_SeqNames, cr_g_MotionNames, cr_g_CamModeNames).
+
+**Step 90 (Nov 1, 2026, branch data2): naming round 5 and data units round 2.** 12 units more (26), 0x128523 bytes
+(1,213,731) of game data more from C: main.dol's data from C **12.49% -> 56.83%** (0x53774 -> 0x17BC97 of 0x29C417),
+673 of 970 units. What it took:
+- **Types from the readers** (symbols/cr_types.h, cr_globals.txt; `tools/base_scan.py` is the base-register scan of
+  steps 79 / 81 as a tool: `top N --default` ranks the dtk default objects by accesses, `fields SYM` / `fields '*SYM'`
+  lists offset, width and functions through the object or through a pointer variable): the battle robos
+  `cr_g_BattleRobos` (`cr_BattleRobo[4]`, 0xCD480: the 0x33520 stride of 125 functions; the fields
+  cr_BattleRobo_InitFromLoadout writes: hp +0x74, index +0x8C, parts +0x1CC, the copies of the body data +0x17F4, body
+  stats +0x1B98, gun +0x1E28, bomb +0x28D48, pod +0x2E2E8, leg +0x33308), the records it copies from (`cr_g_BattleLoadouts`,
+  `cr_g_BodyData` as `cr_BodyData[34]` with its `motion_set` pointer, `cr_g_BattleParams`, `cr_g_BodyStats`,
+  `cr_g_LegData`, `cr_g_GunData`, `cr_g_BombData`: names at +0x00 / +0x20, sizes from the copy loops), cr_g_FileSlots'
+  predecessor `cr_g_EntryTableLoad` (fn_80021674's state), the camera block after cr_g_Cams `cr_g_CamSystem` (its +0xC
+  is what cr_globals.txt had as cr_g_CamPtrs), `cr_g_WindowStyle` + `cr_g_TextRecords` after cr_g_MessageFiles,
+  three buffers with one user each (`cr_g_CardWorkArea`, CARDMountAsync's 0xA000; `cr_g_ScenarioBuffer`, 0x18000;
+  `cr_g_ModelSlots`, 256 x 0xBC) and `cr_g_CurrentBattleRobo` (the most-read default global, kept `u8 *` like
+  cr_g_CurrentCam).
+- **Cuts in dtk's objects** (`symbols/data_splits.txt`, applied by tools/gen_dtk_symbols.py: the object ends at the cut,
+  `lbl_<address>` takes the rest, a name of ours there applies as usual; each line with the code that shows it):
+  cr_g_SeqNames / cr_g_SeqEnter / cr_g_SeqLeave and the end of cr_g_SeqLeave, the end of cr_g_CamModeFuncs' 42
+  handlers, the end of cr_g_CharaMotionSets' 56 pointers (fn_800A0E64's file-name table starts there).
+- **gen_data_c.py**: a pointer to an element of a typed global of ours is written `&name[i]` (cr_g_BodyData's 34
+  `motion_set` pointers into cr_g_BattleMotionSets; dtk's default symbols there are dropped by batch 9, SYM_DROP);
+  zero alignment padding between two globals is allowed (cr_g_PartOrderLeg's u16[17] then cr_g_PartOrderLists'
+  pointers); a name of cr_globals.txt that batch 9 has not applied yet is taken at its address (so batch 9's
+  sync_game_names.py still sees the rename: never regenerate the config symbols.txt by hand before batch 9); every
+  definition is inside `#pragma force_active on` (below).
+- **Found: mwld strips a C data symbol nothing names.** cr_Game_Update reaches cr_g_SeqEnter / cr_g_SeqLeave as
+  cr_g_SeqFrameA's base + 0xF0 / + 0x12C (`addi r3, r30, 0xf0`): in a unit of their own (or even in the same unit
+  without the pragma) the linker dropped them and the functions only they point to, and everything after moved
+  (retail SHA-1 lost). So the six SEQ tables are one unit, and the generator keeps every definition. cr_g_SeqNames
+  is inside it: its pointers name the SEQ_ strings' own symbols in .rodata (they stay in their automatic object).
+- **Found: a dtk object longer than the C's .bss object is not padding.** cr_g_CurrentMtx (f32[12], dtk 0x40) passed
+  the generator's check (zeros after it), but in .bss nothing fills the 0x10 bytes, so the next unit moved 0x10 down;
+  it is not a unit (its dtk object holds more than the matrix).
+- **Left, with the blocker**: cr_g_StageSelector and cr_g_Customize: the objects before them (0x80419CA8 .. 0x8041A234;
+  0x8041CC10 .. 0x8041CDD8, eight dtk objects) have almost no reader of their own: the code addresses the customize
+  file's .bss from lbl_8041CC10 (+0x1D4 = cr_g_Customize), so dtk's boundaries there are not evidence; cr_g_ScrCmdNames /
+  cr_g_ScrCmdFuncs (string table first, 4-aligned, no dtk symbol); cr_g_PartOrderBody .. Pod (2-aligned, after
+  lbl_8023B350, a mixed block of colour names and records); cr_g_DirTree + cr_g_ArchiveDvdEntry (the 0x18-byte root
+  node is not traced); cr_g_MotionInfo / cr_g_MotionNames (4-aligned start, string pool), cr_g_CamModeNames (string
+  table, file run of the camera code 0x80024848..0x80036FB0); the pod table 0x801D9590 (20 relocated words not
+  typed); the unreferenced tables after the cuts (lbl_801DEBE0, lbl_801F8098); the next objects of the scan
+  (docs/name_evidence.md "Leads").
 
 ### HSD (sysdolphin) notes (step 61, Oct 30, 2026)
 

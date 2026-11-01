@@ -3,7 +3,7 @@
  * Types: symbols/cr_types.h (through the drafts' context), names and addresses: symbols/cr_globals.txt; zero-initialised, as main.dol has it.
  * The compiler lays .bss / .sbss out in reverse declaration order, so the definitions are in that order:
  *   0x80320184 cr_g_FileSlots (cr_FileSlot[32], 0xF00 bytes)
- *   0x80320168 cr_g_EntryTableLoad (cr_EntryTableLoad, 0x1C bytes)
+ *   0x80320168 cr_g_EntryTableLoad (u8[28], 0x1C bytes)
  * The game's own source files are not known: this unit is one contiguous run of its data, not the original file. */
 #include "game/cr_game.h"
 
@@ -57,17 +57,9 @@ typedef struct cr_FileSlot
   u32 unk_38;
   DVDFileInfo file_info;
 } cr_FileSlot;
-typedef struct cr_EntryTableLoad
-{
-  u32 messages[3];
-  s32 dvd_entry;
-  u32 *header;
-  s32 archive;
-  cr_FileSlot *slot;
-} cr_EntryTableLoad;
 
 /* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
 #pragma force_active on
 cr_FileSlot cr_g_FileSlots[32];
-cr_EntryTableLoad cr_g_EntryTableLoad;
+u8 cr_g_EntryTableLoad[28];
 #pragma force_active reset

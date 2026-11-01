@@ -6,8 +6,7 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 lbl_801DEA6C[12];
-
-extern u8 *cr_g_CurrentBattleRobo;
+__declspec(section ".sdata") extern u8 *cr_g_CurrentBattleRobo;
 
 void fn_80005B88(void) {
 

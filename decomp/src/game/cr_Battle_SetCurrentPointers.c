@@ -6,6 +6,7 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_0e4c;
+__declspec(section ".sdata") extern u8 *cr_g_CurrentBattleRobo;
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_11cc;
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_06dc;
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_09e8;
@@ -15,7 +16,6 @@ __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_0678;
 __declspec(section ".sdata") extern f32 *cr_g_CurrentCharaLimbParams;
 extern f32 lbl_8044F540;
 
-extern u8 *cr_g_CurrentBattleRobo;
 extern u8 *lbl_8044F534;
 extern u8 *lbl_8044F53C;
 

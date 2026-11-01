@@ -5,7 +5,14 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 cr_g_BodyStats[10472];
+typedef struct cr_BodyStats
+{
+  char name_jp[0x20];
+  char name[0x20];
+  u16 unk_040;
+  u8 unk_042[0xF2];
+} cr_BodyStats;
+__declspec(section ".data") extern cr_BodyStats cr_g_BodyStats[34];
 typedef struct cr_ScenarioSlot
 {
   u32 status;
@@ -22,10 +29,28 @@ typedef struct cr_ScenarioSlot
   u8 unk_bc[0x10];
 } cr_ScenarioSlot;
 __declspec(section ".sdata") extern cr_ScenarioSlot *cr_g_ScenarioSlotPtr;
-extern u8 cr_g_GunData[41728];
-extern u8 cr_g_BombData[19760];
+typedef struct cr_GunData
+{
+  char name_jp[0x20];
+  char name[0x20];
+  u8 unk_040[0x24C];
+} cr_GunData;
+__declspec(section ".data") extern cr_GunData cr_g_GunData[64];
+typedef struct cr_BombData
+{
+  char name_jp[0x20];
+  char name[0x20];
+  u8 unk_040[0x13C];
+} cr_BombData;
+__declspec(section ".data") extern cr_BombData cr_g_BombData[52];
 extern u8 lbl_801D9590[21724];
-extern u8 cr_g_LegData[4148];
+typedef struct cr_LegData
+{
+  char name_jp[0x20];
+  char name[0x20];
+  u8 unk_40[0x4F];
+} cr_LegData;
+__declspec(section ".data") extern cr_LegData cr_g_LegData[29];
 typedef struct cr_GameMode
 {
   u32 flags;
@@ -49,17 +74,17 @@ __declspec(section ".data") extern cr_GameMode cr_g_GameMode;
 u8 fn_800AA17C(void) {
     u8 var_r31;
 
-    var_r31 = M2C_FIELD((cr_g_BodyStats + (cr_g_ScenarioSlotPtr->unk_bc[1] * 0x134)), u8 *, 0x45);
-    var_r31 |= M2C_FIELD((cr_g_GunData + (cr_g_ScenarioSlotPtr->unk_bc[5] * 0x28C)), u8 *, 0xA0);
-    var_r31 |= M2C_FIELD((cr_g_BombData + (cr_g_ScenarioSlotPtr->unk_bc[7] * 0x17C)), u8 *, 0xA0);
+    var_r31 = cr_g_BodyStats[cr_g_ScenarioSlotPtr->unk_bc[1]].unk_042[3];
+    var_r31 |= cr_g_GunData[cr_g_ScenarioSlotPtr->unk_bc[5]].unk_040[0x60];
+    var_r31 |= cr_g_BombData[cr_g_ScenarioSlotPtr->unk_bc[7]].unk_040[0x60];
     var_r31 |= M2C_FIELD((lbl_801D9590 + (cr_g_ScenarioSlotPtr->unk_bc[9] * 0x174)), u8 *, 0xE0);
-    var_r31 |= M2C_FIELD((cr_g_LegData + (cr_g_ScenarioSlotPtr->unk_bc[0xB] * 0x8F)), u8 *, 0x80);
+    var_r31 |= cr_g_LegData[cr_g_ScenarioSlotPtr->unk_bc[0xB]].unk_40[0x40];
     if ((s32) cr_g_GameMode.unk_10 == 2) {
-        var_r31 |= M2C_FIELD((cr_g_BodyStats + (cr_g_ScenarioSlotPtr->unk_bc[2] * 0x134)), u8 *, 0x45);
-        var_r31 |= M2C_FIELD((cr_g_GunData + (cr_g_ScenarioSlotPtr->unk_bc[6] * 0x28C)), u8 *, 0xA0);
-        var_r31 |= M2C_FIELD((cr_g_BombData + (cr_g_ScenarioSlotPtr->unk_bc[8] * 0x17C)), u8 *, 0xA0);
+        var_r31 |= cr_g_BodyStats[cr_g_ScenarioSlotPtr->unk_bc[2]].unk_042[3];
+        var_r31 |= cr_g_GunData[cr_g_ScenarioSlotPtr->unk_bc[6]].unk_040[0x60];
+        var_r31 |= cr_g_BombData[cr_g_ScenarioSlotPtr->unk_bc[8]].unk_040[0x60];
         var_r31 |= M2C_FIELD((lbl_801D9590 + (cr_g_ScenarioSlotPtr->unk_bc[0xA] * 0x174)), u8 *, 0xE0);
-        var_r31 |= M2C_FIELD((cr_g_LegData + (cr_g_ScenarioSlotPtr->unk_bc[0xC] * 0x8F)), u8 *, 0x80);
+        var_r31 |= cr_g_LegData[cr_g_ScenarioSlotPtr->unk_bc[0xC]].unk_40[0x40];
     }
     return var_r31;
 }

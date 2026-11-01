@@ -2281,6 +2281,33 @@ def member_array_index(body):
     return re.sub(r'M2C_FIELD\(\(&(cr_g_\w+) \+ \(?\((\w+) \* (0x[0-9A-F]+|\d+)\)(?: & 0x[0-9A-F]+)?\)?\), ([\w ]+?\s?\**)\*, 0x([0-9A-F]+)\)', fix, body)
 
 
+def struct_sizes():
+    """{struct: size} of the ASSERT_SIZE comments of symbols/cr_types.h (step 90), read once per process"""
+    if 'ssizes' not in W:
+        W['ssizes'] = {m.group(1): int(m.group(2), 16) for m in re.finditer(
+            r'ASSERT_SIZE\((\w+), 0x([0-9A-Fa-f]+)\)', open(os.path.join(G, 'symbols/cr_types.h'), encoding='utf-8').read())}
+    return W['ssizes']
+
+
+def struct_byte_offset(body):
+    """step 90: `M2C_FIELD((&cr_g_BattleRobos[arg0] + (var_r30 * 4)), s32 *, 0x864)`: m2c adds a byte offset to the address
+    of a struct-typed global (or of one element of a struct array), and C scales the sum by the struct's size (0x33520
+    here: the store lands 0x33520 * 4 * i bytes away). When the step is no multiple of the struct's size it is bytes:
+    `(u8 *) &cr_g_BattleRobos[arg0] + (var_r30 * 4)` (fn_8010D2D0 65 -> 100%; the struct's first member was a u8 array
+    before step 90's `update`, and m2c indexed that array instead). A step that is a multiple (member_array_index's
+    `mulli 0x354`) stays."""
+    structs, globs = member_types()
+    sizes = struct_sizes()
+
+    def fix(m):
+        g, idx, mul, step = m.group(1), m.group(2) or '', m.group(3), int(m.group(4), 0)
+        st = re.sub(r'\[\d+\]$', '', globs.get(g, ''))
+        if st not in sizes or step % sizes[st] == 0:
+            return m.group(0)
+        return 'M2C_FIELD(((u8 *) &%s%s + (%s' % (g, idx, mul)
+    return re.sub(r'M2C_FIELD\(\(&(cr_g_\w+)(\[\w+\])? \+ \((\w+ \* (0x[0-9A-F]+|\d+)\))', fix, body)
+
+
 def indexed_offset(body):
     """step 82: `M2C_FIELD((arg0 + (((var_r30 * 4) & 0x3FC) + 0xAC)), u32 *, 0)` where the index is scaled by the access
     width: an array of that element type at the constant offset. The compiler folds the constant into the load
@@ -2353,8 +2380,8 @@ def postprocess(body, skip=(), add=()):
               double_negation, assert_ternary, hsd_inlines, mixed_externs, byte_steps, same_type_copies, param_regs, param_homes,
               param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
               float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound,
-              script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, indexed_offset, fold_temp_compound,
-              store_literals):
+              script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, struct_byte_offset, indexed_offset,
+              fold_temp_compound, store_literals):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body

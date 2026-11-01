@@ -46,7 +46,7 @@ __declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 void fn_8018CCDC(void *arg0);
 void fn_80078B60(void);
 extern u32 lbl_8044F608[2];
-extern u32 cr_g_ModelSlots[12032];
+__declspec(section ".data") extern u8 cr_g_ModelSlots[48128];
 void fn_8017EE20(void *arg0);
 typedef struct HSD_JObj HSD_JObj;
 void HSD_JObjAnimAll(HSD_JObj *);

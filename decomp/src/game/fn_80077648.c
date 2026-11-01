@@ -9,12 +9,11 @@ typedef struct HSD_JObj HSD_JObj;
 typedef struct HSD_ShapeAnimJoint HSD_ShapeAnimJoint;
 typedef struct HSD_MatAnimJoint HSD_MatAnimJoint;
 typedef struct HSD_AnimJoint HSD_AnimJoint;
+__declspec(section ".sdata") extern u8 *cr_g_CurrentBattleRobo;
 extern u8 lbl_80379940[16];
 typedef struct HSD_Joint HSD_Joint;
 HSD_JObj *HSD_JObjLoadJoint(HSD_Joint *);
 void HSD_JObjAddAnimAll(HSD_JObj *, HSD_AnimJoint *, HSD_MatAnimJoint *, HSD_ShapeAnimJoint *);
-
-extern u8 *cr_g_CurrentBattleRobo;
 
 void fn_80077648(HSD_JObj **arg0, s8 arg1) {
     s32 *var_r31;

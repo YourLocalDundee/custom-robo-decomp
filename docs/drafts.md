@@ -992,6 +992,55 @@ fn_80080FD8's two gap pointers, the other blockers of the table; rule 2 is the m
 the ~198 unmatched game functions that save a register they never use (step 83): each needs a pointer local to a
 stack object with the right use count, which a generator cannot guess but a hand match can.
 
+## Step 90: naming round 5 types, draft round 10 (plan.md step 90, Nov 1, 2026, branch data2)
+
+Baseline: the step 86 generator and names run again in this worktree give the committed counts exactly (483 at 100%,
+1,706 compile, 43 compile failures, 521,432 bytes equal). The types of naming round 5 (docs/decomp.md "Game data
+objects", step 90) then went through the full run, and the drafts they touch were compared function by function.
+1. **First full run with the new types**: 100% MATCH 483 -> 482, compile failures 43 -> 61, bytes equal 521,432 ->
+   513,780; 19 drafts up (cr_BattleRobo_InitBody 69 -> 86, fn_80079214 43 -> 53, fn_800798CC 51 -> 60, fn_8006A00C /
+   fn_8006A1A8 / fn_8006A344 16 -> 22: cr_g_WindowStyle's float fields), 33 down, 18 of them to compile failures.
+   The failures had three causes, each measured with `--only` on the 23 drafts (out of tree, `--out
+   decomp/build/drafts_try`):
+   - **A struct whose first member is an array.** m2c reads the word at +0 of `cr_g_BattleRobos[i]` as the struct
+     itself: `if ((u32) cr_g_BattleRobos[i] != 0U)` ("illegal explicit conversion from 'struct cr_BattleRobo'"),
+     `cr_g_BattleRobos[n] = fn_80005B88;` (fn_80089550 / fn_80089BB0 store a function there). The word is the robo's
+     update function, as cr_Chara.update is (non-zero = in use): typed `void (*update)(void)`, 13 of the 18 compile
+     again and fn_8000768C is 100% again (fn_80092A5C 86, fn_8003633C 53 -> 56, fn_800294D8 48 -> 53,
+     cr_CAMMODE_DICE_WAIT_Frame 26 -> 29).
+   - **A struct-typed global that is a file's data-pool base.** The file system reaches cr_g_ArchiveDvdEntry and
+     cr_g_FileSlots from the base of the object before them (+0xF34, +0x1C): m2c writes `*(&cr_g_EntryTableLoad +
+     0xF34 + i * 4)` (pointer arithmetic scaled by the struct), and with a rule that makes the sum bytes
+     (`(u8 *) &cr_g_EntryTableLoad + ...`, tried) it then writes `((u8 *) &cr_g_EntryTableLoad + 0xF34)->messages[i]`
+     ("not a struct/union/class"). cr_g_EntryTableLoad is declared `u8[28]` (as cr_g_Cams is): cr_FileSys_Init 37,
+     fn_80021674 16, cr_Archive_OpenRequestList 17 as before; the struct cr_EntryTableLoad documents the fields. The
+     rule was not kept (nothing else triggers it). Same for cr_g_ModelSlots (`u8[48128]`): fn_80078F94 clears a slot
+     with a byte loop through a pointer m2c types `cr_ModelSlot *` (`*var = 0`); 91% again.
+   - **Byte offsets through a typed robo pointer** (`*((cr_BattleRobo *) ((u8 *) p + off)) |= 1`, `&(u8 *)
+     p->body_data - ...`): fn_80063DA4 (80), fn_8003B37C (61), fn_8003AFF0 (52), fn_8004F6D4 (45), fn_80041358 (13) do
+     not compile. Left for the next round: m2c needs the member at a variable byte offset of the robo; the struct is
+     mostly `unk_` arrays, so a rule would have to choose the access width from the instruction, which the draft no
+     longer shows.
+2. **Second full run** (the types above): the rule below on, the full run gives **100% MATCH 483 -> 483**, compile
+   1,706 -> 1,703 (46 failures: the five robo drafts above and cr_CAMMODE_CUSTOMIZE_Frame, 1% before; three drafts
+   compile for the first time, fn_8006B46C 47, fn_8006B848 14, fn_8006C970 16), bytes equal 521,432 -> 521,292;
+   histogram 0-9% 43, 10-19% 61, 20-29% 75, 30-39% 112, 40-49% 130, 50-59% 263, 60-69% 153, 70-79% 170, 80-89% 140,
+   90-99% 73. Up against the baseline: cr_BattleRobo_InitBody 69 -> 86, fn_80079214 43 -> 53, fn_800798CC 51 -> 60,
+   fn_8006A00C / fn_8006A1A8 / fn_8006A344 16 -> 22, fn_800294D8 48 -> 53, fn_8003633C 53 -> 56 and 15 more by 1-3
+   points; down: the five compile failures, fn_80024BC4 31 -> 22, fn_800E36BC 22 -> 18 and eight more by 1-3 points.
+   Promoted 439 (+4 file objects, 1 kept), 470 game units, 673 of 970 units from C. The drafts the new types touch at
+   90-99% (cr_CAMMODE_MIDDLE_Frame 90, fn_80075258..fn_800755E8 96, fn_80079544 95, fn_80078F94 91 ...) are the same
+   as before the types (only the names changed in them), so no rule was written for them.
+3. **`struct_byte_offset`** (default): `M2C_FIELD((&cr_g_BattleRobos[arg0] + (var_r30 * 4)), s32 *, 0x864) = 0;` -
+   m2c adds a byte offset to the address of a struct-typed global or of one of its elements, and C scales the sum by
+   the struct's size (here the store would land 0x33520 * 4 * i bytes away). When the multiplier is no multiple of the
+   struct's size (ASSERT_SIZE of symbols/cr_types.h, `struct_sizes()`) the sum is bytes: `(u8 *) &cr_g_BattleRobos[arg0]
+   + (var_r30 * 4)`. fn_8010D2D0 65 -> 100% (it was promoted from the first run, when the robo's first member was a u8
+   array that m2c indexed instead); on the 17 drafts with the pattern (`--only`, stock against patched) 9 up
+   (fn_8003B1BC 60 -> 69, fn_8012BD68 43 -> 47, fn_800E6E34 3 -> 7 ...), none down; member_array_index's
+   `mulli 0x354` case (a multiple) is left alone.
+
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.

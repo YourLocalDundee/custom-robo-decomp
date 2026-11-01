@@ -13,6 +13,7 @@ typedef struct
 } Vec;
 typedef Vec Point3d;
 extern u8 *lbl_8044F590;
+__declspec(section ".sdata") extern u8 *cr_g_CurrentBattleRobo;
 void fn_80097CA8(s32 arg0, Point3d *arg1);
 void fn_80098290(s32 arg0);
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_0678;
@@ -20,7 +21,6 @@ extern u16 lbl_8044F58C;
 extern u32 lbl_8044F588;
 extern u8 lbl_801F9DDC[44];
 
-extern u8 *cr_g_CurrentBattleRobo;
 extern Point3d *lbl_8044F53C;
 
 void fn_8005C628(void) {
