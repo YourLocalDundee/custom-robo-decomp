@@ -1,7 +1,7 @@
 """scratch: compile a C file with the game flags (+/- extras), disassemble with dtk, compare with the original .s
 usage: python -I pr.py NAME file.c [--flags "..."] [--drop "-opt"] [--quiet]"""
 import os, re, subprocess, sys, difflib
-G = r"D:\emulators\gameTesting-hsd2"
+G = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", ".."))   # the repo root
 sys.path.insert(0, os.path.join(G, "tools"))
 import draft_batch as db
 D = db.D

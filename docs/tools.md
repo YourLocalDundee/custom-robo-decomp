@@ -87,6 +87,14 @@ Durations are from the development desktop (8 cores, Oct 31, 2026); "quick" is u
 | `draft_batch.py` | Batch 12 (about 26 min): m2c C draft of every game function (context: HSD / `cr_types.h` + every `lbl_` data object with its size + the game functions' prototypes from a first pass; m2c runs through a small wrapper that adds the load width to the fields it cannot place) -> post-processed by the generator's rules, repaired on the compiler's messages, compiled with the game flags of `decomp/configure.py`, compared with the original, aligned; every draft below 100% also with `--reg-vars` and the variants ([drafts](drafts.md)) -> `decomp/drafts/` (gitignored), `decomp/reports/draft_summary.txt` | `tools/draft_batch.py [--only NAME ...] [--sample N] [--jobs N] [--out DIR] [--no-summary]` (`--only` / `--sample` reuse `ctx_protos.h` / `ctx_sdk.h` of the output folder, `decomp/drafts` by default; `--out` keeps an experiment apart from the last full run: copy those two files there first; `--no-summary` leaves `draft_summary.txt` alone) |
 | `promote_drafts.py` | Batch 12: puts every 100% draft that can be linked into `decomp/src/game/<function>.c`, and the drafts of a whole file run (functions sharing a constant pool, step 63) into a file object `<first>_<last>.c`; keeps a file whose draft fell below 100% while it links, drops it when its name or address is no longer its function's -> `decomp/reports/promote_report.txt` (method: its docstring) | `tools/promote_drafts.py [--check --try-run FIRST LAST]` (run by batch 12; `--try-run` tests one run) |
 
+## The scheduler replay (docs/sched_model.md)
+
+| Tool | Purpose | Usage |
+|---|---|---|
+| `sched/corpus.py` | Compiles the scheduler test programs (tools/sched/scratch: hd/m/*.c, hd/base.c, hd/v0.c, fr/v13.c) with GC/2.6 and the game flags of `decomp/configure.py`, with and without `schedule`, disassembles both with dtk and keeps the listings per function plus the original words of cr_CM_DUMMY_008 / fn_8006EEF8 -> `tools/sched/corpus/` (gitignored, `manifest.json`) | `tools/sched/corpus.py [--only ID ...]` (about 30 s) |
+| `sched/replay.py` | The GC/2.6 scheduler replay (DAG, heights, the urgency / release count / height / rank pick, the 750 and 603 machine models read from the compiler binary, both passes); `--corpus` measures it against the corpus -> `tools/sched/corpus_report.txt`; `--trace ID` prints every first-pass pick of one corpus function | `tools/sched/replay.py --corpus` / `--trace ID [FUNCTION] [--model 603]` (quick) |
+| `sched/ghidra_scripts/SchedExport.java` | Names the scheduler functions in an analysis Ghidra project of the compiler (`tools/sched/ghidra/`) and exports their decompiled C to `tools/sched/ghidra_export/` (both gitignored) | headless: `-postScript SchedExport.java <out.c> <addr:name> ...` |
+
 ## Models, archives and mods (Phase 1)
 
 | Tool | Purpose | Usage |
