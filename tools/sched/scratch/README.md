@@ -13,6 +13,8 @@ not copied; the scripts regenerate them.
 | fr/ | step 85 (fn_8006EEF8 72.6%, frame exact; fold_temp_compound, store_literals) | cc.py / sc.py / md.py: compile, score, micro-tests; ppsweep*.py: gap-pointer placement sweeps; v13.c: the best fn_8006EEF8 C (frame and registers exact); fn_80080A94*.c / fn_80080B80*.c with .diff: the two near-misses that became generator rules; ctx*.h: the draft context headers used; draft_report_before.txt / draft_summary_before.txt: the step 84 baseline |
 | base/ | step 82 | draft_report_baseline.txt and draft_summary.txt: the step 81 per-function baseline |
 
+hd/pr.py finds the repository from its own path (fixed for step 87); the other scripts still carry the old paths.
+
 How a score is computed (pr.py): compile with `mwcceppc.exe` GC/2.6 and configure.py's game flags, disassemble the
 object with dtk, align the words with the original's (from decomp/build/GXCE01/asm), count equal words by
 position; a second count masks the register fields.

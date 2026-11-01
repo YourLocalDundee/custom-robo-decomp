@@ -1,0 +1,92 @@
+Scheduler replay over the corpus (tools/sched/replay.py --corpus; corpus: tools/sched/corpus.py, 59 files)
+
+p1 = first pass replayed on the no-schedule listing (volatile registers renamed to virtual ones, frame code removed) vs the compiler's scheduled listing without its frame code; base = the no-schedule order itself; p2 = both passes (first pass, the compiler's physical registers, frame code, final pass) vs the scheduled listing; fix = the final pass run on the scheduled listing (a fixed point if the model is right). Blocks of 3+ instructions; words masked (register numbers).
+
+configuration (one switch changed from the default)     p1 exact       p1 words     base words     p2 exact       p2 words  fix exact
+the GC/2.6 model (default)                            41/43        824/1179       278/1179       57/63       1261/1670      62/63   
+603 model (the 1.2.5 gekko fallback)                   5/43        496/1179       278/1179       13/63        820/1670      53/63   
+no second-integer-unit operand check (1.x 750)        21/43        733/1179       278/1179       31/63       1152/1670      59/63   
+no store-after-store LSU rule                         39/43        780/1179       278/1179       55/63       1215/1670      62/63   
+one symbol = one object (1.x alias rule)              27/43        638/1179       278/1179       39/63       1032/1670      57/63   
+max height kept across blocks                         41/43        824/1179       278/1179       57/63       1261/1670      62/63   
+zero-latency successors wait a cycle                  41/43        821/1179       278/1179       52/63       1224/1670      57/63   
+final pass: loads after a 0-latency edge wait         41/43        824/1179       278/1179       57/63       1261/1670      62/63   
+no opcode-rank tie-break                              32/43        782/1179       278/1179       46/63       1195/1670      62/63   
+CR anti dependences keep latency (1.x)                41/43        824/1179       278/1179       57/63       1261/1670      62/63   
+final pass on every block                             41/43        824/1179       278/1179       36/63       1132/1670      38/63   
+final pass on every block with frame code             41/43        824/1179       278/1179       57/63       1251/1670      61/63   
+frame code not kept in order                          41/43        824/1179       278/1179       56/63       1232/1670      61/63   
+final pass orders every memory access                 41/43        824/1179       278/1179       51/63       1218/1670      55/63   
+addi fold in the first pass (virtual registers)       41/43        824/1179       278/1179       54/63       1222/1670      62/63   
+no addi fold                                          41/43        824/1179       278/1179       51/63       1173/1674      62/63   
+
+Default configuration: model=750 mem=offset maxh=block same=all frame=1 rank=1 fall=0 cr0=1 iu=1 st=1 fin=epilogue
+
+file           p1 exact     p1 words   base words     p2 exact    fix exact
+fr_v13         2/4        243/598      109/598        3/6          6/6     
+hd_base        0/0          0/0          0/0          1/1          1/1     
+hd_v0          0/0          0/0          0/0          1/1          1/1     
+m_m1           1/1         11/11         3/11         1/1          1/1     
+m_m10          1/1         19/19         5/19         1/1          1/1     
+m_m2           1/1         11/11         3/11         1/1          1/1     
+m_m3           1/1         11/11         5/11         1/1          1/1     
+m_m4           1/1         11/11         5/11         1/1          1/1     
+m_m5           1/1         11/11         3/11         1/1          1/1     
+m_m6           1/1         16/16         4/16         1/1          1/1     
+m_m7           1/1         14/14         6/14         1/1          1/1     
+m_m8           1/1         14/14         6/14         1/1          1/1     
+m_m9           1/1         11/11         2/11         1/1          1/1     
+m_n1           0/0          0/0          0/0          1/1          1/1     
+m_n2           1/1         20/20         5/20         1/1          1/1     
+m_n3           1/1          9/9          4/9          1/1          1/1     
+m_n4           1/1         18/18         3/18         1/1          1/1     
+m_n5           1/1         18/18         4/18         1/1          1/1     
+m_n6           1/1         18/18         4/18         1/1          1/1     
+m_n7           1/1         12/12         3/12         1/1          1/1     
+m_n8           0/0          0/0          0/0          1/1          1/1     
+m_n9           1/1         19/19         5/19         1/1          1/1     
+m_o1           0/0          0/0          0/0          1/1          1/1     
+m_o2           0/0          0/0          0/0          1/1          1/1     
+m_o3           0/0          0/0          0/0          1/1          1/1     
+m_o4           0/0          0/0          0/0          1/1          1/1     
+m_o5           0/0          0/0          0/0          0/1          1/1     
+m_o6           0/0          0/0          0/0          1/1          1/1     
+m_o7           0/0          0/0          0/0          1/1          1/1     
+m_o8           0/0          0/0          0/0          1/1          1/1     
+m_q1           1/1         17/17         3/17         1/1          1/1     
+m_q2           1/1         17/17         3/17         1/1          1/1     
+m_q3           1/1         17/17         4/17         1/1          1/1     
+m_q4           1/1         17/17         3/17         1/1          1/1     
+m_q5           1/1         21/21         5/21         1/1          1/1     
+m_q6           1/1         19/19         2/19         1/1          1/1     
+m_q7           1/1         19/19         7/19         1/1          1/1     
+m_q8           1/1         19/19         3/19         1/1          1/1     
+m_r1           0/0          0/0          0/0          0/1          1/1     
+m_r2           0/0          0/0          0/0          1/1          1/1     
+m_r3           0/0          0/0          0/0          1/1          1/1     
+m_r4           1/1         19/19         5/19         1/1          1/1     
+m_r5           1/1         19/19         6/19         1/1          1/1     
+m_r6           1/1         19/19         6/19         1/1          1/1     
+m_r7           0/0          0/0          0/0          0/1          0/1     
+m_r8           0/0          0/0          0/0          1/1          1/1     
+m_s0           1/1         11/11         5/11         1/1          1/1     
+m_s1           1/1         11/11         5/11         1/1          1/1     
+m_s10          1/1         15/15         7/15         1/1          1/1     
+m_s11          1/1         13/13         2/13         1/1          1/1     
+m_s2           1/1         11/11         5/11         1/1          1/1     
+m_s3           1/1         13/13         4/13         1/1          1/1     
+m_s4           1/1         11/11         5/11         1/1          1/1     
+m_s5           1/1         13/13         6/13         1/1          1/1     
+m_s6           0/0          0/0          0/0          1/1          1/1     
+m_s7           1/1         11/11         5/11         1/1          1/1     
+m_s8           1/1         11/11         5/11         1/1          1/1     
+m_s9           1/1         15/15         3/15         1/1          1/1     
+
+Not compiled: m_mixed
+
+The targets (default configuration):
+cr_CM_DUMMY_008 original: the final pass replayed on the original words is a fixed point (38 words)
+fn_8006EEF8 original: the final pass replayed on the original words is a fixed point (755 words)
+hd_base -> cr_CM_DUMMY_008: replay (both passes) vs original 24/38 words by position (masked), 0/1 blocks exact; the compiler on the same C: 22/38; first pass alone vs original body 6/33, vs the compiler body 11/33
+hd_v0 -> cr_CM_DUMMY_008: replay (both passes) vs original 24/38 words by position (masked), 0/1 blocks exact; the compiler on the same C: 22/38; first pass alone vs original body 6/33, vs the compiler body 11/33
+fr_v13 -> fn_8006EEF8: replay (both passes) vs original 358/755 words by position (masked), 3/6 blocks exact; the compiler on the same C: 605/755; first pass alone vs original body 324/692, vs the compiler body 332/692
