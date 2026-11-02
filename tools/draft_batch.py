@@ -3649,6 +3649,13 @@ def repair_109b(lines, e):
         #     struct of cr_types.h that has that member
         structs = _ctx_struct_members()
         s = re.sub(r'\(\(__typeof__\([^;]*?\) \+ 0\)\) (\w+)\)', r'\1', s)   # a slot rule cast of the same slot
+        # a cast this rule made that still fails (`((OSCalendarTime *) spC4)->min.z`): the next struct with that member
+        for cm in re.finditer(r'\(\((\w+) \*\) (&?\w+)\)->(\w+)\b', s):
+            owners = [k for k, v in structs.items() if cm.group(3) in v]
+            if cm.group(1) in owners and owners.index(cm.group(1)) + 1 < len(owners) and m is True:
+                nxt = owners[owners.index(cm.group(1)) + 1]
+                lines[ln - 1] = s[:cm.start()] + '((%s *) %s)->%s' % (nxt, cm.group(2), cm.group(3)) + s[cm.end():]
+                return 'slot %s read as a %s' % (cm.group(2), nxt)
         for fm in re.finditer(r'(?<![\w.>])(\w+)(\[[^\[\]]*\])?(->|\.)(\w+)\b', s):
             if m is not True and fm.group(4) != m.group(1):
                 continue
@@ -3853,10 +3860,10 @@ _repair_108 = repair
 
 
 def variants_skipped(fixes):
-    """step 109b: a draft that compiles only through more than 20 fixes, some of them repair_109b's (the former compile
-    failures: 2-13 KB, dozens of fixes each) is not tried with the VARIANTS: each variant repeats the whole repair loop (hours for the batch) and
+    """step 109b: a draft that compiles only through more than 3 fixes, some of them repair_109b's (the former compile
+    failures: 2-13 KB, up to 160 fixes each; with them a full run took 80 minutes) is not tried with the VARIANTS: each variant repeats the whole repair loop (hours for the batch) and
     none of them is near a match"""
-    return len(fixes) > 20 and any(f.startswith('[109b] ') for f in fixes)
+    return len(fixes) > 3 and any(f.startswith('[109b] ') for f in fixes)
 
 
 def repair(lines, e):
@@ -3998,11 +4005,17 @@ def goto_search_loops(body):
             continue
         ind = re.match(r'\s*', lines[k + 1]).group(0)
         c1 = re.fullmatch(re.escape(ind) + r'if \((.+)\) \{', lines[k + 1])
-        c2 = re.fullmatch(re.escape(ind) + r'    if \((.+)\) \{', lines[k + 2])
+        # simple statements before the test (`x = p->next_value;`, fn_8006E6E8's list walk)
+        p = k + 2
+        pre = []
+        while p < len(lines) and re.fullmatch(re.escape(ind) + r'    (?!if\b|for\b|while\b|switch\b|goto\b|return\b)[^{}]*;', lines[p]):
+            pre.append(lines[p])
+            p += 1
+        c2 = re.fullmatch(re.escape(ind) + r'    if \((.+)\) \{', lines[p]) if p < len(lines) else None
         if not (c1 and c2):
             k += 1
             continue
-        j = k + 3
+        j = p + 1
         s_body = []
         while j < len(lines) and lines[j].startswith(ind + '        '):
             s_body.append(lines[j])
@@ -4011,12 +4024,12 @@ def goto_search_loops(body):
         inc = tail[1].strip() if len(tail) > 1 else ''
         if (len(tail) < 6 or tail[0] != ind + '    } else {' or tail[2] != ind + '        goto %s;' % m.group(1)
                 or tail[3] != ind + '    }' or tail[4] != ind + '}'
-                or not re.fullmatch(r'\w+ (?:\+=|-=) (?:0x[0-9A-Fa-f]+|\d+);|\w+(?:\+\+|--);', inc)
+                or not re.fullmatch(r'\w+ (?:\+=|-=) (?:0x[0-9A-Fa-f]+|\d+);|\w+(?:\+\+|--);|\w+ = [^;]+;', inc)
                 or not tail[1].startswith(ind + '        ')
                 or any(re.match(r'\s*(?:goto|break|continue|loop_\d+:)\b', x) for x in s_body)):
             k += 1
             continue
-        new = [ind + 'for (; %s; %s) {' % (c1.group(1), inc[:-1]), ind + '    if (%s) {' % c2.group(1)]
+        new = [ind + 'for (; %s; %s) {' % (c1.group(1), inc[:-1])] + pre + [ind + '    if (%s) {' % c2.group(1)]
         new += s_body
         new += [ind + '        break;', ind + '    }', ind + '}']
         lines[k:j + 5] = new
@@ -4029,7 +4042,8 @@ SEARCH_LOOP = re.compile(
     r'([ \t]+)if \((\(u32\) )?(\w+) >= (\w+)\) \{\n'
     r'\2    (\w+) = ([^;\n]+);\n'
     r'\2\} else if \(([^\n]+)\) \{\n'
-    r'\2    \6 = \4;\n'
+    r'((?:\2    [^\n{}]*;\n)*?)'
+    r'\2    \6 = ([^;\n]+);\n'
     r'\2\} else \{\n'
     r'\2    \4 \+= 1;\n'
     r'\2    goto \1;\n'
@@ -4060,21 +4074,31 @@ def inline_search_helpers(body):
     for k, m in enumerate(list(SEARCH_LOOP.finditer(body))):
         if body.find(m.group(0)) < 0:
             continue
-        label, ind, cast, i, lim, r, d, c = m.groups()
-        if i not in decls or r not in decls or re.search(r'\b(?:goto|return)\b', c):
+        label, ind, cast, i, lim, r, d, c, pre, val = m.groups()
+        if i not in decls or r not in decls or re.search(r'\b(?:goto|return|break|continue)\b', c + pre):
             continue
-        rest = body.replace(m.group(0), '')
-        free = [n for n in dict.fromkeys(re.findall(r'(?<![.>])\b([A-Za-z_]\w*)\b', c)) if n in decls and n != i]
-        if any(re.search(r'^\s*%s\s*=' % re.escape(n), c) for n in free):
+        used = c + '\n' + pre + '\n' + val
+        free = [n for n in dict.fromkeys(re.findall(r'(?<![.>])\b([A-Za-z_]\w*)\b', used)) if n in decls and n not in (i, r)]
+        # the found branch may store (`lbl[i] = 1;`) but not into an outer local
+        if any(re.search(r'^\s*%s\s*[-+*/|&^]?=(?!=)' % re.escape(n), pre, re.M) for n in free + [r]):
             continue
         name = '%s_search%d' % (dm.group(2), k)
         ti, tr = decls[i], decls[r]
         params = ', '.join('%s %s%s' % (decls[n][0], decls[n][1], n) for n in free) or 'void'
+        pre_lines = ''.join('            ' + x.strip() + '\n' for x in pre.split('\n') if x.strip())
         helpers.append('static inline %s %s%s(%s) {\n    %s %s%s;\n\n    for (%s = 0; %s < %s; %s += 1) {\n        if (%s) {\n'
-                       '            return %s;\n        }\n    }\n    return %s;\n}\n'
-                       % (tr[0], tr[1], name, params, ti[0], ti[1], i, i, (cast or '') + i, lim, i, c, i, d))
+                       '%s            return %s;\n        }\n    }\n    return %s;\n}\n'
+                       % (tr[0], tr[1], name, params, ti[0], ti[1], i, i, (cast or '') + i, lim, i, c, pre_lines, val, d))
         call = '%s%s = %s(%s);\n' % (ind, r, name, ', '.join(free))
-        body = body.replace(m.group(0), call, 1)
+        after = body[body.find(m.group(0)) + len(m.group(0)):]
+        cp = re.match(r'%s(\w+) = %s;\n' % (re.escape(ind), r), after)
+        if cp and len(re.findall(r'\b%s\b' % r, body.replace(m.group(0), ''))) == 2:
+            # `R = search(); X = R;` with R used nowhere else: the inlined result goes to X (fn_800EAF34: mr. r30, r29)
+            body = body.replace(m.group(0) + cp.group(0), '%s%s = %s(%s);\n' % (ind, cp.group(1), name, ', '.join(free)), 1)
+            body = re.sub(r'^[ \t]+[\w ]+?\**\s*\b%s;[^\n]*\n' % r, '', body, count=1, flags=re.M)
+            call = None
+        if call:
+            body = body.replace(m.group(0), call, 1)
         # the index's own `I = 0;` and declaration go when nothing else uses it
         others = re.sub(r'^[ \t]+%s = 0U?;\n' % i, '', body, count=1, flags=re.M)
         if not re.search(r'\b%s\b' % i, re.sub(r'^[ \t]+[\w ]+?\**\s*\b%s;[^\n]*\n' % i, '', others, count=1, flags=re.M)):
@@ -4188,6 +4212,20 @@ def irregular_switch_ifs(body):
     return '\n'.join(lines)
 
 
+def record_array_address(body):
+    """step 109b, a variant: the address `B + ((I * S) + O)` of a byte pointer B (record_array_index does the loads
+    and stores) written `&((u8 (*)[S]) (B))[I][O]`: the compiler adds O to the scaled index before the base (`mulli;
+    addi 0x350; add`) as the original does (fn_80026BF4), where the byte sum adds the base first"""
+    decls = _local_decls(body)
+
+    def fix(m):
+        d = decls.get(m.group(1))
+        if d and d[1] == '*' and not d[2] and d[0] in ('u8', 's8', 'void', 'char'):
+            return '&((u8 (*)[%s]) (%s))[%s][%s]' % (m.group(3), m.group(1), m.group(2), m.group(4))
+        return m.group(0)
+    return re.sub(r'(?<![\w.>*])(\w+) \+ \(\((\w+) \* (0x[0-9A-Fa-f]+|\d+)\) \+ (0x[0-9A-Fa-f]+|\d+)\)', fix, body)
+
+
 def minus_one_compares(body):
     """step 109b (on by default): `addis r0, r3, 1; cmplwi r0, 0xffff` is the compiler's `x == -1` (0xFFFFFFFF); m2c
     prints it `(u32) (x + 0x10000) == -1U` (its immediate sign-extended), which is another value and compiles to an
@@ -4244,20 +4282,24 @@ def stack_element_steps(body):
             # a cast to the slot's own type goes too (the `lhzx` value is stored as loaded: fn_800FFA50)
             return '%s(&%s)[%s]' % ('' if cast == '(%s) ' % d[0] else cast, m.group(2), m.group(3))
         return m.group(0)
+    # also the masked index of a narrow loop counter, `*(&sp8 + ((var_r31 * 2) & 0x1FE))` (fn_800FB688)
+    body = re.sub(r'(\(\w+\) )?\*\(&(sp\w+) \+ \(\((\w+) \* (0x[0-9A-Fa-f]+|\d+)\) & 0x[0-9A-Fa-f]+\)\)', fix, body)
     return re.sub(r'(\(\w+\) )?\*\(&(sp\w+) \+ \((\w+) \* (0x[0-9A-Fa-f]+|\d+)\)\)', fix, body)
 
 
 RULES_109B = (stack_param_alias, drop_local_deref_casts, inline_search_helpers, goto_search_loops, goto_exit_loops, goto_while_loops,
-              word_table_rows, stack_element_steps, self_update_refs, minus_one_compares, irregular_switch_ifs)
+              word_table_rows, stack_element_steps, self_update_refs, minus_one_compares, irregular_switch_ifs,
+              record_array_address)
 OPTIONAL = OPTIONAL + (stack_param_alias, drop_local_deref_casts, inline_search_helpers, goto_search_loops, goto_exit_loops, goto_while_loops,
-                       word_table_rows, self_update_refs, irregular_switch_ifs)
+                       word_table_rows, self_update_refs, irregular_switch_ifs, record_array_address)
 VARIANTS = VARIANTS + (((), (stack_param_alias,)), ((), (drop_local_deref_casts,)), ((register_order,), (drop_local_deref_casts,)),
                        ((), (goto_while_loops,)), ((register_order,), (goto_while_loops,)),
                        ((), (goto_search_loops,)), ((), (goto_search_loops, goto_while_loops)),
                        ((), (inline_search_helpers,)), ((), (inline_search_helpers, record_array_index)),
                        ((), (word_table_rows,)), ((), (inline_search_helpers, word_table_rows)),
                        ((), (goto_exit_loops,)), ((), (goto_exit_loops, goto_while_loops)),
-                       ((), (self_update_refs,)), ((), (irregular_switch_ifs,)), ((), (self_update_refs, irregular_switch_ifs)))
+                       ((), (self_update_refs,)), ((), (irregular_switch_ifs,)), ((), (self_update_refs, irregular_switch_ifs)),
+                       ((), (record_array_address,)))
 _postprocess_108 = postprocess
 
 
