@@ -573,6 +573,43 @@ EXTERN_FN = re.compile(r'^((?:unsigned |signed )?\w+(?: \*+)?) (\w+)\([^;{}]*\);
 NARROW = ('u8', 's8', 'u16', 's16')
 
 
+# a call whose result m2c could not see (the callee's own draft is void) followed by m2c's read of an unset r3
+R3_READ = re.compile(r'^[ \t]*(\w+)\([^\n;]*\);\n[ \t]*[\w.\[\]>-]+ = M2C_ERROR\(/\* Read from unset register \$r3 \*/\);', re.M)
+
+
+# functions r3_returns leaves void: callers that ignore their value compile to other registers once it has a return
+# type (fn_8008B930: fn_8011DBB4, fn_80122044; fn_800972D8: cr_SEQ_TITLE_Enter, fn_80130848; fn_800932D0 itself),
+# all 100% while void
+R3_KEEP_VOID = ('fn_8008B930', 'fn_800972D8', 'fn_800932D0')
+
+
+def r3_returns(sigs, rets):
+    """step 108: a function whose callers read r3 after the call returns a value, though its own draft is void: m2c
+    saw no use of r3 at its end (fn_8008EE04 stores through the pointer fn_8008EA64 returned and leaves it in r3;
+    fn_8008EDD8 / fn_8008EDA8 end with that call). Its prototype returns the integer or pointer type its callers
+    declare for it in pass 1, so the callers' drafts take the value (`lbl_8044F710 = fn_8008EE04(0xE, lbl_802200E4);`,
+    fn_800BD5F0 23 -> 26 of 26). Changes sigs in place; returns how many."""
+    n = 0
+    for fn, ts in rets.items():
+        if fn not in sigs or fn in R3_KEEP_VOID:
+            continue
+        sig = sigs[fn][1]
+        if not sig.startswith('void ') or sig.startswith('void *'):
+            continue
+        # pass 1 drafts the callers without our prototypes: m2c then declares the callee itself with the type its
+        # caller's code needs (`s32 *fn_8008EE04(s32, void *); /* extern */`) instead of the unset-r3 error
+        own = {x for x in ts if x not in ('CR_R3', 'void', '?', 'M2C_UNK')
+               and (x.endswith('*') or x in ('s32', 'u32', 'int', 'unsigned int'))}
+        if 'CR_R3' in ts or own:
+            ptrs = {x for x in own if x.endswith('*')}
+            ret = (next(iter(own)) if len(own) == 1 else 'void *' if ptrs == own or not own else None)
+            if ret is None:
+                continue
+            sigs[fn] = (sigs[fn][0], ret + ('' if ret.endswith('*') else ' ') + sig[len('void '):])
+            n += 1
+    return n
+
+
 def narrow_returns(sigs, rets):
     """callee return widths (step 64): a first-pass draft types its callee's return from what its own body does with
     it (`u8 fn_80099538(M2C_UNK); /* extern */`: it tests the low byte, `clrlwi.`), while the callee's own draft can
@@ -2521,6 +2558,199 @@ def sink_const_global_stores(body):
     return '\n'.join(lines)
 
 
+def _split_top(s, op):
+    """split s at the top-level occurrences of the operator op (' + ', ' * ', ' << ', ' & ', ', ')"""
+    parts, depth, k, last = [], 0, 0, 0
+    while k < len(s):
+        c = s[k]
+        if c in '([':
+            depth += 1
+        elif c in ')]':
+            depth -= 1
+        elif depth == 0 and s.startswith(op, k):
+            parts.append(s[last:k])
+            k += len(op)
+            last = k
+            continue
+        k += 1
+    parts.append(s[last:])
+    return parts
+
+
+def _strip_parens(s):
+    """drop the parentheses that enclose all of s"""
+    s = s.strip()
+    while s.startswith('(') and s.endswith(')'):
+        depth = 0
+        for k, c in enumerate(s):
+            depth += c == '('
+            depth -= c == ')'
+            if depth == 0 and k < len(s) - 1:
+                return s
+        s = s[1:-1].strip()
+    return s
+
+
+_NUM = re.compile(r'0x[0-9A-Fa-f]+|\d+')
+
+
+def _record_index(addr):
+    """`B + ((I * S) + O)`, `B + ((I << N) + O)` or `B + (((I << N) & M) + O)` with 0 < O < S -> (B, I, S, O)"""
+    parts = _split_top(_strip_parens(addr), ' + ')
+    if len(parts) != 2:
+        return None
+    base, terms = parts[0].strip(), _split_top(_strip_parens(parts[1]), ' + ')
+    if len(terms) != 2 or not _NUM.fullmatch(terms[1].strip()):
+        return None
+    off, scaled = int(terms[1].strip(), 0), _strip_parens(terms[0])
+    masked = _split_top(scaled, ' & ')
+    if len(masked) == 2 and _NUM.fullmatch(masked[1].strip()):
+        scaled = _strip_parens(masked[0])
+    for op in (' * ', ' << '):
+        f = _split_top(scaled, op)
+        if len(f) == 2 and _NUM.fullmatch(f[1].strip()):
+            n = int(f[1].strip(), 0)
+            size = n if op == ' * ' else 1 << n
+            if size >= 1 and 0 < off and f[0].strip():   # step 108: also an array at an offset past the step (`p->arr[i]`, fn_800A5894 0x90 / 4) and a byte step (fn_8008E158)
+                return base, f[0].strip(), size, off
+    return None
+
+
+def record_array_index(body):
+    """step 108, a variant: an access at `B + ((I * S) + O)` (O inside the S-byte record) written as a record-array
+    element, `*(T *) &((u8 (*)[S]) (B))[I][O]`. The compiler then adds O to the scaled index and loads or stores
+    indexed (`addi r0, r4, 0x1b; stbx`), as the original does in fn_8008C3B4, fn_80064150 and fn_8000B144; from the
+    byte sum it folds O into the displacement (`add; stb 0x1b(r5)`). indexed_offset leaves record arrays alone because
+    others fold in the original (round 8), so this is a variant, tried per draft."""
+    field = re.compile(r'M2C_FIELD\(')
+    cast = re.compile(r'\(\*\((\w+ \*)\)\(\(s8 \*\)\(')
+    out, k = [], 0
+    while k < len(body):
+        cands = [x for x in (field.search(body, k), cast.search(body, k)) if x]
+        if not cands:
+            out.append(body[k:])
+            break
+        m = min(cands, key=lambda x: x.start())
+        out.append(body[k:m.start()])
+        depth, j = (1 if m.re is field else 3), m.end()
+        while j < len(body) and depth:
+            depth += body[j] == '('
+            depth -= body[j] == ')'
+            j += 1
+        inner, rep = body[m.end():j - 1], None
+        if m.re is field:
+            args = _split_top(inner, ', ')
+            if len(args) == 3 and args[2].strip() in ('0', '0x0'):
+                r = _record_index(args[0])
+                if r:
+                    rep = '*(%s) &((u8 (*)[0x%X]) (%s))[%s][0x%X]' % (args[1].strip(), r[2], r[0], r[1], r[3])
+        else:
+            # (*(T *)((s8 *)(( ADDR )) + (0)))
+            tail = re.fullmatch(r'(.*)\) \+ \(0\)\)', inner, re.S)
+            if tail:
+                r = _record_index(tail.group(1))
+                if r:
+                    rep = '(*(%s) &((u8 (*)[0x%X]) (%s))[%s][0x%X])' % (m.group(1), r[2], r[0], r[1], r[3])
+        if rep:
+            out.append(rep)
+            k = j
+        else:   # keep the opener and look inside it (a nested access may match)
+            out.append(body[m.start():m.end()])
+            k = m.end()
+    return ''.join(out)
+
+
+def _negate_test(test):
+    """the opposite of an m2c test, written as the original would: `(u8) X != 0` -> `X == 0`, `A != B` -> `A == B`,
+    `A == B` -> `A != B`, else `!(T)`"""
+    m = re.fullmatch(r'\((?:u8|s8|u16|s16)\) (.+) != 0', test)
+    if m:
+        return '%s == 0' % m.group(1)
+    for a, b in ((' != ', ' == '), (' == ', ' != ')):
+        parts = _split_top(test, a)
+        if len(parts) == 2:
+            return parts[0] + b + parts[1]
+    return '!(%s)' % test
+
+
+def for_break_loops(body):
+    """step 108, a variant: m2c's reading of a search loop,
+           loop_N:                              for (; C; I) {
+               if (C) {                             if (!T) {
+                   if (T) {             ->              break;
+                       S...                         }
+                       I;                           S...
+                       goto loop_N;             }
+                   }
+               }
+    The compiler gives `for` a jump to the test at the bottom (`b test; body: ...; test: cmpwi; blt body`), m2c's form
+    tests at the top (fn_80079544, fn_800796EC: 102 -> 106 of 106, 116 -> 120 of 120). Only the exact shape, with the
+    label used once; tried per draft."""
+    lines = body.split('\n')
+    k = 0
+    while k < len(lines):
+        m = re.fullmatch(r'(loop_\d+):', lines[k].strip())
+        if not m or len(re.findall(r'\bgoto %s;' % m.group(1), body)) != 1:
+            k += 1
+            continue
+        ind = re.match(r'\s*', lines[k + 1] if k + 1 < len(lines) else '').group(0)
+        c1 = re.fullmatch(re.escape(ind) + r'if \((.+)\) \{', lines[k + 1]) if k + 1 < len(lines) else None
+        c2 = re.fullmatch(re.escape(ind) + r'    if \((.+)\) \{', lines[k + 2]) if k + 2 < len(lines) else None
+        if not (c1 and c2):
+            k += 1
+            continue
+        j = k + 3
+        inner = []
+        while j < len(lines) and lines[j].startswith(ind + '        '):
+            inner.append(lines[j][8:])
+            j += 1
+        if (len(inner) < 2 or inner[-1].strip() != 'goto %s;' % m.group(1) or
+                j + 1 >= len(lines) or lines[j] != ind + '    }' or lines[j + 1] != ind + '}'):
+            k += 1
+            continue
+        inc = inner[-2].strip()
+        if not re.fullmatch(r'\w+ (?:\+=|-=) (?:0x[0-9A-Fa-f]+|\d+);|\w+(?:\+\+|--);', inc) or \
+                any(re.match(r'\s*(?:goto|return|break|continue)\b', x) for x in inner[:-2]):
+            k += 1
+            continue
+        new = [ind + 'for (; %s; %s) {' % (c1.group(1), inc[:-1]),
+               ind + '    if (%s) {' % _negate_test(c2.group(1)), ind + '        break;', ind + '    }']
+        new += [ind + x for x in inner[:-2]] + [ind + '}']
+        lines[k:j + 2] = new
+        k += len(new)
+    return '\n'.join(lines)
+
+
+def clz_intrinsic(body):
+    """step 108: m2c's `CLZ(x)` (its reading of `cntlzw`) is no function of the game: written as mwcc's intrinsic
+    `__cntlzw(x)`, which compiles to the one instruction (fn_80038BD8: 67 -> 72 of 72 with the byte test below)"""
+    return re.sub(r'\bCLZ\(', '__cntlzw(', body)
+
+
+def plain_byte_tests(body):
+    """step 108, a variant: m2c's `(u8) *(P) != 0` / `== 0` on a byte it loaded with `lbz` written without the cast:
+    the cast gives `clrlwi.`, the plain byte `cmplwi r0, 0` (fn_80038BD8, fn_80079544's search loop)"""
+    return re.sub(r'\(u8\) (\*\([^;{}]*?\)) ([!=]=) 0\b', r'\1 \2 0', body)
+
+
+def bitwise_lvalues(body):
+    """step 108, a variant: m2c's `M2C_BITWISE(T, G[i])` on a global's element or a global (its reading of a load of
+    another type at that address) as the reinterpretation it is, `(*(T *) &G[i])`: cr_game.h's M2C_BITWISE is a value
+    cast, which converts (`lfs` + `__cvt_fp2unsigned` where main.dol has one `lwz`: fn_8008CE9C 74 -> 77 of 77)"""
+    return re.sub(r'M2C_BITWISE\(([\w ]+\**), ((?:lbl_[0-9A-F]{8}|cr_g_\w+)(?:\[[^\[\]()]+\])?)\)', r'(*(\1 *) &\2)', body)
+
+
+def void_self(body):
+    """step 108, a variant: the drafted function itself as `void`, its `return X;` as `X;` (a call) or `return;`.
+    r3_returns gives a function the value its callers read; m2c then also returns r3 from the function's own draft,
+    which can add code where the original simply left the value in r3 (fn_8007D17C, fn_80068358: 100% before)."""
+    m = re.search(r'^(?!void )([A-Za-z_][\w ]*?\**) ?(\w+)\(([^;{]*)\) \{$', body, re.M)
+    if not m:
+        return body
+    body = body[:m.start()] + 'void %s(%s) {' % (m.group(2), m.group(3)) + body[m.end():]
+    return re.sub(r'\breturn ([^;]+);', lambda r: (r.group(1).strip() + ';') if '(' in r.group(1) else 'return;', body)
+
+
 def postprocess(body, skip=(), add=()):
     """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
     for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
@@ -2532,7 +2762,7 @@ def postprocess(body, skip=(), add=()):
               float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound,
               script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, struct_byte_offset, indexed_offset,
               fold_temp_compound, store_literals, hoist_float_temps, widen_narrow_params, masked_index_field, byte_compare_casts, shift_mask_order,
-              sink_const_global_stores):
+              sink_const_global_stores, record_array_index, for_break_loops, clz_intrinsic, plain_byte_tests, bitwise_lvalues, void_self):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -2542,7 +2772,8 @@ def postprocess(body, skip=(), add=()):
 # (rules left out, optional rules applied)
 OPTIONAL = (void_null, pointer_tests, drop_same_assign_casts, param_homes, float_literals, drop_same_field_casts, table_call_noargs, unsigned_fields, hsd_inlines, stack_struct, alias_offsets,
             redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign, drop_same_member_casts, expand_ptr_compound, store_literals,
-            hoist_float_temps, widen_narrow_params, masked_index_field, byte_compare_casts, shift_mask_order, sink_const_global_stores)
+            hoist_float_temps, widen_narrow_params, masked_index_field, byte_compare_casts, shift_mask_order, sink_const_global_stores,
+            record_array_index, for_break_loops, plain_byte_tests, bitwise_lvalues, void_self)
 VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
             ((), (void_null,)), ((register_order,), (void_null,)),
             # step 69
@@ -2567,7 +2798,17 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             # step 96: a byte member compared through (s32) (u8)
             ((), (byte_compare_casts,)), ((register_order,), (byte_compare_casts,)),
             # step 96: the mask before the shift; constant stores to globals later
-            ((), (shift_mask_order,)), ((), (sink_const_global_stores,)), ((), (shift_mask_order, sink_const_global_stores)))
+            ((), (shift_mask_order,)), ((), (sink_const_global_stores,)), ((), (shift_mask_order, sink_const_global_stores)),
+            # step 108: a record array's field as an indexed element
+            ((), (record_array_index,)), ((register_order,), (record_array_index,)),
+            # step 108: m2c's search loops as for / break
+            ((), (for_break_loops,)), ((), (for_break_loops, record_array_index)),
+            # step 108: byte tests without the (u8) cast
+            ((), (plain_byte_tests,)), ((), (plain_byte_tests, for_break_loops)),
+            # step 108: M2C_BITWISE on a global as a reinterpretation
+            ((), (bitwise_lvalues,)),
+            # step 108: the function itself void again (r3_returns)
+            ((), (void_self,)), ((register_order,), (void_self,)))
 
 
 VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this
@@ -3212,7 +3453,8 @@ def one(job):
         # the data objects m2c declares itself, and the functions it declares itself (`u8 fn_80099538(M2C_UNK); /*
         # extern */`: the return type this caller's code needs)
         return name, signature(name, body), (re.findall(r'^extern ([\w ]+ \**)(lbl_[0-9A-F]{8});', body, re.M),
-                                             re.findall(EXTERN_FN, body), re.findall(EXTERN_PARAMS, body)), 0
+                                             re.findall(EXTERN_FN, body) + [('CR_R3', f) for f in re.findall(R3_READ, body)],
+                                             re.findall(EXTERN_PARAMS, body)), 0
     m2c_body = body
     orig = orig_elf(orig_obj).func(name)
     W['leaf'] = not re.search(r'\bbl\s', open(a, encoding='utf-8').read())
@@ -3252,6 +3494,17 @@ def one(job):
         return p, eq, fixes
 
     body = postprocess(m2c_body)
+    # HAND DRAFTS (step 108): tools/hand_drafts/<name>.c, a draft written by hand from the original's asm where no
+    # rule of this file gives the source's form (a signed field, `x = x | 2`, an empty debug macro, ...): used instead
+    # of m2c's text, compiled and compared like any draft (so batch 12 reports it and promote_drafts.py links it)
+    hand = os.path.join(G, 'tools', 'hand_drafts', name + '.c')
+    if os.path.exists(hand):
+        body = open(hand, encoding='utf-8').read().replace('\r\n', '\n')
+        p, eq, fixes = build(body, c, o)
+        if p is None:
+            open(lg, 'w', encoding='utf-8').write(eq)
+            return name, 'compile failed', '[hand] ' + (compile_error(eq) if '\n' in eq or 'Error' in eq else eq), 0
+        return name, '%d%%' % p if p < 100 else '100% MATCH', '[hand]', eq * 4
     p, eq, fixes = build(body, c, o)
     if p is None:
         open(lg, 'w', encoding='utf-8').write(eq)
@@ -3445,15 +3698,16 @@ def main():
                         rets[fn].add(t.strip())
                     for fn, ps in fparams:
                         pars[fn].append(tuple(x.strip() for x in ps.split(',')))
-        narrowed = narrow_returns(sigs, rets)
+        nr3 = r3_returns(sigs, rets)
+        narrowed = narrow_returns(sigs, {f: ts - {'CR_R3'} for f, ts in rets.items()})
         nparams = narrow_params(sigs, pars)
         ptrs = {n: (next(iter(ts)) if len(ts) == 1 and ts != {'void *'} else MIXED if len(ts) > 1 else 'u8 *')
                 for n, ts in ptr.items()}
         open(protos, 'w', encoding='utf-8', newline='\n').write(
             protos_text(sigs, ctx_pp) + '\n// data objects m2c typed as pointers in that pass (size 4; tools/draft_batch.py data_decls)\n'
             + ''.join('#define CR_PTR_%s %s\n' % (n, ptrs[n]) for n in sorted(ptrs)))
-        print('pass 1: %d prototypes (%d return types narrowed by their callers, %d parameters signed / unsigned by them), %d pointer objects from the drafts (%d s)' % (
-            len(sigs), narrowed, nparams, len(ptrs), time.time() - t0))
+        print('pass 1: %d prototypes (%d return types narrowed by their callers, %d made value-returning by them, %d parameters signed / unsigned by them), %d pointer objects from the drafts (%d s)' % (
+            len(sigs), narrowed, nr3, nparams, len(ptrs), time.time() - t0))
     ptrs = dict(re.findall(r'^#define CR_PTR_(lbl_[0-9A-F]{8}) (.*)$', open(protos, encoding='utf-8').read(), re.M))
     context(base + '#include "ctx_sdk.h"\n' + data_decls(ptrs, load_signs(funcs), load_signs.extents) + '\n#include "ctx_protos.h"\n')
     res = {}

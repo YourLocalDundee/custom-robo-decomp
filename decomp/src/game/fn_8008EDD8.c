@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 M2C_UNK *fn_8008EA64(u32 arg0, u8 arg1);
 
-void fn_8008EDD8(s32 arg0) {
+s32 fn_8008EDD8(s32 arg0) {
 
-    fn_8008EA64((u32) arg0, 0U);
+    return (long) (fn_8008EA64((u32) arg0, 0U));
 }

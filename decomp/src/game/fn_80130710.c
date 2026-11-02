@@ -7,8 +7,9 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 lbl_8041E938[24];
 
-void fn_80130710(u8 arg0) {
+s32 fn_80130710(s32 arg0) {
     lbl_8041E938[1] = M2C_FIELD(lbl_8041E938, u8 *, 0);
     M2C_FIELD(lbl_8041E938, u8 *, 0) = arg0;
     lbl_8041E938[2] = 0;
+    return (s32) arg0;
 }

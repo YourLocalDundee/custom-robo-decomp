@@ -85,7 +85,7 @@ typedef struct cr_SeqState
 __declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 void fn_8011413C(void);
 void fn_800BA7E0(void);
-void fn_80098290(s32 arg0);
+s32 fn_80098290(s32 arg0);
 
 void fn_8012B8DC(void) {
     s32 var_r31_18;

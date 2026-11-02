@@ -15,4 +15,5 @@ void fn_8007D224(void) {
     M2C_FIELD(lbl_803864F8, s8 *, 0x24) = 4;
     M2C_FIELD(lbl_803864F8, s8 *, 0x2C) = 4;
     M2C_FIELD(lbl_803864F8, s8 *, 0x34) = 4;
+    (s32) lbl_803864F8;
 }

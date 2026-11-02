@@ -10,7 +10,7 @@ void fn_8007CD3C(void *arg0);
 void fn_8007CC90(void *arg0);
 extern u32 lbl_8044F620;
 
-void fn_8007CE1C(u32 arg0) {
+s32 fn_8007CE1C(u32 arg0) {
     if ((u32) (0x78 - arg0) == 5U) {
         M2C_FIELD(M2C_FIELD(lbl_803864E8, u32 *, 0), s32 *, 0) |= 1;
         M2C_FIELD(M2C_FIELD(lbl_803864E8, u32 *, 0), void (**)(void *), 0x50) = fn_8007CD3C;
@@ -50,4 +50,5 @@ void fn_8007CE1C(u32 arg0) {
     if (arg0 == 5) {
         lbl_8044F620 |= 0x2000;
     }
+    return (s32) arg0;
 }

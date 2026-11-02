@@ -45,7 +45,7 @@ typedef struct cr_StageSelectorState
   u32 unk_348;
   u8 unk_34c;
   u8 unk_34d[3];
-  u8 unk_350;
+  s8 unk_350;
   u8 unk_351[3];
 } cr_StageSelectorState;
 __declspec(section ".data") extern cr_StageSelectorState cr_g_StageSelector;

@@ -1,4 +1,4 @@
-names_crosscheck: 2437 names; FAIL 0, WEAK 475, UNCHECKABLE 37, OK 1925; symbols OK=1278/WEAK=445, cand_hsd OK=61/WEAK=9, cand_sdk OK=33/WEAK=5, cand_rt OK=16/WEAK=15, descriptive OK=448/UNCHECKABLE=28, cr_globals OK=87/UNCHECKABLE=9
+names_crosscheck: 2438 names; FAIL 0, WEAK 476, UNCHECKABLE 37, OK 1925; symbols OK=1278/WEAK=446, cand_hsd OK=61/WEAK=9, cand_sdk OK=33/WEAK=5, cand_rt OK=16/WEAK=15, descriptive OK=448/UNCHECKABLE=28, cr_globals OK=87/UNCHECKABLE=9
 // tools/crosscheck_names.py: VERDICT ADDR NAME SOURCE TAG | AGAINST (contradictions) | independent kinds | evidence | notes
 WEAK        80003424 __flush_cache                        symbols     dtk                          independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x34/melee/GALE01 0x34=1.00 (46 refs)
 WEAK        800034AC gTRKInterruptVectorTable             symbols     dtk                          independent: none | no reference map has this name
@@ -226,6 +226,7 @@ WEAK        8016C8F4 SIEnablePolling                      symbols     layout-pro
 WEAK        801700BC HSD_AudioSFXGetDefaultAuxParam       symbols     hand melee/GALE01            independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x11C/melee/GALE01 0x11C=1.00 (1 refs)
 WEAK        8017933C HSD_SynthPStreamStart                symbols     hand melee/GALE01            independent: none | evidence: size: size within 10% of kar_wowjinxy/GKYE01 | size 0x3B8/kar_wowjinxy/GKYE01 0x3B8=1.00 (4 refs) ; callees partly explained (0.50), no swapped callee
 WEAK        80179C14 psInitDataBankLocate                 symbols     hand melee/GALE01            independent: none | evidence: size: size within 10% of xd/GXXE01 | size 0x374/xd/GXXE01 0x374=1.00 (3 refs) ; caller psInitDataBankLoad not explained (no swapped callee)
+WEAK        8017A0E4 psInitParticle                       symbols     hand melee/GALE01            independent: none | evidence: size: size within 10% of xd/GXXE01 | size 0x164/xd/GXXE01 0x160=1.01 (2 refs)
 WEAK        8017A9C8 psKillGeneratorChild                 symbols     hand melee/GALE01            independent: none | evidence: size: size within 10% of kar_wowjinxy/GKYE01 | size 0x114/kar_wowjinxy/GKYE01 0x114=1.00 (5 refs) ; callees partly explained (1.00), no swapped callee
 WEAK        8017B360 applyForceJObj                       symbols     hand melee/GALE01            independent: none | evidence: size: size within 10% of xd/GXXE01 | size 0x144/xd/GXXE01 0x144=1.00 (3 refs) ; callees partly explained (1.00), no swapped callee
 WEAK        8017E3D4 HSD_JObjAddTz                        symbols     hand melee/GALE01            independent: none | evidence: size: size within 10% of xd/GXXE01 | size 0xB0/xd/GXXE01 0xB0=1.00 (2 refs)

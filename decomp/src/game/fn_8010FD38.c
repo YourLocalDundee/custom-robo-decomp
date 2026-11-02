@@ -47,7 +47,7 @@ typedef struct cr_StageSelectorState
   u32 unk_348;
   u8 unk_34c;
   u8 unk_34d[3];
-  u8 unk_350;
+  s8 unk_350;
   u8 unk_351[3];
 } cr_StageSelectorState;
 __declspec(section ".data") extern cr_StageSelectorState cr_g_StageSelector;
@@ -86,7 +86,7 @@ typedef struct cr_Pad
   u8 unk_a3;
 } cr_Pad;
 __declspec(section ".data") extern cr_Pad cr_g_Pads[4];
-void fn_80098290(s32 arg0);
+s32 fn_80098290(s32 arg0);
 extern u32 lbl_8023CE54[43];
 void fn_8008C8A8(void);
 extern u32 lbl_8037569C[2417];

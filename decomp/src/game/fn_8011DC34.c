@@ -45,7 +45,7 @@ typedef struct cr_Pad
 __declspec(section ".data") extern cr_Pad cr_g_Pads[4];
 void fn_8008C8A8(void);
 void fn_80097488(s32 arg0, u8 arg1, u16 arg2);
-void fn_80098290(s32 arg0);
+s32 fn_80098290(s32 arg0);
 
 void fn_8011DC34(void) {
     s32 var_r31_8;

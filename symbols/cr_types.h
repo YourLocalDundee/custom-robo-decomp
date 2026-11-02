@@ -2081,7 +2081,7 @@ typedef struct cr_StageSelectorState {
     /* +348 */ u32 unk_348;
     /* +34C */ u8 unk_34c;
     /* +34D */ u8 unk_34d[3];
-    /* +350 */ u8 unk_350;
+    /* +350 */ s8 unk_350;  /* signed: fn_80111E54 stores -1 (li -1), fn_8011023C tests it against -1 (extsb) */
     /* +351 */ u8 unk_351[3];
 } cr_StageSelectorState;
 

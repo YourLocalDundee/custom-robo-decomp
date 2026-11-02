@@ -35,7 +35,7 @@ so the drafts do not depend on how the game code is split.
    for 4-byte objects; the second pass, the one kept, then sees the callee's real parameters), preprocessed once by the
    game compiler's own `-E` (`decomp/drafts/ctx_pp.c`, defines as `ParseHeaders.java`: `M2CTX`, no `__MWERKS__`).
    `--only` / `--sample` reuse the `ctx_protos.h` of the last full run (a full run always rewrites it).
-3. **Post-process** (all of it in `draft_batch.py`, so a rerun reproduces it; no draft is edited by hand): a stack array m2c
+3. **Post-process** (all of it in `draft_batch.py`, so a rerun reproduces it; no draft is edited by hand: the drafts written by hand are committed files in tools/hand_drafts, step 108): a stack array m2c
    names but does not declare is declared from its `--stack-structs` template (length up to the next field); `sp8 = arg0;`
    with `sp8` used nowhere else is dropped (the compiler's own store of a parameter to its stack home at level 0; the draft
    must not write it) and so is `var = saved_reg_rN;` (a read of a register nothing wrote); `*(void *)ADDR = x` gets the
@@ -1151,3 +1151,47 @@ the output only depends on the pinned m2c, the asm / object of batch 9, the head
 full runs gave byte-identical `draft_report.txt` and `draft_summary.txt`. It changes legitimately whenever a name, a type or
 `cr_globals.txt` changes, so it is not in `tools/checksums.ps1` / `checksums.sh` (which would then fail after every naming step); the
 summary is committed instead so a diff shows progress.
+
+### Step 108: hand drafts and six generator rules (Nov 1-2, 2026, branch record-index)
+
+The owner's decision of Nov 1 (docs/roadblock_solutions.md "What to decide" item 2: `asm` functions do not count as
+from C) moved the work to hand-writing. Method: the 90-99% drafts and the small 80-89% ones, each diffed against the
+original with tools/sched/scratch/hd/pr.py (left column the original), fixed by hand, and where one fix is a pattern,
+written as a rule. All rules that the original's text cannot decide are VARIANTS (tried per draft, kept when better).
+
+- **Hand drafts** (`tools/hand_drafts/<name>.c`, committed; draft_batch.py's HAND DRAFTS hook uses one instead of m2c's
+  text, so batch 12 compares it and promote_drafts.py links it like any draft; each file's first line says what was
+  changed): fn_8005CDDC (`x = x | 2`: the global read twice), fn_8005CD90 (an s16 field), fn_80108230 (a u8 byte),
+  fn_8008BED4 (`break`, one shared blr), fn_80019828 (the countdown as s32), fn_800DF2A0 / fn_80089F40 /
+  fn_800A5894 (pointer tests against `((void *) 0)`), fn_8005D068 (`(x & 0xFF0000) >> 16`), fn_8003F1E8 /
+  fn_800412F8 (the parameter added first), cr_SEQ_MEMORY_CARD_Enter (an int counter), fn_800EB0E0 (both parameters),
+  fn_8008E8F4 (the matrix local), and two **empty debug macros**: `if (state == 3) { (void) 0; }`
+  (cr_SEQ_MODE_SELECTOR_FrameA) and `if (arg0 == ((void *) 0)) { (void) 0; }` (fn_8008C054): the compiler keeps the
+  compare and the peephole removes the branch to the next instruction, which m2c cannot see. 16 files.
+- **`record_array_index`** (variant): an access at `B + ((I * S) + O)` written `*(T *) &((u8 (*)[S]) (B))[I][O]`: the
+  compiler adds O to the scaled index and loads indexed (`addi; lwzx` / `stbx`) as the original, where the byte sum
+  folds O into the displacement. O may be past S (`p->arr[i]`). fn_8008C3B4, fn_80064150, fn_8000B144, fn_8003F000,
+  fn_8008C5F0, fn_800AF2A4, fn_8011F270 to 100%.
+- **`for_break_loops`** (variant): m2c's `loop_N: if (C) { if (T) { ...; i += 1; goto loop_N; } }` written
+  `for (; C; i += 1) { if (!T) break; ... }` (the compiler's `for` jumps to its test at the bottom): fn_80079544,
+  fn_800796EC.
+- **`r3_returns`** (pass 1, prototypes): a function whose own draft is void but whose callers declare an integer or
+  pointer return for it (pass 1 drafts the callers without our prototypes) returns that type in ctx_protos.h: the
+  callers then take the value (fn_800BD5F0: `lbl_8044F710 = fn_8008EE04(0xE, lbl_802200E4);`, fn_8006B3D0,
+  fn_8008EE04 itself). **`void_self`** (variant): the function's own draft as void again where that is better. Float
+  returns are not taken (m2c declares them from a caller's unrelated f1). `R3_KEEP_VOID` lists three functions left
+  void: with a return type their callers that ignore the value compile to other registers (fn_8008B930:
+  fn_8011DBB4, fn_80122044; fn_800972D8: cr_SEQ_TITLE_Enter, fn_80130848; fn_800932D0 itself), all 100% while void.
+- **`clz_intrinsic`** (rule): m2c's `CLZ(x)` as mwcc's `__cntlzw(x)` (42 drafts called a function that does not
+  exist); with **`plain_byte_tests`** (variant: `(u8) *(P) != 0` without the cast, `cmplwi` instead of `clrlwi.`)
+  fn_80038BD8.
+- **`bitwise_lvalues`** (variant): `M2C_BITWISE(T, G[i])` on a global as `(*(T *) &G[i])`: cr_game.h's macro is a value
+  cast, which converts (fn_8008CE9C: one `lwz` in the original, `lfs` + `__cvt_fp2unsigned` in the draft).
+- Types and names: `cr_StageSelectorState.unk_350` is s8 (fn_80111E54 stores -1, fn_8011023C tests it with extsb);
+  fn_8017A0E4 = psInitParticle (symbols.txt; its caller passes the argument Melee's prototype has).
+- Full batch 12: **496 -> 531 drafts at 100%**, compile failures 46 -> 44, 530,264 bytes equal; **721 units
+  from C**, 23.81% of the code (690 before).
+- Left (tried): the fn_80075258 family (arg0 / arg1 in each other's registers), fn_800F1860 (a saved r31 nothing
+  uses), fn_8008E7EC, fn_800DF320 (scheduling), cr_CharaEntry_OnLoaded and fn_800F5EF0 (compile now by hand, far from
+  equal).
+
