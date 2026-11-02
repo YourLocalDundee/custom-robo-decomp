@@ -372,6 +372,22 @@ cr_g_PartOrderLeg 0x24 vs 0x22); the string tables (cr_g_SeqNames, cr_g_MotionNa
   typed); the unreferenced tables after the cuts (lbl_801DEBE0, lbl_801F8098); the next objects of the scan
   (docs/name_evidence.md "Leads").
 
+#### Community address leads checked (Nov 2, 2026)
+
+Leads only until a name lands in cr_globals.txt with its own `why`; checked against main.dol and the code:
+
+- **Body stats 0x801C6C64, stride 0x134**: +0x20 (romaji name) of record 0 of cr_g_BodyStats (0x801C6C44); the stride
+  is the record size. The 11 stat triples at +0x064 .. +0x0A5: docs/robo_tables.md "The stat triples".
+- **Frame counter 0x8044F2A2**: the low halfword of lbl_8044F2A0 (.sbss, u32); `main` adds 1 to it once per pass of
+  its loop and no other function stores to it (5 readers). **Verified**; name candidate cr_g_FrameCount.
+- **Song id 0x803B7682**: lbl_803B7678 + 0xA (.bss, 0x70), used only by cr_Bgm_Play / cr_Bgm_FadeOut /
+  cr_Bgm_GetVolume and 6 more BGM functions: the BGM state block. Field +0xA not proven yet.
+- **P1 in the cube 0x803872B2**: lbl_80387160 + 0x152 (.bss, 0xC70, 15 users incl. cr_CAMMODE_BTL_WAIT_Frame). Field
+  not proven yet.
+- **Stage id 0x803756A2**: lbl_8037569C + 6 (.bss, 0x25C4); agrees with symbols/unverified.txt.
+- Side finding: fn_80111AF0 picks a random stage (up to 100 tries of fn_8001B3F0 over cr_g_StageSelector's 6-wide
+  grid, skipping disabled entries (+0x92) and stage 0x23); name candidate after a check of its caller.
+
 ### HSD edges from doldecomp/kar's per-file asm (step 97, Nov 1, 2026)
 
 tools/gen_dtk_splits.py now lets a range grow over a neighbour that its own reference does not name, when
