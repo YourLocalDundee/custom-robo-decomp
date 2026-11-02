@@ -72,3 +72,6 @@ tools/sched/corpus/
 tools/sched/bin/
 tools/sched/ghidra/
 tools/sched/ghidra_export/
+
+# raw community chat exports: read locally, never committed
+community_raw/
