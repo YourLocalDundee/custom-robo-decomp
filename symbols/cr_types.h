@@ -2153,6 +2153,13 @@ typedef struct cr_BodyData {
 
 /// A battle robo (cr_g_BattleRobos[4]; the current one is cr_g_CurrentBattleRobo). Only what cr_BattleRobo_InitFromLoadout
 /// writes is typed: the loadout's fields and the copies of the five part records.
+// ASSERT_SIZE(cr_RoboLegStats, 0x1E)  cr_BattleRobo_ApplyLegValues stores s16 at +0x00 .. +0x1C
+/// The body stats blended by the leg values (cr_BattleRobo.leg_stats; docs/robo_tables.md "The stat triples and the leg values").
+typedef struct cr_RoboLegStats {
+    /* +00 */ s16 blended[14];       // [i] from the body record's triple for leg byte +0x81 + i
+    /* +1C */ s16 unk_1c;            // the body record's +0x6C, copied
+} cr_RoboLegStats;
+
 typedef struct cr_BattleRobo {
     /* +00000 */ void (*update)(void);  // non-zero = the robo is in use (fn_8000768C, fn_8003633C, fn_80092A5C ... test it before they touch the robo); fn_80089550 / fn_80089BB0 store fn_80005B88
     /* +00004 */ u8 unk_00004[0x6C];
@@ -2176,7 +2183,9 @@ typedef struct cr_BattleRobo {
     /* +2E2E8 */ u8 pod_data[0x174];      // the pod's 0x174-byte record of 0x801D9590; fn_8003F048(robo +0x2E2E0, pod) follows
     /* +2E45C */ u8 unk_2e45c[0x4EAC];
     /* +33308 */ u8 leg_data[0x8F];       // the leg's 0x8F-byte record of 0x801C952C (byte copy)
-    /* +33397 */ u8 unk_33397[0x189];
+    /* +33397 */ u8 unk_33397[0x85];
+    /* +3341C */ cr_RoboLegStats leg_stats; // written by cr_BattleRobo_ApplyLegValues
+    /* +3343A */ u8 unk_3343a[0xE6];
 } cr_BattleRobo;
 
 // ASSERT_SIZE(cr_BattleParams, 0x44)  dtk's one object at 0x801C6C00 (0x44, between cr_g_BodyData and cr_g_BodyStats)
@@ -2199,14 +2208,29 @@ typedef struct cr_BodyStats {
     /* +000 */ char name_jp[0x20];   // the body's name in Shift-JIS
     /* +020 */ char name[0x20];      // the body's English name ("Ray 01", ...)
     /* +040 */ u16 unk_040;          // 1000 for Ray 01, 30000 for R Type 3 (docs/name_evidence.md lead 0x801C6C44)
-    /* +042 */ u8 unk_042[0xF2];
+    /* +042 */ u8 unk_042[0xE];
+    // the leg_tri_* fields: low / mid / high, blended by one leg byte each in cr_BattleRobo_ApplyLegValues (docs/robo_tables.md)
+    /* +050 */ u8 leg_tri_050[3];    // leg byte +0x8A -> leg_stats.blended[9]
+    /* +053 */ u8 leg_tri_053[3];    // leg byte +0x8B -> leg_stats.blended[10]
+    /* +056 */ u8 unk_056[2];
+    /* +058 */ u16 leg_tri_058[3];   // leg byte +0x8C -> leg_stats.blended[11]
+    /* +05E */ u8 unk_05e[3];
+    /* +061 */ u8 leg_tri_061[3];    // leg byte +0x8D -> leg_stats.blended[12]
+    /* +064 */ u16 leg_tri_064[3];   // leg byte +0x8E -> leg_stats.blended[13]
+    /* +06A */ u16 unk_06a;
+    /* +06C */ s16 unk_06c;          // copied to leg_stats.unk_1c
+    /* +06E */ u16 unk_06e;
+    /* +070 */ s16 leg_tri_070[8][3]; // leg bytes +0x81 .. +0x88 -> leg_stats.blended[0..7]
+    /* +0A0 */ u16 leg_tri_0a0[3];   // leg byte +0x89 -> leg_stats.blended[8]
+    /* +0A6 */ u8 unk_0a6[0x8E];
 } cr_BodyStats;
 
 /// A leg's record (cr_g_LegData[29]), copied to cr_BattleRobo.leg_data.
 typedef struct cr_LegData {
     /* +00 */ char name_jp[0x20];    // the leg's name in Shift-JIS
     /* +20 */ char name[0x20];       // the leg's English name ("Inceptor Leg", ...)
-    /* +40 */ u8 unk_40[0x4F];
+    /* +40 */ u8 unk_40[0x41];
+    /* +81 */ u8 leg_values[14];   // 0 / 100 / 200 = low / mid / high of the body's leg_tri_* triples (cr_BattleRobo_ApplyLegValues)
 } cr_LegData;
 
 /// A gun's record (cr_g_GunData[64]), copied to cr_BattleRobo.gun_data.
