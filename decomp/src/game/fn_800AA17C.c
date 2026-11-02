@@ -10,7 +10,22 @@ typedef struct cr_BodyStats
   char name_jp[0x20];
   char name[0x20];
   u16 unk_040;
-  u8 unk_042[0xF2];
+  u8 unk_042[0xE];
+  u8 leg_tri_050[3];
+  u8 leg_tri_053[3];
+  u8 air_type;
+  u8 air_jumps;
+  u16 leg_tri_058[3];
+  u8 air_dashes;
+  u8 unk_05f[2];
+  u8 leg_tri_061[3];
+  u16 leg_tri_064[3];
+  u16 unk_06a;
+  s16 unk_06c;
+  u16 unk_06e;
+  s16 leg_tri_070[8][3];
+  u16 leg_tri_0a0[3];
+  u8 unk_0a6[0x8E];
 } cr_BodyStats;
 __declspec(section ".data") extern cr_BodyStats cr_g_BodyStats[34];
 typedef struct cr_ScenarioSlot
@@ -48,7 +63,8 @@ typedef struct cr_LegData
 {
   char name_jp[0x20];
   char name[0x20];
-  u8 unk_40[0x4F];
+  u8 unk_40[0x41];
+  u8 leg_values[14];
 } cr_LegData;
 __declspec(section ".data") extern cr_LegData cr_g_LegData[29];
 typedef struct cr_GameMode
@@ -57,7 +73,7 @@ typedef struct cr_GameMode
   u32 unk_04;
   u32 unk_08;
   u32 unk_0c;
-  u32 unk_10;
+  u32 battle_mode;
   s16 unk_14;
   s16 unk_16;
   s16 unk_18;
@@ -79,7 +95,7 @@ u8 fn_800AA17C(s32 arg0) {
     var_r31 |= cr_g_BombData[cr_g_ScenarioSlotPtr->unk_bc[7]].unk_040[0x60];
     var_r31 |= M2C_FIELD((lbl_801D9590 + (cr_g_ScenarioSlotPtr->unk_bc[9] * 0x174)), u8 *, 0xE0);
     var_r31 |= cr_g_LegData[cr_g_ScenarioSlotPtr->unk_bc[0xB]].unk_40[0x40];
-    if ((s32) cr_g_GameMode.unk_10 == 2) {
+    if ((s32) cr_g_GameMode.battle_mode == 2) {
         var_r31 |= cr_g_BodyStats[cr_g_ScenarioSlotPtr->unk_bc[2]].unk_042[3];
         var_r31 |= cr_g_GunData[cr_g_ScenarioSlotPtr->unk_bc[6]].unk_040[0x60];
         var_r31 |= cr_g_BombData[cr_g_ScenarioSlotPtr->unk_bc[8]].unk_040[0x60];

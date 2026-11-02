@@ -9,10 +9,10 @@
 typedef struct cr_StageSelectorState
 {
   u8 state;
-  u8 unk_001;
-  u8 unk_002;
+  u8 col;
+  u8 row;
   u8 unk_003;
-  u8 unk_004;
+  u8 top_row;
   u8 stage_count;
   u8 stage;
   u8 cursor;
@@ -68,7 +68,7 @@ void fn_80111EEC(void) {
     u8 var_r27;
 
     var_r30 = 0;
-    var_r27 = cr_g_StageSelector.unk_004;
+    var_r27 = cr_g_StageSelector.top_row;
     while (var_r30 < 2U) {
         var_r29 = 0;
         while (var_r29 < 6U) {

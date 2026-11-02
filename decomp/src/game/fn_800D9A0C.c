@@ -104,7 +104,7 @@ typedef struct cr_GameMode
   u32 unk_04;
   u32 unk_08;
   u32 unk_0c;
-  u32 unk_10;
+  u32 battle_mode;
   s16 unk_14;
   s16 unk_16;
   s16 unk_18;
@@ -165,7 +165,7 @@ void fn_800D9A0C(void) {
         }
         var_r30 += cr_g_Script.battle_arg;
     }
-    if ((s32) cr_g_GameMode.unk_10 != 2) {
+    if ((s32) cr_g_GameMode.battle_mode != 2) {
         var_r29 = 1;
     } else {
         var_r29 = 2;

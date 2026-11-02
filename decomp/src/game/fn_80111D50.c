@@ -26,10 +26,10 @@ typedef enum cr_Seq
 typedef struct cr_StageSelectorState
 {
   u8 state;
-  u8 unk_001;
-  u8 unk_002;
+  u8 col;
+  u8 row;
   u8 unk_003;
-  u8 unk_004;
+  u8 top_row;
   u8 stage_count;
   u8 stage;
   u8 cursor;
@@ -135,7 +135,7 @@ typedef struct cr_GameMode
   u32 unk_04;
   u32 unk_08;
   u32 unk_0c;
-  u32 unk_10;
+  u32 battle_mode;
   s16 unk_14;
   s16 unk_16;
   s16 unk_18;

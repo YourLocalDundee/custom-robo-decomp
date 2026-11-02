@@ -8,10 +8,10 @@
 typedef struct cr_StageSelectorState
 {
   u8 state;
-  u8 unk_001;
-  u8 unk_002;
+  u8 col;
+  u8 row;
   u8 unk_003;
-  u8 unk_004;
+  u8 top_row;
   u8 stage_count;
   u8 stage;
   u8 cursor;
@@ -54,12 +54,12 @@ extern u8 lbl_8044ECC0[6];
 
 void fn_8011284C(void *arg0) {
     M2C_FIELD(arg0, s32 *, 0) |= 0x10;
-    if ((s8) cr_g_StageSelector.unk_004 == 0) {
+    if ((s8) cr_g_StageSelector.top_row == 0) {
         M2C_FIELD(M2C_FIELD(M2C_FIELD(M2C_FIELD(arg0, void **, 0x5C), void **, 0x1C), void **, 4), u8 *, 0x1B) = 0xFF;
     } else {
         M2C_FIELD(M2C_FIELD(M2C_FIELD(M2C_FIELD(arg0, void **, 0x5C), void **, 0x1C), void **, 4), s8 *, 0x1B) = 0;
     }
-    if ((s32) cr_g_StageSelector.unk_004 == 4) {
+    if ((s32) cr_g_StageSelector.top_row == 4) {
         M2C_FIELD(M2C_FIELD(M2C_FIELD(M2C_FIELD(arg0, void **, 0x5C), void **, 0x1C), void **, 4), u8 *, 0x3B) = 0xFF;
     } else {
         M2C_FIELD(M2C_FIELD(M2C_FIELD(M2C_FIELD(arg0, void **, 0x5C), void **, 0x1C), void **, 4), s8 *, 0x3B) = 0;

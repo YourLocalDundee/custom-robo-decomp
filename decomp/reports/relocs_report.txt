@@ -111,6 +111,7 @@ named pointer tables (symbols/cr_globals.txt), words in their extent:
   ok   0x801C952C cr_g_LegData (cr_LegData[29], struct data to 0x801CA55F): 0 relocated words, 419 NULL, 0 unrelocated in-range words
   ok   0x801CA560 cr_g_GunData (cr_GunData[64], struct data to 0x801D4860): 0 relocated words, 4858 NULL, 0 unrelocated in-range words
   ok   0x801D4860 cr_g_BombData (cr_BombData[52], struct data to 0x801D9590): 0 relocated words, 2257 NULL, 0 unrelocated in-range words
+  ok   0x801F8EB8 cr_g_BattleRoboActionFuncs (void*[23], 23 pointers): 23 relocated words, 0 NULL, 0 unrelocated in-range words
 
 glue spans (start .. end, section, the dtk objects at both ends):
   0x801B6620..0x801B6A29 .rodata lbl_801B6620 .. lbl_801B69CB
@@ -168,7 +169,7 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x80377E60..0x80378220 .bss lbl_80377E60 .. lbl_80377EE0
   0x80378330..0x80379DC0 .bss lbl_80378330 .. lbl_80379970
   0x80386448..0x80386530 .bss lbl_80386448 .. lbl_803864F8
-  0x80386550..0x80387160 .bss lbl_80386550 .. lbl_80387160
+  0x80386550..0x80387160 .bss lbl_80386550 .. cr_g_BattleRoboStates
   0x80387DD0..0x80396490 .bss lbl_80387DD0 .. lbl_80396490
   0x8039D8E0..0x803B76E8 .bss lbl_8039D8E0 .. lbl_803B76E8
   0x803B8C00..0x803E66B4 .bss lbl_803B8C00 .. lbl_803E66B4

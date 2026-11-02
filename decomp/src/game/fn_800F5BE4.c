@@ -40,7 +40,7 @@ typedef struct cr_GameMode
   u32 unk_04;
   u32 unk_08;
   u32 unk_0c;
-  u32 unk_10;
+  u32 battle_mode;
   s16 unk_14;
   s16 unk_16;
   s16 unk_18;
@@ -54,7 +54,7 @@ typedef struct cr_GameMode
 } cr_GameMode;
 __declspec(section ".data") extern cr_GameMode cr_g_GameMode;
 extern u32 lbl_801C50D0[58];
-extern f32 cr_g_BgmVolume[2];
+__declspec(section ".sdata") extern f32 cr_g_BgmVolume;
 
 extern u8 *lbl_8044F308;
 extern u8 *lbl_8044F30C;
@@ -83,7 +83,7 @@ void fn_800F5BE4(void) {
     var_r30 += 0x48;
     cr_Mem_CopyWords(var_r30, lbl_801C50D0, 0x80U);
     var_r30 += 0x80;
-    cr_Mem_CopyWords(var_r30, cr_g_BgmVolume, 4U);
+    cr_Mem_CopyWords(var_r30, &cr_g_BgmVolume, 4U);
     cr_Mem_CopyWords(var_r29, lbl_8044F310, 0x4000U);
     var_r29 += 0x1000;
     cr_Mem_CopyWords(var_r29, lbl_8044F30C, 0x4000U);

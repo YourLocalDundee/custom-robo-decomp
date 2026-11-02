@@ -8,10 +8,10 @@
 typedef struct cr_StageSelectorState
 {
   u8 state;
-  u8 unk_001;
-  u8 unk_002;
+  u8 col;
+  u8 row;
   u8 unk_003;
-  u8 unk_004;
+  u8 top_row;
   u8 stage_count;
   u8 stage;
   u8 cursor;

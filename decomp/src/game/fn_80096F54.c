@@ -5,19 +5,31 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u32 cr_g_BgmSlots[28];
+typedef struct cr_BgmSlot cr_BgmSlot;
+struct cr_BgmSlot
+{
+  u32 flags;
+  u32 unk_04;
+  u32 song;
+  u8 start_volume;
+  u8 volume;
+  u8 unk_0e[0x22];
+  s16 fade_time;
+  u8 unk_32[6];
+};
+__declspec(section ".data") extern cr_BgmSlot cr_g_BgmSlots[2];
 
 void fn_80096F54(void) {
-    u32 *var_r31_5;
+    cr_BgmSlot *var_r31_5;
     u16 var_r30_7;
 
     var_r31_5 = cr_g_BgmSlots;
     var_r30_7 = 0;
     while (var_r30_7 < 2U) {
-        if (*var_r31_5 & 0x80000000) {
-            *var_r31_5 |= 0x80;
+        if (var_r31_5->flags & 0x80000000) {
+            var_r31_5->flags |= 0x80;
         }
         var_r30_7 += 1;
-        var_r31_5 += 0xE;
+        var_r31_5 = (cr_BgmSlot *) ((u8 *) var_r31_5 + 0x38);
     }
 }

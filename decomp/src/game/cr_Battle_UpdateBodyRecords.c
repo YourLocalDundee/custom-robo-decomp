@@ -53,7 +53,7 @@ typedef struct cr_GameMode
   u32 unk_04;
   u32 unk_08;
   u32 unk_0c;
-  u32 unk_10;
+  u32 battle_mode;
   s16 unk_14;
   s16 unk_16;
   s16 unk_18;
@@ -99,6 +99,11 @@ typedef struct cr_BodyData
   cr_BattleMotionSet *motion_set;
   f32 unk_0c[27];
 } cr_BodyData;
+typedef struct cr_RoboLegStats
+{
+  s16 blended[14];
+  s16 unk_1c;
+} cr_RoboLegStats;
 typedef struct cr_BattleRobo
 {
   void (*update)(void);
@@ -109,9 +114,18 @@ typedef struct cr_BattleRobo
   u8 index;
   u8 unk_0008d;
   u16 unk_0008e;
-  u8 unk_00090[0x13C];
+  u8 unk_00090[0x50];
+  s16 timer_len;
+  s16 timer_left;
+  u8 unk_000e4[0x57];
+  u8 air_actions_left;
+  u8 unk_0013c[0xA];
+  s16 tag_cooldown;
+  u8 unk_00148[0x84];
   u16 parts[5];
-  u8 unk_001d6[0x161E];
+  u8 unk_001d6[0x352];
+  u8 action;
+  u8 unk_00529[0x12CB];
   cr_BodyData body_data;
   u8 unk_0186c[0x32C];
   u8 body_stats[0x134];
@@ -123,7 +137,9 @@ typedef struct cr_BattleRobo
   u8 pod_data[0x174];
   u8 unk_2e45c[0x4EAC];
   u8 leg_data[0x8F];
-  u8 unk_33397[0x189];
+  u8 unk_33397[0x85];
+  cr_RoboLegStats leg_stats;
+  u8 unk_3343a[0xE6];
 } cr_BattleRobo;
 __declspec(section ".data") extern cr_BattleRobo cr_g_BattleRobos[4];
 

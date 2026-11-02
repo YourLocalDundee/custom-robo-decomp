@@ -58,7 +58,7 @@ void cr_Cam_Update(void);
 void fn_800055E8(void);
 void fn_800055E0(void);
 void fn_80098484(void);
-extern u32 cr_g_FrameCount;
+__declspec(section ".sdata") extern u32 cr_g_FrameCount;
 
 void main(void) {
     s32 sp8;

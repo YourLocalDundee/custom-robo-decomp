@@ -12,7 +12,7 @@ typedef struct cr_GameMode
   u32 unk_04;
   u32 unk_08;
   u32 unk_0c;
-  u32 unk_10;
+  u32 battle_mode;
   s16 unk_14;
   s16 unk_16;
   s16 unk_18;
@@ -44,7 +44,7 @@ void fn_8000F7A4(void) {
     var_r31 = 0x80000000;
     var_r31 >>= 1;
     lbl_8044F504 = 2;
-    cr_g_GameMode.unk_10 = 0;
+    cr_g_GameMode.battle_mode = 0;
     var_r30 = lbl_8044F504;
     lbl_8044F500 = (u32) var_r31;
     cr_g_BattleLoadouts->unk_0 = 0;
