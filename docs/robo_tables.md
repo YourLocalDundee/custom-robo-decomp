@@ -9,7 +9,7 @@ fn_800A63C0's `chara.bin` entry `part x 5`), every `mulli` by a body-record size
 loop bound with 0x21 / 0x22 in the game code (dtk asm, `decomp/build/GXCE01/asm`), every data object whose size is a
 multiple of 34 (dtk symbols), every archive descriptor of `cr_g_FileDescs` with 34 or 170 entries, the body number's
 own fields (battle robo +0x1CC, loadout +2, save +0xBD) in the Ghidra export, and the community leads
-(docs/community_codes.md, docs/community/discord_codes.md). Names below are the ones applied in step 71
+(docs/community_codes.md, docs/community/codes_addresses.md). Names below are the ones applied in step 71
 (symbols/descriptive.txt, symbols/cr_globals.txt); `lbl_` / `fn_` names are kept where a C file of decomp/src uses
 the address by name (renaming it there would break another stream's objects) or where the meaning is not proven.
 
@@ -106,7 +106,7 @@ Already big enough: the save data (64 records, 64 bits per category), message lo
 
 ## Notes from CRBR-Parts-Expansion (step 72)
 
-docs/community/crbr_parts_expansion.md has the full map. Facts the repo (DesiacX/CRBR-Parts-Expansion e05d633) proves for this page:
+docs/community/crbr_parts_expansion.md has the full map. Facts the repo (CRBR-Parts-Expansion e05d633) proves for this page:
 
 - **It adds menu slots, not bodies.** Every body slot carries a "PartBase" 0..0x21 (README.md lines 66-68; all 34 + 1 custom body files, and Project Hive's 43). The base keeps everything in the table above except the stats tail (+0x40 ..), the menu name / description and the menu preview model; none of the 16 grows. A slot is a cheap "new robo" (new stats, text, model choice) on an existing body's motions, effects, pictures and records.
 - **The model number is separate from the body number** in the part select's model requests (menu state lbl_80407260 + n x 0x4994, +0x47F0 + k x 12; the mod's "Part Model Control V2" at fn_8010DF48 +0x17C / +0x378 writes a model ID there instead of the part ID). Whether battle takes the model from there is not shown.
@@ -118,7 +118,7 @@ docs/community/crbr_parts_expansion.md has the full map. Facts the repo (DesiacX
 - **The menus' own limits.** The part-select and Parts Index code (fn_800F8820, fn_80101E00, fn_80103594, fn_80104028,
   fn_80109314, fn_8010A5CC, fn_80105784) walk cr_g_PartOrderBody to its 0xFFFF; whether a screen also has a fixed
   number of rows / icons, or a page size, is not checked.
-  **Partly answered from CRBR-Parts-Expansion**: the menus page by 3 bodies / 4 other parts (their hooks compute slot = page x 3 or x 4 + cursor) and still end at the list's 0xFFFF; the mod allows 253 slots per type (counters are bytes) and Project Hive's sources (0seiken0/project-hive, `PartData/CRBR/PartList.asm`) ship 43 body slots, so the menus have no fixed 34-row limit. Not covered: the Parts Index (archive 36) and the scoreboard.
+  **Partly answered from CRBR-Parts-Expansion**: the menus page by 3 bodies / 4 other parts (their hooks compute slot = page x 3 or x 4 + cursor) and still end at the list's 0xFFFF; the mod allows 253 slots per type (counters are bytes) and Project Hive's sources (project-hive, `PartData/CRBR/PartList.asm`) ship 43 body slots, so the menus have no fixed 34-row limit. Not covered: the Parts Index (archive 36) and the scoreboard.
 - **Which body picture index the Parts Index uses** (archive 36): loaded through the sprite request lists, not traced.
 - **Body-specific code**: compares of the body number with constants other than 0x1E-0x20 (bosses, Oil Can,
   Chickenheart) were not searched exhaustively; story / arcade opponent tables (e.g. 0x8022B3B8 + n x 0x8C, community

@@ -1,6 +1,6 @@
 # Community codes, texture mods and Gecko tooling (research notes)
 
-> **Correction (Oct 29, 2026):** the code-size limit below (Dolphin cheat area, ~6 KB) is not the real limit. Project Hive loads a ~140 KB GXCE01.GCT through Riivolution and already adds new parts and robo classes by code. The Discord code channel is analysed in [community/discord_codes.md](community/discord_codes.md): 33 hooks mapped to our functions, the robo stats table at 0x801C6C44 (0x134 per robo), and the 4-robo array at 0x8024E120 + n x 0x33520.
+> **Correction (Oct 29, 2026):** the code-size limit below (Dolphin cheat area, ~6 KB) is not the real limit. Project Hive loads a ~140 KB GXCE01.GCT through Riivolution and already adds new parts and robo classes by code. The community code channel is analysed in [community/codes_addresses.md](community/codes_addresses.md): 33 hooks mapped to our functions, the robo stats table at 0x801C6C44 (0x134 per robo), and the 4-robo array at 0x8024E120 + n x 0x33520.
 
 Research date: Oct 28, 2026. Target: Custom Robo, US GXCE01 v1.0 (JP GXCJ01 noted where relevant).
 Machine-readable list: `docs/community/codes_gxce01.tsv` (one row per code: raw lines, decrypted lines, Gecko form, addresses, decomp hit).
@@ -10,7 +10,7 @@ Status words: **verified** = checked against our decomp / the clean `main.dol` i
 
 ## Summary
 
-- The Discord claim ("we can add things with Action Replay and Gecko codes for mods with textures and things, just not models") is **half right**.
+- The community claim ("we can add things with Action Replay and Gecko codes for mods with textures and things, just not models") is **half right**.
   Codes can change RAM values and patch code, and Dolphin can replace textures by hash without touching the disc. But **models are already
   moddable in this project by file replacement** (`tools/make_mod.py`, and earlier Zoeyism's Model Swapper). Models can't practically be done
   **through codes**, because a robo entry (186-233 KB) is about 30-40 times bigger than all the space a code list gets (about 6 KB, see "Models").
@@ -21,7 +21,7 @@ Status words: **verified** = checked against our decomp / the clean `main.dol` i
 - **13 distinct target addresses, and all 13 map to code or globals in our decomp** (`decompiled/index.db`). Every data target is still an unnamed
   `DAT_`/`FLOAT_`. The codes give good **naming evidence leads**: per-player robo HP (a 4-entry array, 0x33520-byte stride), the parts-owned
   bitsets, an unlock-flags word, the camera aspect float and the 2D ortho setup.
-- **Texture mods**: one public Dolphin HD texture pack exists (slightlyflightyone, Dec 2024, WIP). There are no public recolour packs or texture
+- **Texture mods**: one public Dolphin HD texture pack exists (Dec 2024, WIP). There are no public recolour packs or texture
   tools specific to this game. Our own route (edit the TObj inside the model `.dat`, then `make_mod.py`) already works for recolours.
 - **Model mods that exist**: Zoeyism's Custom Robo (GC) Model Swapper (Feb 2023, CC0). It overwrites bytes in `rpg_t_models.BIN` / `rpg_f_models.BIN`,
   and the replacement must be smaller than the original. Its "Female Main Character" hack (Dec 2022) is the only public model hack found.
@@ -139,7 +139,7 @@ policy, they are leads, and the code plus the decomp lines above are the evidenc
    - Works only in Dolphin, not on real hardware or Nintendont. Textures can't change model geometry.
    - The Dolphin wiki says this game needs D3D11 or OpenGL, or "textures fail to appear" ([wiki][dw]).
 2. **Existing pack.**
-   - "Custom Robo HD texture pack" by slightlyflightyone, Dolphin forums, Dec 18, 2024, update Dec 25, 2024 ([thread][hdt]). It is AI-upscaled,
+   - "Custom Robo HD texture pack" on the Dolphin forums, Dec 18, 2024, update Dec 25, 2024 ([thread][hdt]). It is AI-upscaled,
      targets 1080p and is shipped as DDS.
    - Covers: the "A New Journey" story mode, parts, Holosseums, NPCs, font, menus, intro and title.
    - Not done: Grand Battle, Arcade and Vs.
@@ -165,7 +165,7 @@ Community recolours or texture tools specific to Custom Robo: **none found**, be
   fixed, so plain write codes can't target them. A code would have to hook the loader and copy data in from somewhere, which brings us back
   to needing the data on disc.
 - **Format.** Even small edits mean moving relocated HSD pointers (reloc table, joint path list). That is a file-level job.
-- So the Discord view is right about **codes**. File replacement has no such limit, and this repo already does it (`make_mod.py`, `robo_swap.py`).
+- So the community view is right about **codes**. File replacement has no such limit, and this repo already does it (`make_mod.py`, `robo_swap.py`).
 
 **What exists:**
 - **Custom Robo (GC) Model Swapper** by Zoeyism (v1.0.0, Feb 2023, CC0; [GitHub][swp], [romhacking.net][rhu]; the RHDN page returned 403,
@@ -192,7 +192,7 @@ Community recolours or texture tools specific to Custom Robo: **none found**, be
 - **Nintendont / USB Loader GX:** a binary `.gct` file (header `00D0C0DE 00D0C0DE`, the code lines, then `F0000000 00000000`), placed under
   `codes/GXCE01.gct` (**unverified** detail, general knowledge; no Nintendont doc fetched). The forum says button-activated codes may not work
   on Nintendont ([GBAtemp][gbt2], **unverified**).
-- **Riivolution:** Wii-only (disc patching through the Wii's IOS). It does not apply to GameCube games (**unverified**, general knowledge). **Contradicted (Oct 29, 2026):** Dolphin loads Riivolution patches for this GameCube game too; Project Hive ships its code that way ([community/discord_codes.md](community/discord_codes.md)).
+- **Riivolution:** Wii-only (disc patching through the Wii's IOS). It does not apply to GameCube games (**unverified**, general knowledge). **Contradicted (Oct 29, 2026):** Dolphin loads Riivolution patches for this GameCube game too; Project Hive ships its code that way ([community/codes_addresses.md](community/codes_addresses.md)).
 - **Limits:** about 6 KB in Dolphin ([GeckoCode.h][gch]). Wiimm's `--gct-move` puts a large list into a section overlaying BSS
   ([wiimm][wim], MKWii-specific).
 
@@ -251,8 +251,8 @@ Community recolours or texture tools specific to Custom Robo: **none found**, be
   [RHDN game page 4986][rhg] (403, not fetched).
 - Reference: [TCRF Custom Robo (GameCube)][tcrf] (debug/unused content; could not be read in this session).
 - Community:
-  - r/customrobo: a 2018 post lists the "Main Custom Robo Netplay Discord", a Battle Revolution speedrun Discord and a Google Drive folder
-    ([mirror][rcr], known only from a search snippet: the mirror page returned 404; invites probably expired, **unverified**). No public mirror of the modding Discord's posts was found.
+  - r/customrobo: a 2018 post lists the "Main Custom Robo Netplay community", a Battle Revolution speedrun community and a Google Drive folder
+    ([mirror][rcr], known only from a search snippet: the mirror page returned 404; invites probably expired, **unverified**). No public mirror of the modding community's posts was found.
   - [speedrun.com/custom_robo][src]: 145 runs; the platform split was unclear, and its resources page returned 403. No RAM map was found.
   - [Robopedia (customrobo.fandom.com)][fan]: robo/part articles, 798 articles. The fetch returned 402, so its part-ID coverage is unknown.
   - [GameTDB GXCE01][gtdb].
@@ -262,7 +262,7 @@ Community recolours or texture tools specific to Custom Robo: **none found**, be
   - Dolphin [ARDecrypt.cpp][ardec] / [ActionReplay.cpp][arcpp] / [GeckoCode.h][gch]
   - [supSMSASM][sup], [geckolibs][gl]
 
-## Open questions to ask the Discord
+## Open questions to ask the community
 
 1. Which codes does the community actually use? Are there private Gecko lists (e.g. stat edits, part unlocks, stage select, camera, debug menu)?
    Could they share them, even as raw lines, so we can cross-reference them like the 16 above?
@@ -272,7 +272,7 @@ Community recolours or texture tools specific to Custom Robo: **none found**, be
 4. Does anyone have the JP (GXCJ01) debug-mode AR code from TCRF in plain form, or know what the debug menu contains?
 5. Do they know the player-record layout around `8024DB20` (stride 0x33520: HP at +0x674 from bss start), or other RAM addresses (stats,
    part IDs, story flags)?
-6. Is the HD pack author (slightlyflightyone) on the Discord? Which texture hashes map to which robo? That would let us connect Dolphin
+6. Is the HD pack author in the community? Which texture hashes map to which robo? That would let us connect Dolphin
    hashes to TObjs in our `.dat` exports.
 7. Is Zoeyism around? Are robo swaps in `chara.BIN` already known to them, and did they find anything about blocks A/B/D?
 8. Would they test Nintendont/real-hardware builds of `make_mod.py` ISOs, and a `.gct` export?

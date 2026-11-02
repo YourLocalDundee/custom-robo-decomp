@@ -28,7 +28,7 @@ collision).** Proof:
 The stage select builds its list from the order table **0x8023CF00** (`lbl_8023CF00`, 40 bytes: stage ids in menu
 order, ended by 0x28): `fn_80113934` copies every id whose stage record (below) has +0x80 != 0, except 0x0A and 0x0B,
 to `lbl_8041A244 + 0x14` (cursor -> id; 6 per row). The community's stage-list codes write this same table
-(docs/community/discord_codes.md, docs/community/codes_gxce01.tsv "Stagelist Toggle", 0x8023CF00). Two ids are
+(docs/community/codes_addresses.md, docs/community/codes_gxce01.tsv "Stagelist Toggle", 0x8023CF00). Two ids are
 alternates the menu does not list: while a pad bit 0x4000 of `lbl_8031FED8 + 0x1C` is held, the selected Basic Arena
 (0) becomes 0x0A (Practice Stage) and No-Man's Land 0x1B becomes 0x0B (`fn_80111040`, `fn_8010FE6C`, `fn_8011023C`);
 which button that is was not identified.
@@ -141,7 +141,7 @@ Read by `fn_80072A58(lbl_8037569C, buffer)`, which turns the offsets into pointe
   copies 0x30 records into RAM (`lbl_80344550`, 0x78C0 bytes) before using them; the others are used in place.
 - Battle start (`cr_SEQ_BATTLE_FrameA`) reads group 0's sphere: x and z and (r x a constant)^2 into `lbl_8024E100`
   (the arena's centre and radius, likely the bounds check).
-- **Confirmation from the community**: Project Hive's "Remove Castle Keep Wall Middle Section" (seiken;
+- **Confirmation from the community**: Project Hive's "Remove Castle Keep Wall Middle Section" (
   docs/community/codes_gxce01.tsv) writes 0x8034DD68 and 0x8034DD73 = `lbl_8034C100 + 0x1C68` / `+ 0x1C73`: in Castle
   Keep's collision (entry 027) that is group 9's header (the middle wall at x 0, z 4.2): its sphere z and the low byte
   of its quad count. Its other hook, 0x8007202C (`fn_80071974 +0x6B8`), reads the model count (`lbl_8037569C + 8`).

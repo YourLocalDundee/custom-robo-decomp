@@ -89,7 +89,7 @@ Library structs and prototypes come from Melee's headers (`ParseHeaders.java`), 
 **story-mode field character**, not the battle robo: its motions are walk / run / talk_* / battle_in (the game's own
 names), scripts and area boxes drive it (plan.md steps 39-41; the struct was first read as the robo in play). Known
 fields and their evidence: `symbols/cr_types.h`; plan.md steps 30-38. The four robos in battle are a separate array at
-0x8024E120 + n × 0x33520 (community lead, [community/discord_codes.md](community/discord_codes.md); not in our types yet).
+0x8024E120 + n × 0x33520 (community lead, [community/codes_addresses.md](community/codes_addresses.md); not in our types yet).
 
 ### Real-name evidence
 

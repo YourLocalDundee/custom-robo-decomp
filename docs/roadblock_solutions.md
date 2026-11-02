@@ -454,7 +454,7 @@ and text_804452A0.s is an automatic split. So kar's asm counts as evidence only 
 | HSD edges left (axdriver end, devcom start, particle end, random start) | 1 small function each | devcom / axdriver: fn_80170EAC calls synth's counter, KAR has no such function, so read its caller (0x80098EDC). random: archive.c's tail by its .data / .bss order (docs/decomp.md step 98) | name or prove by data order |
 | shadow.c (5 of 16 not equal) | 4 near misses + fn_801A4998 | Melee shadow.c is compiled in branch hsd-shadow; take wowjinxy's version per function where it scores higher (StartRender 0.915) | objdiff per function |
 | The 232 unproven code ranges (dtk automatic objects) | boundaries | Float-pool restart + padding (two rules agree), G3 runs, the per-file pool rule | section 5's done criterion |
-| Typed data left (step 90 list) | layouts | Base-register scan (in use); community layouts: robo part records at 0x801C6C64 with stride 0x134 (seiken's Dolphin Memory Engine map), movement stats as reduced / unmodified / boosted triples that leg values 1 / 100 / 200 pick and interpolate, panzer_maya's v2.py parts reader, DesiacX's CRBR-Parts-Expansion | gen_data_c.py units |
+| Typed data left (step 90 list) | layouts | Base-register scan (in use); community layouts: robo part records at 0x801C6C64 with stride 0x134 (a community Dolphin Memory Engine map), movement stats as reduced / unmodified / boosted triples that leg values 1 / 100 / 200 pick and interpolate, a community v2.py parts reader, CRBR-Parts-Expansion | gen_data_c.py units |
 | Unnamed game functions | names | Typed globals (reader rule); community code addresses as anchors: 0x80079DFC / 0x80079ED0 draw the damage / combo counters, 0x800466A4 sets the tag invulnerability frames, frame counter 0x8044F2A2, P1-in-egg 0x803872B2, song id 0x803B7682, stage id 0x803756A2 (agrees with symbols/unverified.txt); the scene trace | batch 8 |
 
 **Choice.** First the particle family's exact names: they are measured, cheap and unblock edges. Then the float-pool
@@ -516,6 +516,6 @@ Web (fetched Oct 31, 2026):
   https://raw.githubusercontent.com/encounter/decomp-toolkit/main/docs/other_approaches.md, https://github.com/SeekyCt/ppcdis,
   https://ghidra.re/ghidra_docs/GhidraClass/BSim/BSimTutorial_Intro.html,
   https://www.pentestpartners.com/security-blog/fuzzy-matching-with-ghidra-bsim-a-guide/; community notes the owner passed on
-  (Discord, Nov 1, 2026: seiken's Dolphin Memory Engine map, DesiacX's codes, https://github.com/DesiacX/CRBR-Parts-Expansion,
-  https://gitlab.com/panzer_maya/robo/-/blob/master/v2.py).
+  (community sources: a community Dolphin Memory Engine map, community codes, the CRBR-Parts-Expansion repository on GitHub,
+  a community parts reader, v2.py, on GitLab).
 - Not reachable: decomp.me's site and API (HTTP 403), decomp.dev/doldecomp/kar (404).

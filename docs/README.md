@@ -70,8 +70,8 @@ Every command runs from the repo root. `tools/check_docs.py` checks this convent
 | [community_codes.md](community_codes.md) | Public AR / Gecko codes (decrypted, mapped to our addresses), texture mods, Gecko tooling (research notes, Oct 28, 2026) |
 | [images/ray_legionnaire_v1_battle1.jpg](images/ray_legionnaire_v1_battle1.jpg), [images/ray_legionnaire_v1_battle2.jpg](images/ray_legionnaire_v1_battle2.jpg) | Screenshots: the same model in a battle, the added parts follow their bones, Oct 30, 2026 |
 | [images/basic_arena_pillar_reexport.png](images/basic_arena_pillar_reexport.png) | Step 75: Basic Arena with the added pillar, the built stage exported again and rendered in Blender (sky domes left out; [MODDING.md](MODDING.md#stages)) |
-| [community/discord_codes.md](community/discord_codes.md) | Codes and addresses from the community Discord, mapped to our functions (Oct 29, 2026) |
-| [community/crbr_parts_expansion.md](community/crbr_parts_expansion.md) | DesiacX's CRBR-Parts-Expansion and Project Hive's sources mapped to our names: how they add part slots, record layouts, free space, textures, similar repos (step 72) |
+| [community/codes_addresses.md](community/codes_addresses.md) | Codes and addresses from the community, mapped to our functions (Oct 29, 2026) |
+| [community/crbr_parts_expansion.md](community/crbr_parts_expansion.md) | CRBR-Parts-Expansion and Project Hive's sources mapped to our names: how they add part slots, record layouts, free space, textures, similar repos (step 72) |
 | [community/codes_gxce01.tsv](community/codes_gxce01.tsv) | The codes of community_codes.md as a table, one row per code. Research data of Oct 28, 2026: no tool in the repo writes it; keep it in step with community_codes.md |
 
 ## Written by tools (never edit by hand)
