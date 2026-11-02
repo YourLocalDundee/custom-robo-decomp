@@ -2252,9 +2252,11 @@ typedef struct cr_BodyStats {
     // the leg_tri_* fields: low / mid / high, blended by one leg byte each in cr_BattleRobo_ApplyLegValues (docs/robo_tables.md)
     /* +050 */ u8 leg_tri_050[3];    // leg byte +0x8A -> leg_stats.blended[9]
     /* +053 */ u8 leg_tri_053[3];    // leg byte +0x8B -> leg_stats.blended[10]
-    /* +056 */ u8 unk_056[2];
+    /* +056 */ u8 air_type;          // fn_80049924 switches on it (robo +0x1BEE): 1 refills air_actions_left from air_jumps, 0 / 2 from air_dashes (community: 0 normal, 1 jump, 2 sky)
+    /* +057 */ u8 air_jumps;         // the refill for air_type 1 (community: continuous jumps)
     /* +058 */ u16 leg_tri_058[3];   // leg byte +0x8C -> leg_stats.blended[11]
-    /* +05E */ u8 unk_05e[3];
+    /* +05E */ u8 air_dashes;        // the refill for air_type 0 / 2 (community: air dashes)
+    /* +05F */ u8 unk_05f[2];
     /* +061 */ u8 leg_tri_061[3];    // leg byte +0x8D -> leg_stats.blended[12]
     /* +064 */ u16 leg_tri_064[3];   // leg byte +0x8E -> leg_stats.blended[13]
     /* +06A */ u16 unk_06a;
