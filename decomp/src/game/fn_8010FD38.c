@@ -86,7 +86,7 @@ typedef struct cr_Pad
   u8 unk_a3;
 } cr_Pad;
 __declspec(section ".data") extern cr_Pad cr_g_Pads[4];
-s32 fn_80098290(s32 arg0);
+void fn_80098290(s32 arg0);
 extern u32 lbl_8023CE54[43];
 void fn_8008C8A8(void);
 extern u32 lbl_8037569C[2417];

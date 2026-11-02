@@ -1850,7 +1850,8 @@ def read_g3():
 
 
 GAME_SRC = G / "decomp/src/game"
-CDEF = re.compile(r"^[A-Za-z_][^;(]*?\b(\w+)\s*\([^;]*\)\s*\{\s*$")
+# (step 109a: a hand draft's `static inline` helper, tools/hand_drafts, is not a function of the object)
+CDEF = re.compile(r"^(?!static\s+inline\b|inline\b)[A-Za-z_][^;(]*?\b(\w+)\s*\([^;]*\)\s*\{\s*$")
 
 
 def game_c_objects(funcs, game_end):

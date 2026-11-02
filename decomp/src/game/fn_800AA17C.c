@@ -71,7 +71,7 @@ typedef struct cr_GameMode
 } cr_GameMode;
 __declspec(section ".data") extern cr_GameMode cr_g_GameMode;
 
-u8 fn_800AA17C(void) {
+u8 fn_800AA17C(s32 arg0) {
     u8 var_r31;
 
     var_r31 = cr_g_BodyStats[cr_g_ScenarioSlotPtr->unk_bc[1]].unk_042[3];

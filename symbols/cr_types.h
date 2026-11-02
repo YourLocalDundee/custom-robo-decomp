@@ -2358,7 +2358,7 @@ void cr_FileSys_RegisterPath(cr_FileDesc* desc);
 void cr_Archive_SetEntryTable(s32 archive, s32 dvd_entry, u32* table);
 u32 cr_Archive_GetEntrySize(s32 archive, u16 entry);
 cr_FileSlot* cr_Archive_OpenEntry(s32 archive, u16 entry);
-void cr_FileSlot_QueueRead(cr_FileSlot* slot, void* buffer);
+s32 cr_FileSlot_QueueRead(cr_FileSlot* slot, void* buffer);   // returns 0 (li r3, 0 before its blr): callers that ignore it keep r3 busy after the call (fn_80114214, fn_80019E84)
 void* cr_Heap_AllocAligned(u32 size);
 void cr_Chara_BuildModel(s32 number);
 void cr_Chara_SetCurrentPointers(void);
