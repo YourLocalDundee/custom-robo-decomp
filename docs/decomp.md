@@ -390,6 +390,25 @@ A neighbour that kar's asm places in exactly one other file also counts as that 
 (no C linked): sysdolphin is 33 split objects, 24 from C. Still open (splits_report.txt): archive.c's end, synth.c's
 end, axdriver.c's end, devcom.c's start, particle.c's start (their neighbours are unnamed fn_ functions).
 
+### Survey: synth.c, psSetupTev, the shadow.c word (step 105, Nov 1, 2026)
+
+Measured, no build change:
+
+- **synth.c (0x80172DD8-0x80179C14, 53 functions) is far from Melee's.** Melee 598987cf's synth.c, axdriver.c and
+  devcom.c and wowjinxy's devcom.c compiled with our HSD flags against every function of the range (by size, not name):
+  5 equal (HSD_SynthSFXLoadNewProc; three 0x8 setters fn_8017776C / 74 / 7C, all equal to Melee's
+  HSD_SynthSFXSetDriverInactivatedCallback, so no single name; fn_801735EC = Melee's HSD_SynthSFXGetPendingLoadCount
+  body), one at 0.87 (fn_80175E10 / HSD_SynthSFXUpdateVolume), the rest under 0.61. wowjinxy has no synth.c. A port is a
+  hand decompilation of about 45 functions, not a reference adaptation.
+- **psSetupTev (psdisptev.c's last function) 0.587, size 0x6C8 vs 0x6D8.** Melee's C differs in one thing: main.dol
+  reloads `pp->kind` (`lwz r0, 4(r3)`) in the four `pp->kind &= ~0x80` cases, where the C keeps the first load in a
+  register (`and r7, r6, r5` instead of main.dol's `and r6, r6, r5`). A non-static `prevTev`, `switch (temp)`, no
+  temporary, the assignment inside the if and the inverted if all compile to the same code. With it, psdisptev.c (3
+  functions, two equal) would link from C.
+- **HSD_ShadowSetViewingRect's word.** Double temporaries for the height maximum (the shape that fixed the width) move
+  SetAspect's `mr r3, r31` into that block; nested blocks, a double `height`, the maximum inside the call, the
+  epsilon's operand order and shared temporaries for both maxima do not help (0.88-0.98).
+
 ### shadow.c data equal, SetViewingRect 0.982 (step 104, Nov 1, 2026)
 
 - **Data.** With the assert strings as literals ("shadow", "lobj", "0", "rect" go to .sdata by themselves) and
