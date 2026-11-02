@@ -37,6 +37,7 @@ Durations are from the development desktop (8 cores, Oct 31, 2026); "quick" is u
 
 | Tool | Purpose | Usage |
 |---|---|---|
+| `name_check.py` | run_all's name check: snapshot the name files, report what batches 1 / 6 / 7 would change (symbols\name_proposals.txt) and restore; `guard` for `-ApplyNames` | `tools/name_check.py snapshot / report / guard ...` |
 | `layout_match.py` | Batch 1: library names by layout proof against the pinned reference decomps (Melee, TP, TWW, MKDD, Pikmin 2, TTYD, ...) -> `symbols/layout_candidates.txt` | run by batch 1 |
 | `verify_symbols.py` | Batch 1: checks every name in `symbols/symbols.txt` against the reference decomps' symbols (existence + size; the closest reference wins) -> `symbols/verify_report.txt` | `tools/verify_symbols.py <symbols.txt> <dtk symbols.txt> <reference symbols.txt> [more ...]` (batch 1 passes Melee's and every `tools/refs/*/config/*/symbols.txt`) |
 | `layout_evidence.py` | Library module: independent call-graph and string evidence for library names, ours vs the reference decomps' sources (used by `layout_match.py` and `audit_layout.py`) | module |
@@ -115,6 +116,9 @@ Durations are from the development desktop (8 cores, Oct 31, 2026); "quick" is u
 | `render_preview.py` | Front + side flat-shaded PNG of a `.glb` (sanity check); runs with the venv's Python (above) | `tools/render_preview.py <model.glb> <out.png>` |
 | `cr_model_explore.py` | Prints a model entry's header, reloc stats and pointer graph (research) | `tools/cr_model_explore.py unpacked/chara/000.bin 5` |
 | `robo_joints.py` | Robo joint roles (blocks B/C): `table`, `roles`, `path`, `selftest` (170/170 byte-identical) | `tools/robo_joints.py roles unpacked/chara/000.bin` |
+| `crmotion.py` | Motion files (motion.DBN, snr_motion.BIN pieces) <-> JSON, byte-identical round trip, sample a frame ([playback](formats/motion_playback.md)) | `tools/crmotion.py list / export / import / roundtrip / sample ...` |
+| `crmotion_rig.py` | The game's robo rig ported: pose a motion, export it as a glTF animation on a robo model, import a glTF animation back into a motion | `tools/crmotion_rig.py pose / gltf / import-gltf ...` |
+| `render_motion.py` | Frames of a glb animation side by side (skinned on the CPU), to check motion exports by eye | `tools/pyenv/Scripts/python -I tools/render_motion.py <in.glb> <out.png>` |
 | `model_loop` | [Blender loop](MODDING.md#blender-loop): export -> `tools/blender/<script>.py` -> `HSDRawViewer --import` -> `make_mod.py` -> ISO + `.crpatch` (+ boot). Export / import need Windows (HSDRawViewer); Blender from `-Blender`, `$env:BLENDER`, `PATH`, or the newest `C:\Program Files\Blender Foundation\Blender *` | `pwsh tools\model_loop.ps1 -Mod <mod> -Script <script> -Entries 000[,001] [-Category bg_data [-Models 0,3]] [-Iso <iso>] [-Blender <exe>] [-Fresh] [-Boot] [-Seconds 40]` / `tools/model_loop.sh <mod> <script> 000 [--category bg_data] [--models 0,3] [--boot]` |
 | `blender/*.py` | Blender scripts of the loop, run by Blender's own Python: `common.py` (load / save settings), `roundtrip.py` (no edit), `legionnaire.py` (the step-70 test edit), `legionnaire_v2.py` (step 73 / 74: a complete procedural legionnaire with 3 new bones, baked textures packed into one atlas, smooth skinning; `legionnaire_v2_template.py` the same on the template skeleton), `stage_pillar.py` (step 75: a pillar on Basic Arena, model 0 of `bg_data_000`), `render.py` (multi-view preview PNG of a glb) | `blender -b --factory-startup --python tools/blender/roundtrip.py -- <in.glb> <out.glb> [<roles.json>]`<br>`blender -b --factory-startup --python tools/blender/render.py -- <in.glb> <out.png> [pose.json] [joints.json]` |
 | `make_mod.py` | Mod folder (models, files, code patches) -> playable ISO + `.crpatch`; syncs main.dol's entry tables (bg_data has none: the game reads its header), checks the body (0x3A000) and stage (0x100000 / 0x8000) load-buffer sizes ([MODDING](MODDING.md)) | `tools/make_mod.py mods/my_mod [<clean.iso>]` |
@@ -135,7 +139,7 @@ order ([REPRODUCE](REPRODUCE.md)); the short check of a checkout is batch 9 + ba
 
 | Batch (`.ps1` / `.sh`) | Purpose | Duration |
 |---|---|---|
-| `run_all` | The one script: names (1 + 6 + 7) <-> Ghidra rebuild to a fixpoint -> 5 -> 2 -> 3 -> 4 -> 8 -> 9 -> 10 -> 11 -> 12 -> checksum compare | 36 min with one rebuild (2,138 s on Oct 31, 2026, batch 12 1,552 s of it) |
+| `run_all` | The one script: Ghidra rebuild -> names (1 + 6 + 7) as a check (`-ApplyNames`: to a fixpoint) -> 5 -> 2 -> 3 -> 4 -> 8 -> 9 -> 10 -> 11 -> 12 -> checksum compare | 36 min with one rebuild (2,138 s on Oct 31, 2026, batch 12 1,552 s of it) |
 | `batch1_names` | Library names by layout proof (naming rule 3), then verify | quick |
 | `batch2_crosscheck` | Compares Ghidra's C export with decomp-toolkit's analysis -> `symbols/crosscheck_report.txt` | quick |
 | `batch3_game_map` | Maps the game's own code (callers, callees, strings, asserts, subsystem hints) -> `docs/game_map.md`, `symbols/game_map.tsv` | quick |

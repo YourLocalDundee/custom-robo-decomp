@@ -1,35 +1,27 @@
 #!/usr/bin/env bash
 # The ONE script that runs everything, in order, stopping at the first failure (tools/batches/run_all.ps1 for
 # Linux / macOS, same order, same outputs):
-#   batches 1 + 6 + 7 names <-> Ghidra rebuild to a fixpoint -> 5 types -> 2 dtk cross-check -> 3 game map
+#   Ghidra rebuild -> batches 1 + 6 + 7 as a CHECK of the committed names -> 5 types -> 2 dtk cross-check -> 3 game map
 #   -> 4 search index -> 8 name cross-check -> 9 decomp build (retail SHA-1, relocations, static shift test)
 #   -> 10 compiler probe (~5 min) -> 11 (Windows-only: skipped here) -> 12 drafts
 #   -> checksums.sh --compare (every output byte-identical to docs/expected_checksums.txt), then a summary.
 # tools/from_scratch.sh wraps it: setup -> this -> archives / models / mod build.
-# Usage:  tools/batches/run_all.sh [--skip-rebuild] [--max-passes 5]
+# Usage:  tools/batches/run_all.sh [--skip-rebuild] [--apply-names [--max-passes 5]]
 #
-# Reproducible from any starting point. The name batches (1 = layout proof, then 6 = lib candidates, which builds on
-# batch 1, then 7 = the game's own names, from main.dol only) take our names only from the committed symbol files
-# and the Ghidra export only for structure (function starts, calls, strings, assert calls, by address:
-# tools/export_struct.py), and that structure does not depend on the names applied. So the run
-#   1. starts from the committed names: strips every layout-proof / lib-candidate line from symbols/symbols.txt and
-#      empties symbols/candidates_{sdk,rt,hsd}.txt (candidates_audit.txt is an input and stays);
-#   2. runs batches 1 + 6 + 7 against whatever export exists (none on a fresh setup: forced layout pairs only;
-#      batch 7 needs no export) - batch 7 replaces its own "// game-real" lines in symbols/descriptive.txt;
-#   3. rebuilds Ghidra and reruns batches 1 + 6 + 7 against the fresh export; if any name file changed, rebuilds again.
-# It stops when a rebuild leaves every name unchanged (the decompiled C is then exactly the C of the final names):
-# 1 rebuild when the previous export exists, 2 on a fresh setup. Fails after --max-passes rebuilds.
-# --skip-rebuild: step 2 only, no Ghidra.
+# The committed name files are the truth (plan.md step 110): by default the name batches only report what they would
+# change (symbols/name_proposals.txt, tools/name_check.py) and the committed files are put back. --apply-names takes
+# their names (rebuild <-> batches to a fixpoint) and stops if a name the C sources use was dropped or moved.
 set -euo pipefail
 b=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 g=$(dirname "$(dirname "$b")")
 . "$g/tools/common.sh"
-skip_rebuild=0; max_passes=5
+skip_rebuild=0; apply_names=0; max_passes=5
 while [ $# -gt 0 ]; do
     case "$1" in
         --skip-rebuild | -SkipRebuild) skip_rebuild=1 ;;
+        --apply-names | -ApplyNames) apply_names=1 ;;
         --max-passes | -MaxPasses) shift; max_passes=$1 ;;
-        *) die 'usage: tools/batches/run_all.sh [--skip-rebuild] [--max-passes N]' ;;
+        *) die 'usage: tools/batches/run_all.sh [--skip-rebuild] [--apply-names [--max-passes N]]' ;;
     esac
     shift
 done
@@ -58,26 +50,37 @@ names() {
 # 0. the reference checkouts are the setup's: their sources are read as text, other files give other names (step 68b)
 "$PY" -I "$g/tools/check_refs.py" || die 'reference checkouts differ from tools/setup.sh (see above)'
 # 1. the committed starting point
-grepq -v -E '// (layout-proof|lib-candidate) ' "$sym" | crlf > "$sym.tmp" && mv -f "$sym.tmp" "$sym"
-for m in sdk rt hsd; do
-    printf '%s\n' "// all rounds of batch6_lib_candidates.ps1 (tools\\match_lib_$m.py)" | crlf > "$g/symbols/candidates_$m.txt"
-done
-# 2. names against the existing export
-if [ -f "$g/decompiled/xrefs/refs.tsv" ]; then names 'previous export'; else names 'no export yet'; fi
-# 3. rebuild <-> names to a fixpoint
+snap="$g/build/name_snapshot"
+"$PY" -I "$g/tools/name_check.py" snapshot "$snap" || die 'name_check.py snapshot failed'
 passes=0
-if [ "$skip_rebuild" = 0 ]; then
-    while :; do
-        [ "$passes" -lt "$max_passes" ] || die "names did not converge in $max_passes Ghidra rebuilds (symbols/symbols.txt still changing)"
-        before=$(snapshot)
-        passes=$((passes + 1))
-        echo "== Ghidra rebuild, pass $passes"
-        "$g/tools/rebuild_decomp.sh"
-        names "against rebuild $passes"
-        [ "$(snapshot)" != "$before" ] || break
-        echo "== rebuild $passes: names changed, rebuilding"
+if [ "$apply_names" = 1 ]; then
+    grepq -v -E '// (layout-proof|lib-candidate) ' "$sym" | crlf > "$sym.tmp" && mv -f "$sym.tmp" "$sym"
+    for m in sdk rt hsd; do
+        printf '%s\n' "// all rounds of batch6_lib_candidates.ps1 (tools\match_lib_$m.py)" | crlf > "$g/symbols/candidates_$m.txt"
     done
-    echo "== names converged: unchanged after Ghidra rebuild $passes ($passes rebuild(s))"
+    if [ -f "$g/decompiled/xrefs/refs.tsv" ]; then names 'previous export'; else names 'no export yet'; fi
+    if [ "$skip_rebuild" = 0 ]; then
+        while :; do
+            [ "$passes" -lt "$max_passes" ] || die "names did not converge in $max_passes Ghidra rebuilds (symbols/symbols.txt still changing)"
+            before=$(snapshot)
+            passes=$((passes + 1))
+            echo "== Ghidra rebuild, pass $passes"
+            "$g/tools/rebuild_decomp.sh"
+            names "against rebuild $passes"
+            [ "$(snapshot)" != "$before" ] || break
+            echo "== rebuild $passes: names changed, rebuilding"
+        done
+        echo "== names converged: unchanged after Ghidra rebuild $passes ($passes rebuild(s))"
+    fi
+    "$PY" -I "$g/tools/name_check.py" guard "$snap" || die 'the name batches dropped names the C sources use (see above)'
+else
+    if [ "$skip_rebuild" = 0 ]; then
+        passes=1
+        echo "== Ghidra rebuild (committed names)"
+        "$g/tools/rebuild_decomp.sh"
+    fi
+    names 'check against the export'
+    "$PY" -I "$g/tools/name_check.py" report "$snap" "$g/symbols/name_proposals.txt" || die 'name_check.py report failed'
 fi
 "$b/batch5_types.sh"
 "$b/batch2_crosscheck.sh"
@@ -96,7 +99,7 @@ c="$g/decompiled/main_dol.c"
 funcs=$(grep -c -E '^// [0-9a-f]{8}  ' "$c" || true)
 generic=$(grep -c -E '^// [0-9a-f]{8}  FUN_' "$c" || true)
 echo "== summary ($(( $(date +%s) - t0 )) s)"
-echo "fixpoint: names unchanged after $passes Ghidra rebuild(s)"
+if [ "$apply_names" = 1 ]; then echo "fixpoint: names unchanged after $passes Ghidra rebuild(s)"; else echo "names: committed names checked, proposals in symbols/name_proposals.txt ($passes Ghidra rebuild(s))"; fi
 echo "functions in C: $funcs, still FUN_: $generic, named: $((funcs - generic))"
 echo "reports: symbols/verify_report.txt, symbols/crosscheck_report.txt, docs/game_map.md"
 echo "decomp build: main.dol == retail SHA-1 (decomp/reports/build_report.txt, splits_report.txt, symbols_report.txt)"

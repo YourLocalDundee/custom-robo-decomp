@@ -167,7 +167,7 @@ your ISO ──extract──► Custom Robo extracted\ ──sfd.py──► unp
 
 "extract" is Dolphin's DolphinTool on Windows and the pinned decomp-toolkit on Linux / macOS (byte-identical output).
 One script, `pwsh tools\batches\run_all.ps1` / `tools/batches/run_all.sh`, runs everything in order, stopping at the
-first failure: the name batches (1, 6, 7) and the Ghidra rebuild to a fixpoint; types (5), the decomp-toolkit
+first failure: the Ghidra rebuild and the name batches (1, 6, 7) as a check of the committed names; types (5), the decomp-toolkit
 cross-check (2), the game-code map (3, [docs/game_map.md](docs/game_map.md)), the search index (4) and the independent
 name cross-check (8); the Phase 4 build of `main.dol` (9), the compiler probe (10, [docs/compiler.md](docs/compiler.md)),
 the shifted build booted in Dolphin (11, Windows); the m2c drafts of the game code and their promotion into

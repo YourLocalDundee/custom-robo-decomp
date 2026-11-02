@@ -1,0 +1,187 @@
+# name proposals: what the name batches (1, 6, 7) would change against the committed names
+# (tools/name_check.py; nothing applied - run tools/batches/run_all.ps1 -ApplyNames to take them)
+added 4, dropped 3 (2 used by the C sources), moved 0
+
+added   HSD_DevComARAMCallback 0x80170F48
+added   HSD_DevComARAMWakeUp 0x801710EC
+added   HSD_IDGetData 0x80198DC4
+added   hsd_8039DAD4 0x8017F4B8
+dropped HSD_JObjDispAll 0x80198144  (used by decomp/src)
+dropped psInitDataBankLoad 0x80179F88
+dropped setupInstanceMtx 0x80198014  (used by decomp/src)
+
+## symbols.txt: 98 lines differ
+--- committed/symbols.txt
++++ batches/symbols.txt
+@@ -843,0 +844,2 @@
++HSD_ShadowEndRender = .text:0x801A4800; // type:function size:0x198 scope:global // why: body = wowjinxy/KAR shadow.c HSD_ShadowEndRender compiled with our HSD flags, equal to main.dol with relocations masked (Melee's shadow.c version 0.99: the older revision); size 0x198 == the KAR map's (Melee 0x88); directly after HSD_ShadowStartRender as in KAR (plan.md step 103)
++HSD_ShadowSetActive = .text:0x801A4ABC; // type:function size:0x1C8 scope:global // why: body = wowjinxy/KAR shadow.c HSD_ShadowSetActive compiled with our HSD flags, equal to main.dol with relocations masked; size 0x1C8 == the KAR map's (Melee 0xB8); directly before HSD_ShadowAddObject as in KAR; fn_801A4998 (0x124) between it and HSD_ShadowEndRender is in no reference (plan.md step 103)
+@@ -951,0 +954 @@
++DVDOpenDir = .text:0x8013BBCC; // type:function size:0xC0 scope:global // layout-proof ref:pikmin2/GPVE01 ref_size:0xC0 anchors:0x8013BA90-0x8013BC8C
+@@ -987,0 +991 @@
++__VIRetraceHandler = .text:0x8013EB5C; // type:function size:0x274 scope:global // layout-proof ref:ac-decomp/GAFU01_00 ref_size:0x274 anchors:0x8013E9F4-0x8013F0F8
+@@ -997 +1001 @@
+-VIFlush = .text:0x80140298; // type:function size:0x130 scope:global // layout-proof ref:kar_wowjinxy/GKYJ01 ref_size:0x130 anchors:0x8013F5A8-0x801403C8
++VIFlush = .text:0x80140298; // type:function size:0x130 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x130 anchors:0x8013F5A8-0x801403C8
+@@ -1003,2 +1007,2 @@
+-VIGetNextField = .text:0x8014055C; // type:function size:0x9C scope:global // layout-proof ref:kar_wowjinxy/GKYJ01 ref_size:0xA8 anchors:0x80140434-0x80140690
+-VIGetCurrentLine = .text:0x801405F8; // type:function size:0x98 scope:global // layout-proof ref:kar_wowjinxy/GKYJ01 ref_size:0x98 anchors:0x80140434-0x80140690
++VIGetNextField = .text:0x8014055C; // type:function size:0x9C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0xA8 anchors:0x80140434-0x80140690
++VIGetCurrentLine = .text:0x801405F8; // type:function size:0x98 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x98 anchors:0x80140434-0x80140690
+@@ -1010,0 +1015 @@
++PADTypeAndStatusCallback = .text:0x80141070; // type:function size:0x32C scope:global // layout-proof ref:melee/GALE01 ref_size:0x32C anchors:0x801393B8-0x801415EC
+@@ -1012 +1016,0 @@
+-PADReset = .text:0x801414DC; // type:function size:0x110 scope:global // layout-proof ref:melee/GALE01 ref_size:0x100 anchors:0x801393B8-0x801415EC
+@@ -1073,0 +1078 @@
++__AXSyncPBs = .text:0x80146C14; // type:function size:0x278 scope:global // layout-proof ref:melee/GALE01 ref_size:0x248 anchors:0x80145FFC-0x80146ED8
+@@ -1317,0 +1323 @@
++TRKDoSetOption = .text:0x8015A724; // type:function size:0xA8 scope:global // layout-proof ref:ac-decomp/GAFU01_00 ref_size:0xA8 anchors:0x8015A71C-0x8015BEB0
+@@ -1318,0 +1325 @@
++TRKDoStep = .text:0x8015A874; // type:function size:0x220 scope:global // layout-proof ref:ac-decomp/GAFU01_00 ref_size:0x220 anchors:0x8015A71C-0x8015BEB0
+@@ -1319,0 +1327 @@
++TRKDoWriteRegisters = .text:0x8015AB44; // type:function size:0x290 scope:global // layout-proof ref:ac-decomp/GAFU01_00 ref_size:0x290 anchors:0x8015A71C-0x8015BEB0
+@@ -1325,0 +1334,2 @@
++TRKDoReset = .text:0x8015B59C; // type:function size:0x58 scope:global // layout-proof ref:ac-decomp/GAFU01_00 ref_size:0x58 anchors:0x8015A71C-0x8015BEB0
++TRKDoDisconnect = .text:0x8015B5F4; // type:function size:0x78 scope:global // layout-proof ref:ac-decomp/GAFU01_00 ref_size:0x78 anchors:0x8015A71C-0x8015BEB0
+@@ -1354,0 +1365 @@
++TRKTargetAccessFP = .text:0x8015D198; // type:function size:0x50C scope:global // layout-proof ref:ac-decomp/GAFU01_00 ref_size:0x50C anchors:0x8015CB44-0x8015DC00
+@@ -1491,5 +1502,5 @@
+-TObjRelease = .text:0x80189AC8; // type:function size:0xBC scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0xBC anchors:0x801899F4-0x8018A208
+-TObjAmnesia = .text:0x80189B84; // type:function size:0x60 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x60 anchors:0x801899F4-0x8018A208
+-TObjInfoInit = .text:0x80189BE4; // type:function size:0xA4 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0xA4 anchors:0x801899F4-0x8018A208
+-HSD_SetupChannelMode = .text:0x80189C88; // type:function size:0x23C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x23C anchors:0x801899F4-0x8018A208
+-HSD_SetupPEMode = .text:0x80189EC4; // type:function size:0x174 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x174 anchors:0x801899F4-0x8018A208
++TObjRelease = .text:0x80189AC8; // type:function size:0xBC scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0xBC anchors:0x80189A70-0x8018A208
++TObjAmnesia = .text:0x80189B84; // type:function size:0x60 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x60 anchors:0x80189A70-0x8018A208
++TObjInfoInit = .text:0x80189BE4; // type:function size:0xA4 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0xA4 anchors:0x80189A70-0x8018A208
++HSD_SetupChannelMode = .text:0x80189C88; // type:function size:0x23C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x23C anchors:0x80189A70-0x8018A208
++HSD_SetupPEMode = .text:0x80189EC4; // type:function size:0x174 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x174 anchors:0x80189A70-0x8018A208
+@@ -1618,2 +1628,0 @@
+-setupInstanceMtx = .text:0x80198014; // type:function size:0x130 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x130 anchors:0x801971E8-0x8019902C
+-HSD_JObjDispAll = .text:0x80198144; // type:function size:0x544 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x544 anchors:0x801971E8-0x8019902C
+@@ -1624,0 +1634 @@
++HSD_IDGetData = .text:0x80198DC4; // type:function size:0x2C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x2C anchors:0x801971E8-0x8019902C
+@@ -1632,0 +1643 @@
++HSD_JObjSetupMatrixSub = .text:0x8019A7E8; // type:function size:0x278 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x278 anchors:0x8019A28C-0x8019B374
+@@ -1661,2 +1672,2 @@
+-HSD_MtxGetTranslate = .text:0x8019F5E4; // type:function size:0x1C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x1C anchors:0x8019EF8C-0x8019FAD8
+-HSD_MtxGetScale = .text:0x8019F600; // type:function size:0x4D8 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x4D8 anchors:0x8019EF8C-0x8019FAD8
++HSD_MtxGetTranslate = .text:0x8019F5E4; // type:function size:0x1C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x1C anchors:0x8019F2AC-0x8019FAD8
++HSD_MtxGetScale = .text:0x8019F600; // type:function size:0x4D8 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x4D8 anchors:0x8019F2AC-0x8019FAD8
+@@ -1669,0 +1681 @@
++HSD_ObjAlloc = .text:0x801A07D4; // type:function size:0x150 scope:global // layout-proof ref:melee/GALE01 ref_size:0x158 anchors:0x801A0584-0x801A094C
+@@ -1679 +1690,0 @@
+-expLoadDesc = .text:0x801A26B4; // type:function size:0xF4 scope:global // layout-proof ref:melee/GALE01 ref_size:0xEC anchors:0x801A21A0-0x801A2988
+@@ -1690,8 +1701,8 @@
+-WObjAmnesia = .text:0x801A331C; // type:function size:0x48 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x48 anchors:0x801A32C8-0x801A3C9C
+-HSD_FogLoadDesc = .text:0x801A36A0; // type:function size:0x90 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x90 anchors:0x801A32C8-0x801A3C9C
+-HSD_FogInit = .text:0x801A3730; // type:function size:0x8C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x94 anchors:0x801A32C8-0x801A3C9C
+-HSD_FogAdjLoadDesc = .text:0x801A37E8; // type:function size:0x7C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A32C8-0x801A3C9C
+-HSD_FogAdjInit = .text:0x801A3864; // type:function size:0x7C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A32C8-0x801A3C9C
+-FogUpdateFunc = .text:0x801A38F8; // type:function size:0x230 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x230 anchors:0x801A32C8-0x801A3C9C
+-FogRelease = .text:0x801A3B28; // type:function size:0xCC scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0xCC anchors:0x801A32C8-0x801A3C9C
+-FogInfoInit = .text:0x801A3BF4; // type:function size:0x64 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x64 anchors:0x801A32C8-0x801A3C9C
++WObjAmnesia = .text:0x801A331C; // type:function size:0x48 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x48 anchors:0x801A32C8-0x801A36A0
++HSD_FogLoadDesc = .text:0x801A36A0; // type:function size:0x90 scope:global // layout-proof ref:melee/GALE01 ref_size:0x94 anchors:0x801A326C-0x801A3C9C
++HSD_FogInit = .text:0x801A3730; // type:function size:0x8C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x94 anchors:0x801A36A0-0x801A3C9C
++HSD_FogAdjLoadDesc = .text:0x801A37E8; // type:function size:0x7C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A36A0-0x801A3C9C
++HSD_FogAdjInit = .text:0x801A3864; // type:function size:0x7C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A36A0-0x801A3C9C
++FogUpdateFunc = .text:0x801A38F8; // type:function size:0x230 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x230 anchors:0x801A36A0-0x801A3C9C
++FogRelease = .text:0x801A3B28; // type:function size:0xCC scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0xCC anchors:0x801A36A0-0x801A3C9C
++FogInfoInit = .text:0x801A3BF4; // type:function size:0x64 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x64 anchors:0x801A36A0-0x801A3C9C
+@@ -1700,13 +1711,12 @@
+-HSD_ShadowAlloc = .text:0x801A4184; // type:function size:0xFC scope:global // layout-proof ref:melee/GALE01 ref_size:0x100 anchors:0x801A4154-0x801A5558
+-HSD_ShadowRemove = .text:0x801A4280; // type:function size:0x108 scope:global // layout-proof ref:melee/GALE01 ref_size:0x110 anchors:0x801A4154-0x801A5558
+-HSD_ShadowInit = .text:0x801A4388; // type:function size:0x70 scope:global // layout-proof ref:melee/GALE01 ref_size:0x70 anchors:0x801A4154-0x801A5558
+-HSD_ShadowSetSize = .text:0x801A43F8; // type:function size:0x160 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x160 anchors:0x801A4388-0x801A5558
+-HSD_ShadowStartRender = .text:0x801A4558; // type:function size:0x2A8 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x2AC anchors:0x801A4388-0x801A5558
+-HSD_ShadowEndRender = .text:0x801A4800; // type:function size:0x198 scope:global // why: body = wowjinxy/KAR shadow.c HSD_ShadowEndRender compiled with our HSD flags, equal to main.dol with relocations masked (Melee's shadow.c version 0.99: the older revision); size 0x198 == the KAR map's (Melee 0x88); directly after HSD_ShadowStartRender as in KAR (plan.md step 103)
+-HSD_ShadowSetActive = .text:0x801A4ABC; // type:function size:0x1C8 scope:global // why: body = wowjinxy/KAR shadow.c HSD_ShadowSetActive compiled with our HSD flags, equal to main.dol with relocations masked; size 0x1C8 == the KAR map's (Melee 0xB8); directly before HSD_ShadowAddObject as in KAR; fn_801A4998 (0x124) between it and HSD_ShadowEndRender is in no reference (plan.md step 103)
+-HSD_ShadowAddObject = .text:0x801A4C84; // type:function size:0xAC scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0xAC anchors:0x801A4388-0x801A5558
+-HSD_ShadowDeleteObject = .text:0x801A4D30; // type:function size:0x94 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x94 anchors:0x801A4388-0x801A5558
+-makeMatrix = .text:0x801A4DC4; // type:function size:0x13C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x140 anchors:0x801A4388-0x801A5558
+-HSD_ViewingRectInit = .text:0x801A50C0; // type:function size:0x20C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x214 anchors:0x801A4388-0x801A5558
+-HSD_ViewingRectCheck = .text:0x801A52CC; // type:function size:0x7C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A4388-0x801A5558
+-HSD_ArchiveGetExtern = .text:0x801A55FC; // type:function size:0x38 scope:global // layout-proof ref:melee/GALE01 ref_size:0x38 anchors:0x801A5558-0x801A5E7C
++HSD_ShadowAlloc = .text:0x801A4184; // type:function size:0xFC scope:global // layout-proof ref:melee/GALE01 ref_size:0x100 anchors:0x801A4154-0x801A4800
++HSD_ShadowRemove = .text:0x801A4280; // type:function size:0x108 scope:global // layout-proof ref:melee/GALE01 ref_size:0x110 anchors:0x801A4154-0x801A4800
++HSD_ShadowInit = .text:0x801A4388; // type:function size:0x70 scope:global // layout-proof ref:melee/GALE01 ref_size:0x70 anchors:0x801A4154-0x801A4800
++HSD_ShadowSetSize = .text:0x801A43F8; // type:function size:0x160 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x160 anchors:0x801A4388-0x801A4800
++HSD_ShadowStartRender = .text:0x801A4558; // type:function size:0x2A8 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x2AC anchors:0x801A4388-0x801A4800
++HSD_ShadowAddObject = .text:0x801A4C84; // type:function size:0xAC scope:global // layout-proof ref:melee/GALE01 ref_size:0xAC anchors:0x801A4ABC-0x801A5558
++HSD_ShadowDeleteObject = .text:0x801A4D30; // type:function size:0x94 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x94 anchors:0x801A4C84-0x801A5558
++makeMatrix = .text:0x801A4DC4; // type:function size:0x13C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x140 anchors:0x801A4C84-0x801A5558
++HSD_ShadowSetViewingRect = .text:0x801A4F00; // type:function size:0x1C0 scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x1CC anchors:0x801A4C84-0x801A5558
++HSD_ViewingRectInit = .text:0x801A50C0; // type:function size:0x20C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x214 anchors:0x801A4C84-0x801A5558
++HSD_ViewingRectCheck = .text:0x801A52CC; // type:function size:0x7C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x7C anchors:0x801A4C84-0x801A5558
++HSD_ArchiveGetExtern = .text:0x801A55FC; // type:function size:0x38 scope:global // layout-proof ref:melee/GALE01 ref_size:0x38 anchors:0x801A5558-0x801A5634
+@@ -1758 +1767,0 @@
+-DVDOpenDir = .text:0x8013BBCC; // type:function size:0xC0 scope:global // lib-candidate R3 ref:tp/GZ2E01 why: size 0xC0 vs ref 0xC0, between cbForReadSync and DVDReadDir
+@@ -1761 +1769,0 @@
+-__VIRetraceHandler = .text:0x8013EB5C; // type:function size:0x274 scope:global // lib-candidate R3 ref:ac-decomp/GAFU01_00 why: size 0x274 vs ref 0x274, between __fstLoad and VISetPreRetraceCallback
+@@ -1763 +1771 @@
+-PADTypeAndStatusCallback = .text:0x80141070; // type:function size:0x32C scope:global // lib-candidate R3 ref:ac-decomp/GAFE01_00 why: size 0x32C vs ref 0x32C, between PADProbeCallback and PADReceiveCheckCallback
++PADReset = .text:0x801414DC; // type:function size:0x110 scope:global // lib-candidate R3 ref:ac-decomp/GAFE01_00 why: size 0x110 vs ref 0x100, between PADReceiveCheckCallback and PADRecalibrate
+@@ -1768 +1775,0 @@
+-__AXSyncPBs = .text:0x80146C14; // type:function size:0x278 scope:global // lib-candidate R3 ref:bfbb/GQPE78 why: size 0x278 vs ref 0x278, between __AXServiceVPB and __AXGetPBs
+@@ -1781,6 +1787,0 @@
+-TRKDoSetOption = .text:0x8015A724; // type:function size:0xA8 scope:global // lib-candidate R3 ref:ac-decomp/GAFU01_00 why: size 0xA8 vs ref 0xA8, between TRKInitializeDispatcher and TRKDoStop
+-TRKDoStep = .text:0x8015A874; // type:function size:0x220 scope:global // lib-candidate R3 ref:ac-decomp/GAFU01_00 why: size 0x220 vs ref 0x220, between TRKDoStop and TRKDoContinue
+-TRKDoWriteRegisters = .text:0x8015AB44; // type:function size:0x290 scope:global // lib-candidate R3 ref:ac-decomp/GAFU01_00 why: size 0x290 vs ref 0x290, between TRKDoContinue and TRKDoReadRegisters
+-TRKDoReset = .text:0x8015B59C; // type:function size:0x58 scope:global // lib-candidate R3 ref:ac-decomp/GAFU01_00 why: size 0x58 vs ref 0x58, between TRKDoOverride and TRKDoConnect
+-TRKDoDisconnect = .text:0x8015B5F4; // type:function size:0x78 scope:global // lib-candidate R3 ref:ac-decomp/GAFU01_00 why: size 0x78 vs ref 0x78, between TRKDoOverride and TRKDoConnect
+-TRKTargetAccessFP = .text:0x8015D198; // type:function size:0x50C scope:global // lib-candidate R3 ref:ac-decomp/GAFU01_00 why: size 0x50C vs ref 0x50C, between TRKTargetAccessExtended1 and TRKTargetAccessDefault
+@@ -1820,0 +1822,2 @@
++HSD_DevComARAMCallback = .text:0x80170F48; // type:function size:0x1A4 scope:global // lib-candidate R3 ref:kar/GKYE01 ref_size:0x1A4 why: layout HSD_DevComStdCallback..HSD_DevComARAMWakeUp (1 in gap), ref size 0x1A4
++HSD_DevComARAMWakeUp = .text:0x801710EC; // type:function size:0x4D8 scope:global // lib-candidate R3 ref:kar/GKYE01 ref_size:0x4D8 why: layout HSD_DevComARAMCallback..HSD_DevComDVDStdCallback (1 in gap), ref size 0x4D8
+@@ -1832 +1834,0 @@
+-psInitDataBankLoad = .text:0x80179F88; // type:function size:0x15C scope:global // lib-candidate R6 ref:melee/GALE01 ref_size:0x120 why: string 0x8024B0A4 'psInitDataBanks: unknown version\n' used only by psInitDataBankLoad in particle.c
+@@ -1861 +1862,0 @@
+-HSD_JObjSetupMatrixSub = .text:0x8019A7E8; // type:function size:0x278 scope:global // lib-candidate R3 ref:kar/GKYE01 ref_size:0x278 why: layout resolveIKJoint2..HSD_JObjSetMtxDirtySub (1 in gap), ref size 0x278
+@@ -1871 +1871,0 @@
+-HSD_ObjAlloc = .text:0x801A07D4; // type:function size:0x150 scope:global // lib-candidate R3 ref:kar/GKYE01 ref_size:0x150 why: layout HSD_ObjAllocAddFree..HSD_ObjFree (1 in gap), ref size 0x150
+@@ -1875,0 +1876 @@
++expLoadDesc = .text:0x801A26B4; // type:function size:0xF4 scope:global // lib-candidate R3 ref:kar/GKYE01 ref_size:0xF4 why: layout HSD_RvalueRemoveAll..bcexpLoadDesc (1 in gap), ref size 0xF4
+@@ -1882 +1882,0 @@
+-HSD_ShadowSetViewingRect = .text:0x801A4F00; // type:function size:0x1C0 scope:global // lib-candidate R3 ref:kar/GKYE01 ref_size:0x1CC why: layout makeMatrix..HSD_ViewingRectInit (1 in gap), ref size 0x1CC
+
+## candidates_sdk.txt: 11 lines differ
+--- committed/candidates_sdk.txt
++++ batches/candidates_sdk.txt
+@@ -12 +11,0 @@
+-DVDOpenDir = .text:0x8013BBCC; // type:function size:0xC0 scope:global // R3 ref:tp/GZ2E01 why: size 0xC0 vs ref 0xC0, between cbForReadSync and DVDReadDir
+@@ -14 +12,0 @@
+-__VIRetraceHandler = .text:0x8013EB5C; // type:function size:0x274 scope:global // R3 ref:ac-decomp/GAFU01_00 why: size 0x274 vs ref 0x274, between __fstLoad and VISetPreRetraceCallback
+@@ -16 +14 @@
+-PADTypeAndStatusCallback = .text:0x80141070; // type:function size:0x32C scope:global // R3 ref:ac-decomp/GAFE01_00 why: size 0x32C vs ref 0x32C, between PADProbeCallback and PADReceiveCheckCallback
++PADReset = .text:0x801414DC; // type:function size:0x110 scope:global // R3 ref:ac-decomp/GAFE01_00 why: size 0x110 vs ref 0x100, between PADReceiveCheckCallback and PADRecalibrate
+@@ -21 +18,0 @@
+-__AXSyncPBs = .text:0x80146C14; // type:function size:0x278 scope:global // R3 ref:bfbb/GQPE78 why: size 0x278 vs ref 0x278, between __AXServiceVPB and __AXGetPBs
+@@ -34,6 +30,0 @@
+-TRKDoSetOption = .text:0x8015A724; // type:function size:0xA8 scope:global // R3 ref:ac-decomp/GAFU01_00 why: size 0xA8 vs ref 0xA8, between TRKInitializeDispatcher and TRKDoStop
+-TRKDoStep = .text:0x8015A874; // type:function size:0x220 scope:global // R3 ref:ac-decomp/GAFU01_00 why: size 0x220 vs ref 0x220, between TRKDoStop and TRKDoContinue
+-TRKDoWriteRegisters = .text:0x8015AB44; // type:function size:0x290 scope:global // R3 ref:ac-decomp/GAFU01_00 why: size 0x290 vs ref 0x290, between TRKDoContinue and TRKDoReadRegisters
+-TRKDoReset = .text:0x8015B59C; // type:function size:0x58 scope:global // R3 ref:ac-decomp/GAFU01_00 why: size 0x58 vs ref 0x58, between TRKDoOverride and TRKDoConnect
+-TRKDoDisconnect = .text:0x8015B5F4; // type:function size:0x78 scope:global // R3 ref:ac-decomp/GAFU01_00 why: size 0x78 vs ref 0x78, between TRKDoOverride and TRKDoConnect
+-TRKTargetAccessFP = .text:0x8015D198; // type:function size:0x50C scope:global // R3 ref:ac-decomp/GAFU01_00 why: size 0x50C vs ref 0x50C, between TRKTargetAccessExtended1 and TRKTargetAccessDefault
+
+## candidates_hsd.txt: 10 lines differ
+--- committed/candidates_hsd.txt
++++ batches/candidates_hsd.txt
+@@ -4,0 +5,2 @@
++HSD_DevComARAMCallback = .text:0x80170F48; // type:function size:0x1A4 scope:global // R3 ref:kar/GKYE01 ref_size:0x1A4 why: layout HSD_DevComStdCallback..HSD_DevComARAMWakeUp (1 in gap), ref size 0x1A4
++HSD_DevComARAMWakeUp = .text:0x801710EC; // type:function size:0x4D8 scope:global // R3 ref:kar/GKYE01 ref_size:0x4D8 why: layout HSD_DevComARAMCallback..HSD_DevComDVDStdCallback (1 in gap), ref size 0x4D8
+@@ -7 +9 @@
+-HSD_DevComDVDCallback = .text:0x80171974; // type:function size:0x2A4 scope:global // R3 ref:kar/GKYE01 ref_size:0x2A4 why: layout HSD_DevComDVDMemCallback..HSD_DevComDVDWakeUp (1 in gap), ref size 0x2A4
++HSD_DevComDVDCallback = .text:0x80171974; // type:function size:0x2A4 scope:global // R5 ref:melee/GALE01 ref_size:0x200 why: callees {ARQPostRequest,HSD_DevComARAMWakeUp,HSD_DevComDVDWakeUp,OSDisableInterrupts,OSRestoreInterrupts,__assert} callers {} = HSD_DevComDVDCallback in devcom.c
+@@ -16 +18 @@
+-psInitDataBankLoad = .text:0x80179F88; // type:function size:0x15C scope:global // R6 ref:melee/GALE01 ref_size:0x120 why: string 0x8024B0A4 'psInitDataBanks: unknown version\n' used only by psInitDataBankLoad in particle.c
++hsd_8039DAD4 = .text:0x8017F4B8; // type:function size:0x1270 scope:global // R4 ref:melee/GALE01 ref_size:0x1350 why: asserts generator.c: 'psCamera'
+@@ -45 +46,0 @@
+-HSD_JObjSetupMatrixSub = .text:0x8019A7E8; // type:function size:0x278 scope:global // R3 ref:kar/GKYE01 ref_size:0x278 why: layout resolveIKJoint2..HSD_JObjSetMtxDirtySub (1 in gap), ref size 0x278
+@@ -55 +55,0 @@
+-HSD_ObjAlloc = .text:0x801A07D4; // type:function size:0x150 scope:global // R3 ref:kar/GKYE01 ref_size:0x150 why: layout HSD_ObjAllocAddFree..HSD_ObjFree (1 in gap), ref size 0x150
+@@ -59,0 +60 @@
++expLoadDesc = .text:0x801A26B4; // type:function size:0xF4 scope:global // R3 ref:kar/GKYE01 ref_size:0xF4 why: layout HSD_RvalueRemoveAll..bcexpLoadDesc (1 in gap), ref size 0xF4
+@@ -66 +66,0 @@
+-HSD_ShadowSetViewingRect = .text:0x801A4F00; // type:function size:0x1C0 scope:global // R3 ref:kar/GKYE01 ref_size:0x1CC why: layout makeMatrix..HSD_ViewingRectInit (1 in gap), ref size 0x1CC

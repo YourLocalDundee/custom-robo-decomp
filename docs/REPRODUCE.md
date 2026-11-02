@@ -68,8 +68,8 @@ merge is expected when the merge changed names or sources: see "If a checksum di
 your disc and the committed names:
 
 ```powershell
-pwsh tools\batches\run_all.ps1                 # batches 1-12 in order: names <-> Ghidra rebuild to a fixpoint (4 min per rebuild, 1 rebuild
-                                               # when the previous export exists), types, cross-checks, map, index, batch 9 (a few min), batch 10
+pwsh tools\batches\run_all.ps1                 # batches 1-12 in order: one Ghidra rebuild (4 min), the name batches as a check
+                                               # (symbols\name_proposals.txt), types, cross-checks, map, index, batch 9 (a few min), batch 10
                                                # (5 min), batch 11 (1-2 min, Dolphin opens twice: do not type), batch 12 (26 min), then checksums -Compare
 pwsh tools\batches\batch11_shift_test.ps1      # only if run_all was run with batch 11 skipped or failed on timing: the shifted build must boot (PASS)
 pwsh tools\checksums.ps1 -Compare              # all 33 files match
@@ -122,8 +122,15 @@ pwsh tools\batches\run_all.ps1
 tools/batches/run_all.sh          # the same batches; batch 11 (Windows-only) is skipped
 ```
 
-Everything below runs locally, with no network access. The name batches and the Ghidra rebuild run **to a fixpoint**
-(about 4 minutes per rebuild + name pass; 1 rebuild when a previous export exists, 2 on a fresh setup):
+Everything below runs locally, with no network access. **The committed name files are the truth** (step 110). A
+verification run rebuilds Ghidra once from them (about 4 minutes) and runs batches 1, 6 and 7 against that export as a
+check. It writes what they would change to `symbols\name_proposals.txt` (names added, dropped, moved; the line diff) and
+puts the committed files back (`tools\name_check.py`). It never renames anything. Why: since steps 103-109 named
+functions by hand, re-deriving every layout-proof line from scratch gives a different answer (other reference versions,
+other anchors). Once it dropped HSD_JObjDispAll, which the linked C calls, so batch 9 could not link.
+
+`run_all.ps1 -ApplyNames` takes the batches' names on purpose, the old way. It stops before the build if a name the C
+sources in `decomp\src` use was dropped or moved:
 
 1. **Start from the committed names**: every `// layout-proof` / `// lib-candidate` line is stripped from `symbols\symbols.txt`
    and `symbols\candidates_{sdk,rt,hsd}.txt` are emptied, so the result never depends on an earlier run (batch 7 replaces
@@ -134,8 +141,8 @@ Everything below runs locally, with no network access. The name batches and the 
    `layout_candidates.txt`, `candidates_*.txt`, `verify_report.txt`, `lib_candidates_report.txt`, `descriptive.txt`,
    `game_real.txt`, `game_unnamed_real.txt`). It stops when a rebuild
    leaves every name unchanged, so the decompiled C is exactly the C of the final names, and fails after 5 rebuilds
-   (`-MaxPasses`). The summary prints how many rebuilds it took.
-4. Batches 5, 2, 3, 4 and 8 on the final export, then batch 9 (the Phase 4 build, section 2b; it reads only the final name files),
+   (`-MaxPasses`). The summary prints how many rebuilds it took. Then `tools\name_check.py guard`.
+4. In both modes: batches 5, 2, 3, 4 and 8 on the final export, then batch 9 (the Phase 4 build, section 2b; it reads only the final name files),
    batch 10 (compiler probe, about 5 minutes), batch 11 (the shifted build booted in Dolphin, section 2c, 1-2 minutes; don't
    type while Dolphin is open), batch 12 (m2c drafts of the game code, compiled and compared, then the linkable 100% ones
    promoted into `decomp\src\game` and batch 9 again when that folder changed: about 26 minutes, 1,552 s on Oct 31, 2026;
