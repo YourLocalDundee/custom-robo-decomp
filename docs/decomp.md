@@ -390,6 +390,39 @@ A neighbour that kar's asm places in exactly one other file also counts as that 
 (no C linked): sysdolphin is 33 split objects, 24 from C. Still open (splits_report.txt): archive.c's end, synth.c's
 end, axdriver.c's end, devcom.c's start, particle.c's start (their neighbours are unnamed fn_ functions).
 
+### The two HSD edges by caller and data order (step 102, Nov 1, 2026)
+
+roadblock_solutions.md section 8's third step. Results:
+
+- **fn_80170EAC (axdriver.c end / devcom.c start): no reference can place it.** Its only caller is game code
+  (0x80098EDC in fn_80098484, which stores the result to 0x8044F6CC next to a two-pad count). It returns fn_801796F4,
+  which counts a linked list (head .sbss 0x8044FE34) with interrupts disabled. KAR has no copy of the counter, Melee's
+  synth.c has no such list counter, Pokemon XD links MusyX instead of the HSD audio, and the wrapper's shape (a frame
+  around one call) is masked-equal to unrelated KAR functions. It has no data. The edge stays open until the synth
+  port names the counter.
+- **archive.c runs at least to 0x801A5AE8 (KAR's range), by its string pool.** shadow.c's .data ends at 0x8024D268;
+  the .data from there to bytecode.c's 0x8024D438 is one string pool: "HSD_ArchiveParse: byte-order mismatch! ..."
+  (archive.c's own literal, at the pool's start as in Melee and KAR, whose archive.c .data is that one string, 0x48)
+  followed by "Trying to open file %s", "Cannot open file." and seven read-error strings. fn_801A5708 (0x340) loads
+  the pool's base 0x8024D268 and reaches every other string from it, so it shares archive.c's pool: it is archive.c's.
+  HSD_ArchiveFree (KAR's archive.c) follows it. HSD_ArchiveParse itself is not in main.dol's code (dead-stripped; its
+  string stayed). fn_801A5708 is an archive loader: DVDOpen, HSD_Alloc(0x44), read the 0x20 header, check
+  file_size == the DVD length, then data / reloc / public / extern / symbol tables each rounded to 32 bytes, keep the
+  name, relocate, and on any error DVDClose + HSD_ArchiveFree.
+- **The helpers fn_801A5AE8 / fn_801A5B08 / fn_801A5C68 stay open.** KAR has none of them (its random.c follows
+  HSD_ArchiveFree directly). Their .bss (0x8044B7B0, 0x8044BBB0) follows shadow.c's .bss directly, but archive.c has no
+  .bss in Melee or KAR, so this fits both "archive.c" and "a file of their own before random.c".
+
+**The archive.c extension, a hand port (parked at 0.808).** Extending the linked archive.c to 0x801A5AE8 needs
+fn_801A5708 and HSD_ArchiveFree in decomp/src's archive.c. tools/sched/scratch/ar/archive_v1.c is the draft:
+HSD_ArchiveFree (wowjinxy's) compiles equal, fn_801A5708 compiles to 0x340 with 0.808 of the words equal
+(arch_cmp.py; arch_diff.py prints the instruction diff). What is left: (1) register coloring: the table blocks'
+`size` / `alloc` get r27 / r26 where retail has r26 / r27, the data block's rounded size gets r27 where retail has
+r29, and the relocation loop's counter (r6 against r4, with a copy to r5): no declaration order, separate variable or
+reuse of `offset` changes it; (2) the pool's leading string: an unused static function that passes it to OSReport
+puts it in the pool but is emitted (0x2C), so the linked object would need another way (the original's dead-stripped
+HSD_ArchiveParse). Then a generator rule: accept the wowjinxy map's range when the matched C proves it.
+
 ### Float-pool restart intervals (step 101, Nov 1, 2026)
 
 `tools/gen_dtk_splits.py` `pool_restarts` adds a report-only section to splits_report.txt, "float-pool restart
