@@ -4763,6 +4763,107 @@ game/data/cr_g_UnlockBits.c                      .bss    0x804198B0-0x80419958  
 .sdata2 0x80452964-0x804529B0 size 0x4C
 .sbss2  0x80452A20-0x80452AC0 size 0xA0
 
+== float-pool restart intervals (report only, roadblock_solutions.md section 8: a .sdata2 value seen again means a new file between its two copies; not used for splits yet)
+1740 4- / 8-byte .sdata2 constants; 98 restarts = at least 99 pools; 48 intervals hold a proven .sdata2 edge (known), 3 lie inside one proven piece (inside: the rule's false positives), 47 are new; 16 with overlapping users
+.sdata2 0x804501D0-0x804502A0 NEW    value 4330000080000000 | .text 0x8000878C-0x80008ED8 (11 functions between fn_8000860C and fn_80008ED8)
+.sdata2 0x804502FC-0x804503D0 NEW    value 00000000 | .text 0x8001B1A0-0x8001B1D4 (1 functions between cr_SEQ_LOGO_FrameA and fn_8001B1D4)
+.sdata2 0x80450468-0x80450468 NEW    value 4330000080000000 | .text 0x8001F350-0x8001F758 (6 functions between fn_8001F060 and cr_Pad_Update)
+.sdata2 0x80450470-0x804504A0 NEW    value 4330000080000000 | .text 0x80020204-0x80022830 (21 functions between cr_Pad_Update and fn_80022830)
+.sdata2 0x804504A8-0x80450590 known  value 4330000080000000 | .text 0x8002312C-0x8002745C (51 functions between fn_80022830 and fn_8002745C)
+.sdata2 0x80450598-0x80450660 NEW    value 4330000080000000 | .text 0x80034380-0x800381D0 (25 functions between cr_CAMMODE_RESULT_Start and fn_800381D0)
+.sdata2 0x80450684-0x80450808 NEW    value 41200000 | .text 0x8004FF64-0x8005299C (10 functions between fn_8004F6D4 and fn_8005299C)
+.sdata2 0x80450834-0x80450998 NEW    value 3DCCCCCD | .text 0x80053A20-0x8005C384 (17 functions between fn_80053430 and fn_8005C384)
+.sdata2 0x804509B0-0x804509F8 NEW    value 0000000000000000 | .text 0x8005C954-0x8005ED28 (21 functions between fn_8005C7F4 and fn_8005ED28)
+.sdata2 0x80450A48-0x80450A74 NEW    value 3F800000 | .text 0x800633BC-0x800647CC (7 functions between fn_80062FF4 and fn_800647CC)
+.sdata2 0x80450A7C-0x80450AAC NEW    value 00000000 | .text 0x800666B8-0x800672AC (19 functions between fn_800663A4 and fn_800672AC)
+.sdata2 0x80450AC0-0x80450B04 NEW    value 3F800000 | .text 0x8006B46C-0x8006B46C (0 functions between fn_8006B3D0 and fn_8006B46C)
+.sdata2 0x80450B44-0x80450B84 NEW    value 3DCCCCCD | .text 0x8006D9EC-0x8006E83C (8 functions between fn_8006D4F8 and fn_8006E83C)
+.sdata2 0x80450BB0-0x80450C28 NEW    value 00000000 | .text 0x80072F18-0x80073728 (3 functions between fn_80072B90 and fn_80073728)
+.sdata2 0x80450C2C-0x80450C6C NEW    value 00000000 | .text 0x80074DCC-0x800761D0 (18 functions between cr_ModelEntry_LoadAndBuild and fn_800761D0)
+.sdata2 0x80450CD0-0x80450D04 NEW    value 40000000 | .text 0x80079CB8-0x80079F28 (1 functions between fn_80079C70 and fn_80079F28)
+.sdata2 0x80450D18-0x80450D88 NEW    value 4330000080000000 | .text 0x8007BB60-0x8007C094 (3 functions between fn_8007B054 and fn_8007C094)
+.sdata2 0x80450D94-0x80450E40 NEW    value 3F800000 | .text 0x8007FCD8-0x8008057C (3 functions between fn_8007F808 and fn_8008057C)
+.sdata2 0x80450E60-0x80450EBC NEW    value 00000000 | .text 0x80081430-0x80081440 (2 functions between fn_800812A4 and fn_80081440)
+.sdata2 0x80450EF8-0x80450FE0 NEW    value 4330000000000000 | .text 0x80089F40-0x8008A484 (4 functions between fn_80089BB0 and fn_8008A484)
+.sdata2 0x8045100C-0x8045109C NEW    value 00000000 | .text 0x800935F8-0x80093F30 (6 functions between fn_800932D0 and fn_80093F30)
+.sdata2 0x804510A0-0x804510C8 NEW    value 00000000 | .text users overlap (0x800944B8 > 0x800120D8): a shared pool or an inline's copy, no code interval
+.sdata2 0x80451108-0x80451158 NEW    value 00000002 | .text users overlap (0x800DB0E8 > 0x80099EAC): a shared pool or an inline's copy, no code interval
+.sdata2 0x80451160-0x80451188 NEW    value 00000004 | .text users overlap (0x800DB8A4 > 0x800999F0): a shared pool or an inline's copy, no code interval
+.sdata2 0x804512A4-0x80451518 NEW    value BF800000 | .text users overlap (0x800F5448 > 0x800DBAD0): a shared pool or an inline's copy, no code interval
+.sdata2 0x80451568-0x80451640 NEW    value 4330000080000000 | .text 0x800EAC38-0x800EF39C (23 functions between fn_800EAA38 and fn_800EF39C)
+.sdata2 0x80451658-0x80451688 NEW    value 00000000 | .text 0x800F5448-0x800FF614 (54 functions between fn_800F21C8 and fn_800FF614)
+.sdata2 0x8045168C-0x8045168C NEW    value 00000000 | .text users overlap (0x800FF958 > 0x800FED34): a shared pool or an inline's copy, no code interval
+.sdata2 0x80451690-0x80451694 NEW    value 00000000 | .text users overlap (0x800FEFF8 > 0x800FED34): a shared pool or an inline's copy, no code interval
+.sdata2 0x80451698-0x8045169C NEW    value 00000000 | .text users overlap (0x800FEFF8 > 0x800FE644): a shared pool or an inline's copy, no code interval
+.sdata2 0x804516A0-0x804516A4 NEW    value 00000000 | .text users overlap (0x800FE954 > 0x800FE008): a shared pool or an inline's copy, no code interval
+.sdata2 0x804516A8-0x804516AC NEW    value 00000000 | .text users overlap (0x800FE644 > 0x800FD4C4): a shared pool or an inline's copy, no code interval
+.sdata2 0x804516B0-0x804516BC NEW    value 00000000 | .text users overlap (0x800FE644 > 0x800FCE50): a shared pool or an inline's copy, no code interval
+.sdata2 0x804516C0-0x804516CC NEW    value 00000000 | .text users overlap (0x800FDBE8 > 0x800FCC30): a shared pool or an inline's copy, no code interval
+.sdata2 0x804516D0-0x804516D4 NEW    value 00000000 | .text users overlap (0x800FCE50 > 0x800FC674): a shared pool or an inline's copy, no code interval
+.sdata2 0x804516DC-0x804516E0 NEW    value 41E00000 | .text users overlap (0x800FCC30 > 0x800F7BF8): a shared pool or an inline's copy, no code interval
+.sdata2 0x804516F4-0x80451768 NEW    value 00000000 | .text users overlap (0x800FCC30 > 0x800FAE8C): a shared pool or an inline's copy, no code interval
+.sdata2 0x804517EC-0x80451844 NEW    value 42200000 | .text 0x8010DD74-0x8010E47C (5 functions between fn_8010DBA8 and fn_8010E47C)
+.sdata2 0x80451848-0x80451900 known  value 42200000 | .text 0x8010E820-0x801147B4 (45 functions between fn_8010E47C and fn_801147B4)
+.sdata2 0x80451998-0x80451A54 NEW    value 3F000000 | .text 0x80125884-0x80125C2C (14 functions between fn_80124F5C and fn_80125C2C)
+.sdata2 0x80451BE8-0x80451BF8 NEW    value 00000000 | .text 0x80130710-0x80130848 (4 functions between fn_8012F3C4 and fn_80130848)
+.sdata2 0x80451C20-0x80451C88 NEW    value 4330000080000000 | .text 0x801310D4-0x801314D4 (2 functions between cr_Ending_LoadPartPictures and fn_801314D4)
+.sdata2 0x80451C94-0x80451CB4 known  value 00000000 | .text 0x80131C08-0x801394C4 (183 functions between fn_80131910 and PSMTXIdentity)
+.sdata2 0x80451CC4-0x80451CD4 known  value 40000000 | .text 0x80139EB4-0x80139F5C (2 functions between C_MTXLightOrtho and C_MTXFrustum)
+.sdata2 0x80451CE4-0x80451CE8 known  value 3F000000 | .text 0x8013A160-0x8013A1C4 (3 functions between C_MTXOrtho and PSVECNormalize)
+.sdata2 0x80451CF4-0x80451D18 known  value 00000000 | .text 0x80140B58-0x80147A90 (112 functions between ClampCircle and ReverbHICreate)
+.sdata2 0x80451D40-0x80451D40 inside value 4330000080000000 | .text users overlap (0x80148998 > 0x80148018): a shared pool or an inline's copy, no code interval
+.sdata2 0x80451D4C-0x80451D5C known  value 3F800000 | .text 0x801486B4-0x80148998 (4 functions between HandleReverb and ReverbSTDCreate)
+.sdata2 0x80451D80-0x80451D88 inside value 4330000080000000 | .text 0x80148E14-0x80148E14 (0 functions between ReverbSTDCreate and HandleReverb)
+.sdata2 0x80451D90-0x80451D90 known  value 4330000080000000 | .text 0x801491C8-0x801493D4 (4 functions between HandleReverb and do_src1)
+.sdata2 0x80451DA4-0x80451DA8 inside value 00000000 | .text users overlap (0x80159334 > 0x80152110): a shared pool or an inline's copy, no code interval
+.sdata2 0x80451DAC-0x80451DC8 known  value 00000000 | .text 0x80152A48-0x801558BC (72 functions between __GXInitGX and GXInitLightSpot)
+.sdata2 0x80451DEC-0x80451E08 known  value C0800000 | .text 0x80155B1C-0x8015635C (12 functions between GXInitLightDistAttn and GXInitTexObjLOD)
+.sdata2 0x80451E1C-0x80451E20 known  value 00000000 | .text 0x801564C0-0x80157864 (37 functions between GXInitTexObjLOD and GXSetFog)
+.sdata2 0x80451E24-0x80451E80 known  value 00000000 | .text 0x80157C38-0x8015805C (11 functions between GXInitFogAdjTable and fn_8015805C)
+.sdata2 0x80451E84-0x80451E90 known  value 00000000 | .text 0x801584C4-0x801585D8 (2 functions between GXDrawCube and GXSetProjectionv)
+.sdata2 0x80451EB0-0x80451EB8 known  value 0000000000000000 | .text 0x80160C48-0x801640C0 (30 functions between __num2dec_internal and float2str)
+.sdata2 0x80451EC0-0x80451EC0 known  value 0000000000000000 | .text 0x801647DC-0x80165AE4 (14 functions between float2str and __ieee754_acos)
+.sdata2 0x80451ED8-0x80451F48 known  value 3FF921FB54442D18 | .text 0x80165D20-0x80165D20 (0 functions between __ieee754_acos and __ieee754_asin)
+.sdata2 0x80451F50-0x80451FE8 known  value 3FF921FB54442D18 | .text 0x80165F58-0x80165F58 (0 functions between __ieee754_asin and __ieee754_atan2)
+.sdata2 0x80452018-0x80452028 known  value 0000000000000000 | .text 0x801661E8-0x801661E8 (0 functions between __ieee754_atan2 and __ieee754_exp)
+.sdata2 0x80452060-0x804520B0 known  value 3FF0000000000000 | .text 0x8016640C-0x80166748 (1 functions between __ieee754_exp and __ieee754_log)
+.sdata2 0x804520B8-0x80452120 known  value 3FF0000000000000 | .text 0x801669C4-0x801669C4 (0 functions between __ieee754_log and __ieee754_pow)
+.sdata2 0x80452130-0x80452230 known  value 0000000000000000 | .text 0x801671F4-0x801671F4 (0 functions between __ieee754_pow and __ieee754_rem_pio2)
+.sdata2 0x80452260-0x804522C0 known  value 3FE0000000000000 | .text 0x80167594-0x80167594 (0 functions between __ieee754_rem_pio2 and __kernel_cos)
+.sdata2 0x804522C8-0x804522F8 known  value 3FE0000000000000 | .text 0x80167688-0x80167688 (0 functions between __kernel_cos and __kernel_rem_pio2)
+.sdata2 0x80452300-0x80452340 known  value 3FE0000000000000 | .text 0x801684DC-0x801684DC (0 functions between __kernel_rem_pio2 and __kernel_sin)
+.sdata2 0x80452350-0x80452388 known  value 3FF0000000000000 | .text 0x80168790-0x80168790 (0 functions between __kernel_tan and atan)
+.sdata2 0x804523B0-0x804523B8 known  value 0000000000000000 | .text 0x80168AA4-0x80168AA4 (0 functions between cos and floor)
+.sdata2 0x804523C0-0x804523C8 known  value 0000000000000000 | .text 0x80168BEC-0x80168C78 (1 functions between floor and ldexp)
+.sdata2 0x804523D0-0x804523F0 known  value 0000000000000000 | .text 0x80168E3C-0x80168F38 (1 functions between ldexp and sin)
+.sdata2 0x804523F8-0x804523F8 known  value 0000000000000000 | .text 0x80169010-0x80169010 (0 functions between sin and tan)
+.sdata2 0x80452434-0x8045247C NEW    value 3F800000 | .text 0x80170B28-0x80173774 (32 functions between fn_80170708 and fn_80173774)
+.sdata2 0x8045248C-0x80452528 NEW    value 00000000 | .text 0x80179C14-0x8017A248 (3 functions between fn_80179740 and fn_8017A248)
+.sdata2 0x8045252C-0x80452538 NEW    value 00000000 | .text 0x8017A638-0x8017ACB4 (9 functions between fn_8017A540 and fn_8017ACB4)
+.sdata2 0x8045253C-0x80452598 NEW    value 00000000 | .text 0x8017E710-0x8017E934 (6 functions between U8ClampAdd and fn_8017E934)
+.sdata2 0x8045259C-0x80452608 NEW    value 00000000 | .text 0x801812A4-0x8018144C (2 functions between fn_80180B74 and fn_8018144C)
+.sdata2 0x8045260C-0x80452668 NEW    value 00000000 | .text 0x80184B44-0x80185A88 (6 functions between fn_80184450 and fn_80185A88)
+.sdata2 0x8045266C-0x80452670 known  value 00000000 | .text 0x80185B80-0x80186D0C (29 functions between fn_80185A88 and TObjUpdateFunc)
+.sdata2 0x80452674-0x804526A0 known  value 00000000 | .text 0x80187B18-0x8018A208 (30 functions between TObjSetupMtx and HSD_SetMaterialColor)
+.sdata2 0x804526A4-0x804526B0 known  value 00000000 | .text 0x8018A27C-0x8018B564 (42 functions between HSD_SetMaterialColor and MObjUpdateFunc)
+.sdata2 0x804526B4-0x804526C0 known  value 00000000 | .text 0x8018BA00-0x8018CDEC (25 functions between MObjUpdateFunc and HSD_AObjInterpretAnim)
+.sdata2 0x804526C4-0x804526D0 known  value 00000000 | .text 0x8018D0CC-0x8018D2FC (14 functions between HSD_AObjLoadDesc and LObjUpdateFunc)
+.sdata2 0x804526EC-0x80452708 known  value 3F000000 | .text 0x8018E604-0x8018F548 (15 functions between HSD_LObjSetupInit and HSD_CObjEraseScreen)
+.sdata2 0x80452714-0x80452768 known  value 00000000 | .text 0x80191484-0x80191D68 (22 functions between HSD_CObjGetFar and HSD_FObjReqAnimAll)
+.sdata2 0x8045276C-0x80452790 known  value 00000000 | .text 0x80193648-0x80193B14 (8 functions between HSD_FObjInterpretAnim and PObjLoad)
+.sdata2 0x804527B0-0x804527C0 known  value 0000000000000000 | .text 0x80195C50-0x801971E8 (15 functions between SetupEnvelopeModelMtx and JObjUpdateFunc)
+.sdata2 0x804527DC-0x80452810 known  value 3F800000 | .text 0x8019AE08-0x8019B4C4 (5 functions between JObjInit and mkVBillBoardMtx)
+.sdata2 0x80452814-0x80452838 known  value 3F800000 | .text 0x8019BE7C-0x8019CF0C (17 functions between mkBillBoardMtx and HSD_GXInit)
+.sdata2 0x8045283C-0x80452840 known  value 3F800000 | .text 0x8019CFB8-0x8019D8BC (16 functions between HSD_GXInit and HSD_VICopyEFB2XFBPtr)
+.sdata2 0x80452844-0x80452858 known  value 3F800000 | .text 0x8019DB14-0x8019E11C (5 functions between HSD_VICopyEFB2XFBPtr and splGetHelmite)
+.sdata2 0x8045286C-0x804528A0 known  value 00000000 | .text 0x8019EB14-0x8019EB5C (1 functions between splArcLengthGetParameter and fn_8019EB5C)
+.sdata2 0x804528B0-0x804528E8 known  value 3FE0000000000000 | .text 0x801A023C-0x801A0B0C (16 functions between HSD_VecGetOrthogonal and RObjUpdateFunc)
+.sdata2 0x80452908-0x80452928 known  value 00000000 | .text 0x801A2644-0x801A2C08 (9 functions between dummy_func and WObjUpdateFunc)
+.sdata2 0x8045292C-0x80452940 known  value 00000000 | .text 0x801A2D4C-0x801A33E4 (12 functions between WObjUpdateFunc and HSD_FogSet)
+.sdata2 0x8045294C-0x80452968 known  value 3F000000 | .text 0x801A3B28-0x801A4184 (19 functions between FogUpdateFunc and HSD_ShadowAlloc)
+.sdata2 0x80452980-0x804529A8 NEW    value 4330000000000000 | .text 0x801A5558-0x801A5E7C (8 functions between HSD_ViewingRectAddRect and HSD_Randf)
+.sdata2 0x804529B0-0x804529F8 known  value 4330000000000000 | .text 0x801A5ED4-0x801AF020 (55 functions between HSD_Randf and __THPReadQuantizationTable)
+
 == rejected candidates (685)
 GALE01:Runtime/__va_arg.c .text: start not proven (__va_arg .. __va_arg; neighbour MWInitializeCriticalSection)
 GALE01:Runtime/Gecko_ExceptionPPC.c .text: none of its functions is (uniquely) named in ours

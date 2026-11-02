@@ -390,6 +390,27 @@ A neighbour that kar's asm places in exactly one other file also counts as that 
 (no C linked): sysdolphin is 33 split objects, 24 from C. Still open (splits_report.txt): archive.c's end, synth.c's
 end, axdriver.c's end, devcom.c's start, particle.c's start (their neighbours are unnamed fn_ functions).
 
+### Float-pool restart intervals (step 101, Nov 1, 2026)
+
+`tools/gen_dtk_splits.py` `pool_restarts` adds a report-only section to splits_report.txt, "float-pool restart
+intervals" (roadblock_solutions.md section 8): every 4- or 8-byte .sdata2 constant in address order; when a value is
+seen again, another file started after its previous copy, so a boundary lies in (previous copy, repeat]; cut greedily
+at each first repeat. For each interval the report gives the .text interval as well: after the last function that uses
+the earlier pool, before the first one that uses the later pool (the link order is the same in both sections).
+
+Measured on main (step 100 state): 1,740 constants, 98 restarts = at least 99 pools (60 .sdata2 pieces proven today).
+48 intervals hold a proven .sdata2 edge (**known**: the rule agrees with every one), 3 lie inside one proven piece
+(**inside**: false positives, all in Dolphin SDK code: the int-to-float constant 0x4330000080000000 twice and 0.0f,
+one each in reverb_hi.c and reverb_std.c, whose `asm` functions keep their own copies, and one 0.0f in GXInit.c), 47 are **NEW**. 16 intervals have code users
+on both sides that overlap (a shared constant or an inline's copy): no code interval. The tightest new ones:
+0x8006B46C (0 functions between fn_8006B3D0's pool and fn_8006B46C's: an exact file edge), 0x8001B1A0-0x8001B1D4 and
+0x80079CB8-0x80079F28 (1 function each).
+
+Not used for splits yet: 3 false positives in 51 testable intervals (6%) is too many for a rule that proves alone. Use:
+accept an interval only where a second rule agrees (padding, a G3 run, an assert's file name), and drop the
+0x4330000080000000 / 0.0 repeats in SDK-style code. Next: the game-code intervals as boundaries for file objects
+(docs/decomp.md file objects), the HSD ones against the particle family's edges.
+
 ### Particle family names (step 100, Nov 1, 2026)
 
 Every function of 0x80179C14-0x80186490 was compared with Melee 598987cf's particle.c / generator.c / psdisp.c /

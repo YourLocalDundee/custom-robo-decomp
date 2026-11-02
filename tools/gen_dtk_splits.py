@@ -2261,6 +2261,71 @@ def trim_symbols():
     OURS.write_bytes("\n".join(out).encode("utf-8"))
 
 
+def pool_restarts(audit, funcs, ours, data):
+    """report only (roadblock_solutions.md section 8): the float-pool restart intervals. mwcc pools a file's .sdata2
+    constants once per value, so a 4- or 8-byte value seen again in .sdata2 means another file started after its
+    previous copy: the boundary is in (previous copy, repeat]. Cut greedily at each first repeat (the fewest pools).
+    The code of each pool's users follows the same link order, so the .text boundary lies after the last function that
+    uses the earlier pool and before the first function that uses the later one. 'known' = a proven .sdata2 piece
+    starts or ends inside the interval; 'inside' = the interval lies within one proven piece (the rule is wrong there:
+    its false positives on ground truth); 'NEW' = neither. -> (summary lines, interval lines)"""
+    elf, dobjs = audit[0], audit[1]
+    ents = []
+    for n, sec, a, sz, isf in ours:
+        if sec != ".sdata2" or sz not in (4, 8):
+            continue
+        w = [elf.word(a + o) for o in range(0, sz, 4)]
+        if None not in w:
+            ents.append((a, sz, tuple(w)))
+    ents.sort()
+    cuts, seen = [], {}   # (previous copy, its size, repeat address, value)
+    for a, sz, v in ents:
+        if (sz, v) in seen:
+            pa, psz = seen[(sz, v)]
+            cuts.append((pa, psz, a, sz, v))
+            seen = {}
+        seen[(sz, v)] = (a, sz)
+    pieces = [(lo, hi) for v in data.values() for s, (lo, hi) in v.items() if s == ".sdata2"]
+    edges = sorted({e for pc in pieces for e in pc})
+    _, by_c = pool_refs(audit, funcs)
+    users = defaultdict(set)   # .sdata2 symbol start -> function indices
+    for (sec, c), ks in by_c.items():
+        if sec == ".sdata2":
+            users[c] |= ks
+
+    def users_in(lo, hi):
+        return {k for c, ks in users.items() if lo <= c < hi for k in ks}
+
+    lines, nknown, nconf, ninside = [], 0, 0, 0
+    starts = [ents[0][0] if ents else 0] + [c[2] for c in cuts]
+    for i, (pa, psz, a, sz, v) in enumerate(cuts):
+        lo, hi = pa + psz, a                                  # the boundary b: lo <= b <= hi
+        known = any(lo <= e <= hi for e in edges)
+        inside = not known and any(plo < lo and hi < phi for plo, phi in pieces)
+        nknown += known
+        ninside += inside
+        nxt = starts[i + 2] if i + 2 < len(starts) else 0xFFFFFFFF
+        before, after = users_in(starts[i], lo), users_in(hi, nxt)
+        val = "".join(f"{x:08X}" for x in v)
+        if before and after:
+            tlo = max(funcs[k][2] + funcs[k][3] for k in before)
+            thi = min(funcs[k][2] for k in after)
+            if tlo <= thi:
+                inner = sum(1 for f in funcs if tlo <= f[2] < thi)
+                code = (f".text 0x{tlo:08X}-0x{thi:08X} ({inner} functions between "
+                        f"{funcs[max(before, key=lambda k: funcs[k][2])][0]} and {funcs[min(after, key=lambda k: funcs[k][2])][0]})")
+            else:
+                nconf += 1
+                code = f".text users overlap (0x{tlo:08X} > 0x{thi:08X}): a shared pool or an inline's copy, no code interval"
+        else:
+            code = ".text: no user on one side"
+        lines.append(f".sdata2 0x{lo:08X}-0x{hi:08X} {'known ' if known else 'inside' if inside else 'NEW   '} value {val} | {code}")
+    head = [f"{len(ents)} 4- / 8-byte .sdata2 constants; {len(cuts)} restarts = at least {len(cuts) + 1} pools; "
+            f"{nknown} intervals hold a proven .sdata2 edge (known), {ninside} lie inside one proven piece (inside: the "
+            f"rule's false positives), {len(cuts) - nknown - ninside} are new; {nconf} with overlapping users"]
+    return head, lines
+
+
 def main(argv) -> int:
     ours = read_syms(OURS)
     rejected, notes = [], []
@@ -2381,6 +2446,9 @@ def main(argv) -> int:
     head += ["", "== unproven data ranges (dtk automatic objects)"]
     for s, a, b in dgaps:
         head.append(f"{s:<7} 0x{a:08X}-0x{b:08X} size 0x{b - a:X}")
+    if audit is not None:
+        psum, plines = pool_restarts(audit, funcs, ours, data)
+        head += ["", "== float-pool restart intervals (report only, roadblock_solutions.md section 8: a .sdata2 value seen again means a new file between its two copies; not used for splits yet)"] + psum + plines
     head += ["", f"== rejected candidates ({len(rejected)})"] + rejected
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_bytes(("\r\n".join(head) + "\r\n").encode("utf-8"))
