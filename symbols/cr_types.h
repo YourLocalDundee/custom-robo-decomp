@@ -2044,10 +2044,10 @@ typedef struct cr_SaveData {
 /// list 0x8023CF00 and cr_g_UnlockBits.stages; cr_StageSelector_Update runs the handler table 0x8023BFEC[state] every frame.
 typedef struct cr_StageSelectorState {
     /* +000 */ u8 state;              // index into the handler table 0x8023BFEC (cr_StageSelector_Update); 2 under mode flag 0x2000000 (cr_StageSelector_Init)
-    /* +001 */ u8 unk_001;            // cursor = unk_001 + unk_002 * 6 + unk_004 * 6 (cr_StageSelector_Init)
-    /* +002 */ u8 unk_002;
+    /* +001 */ u8 col;                // cursor = col + (row + top_row) * 6 (cr_StageSelector_Init, cr_StageSelector_PickRandom); cr_StageSelector_PickRandom draws it % 6
+    /* +002 */ u8 row;                // the cursor's row in the two-row window: cr_StageSelector_PickRandom draws one bit
     /* +003 */ u8 unk_003;
-    /* +004 */ u8 unk_004;            // 5 becomes 4 with unk_002 = 1 (cr_StageSelector_Init)
+    /* +004 */ u8 top_row;            // the window's first row: cr_StageSelector_PickRandom draws it % 5; cr_StageSelector_Init turns 5 into 4 with row = 1
     /* +005 */ u8 stage_count;        // stages listed in stage_ids (cr_StageSelector_Init)
     /* +006 */ u8 stage;              // the selected stage id: = stage_ids[cursor]; cr_StageSelector_Init starts from the stage id 0x803756A2
     /* +007 */ u8 cursor;             // index into stage_ids
