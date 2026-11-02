@@ -1386,3 +1386,21 @@ definitions when it reads which function a game file defines.
   fn_8000860C / fn_8001E488 (float register and load order), fn_800A0C20 / fn_800A0CB0 (r27 / r28 swapped),
   fn_800119A0 (a nested loop whose exit increments the outer counter: no rule yet), the script-command handlers at
   80-89% (cr_S_*, cr_SYS_*, cr_F_*, cr_CM_*: schedule-only, the step 91 wall), and the two m2c failures above.
+
+### Main session, Nov 2, 2026: types from the community leads, effect on the drafts (on main)
+
+Names and types added on main while steps 109a / 109b ran (docs/decomp.md "Community address leads checked",
+docs/robo_tables.md "The stat triples and the leg values"): cr_BodyStats.leg_tri_* / air_type / air_jumps / air_dashes,
+cr_LegData.leg_values, cr_RoboLegStats, cr_BattleRobo.action / tag_cooldown / air_actions_left / timer_len / timer_left,
+cr_BattleParams.tag_cooldown, cr_GameMode.battle_mode, cr_StageSelectorState.col / row / top_row, cr_BgmSlot,
+cr_BgmRequest, cr_TagTeam, cr_BattleRoboState. Drafts re-run on the functions each change touches (`--only`, compared
+with the report before): fn_800F7914 82% -> 98%, fn_80086CA0 77% -> 83%, fn_80024848 74% -> 82%, fn_80048B10 79% -> 83%,
+fn_80045CE8 71% -> 74%; cr_g_CurrentBodyStats is typed `u8 *`, not `cr_BodyStats *` (its readers index it by byte offsets,
+which m2c writes through a struct pointer as a struct value: a new compile failure). Two hand drafts follow renamed
+fields (fn_80112294, fn_8012855C).
+
+- **fn_800F7914** by hand: the u16 parameter used directly (m2c's copy homes it on the stack) and the pointer copy placed
+  after the first test give 185 of 186 words; one extra `stw` of the never-used copy is left (tried: `(void)` use,
+  `register`, s32).
+- **`--only` runs use the last full run's ctx_protos.h**: a function renamed since then (cr_Rand_Int = fn_8001B3F0) has
+  no prototype there and its callers fail to compile in a partial run only; the full batch 12 is the test.
