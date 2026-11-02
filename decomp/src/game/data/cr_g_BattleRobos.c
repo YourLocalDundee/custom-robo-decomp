@@ -70,7 +70,10 @@ typedef struct cr_BattleRobo
   u8 index;
   u8 unk_0008d;
   u16 unk_0008e;
-  u8 unk_00090[0xAB];
+  u8 unk_00090[0x50];
+  s16 timer_len;
+  s16 timer_left;
+  u8 unk_000e4[0x57];
   u8 air_actions_left;
   u8 unk_0013c[0xA];
   s16 tag_cooldown;

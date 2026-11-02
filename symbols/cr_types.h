@@ -2202,7 +2202,10 @@ typedef struct cr_BattleRobo {
     /* +0008C */ u8 index;                // cr_g_BattleRoboIndex (cr_BattleRobo_InitFromLoadout); the most-read byte of the robo (98 reads in 28 functions)
     /* +0008D */ u8 unk_0008d;            // cr_BattleLoadout.unk_0
     /* +0008E */ u16 unk_0008e;           // cr_BattleLoadout.unk_e
-    /* +00090 */ u8 unk_00090[0xAB];
+    /* +00090 */ u8 unk_00090[0x50];
+    /* +000E0 */ s16 timer_len;         // a timed action's length: set together with timer_left (from leg_stats.blended[9] in fn_80049924, from cr_g_BattleParams +0x18 in fn_8004B0A0); the battle code computes timer_len - timer_left
+    /* +000E2 */ s16 timer_left;        // counted down by 1 (lha; subi 1; sth, 7 places) and compared with timer_len
+    /* +000E4 */ u8 unk_000e4[0x57];
     /* +0013B */ u8 air_actions_left;   // refilled from the body stats' +0x5E or +0x57 by the air-action type (+0x56) in fn_80045FEC / fn_80049924 / fn_8004B0A0, counted down by 1 on each use (the community's "current dash count")
     /* +0013C */ u8 unk_0013c[0xA];
     /* +00146 */ s16 tag_cooldown;      // = cr_g_BattleParams.tag_cooldown (420) in fn_80045B40; fn_8004B0A0 counts it down by 1 per frame while > 0; fn_800450DC, fn_80045FEC and fn_80049924 test it for 0
