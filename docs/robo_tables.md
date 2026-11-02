@@ -113,9 +113,29 @@ docs/community/crbr_parts_expansion.md has the full map. Facts the repo (CRBR-Pa
 - **The other part tables** have the same "base part / stats part" split (the mod's Robobytes Control, PartExpansion.asm lines 1564-1678, switches each copy loop of cr_BattleRobo_InitFromLoadout at the offsets below; bases from fn_800666B8): leg 0x801C952C (0x8F x 29, stats from +0x80), gun 0x801CA560 (0x28C x 64, from +0xA0), bomb 0x801D4860 (0x17C x 52, from +0xA0), pod 0x801D9590 (0x174 x 57, from +0xE0); the first stats byte is each table's illegal flag.
 - **Free space they use**: code at 0x800048E0 (.init, inside gTRKInterruptVectorTable, zero to 0x80004AAC) and data words at 0x8023BC70 .. 0x8023BD9E; the grown tables live in the code list above 24 MB (Dolphin's 32 MB override).
 
-### The stat triples, checked against main.dol (Nov 2, 2026)
+### The stat triples and the leg values (Nov 2, 2026)
 
-The body record's +0x064 .. +0x0A5 is 11 u16 triples (low / mid / high), in the order of the mod's field list (docs/community/crbr_parts_expansion.md, +0x64 row): air-dash speed, LS turning, run speed, ground acceleration, ground turning, jump height, jump speed, lateral air speed, air acceleration, landing lag, gravity. **Checked**: all 374 triples of the 34 retail records are non-decreasing (low <= mid <= high), so the grouping holds for every body; Ray 01's jump height (+0x082) is 120 / 250 / 375 in retail (a community note gives 125 for the low value). The community lead that leg values 1 / 100 / 200 pick these three and interpolate between them is **not verified**: no code in the game loads +0x064 .. +0x0A5 at a fixed displacement (searched: every `lha` / `lhz` at robo + 0x1B98 + offset and every `mulli 6` near a robo base), so the reader indexes the triples by a computed offset; finding it is the next step before these fields get names in cr_types.h. The fields right after them are read directly: +0x0A6 / +0x0A8 (fn_8003B528, fn_8004E8D4, fn_80062FF4), +0x0AC (7 battle functions), +0x0AE (fn_8003B528). The lead's address 0x801C6C64 is +0x20 of record 0, the romaji name (cr_g_BodyStats = 0x801C6C44).
+**Verified from the code**: fn_80006658 (called once, by cr_BattleRobo_InitFromLoadout, with the robo's body record copy robo + 0x1B98, its leg record copy robo + 0x33308 and an output block robo + 0x341C) turns 14 low / mid / high triples of the body record into the robo's stats. Each stat has one leg byte v (leg record +0x81 .. +0x8E): v <= 100 gives low + v x (mid - low) / 100, else mid + (v - 100) x (high - mid) / 100, so v = 0 / 100 / 200 picks low / mid / high and the values between blend linearly; the result is stored as s16.
+
+| Body record triple | Type | Leg byte | Output (robo + 0x341C +) | Ray 01 low / mid / high |
+|---|---|---|---|---|
+| +0x70 | s16 x 3 | +0x81 | +0x00 | 48 / 80 / 96 |
+| +0x76 | s16 x 3 | +0x82 | +0x02 | 90 / 150 / 240 |
+| +0x7C | s16 x 3 | +0x83 | +0x04 | 100 / 200 / 400 |
+| +0x82 | s16 x 3 | +0x84 | +0x06 | 120 / 250 / 375 |
+| +0x88 | s16 x 3 | +0x85 | +0x08 | 4 / 8 / 16 |
+| +0x8E | s16 x 3 | +0x86 | +0x0A | 100 / 140 / 180 |
+| +0x94 | s16 x 3 | +0x87 | +0x0C | 50 / 100 / 325 |
+| +0x9A | s16 x 3 | +0x88 | +0x0E | 10 / 20 / 40 |
+| +0xA0 | u16 x 3 | +0x89 | +0x10 | 50 / 100 / 150 |
+| +0x50 | u8 x 3 | +0x8A | +0x12 | 3 / 6 / 10 |
+| +0x53 | u8 x 3 | +0x8B | +0x14 | 5 / 15 / 30 |
+| +0x58 | u16 x 3 | +0x8C | +0x16 | 100 / 160 / 264 |
+| +0x61 | u8 x 3 | +0x8D | +0x18 | 5 / 10 / 15 |
+| +0x64 | u16 x 3 | +0x8E | +0x1A | 150 / 300 / 396 |
+| +0x6C | s16 | - | +0x1C (copied) | - |
+
+Checked on main.dol: every one of these 14 triples is non-decreasing in all 34 retail records. The mod's field list (docs/community/crbr_parts_expansion.md, +0x64 row) names stats in this area (air-dash speed, turning, run speed, ground acceleration, jump height, jump speed, air speed, air acceleration, landing lag, gravity), but it groups them from +0x64 in steps of 6, which the code does not do (+0x6A / +0x6E are not read here), so its names are not mapped to rows yet. A community note's Ray 01 jump triple 125 / 250 / 375 matches no row exactly; the +0x82 row is 120 / 250 / 375. Name candidates after the merge: fn_80006658 = cr_BattleRobo_ApplyLegValues, the output block robo + 0x341C as a 0x1E-byte stats struct. The fields read directly elsewhere: +0x0A6 / +0x0A8 (fn_8003B528, fn_8004E8D4, fn_80062FF4), +0x0AC (7 battle functions), +0x0AE (fn_8003B528). The lead's address 0x801C6C64 is +0x20 of record 0, the romaji name (cr_g_BodyStats = 0x801C6C44).
 
 ## Still unknown (next steps)
 

@@ -377,7 +377,8 @@ cr_g_PartOrderLeg 0x24 vs 0x22); the string tables (cr_g_SeqNames, cr_g_MotionNa
 Leads only until a name lands in cr_globals.txt with its own `why`; checked against main.dol and the code:
 
 - **Body stats 0x801C6C64, stride 0x134**: +0x20 (romaji name) of record 0 of cr_g_BodyStats (0x801C6C44); the stride
-  is the record size. The 11 stat triples at +0x064 .. +0x0A5: docs/robo_tables.md "The stat triples".
+  is the record size. **Leg values verified**: fn_80006658 blends 14 low / mid / high triples of the body record by one
+  leg byte each (0 / 100 / 200 = low / mid / high): docs/robo_tables.md "The stat triples and the leg values".
 - **Frame counter 0x8044F2A2**: the low halfword of lbl_8044F2A0 (.sbss, u32); `main` adds 1 to it once per pass of
   its loop and no other function stores to it (5 readers). **Verified**; name candidate cr_g_FrameCount.
 - **Song id 0x803B7682**: lbl_803B7678 + 0xA (.bss, 0x70), used only by cr_Bgm_Play / cr_Bgm_FadeOut /
