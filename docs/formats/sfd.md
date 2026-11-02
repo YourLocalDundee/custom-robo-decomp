@@ -27,7 +27,7 @@ Rules (all verified on every archive):
 | `attack_effect.BIN` / `bomb_effect.BIN` / `gun_effect.BIN` / `pod_effect.BIN` | 34 / 52 / 64 / 57 | effect models (2 .dat each) |
 | `leg_effect.BIN` | 34 | effect models (standard .dat) |
 | `bg_data.BIN` | 80 | stages: even = model .dat, odd = unknown |
-| `snr_motion.BIN` | 50 | unknown (count+offset container) |
+| `snr_motion.BIN` | 50 | motion files, one per piece ([motion.md](motion.md)) |
 | `scenario_us\` and `scenario_jp\`: `snr_chara`, `snr_obj`, `snr_map`, `rpg_t_models`, `rpg_f_models` | 56, 89, 94, 48, 48 each | story mode |
 
 `gcflag_joy.bin` is not an SFD archive (no magic) and is skipped by the tools.

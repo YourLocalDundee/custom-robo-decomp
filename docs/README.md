@@ -64,6 +64,7 @@ Every command runs from the repo root. `tools/check_docs.py` checks this convent
 |---|---|
 | [formats/sfd.md](formats/sfd.md) | The `.BIN` SFD archive format (verified on all 22 archives) |
 | [formats/model_entry.md](formats/model_entry.md) | Robo / weapon / story-character model entries (header decoded from the game's loaders), joint roles |
+| [formats/motion.md](formats/motion.md) | Motion files (`motion.DBN`, `snr_motion.BIN`): container and track layout (verified), value meaning (research) |
 | [formats/containers.md](formats/containers.md) | Every archive and file type on the disc: what is inside, what is decoded, what is not |
 | [robo_tables.md](robo_tables.md) | Every table, file and constant indexed by the body (robo) number, with its users; the checklist for a new body (step 71) |
 | [stage_tables.md](stage_tables.md) | Stage id -> `bg_data` entries (2s = scene model, 2s+1 = collision), the scene / collision formats, the stage record, load buffers and limits (step 75) |

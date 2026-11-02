@@ -12,7 +12,7 @@ Classification by `tools/extract_models.py` logic, run over every entry of every
 | `leg_effect` | standard HSD .dat, root `scene_data` | 34 | decoded |
 | `scenario_*/snr_obj` | standard HSD .dat, root `scene_data` | 89 (US) | decoded |
 | `attack_effect` / `bomb_effect` / `gun_effect` / `pod_effect` | small container: u32 N, then N+1 offsets (last = end); each piece is a standard HSD .dat (`scene_data`) | 68 / 104 / 128 / 114 | decoded |
-| `snr_motion` | same count+offset container; pieces are **not** standard .dat | — | **unknown** (name suggests animation; not verified) |
+| `snr_motion` | same count+offset container; pieces are **not** standard .dat | — | motion files, one per piece: [motion.md](motion.md) |
 | `scenario_*/snr_map` | header 0x20 bytes: offset of a collision block (bg_data odd-entry format), offset of an HSD .dat (`scene_data`), 4 floats x / z min / max (bounds, likely), offset of a small unknown block ([stage_tables.md](../stage_tables.md#snr_map-story-mode-maps-for-comparison)) | — | layout read; not in the loop yet |
 | `scenario_*/rpg_t_models` / `rpg_f_models` | entry 0: u32 count, then (id, offset) pairs; other entries differ; one entry per archive parses as a model entry without joints | — | **unknown** |
 | `TITLE_MODEL.dat` (loose file) | standard HSD .dat, root `scene_data` | 1 | decoded |
@@ -28,7 +28,7 @@ Only the US `scenario_us` archives are extracted to `models_dat/`; `scenario_jp`
 | `message/*.bmc` | magic `MGCLbmc1` (not BMG; likely a colour table — not verified) | header bytes |
 | `thpdemo/*.thp` | THP video | extension |
 | `sound/*.hps`, `*.ssm`, `*.sem` | audio | extension |
-| `*.dbn` (`logo_read_*`, `efc_common`, `motion.DBN`) | header looks like u32 count + offsets (e.g. `motion.DBN`: 3, 0x20, …); not parsed | header bytes |
+| `*.dbn` (`logo_read_*`, `efc_common`, `motion.DBN`) | header looks like u32 count + offsets; `motion.DBN` is a motion file: [motion.md](motion.md); the others not parsed | header bytes |
 | `*.bnr` | GameCube banner (`BNR1`) | header bytes |
 | `viewer.ini`, `IS USBServer.ini` | text config left on the disc | text |
 | `gcflag_joy.bin` | unknown | — |
