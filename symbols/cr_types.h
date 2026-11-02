@@ -2211,7 +2211,9 @@ typedef struct cr_BattleRobo {
     /* +00146 */ s16 tag_cooldown;      // = cr_g_BattleParams.tag_cooldown (420) in fn_80045B40; fn_8004B0A0 counts it down by 1 per frame while > 0; fn_800450DC, fn_80045FEC and fn_80049924 test it for 0
     /* +00148 */ u8 unk_00148[0x84];
     /* +001CC */ u16 parts[5];            // body, gun, bomb, pod, leg (cr_BattleLoadout.parts): body indexes cr_g_BodyData and the body stats, the others their part tables below
-    /* +001D6 */ u8 unk_001d6[0x161E];
+    /* +001D6 */ u8 unk_001d6[0x352];
+    /* +00528 */ u8 action;             // the robo's action state: fn_8004B0A0 calls cr_g_BattleRoboActionFuncs[action] (the word's top byte x 4); fn_80045B40 sets 0, fn_80049924 sets 6
+    /* +00529 */ u8 unk_00529[0x12CB];
     /* +017F4 */ cr_BodyData body_data;   // cr_g_BodyData[body] (lwz/stw loop of 15 x 8 bytes to +0x17F4)
     /* +0186C */ u8 unk_0186c[0x32C];
     /* +01B98 */ u8 body_stats[0x134];    // the body's 0x134-byte record of 0x801C6C44 (34 records; lhz/sth loop of 0x4D x 4 bytes)
