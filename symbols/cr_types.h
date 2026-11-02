@@ -2186,6 +2186,12 @@ typedef struct cr_TagTeam {
     /* +08 */ u8 unk_08[0x10];
 } cr_TagTeam;
 
+// ASSERT_SIZE(cr_BattleRoboState, 0x31C)  15 functions index lbl_80387160 by robo->index x 0x31C (mulli 0x31C); dtk's object 0xC70 = 4 x 0x31C
+/// A second per-robo block (cr_g_BattleRoboStates[robo->index]), next to cr_BattleRobo.
+typedef struct cr_BattleRoboState {
+    /* +000 */ u8 unk_000[0x31C];    // +0x152 of record 0 is the community's "P1 still in the cube" address 0x803872B2 (not checked)
+} cr_BattleRoboState;
+
 // ASSERT_SIZE(cr_RoboLegStats, 0x1E)  cr_BattleRobo_ApplyLegValues stores s16 at +0x00 .. +0x1C
 /// The body stats blended by the leg values (cr_BattleRobo.leg_stats; docs/robo_tables.md "The stat triples and the leg values").
 typedef struct cr_RoboLegStats {

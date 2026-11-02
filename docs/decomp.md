@@ -384,8 +384,8 @@ Leads only until a name lands in cr_globals.txt with its own `why`; checked agai
 - **Song id 0x803B7682**: **verified**: the low halfword of cr_g_BgmSlots[0].song (0x803B7678 + 8; two slots of 0x38,
   cr_BgmSlot): cr_Bgm_Play stores its id argument there as a word; cr_g_BgmRequest (0x803B8BE8) holds a request while
   both slots are busy.
-- **P1 in the cube 0x803872B2**: lbl_80387160 + 0x152 (.bss, 0xC70, 15 users incl. cr_CAMMODE_BTL_WAIT_Frame). Field
-  not proven yet.
+- **P1 in the cube 0x803872B2**: record 0 + 0x152 of cr_g_BattleRoboStates (0x80387160, four 0x31C-byte records indexed by
+  the robo's index: verified); the field itself not proven yet.
 - **BGM volume 0x8044F6D0**: **verified**, named cr_g_BgmVolume (f32: fn_800965F4 stores its argument and rescales the
   slots, cr_Bgm_GetVolume multiplies by it).
 - **Remaining round time 0x80321DB4**: cr_g_SeqCurrent + 0x2C, a wait counter every sequence uses (set with the step at
