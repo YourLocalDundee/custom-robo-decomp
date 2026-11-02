@@ -638,11 +638,11 @@ typedef struct cr_SeqState {
     /* +04 */ cr_Seq previous;              // = current just before it changes (cr_Game_Update)
     /* +08 */ cr_Seq next;                  // when it differs from current, Leave of the current and Enter of this run
     /* +0C */ u8 unk_0c[4];
-    /* +10 */ u32 unk_10;
+    /* +10 */ u32 unk_10;                   // the sequence's step: the FrameA handlers switch on it and set it with unk_2c (cr_SEQ_LOGO_FrameA, cr_SEQ_TITLE_FrameA, cr_SEQ_SCENARIO_FrameA)
     /* +14 */ u8 unk_14[0x10];
     /* +24 */ u32 unk_24;                   // the FrameA handlers test it for 0, set the sequence up and set it to 1
     /* +28 */ u32 unk_28;
-    /* +2C */ u32 unk_2c;
+    /* +2C */ u32 unk_2c;                   // a wait in frames: set with the step (0x45 cr_SEQ_LOGO_FrameA, 0x708 cr_SEQ_TITLE_Enter), counted down while not 0 (the community's round time 0x80321DB4 in battle)
     /* +30 */ u8 unk_30[4];
     /* +34 */ u32 unk_34;
     /* +38 */ s32 unk_38;
