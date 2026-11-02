@@ -466,7 +466,7 @@ splits_report.txt prints the pool-restart intervals; the 232 unproven code range
 batch 11 PASS.
 
 **First three steps.**
-1. Name the 15 exact particle-family functions, each with a `why:` line (compiled C equal); batch 8, batch 9.
+1. Name the 15 exact particle-family functions, each with a `why:` line (compiled C equal); batch 8, batch 9. **Done, step 100**: 12 named (3 have only decomp placeholder names, one name is taken), psSetupTev added, psdisptev.c split (docs/decomp.md "Particle family names (step 100)").
 2. Add the float-pool restart intervals to gen_dtk_splits.py's report (report only), next to the padding candidates.
 3. Read 0x80098EDC (fn_80170EAC's caller) and the archive.c tail's data order, to close two HSD edges.
 

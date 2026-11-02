@@ -390,6 +390,41 @@ A neighbour that kar's asm places in exactly one other file also counts as that 
 (no C linked): sysdolphin is 33 split objects, 24 from C. Still open (splits_report.txt): archive.c's end, synth.c's
 end, axdriver.c's end, devcom.c's start, particle.c's start (their neighbours are unnamed fn_ functions).
 
+### Particle family names (step 100, Nov 1, 2026)
+
+Every function of 0x80179C14-0x80186490 was compared with Melee 598987cf's particle.c / generator.c / psdisp.c /
+psdisptev.c / psappsrt.c and wowjinxy/KAR's particle.c / generator.c / psdisp.c / pslist.c / psinterpret.c, each
+compiled with our HSD flags (probe.py `compile_one` / `compare`, any function of a similar size, not only by name), and
+with doldecomp/kar's asm of the KAR particle range (revisions.py `mask_words`). 15 compile equal; the names come from
+those references and from **Pokemon XD's maps** (tools/refs/xd GXXE01 / NXXJ01: real names, sizes and the order of its
+particle files), which name several functions that wowjinxy's map only has as kar_particle__near_*:
+
+| Address | Name | Evidence |
+|---|---|---|
+| 0x8017A96C | psDeletePntJObjwithParticle | wowjinxy C equal; Melee's psClearPointJObj (the same body) equal too; the KAR and XD maps' name |
+| 0x8017E3D4 / E484 / E534 | HSD_JObjAddTz / Ty / Tx (local) | wowjinxy C equal; translate +0x40 / +0x3C / +0x38; XD's order |
+| 0x8017E6B8 | U8ClampAdd (local) | wowjinxy C equal; XD 0x58 in the same place |
+| 0x8017E710 | HSD_MTXSRT (local) | wowjinxy C equal; XD 0x20 in the same place |
+| 0x8017E794 | _psListGetNext (local) | wowjinxy C equal; KAR particle.c's last function; XD 0x8 |
+| 0x8017E874 | psGetNewIDNum | Melee generator.c equal; XD 0x28 |
+| 0x801851D4 | psSetupTevCommon | wowjinxy psdisp.c equal (Melee psdisptev.c's); XD 0x130 |
+| 0x80185304 | psSetupTevInvalidState | wowjinxy equal; Melee / XD 0xC |
+| 0x80185310 | psSetupTev | Melee's closest (0.587, newer revision), TEV calls only, XD 0x6D8, after the two above as in Melee |
+| 0x80185BBC | psAttachGeneratorAppSRT | Melee psappsrt.c equal; XD 0x3C |
+| 0x80186010 | _psListDelete | wowjinxy pslist.c equal; KAR map: pslist.c's first function; asserts with pslist.c |
+
+Equal but not named: fn_8017E730 (0x64, only wowjinxy's kar_particle__near_8043012c; XD has no function there),
+fn_80180AC8 and fn_801812A4 (Melee's hsd_8039EFAC / hsd_8039F6CC, decomp names only). fn_8017E5E4 (0.964 against
+Melee's HSD_JObjSetupMatrix, XD's 0x70 there) stays unnamed: the name is already the weak copy at 0x80007D68.
+
+New split object: **psdisptev.c** .text 0x801851D4-0x801859E8 (Melee's three functions, both edges the reference's own;
+sysdolphin 36 objects). Still open: particle.c's end (KAR ends it at _psListGetNext, Melee at psInitDataBankLoad: the
+two revisions order the file differently), psappsrt.c's start (fn_80185B80 0x3C before psAttachGeneratorAppSRT is
+psAttachParticleAppSRT by Melee's and XD's order, not compiled equal), generator.c, psdisp.c and pslist.c (their
+neighbours are unnamed: port per function, as HSD). XD's other particle-file names by size and order
+(psInitAppSRT 0xA0 = fn_801859E8, psAddGeneratorAppSRT 0xF8 = fn_80185A88, psInterpretParticles 0xD0/0xD8) are leads
+for that port, not names yet.
+
 ### HSD objects from C, step 99 (Nov 1, 2026)
 
 Three of the objects steps 97-98 split now link from C (decomp/src/sysdolphin/baselib, configure.py CR_MATCHING):

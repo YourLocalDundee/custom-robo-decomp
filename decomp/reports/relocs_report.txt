@@ -63,7 +63,7 @@ fixes written: add_relocations 48, block_relocations 5
   add   .init:0x800052D0 l TRKInterruptHandler  // MAT in pad_00_800034AC_init: value 0x8015C094 = TRKInterruptHandler+0x0; low half
   add   .init:0x800053CC hi TRKInterruptHandler  // MAT in pad_00_800034AC_init: value 0x8015C094 = TRKInterruptHandler+0x0; high half (lis) at 0x800053CC
   add   .init:0x800053D0 l TRKInterruptHandler  // MAT in pad_00_800034AC_init: value 0x8015C094 = TRKInterruptHandler+0x0; low half
-  block .text:0x80185318  // lis of 0x80100000 in fn_80185310: the value is used as a number (LOGIC at 0x8018532C, SCMP at 0x8018539C, SCMP at 0x801853AC, SCMP at 0x801853B8), not as an address
+  block .text:0x80185318  // lis of 0x80100000 in psSetupTev: the value is used as a number (LOGIC at 0x8018532C, SCMP at 0x8018539C, SCMP at 0x801853AC, SCMP at 0x801853B8), not as an address
   block .text:0x80185320  // low half 0x80100480 made from the lis at 0x80185318
   block .text:0x80185398  // low half 0x80100400 made from the lis at 0x80185318
   block .text:0x801853A8  // low half 0x80100080 made from the lis at 0x80185318
