@@ -476,7 +476,8 @@ batch 11 PASS.
    Tools (what mwcc_debug uses; installer, not a hashable zip) or a pinned zip toolchain (Zig, clang); or Frida from a
    pinned wheel instead of a DLL. Which one may enter tools/pins.txt?
 2. **`asm` functions in final C files (roadblocks 1, 3, 6).** Does a C file with one function written as inline asm
-   count as "from C" for the super goal, or only as an interim state?
+   count as "from C" for the super goal, or only as an interim state? **Decided (owner, Nov 1, 2026): no.** An `asm` function is the original machine code, not source, so it does not count toward the super goal; the one-function-away objects (shadow.c, jobj.c, lobj.c, displayfunc.c, psdisptev.c) stay unlinked until that function is written in C. Work goes to hand-writing instead.
+
 3. **Opaque data definitions (roadblock 2).** May the object before a 4-aligned start be defined as untyped bytes to
    let the typed unit link?
 4. **The `.sh` twins and the Linux notes (roadblock 7).** Delete, freeze, or keep maintaining?
