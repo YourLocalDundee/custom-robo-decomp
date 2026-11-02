@@ -5,13 +5,13 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u32 lbl_803B7678[28];
+extern u32 cr_g_BgmSlots[28];
 
 void fn_80096F54(void) {
     u32 *var_r31_5;
     u16 var_r30_7;
 
-    var_r31_5 = lbl_803B7678;
+    var_r31_5 = cr_g_BgmSlots;
     var_r30_7 = 0;
     while (var_r30_7 < 2U) {
         if (*var_r31_5 & 0x80000000) {

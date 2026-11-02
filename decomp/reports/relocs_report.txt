@@ -162,7 +162,7 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x8031B5A0..0x8031F0E0 .bss lbl_8031B5A0 .. lbl_8031F020
   0x80320168..0x80321CBA .bss cr_g_EntryTableLoad .. cr_g_FileSysReady
   0x80321DD0..0x80329B44 .bss lbl_80321DD0 .. cr_g_CamSystem
-  0x80329B60..0x8032A89C .bss lbl_80329B60 .. lbl_8032A884
+  0x80329B60..0x8032A89C .bss lbl_80329B60 .. cr_g_TagTeams
   0x8032C1C8..0x8032C26C .bss lbl_8032C1C8 .. lbl_8032C234
   0x8032C2B0..0x8032CCD0 .bss lbl_8032C2B0 .. lbl_8032CC20
   0x80377E60..0x80378220 .bss lbl_80377E60 .. lbl_80377EE0
