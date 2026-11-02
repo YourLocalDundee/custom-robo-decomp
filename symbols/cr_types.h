@@ -1986,7 +1986,7 @@ typedef struct cr_GameMode {
     /* +04 */ u32 unk_04;        // cr_SYS_BATTLE_RESULT, cr_SEQ_BATTLE_FrameA
     /* +08 */ u32 unk_08;
     /* +0C */ u32 unk_0c;        // fn_80023164
-    /* +10 */ u32 unk_10;        // cr_SEQ_STAGE_SELECTOR_Enter stores; cr_BattleRobo_InitFromLoadout and 38 more read
+    /* +10 */ u32 battle_mode;   // 2 = tag: cr_BattleRobo_InitFromLoadout uses cr_g_TagTeams only when it is 2 (the community's "battle mode, 2 = tag" 0x80321D53 is its low byte); cr_SEQ_STAGE_SELECTOR_Enter stores, 39 functions read
     /* +14 */ s16 unk_14;        // lha; cr_SYS_BATTLE / cr_SYS_BATTLE_EF / cr_SYS_BATTLE_RESULT and cr_SEQ_STAGE_SELECTOR_Enter store
     /* +16 */ s16 unk_16;        // lha; cr_SEQ_BATTLE_FrameA reads 34 times; fn_8004EDE4 / fn_8004FF64 / fn_80050388 store
     /* +18 */ s16 unk_18;        // lha / sth (fn_80015E04 / fn_80015E18)

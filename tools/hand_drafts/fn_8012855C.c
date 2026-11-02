@@ -5,7 +5,7 @@ void fn_8012855C(void *arg0) {
 
     M2C_FIELD(arg0, f32 *, 0x48) = (f32) ((100.0f * (f32) *(s32 *) lbl_8044F508) / 1000.0f);
     M2C_FIELD(arg0, u32 *, 0x50) = (u32) (300.0f * M2C_FIELD(arg0, f32 *, 0x48));
-    if ((s32) cr_g_GameMode.unk_10 == 2) {
+    if ((s32) cr_g_GameMode.battle_mode == 2) {
         if (((f32) M2C_FIELD(lbl_8032A8B4, s32 *, 0) >= 1000.0f) && ((f32) (s32) lbl_8032A8B4[1] >= 1000.0f)) {
             M2C_FIELD(arg0, u32 *, 0x50) += 0x2710;
         }
@@ -25,7 +25,7 @@ void fn_8012855C(void *arg0) {
     } else {
         M2C_FIELD(arg0, f32 *, 0x4C) = (f32) 0.5f;
     }
-    if ((s32) cr_g_GameMode.unk_10 != 2) {
+    if ((s32) cr_g_GameMode.battle_mode != 2) {
         M2C_FIELD(arg0, u8 *, 0x6C) = fn_800AA17C(0);
     } else {
         M2C_FIELD(arg0, u8 *, 0x6C) = fn_800AA17C(0);
