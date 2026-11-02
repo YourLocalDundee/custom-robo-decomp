@@ -2177,6 +2177,15 @@ typedef struct cr_BgmRequest {
     /* +14 */ u32 unk_14;
 } cr_BgmRequest;
 
+// ASSERT_SIZE(cr_TagTeam, 0x18)    the code steps 0x18 per player (mulli 0x18) over dtk's object 0x8032A884 (0x30 = 2 x 0x18)
+/// A player's pair of robos in a tag battle (cr_g_TagTeams[battle robo index >> 1]).
+typedef struct cr_TagTeam {
+    /* +00 */ u8 active;             // which robo of the pair is in (0 / 1): cr_BattleRobo_InitFromLoadout compares (index & 1) with it in mode 2
+    /* +01 */ u8 unk_01[3];
+    /* +04 */ u32 unk_04;            // community lead: the player's tag count (HP regen rate), not checked
+    /* +08 */ u8 unk_08[0x10];
+} cr_TagTeam;
+
 // ASSERT_SIZE(cr_RoboLegStats, 0x1E)  cr_BattleRobo_ApplyLegValues stores s16 at +0x00 .. +0x1C
 /// The body stats blended by the leg values (cr_BattleRobo.leg_stats; docs/robo_tables.md "The stat triples and the leg values").
 typedef struct cr_RoboLegStats {

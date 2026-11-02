@@ -392,6 +392,8 @@ Leads only until a name lands in cr_globals.txt with its own `why`; checked agai
   +0x10, counted down to 0: logo 0x45, title 0x708); in battle it is the round time. Field comments in cr_SeqState.
 - **"Battle running flag" 0x8024FCF8**: not a flag: cr_g_BattleRobos[0] + 0x1BD8 = robo 0's body-stats copy +0x40
   (cr_BodyStats.unk_040, 1000 for Ray 01), non-zero whenever a battle robo is set up.
+- **Tag counts per player 0x8032A888**: inside cr_g_TagTeams (0x8032A884, cr_TagTeam[2], one per player: battle robo
+  index >> 1); +0 = the active robo of the pair (verified); +4 as the tag count is the lead, not checked.
 - **Stage id 0x803756A2**: lbl_8037569C + 6 (.bss, 0x25C4); agrees with symbols/unverified.txt.
 - Side finding: fn_80111AF0 picks a random stage (up to 100 tries of fn_8001B3F0 over cr_g_StageSelector's 6-wide
   grid, skipping closed stages (stage_open) and message 0x23); named cr_StageSelector_PickRandom, its random step
