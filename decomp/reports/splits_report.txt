@@ -645,8 +645,8 @@ dolphin/exi/EXIUart.c                            .text  0x8016B8D8-0x8016BEAC   
 dolphin/si/SIBios.c                              .text  0x8016BEAC-0x8016D324  18 fn  GZLE01 SIIsChanBusy..SIGetTypeAsync 18/24 [WriteUARTN is in dolphin/exi/EXIUart.c | SISetSamplingRate is in dolphin/si/SISamplingRate.c]; GPVE01 SIIsChanBusy..SIGetTypeAsync 18/24 [WriteUARTN is in Dolphin/exi/EXIUart.c | SISetSamplingRate is in Dolphin/si/SISamplingRate.c]; MarioClub_us SIIsChanBusy..SIGetTypeAsync 18/24 [WriteUARTN is in dolphin/exi/EXIUart.c | SISetSamplingRate is in dolphin/si/SISamplingRate.c]; GMSE01 SIIsChanBusy..SIGetTypeAsync 18/22 [WriteUARTN is in dolphin/exi/EXIUart.c | SISetSamplingRate is in dolphin/si/SISamplingRate.c]; GZ2E01 SIIsChanBusy..SIGetTypeAsync 18/22 [WriteUARTN is in dolphin/exi/EXIUart.c | SISetSamplingRate is in dolphin/si/SISamplingRate.c]; GXXE01 SIIsChanBusy..SIGetTypeAsync 18/24 [WriteUARTN is in dolphin/exi/EXIUart.c | SISetSamplingRate is in dolphin/si/SISamplingRate.c]; GAFE01_00 SIIsChanBusy..SIGetTypeAsync 18/22 [WriteUARTN is in dolphin/exi/EXIUart.c | SISetSamplingRate is in dolphin/si/SISamplingRate.c]; GMPE01_00 SIIsChanBusy..SIGetTypeAsync 18/22 [WriteUARTN is in dolphin/exi/EXIUart.c | SISetSamplingRate is in dolphin/si/SISamplingRate.c]; GQPE78 SIIsChanBusy..SIGetTypeAsync 18/22 [WriteUARTN is in dolphin/src/exi/EXIUart.c | SISetSamplingRate is in dolphin/src/si/SISamplingRate.c]; G8MJ01 SIIsChanBusy..SIGetTypeAsync 18/24 [WriteUARTN is in exi/EXIUart.c | SISetSamplingRate is in si/SISamplingRate.c]
 dolphin/si/SISamplingRate.c                      .text  0x8016D324-0x8016D42C   2 fn  GZLE01 SISetSamplingRate..SIRefreshSamplingRate 2/2 [SIGetTypeAsync is in dolphin/si/SIBios.c | AXDriverAlloc is in another library's sources]; GPVE01 SISetSamplingRate..SIRefreshSamplingRate 2/2 [SIGetTypeAsync is in Dolphin/si/SIBios.c | AXDriverAlloc is in another library's sources]; MarioClub_us SISetSamplingRate..SIRefreshSamplingRate 2/2 [SIGetTypeAsync is in dolphin/si/SIBios.c | AXDriverAlloc is in another library's sources]; GMSE01 SISetSamplingRate..SIRefreshSamplingRate 2/2 [SIGetTypeAsync is in dolphin/si/SIBios.c | AXDriverAlloc is in another library's sources]; GZ2E01 SISetSamplingRate..SIRefreshSamplingRate 2/2 [SIGetTypeAsync is in dolphin/si/SIBios.c | AXDriverAlloc is in another library's sources]; GXXE01 SISetSamplingRate..SIRefreshSamplingRate 2/2 [SIGetTypeAsync is in dolphin/si/SIBios.c | AXDriverAlloc is in another library's sources]; GAFE01_00 SISetSamplingRate..SIRefreshSamplingRate 2/2 [SIGetTypeAsync is in dolphin/si/SIBios.c | AXDriverAlloc is in another library's sources]; GMPE01_00 SISetSamplingRate..SIRefreshSamplingRate 2/2 [SIGetTypeAsync is in dolphin/si/SIBios.c | AXDriverAlloc is in another library's sources]; GQPE78 SISetSamplingRate..SIRefreshSamplingRate 2/2 [SIGetTypeAsync is in dolphin/src/si/SIBios.c | AXDriverAlloc is in another library's sources]; G8MJ01 SISetSamplingRate..SIRefreshSamplingRate 2/2 [SIGetTypeAsync is in si/SIBios.c | AXDriverAlloc is in another library's sources]
 sysdolphin/baselib/synth.c                       .text  0x80172DD8-0x80179C14  53 fn  GALE01 HSD_AudioMalloc..fn_80179740 53/51 [reference's own first function | pools to psInitDataBankLocate: of our 2 unnamed functions 2 use this object's pools, 0 sysdolphin/baselib/particle.c's side's]
-sysdolphin/baselib/psdisptev.c                   .text  0x801851D4-0x801859E8   3 fn  GALE01 psSetupTevCommon..psSetupTev 3/3 [reference's own first function | reference's own last function]
-sysdolphin/baselib/dobj.c                        .text  0x80186490-0x80186B44  16 fn  GALE01 HSD_DObjSetCurrent..DObjInfoInit 16/19 [reference's own first function | HSD_TObjAddAnimAll is in sysdolphin/baselib/tobj.c]; GKYE01 HSD_DObjSetCurrent..DObjInfoInit 16/18 [reference's own first function | HSD_TObjAddAnimAll is in tobj.c]
+sysdolphin/baselib/psdisptev.c                   .text  0x801851D4-0x801859E8   3 fn  GALE01 psSetupTevCommon..psSetupTev 3/3 [reference's own first function (setupChanReg is not in this reference) | reference's own last function]
+sysdolphin/baselib/dobj.c                        .text  0x80186490-0x80186B44  16 fn  GALE01 HSD_DObjSetCurrent..DObjInfoInit 16/19 [particleSort is in sysdolphin/baselib/psdisp.c | HSD_TObjAddAnimAll is in sysdolphin/baselib/tobj.c]; GKYE01 HSD_DObjSetCurrent..DObjInfoInit 16/18 [reference's own first function (particleSort is not in this reference) | HSD_TObjAddAnimAll is in tobj.c]
 sysdolphin/baselib/tobj.c                        .text  0x80186B44-0x80189C88  39 fn  GALE01 HSD_TObjAddAnimAll..TObjInfoInit 39/44 [DObjInfoInit is in sysdolphin/baselib/dobj.c | HSD_SetupChannelMode is in sysdolphin/baselib/state.c]; GKYE01 HSD_TObjAddAnimAll..TObjInfoInit 39/41 [DObjInfoInit is in dobj.c | HSD_SetupChannelMode is in tev.c]
 sysdolphin/baselib/state.c                       .text  0x80189C88-0x8018A728  18 fn  GALE01 HSD_SetupChannelMode..HSD_StateInvalidate 18/21 [TObjInfoInit is in sysdolphin/baselib/tobj.c | HSD_RenderInitAllocData is in sysdolphin/baselib/tev.c]
 sysdolphin/baselib/tev.c                         .text  0x8018A728-0x8018B448  22 fn  GALE01 HSD_RenderInitAllocData.._HSD_StateInvalidateTexCoordGen 22/26 [HSD_StateInvalidate is in sysdolphin/baselib/state.c | HSD_MObjSetCurrent is in sysdolphin/baselib/mobj.c]
@@ -4838,8 +4838,8 @@ game/data/cr_g_UnlockBits.c                      .bss    0x804198B0-0x80419958  
 .sdata2 0x804523D0-0x804523F0 known  value 0000000000000000 | .text 0x80168E3C-0x80168F38 (1 functions between ldexp and sin)
 .sdata2 0x804523F8-0x804523F8 known  value 0000000000000000 | .text 0x80169010-0x80169010 (0 functions between sin and tan)
 .sdata2 0x80452434-0x8045247C NEW    value 3F800000 | .text 0x80170B28-0x80173774 (32 functions between fn_80170708 and fn_80173774)
-.sdata2 0x8045248C-0x80452528 NEW    value 00000000 | .text 0x80179C14-0x8017A248 (3 functions between fn_80179740 and fn_8017A248)
-.sdata2 0x8045252C-0x80452538 NEW    value 00000000 | .text 0x8017A638-0x8017ACB4 (9 functions between fn_8017A540 and fn_8017ACB4)
+.sdata2 0x8045248C-0x80452528 NEW    value 00000000 | .text 0x80179C14-0x8017A248 (3 functions between fn_80179740 and psGenerateParticle0)
+.sdata2 0x8045252C-0x80452538 NEW    value 00000000 | .text 0x8017A638-0x8017ACB4 (9 functions between psGenerateParticleID0 and fn_8017ACB4)
 .sdata2 0x8045253C-0x80452598 NEW    value 00000000 | .text 0x8017E710-0x8017E934 (6 functions between U8ClampAdd and fn_8017E934)
 .sdata2 0x8045259C-0x80452608 NEW    value 00000000 | .text 0x801812A4-0x8018144C (2 functions between fn_80180B74 and fn_8018144C)
 .sdata2 0x8045260C-0x80452668 NEW    value 00000000 | .text 0x80184B44-0x80185A88 (6 functions between fn_80184450 and fn_80185A88)
@@ -4915,10 +4915,10 @@ GALE01:sysdolphin/baselib/gobjuserdata.c .text: none of its functions is (unique
 GALE01:sysdolphin/baselib/gobj.c .text: none of its functions is (uniquely) named in ours
 GALE01:sysdolphin/baselib/gobjinit.c .text: none of its functions is (uniquely) named in ours
 GALE01:sysdolphin/baselib/debugconsole_main.c .text: none of its functions is (uniquely) named in ours
-GALE01:sysdolphin/baselib/particle.c .text: end not proven (psInitDataBankLocate .. psInitDataBankLoad; neighbour fn_8017A0E4)
-GALE01:sysdolphin/baselib/generator.c .text: end not proven (psGetNewIDNum .. psGetNewIDNum; neighbour fn_8017E89C)
-GALE01:sysdolphin/baselib/psdisp.c .text: none of its functions is (uniquely) named in ours
-GALE01:sysdolphin/baselib/psappsrt.c .text: start not proven (psAttachGeneratorAppSRT .. psAttachGeneratorAppSRT; neighbour fn_80185B80)
+GALE01:sysdolphin/baselib/particle.c .text: end not proven (psInitDataBankLocate .. applyForceJObj; neighbour fn_8017B4A4)
+GALE01:sysdolphin/baselib/generator.c .text: start not proven (psGetNewIDNum .. psGetNewIDNum; neighbour psInterpretParticles)
+GALE01:sysdolphin/baselib/psdisp.c .text: start not proven (particleSort .. particleSort; neighbour _psListGetFirst)
+GALE01:sysdolphin/baselib/psappsrt.c .text: start not proven (psAttachParticleAppSRT .. psRemoveParticleAppSRT; neighbour fn_80185A88)
 GALE01:sysdolphin/baselib/sobjlib.c .text: none of its functions is (uniquely) named in ours
 GALE01:sysdolphin/baselib/sislib.c .text: none of its functions is (uniquely) named in ours
 GALE01:sysdolphin/baselib/card.c .text: none of its functions is (uniquely) named in ours
@@ -5173,9 +5173,9 @@ GKYE01:gobjplink.c .text: none of its functions is (uniquely) named in ours
 GKYE01:gobjgxlink.c .text: none of its functions is (uniquely) named in ours
 GKYE01:gobjobject.c .text: none of its functions is (uniquely) named in ours
 GKYE01:gobjuserdata.c .text: none of its functions is (uniquely) named in ours
-GKYE01:particle.c .text: start not proven (psDeletePntJObjwithParticle .. psDeletePntJObjwithParticle; neighbour fn_8017A890)
+GKYE01:particle.c .text: start not proven (psGenerateParticle0 .. psKillGeneratorChild; neighbour fn_8017A0E4)
 GKYE01:generator.c .text: none of its functions is (uniquely) named in ours
-GKYE01:psdisp.c .text: none of its functions is (uniquely) named in ours
+GKYE01:psdisp.c .text: start not proven (psRemoveParticleAppSRT .. psRemoveParticleAppSRT; neighbour fn_80185C64)
 GKYE01:debugconsole_main.c .text: none of its functions is (uniquely) named in ours
 GKYE01:axdriver.c .text: none of its functions is (uniquely) named in ours
 GKYE01:sislib.c .text: none of its functions is (uniquely) named in ours

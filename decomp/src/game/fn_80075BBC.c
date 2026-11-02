@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void fn_8017A69C(void);
 void fn_8017EC30(void);
-void fn_8017E79C(u32 arg0);
+void psInterpretParticles(u32 arg0);
 void fn_80180728(s32 arg0);
 void fn_80181360(void **arg0);
 typedef struct HSD_CObj HSD_CObj;
@@ -20,7 +20,7 @@ void fn_80075BBC(void) {
     fn_8017EC30();
     var_r31_8 = 0;
     while (var_r31_8 < 0x64) {
-        fn_8017E79C(0U);
+        psInterpretParticles(0U);
         fn_80180728(0);
         var_r31_8 += 1;
     }

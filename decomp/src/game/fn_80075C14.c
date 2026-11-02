@@ -43,12 +43,12 @@ typedef struct cr_SeqState
   u8 unk_44[4];
 } cr_SeqState;
 __declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
-void fn_8017E79C(u32 arg0);
+void psInterpretParticles(u32 arg0);
 void fn_80180728(s32 arg0);
 
 void fn_80075C14(void) {
     if (!(cr_g_SeqCurrent.unk_38 & 0x4000)) {
-        fn_8017E79C(0U);
+        psInterpretParticles(0U);
         fn_80180728(0);
     }
 }

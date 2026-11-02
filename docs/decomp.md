@@ -390,6 +390,26 @@ A neighbour that kar's asm places in exactly one other file also counts as that 
 (no C linked): sysdolphin is 33 split objects, 24 from C. Still open (splits_report.txt): archive.c's end, synth.c's
 end, axdriver.c's end, devcom.c's start, particle.c's start (their neighbours are unnamed fn_ functions).
 
+### Particle family names round 2 (step 106, Nov 1, 2026)
+
+Pokemon XD's particle files (tools/refs/xd NXXJ01 splits, GSAPI/particle/*.cpp) list their functions in **reverse**
+file order (psappsrt.cpp: psRemoveGeneratorAppSRT ... psInitAppSRT; pslist.cpp: particleSort ... _psLinkInit). Read in
+reverse, they line up with ours by size where a body check confirms them. 15 names, each with its body and a second
+source in its `why:` line: psGenerateParticle0, psGenerateParticleID0 (the bank / id checks, then psGenerateParticle0),
+psGenerateParticle and psKillGeneratorChild (doldecomp/kar asm equal, KAR map names), applyForceJObj (Melee C 0.988),
+psInterpretParticles (KAR's psinterpret.c start), setupTevReg / setupChanReg (Melee C 0.935 / 0.924, XD sizes),
+psAttachParticleAppSRT (+0x90 twin of psAttachGeneratorAppSRT's +0x54), psRemoveParticleAppSRT /
+psRemoveGeneratorAppSRT, and pslist's _psLinkInit, _psListNew, _psListGetFirst (asserts with pslist.c), particleSort
+(all on pslist's arrays at 0x80449C58).
+
+Dropped by batch 8: psInitAppSRT (fn_801859E8) and psAddGeneratorAppSRT (fn_80185A88) fit by body and XD size, but
+here they call HSD_Alloc, which no reference's function of that name does (crosscheck "against: callees"); they stay
+fn_ until another reference agrees.
+
+No new split: Melee and KAR group the particle functions into files differently (Melee keeps particleSort in
+psdisp.c, KAR's pslist.c starts at _psListDelete), so their ranges do not fit this revision's order; splits_report.txt
+lists the open edges.
+
 ### Survey: synth.c, psSetupTev, the shadow.c word (step 105, Nov 1, 2026)
 
 Measured, no build change:
