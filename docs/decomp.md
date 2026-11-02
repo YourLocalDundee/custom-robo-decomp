@@ -380,14 +380,16 @@ Leads only until a name lands in cr_globals.txt with its own `why`; checked agai
   is the record size. **Leg values verified**: fn_80006658 blends 14 low / mid / high triples of the body record by one
   leg byte each (0 / 100 / 200 = low / mid / high): docs/robo_tables.md "The stat triples and the leg values".
 - **Frame counter 0x8044F2A2**: the low halfword of lbl_8044F2A0 (.sbss, u32); `main` adds 1 to it once per pass of
-  its loop and no other function stores to it (5 readers). **Verified**; name candidate cr_g_FrameCount.
-- **Song id 0x803B7682**: lbl_803B7678 + 0xA (.bss, 0x70), used only by cr_Bgm_Play / cr_Bgm_FadeOut /
-  cr_Bgm_GetVolume and 6 more BGM functions: the BGM state block. Field +0xA not proven yet.
+  its loop and no other function stores to it (5 readers). **Verified**; named cr_g_FrameCount.
+- **Song id 0x803B7682**: **verified**: the low halfword of cr_g_BgmSlots[0].song (0x803B7678 + 8; two slots of 0x38,
+  cr_BgmSlot): cr_Bgm_Play stores its id argument there as a word; cr_g_BgmRequest (0x803B8BE8) holds a request while
+  both slots are busy.
 - **P1 in the cube 0x803872B2**: lbl_80387160 + 0x152 (.bss, 0xC70, 15 users incl. cr_CAMMODE_BTL_WAIT_Frame). Field
   not proven yet.
 - **Stage id 0x803756A2**: lbl_8037569C + 6 (.bss, 0x25C4); agrees with symbols/unverified.txt.
 - Side finding: fn_80111AF0 picks a random stage (up to 100 tries of fn_8001B3F0 over cr_g_StageSelector's 6-wide
-  grid, skipping disabled entries (+0x92) and stage 0x23); name candidate after a check of its caller.
+  grid, skipping closed stages (stage_open) and message 0x23); named cr_StageSelector_PickRandom, its random step
+  fn_8001B3F0 cr_Rand_Int.
 
 ### HSD edges from doldecomp/kar's per-file asm (step 97, Nov 1, 2026)
 

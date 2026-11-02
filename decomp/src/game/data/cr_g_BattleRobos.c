@@ -55,6 +55,11 @@ typedef struct cr_BodyData
   cr_BattleMotionSet *motion_set;
   f32 unk_0c[27];
 } cr_BodyData;
+typedef struct cr_RoboLegStats
+{
+  s16 blended[14];
+  s16 unk_1c;
+} cr_RoboLegStats;
 typedef struct cr_BattleRobo
 {
   void (*update)(void);
@@ -79,7 +84,9 @@ typedef struct cr_BattleRobo
   u8 pod_data[0x174];
   u8 unk_2e45c[0x4EAC];
   u8 leg_data[0x8F];
-  u8 unk_33397[0x189];
+  u8 unk_33397[0x85];
+  cr_RoboLegStats leg_stats;
+  u8 unk_3343a[0xE6];
 } cr_BattleRobo;
 
 /* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */

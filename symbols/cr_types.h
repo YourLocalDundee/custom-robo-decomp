@@ -2153,6 +2153,30 @@ typedef struct cr_BodyData {
 
 /// A battle robo (cr_g_BattleRobos[4]; the current one is cr_g_CurrentBattleRobo). Only what cr_BattleRobo_InitFromLoadout
 /// writes is typed: the loadout's fields and the copies of the five part records.
+// ASSERT_SIZE(cr_BgmSlot, 0x38)    cr_Bgm_Play steps 0x38 (mulli 0x38) over the 2 slots of cr_g_BgmSlots (dtk's object 0x70)
+/// One of the two BGM streams (cr_g_BgmSlots).
+typedef struct cr_BgmSlot {
+    /* +00 */ u32 flags;             // 0x80000000 in use (cr_Bgm_Play takes a slot where it is clear); cr_Bgm_Play sets 0x40 / 0x10, cr_Bgm_FadeOut 0x410
+    /* +04 */ u32 unk_04;
+    /* +08 */ u32 song;              // cr_Bgm_Play's id (slot 0's low halfword is the community's song id address 0x803B7682)
+    /* +0C */ u8 start_volume;       // cr_Bgm_Play's second argument
+    /* +0D */ u8 volume;             // cr_Bgm_Play's third argument; cr_Bgm_FadeOut's target
+    /* +0E */ u8 unk_0e[0x22];
+    /* +30 */ s16 fade_time;         // frames x 200 / 60 (cr_Bgm_Play, cr_Bgm_FadeOut)
+    /* +32 */ u8 unk_32[6];
+} cr_BgmSlot;
+
+// ASSERT_SIZE(cr_BgmRequest, 0x18)  dtk's object 0x803B8BE8
+/// The BGM request cr_Bgm_Play saves when both slots are busy (then state = 3); fn_80097154 / fn_800972D8 read it.
+typedef struct cr_BgmRequest {
+    /* +00 */ u32 song;
+    /* +04 */ u32 start_volume;
+    /* +08 */ u32 volume;
+    /* +0C */ u32 fade_frames;
+    /* +10 */ u32 state;
+    /* +14 */ u32 unk_14;
+} cr_BgmRequest;
+
 // ASSERT_SIZE(cr_RoboLegStats, 0x1E)  cr_BattleRobo_ApplyLegValues stores s16 at +0x00 .. +0x1C
 /// The body stats blended by the leg values (cr_BattleRobo.leg_stats; docs/robo_tables.md "The stat triples and the leg values").
 typedef struct cr_RoboLegStats {
