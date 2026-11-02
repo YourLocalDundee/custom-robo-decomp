@@ -71,7 +71,10 @@ typedef struct cr_BattleParams
   s16 unk_00;
   s16 unk_02;
   f32 unk_04;
-  s16 unk_08[30];
+  s16 unk_08[10];
+  s16 unk_1c[6][3];
+  s16 tag_cooldown;
+  s16 unk_42;
 } cr_BattleParams;
 typedef struct cr_BodyStats
 {
@@ -453,10 +456,17 @@ cr_BattleParams cr_g_BattleParams = {
     900,
     0,
     2.0f,
+    { 0x40C0, 0, 40, 60, 4, 175, 10, 250, 50, 100 },
     {
-        0x40C0, 0, 40, 60, 4, 175, 10, 250, 50, 100, 100, 100, 100, 50, 70, 85, 70, 70, 90, 35, 10, 100,
-        30, 90, 10, 60, 10, 150, 420, 0
-    }
+        { 100, 100, 100 },
+        { 50, 70, 85 },
+        { 70, 70, 90 },
+        { 35, 10, 100 },
+        { 30, 90, 10 },
+        { 60, 10, 150 }
+    },
+    420,
+    0
 };
 cr_BodyStats cr_g_BodyStats[34] = {
     {

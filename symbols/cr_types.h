@@ -2233,7 +2233,10 @@ typedef struct cr_BattleParams {
     /* +00 */ s16 unk_00;        // fn_8004B0A0 converts it to a number (900)
     /* +02 */ s16 unk_02;
     /* +04 */ f32 unk_04;        // fn_8004B0A0 multiplies it into lbl_8044F4B4 (2.0)
-    /* +08 */ s16 unk_08[30];    // +0x18 (unk_08[8]): fn_8004B0A0 stores it at the robo's +0xE2
+    /* +08 */ s16 unk_08[10];    // +0x18 (unk_08[8]): fn_8004B0A0 stores it at the robo's +0xE2
+    /* +1C */ s16 unk_1c[6][3];  // fn_8004B0A0 takes row fn_8005D068(robo +0x33488) (bits 8-15 of its word +0x10) and stores the three, scaled, as floats at robo +0x12C / +0x130 / +0x134
+    /* +40 */ s16 tag_cooldown;  // 420: fn_80045B40 stores it at robo +0x146 (the community's "neutral tag cooldown 420 frames", 0x80045BE4)
+    /* +42 */ s16 unk_42;
 } cr_BattleParams;
 
 /// A body's stats record (cr_g_BodyStats[34]), copied to cr_BattleRobo.body_stats.

@@ -397,6 +397,9 @@ Leads only until a name lands in cr_globals.txt with its own `why`; checked agai
 - **Default HP 0x8023B656 + n x 0x14**: four 0x14-byte records at 0x8023B644 (inside lbl_8023B350, read only by
   fn_80105E74): +0 a robo id (4, 1, 2, 3), +0x12 an s16 that is **1000** in retail for all four (the lead's 700 is not
   retail: a mod's or another mode's value). Not typed yet.
+- **Tag cooldown 420 (0x80045BE4)**: **verified**: cr_g_BattleParams.tag_cooldown (+0x40 = 420), which fn_80045B40
+  stores at robo +0x146. The six s16 triples before it (+0x1C, unk_1c[6][3]) are a per-type table fn_8004B0A0 picks a row
+  of by fn_8005D068(robo +0x33488) and turns into the floats robo +0x12C / +0x130 / +0x134.
 - **Stage id 0x803756A2**: lbl_8037569C + 6 (.bss, 0x25C4); agrees with symbols/unverified.txt.
 - Side finding: fn_80111AF0 picks a random stage (up to 100 tries of fn_8001B3F0 over cr_g_StageSelector's 6-wide
   grid, skipping closed stages (stage_open) and message 0x23); named cr_StageSelector_PickRandom, its random step
