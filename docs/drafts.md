@@ -1195,3 +1195,102 @@ written as a rule. All rules that the original's text cannot decide are VARIANTS
   uses), fn_8008E7EC, fn_800DF320 (scheduling), cr_CharaEntry_OnLoaded and fn_800F5EF0 (compile now by hand, far from
   equal).
 
+### Step 109b: the compile failures, loop and search rules, 14 hand drafts (Nov 2, 2026, branch hand109b)
+
+Two parts: (A) the 44 compile failures of step 108 and the 2 m2c failures; (B) the drafts at 80-89%, smallest first
+(the 90-99% ones were branch hand109a's). Method as in step 108: tools/sched/scratch/hd/pr.py on a draft (left column
+the original) in decomp/drafts/hand (gitignored), then a hand draft in tools/hand_drafts or a rule in
+tools/draft_batch.py. All of this branch's generator code is one block before `main()` ("step 109b"): it wraps
+`repair` and `postprocess` and appends to `OPTIONAL` / `VARIANTS`; outside it only three places changed (byte_steps'
+empty operand, the `variants_skipped` test in one(), and gen_dtk_splits.py's reading of a `static inline` helper).
+
+**(A) Compile failures: 44 -> 0.** `repair_109b` (its fixes are marked `[109b]` in the fix list) runs after repair()
+when that has no fix, and before it for `pointer/array required` / `type mismatch` (repair()'s `load through a T`
+reads `slot->member[i]` as a deref; its step 80 rule split `a[i].m - &a[i].n` inside the member). Its rules:
+- struct-typed accesses used as scalars (`*(((cr_BattleRobo *) ((u8 *) p + off))) |= 1`): the width of the
+  statement's other field, f32 for float messages, else s32; a scalar stored to or read from a struct / array local
+  (stack_struct's `Point3d sp14`, which m2c also uses as a float): through its address; `*sp20` of a struct pointer
+  as a scalar; a struct field pointer type (`cr_CustomizeState **`) as the value's;
+- `void *` / function-pointer locals that m2c reads through (`void (*temp_r31_48)();`, `s32 (*sp2BC)[];`, with
+  m2c's `/* compiler-managed */` comment, which repair()'s own rule did not read): `u8 *`;
+- float stack slots used as integers (an index, a pointer step, a bit test, a product added to a pointer): `(s32)`
+  or `*(s32 *) &slot`; pointers in products, masks, `~` or a bracketed byte offset: `(s32)`; `int + struct pointer`
+  and a struct pointer indexed in bytes: through `u8 *`;
+- comparisons of a pointer with an integer / a function / another pointer type: both sides `(u32)`; differences of
+  two pointer types: both `(u8 *)` (operands found by bracket balance: `&((cr_Chara *) sp268)->unk_194c - &x->id`);
+- `(f32) strcpy(...)`, `(f32) pointer` and `(s8 *) floatslot`: through `(s32)`; `(u8) sp8` of a GXColor: its first
+  byte; `(void (*)(...)) x` stored to a `void (*)()` member: `(void (*)())`;
+- `x = call(...)` / `x = array` that the target's type does not take: the value cast; `&(u8 *)0x801C0000[0x5BD0]`
+  bracketed;
+- an integer stack slot used as a pointer (`sp90->unk_00`, `sp3C[1]`: m2c reuses one slot for several values):
+  `((__typeof__((SRC) + 0)) sp90)` with SRC what the draft stored there (`(long) (&cr_g_BodyData[i])`) or the same
+  member read through a typed expression elsewhere; a member that is not in the slot's struct: the slot cast to a
+  struct of the context (ctx_pp.c) that has it, the next such struct when that fails (`OSCalendarTime` has `min`);
+- `case` / `default` labels m2c put outside their switch (irregular switches): commented out (the draft compiles;
+  the jump into it is lost).
+
+byte_steps (step 64) wrote `((T *) ((u8 *) sp26C - ))&x` for `sp26C - &x->m` (an operand starting with `&`): it now
+leaves it alone (fn_800F21C8). The former failures now score 0-83%: cr_CharaEntry_OnLoaded 100% by hand (below),
+fn_8010E47C 83%, fn_80023CBC 81%, cr_CHAR_COUSE_SET_PS 79%, fn_800F5EF0 75%, most of the 2-13 KB ones 1-20%.
+`variants_skipped`: a draft with more than 3 fixes, some of them repair_109b's, is not tried with the VARIANTS (each
+variant repeats the whole repair loop: up to 160 compiles of a 13 KB file).
+The 2 m2c failures (fn_800A0E64, fn_800A63C0, 11.7 / 15.4 KB) are left: their jump table (lbl_8022AF44) is read
+through a stack slot (`stw r12, 0x13c(r1); lwz; lwzx; stw; lwz r0; mtctr; bctr`), which m2c's jump-table pattern does
+not recognise; the asm would need that sequence rewritten in m2c's form (and the table named) before drafting.
+
+**Hand drafts** (tools/hand_drafts; the first line of each says what changed; 14 new, 12 of them 100%):
+cr_CharaEntry_OnLoaded (a compile failure: the relocation loop with byte pointers, the header's pointer members
+added as words), fn_80020204 (the third counter array as `p->unk_70[i]`: m2c's byte address in a temporary took a
+saved register), fn_8008F4F4 and fn_80090190 (a table slot tested as a pointer against `((void *) 0)`: `li r0, 0;
+cmplw`; fn_80090190 also has an empty debug check after the add: `lis r0, 1; cmplw`, no branch), fn_800BB7D8
+(lbl_8037569C's address in a local before the load call), fn_80096374 (the camera tested against `((void *) 0)`, its
+view matrix taken into a local), fn_800BD720 (one alpha variable for both fades, loaded then stepped in place), and
+**static inline helpers**: fn_800BC4C0 / fn_800AE2FC (the rank count: in the original the inlined body's own
+variables take r31 / r29, which no single function's C gives), fn_800AC158 (a speed-table search with an early
+return and an empty debug check of i after the loop), fn_800FA5AC / fn_800FBDF8 (the slot-bit search; the rule below
+now gives it too). Not 100%: fn_8008E158 (83 -> 94%: the step table as `*(s8 *) &((u8 (*)[1]) arg1)[idx][2]`; the u8
+field sum lands in r5 where the original keeps r0) and cr_FileSlot_QueueRead (the buffer parameter itself, `return
+0`; 106 of 116 by pr.py, the queue address loads in another order). A `static inline` function emits no code of its
+own at this level, so promote_drafts.py links these files as they are; gen_dtk_splits.py now skips `static inline`
+definitions when it reads which function a game file defines.
+
+**Rules** (VARIANTS unless said otherwise: tried per draft, kept when better):
+- **`inline_search_helpers`**: m2c's reading of an inlined search, `loop_N: if (I >= K) { R = D; } else if (C) { ...;
+  R = V; } else { I += 1; goto loop_N; }`, as a `static inline` function before the draft (`for (I = 0; I < K; I +=
+  1) { if (C) { ...; return V; } } return D;`), called where the loop was; the locals C reads are passed as
+  parameters of the same names; `R = search(); X = R;` assigns X directly. fn_800FB688, fn_800FB924, fn_800FF958,
+  fn_800FFA50, fn_800FFBB0, fn_800EAF34, fn_800EB004 to 100%; fn_800FA750 83 -> 91%, fn_800FA9CC 83 -> 90%,
+  fn_800FBAB4 70 -> 98%, fn_800FEFF8 93 -> 97%, fn_800FE954 74 -> 87% (33 drafts have the form: the fn_800FA5AC family).
+- **`word_table_rows`**: `M2C_FIELD(T, f32 *, (R * 8) & 0x7F8)`, `*(f32 *) (T + 4 + R * 8)` and
+  `M2C_FIELD(&T[(R * 8) & 0x7F8], f32 *, 4)` as `((f32 (*)[2]) T)[R][0]` / `[1]` (the same family).
+- **`stack_element_steps`** (on by default): `*(&sp8 + (I * 2))` and `*(&sp8 + ((I * 2) & 0x1FE))` on a u16 stack
+  local as `(&sp8)[I]` (C scaled m2c's byte step by the element), a cast to the slot's own type dropped.
+- **`goto_search_loops`**: `loop_N: if (C) { [S0;] if (T) { S; } else { ADV; goto loop_N; } }` as `for (; C; ADV) {
+  [S0;] if (T) { S; break; } }` (ADV an increment or `p = p->next`): fn_80078B60, fn_8006E6E8.
+- **`goto_while_loops`**: `loop_N: if (C) { S; goto loop_N; }` as `while (C) { S }`; **`goto_exit_loops`**:
+  `loop_N: if (T) { return X; } S; goto loop_N;` as `while (!T) { S } return X;`: fn_800A4784, fn_800964B0,
+  fn_800F8C04, fn_8008E9FC.
+- **`stack_param_alias`**: m2c's `sp8 = arg0;` / `sp.sp8 = arg0;` (the parameter's home slot read as a local) as the
+  parameter itself: fn_8006E690, fn_8006E778, cr_Motion_Play, cr_Motion_PlayFromFrame1; fn_800B1944 85 -> 87%.
+- **`drop_local_deref_casts`**: `*q = (u8) (*p);` of a `u8 *p` without the cast: fn_8008E598, fn_80026B40,
+  fn_80026C50.
+- **`record_array_address`**: `B + ((I * S) + O)` of a byte pointer as `&((u8 (*)[S]) (B))[I][O]`: fn_80026BF4,
+  fn_800442EC.
+- **`irregular_switch_ifs`**: a switch m2c marks `/* irregular */` (a compare chain in source order, no jump table)
+  as the if / else-if chain: cr_Pad_StepIndex, fn_80107310; with **`self_update_refs`** (`x = K; x = K >> 1;` as `x =
+  x >> 1;`: srawi on the register) fn_8000F7A4, fn_8000E1E4.
+- **`minus_one_compares`** (on by default): m2c's `(u32) (x + 0x10000) == -1U` (its reading of `addis r0, r3, 1;
+  cmplwi r0, 0xffff`, another value) as `x == -1U`.
+- Full draft runs: **531 -> 569 drafts at 100%** (38 new: 12 by hand drafts, 26 by rules), compile failures **44 ->
+  0**, m2c failures 2 (left), 556,820 bytes equal; batch 12 + batch 9: **756 units from C** (721 before), 24.28% of
+  the code, retail SHA-1 and the static shift check PASS. Three drafts lost a point from the default rules
+  (fn_8000F230 36 -> 35%, fn_8008C430 18 -> 17%, fn_8011B1B0 4 -> 3%). A full run took 80 minutes here (26 before) with
+  another branch's batch on the same machine at the same time; a 120-function sample took 234 s with step 108's
+  draft_batch.py and 186 s with this one.
+- Left (tried): fn_80095E00 (register-only: arg0 needs r31, which only a dead extra use of it gives), fn_800EA33C (81 ->
+  85% by goto_while_loops; its two counters swap registers), fn_8008F998 (the u16 index's temporary; three spellings
+  worse), fn_8008E158 and cr_FileSlot_QueueRead (above), fn_80015E2C (the original keeps its string pool's base in
+  r31: string literals of its file, step 83), fn_800943D8 (a saved r28 nothing uses, as fn_800F1860), fn_800699E0 /
+  fn_8000860C / fn_8001E488 (float register and load order), fn_800A0C20 / fn_800A0CB0 (r27 / r28 swapped),
+  fn_800119A0 (a nested loop whose exit increments the outer counter: no rule yet), the script-command handlers at
+  80-89% (cr_S_*, cr_SYS_*, cr_F_*, cr_CM_*: schedule-only, the step 91 wall), and the two m2c failures above.

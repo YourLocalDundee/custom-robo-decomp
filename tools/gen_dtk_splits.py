@@ -1865,7 +1865,9 @@ def game_c_objects(funcs, game_end):
         if p.parent == GAME_DATA_SRC:
             continue   # a data-only game unit: game_data_units
         rel = "game/" + p.relative_to(GAME_SRC).as_posix()
-        names = [m.group(1) for m in map(CDEF.match, p.read_text(encoding="utf-8").splitlines()) if m]
+        # a `static inline` helper (step 109b: an inlined search of the original) emits no function of its own
+        names = [m.group(1) for m in map(CDEF.match, p.read_text(encoding="utf-8").splitlines())
+                 if m and not m.group(0).startswith("static inline ")]
         if not names:
             raise SystemExit(f"decomp/src/{rel}: no function definition found")
         ii = []
