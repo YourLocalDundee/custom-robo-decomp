@@ -394,6 +394,9 @@ Leads only until a name lands in cr_globals.txt with its own `why`; checked agai
   (cr_BodyStats.unk_040, 1000 for Ray 01), non-zero whenever a battle robo is set up.
 - **Tag counts per player 0x8032A888**: inside cr_g_TagTeams (0x8032A884, cr_TagTeam[2], one per player: battle robo
   index >> 1); +0 = the active robo of the pair (verified); +4 as the tag count is the lead, not checked.
+- **Default HP 0x8023B656 + n x 0x14**: four 0x14-byte records at 0x8023B644 (inside lbl_8023B350, read only by
+  fn_80105E74): +0 a robo id (4, 1, 2, 3), +0x12 an s16 that is **1000** in retail for all four (the lead's 700 is not
+  retail: a mod's or another mode's value). Not typed yet.
 - **Stage id 0x803756A2**: lbl_8037569C + 6 (.bss, 0x25C4); agrees with symbols/unverified.txt.
 - Side finding: fn_80111AF0 picks a random stage (up to 100 tries of fn_8001B3F0 over cr_g_StageSelector's 6-wide
   grid, skipping closed stages (stage_open) and message 0x23); named cr_StageSelector_PickRandom, its random step
