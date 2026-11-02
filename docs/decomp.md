@@ -390,6 +390,22 @@ A neighbour that kar's asm places in exactly one other file also counts as that 
 (no C linked): sysdolphin is 33 split objects, 24 from C. Still open (splits_report.txt): archive.c's end, synth.c's
 end, axdriver.c's end, devcom.c's start, particle.c's start (their neighbours are unnamed fn_ functions).
 
+### shadow.c data equal, SetViewingRect 0.982 (step 104, Nov 1, 2026)
+
+- **Data.** With the assert strings as literals ("shadow", "lobj", "0", "rect" go to .sdata by themselves) and
+  wowjinxy's memory.c `__declspec(section ".sdata2")` constants as literals (so HSD_ShadowSetSize's 0.0F merges with
+  ShadowZero), the compiled object's .data (0x198 with padding), .sdata (0x19), .sdata2 (0x38, pool 0x80452968:
+  0.5, -0.5, 0.0, 256.0, the int-to-float double, 1.0, -1.0, FLT_EPSILON, 57.29578, FLT_MIN as a double, -FLT_MAX,
+  FLT_MAX) and .bss (HSD_ShadowAllocData 0x30) are byte-equal to main.dol (tools/sched/scratch/sh/sh_data.py).
+  objdiff still reports data 0x30 of 0x1C8: it pairs data by symbol name and the literals are anonymous (@48 ...).
+- **HSD_ShadowSetViewingRect 0.964 -> 0.982.** Width as `double b = fabs(bottom); double tp = fabs(top); if (tp > b)`
+  gives main.dol's order (|bottom| first). The same shape for height moves `mr r3, r31` (SetAspect's argument) into
+  that block; 20 further spellings (ternaries, nested blocks, shared temporaries, double height, the max in the call)
+  do not give |right| before |left|. One word left; tools/sched/scratch/sh/sh_diff.py prints it.
+
+shadow.c is otherwise ready to link: when that word is found, move it to CR_MATCHING and let the generator prove its
+.sdata / .sdata2 pieces from the C.
+
 ### shadow.c: 15 of 16 functions (step 103, Nov 1, 2026)
 
 decomp/src/sysdolphin/baselib/shadow.c is now wowjinxy/KAR's shadow.c (tools/import_ref_source.py, its headers in

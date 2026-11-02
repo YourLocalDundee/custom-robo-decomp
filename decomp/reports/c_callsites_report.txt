@@ -1,4 +1,4 @@
-c-callsite names (tools/check_c_callsites.py): 182 lines in symbols/symbols.txt, 182 OK, 0 FAIL; 2363 names derived from matched C call sites, 60 at a dtk default name, 5 differ from our name, 0 at two addresses, 0 sites without the same relocation
+c-callsite names (tools/check_c_callsites.py): 182 lines in symbols/symbols.txt, 182 OK, 0 FAIL; 2355 names derived from matched C call sites, 52 at a dtk default name, 5 differ from our name, 0 at two addresses, 0 sites without the same relocation
 
 OK   DSPCheckMailToDSP 0x8014A42C: 40 call site(s), all agree; e.g. dolphin/ax/AXOut __AXOutNewFrame+0x4C (0x80145894 REL24)
 OK   PSVECCrossProduct 0x8013A284: 33 call site(s), all agree; e.g. dolphin/mtx/mtx C_MTXLookAt+0x6C (0x80139BAC REL24)
@@ -188,15 +188,7 @@ UNNAMED HSD_JObj_803B94D0$2961 0x801C4E98 (main.elf: lbl_801C4E98): 2 site(s), e
 UNNAMED HSD_MtxInverseConcat 0x8019EB5C (main.elf: fn_8019EB5C): 3 site(s), e.g. sysdolphin/baselib/displayfunc _HSD_mkEnvelopeModelNodeMtx+0xC4 (0x8019C228 REL24)
 UNNAMED HSD_MtxSRT 0x8019FC14 (main.elf: fn_8019FC14): 1 site(s), e.g. sysdolphin/baselib/jobj HSD_JObjMakeMatrix+0x214 (0x80196844 REL24)
 UNNAMED HSD_ShadowAllocData 0x8044B780 (main.elf: lbl_8044B780): 6 site(s), e.g. sysdolphin/baselib/shadow HSD_ShadowInitAllocData+0xA (0x801A415E ADDR16_HA)
-UNNAMED ShadowAssertLobj 0x8044F218 (main.elf: lbl_8044F218): 1 site(s), e.g. sysdolphin/baselib/shadow fn_801A4998+0x54 (0x801A49EC EMB_SDA21)
-UNNAMED ShadowAssertRect 0x8044F224 (main.elf: lbl_8044F224): 3 site(s), e.g. sysdolphin/baselib/shadow HSD_ViewingRectInit+0x38 (0x801A50F8 EMB_SDA21)
-UNNAMED ShadowAssertShadow 0x8044F210 (main.elf: lbl_8044F210): 8 site(s), e.g. sysdolphin/baselib/shadow HSD_ShadowInit+0x24 (0x801A43AC EMB_SDA21)
-UNNAMED ShadowAssertZero 0x8044F220 (main.elf: lbl_8044F220): 2 site(s), e.g. sysdolphin/baselib/shadow fn_801A4998+0xFC (0x801A4A94 EMB_SDA21)
-UNNAMED ShadowHalf 0x80452968 (main.elf: lbl_80452968): 1 site(s), e.g. sysdolphin/baselib/shadow HSD_ShadowAlloc+0x74 (0x801A41F8 EMB_SDA21)
-UNNAMED ShadowNegHalf 0x8045296C (main.elf: lbl_8045296C): 1 site(s), e.g. sysdolphin/baselib/shadow HSD_ShadowAlloc+0x7C (0x801A4200 EMB_SDA21)
 UNNAMED ShadowProjectionFallbackMtx 0x8024D220 (main.elf: lbl_8024D220): 2 site(s), e.g. sysdolphin/baselib/shadow makeMatrix+0x2E (0x801A4DF2 ADDR16_HA)
-UNNAMED ShadowTextureSize 0x80452974 (main.elf: lbl_80452974): 1 site(s), e.g. sysdolphin/baselib/shadow HSD_ShadowAlloc+0x84 (0x801A4208 EMB_SDA21)
-UNNAMED ShadowZero 0x80452970 (main.elf: lbl_80452970): 1 site(s), e.g. sysdolphin/baselib/shadow HSD_ShadowAlloc+0x68 (0x801A41EC EMB_SDA21)
 UNNAMED a_in$853 0x8024D89C (main.elf: lbl_8024D89C): 4 site(s), e.g. sysdolphin/baselib/texp AssignColorReg+0x42 (0x801A97BA ADDR16_HA)
 UNNAMED active_lights 0x80449DE8 (main.elf: lbl_80449DE8): 12 site(s), e.g. sysdolphin/baselib/lobj HSD_LObjGetActiveByID+0x22 (0x8018D2AA ADDR16_HA)
 UNNAMED bb_unit_z 0x801C4EA8 (main.elf: lbl_801C4EA8): 2 site(s), e.g. sysdolphin/baselib/displayfunc mkVBillBoardMtx+0x1BE (0x8019B682 ADDR16_HA)

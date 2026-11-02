@@ -19,10 +19,12 @@
 void HSD_Free(void* ptr);
 u8 HSD_ShadowAllocData[0x30];
 
-extern const f32 ShadowHalf;
-extern const f32 ShadowNegHalf;
-extern const f32 ShadowZero;
-extern const f32 ShadowTextureSize;
+/* Custom Robo: literals (wowjinxy: __declspec(section ".sdata2") consts after HSD_ShadowAlloc): as literals they head
+   shadow.c's .sdata2 pool and HSD_ShadowSetSize's 0.0F merges with ShadowZero, as in main.dol (0x80452968) */
+#define ShadowHalf 0.5F
+#define ShadowNegHalf -0.5F
+#define ShadowZero 0.0F
+#define ShadowTextureSize 256.0F
 
 #define SHADOW_ALLOC_DATA ((HSD_ObjAllocData*) HSD_ShadowAllocData)
 
@@ -63,10 +65,6 @@ HSD_Shadow* HSD_ShadowAlloc(void)
     return shadow;
 }
 
-__declspec(section ".sdata2") const f32 ShadowHalf = 0.5F;
-__declspec(section ".sdata2") const f32 ShadowNegHalf = -0.5F;
-__declspec(section ".sdata2") const f32 ShadowZero = 0.0F;
-__declspec(section ".sdata2") const f32 ShadowTextureSize = 256.0F;
 
 static inline BOOL decref(HSD_Obj* obj)
 {
@@ -112,9 +110,11 @@ s32 GXGetTexBufferSize(u16, u16, s32, s32, s32);
 
 void makeMatrix(HSD_Shadow* shadow);
 
-extern char ShadowAssertShadow[7]; /* "shadow" */
-extern char ShadowAssertZero[2]; /* "0" */
-extern char ShadowAssertRect[5]; /* "rect" */
+/* Custom Robo: string literals (wowjinxy: externs): mwcc puts these short ones in .sdata, as main.dol (0x8044F210) */
+#define ShadowAssertShadow "shadow"
+#define ShadowAssertZero "0"
+#define ShadowAssertRect "rect"
+#define ShadowAssertLobj "lobj"
 
 #define ASSERT_STR(line, cond, str) ((cond) ? ((void) 0) : __assert("shadow.c", line, str))
 #define ASSERT_NAMED(line, cond) ((cond) ? ((void) 0) : __assert("shadow.c", line, #cond))
@@ -318,7 +318,6 @@ void HSD_ShadowEndRender(HSD_Shadow* shadow)
    camera's eye from a light: an infinite light (lobj flags & 3 == 1) gives a direction, the eye goes `distance` along
    it from the camera's interest; a point or spot light (2, 3) gives the eye directly. Called from game code
    (0x8006EB08). The lobj flags are read as the u16 at +0x8 (no HSD_LObj definition in this header set). */
-extern char ShadowAssertLobj[5]; /* "lobj" */
 extern void PSVECScale(f32 scale, Vec* src, Vec* dst);
 void HSD_LObjGetPosition(void* lobj, Vec* position);
 
@@ -484,11 +483,18 @@ void HSD_ShadowSetViewingRect(HSD_Shadow* shadow, f32 top, f32 bottom, f32 left,
     case PROJ_PERSPECTIVE: {
         f32 width, height;
 
-        if (__fabs(top) > __fabs(bottom)) {
-            width = __fabs(top);
-        } else {
-            width = __fabs(bottom);
+        /* Custom Robo: double temporaries, the second operand first: main.dol takes |bottom| before |top| (plan.md step 104) */
+        {
+            double b = __fabs(bottom);
+            double tp = __fabs(top);
+            if (tp > b) {
+                width = tp;
+            } else {
+                width = b;
+            }
         }
+        /* Custom Robo: the same shape here moves `mr r3, r31` into this block; written plainly, |left| comes before
+           |right| (main.dol: |right| first): the last word not equal (plan.md step 104) */
         if (__fabs(left) > __fabs(right)) {
             height = __fabs(left);
         } else {
