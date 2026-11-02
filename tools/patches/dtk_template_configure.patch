@@ -83,7 +83,7 @@ diff --git a/configure.py b/configure.py
  config.objdiff_tag = "v3.6.1"
  config.sjiswrap_tag = "v1.2.2"
  config.wibo_tag = "1.0.3"
-@@ -284,18 +307,458 @@ def MatchingFor(*versions):
+@@ -284,18 +307,460 @@ def MatchingFor(*versions):
  
  config.warn_missing_config = True
  config.warn_missing_source = False
@@ -200,6 +200,7 @@ diff --git a/configure.py b/configure.py
 +    # from doldecomp/kar (Kirby Air Ride: the same sysdolphin revision as ours), its headers; include/cr_kar
 +    # holds Custom Robo's overrides of them (step 61)
 +    "sysdolphin/baselib/list.c": ["-cwd explicit", "-i include/cr_kar", "-i include/kar", "-i include/kar/sysdolphin"],
++    "sysdolphin/baselib/shadow.c": ["-cwd explicit", "-i include/kar_shadow", "-i include/kar_shadow/sysdolphin"],
 +    "dolphin/os/OS.c": BFBB_INC,
 +    "dolphin/os/OSFont.c": BFBB_INC,
 +    "dolphin/os/OSReboot.c": BFBB_INC,
@@ -487,7 +488,8 @@ diff --git a/configure.py b/configure.py
 +# piece first); "link": the C calls functions / uses data our symbols do not name yet.
 +CR_NOT_MATCHING = {
 +    "sysdolphin/baselib/shadow.c":
-+        "work in progress (plan.md step 100): Melee's shadow.c, per function from wowjinxy/KAR",
++        "work in progress (plan.md step 103): wowjinxy/KAR's shadow.c with its memory.c shadow functions; the float globals as main.dol's .sdata2 literals, atan2 as double, fn_801A4998 written: 15 of 16 functions equal; HSD_ShadowSetViewingRect 0.964 (the two fabs of each max in the other order: scheduler); the data (assert strings in .data / .sdata, the .sdata2 pool, HSD_ShadowAllocData) still wowjinxy's externs",
++
 +    "sysdolphin/baselib/texpdag.c":
 +        "code: 4 of 11 functions equal in objdiff (Melee's texpdag.c adapted: HSD_TExpSchedule reads a_dst for alpha inputs, HSD_TExpSimplify2 the TETev a_range byte, texp.h, order_dag's dep_bits an int; step 88: CalcTevRange from wowjinxy/KAR with each type test as a switch and the clamp / range tests per selector, called at the end of HSD_TExpSimplify): CalcDistance 99.1% (r3 / r4 swapped in its inlined recursive copies), HSD_TExpSimplify 87.6% (texp / res in the other callee-saved registers; declaration and statement forms tried), assign_reg 0x1B0 here vs 0x1B4, HSD_TExpMakeDag 0x4B0 vs 0x4A8, SimplifySrc 0x498 vs 0x414, SimplifyThis 0x840 vs 0x7EC, SimplifyByMerge 0x17C8 vs 0xA04 (wowjinxy/KAR has C for all of them, none equal: 90-99.6%, its SimplifyByMerge 0xC9C 32%) (another revision; doldecomp/kar has only asm): adapt to this revision; step 78: the optimizer pragma sweep on CalcDistance / SimplifyThis / assign_reg: no gain; step 88: inline_max_size sweep: no gain",
 +    "sysdolphin/baselib/jobj.c":

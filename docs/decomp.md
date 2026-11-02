@@ -390,6 +390,32 @@ A neighbour that kar's asm places in exactly one other file also counts as that 
 (no C linked): sysdolphin is 33 split objects, 24 from C. Still open (splits_report.txt): archive.c's end, synth.c's
 end, axdriver.c's end, devcom.c's start, particle.c's start (their neighbours are unnamed fn_ functions).
 
+### shadow.c: 15 of 16 functions (step 103, Nov 1, 2026)
+
+decomp/src/sysdolphin/baselib/shadow.c is now wowjinxy/KAR's shadow.c (tools/import_ref_source.py, its headers in
+their own root decomp/include/kar_shadow: the older adapted set in include/kar does not mix with them) with the shadow
+functions of wowjinxy's memory.c (HSD_ShadowInitAllocData, HSD_ShadowAlloc, HSD_ShadowRemove: this object's first
+three here). It builds `-cwd explicit` with that root and stays in CR_NOT_MATCHING until its data is done. What changed
+against wowjinxy, all measured with objdiff and a word compare against main.dol:
+
+- **Literals instead of float globals.** wowjinxy reads HSD_FloatEpsilon[0], HSD_FloatMin[0], ShadowOne,
+  ShadowNegOne, ShadowRadToDeg and two FLT_MAX globals; main.dol loads them from shadow.c's own .sdata2 pool
+  (0x80452980: 1.0, -1.0, FLT_EPSILON, 57.29578, FLT_MIN as a double, -FLT_MAX, FLT_MAX, ...). As literals,
+  HSD_ShadowStartRender (0.915), makeMatrix (0.717) and HSD_ViewingRectInit (0.538) compile equal.
+- **atan2 as double** (MSL's, then frsp) instead of a float kar_atan2, and the max of two fabs written
+  `fabs(a) > fabs(b)`: HSD_ShadowSetViewingRect 0.619 -> 0.964, size equal. Left: retail takes |bottom| before |top|
+  (and |right| before |left|); eleven spellings (temporaries, ternaries, macros, double temporaries) do not change the
+  order: the scheduler wall (docs/sched_model.md).
+- **fn_801A4998 written** (in no reference): it places the shadow camera's eye from a light (infinite light: the
+  camera's interest plus the light's direction scaled to `distance`; point / spot: the light's position), called from
+  game code at 0x8006EB08. Equal.
+- Names: fn_801A4800 = HSD_ShadowEndRender, fn_801A4ABC = HSD_ShadowSetActive (wowjinxy C equal, KAR map sizes).
+
+objdiff: code 0x1244 of 0x1404, 15 of 16 functions. To link shadow.c from C: HSD_ShadowSetViewingRect's fabs order,
+then the data: the assert strings (.data 0x8024D0D0 "shadow.c" ..., .sdata "shadow" / "lobj" / "0" / "rect"), the
+.sdata2 pool as the literals' order gives it, HSD_ShadowAllocData (.bss 0x8044B780, 0x30), all still wowjinxy's
+externs.
+
 ### The two HSD edges by caller and data order (step 102, Nov 1, 2026)
 
 roadblock_solutions.md section 8's third step. Results:

@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 1341
+files: 1370
 
 src/MSL/FILE_POS.c  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
@@ -727,6 +727,9 @@ src/sysdolphin/baselib/pobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/bas
 src/sysdolphin/baselib/random.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/random.h  identical
 src/sysdolphin/baselib/robj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/robj.c  changed (813 lines added / removed)
 src/sysdolphin/baselib/robj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/robj.h  identical
+src/sysdolphin/baselib/shadow.c  wowjinxy/KAR @ cb94b157612a src/sysdolphin/shadow.c  changed (170 lines added / removed)
+src/sysdolphin/baselib/shadow_melee_wip.c.txt  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/shadow.c  identical
+src/sysdolphin/baselib/shadow_melee_wip.h.txt  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/shadow.h  identical
 src/sysdolphin/baselib/spline.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/spline.c  changed (38 lines added / removed)
 src/sysdolphin/baselib/spline.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/spline.h  identical
 src/sysdolphin/baselib/state.c  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/state.c  changed (252 lines added / removed)
@@ -1069,6 +1072,32 @@ include/kar/sysdolphin/texp.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/texp.
 include/kar/sysdolphin/tobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/tobj.h  identical
 include/kar/sysdolphin/video.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/video.h  identical
 include/kar/sysdolphin/wobj.h  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/wobj.h  identical
+include/kar_shadow/functions.h  wowjinxy/KAR @ cb94b157612a include/functions.h  identical
+include/kar_shadow/global.h  wowjinxy/KAR @ cb94b157612a include/global.h  identical
+include/kar_shadow/dolphin/types.h  wowjinxy/KAR @ cb94b157612a include/dolphin/types.h  identical
+include/kar_shadow/dolphin/gx/gxtypes.h  wowjinxy/KAR @ cb94b157612a include/dolphin/gx/gxtypes.h  identical
+include/kar_shadow/dolphin/mtx/mtx.h  wowjinxy/KAR @ cb94b157612a include/dolphin/mtx/mtx.h  identical
+include/kar_shadow/dolphin/mtx/mtxtypes.h  wowjinxy/KAR @ cb94b157612a include/dolphin/mtx/mtxtypes.h  identical
+include/kar_shadow/dolphin/mtx/vec.h  wowjinxy/KAR @ cb94b157612a include/dolphin/mtx/vec.h  identical
+include/kar_shadow/sysdolphin/aobj.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/aobj.h  identical
+include/kar_shadow/sysdolphin/aobj_alloc.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/aobj_alloc.h  identical
+include/kar_shadow/sysdolphin/class.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/class.h  identical
+include/kar_shadow/sysdolphin/cobj.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/cobj.h  identical
+include/kar_shadow/sysdolphin/constants.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/constants.h  identical
+include/kar_shadow/sysdolphin/float_epsilon.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/float_epsilon.h  identical
+include/kar_shadow/sysdolphin/fobj.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/fobj.h  identical
+include/kar_shadow/sysdolphin/forward.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/forward.h  identical
+include/kar_shadow/sysdolphin/id.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/id.h  identical
+include/kar_shadow/sysdolphin/identity_mtx.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/identity_mtx.h  identical
+include/kar_shadow/sysdolphin/list.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/list.h  identical
+include/kar_shadow/sysdolphin/mobj.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/mobj.h  identical
+include/kar_shadow/sysdolphin/objalloc.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/objalloc.h  identical
+include/kar_shadow/sysdolphin/object.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/object.h  identical
+include/kar_shadow/sysdolphin/shadow.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/shadow.h  identical
+include/kar_shadow/sysdolphin/texp.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/texp.h  identical
+include/kar_shadow/sysdolphin/tobj.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/tobj.h  identical
+include/kar_shadow/sysdolphin/vec_orthogonal.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/vec_orthogonal.h  identical
+include/kar_shadow/sysdolphin/wobj.h  wowjinxy/KAR @ cb94b157612a include/sysdolphin/wobj.h  identical
 include/marioparty4/dol2asm.h  mariopartyrd/marioparty4 @ 5b01c79b4910 include/dol2asm.h  identical
 include/marioparty4/dolphin.h  mariopartyrd/marioparty4 @ 5b01c79b4910 include/dolphin.h  identical
 include/marioparty4/stdarg.h  mariopartyrd/marioparty4 @ 5b01c79b4910 include/stdarg.h  identical

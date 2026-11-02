@@ -1,490 +1,606 @@
-/* Custom Robo: from doldecomp/melee @ 24e685d57535c478a2e94802c85b31c2ba54ee67, src/sysdolphin/baselib/shadow.c */ #include "shadow.h"
+/* Custom Robo: from wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57, src/sysdolphin/shadow.c */ #include <sysdolphin/shadow.h>
 
-#include <math.h>
-#include <string.h>
+#include <dolphin/mtx/mtx.h>
+#include <dolphin/mtx/vec.h>
+#include <sysdolphin/cobj.h>
+#include <sysdolphin/constants.h>
+#include <sysdolphin/float_epsilon.h>
+#include <sysdolphin/identity_mtx.h>
+#include <sysdolphin/list.h>
+#include <sysdolphin/mobj.h>
+#include <sysdolphin/tobj.h>
+#include <sysdolphin/vec_orthogonal.h>
+#include <sysdolphin/objalloc.h>
 
-#include "class.h"
-#include "cobj.h"
-#include "debug.h"
-#include "jobj.h"
-#include "list.h"
-#include "memory.h"
-#include "mobj.h"
-#include "mtx.h"
-#include "object.h"
-#include "perf.h"
-#include "pobj.h"
-#include "state.h"
-#include "tev.h"
-#include "tobj.h"
-#include "util.h"
-#include <dolphin/gx.h>
-#include <dolphin/mtx.h>
+/* Custom Robo: the split shadow.c (plan.md step 97) starts with HSD_ShadowInitAllocData: wowjinxy/KAR keeps
+   HSD_ShadowInitAllocData, HSD_ShadowAlloc and HSD_ShadowRemove in its memory.c (lines 16-24 and 72-151 of
+   src/sysdolphin/memory.c @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57, copied here); HSD_ShadowGetAllocData is not in
+   main.dol (inlined). */
+void HSD_Free(void* ptr);
+u8 HSD_ShadowAllocData[0x30];
 
-HSD_ObjAllocData shadow_alloc_data;
+extern const f32 ShadowHalf;
+extern const f32 ShadowNegHalf;
+extern const f32 ShadowZero;
+extern const f32 ShadowTextureSize;
 
-static void makeMatrix(HSD_Shadow* shadow);
-
-HSD_ObjAllocData* HSD_ShadowGetAllocData(void)
-{
-    return &shadow_alloc_data;
-}
+#define SHADOW_ALLOC_DATA ((HSD_ObjAllocData*) HSD_ShadowAllocData)
 
 void HSD_ShadowInitAllocData(void)
 {
-    HSD_ObjAllocInit(HSD_ShadowGetAllocData(), sizeof(HSD_Shadow), 4);
-}
-
-HSD_TObj* makeShadowTObj(void)
-{
-    HSD_TObj* shadowTObj;
-    shadowTObj = HSD_TObjAlloc();
-    shadowTObj->src = 0;
-    shadowTObj->wrap_s = 0;
-    shadowTObj->wrap_t = 0;
-    shadowTObj->flags = 0x540103;
-    shadowTObj->imagedesc = HSD_ImageDescAlloc();
-    return shadowTObj;
+    HSD_ObjAllocInit(SHADOW_ALLOC_DATA, sizeof(HSD_Shadow), 4);
 }
 
 HSD_Shadow* HSD_ShadowAlloc(void)
 {
     HSD_Shadow* shadow;
+    HSD_TObj* tobj;
 
-    shadow = HSD_ObjAlloc(HSD_ShadowGetAllocData());
+    shadow = HSD_ObjAlloc(SHADOW_ALLOC_DATA);
     memset(shadow, 0, sizeof(HSD_Shadow));
     shadow->camera = HSD_CObjAlloc();
-    shadow->texture = makeShadowTObj();
-
-    shadow->scaleS = 0.5F;
-    shadow->scaleT = -0.5F;
-    shadow->transS = 0.5F;
-    shadow->transT = 0.5F;
+    tobj = HSD_TObjAlloc();
+    tobj->src = 0;
+    tobj->wrap_s = 0;
+    tobj->wrap_t = 0;
+    tobj->flags = 0x540103;
+    tobj->imagedesc = HSD_ImageDescAlloc();
+    shadow->texture = tobj;
+    shadow->scaleS = ShadowHalf;
+    shadow->scaleT = ShadowNegHalf;
+    shadow->transS = ShadowHalf;
+    shadow->transT = ShadowHalf;
     shadow->intensity = 0;
-
     shadow->texture->imagedesc->format = 0;
-    shadow->texture->imagedesc->width = 256;
-    shadow->texture->imagedesc->height = 256;
-
-    HSD_CObjSetViewportfx4(shadow->camera, 0.0f, 256.f, 0.0f, 256.f);
-    HSD_CObjSetScissorx4(shadow->camera, 0, 256, 0, 256);
-
+    shadow->texture->imagedesc->width = 0x100;
+    shadow->texture->imagedesc->height = 0x100;
+    {
+        f32 lo = ShadowZero;
+        f32 hi = ShadowTextureSize;
+        HSD_CObjSetViewportfx4(shadow->camera, lo, hi, lo, hi);
+    }
+    HSD_CObjSetScissorx4(shadow->camera, 0, 0x100, 0, 0x100);
     return shadow;
+}
+
+__declspec(section ".sdata2") const f32 ShadowHalf = 0.5F;
+__declspec(section ".sdata2") const f32 ShadowNegHalf = -0.5F;
+__declspec(section ".sdata2") const f32 ShadowZero = 0.0F;
+__declspec(section ".sdata2") const f32 ShadowTextureSize = 256.0F;
+
+static inline BOOL decref(HSD_Obj* obj)
+{
+    u16 ref_count = obj->ref_count;
+    BOOL noref = ref_count == 0xffff;
+    if (noref) {
+        return noref;
+    }
+    obj->ref_count--;
+    return ref_count == 0;
 }
 
 void HSD_ShadowRemove(HSD_Shadow* shadow)
 {
-    HSD_CObj* cobj;
+    HSD_CObj* camera;
     HSD_TObj* tobj;
 
     if (shadow == NULL) {
         return;
     }
-    if ((cobj = shadow->camera) != NULL) {
-        if (ref_DEC(cobj)) {
-            hsdDelete(cobj);
+    camera = shadow->camera;
+    if (camera != NULL) {
+        if (decref((HSD_Obj*) camera) && camera != NULL) {
+            camera->parent.parent.class_info->release((HSD_Class*) camera);
+            camera->parent.parent.class_info->destroy((HSD_Class*) camera);
         }
     }
     HSD_ShadowDeleteObject(shadow, 0);
     if (shadow->active) {
         HSD_MObjDeleteShadowTexture(shadow->texture);
     }
-    if (shadow->texture->imagedesc->image_ptr != NULL) {
-        HSD_Free(shadow->texture->imagedesc->image_ptr);
+    if (shadow->texture->imagedesc->img_ptr != NULL) {
+        HSD_Free(shadow->texture->imagedesc->img_ptr);
     }
     tobj = shadow->texture;
-    HSD_ImageDescFree(tobj->imagedesc);
-    HSD_TObjFree(tobj);
-    HSD_ObjFree(HSD_ShadowGetAllocData(), shadow);
+    HSD_ImageDescRemove(tobj->imagedesc);
+    HSD_TObjRemove(tobj);
+    HSD_ObjFree(SHADOW_ALLOC_DATA, shadow);
 }
+
+void* HSD_Alloc(s32);
+s32 GXGetTexBufferSize(u16, u16, s32, s32, s32);
+
+void makeMatrix(HSD_Shadow* shadow);
+
+extern char ShadowAssertShadow[7]; /* "shadow" */
+extern char ShadowAssertZero[2]; /* "0" */
+extern char ShadowAssertRect[5]; /* "rect" */
+
+#define ASSERT_STR(line, cond, str) ((cond) ? ((void) 0) : __assert("shadow.c", line, str))
+#define ASSERT_NAMED(line, cond) ((cond) ? ((void) 0) : __assert("shadow.c", line, #cond))
 
 void HSD_ShadowInit(HSD_Shadow* shadow)
 {
     HSD_ImageDesc* imagedesc;
 
-    HSD_ASSERT(245, shadow);
+    ASSERT_STR(0xF5, shadow, ShadowAssertShadow);
     imagedesc = shadow->texture->imagedesc;
     GXSetTexCopySrc(0, 0, imagedesc->width, imagedesc->height);
-    GXSetTexCopyDst(imagedesc->width, imagedesc->height, 0x20, 0);
+    GXSetTexCopyDst(imagedesc->width, imagedesc->height, 32, 0);
 }
 
 void HSD_ShadowSetSize(HSD_Shadow* shadow, u16 width, u16 height)
 {
     u32 size;
-    HSD_ImageDesc* idesc;
+    HSD_ImageDesc* imgdesc;
 
-    HSD_ASSERT(277, shadow);
-    HSD_ASSERT(278, width > 0);
-    HSD_ASSERT(279, height > 0);
+    ASSERT_STR(0x115, shadow, ShadowAssertShadow);
+    ASSERT_NAMED(0x116, width > 0);
+    ASSERT_NAMED(0x117, height > 0);
 
-    idesc = shadow->texture->imagedesc;
-    if (!idesc->image_ptr || idesc->width != width || idesc->height != height)
-    {
-        if (idesc->image_ptr) {
-            HSD_Free(idesc->image_ptr);
+    imgdesc = shadow->texture->imagedesc;
+    if (imgdesc->img_ptr == NULL || imgdesc->width != width || imgdesc->height != height) {
+        if (imgdesc->img_ptr != NULL) {
+            HSD_Free(imgdesc->img_ptr);
         }
+        size = GXGetTexBufferSize(width, height, 0, 0, 0);
+        ASSERT_NAMED(0x122, size > 0);
 
-        size = GXGetTexBufferSize(width, height, GX_TF_I4, GX_FALSE, 0);
-        HSD_ASSERT(0x122, size > 0);
-        idesc->image_ptr = HSD_MemAlloc(size);
-        idesc->width = width;
-        idesc->height = height;
-
-        HSD_CObjSetViewportfx4(shadow->camera, 0, width, 0, height);
+        imgdesc->img_ptr = HSD_Alloc(size);
+        imgdesc->width = width;
+        imgdesc->height = height;
+        HSD_CObjSetViewportfx4(shadow->camera, 0.0F, width, 0.0F, height);
         HSD_CObjSetScissorx4(shadow->camera, 0, width, 0, height);
     }
 }
 
-static void drawBackgroundRect(HSD_Shadow* shadow)
-{
-    f32 top, bottom, left, right, near;
-    HSD_CObj* cobj = shadow->camera;
+typedef struct _HSD_Chan {
+    struct _HSD_Chan* next;
+    u32 chan;
+    u32 flags;
+    GXColor amb_color;
+    GXColor mat_color;
+    u8 enable;
+    u32 amb_src;
+    u32 mat_src;
+    u32 light_mask;
+    u32 diff_fn;
+    u32 attn_fn;
+    struct _HSD_AObj* aobj;
+} HSD_Chan;
 
-    GXLoadPosMtxImm(HSD_identityMtx, GX_PNMTX0);
-    HSD_PerfCountMtxLoad();
-    GXSetCurrentMtx(GX_PNMTX0);
-    HSD_ClearVtxDesc();
-    GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
-    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
-    HSD_StateSetCullMode(GX_CULL_BACK);
+HSD_Chan channel = {
+    NULL, // next
+    4,    // chan
+    0,    // flags
+    { 0 },    // amb_color
+    { 0, 0, 0, 255 }, // mat_color
+    FALSE, // enable
+    0,     // amb_src
+    0,     // mat_src
+    0,     // light_mask
+    2,     // diff_fn
+    2,     // attn_fn
+};
 
-    top = HSD_CObjGetTop(cobj);
-    bottom = HSD_CObjGetBottom(cobj);
-    left = HSD_CObjGetLeft(cobj);
-    right = HSD_CObjGetRight(cobj);
-    near = HSD_CObjGetNear(cobj);
+extern struct {
+    u8 x0_pad[0xC];
+    s32 unkC;
+} HSD_PerfCurrentStat;
 
-    top *= 1.20000004768f;
-    bottom *= 1.20000004768f;
-    left *= 1.20000004768f;
-    right *= 1.20000004768f;
-    near *= -1.10000002384f;
+struct {
+    u32 unused[29];
+} tevstage = {
+    0,
+    1,
+    0,
+    0xFF,
+    0xFF,
+    4,
+    0,
+    15,
+    15,
+    15,
+    10,
+    0,
+    0,
+    0x1000000,
+    0,
+    0,
+    7,
+    7,
+    7,
+    5,
+    0,
+    0,
+    0x1000000,
+};
 
-    GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-    GXPosition2f32(left, top);
-    GXPosition2f32(near, right);
-    GXPosition2f32(top, near);
-    GXPosition2f32(right, bottom);
-    GXPosition2f32(near, left);
-    GXPosition2f32(bottom, near);
-    GXEnd();
-}
+HSD_PEDesc pedesc = {
+    9,
+    0,
+    0,
+    0,
+    0,
+    4,
+    5,
+    15,
+    7,
+    7,
+    0,
+    7,
+};
+
+
+f32 HSD_CObjGetEyeDistance();
+void C_MTXOrtho(void*, f32, f32, f32, f32, f32, f32);
+void GXSetViewport(f32, f32, f32, f32, f32, f32);
+
+/* Custom Robo: literals here (wowjinxy: f32 globals ShadowOne / ShadowNegOne): main.dol has them in shadow.c's
+   .sdata2 pool (1.0, -1.0, then FLT_EPSILON) */
+#define ShadowOne 1.0F
+#define ShadowNegOne -1.0F
 
 void HSD_ShadowStartRender(HSD_Shadow* shadow)
 {
-    HSD_CObj* cobj;
-    HSD_ImageDesc* idesc;
-    HSD_SList* list;
+    Mtx44 sp8;
+    HSD_Chan* chan;
+    HSD_CObj* camera;
+    u8 temp_r0;
+    HSD_ImageDesc* imgdesc;
+    HSD_SList* var_r26;
 
-    HSD_ASSERT(359, shadow);
-    HSD_ASSERT(360, shadow->camera);
-    HSD_ASSERT(361, shadow->texture);
-    HSD_ASSERT(362, shadow->texture->imagedesc);
+    ASSERT_STR(0x159, shadow, ShadowAssertShadow);
+    ASSERT_NAMED(0x15A, shadow->camera);
+    ASSERT_NAMED(0x15B, shadow->texture);
+    ASSERT_NAMED(0x15C, shadow->texture->imagedesc);
 
-    list = shadow->objects;
-    cobj = shadow->camera;
-    idesc = shadow->texture->imagedesc;
-
-    if (list != NULL) {
-        HSD_CObjSetCurrent(cobj);
-        {
-            static HSD_Chan chan = {
-                NULL,           GX_COLOR0A0,      0,
-                { 0, 0, 0, 0 }, { 0, 0, 0, 255 }, GX_FALSE,
-                GX_SRC_REG,     GX_SRC_REG,       GX_LIGHT_NULL,
-                GX_DF_CLAMP,    GX_AF_NONE,       NULL,
-            };
-            static HSD_TevDesc tev = {
-                NULL,
-                TEVCONF_MODE,
-                GX_TEVSTAGE0,
-                GX_TEXCOORD_NULL,
-                GX_TEXMAP_NULL,
-                GX_COLOR0A0,
-                {
-                    GX_TEV_ADD, GX_CC_ZERO,    GX_CC_ZERO,    GX_CC_ZERO,
-                    GX_CC_RASC, GX_CS_SCALE_1, GX_TB_ZERO,    GX_TRUE,
-                    GX_TEVPREV, GX_TEV_ADD,    GX_CA_ZERO,    GX_CA_ZERO,
-                    GX_CA_ZERO, GX_CA_RASA,    GX_CS_SCALE_1, GX_TB_ZERO,
-                    GX_TRUE,    GX_TEVPREV,    GX_TC_LINEAR,
-                }
-            };
-            static HSD_PEDesc pedesc = {
-                9, // ENABLE_COLOR_UPDATE | BEFORE_TEX,
-                0,
-                0,
-                0,
-                GX_BM_NONE,
-                GX_BL_SRCALPHA,
-                GX_BL_INVSRCALPHA,
-                GX_LO_SET,
-                GX_ALWAYS,
-                GX_ALWAYS,
-                GX_AOP_AND,
-                GX_ALWAYS
-            };
-
-            HSD_StateInitTev();
-            HSD_SetupTevStageAll(&tev);
-
-            HSD_StateSetNumTexGens();
-
-            HSD_SetupPEMode(0, &pedesc);
-
-            chan.mat_color.r = 255;
-            chan.mat_color.g = 255;
-            chan.mat_color.b = 255;
-
-            HSD_SetupChannelAll(&chan);
-            GXSetScissor(0, 0, idesc->width, idesc->height);
-
-            drawBackgroundRect(shadow);
-
-            chan.mat_color.r = shadow->intensity;
-            chan.mat_color.g = shadow->intensity;
-            chan.mat_color.b = shadow->intensity;
-
-            HSD_SetupChannelAll(&chan);
-            GXSetScissor(2, 2, idesc->width - 4, idesc->height - 4);
+    camera = shadow->camera;
+    imgdesc = shadow->texture->imagedesc;
+    if (shadow->active) {
+        HSD_StateInitTev();
+        HSD_SetupTevStageAll(&tevstage);
+        HSD_StateSetNumTexGens();
+        HSD_SetupPEMode(0, &pedesc);
+        channel.mat_color.r = 0xFF;
+        channel.mat_color.g = 0xFF;
+        channel.mat_color.b = 0xFF;
+        HSD_SetupChannelAll(&channel);
+        C_MTXOrtho(&sp8, ShadowOne, 0.0F, 0.0F, ShadowOne, ShadowNegOne, ShadowOne);
+        GXSetProjection(&sp8, 1);
+        GXSetViewport(0.0F, 0.0F, imgdesc->width, imgdesc->height, 0.0F, ShadowOne);
+        GXSetScissor(0, 0, imgdesc->width, imgdesc->height);
+        GXLoadPosMtxImm(&HSD_IdentityMtx, 0);
+        GXSetCurrentMtx(0, HSD_PerfCurrentStat.unkC++, &HSD_PerfCurrentStat);
+        HSD_ClearVtxDesc();
+        GXSetVtxDesc(9, 1);
+        GXSetVtxAttrFmt(0, 9, 0, 0, 0);
+        HSD_StateSetCullMode(2);
+        GXBegin(0x80, 0, 4);
+        *(s8*) 0xCC008000 = 0;
+        *(s8*) 0xCC008000 = 1;
+        *(s8*) 0xCC008000 = 1;
+        *(s8*) 0xCC008000 = 1;
+        *(s8*) 0xCC008000 = 1;
+        *(s8*) 0xCC008000 = 0;
+        *(s8*) 0xCC008000 = 0;
+        *(s8*) 0xCC008000 = 0;
+        temp_r0 = shadow->intensity;
+        channel.mat_color.r = temp_r0;
+        channel.mat_color.g = temp_r0;
+        channel.mat_color.b = temp_r0;
+        HSD_SetupChannelAll(&channel);
+        if (shadow->objects != NULL && HSD_CObjGetEyeDistance(camera) >= 1.1920929e-07F && HSD_CObjSetCurrent(camera)) {
+            GXSetScissor(2, 2, imgdesc->width - 4, imgdesc->height - 4);
+            for (var_r26 = shadow->objects; var_r26 != NULL; var_r26 = var_r26->next) {
+                HSD_JObjDispAll(var_r26->data, 0, 5, 0x04000000);
+            }
+            HSD_CObjEndCurrent();
         }
-
-        for (list = shadow->objects; list != NULL; list = list->next) {
-            HSD_JObjDispAll(list->data, NULL,
-                            (HSD_TrspMask) (HSD_TRSP_OPA | HSD_TRSP_TEXEDGE),
-                            RENDER_SHADOW);
-        }
-
-        HSD_CObjEndCurrent();
     }
 }
 
 void HSD_ShadowEndRender(HSD_Shadow* shadow)
 {
-    HSD_ImageDesc* idesc;
-
-    HSD_ASSERT(501, shadow);
-
-    idesc = shadow->texture->imagedesc;
-    if (!idesc->image_ptr) {
-        HSD_ShadowSetSize(shadow, idesc->width, idesc->height);
+    HSD_ImageDesc* imgdesc;
+    ASSERT_STR(0x1ED, shadow, ShadowAssertShadow);
+    imgdesc = shadow->texture->imagedesc;
+    if (imgdesc->img_ptr == NULL) {
+        HSD_ShadowSetSize(shadow, imgdesc->width, imgdesc->height);
     }
-
-    GXCopyTex(idesc->image_ptr, GX_TRUE);
+    GXCopyTex(imgdesc->img_ptr, 1);
     GXPixModeSync();
-
     GXInvalidateTexAll();
-
     makeMatrix(shadow);
 }
 
-void HSD_ShadowSetActive(HSD_Shadow* shadow, int active)
+/* Custom Robo: in no reference (not in Melee or KAR): written from main.dol (plan.md step 103). Places the shadow
+   camera's eye from a light: an infinite light (lobj flags & 3 == 1) gives a direction, the eye goes `distance` along
+   it from the camera's interest; a point or spot light (2, 3) gives the eye directly. Called from game code
+   (0x8006EB08). The lobj flags are read as the u16 at +0x8 (no HSD_LObj definition in this header set). */
+extern char ShadowAssertLobj[5]; /* "lobj" */
+extern void PSVECScale(f32 scale, Vec* src, Vec* dst);
+void HSD_LObjGetPosition(void* lobj, Vec* position);
+
+void fn_801A4998(HSD_Shadow* shadow, void* lobj, f32 distance)
 {
-    HSD_ImageDesc* idesc;
+    Vec eye;
+    Vec interest;
+    Vec dir;
 
-    HSD_ASSERT(580, shadow);
+    ASSERT_STR(0x211, shadow, ShadowAssertShadow);
+    ASSERT_STR(0x212, lobj, ShadowAssertLobj);
+    switch (*(u16*) ((u8*) lobj + 8) & 3) {
+    case 1:
+        HSD_CObjGetInterest(shadow->camera, &interest);
+        HSD_LObjGetPosition(lobj, &dir);
+        PSVECScale(distance / (1.1920929e-07F + PSVECMag(&dir)), &dir, &dir);
+        PSVECAdd(&interest, &dir, &eye);
+        HSD_CObjSetEyePosition(shadow->camera, &eye);
+        break;
+    case 2:
+    case 3:
+        HSD_LObjGetPosition(lobj, &eye);
+        HSD_CObjSetEyePosition(shadow->camera, &eye);
+        break;
+    default:
+        ASSERT_STR(0x224, 0, ShadowAssertZero);
+    }
+}
 
-    if ((shadow->active && active) || (!shadow->active && !active)) {
+void HSD_ShadowSetActive(HSD_Shadow *shadow, s32 active)
+{
+    ASSERT_STR(0x23A, shadow, ShadowAssertShadow);
+    // skip if already in requested state
+    if (shadow->active && active || !shadow->active && !active) {
         return;
     }
 
     shadow->active = active;
     if (active) {
-        idesc = shadow->texture->imagedesc;
-        if (!idesc->image_ptr) {
-            HSD_ShadowSetSize(shadow, idesc->width, idesc->height);
+        HSD_ImageDesc* imgdesc = shadow->texture->imagedesc;
+        if (imgdesc->img_ptr == NULL) {
+            HSD_ShadowSetSize(shadow, imgdesc->width, imgdesc->height);
         }
-
         HSD_MObjAddShadowTexture(shadow->texture);
     } else {
         HSD_MObjDeleteShadowTexture(shadow->texture);
     }
 }
 
-static char distAssert[16] = "distance > 0.0F";
+HSD_SList* HSD_SListPrepend();
 
-void HSD_ShadowAddObject(HSD_Shadow* shadow, HSD_JObj* jobj)
+void HSD_ShadowAddObject(HSD_Shadow* shadow, HSD_Obj* obj)
 {
-    HSD_SList* list;
+    HSD_SList* cur;
 
-    if (!shadow || !jobj) {
+    if (shadow == NULL || obj == NULL) {
         return;
     }
-
-    for (list = shadow->objects; list; list = list->next) {
-        if (list->data == jobj) {
+    for (cur = shadow->objects; cur != NULL; cur = cur->next) {
+        if (cur->data == obj) {
             return;
         }
     }
-    shadow->objects = HSD_SListAllocAndPrepend(shadow->objects, jobj);
-    HSD_JObjRef(jobj);
+    shadow->objects = HSD_SListPrepend(shadow->objects, obj);
+    if (obj != NULL) {
+        obj->ref_count += 1;
+        if (obj->ref_count == (u16) -1) {
+            __assert("object.h", 0x5D, "HSD_OBJ(o)->ref_count != HSD_OBJ_NOREF");
+        }
+    }
 }
 
-void HSD_ShadowDeleteObject(HSD_Shadow* shadow, HSD_JObj* jobj)
+void HSD_ShadowDeleteObject(HSD_Shadow* shadow, struct _HSD_JObj* jobj)
 {
-    if (!shadow) {
+    if (shadow == NULL) {
         return;
     }
-
-    if (jobj) {
-        HSD_SList** list = &(shadow->objects);
-        for (; *list; list = &((*list)->next)) {
-            if ((*list)->data == jobj) {
+    if (jobj != NULL) {
+        HSD_SList* list = (HSD_SList*) shadow;
+        while (list->next != NULL) {
+            if (list->next->data == jobj) {
                 HSD_JObjUnref(jobj);
-                (*list) = HSD_SListRemove(*list);
-                return;
+                list->next = HSD_SListRemove(list->next);
+                break;
             }
+            list = list->next;
         }
     } else {
-        while (shadow->objects) {
+        while (shadow->objects != NULL) {
             HSD_JObjUnref(shadow->objects->data);
             shadow->objects = HSD_SListRemove(shadow->objects);
         }
     }
 }
 
-static void makeMatrix(HSD_Shadow* shadow)
+void C_MTXLightPerspective(Mtx, f32, f32, f32, f32, f32, f32);
+void C_MTXLightFrustum(Mtx, f32, f32, f32, f32, f32, f32, f32, f32, f32);
+void C_MTXLightOrtho(Mtx, f32, f32, f32, f32, f32, f32, f32, f32);
+
+Mtx ShadowProjectionFallbackMtx = {
+    { 0.0F, 0.0F, 0.0F, 0.0F },
+    { 0.0F, 0.0F, 0.0F, 0.0F },
+    { 0.0F, 0.0F, 0.0F, 1.0F },
+};
+
+void makeMatrix(HSD_Shadow* shadow)
 {
     Mtx Mprj;
 
+    if (HSD_CObjGetEyeDistance(shadow->camera) < 1.1920929e-07F) {
+        PSMTXCopy(ShadowProjectionFallbackMtx, shadow->texture->mtx);
+        return;
+    }
+
     switch (HSD_CObjGetProjectionType(shadow->camera)) {
     case PROJ_PERSPECTIVE:
-        MTXLightPerspective(
-            Mprj, shadow->camera->projection_param.perspective.fov,
-            shadow->camera->projection_param.perspective.aspect,
-            shadow->scaleS, shadow->scaleT, shadow->transS, shadow->transT);
+        C_MTXLightPerspective(Mprj, shadow->camera->projection_param.perspective.fov,
+                              shadow->camera->projection_param.perspective.aspect,
+                              shadow->scaleS, shadow->scaleT, shadow->transS, shadow->transT);
         break;
 
-    case PROJ_FRUSTUM:
-        MTXLightFrustum(Mprj, shadow->camera->projection_param.frustum.top,
-                        shadow->camera->projection_param.frustum.bottom,
-                        shadow->camera->projection_param.frustum.left,
-                        shadow->camera->projection_param.frustum.right,
-                        shadow->camera->near, shadow->scaleS, shadow->scaleT,
-                        shadow->transS, shadow->transT);
+    case PROJ_FRUSTRUM:
+        C_MTXLightFrustum(Mprj, shadow->camera->projection_param.frustrum.top,
+                          shadow->camera->projection_param.frustrum.bottom,
+                          shadow->camera->projection_param.frustrum.left,
+                          shadow->camera->projection_param.frustrum.right,
+                          shadow->camera->near, shadow->scaleS, shadow->scaleT,
+                          shadow->transS, shadow->transT);
         break;
 
     case PROJ_ORTHO:
-        MTXLightOrtho(Mprj, shadow->camera->projection_param.ortho.top,
-                      shadow->camera->projection_param.ortho.bottom,
-                      shadow->camera->projection_param.ortho.left,
-                      shadow->camera->projection_param.ortho.right,
-                      shadow->scaleS, shadow->scaleT, shadow->transS,
-                      shadow->transT);
+        C_MTXLightOrtho(Mprj, shadow->camera->projection_param.ortho.top,
+                        shadow->camera->projection_param.ortho.bottom,
+                        shadow->camera->projection_param.ortho.left,
+                        shadow->camera->projection_param.ortho.right,
+                        shadow->scaleS, shadow->scaleT, shadow->transS, shadow->transT);
         break;
 
     default:
-        HSD_ASSERT(698, 0);
+        ASSERT_STR(0x2BB, 0, ShadowAssertZero);
     }
 
-    MTXConcat(Mprj, HSD_CObjGetViewingMtxPtrDirect(shadow->camera),
-              shadow->texture->mtx);
+    PSMTXConcat(Mprj, shadow->camera->view_mtx, shadow->texture->mtx);
 }
 
-#define HSD_ASSERT2(line, text, cond)                                         \
-    ((cond) ? ((void) 0) : __assert(__FILE__, line, text))
+double atan2(double, double); /* Custom Robo: main.dol calls MSL atan2 (double) and rounds (wowjinxy: f32 kar_atan2) */
 
-void HSD_ShadowSetViewingRect(HSD_Shadow* shadow, float top, float bottom,
-                              float left, float right)
+
+void HSD_ShadowSetViewingRect(HSD_Shadow* shadow, f32 top, f32 bottom, f32 left, f32 right)
 {
-    HSD_CObj* cobj;
-    float distance;
+    HSD_CObj* camera;
+    f32 distance;
 
-    HSD_ASSERT(721, shadow);
+    ASSERT_STR(0x2D2, shadow, ShadowAssertShadow);
 
-    cobj = shadow->camera;
-    distance = HSD_CObjGetEyeDistance(cobj);
-    HSD_ASSERT2(725, distAssert, distance > 0.0F);
+    camera = shadow->camera;
+    distance = HSD_CObjGetEyeDistance(camera);
+    if (distance < 1.1920929e-07F) {
+        return;
+    }
 
-    switch (HSD_CObjGetProjectionType(cobj)) {
+    switch (HSD_CObjGetProjectionType(camera)) {
     case PROJ_PERSPECTIVE: {
-        float width, height;
+        f32 width, height;
 
-        if (fabsf_bitwise(top) > fabsf_bitwise(bottom)) {
-            width = fabsf_bitwise(top);
+        if (__fabs(top) > __fabs(bottom)) {
+            width = __fabs(top);
         } else {
-            width = fabsf_bitwise(bottom);
+            width = __fabs(bottom);
         }
-        if (fabsf_bitwise(left) > fabsf_bitwise(right)) {
-            height = fabsf_bitwise(left);
+        if (__fabs(left) > __fabs(right)) {
+            height = __fabs(left);
         } else {
-            height = fabsf_bitwise(right);
+            height = __fabs(right);
         }
-        HSD_CObjSetAspect(cobj, height / width);
-        HSD_CObjSetFov(cobj, atan2f(height, distance));
+        HSD_CObjSetAspect(camera, height / (width + 1.1920929e-07F));
+        HSD_CObjSetFov(camera, 57.29578F * (f32) atan2(width, distance));
     } break;
 
     case PROJ_ORTHO:
-        HSD_CObjSetOrtho(cobj, top, bottom, left, right);
+        HSD_CObjSetOrtho(camera, top, bottom, left, right);
         break;
 
-    case PROJ_FRUSTUM: {
-        float scale = HSD_CObjGetNear(cobj) / distance;
-        HSD_ASSERT(754, scale > 0.0F);
-        HSD_CObjSetFrustum(cobj, scale * top, scale * bottom, scale * left,
-                           scale * right);
+    case PROJ_FRUSTRUM: {
+        f32 scale = HSD_CObjGetNear(camera) / distance;
+        if (scale < 1.1920929e-07F) {
+            scale = 1.1920929e-07F;
+        }
+        HSD_CObjSetFrustum(camera, scale * top, scale * bottom, scale * left, scale * right);
     } break;
 
     default:
-        HSD_ASSERT(762, 0);
+        ASSERT_STR(0x2FF, 0, ShadowAssertZero);
     }
 }
 
-void HSD_ViewingRectInit(HSD_ViewingRect* rect, Vec3* position, Vec3* interest,
-                         Vec3* upvector, int perspective)
-{
-    Vec3 v;
-    HSD_ASSERT(795, rect);
+extern void PSVECScale(f32 scale, Vec* src, Vec* dst);
 
+/* Custom Robo: literals (wowjinxy: the globals ShadowNegFloatMax / ShadowFloatMaxPair, HSD_FloatMin): main.dol has them in
+   shadow.c's .sdata2 pool after 57.29578F: FLT_MIN as a double, -FLT_MAX, FLT_MAX */
+#define CR_FLT_MIN_D 1.1754943508222875e-38
+
+static inline BOOL TryNormalizeChecked(Vec* src, Vec* dst)
+{
+    if (src == NULL || dst == NULL) {
+        return ~0;
+    }
+    if (__fabs(src->x) <= CR_FLT_MIN_D && __fabs(src->y) <= CR_FLT_MIN_D &&
+        __fabs(src->z) <= CR_FLT_MIN_D) {
+        return ~0;
+    }
+    PSVECNormalize(src, dst);
+    return 0;
+}
+
+void HSD_ViewingRectInit(HSD_ViewingRect* rect, Vec* position, Vec* interest, Vec* upvector, s32 perspective)
+{
+    ASSERT_STR(0x31E, rect, ShadowAssertRect);
+
+    rect->invalid = 0;
     rect->origin = *position;
-    VECSubtract(interest, position, &rect->eye_v);
-    VECNormalize(&rect->eye_v, &rect->eye_vn);
-    VECNormalize(upvector, &v);
-    VECCrossProduct(&rect->eye_vn, &v, &rect->right_v);
-    VECCrossProduct(&rect->right_v, &rect->eye_vn, &rect->up_v);
-    rect->distance = VECMag(&rect->eye_v);
+    PSVECSubtract(interest, position, &rect->eye_v);
+    if (TryNormalizeChecked(&rect->eye_v, &rect->eye_vn) < 0) {
+        rect->invalid = 1;
+        return;
+    }
 
-    rect->top = rect->right = -F32_MAX;
-    rect->bottom = rect->left = F32_MAX;
-    rect->perspective = perspective;
+    PSVECCrossProduct(&rect->eye_vn, upvector, &rect->right_v);
+    if (TryNormalizeChecked(&rect->right_v, &rect->right_v) < 0) {
+        HSD_VecGetOrthogonal(&rect->eye_vn, &rect->right_v);
+        PSVECNormalize(&rect->right_v, &rect->right_v);
+    }
+    PSVECCrossProduct(&rect->right_v, &rect->eye_vn, &rect->up_v);
+    rect->distance = PSVECMag(&rect->eye_v);
+
+    rect->top = rect->right = -3.4028235E38F;
+    rect->bottom = rect->left = 3.4028235E38F;
+    rect->perspective = perspective != 0;
 }
 
-int HSD_ViewingRectCheck(HSD_ViewingRect* rect)
+s32 HSD_ViewingRectCheck(HSD_ViewingRect* rect)
 {
-    HSD_ASSERT(818, rect);
-    return rect->top > rect->bottom && rect->right > rect->left;
+    ASSERT_STR(0x33C, rect, ShadowAssertRect);
+    return !rect->invalid && rect->top > rect->bottom && rect->right > rect->left;
 }
 
-void HSD_ViewingRectAddRect(HSD_ViewingRect* rect, Vec3* position, float top,
-                            float bottom, float left, float right)
+void HSD_ViewingRectAddRect(HSD_ViewingRect* rect, Vec* position, f32 top, f32 bottom, f32 left, f32 right)
 {
-    float x, y, dot, scale;
-    Vec3 o2p, e2p;
+    f32 x, y, dot;
+    Vec o2p, e2p;
 
-    HSD_ASSERT(855, rect);
-    HSD_ASSERT(856, position);
+    ASSERT_STR(0x362, rect, ShadowAssertRect);
+    ASSERT_NAMED(0x363, position);
 
-    VECSubtract(position, &rect->origin, &o2p);
-    dot = VECDotProduct(&o2p, &rect->eye_vn);
+    if (rect->invalid) {
+        return;
+    }
+
+    PSVECSubtract(position, &rect->origin, &o2p);
+    dot = PSVECDotProduct(&o2p, &rect->eye_vn);
     if (rect->perspective) {
+        f32 scale;
+
         if (dot <= 0.0F) {
             return;
         }
         scale = rect->distance / dot;
-        VECScale(&o2p, &o2p, scale);
-        VECSubtract(&o2p, &rect->eye_v, &e2p);
-        x = VECDotProduct(&rect->right_v, &e2p);
-        y = VECDotProduct(&rect->up_v, &e2p);
+        PSVECScale(scale, &o2p, &o2p);
+        PSVECSubtract(&o2p, &rect->eye_v, &e2p);
+        x = PSVECDotProduct(&rect->right_v, &e2p);
+        y = PSVECDotProduct(&rect->up_v, &e2p);
 
         top *= scale;
         bottom *= scale;
         left *= scale;
         right *= scale;
     } else {
-        Vec3 tmp;
-        VECScale(&rect->eye_vn, &tmp, dot);
-        VECSubtract(&o2p, &tmp, &e2p);
-        x = VECDotProduct(&rect->right_v, &e2p);
-        y = VECDotProduct(&rect->up_v, &e2p);
+        Vec tmp;
+        PSVECScale(dot, &rect->eye_vn, &tmp);
+        PSVECSubtract(&o2p, &tmp, &e2p);
+        x = PSVECDotProduct(&rect->right_v, &e2p);
+        y = PSVECDotProduct(&rect->up_v, &e2p);
     }
 
     if (x + right > rect->right) {
@@ -501,5 +617,7 @@ void HSD_ViewingRectAddRect(HSD_ViewingRect* rect, Vec3* position, float top,
     }
 }
 
-static char radiusAssert[14] = "radius > 0.0F";
-static char aAssert[9] = "a > 0.0F";
+#pragma push
+#pragma force_active on
+static char unused[] = "a > 0.0F";
+#pragma pop

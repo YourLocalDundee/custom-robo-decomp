@@ -29,8 +29,8 @@ padding per point: 0x100 bytes; points: 42
   26. 0x803F6420 .bss     inside .bss: the data-only game unit game/data/cr_g_CardWorkArea.c (every reference to it is a relocation) -> everything from here moves by +0x1A00
   27. 0x804198B0 .bss     inside .bss: the data-only game unit game/data/cr_g_UnlockBits.c (every reference to it is a relocation) -> everything from here moves by +0x1B00
   28. 0x8041EB80 .bss     inside .bss: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0x1C00
-  29. 0x8043B5D8 .bss     inside .bss: the data piece of MetroTRK/serpoll.c (a proven object boundary) -> everything from here moves by +0x1D00
-  30. 0x8044B780 .bss     inside .bss: the data piece of sysdolphin/baselib/shadow.c (a proven object boundary) -> everything from here moves by +0x1E00
+  29. 0x80439C28 .bss     inside .bss: the data piece of MetroTRK/msgbuf.c (a proven object boundary) -> everything from here moves by +0x1D00
+  30. 0x8044B710 .bss     inside .bss: the data piece of sysdolphin/baselib/list.c (a proven object boundary) -> everything from here moves by +0x1E00
   31. 0x8044C3C0 .sdata   start of .sdata -> everything from here moves by +0x1F00
   32. 0x8044ED50 .sdata   inside .sdata: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0x2000
   33. 0x8044EEA0 .sdata   inside .sdata: the data piece of MSL/printf.c (a proven object boundary) -> everything from here moves by +0x2100
@@ -43,9 +43,9 @@ padding per point: 0x100 bytes; points: 42
   40. 0x804504E8 .sdata2  inside .sdata2: the data piece of game/fn_8002444C_fn_8002444C.c (a proven object boundary) -> everything from here moves by +0x2800
   41. 0x804520A0 .sdata2  inside .sdata2: the data piece of MSL/e_log.c (a proven object boundary) -> everything from here moves by +0x2900
   42. 0x804529F8 .sdata2  inside .sdata2: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x2A00
-objects linked from C (batch 9, configure.py CR_MATCHING): 664 in both links, 663 of them moved by the padding; 26 holding a point, reassembled from asm
+objects linked from C (batch 9, configure.py CR_MATCHING): 663 in both links, 662 of them moved by the padding; 27 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
-shifted main.dol: SHA-1 57ddb6619157e80c7eed4f1c4feafc9be9464d4f (2431360 bytes, retail 2425472)
+shifted main.dol: SHA-1 1743c1eabbef2a4b64adf423f672f1ff914f648a (2431360 bytes, retail 2425472)
 sections, unshifted -> shifted:
   .init    0x80003100 size 0x0024D0 -> 0x80003100 size 0x0024D0
   .text    0x800055E0 size 0x1B0FF8 -> 0x800055E0 size 0x1B12F8
@@ -63,7 +63,7 @@ sections, unshifted -> shifted:
   _stack_addr  0x80462AC0 -> 0x804654C0
   __ArenaLo    0x80464AC0 -> 0x804674C0
 static check:
-  symbols compared (unique names): 15159
+  symbols compared (unique names): 15153
   symbols moved by the wrong amount: 0
   relocations of the unshifted build: 92803
   relocations missing after the shift: 0
