@@ -6,7 +6,7 @@ promoted: 546 (84220 bytes = 0x148FC)
 file objects: 6 (6 functions, 2196 bytes = 0x894)
 left out: 57
 kept from earlier runs (draft no longer 100%): 1
-removed (function name no longer ours): 2
+removed (function name no longer ours): 0
 
 == promoted (address, function, bytes)
 800055E0  fn_800055E0                                      4
@@ -179,7 +179,7 @@ removed (function name no longer ours): 2
 80037A80  cr_Motion_LoadInfo                             660
 80037FBC  cr_Motion_PlayFromFrame1                        52
 80038BD8  fn_80038BD8                                    288
-8003D4C4  fn_8003D4C4                                     60
+8003D4C4  cr_Chara_PoseFromMotion                         60
 8003F000  fn_8003F000                                     72
 8003F1E8  fn_8003F1E8                                     96
 800412F8  fn_800412F8                                     96
@@ -563,8 +563,8 @@ removed (function name no longer ours): 2
 80021AB0-80021CB4  fn_80021AB0..fn_80021AB0  1 functions, 1 at 100%: FILE OBJECT game/fn_80021AB0_fn_80021AB0.c (.data 0x801F5D30-0x801F5D64)
 80024148-800373AC  fn_80024148..fn_80036FB0  76 functions, 20 at 100%: not available yet (56 not matched: fn_8002419C, fn_80024634, cr_CamMode_DefaultStart, fn_80024848, cr_CAMMODE_SNR_AUTO_Y_ANG_Frame, fn_80024A88 ...)
 8002444C-80024578  fn_8002444C..fn_8002444C  1 functions, 1 at 100%: FILE OBJECT game/fn_8002444C_fn_8002444C.c (.sdata2 0x804504E8-0x80450518)
-80037D14-80050388  cr_Motion_Play..fn_8004FF64  72 functions, 19 at 100%: not available yet (53 not matched: fn_80037FF0, fn_800381D0, fn_800389C8, fn_80038CF8, fn_800392B0, fn_80039FAC ...)
-800527D4-8005BEC8  fn_800527D4..fn_8005BE70  18 functions, 1 at 100%: not available yet (17 not matched: fn_800528B8, fn_8005299C, fn_80053430, fn_80053A20, fn_80053DA8, fn_80054238 ...)
+80037D14-80050388  cr_Motion_Play..fn_8004FF64  72 functions, 19 at 100%: not available yet (53 not matched: fn_80037FF0, fn_800381D0, fn_800389C8, fn_80038CF8, cr_Battle_ApplyRoleMatrices, fn_80039FAC ...)
+800527D4-8005BEC8  cr_Motion_UpdateBlend..fn_8005BE70  18 functions, 1 at 100%: not available yet (17 not matched: fn_800528B8, fn_8005299C, fn_80053430, fn_80053A20, cr_Chara_BuildJointRotations, cr_Motion_UpdatePoints ...)
 8005C4D0-8005C628  fn_8005C4D0..fn_8005C4D0  1 functions, 1 at 100%: FILE OBJECT game/fn_8005C4D0_fn_8005C4D0.c (.sdata2 0x804509A0-0x804509A8)
 8005C7F4-8005C954  fn_8005C7F4..fn_8005C7F4  1 functions, 1 at 100%: FILE OBJECT game/fn_8005C7F4_fn_8005C7F4.c (.sdata2 0x804509A8-0x804509B0)
 80067904-8006B46C  fn_80067904..fn_8006B3D0  42 functions, 13 at 100%: not available yet (29 not matched: fn_80067904, fn_80068420, fn_8006868C, fn_80068988, cr_Text_CountChars, fn_80068B84 ...)
@@ -605,7 +605,7 @@ fn_80045868: the users of the entries its draft owns span cr_Motion_Play..fn_800
 fn_800459A0: the users of the entries its draft owns span fn_800381D0..fn_8004F6D4 (0x800381D0-0x8004FF64, 68 functions, 17 at 100%)
 fn_80045B40: the users of the entries its draft owns span fn_800381D0..fn_8004F6D4 (0x800381D0-0x8004FF64, 68 functions, 17 at 100%)
 fn_80045C08: the users of the entries its draft owns span fn_800381D0..fn_8004F6D4 (0x800381D0-0x8004FF64, 68 functions, 17 at 100%)
-fn_800527D4: the users of the entries its draft owns span fn_800527D4..fn_8005BE70 (0x800527D4-0x8005BEC8, 18 functions, 1 at 100%)
+cr_Motion_UpdateBlend: the users of the entries its draft owns span cr_Motion_UpdateBlend..fn_8005BE70 (0x800527D4-0x8005BEC8, 18 functions, 1 at 100%)
 fn_8005C4D0: the users of the entries its draft owns span fn_8005C4D0..fn_8005C4D0 (0x8005C4D0-0x8005C628, 1 functions, 1 at 100%)
 fn_8005C7F4: the users of the entries its draft owns span fn_8005C7F4..fn_8005C7F4 (0x8005C7F4-0x8005C954, 1 functions, 1 at 100%)
 fn_800683B4: the users of the entries its draft owns span fn_80067904..fn_8006A7D8 (0x80067904-0x8006B0AC, 38 functions, 11 at 100%)
@@ -668,7 +668,7 @@ fn_8012855C: the users of the entries its draft owns span fn_80125C2C..fn_8012F3
 800459A0  fn_800459A0                                    168  has data of its own (.sdata2 0x8): needs the data piece split too
 80045B40  fn_80045B40                                    200  has data of its own (.sdata2 0x8): needs the data piece split too
 80045C08  fn_80045C08                                    224  has data of its own (.sdata2 0x8): needs the data piece split too
-800527D4  fn_800527D4                                    228  has data of its own (.sdata2 0x10): needs the data piece split too
+800527D4  cr_Motion_UpdateBlend                          228  has data of its own (.sdata2 0x10): needs the data piece split too
 800683B4  fn_800683B4                                    108  has data of its own (.sdata2 0x8): needs the data piece split too
 800694C4  fn_800694C4                                     64  has data of its own (.sdata2 0x8): needs the data piece split too
 8006B3D0  fn_8006B3D0                                    156  has data of its own (.sdata2 0x4): needs the data piece split too
@@ -713,5 +713,3 @@ fn_8012855C: the users of the entries its draft owns span fn_80125C2C..fn_8012F3
 fn_800A0804                                  95%
 
 == removed
-fn_8001B3F0
-fn_800450DC

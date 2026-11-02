@@ -43,10 +43,10 @@ typedef struct cr_SeqState
   u8 unk_44[4];
 } cr_SeqState;
 __declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
-void fn_800392B0(void);
+void cr_Battle_ApplyRoleMatrices(void);
 
 void cr_SEQ_BATTLE_FrameB(void) {
     if (!(cr_g_SeqCurrent.unk_38 & 0x4000)) {
-        fn_800392B0();
+        cr_Battle_ApplyRoleMatrices();
     }
 }

@@ -213,6 +213,7 @@ src/game/cr_C_ACT_TURN_POINT.c  ours: a matching m2c draft of the game code, pro
 src/game/cr_C_ACT_WAIT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_Cam_SetMode.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CharaEntry_OnLoaded.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_Chara_PoseFromMotion.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_Chara_SetCurrentPointers.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_Customize_SetMode.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_Mem_CopyWords.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -381,7 +382,6 @@ src/game/fn_8002B284.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80037894.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80037A34.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80038BD8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
-src/game/fn_8003D4C4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8003F000.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8003F1E8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800412F8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py

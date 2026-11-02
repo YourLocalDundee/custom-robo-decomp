@@ -3849,6 +3849,9 @@ def repair(lines, e):
             elif re.match(r'^\w+$', inner):
                 # `(s32) sp48` of a stack struct: its address (a pointer target) or its first scalar
                 new = '(%s) &%s' % (ct, inner) if t.endswith('*') else '*(%s *) &%s' % (ct, inner)
+            elif re.match(r'^[\w.]+(\[[^\[\]]+\])+$', inner):
+                # `(u32) cr_g_BattleRoboStates[i]`: an array element of struct type read as its first scalar
+                new = '(%s) &%s' % (ct, inner) if t.endswith('*') else '*(%s *) &%s' % (ct, inner)
             else:
                 return None
             lines[ln - 1] = s[:st] + new + s[st + len(ex):]

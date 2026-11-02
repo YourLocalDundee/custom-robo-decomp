@@ -58,7 +58,11 @@ typedef struct cr_BattleRobo
 } cr_BattleRobo;
 __declspec(section ".data") extern cr_BattleRobo cr_g_BattleRobos[4];
 extern u8 lbl_80321E90[5088];
-extern u32 cr_g_BattleRoboStates[796];
+typedef struct cr_BattleRoboState
+{
+  u8 unk_000[0x31C];
+} cr_BattleRoboState;
+__declspec(section ".data") extern cr_BattleRoboState cr_g_BattleRoboStates[4];
 extern u32 lbl_8037569C[2417];
 extern u8 *lbl_8044F47C;
 
@@ -72,10 +76,10 @@ void fn_80026F58(s32 arg0) {
             if (!((&lbl_80321E90[(arg0 * 4) & 0x3FC])[var_r31] & 1)) {
                 M2C_FIELD(((cr_BattleRobo *) (&cr_g_BattleRobos[var_r31])), s32 *, 0x1D8) |= 0x200000;
             }
-        } else if ((M2C_FIELD(&cr_g_BattleRobos[var_r31], s32 *, 0x1D8) & 0x10000000) && !(M2C_FIELD((((u32 *) ((u8 *) cr_g_BattleRoboStates + (var_r31 * 0x31C)))), u8 *, 0x2E5) & 1)) {
-            M2C_FIELD(((u32 *) ((u8 *) cr_g_BattleRoboStates + (var_r31 * 0x31C))), u8 *, 0x2E5) &= 0xFC;
+        } else if ((M2C_FIELD(&cr_g_BattleRobos[var_r31], s32 *, 0x1D8) & 0x10000000) && !(cr_g_BattleRoboStates[var_r31].unk_000[0x2E5] & 1)) {
+            ((cr_BattleRoboState *) (&cr_g_BattleRoboStates[var_r31]))->unk_000[0x2E5] &= 0xFC;
             if (!((&lbl_80321E90[(arg0 * 4) & 0x3FC])[var_r31] & 1)) {
-                M2C_FIELD(((u32 *) ((u8 *) cr_g_BattleRoboStates + (var_r31 * 0x31C))), u8 *, 0x2E5) |= 2;
+                ((cr_BattleRoboState *) (&cr_g_BattleRoboStates[var_r31]))->unk_000[0x2E5] |= 2;
             }
         }
         var_r31 += 1;

@@ -604,7 +604,7 @@ game/cr_Motion_PlayFromFrame1.c:
 game/fn_80038BD8.c:
 	.text       start:0x80038BD8 end:0x80038CF8
 
-game/fn_8003D4C4.c:
+game/cr_Chara_PoseFromMotion.c:
 	.text       start:0x8003D4C4 end:0x8003D500
 
 game/fn_8003F000.c:

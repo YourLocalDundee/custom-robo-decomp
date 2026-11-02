@@ -62,7 +62,7 @@ void cr_Battle_SetCurrentPointers(void);
 extern f32 lbl_80451284;
 void cr_Motion_PlayFromFrame1(u32 id);
 extern u8 lbl_8024DFA0[352];
-void fn_80056104(void);
+void cr_Motion_UpdateRoot(void);
 void fn_80037FF0(void);
 void cr_Chara_PoseLimbs(void);
 
@@ -117,7 +117,7 @@ void cr_BattleRobo_InitBody(u8 arg0, u8 arg1) {
     M2C_FIELD(cr_g_CurrentBattleRobo, s32 *, 0x64) = 0x8000;
     M2C_FIELD(cr_g_CurrentBattleRobo, s8 *, 0x139) = 0;
     cr_Battle_SetCurrentPointers();
-    fn_80056104();
+    cr_Motion_UpdateRoot();
     fn_80037FF0();
     cr_Chara_PoseLimbs();
 }

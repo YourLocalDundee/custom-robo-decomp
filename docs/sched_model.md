@@ -445,3 +445,32 @@ and copies only after the `addi` (a `mr` for an offset-0 address forced into a r
    (27, constants: no effect), the index s16 / int / long x the count u16 / s32 / u32 / s16 / int (20). What is left in
    each vertex block: the original issues the int-to-float constant's `lfd` early and ours late.
 3. The 12 schedule-only drafts outside the head (group_near.py): a conversion or copy that takes an issue slot.
+
+## 19. Step 110 (Nov 2, 2026): wider C sweeps of the head; the permuter set up
+
+Main session, on main. Every result is by position against the original's 38 words (scratch/hd/pr.py).
+
+- **20,000 random head shapes** (`tools/sched/scratch/hd/gen110.py OUT N SEED`, standalone sources with their own
+  struct so the field types can vary). Axes: history_index u32 / s32 / int / unsigned long; cmd_count u32 / s32;
+  cmd_history s32 / u32 / int; ScriptDepth s32 / u32 / int; 5 spellings of the history store, 10 of the increment,
+  7 of the mask (`&= 0x3F`, `%= 64`, casts, shifts), 3 of the counter pointer, 5 of the count, 4 of the advance; the
+  180 legal statement orders; both declaration orders. **Best 20 of 38** (3 shapes, the step 92 order). Field types
+  and spellings change nothing beyond that.
+- **Dead stores at level 0 are not deleted** (`dead110.py`, 924 shapes: 20 dead-local statements at every position
+  of 6 orders, and in-expression assignments `v = x += 1`, `(s = &S)->...`). Every one that emits code adds words;
+  none is removed between the passes. So the deletable instruction of section 18 is not a dead store. It stays in
+  the two classes the hook has shown deleted: a copy coalesced at colouring and a redundant extension.
+- **decomp-permuter** (scheduler_plan.md phase B): cloned to tools/downloads/decomp-permuter_dl (commit 8556c81),
+  binutils extracted to tools/downloads/binutils_ppc, a venv in tools/downloads/permuter_venv (toml, Levenshtein).
+  `tools/sched/permuter/cr_CM_DUMMY_008/` has base.c (the step 92 shape, standalone), target.o (the original's 38
+  words assembled with powerpc-eabi-as, relocations kept), compile.sh (GC/2.6 with the game flags) and settings.toml,
+  plus run_permuter.py (it runs the clone from outside its folder). Not run: the session's permission check refused
+  to execute the downloaded code without the owner's approval. To run it:
+  `tools\downloads\permuter_venv\Scripts\python.exe -I tools\sched\permuter\run_permuter.py tools\sched\permuter\cr_CM_DUMMY_008 -j 6`
+  (from the repository root; the permuter folder holds absolute paths of this machine and is not committed).
+- The hook (tools/sched/hook/build.ps1) and the corpus (tools/sched/corpus.py) were rebuilt after the worktrees were
+  removed; `shape_eval.py` works again (B1 shape: 38 words, 18 by position, deleted: the counter pointer's addi and
+  the extsh).
+
+Next for the head: the permuter run once allowed. Then a coalesced copy whose source register is the increment's
+`lis` (a copy into a variable that colouring merges with the `lis` result), checked with shape_eval.py.

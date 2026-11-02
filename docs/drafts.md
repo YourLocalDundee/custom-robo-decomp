@@ -1135,6 +1135,15 @@ dead local writes. The head stays at its 85% family ceiling; no generator rule, 
   loop, the buffer address as a multiply: 119-134); fn_800EB518 is a register-count difference (the original keeps
   the switch byte in r24 and saves r22-r31, ours r20-r31), not an order one.
 
+### Step 110: a struct array element read as a scalar (Nov 2, 2026, on main)
+
+After cr_g_BattleRoboStates was typed (cr_BattleRoboState[4], main session above), four drafts stopped compiling:
+fn_8005098C, fn_8007A800, fn_80086CA0, fn_80089BB0. m2c writes `(u32) cr_g_BattleRoboStates[i]` for a word load at
+offset 0 of an element, and the compiler refuses a struct-to-scalar cast. The repair of `illegal explicit conversion`
+in tools/draft_batch.py handled `*(base + off)` and a plain identifier. It now also takes an array element
+(`name[i]`, `a.b[i][j]`) and reads it as `*(T *) &name[i]`. `draft_batch.py --only` on the four: compile failures
+4 -> 0. The full batch 12 is the check (plan.md step 110).
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.

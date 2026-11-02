@@ -186,7 +186,7 @@ game/fn_80037A34.c                               .text  0x80037A34-0x80037A80   
 game/cr_Motion_LoadInfo.c                        .text  0x80037A80-0x80037D14   1 fn  its C file's functions (decomp/src/game/cr_Motion_LoadInfo.c)
 game/cr_Motion_PlayFromFrame1.c                  .text  0x80037FBC-0x80037FF0   1 fn  its C file's functions (decomp/src/game/cr_Motion_PlayFromFrame1.c)
 game/fn_80038BD8.c                               .text  0x80038BD8-0x80038CF8   1 fn  its C file's functions (decomp/src/game/fn_80038BD8.c)
-game/fn_8003D4C4.c                               .text  0x8003D4C4-0x8003D500   1 fn  its C file's functions (decomp/src/game/fn_8003D4C4.c)
+game/cr_Chara_PoseFromMotion.c                   .text  0x8003D4C4-0x8003D500   1 fn  its C file's functions (decomp/src/game/cr_Chara_PoseFromMotion.c)
 game/fn_8003F000.c                               .text  0x8003F000-0x8003F048   1 fn  its C file's functions (decomp/src/game/fn_8003F000.c)
 game/fn_8003F1E8.c                               .text  0x8003F1E8-0x8003F248   1 fn  its C file's functions (decomp/src/game/fn_8003F1E8.c)
 game/fn_800412F8.c                               .text  0x800412F8-0x80041358   1 fn  its C file's functions (decomp/src/game/fn_800412F8.c)
