@@ -386,6 +386,12 @@ Leads only until a name lands in cr_globals.txt with its own `why`; checked agai
   both slots are busy.
 - **P1 in the cube 0x803872B2**: lbl_80387160 + 0x152 (.bss, 0xC70, 15 users incl. cr_CAMMODE_BTL_WAIT_Frame). Field
   not proven yet.
+- **BGM volume 0x8044F6D0**: **verified**, named cr_g_BgmVolume (f32: fn_800965F4 stores its argument and rescales the
+  slots, cr_Bgm_GetVolume multiplies by it).
+- **Remaining round time 0x80321DB4**: cr_g_SeqCurrent + 0x2C, a wait counter every sequence uses (set with the step at
+  +0x10, counted down to 0: logo 0x45, title 0x708); in battle it is the round time. Field comments in cr_SeqState.
+- **"Battle running flag" 0x8024FCF8**: not a flag: cr_g_BattleRobos[0] + 0x1BD8 = robo 0's body-stats copy +0x40
+  (cr_BodyStats.unk_040, 1000 for Ray 01), non-zero whenever a battle robo is set up.
 - **Stage id 0x803756A2**: lbl_8037569C + 6 (.bss, 0x25C4); agrees with symbols/unverified.txt.
 - Side finding: fn_80111AF0 picks a random stage (up to 100 tries of fn_8001B3F0 over cr_g_StageSelector's 6-wide
   grid, skipping closed stages (stage_open) and message 0x23); named cr_StageSelector_PickRandom, its random step
