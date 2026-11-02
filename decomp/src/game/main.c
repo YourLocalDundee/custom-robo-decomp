@@ -58,7 +58,7 @@ void cr_Cam_Update(void);
 void fn_800055E8(void);
 void fn_800055E0(void);
 void fn_80098484(void);
-extern u32 lbl_8044F2A0;
+extern u32 cr_g_FrameCount;
 
 void main(void) {
     s32 sp8;
@@ -82,6 +82,6 @@ loop_3:
     fn_800055E8();
     fn_800055E0();
     fn_80098484();
-    lbl_8044F2A0 += 1;
+    cr_g_FrameCount += 1;
     goto loop_3;
 }

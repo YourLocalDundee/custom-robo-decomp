@@ -292,6 +292,12 @@ pwsh tools\batches\batch8_crosscheck.ps1       # every name re-checked (the main
 pwsh tools\checksums.ps1 -Compare              # expected: only the decomp\ reports and config differ, by the merge's own numbers
 ```
 
+- When the branch **promoted new game files** and main **renamed symbols** since the branch started, batch 9's own
+  rename pass misses them (it compares with the previous run, not with the branch), and the link fails on the old name
+  (Nov 2, 2026: `undefined: 'lbl_8044F2A0'` from the branch's `main.c` after main named it `cr_g_FrameCount`). Rename
+  against the branch's symbols first, then run batch 9:
+  `git show <branch>:decomp/config/GXCE01/symbols.txt > decomp/build/symbols_branch.txt`, then
+  `python -I tools/sync_game_names.py decomp/build/symbols_branch.txt`.
 - When the merge **changed names or types** (`symbols/*.txt`, `cr_types.h`, `cr_globals.txt`): the Ghidra export must
   follow: `pwsh tools\rebuild_decomp.ps1`, then batches 4 and 8 (or the whole `run_all.ps1`, 36 minutes, which
   also reruns batch 12 and renames the promoted files). Until then `decompiled\*` and `symbols\types_report.txt`
