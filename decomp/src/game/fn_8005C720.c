@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 *lbl_8044F590;
 void fn_80098104(s32 arg0, u8 arg1);
-s32 fn_80098290(s32 arg0);
+void fn_80098290(s32 arg0);
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_0678;
 extern u16 lbl_8044F58C;
 extern u32 lbl_8044F588;

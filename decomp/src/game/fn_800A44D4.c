@@ -1,0 +1,64 @@
+/* Custom Robo game code, promoted by tools/promote_drafts.py; edit by hand only after removing this line.
+ * fn_800A44D4: .text 0x800A44D4-0x800A46F0 (540 bytes), linked from this file (batch 9: retail SHA-1, objdiff 100%).
+ * One function per object: the game's own source files are not known yet, so this is not the original file.
+ * The code is the function's m2c draft (docs/drafts.md), which compiles to main.dol's bytes. */
+#include "game/cr_game.h"
+
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+typedef struct HSD_ShapeAnimJoint HSD_ShapeAnimJoint;
+typedef struct HSD_MatAnimJoint HSD_MatAnimJoint;
+typedef struct HSD_AnimJoint HSD_AnimJoint;
+extern u8 *lbl_8044F748;
+extern u8 lbl_803BB628[1024];
+typedef struct HSD_JObj HSD_JObj;
+typedef struct HSD_Joint HSD_Joint;
+HSD_JObj *HSD_JObjLoadJoint(HSD_Joint *);
+void HSD_JObjAddAnimAll(HSD_JObj *, HSD_AnimJoint *, HSD_MatAnimJoint *, HSD_ShapeAnimJoint *);
+void fn_80196C50(HSD_JObj *arg0, f32 farg0);
+extern f32 lbl_80451280;
+
+/* fn_800A44D4: hand-written from main.dol's asm on its m2c draft (plan.md step 109a): the index read as `(s16)` of the u16 field into an s16 local (lhz r3 / extsh r26), the joint list tested against ((void *) 0) (li r0, 0 / cmplw), the 0x150 copy stored as s16 (the value in r5: with both u16 the compiler reuses r4) */
+void fn_800A44D4(void) {
+    s32 *temp_r31_30;
+    s32 var_r30_27;
+    HSD_ShapeAnimJoint *var_r29_45;
+    HSD_MatAnimJoint *var_r28_44;
+    HSD_AnimJoint *var_r27_43;
+    s16 temp_r3_9;
+
+    temp_r3_9 = (s16) M2C_FIELD(lbl_8044F748, u16 *, 0x14E);
+    if (M2C_FIELD((lbl_803BB628 + (temp_r3_9 * 8)), u16 *, 2) == 1) {
+        var_r30_27 = 0;
+        *((u16 *) (lbl_803BB628 + (temp_r3_9 * 8))) += 1;
+        temp_r31_30 = M2C_FIELD((lbl_803BB628 + (temp_r3_9 * 8)), s32 **, 4);
+        while (M2C_FIELD((*temp_r31_30 + ((var_r30_27 * 4) & 0x3FC)), void **, 0) != ((void *) 0)) {
+            M2C_FIELD(&lbl_8044F748[(var_r30_27 * 4) & 0x3FC], HSD_JObj **, 0x90) = HSD_JObjLoadJoint(*M2C_FIELD((*temp_r31_30 + ((var_r30_27 * 4) & 0x3FC)), HSD_Joint ***, 0));
+            var_r27_43 = NULL;
+            var_r28_44 = NULL;
+            var_r29_45 = NULL;
+            if (M2C_FIELD(M2C_FIELD((*temp_r31_30 + ((var_r30_27 * 4) & 0x3FC)), u32 *, 0), u32 *, 4) != 0U) {
+                var_r27_43 = *M2C_FIELD(M2C_FIELD((*temp_r31_30 + ((var_r30_27 * 4) & 0x3FC)), u32 *, 0), HSD_AnimJoint ***, 4);
+            }
+            if (M2C_FIELD(M2C_FIELD((*temp_r31_30 + ((var_r30_27 * 4) & 0x3FC)), u32 *, 0), u32 *, 8) != 0U) {
+                var_r28_44 = *M2C_FIELD(M2C_FIELD((*temp_r31_30 + ((var_r30_27 * 4) & 0x3FC)), u32 *, 0), HSD_MatAnimJoint ***, 8);
+            }
+            if (M2C_FIELD(M2C_FIELD((*temp_r31_30 + ((var_r30_27 * 4) & 0x3FC)), u32 *, 0), u32 *, 0xC) != 0U) {
+                var_r29_45 = *M2C_FIELD(M2C_FIELD((*temp_r31_30 + ((var_r30_27 * 4) & 0x3FC)), u32 *, 0), HSD_ShapeAnimJoint ***, 0xC);
+            }
+            if ((var_r27_43 != NULL) || (var_r28_44 != NULL) || (var_r29_45 != NULL)) {
+                HSD_JObjAddAnimAll(M2C_FIELD(&lbl_8044F748[(var_r30_27 * 4) & 0x3FC], HSD_JObj **, 0x90), var_r27_43, var_r28_44, var_r29_45);
+                fn_80196C50(M2C_FIELD(&lbl_8044F748[(var_r30_27 * 4) & 0x3FC], HSD_JObj **, 0x90), lbl_80451280);
+            }
+            var_r30_27 += 1;
+        }
+    }
+    if (M2C_FIELD(lbl_8044F748, u32 *, 0x90) != 0U) {
+        M2C_FIELD(lbl_8044F748, s32 *, 0x88) &= 0xFFDFFFFF;
+    } else {
+        M2C_FIELD(lbl_8044F748, u8 *, 0x156) |= 4;
+        M2C_FIELD(lbl_8044F748, s32 *, 0x88) |= 0x200000;
+    }
+    M2C_FIELD(lbl_8044F748, s16 *, 0x150) = M2C_FIELD(lbl_8044F748, u16 *, 0x14E);
+    M2C_FIELD(lbl_8044F748, s32 *, 0x88) |= 0x82;
+    M2C_FIELD(lbl_8044F748, s32 *, 4) = 1;
+}

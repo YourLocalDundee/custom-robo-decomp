@@ -7,21 +7,21 @@ m2c ok 1749
 m2c failed 2
 compile failed 44
 compiled 1705
-100% MATCH 531
-bytes matched 530264 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
+100% MATCH 583
+bytes matched 533876 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
 
 match % histogram of the 1705 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
-    0- 9%  43
-   10-19%  55
+    0- 9%  42
+   10-19%  56
    20-29%  78
    30-39%  104
-   40-49%  125
+   40-49%  124
    50-59%  259
    60-69%  144
-   70-79%  170
+   70-79%  153
    80-89%  127
-   90-99%  69
-  100%     531
+   90-99%  35
+  100%     583
 
 most common failures:
      12  compile: illegal implicit conversion from '*' to

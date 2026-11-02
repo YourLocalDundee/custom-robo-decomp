@@ -6,7 +6,7 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u16 lbl_804026F2[5];
-s32 fn_80098290(s32 arg0);
+void fn_80098290(s32 arg0);
 extern u32 lbl_8023B8D0[17];
 
 s32 fn_80104AB0(void *arg0) {

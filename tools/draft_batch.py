@@ -581,6 +581,37 @@ R3_READ = re.compile(r'^[ \t]*(\w+)\([^\n;]*\);\n[ \t]*[\w.\[\]>-]+ = M2C_ERROR\
 # type (fn_8008B930: fn_8011DBB4, fn_80122044; fn_800972D8: cr_SEQ_TITLE_Enter, fn_80130848; fn_800932D0 itself),
 # all 100% while void
 R3_KEEP_VOID = ('fn_8008B930', 'fn_800972D8', 'fn_800932D0')
+# step 109a: return types the callers' registers show where the callee's own draft cannot. A caller that ignores the
+# value of a call to a value-returning function keeps r3 busy after it (its next temporary is r4); one that calls a
+# void function takes r3. fn_8006A4E0 ends with `bl fn_8006A7D8` (s32) and leaves its value: fn_800F8D4C's
+# `lis r4, 0x1` after the call (64 of 64 with it, the other callers' 100% drafts unchanged). fn_80098484's draft
+# returns m2c's leftover r3 temporary (u8) though its only caller, main, ignores it and takes r3 (43 of 43 void).
+# fn_80098290 (no call, r3 never written) is drafted `return arg0;`: its callers take r3 after it (fn_80064FE4's
+# `lbz r3, 0x5(r31)`; 21 of its 77 callers' drafts change, none of them at 100%, the near ones all up).
+R3_SET = {'fn_8006A4E0': 's32', 'fn_80098484': 'void', 'fn_80098290': 'void'}
+# step 109a: parameter lists the callers show where the callee never reads the parameter (m2c then says s32):
+# cr_SEQ_BATTLE_FrameC passes its u8 index unextended (`mr r3, r31`, an s32 parameter gives `clrlwi r3, r31, 24`);
+# fn_8012855C passes fn_800AA17C a 0 or a 1 (`li r3, 0x0; bl fn_800AA17C`), which its 100% draft never reads
+PARAM_SET = {'fn_80026F58': 'u8 arg0', 'fn_800AA17C': 's32 arg0'}
+
+
+def r3_set(sigs):
+    """R3_SET's return types and PARAM_SET's parameter lists into the pass-1 prototypes; returns how many"""
+    n = 0
+    for fn, t in R3_SET.items():
+        if fn in sigs:
+            i = sigs[fn][1].find(fn + '(')
+            if i >= 0:
+                sigs[fn] = (sigs[fn][0], t + ' ' + sigs[fn][1][i:])
+                n += 1
+    for fn, ps in PARAM_SET.items():
+        if fn in sigs:
+            i = sigs[fn][1].find(fn + '(')
+            j = sigs[fn][1].rfind(')')
+            if 0 <= i < j:
+                sigs[fn] = (sigs[fn][0], sigs[fn][1][:i + len(fn) + 1] + ps + sigs[fn][1][j:])
+                n += 1
+    return n
 
 
 def r3_returns(sigs, rets):
@@ -1690,14 +1721,22 @@ def pool_floats():
             if not m:
                 continue
             a, double = int(m.group(2), 16), m.group(4) == 'double'
+            wide = False
             if int(m.group(3)) != (8 if double else 4):
-                continue
+                # step 109a: a float object of 8 bytes whose second word is zero is the last float of its file's pool
+                # and the pool's padding to 8 (dtk gives the object the padding, m2c declares it `f32 X[2]` and reads
+                # `*X`: fn_8005C7F4's 0.0f)
+                if double or read(a + 4, 4) != bytes(4):
+                    continue
+                wide = True
             b = read(a, 8 if double else 4)
             if b is None:
                 continue
             t = float_text(struct.unpack('>d' if double else '>f', b)[0], double)
             if t:
                 out[pool_name(m.group(1), m.group(2))] = t
+                if wide:
+                    W.setdefault('floats8', set()).add(pool_name(m.group(1), m.group(2)))
         W['floats'] = out
     return W['floats']
 
@@ -1735,8 +1774,14 @@ def float_literals(body):
         if n not in st:
             return m.group(0)
         return (m.group(2) or '') + st[n]
-    return '\n'.join(l if re.search(r'\bextern\b', l) else pat.sub(lambda m: fl.get(m.group(1), m.group(1)), spat.sub(strs, l))
-                     for l in body.split('\n'))
+    wide = W.get('floats8', set())
+
+    def lit(l):
+        # step 109a: the padded floats of pool_floats, declared as arrays (`f32 X[2]`), read as `*X` or `X[0]`
+        l = re.sub(r'(?<![&\w])(?:\*(lbl_[0-9A-F]{8})\b(?!\s*\[)|(lbl_[0-9A-F]{8})\[0\])(?!\s*(?:=[^=]|\+=|-=|\*=|/=))',
+                   lambda m: fl[m.group(1) or m.group(2)] if (m.group(1) or m.group(2)) in wide else m.group(0), l)
+        return pat.sub(lambda m: m.group(1) if m.group(1) in wide else fl.get(m.group(1), m.group(1)), spat.sub(strs, l))
+    return '\n'.join(l if re.search(r'\bextern\b', l) else lit(l) for l in body.split('\n'))
 
 
 def void_null(body):
@@ -2751,18 +2796,605 @@ def void_self(body):
     return re.sub(r'\breturn ([^;]+);', lambda r: (r.group(1).strip() + ';') if '(' in r.group(1) else 'return;', body)
 
 
+def byte_loops(body):
+    """step 109a, a variant: m2c's reading of a byte copy / fill loop,
+           c = 0U;                                  for (c = 0U, p = X; c < N; c += 1) {
+           p = X;                                       *p++ = 0;
+           while (c < N) {                          }
+               c += 1;              ->
+               *p = 0;                          (`*d = (u8) (*s); c += 1; s += 1; d += 1;` -> `*d++ = *s++;`)
+               p += 1;
+           }
+    as the source wrote it, the pointer stepped in the store (fn_80078F94: 54 -> 59 of 59, the counter and the pointer
+    in r30 / r29 as main.dol has them; with m2c's while they swap). The assignments of the counter and the pointers
+    just before the loop go into the `for`; a same-type cast on the copied byte goes. Tried per draft."""
+    lines = body.split('\n')
+    k = 0
+    stmt = re.compile(r'(\w+) \+= 1;|\*(\w+) = (?:\((?:u8|s8)\) \(?\*(\w+)\)?|\*(\w+)|(0x[0-9A-Fa-f]+|\d+));')
+    while k < len(lines):
+        m = re.fullmatch(r'(\s*)while \((\w+) < ((?:0x[0-9A-Fa-f]+|\d+)U?)\) \{', lines[k])
+        if not m or k + 5 >= len(lines):
+            k += 1
+            continue
+        ind, c = m.group(1), m.group(2)
+        j = k + 1
+        inner = []
+        while j < len(lines) and lines[j].startswith(ind + '    '):
+            inner.append(lines[j].strip())
+            j += 1
+        if j >= len(lines) or lines[j] != ind + '}' or not 3 <= len(inner) <= 4:
+            k += 1
+            continue
+        incs, store = [], None
+        for s in inner:
+            sm = stmt.fullmatch(s)
+            if not sm:
+                store = False
+                break
+            if sm.group(1):
+                incs.append(sm.group(1))
+            elif store is None:
+                store = (sm.group(2), sm.group(3) or sm.group(4), sm.group(5))
+            else:
+                store = False
+                break
+        if not store or c not in incs:
+            k += 1
+            continue
+        dst, src, const = store
+        ptrs = [dst] + ([src] if src else [])
+        if sorted(incs) != sorted([c] + ptrs) or len(set(incs)) != len(incs):
+            k += 1
+            continue
+        # the counter's and the pointers' assignments just before the loop
+        i = k
+        inits = []
+        while i > 0:
+            am = re.fullmatch(re.escape(ind) + r'(\w+) = ([^;]+);', lines[i - 1])
+            if not am or am.group(1) not in [c] + ptrs or am.group(1) in [x[0] for x in inits]:
+                break
+            inits.insert(0, (am.group(1), am.group(2)))
+            i -= 1
+        if c not in [x[0] for x in inits]:
+            k += 1
+            continue
+        val = ('*%s++' % src) if src else const
+        new = [ind + 'for (%s; %s < %s; %s += 1) {' % (', '.join('%s = %s' % x for x in inits), c, m.group(3), c),
+               ind + '    *%s++ = %s;' % (dst, val), ind + '}']
+        lines[i:j + 1] = new
+        k = i + len(new)
+    return '\n'.join(lines)
+
+
+def local_same_casts(body):
+    """step 109a, a variant: `*d = (u8) (*s);` / `x = (s16) *p;` where s / p is a local or parameter declared as a
+    pointer to that type: the cast means nothing, and at level 0 it costs a register (fn_80026C50: `lbz r4; stb r4`
+    where main.dol has r0). drop_same_assign_casts does the same for globals."""
+    decl = {}
+    for t, stars, v in re.findall(r'(?:^    |[(,] ?)((?:unsigned |signed )?\w+) (\*+)(\w+)(?=;\n|[,)])', body, re.M):
+        decl[v] = (t, len(stars))
+
+    def fix(m):
+        t, v = m.group(2), m.group(3) or m.group(4)
+        if decl.get(v) != (t, 1):
+            return m.group(0)
+        return '%s*%s;' % (m.group(1), v)
+    return re.sub(r'(= )\((u8|s8|u16|s16|u32|s32|f32)\) (?:\(\*(\w+)\)|\*(\w+));', fix, body)
+
+
+def record_pointers(body):
+    """step 109a, a variant: a pointer into a record array, m2c's `p = B + ((I * S) + O);` or its two statements
+    `p = (T *) ((I * S) + O); ... p += (s32) B;`, written as the element's address `p = &((u8 (*)[S]) (B))[I][O];`:
+    the compiler then adds O to the scaled index first and the base last (`mulli; addi r30, r5, O; add r30, r3, r30`)
+    as main.dol does (fn_80026BF4, fn_80026A7C, fn_800442EC); from the sum it adds the base first. As
+    record_array_index for loads and stores; tried per draft."""
+    def rec(b, i, s, o):
+        return '&((u8 (*)[0x%X]) (%s))[%s][0x%X]' % (s, b, i, o)
+    lines = body.split('\n')
+    for k, l in enumerate(lines):
+        m = re.fullmatch(r'(\s*)(\w+) = (?:\([\w ]+\*\) )?([^;=]+);', l)
+        if not m:
+            continue
+        r = _record_index(m.group(3))
+        if r and re.fullmatch(r'\w+', r[0]):
+            lines[k] = '%s%s = %s;' % (m.group(1), m.group(2), rec(*r))
+            continue
+        # the two statements: the offset first, the base added later (nothing between reads or writes p or B)
+        parts = _split_top(_strip_parens(m.group(3)), ' + ')
+        if len(parts) != 2 or not _NUM.fullmatch(parts[1].strip()):
+            continue
+        sc = _split_top(_strip_parens(parts[0]), ' * ')
+        if len(sc) != 2 or not _NUM.fullmatch(sc[1].strip()) or not re.fullmatch(r'\w+', sc[0].strip()):
+            continue
+        p = m.group(2)
+        for j in range(k + 1, min(k + 8, len(lines))):
+            am = re.fullmatch(re.escape(m.group(1)) + r'%s \+= \(s32\) (\w+);' % re.escape(p), lines[j])
+            if am:
+                b = am.group(1)
+                if all(not re.search(r'\b(%s|%s|%s)\b' % (re.escape(p), re.escape(b), re.escape(sc[0].strip())), x)
+                       or not re.search(r'\b(%s|%s)\b\s*(?:[-+*/|&^]|<<|>>)?=(?!=)' % (re.escape(p), re.escape(b)), x)
+                       for x in lines[k + 1:j]) and not any(re.search(r'\b%s\b' % re.escape(p), x) for x in lines[k + 1:j]):
+                    lines[k] = '%s%s = %s;' % (m.group(1), p, rec(b, sc[0].strip(), int(sc[1].strip(), 0), int(parts[1].strip(), 0)))
+                    del lines[j]
+                break
+    return '\n'.join(lines)
+
+
+def param_retypes(body):
+    """step 109a, a variant: `void *argN` copied once among the first statements into a local of another pointer type
+    (`u8 *var_r29; ... var_r29 = arg0;`) and used nowhere else: the parameter takes the local's type, so param_copies
+    (after this rule) can rename the copy to the parameter; a copy after constant assignments (`i = 0; p = arg0;`),
+    which param_copies leaves, is renamed here. With m2c's two types the copy stays and the compiler homes the
+    parameter on the stack (`stw r3, 0x8(r1); lwz r29, 0x8(r1)` where main.dol has `mr r29, r3`: fn_800442EC)."""
+    sig = re.compile(r'^(\w[^\n;]*?\b\w+)\(([^;{}\n]*)\) \{$', re.M)
+    m = sig.search(body)
+    if not m:
+        return body
+    for a in re.findall(r'\bvoid \*(arg\d+)\b', m.group(2)):
+        m = sig.search(body)
+        if len(re.findall(r'\b%s\b' % a, body)) != 2:
+            continue
+        cm = re.search(r'^    (\w+) = %s;\n' % a, body, re.M)
+        if not cm:
+            continue
+        v = cm.group(1)
+        vd = re.search(r'^    ((?:unsigned |signed )?\w+ \*+)%s;\n' % re.escape(v), body, re.M)
+        if not vd or vd.group(1).startswith('void '):
+            continue
+        params = m.group(2).replace('void *%s' % a, '%s%s' % (vd.group(1), a))
+        start = body.find('\n\n', m.end())
+        if 0 <= start < cm.start() and not assigned(v, body[:cm.start()] + body[cm.end():]) and \
+                re.fullmatch(r'(    \w+ = (?:0x[0-9A-Fa-f]+|-?\d+)U?;\n)*', body[start + 2:cm.start()]):
+            # the parameter itself in the copy's register (`mr r29, r3`)
+            body = body[:cm.start()] + body[cm.end():]
+            body = body[:vd.start()] + body[vd.end():]
+            body = re.sub(r'\b%s\b' % re.escape(v), a, body)
+        m = sig.search(body)
+        body = body[:m.start(2)] + params + body[m.end(2):]
+    return body
+
+
+def wide_return_locals(body):
+    """step 109a, a variant: a function returning a byte / halfword whose returned local m2c typed the same width
+    (`s8 var_r26; ... return var_r26;`): in main.dol the local was an int, converted at the return (`extsb r3, r26`
+    before the epilogue, where the narrow local gives `mr r3, r26`: fn_800EA548, fn_800EA6BC). The local is
+    declared s32."""
+    m = re.search(r'^(u8|s8|u16|s16) (\w+)\([^;{}\n]*\) \{$', body, re.M)
+    if not m:
+        return body
+    for v in set(re.findall(r'\breturn (\w+);', body)):
+        body = re.sub(r'^(    )%s %s;$' % (m.group(1), re.escape(v)), r'\1s32 %s;' % v, body, flags=re.M)
+    return body
+
+
+def advance_copies(body):
+    """step 109a, a variant: m2c's `temp = G; G += K; v = temp;` (temp used nowhere else) as `v = G; G += K;`: the
+    value read once into v before the advance, the advance reading G again (cr_C_ACT_REPEAT: `lwz r3, PC; lwz r5, PC;
+    addi; stw; stw r5, 0x8(r1)` with v on the stack; m2c's temporary takes a saved register, 91% -> 100%)."""
+    def fix(m):
+        ind, t, g, k, v = m.groups()
+        if len(re.findall(r'\b%s\b' % re.escape(t), body)) != 3:
+            return m.group(0)
+        return '%s%s = %s;\n%s%s += %s;' % (ind, v, g, ind, g, k)
+    new = re.sub(r'(?m)^(\s+)(temp_\w+) = ([\w.\->]+);\n\1\3 \+= (\w+);\n\1(\w+) = \2;$', fix, body)
+    if new != body:   # the temporaries' declarations that nothing uses any more
+        for t in set(re.findall(r'(?m)^\s+(temp_\w+) = [\w.\->]+;\n\s+[\w.\->]+ \+= \w+;\n\s+\w+ = \1;$', body)):
+            if len(re.findall(r'\b%s\b' % re.escape(t), new)) == 1:
+                new = re.sub(r'(?m)^    [^;\n=()]*\b%s;\n' % re.escape(t), '', new, count=1)
+    return new
+
+
+def unsigned_immediates(body):
+    """step 109a, a variant: m2c reads `cmplwi rX, 0xAF30` as a compare with the sign-extended immediate
+    (`-0x50D0U`), and `subis r0, r3, 0x20; cmplwi r0, 0xAF30` (mwcc's `x != 0x20AF30`) as
+    `(u32) (x + 0xFFE00000) != -0x50D0U`. Written as the unsigned constants: `x != 0x20AF30` (the archive-header
+    check of fn_8008E3F8, fn_8008FA8C, fn_8008FC38), `(x & 0x8040) == 0x8040`. A variant: `li r0, -N; cmplw` reads
+    the same in m2c's text."""
+    def wide(m):
+        n = int(m.group(4), 0)
+        if not 0 < n <= 0x8000:
+            return m.group(0)
+        c = ((0x10000 - n) - (int(m.group(2), 16) << 16)) & 0xFFFFFFFF
+        return '%s %s 0x%X' % (m.group(1), m.group(3), c)
+    # (fn_8000E1E4: `(u32) (x + 0x10000) == -1U`, `addis r0, r3, 1; cmplwi r0, 0xFFFF`: x == 0xFFFFFFFF)
+    body = re.sub(r'\(u32\) \(([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*) \+ 0x([0-9A-F]{1,4})0000\) ([!=]=) -(0x[0-9A-F]{1,4}|\d+)U\b',
+                  wide, body)
+
+    def low(m):
+        n = int(m.group(2), 16)
+        return m.group(0) if not 0 < n <= 0x8000 else '%s 0x%X' % (m.group(1), 0x10000 - n)
+    return re.sub(r'([!=]=|<=|>=|<|>) -0x([0-9A-F]{1,4})U\b', low, body)
+
+
+def field_pointer_tests(body):
+    """step 109a, a variant: a word field m2c typed u32 / s32 only because a loop tests it,
+    `while (M2C_FIELD(P, u32 *, N) != 0U)`, as the pointer it is, compared with a null pointer, `M2C_FIELD(P, void **,
+    N) != ((void *) 0)`: `li r0, 0; lwzx r3; cmplw r3, r0` (fn_800A44D4's and fn_800BC768's null-terminated joint
+    lists), where an integer test gives `cmplwi`. Only in a `while` test: the same functions' other tests are integer
+    ones. pointer_tests does it for globals."""
+    def fix(m):
+        return re.sub(r'M2C_FIELD\(([^;]*?), (?:u32|s32) \*, (0x[0-9A-F]+|\d+)\) ([=!]=) 0U?\b',
+                      lambda f: 'M2C_FIELD(%s, void **, %s) %s ((void *) 0)' % (f.group(1), f.group(2), f.group(3))
+                      if f.group(1).count('(') == f.group(1).count(')') else f.group(0), m.group(0))
+    return re.sub(r'^\s*while \(.*\) \{$', fix, body, flags=re.M)
+
+
+def signed_temps(body):
+    """step 109a, a variant: a local m2c typed u16 / u8 (`u16 temp = M2C_FIELD(p, u16 *, 0x14E);`) that every later
+    use converts, `(s16) temp`: the source's local was the signed one, converted once at the load (`lhz r3; extsh
+    r26, r3`, the signed value in the saved register; m2c's form keeps the halfword and extends at each use: fn_800A44D4,
+    fn_800BC768). The local becomes s16 / s8, its assignment `(s16) LOAD`, its uses plain."""
+    for t, s in (('u16', 's16'), ('u8', 's8')):
+        for v in re.findall(r'^    %s (\w+);$' % t, body, re.M):
+            uses = re.findall(r'\(%s\) %s\b|\b%s\b' % (s, re.escape(v), re.escape(v)), body)
+            asg = re.findall(r'^(\s+)%s = ([^;]+);$' % re.escape(v), body, re.M)
+            casts = [u for u in uses if u.startswith('(')]
+            if len(asg) != 1 or not casts or len(uses) != len(casts) + 2:
+                continue
+            body = re.sub(r'^    %s %s;$' % (t, re.escape(v)), '    %s %s;' % (s, v), body, flags=re.M)
+            body = re.sub(r'^(\s+)%s = ([^;]+);$' % re.escape(v), lambda m: '%s%s = (%s) %s;' % (m.group(1), v, s, m.group(2)), body, flags=re.M)
+            body = re.sub(r'\(%s\) %s\b' % (s, re.escape(v)), v, body)
+    # m2c's --reg-vars form of the same: the signed local loaded signed (`lha`) -> the unsigned field converted
+    for t, s in (('u16', 's16'), ('u8', 's8')):
+        for v in re.findall(r'^    %s (\w+);$' % s, body, re.M):
+            body = re.sub(r'^(\s+%s = )M2C_FIELD\(([^;]*), %s \*, (\w+)\);$' % (re.escape(v), s),
+                          lambda m: '%s(%s) M2C_FIELD(%s, %s *, %s);' % (m.group(1), s, m.group(2), t, m.group(3)), body, flags=re.M)
+    return body
+
+
+def search_loops(body):
+    """step 109a, a variant: m2c's reading of a search loop that leaves its result in a variable (an inlined lookup:
+    the character / object with an id, the part with a kind),
+           loop_N:                                  for (; !A; I) {
+           if (A) {                                     if (B) {
+               R = X;                                       R = Y;
+           } else if (B) {                  ->              goto found_N;
+               R = Y;                                   }
+           } else {                                 }
+               I;                                   R = X;
+               goto loop_N;                     found_N:
+           }
+    The compiler gives `for` its test at the bottom (`b test; body: ...; test: cmpwi; blt body; li r28, 0`), m2c's
+    form tests at the top (fn_800AF398 140 -> 144 of 144). The increments I (`v += k;` only) go into the `for`; the
+    label is used once."""
+    lines = body.split('\n')
+    k = 0
+    n = 0
+    while k < len(lines):
+        m = re.fullmatch(r'(\s*)(loop_\d+):', lines[k])
+        if not m or k + 9 > len(lines) or len(re.findall(r'\bgoto %s;' % m.group(2), body)) != 1:
+            k += 1
+            continue
+        lab = m.group(2)
+        ind = re.match(r'\s*', lines[k + 1]).group(0)
+        a = re.fullmatch(re.escape(ind) + r'if \((.+)\) \{', lines[k + 1])
+        x = re.fullmatch(re.escape(ind) + r'    (\w+) = ([^;]+);', lines[k + 2])
+        b = re.fullmatch(re.escape(ind) + r'\} else if \((.+)\) \{', lines[k + 3])
+        y = re.fullmatch(re.escape(ind) + r'    (\w+) = ([^;]+);', lines[k + 4])
+        if not (a and x and b and y and x.group(1) == y.group(1) and lines[k + 5] == ind + '} else {'):
+            k += 1
+            continue
+        j = k + 6
+        incs = []
+        while j < len(lines) and re.fullmatch(re.escape(ind) + r'    \w+ (?:\+=|-=) (?:0x[0-9A-Fa-f]+|\d+);', lines[j]):
+            incs.append(lines[j].strip()[:-1])
+            j += 1
+        if not incs or j + 1 >= len(lines) or lines[j] != ind + '    goto %s;' % lab or lines[j + 1] != ind + '}':
+            k += 1
+            continue
+        n += 1
+        found = 'found_%s' % lab[5:]
+        test = a.group(1)
+        for op, neg in ((' >= ', ' < '), (' <= ', ' > '), (' > ', ' <= '), (' < ', ' >= ')):
+            parts = _split_top(test, op)
+            if len(parts) == 2 and not any(len(_split_top(test, o)) > 1 for o in (' && ', ' || ')):
+                test = parts[0] + neg + parts[1]
+                break
+        else:
+            test = _negate_test(test)
+        new = [ind + 'for (; %s; %s) {' % (test, ', '.join(incs)),
+               ind + '    if (%s) {' % b.group(1), ind + '        %s = %s;' % (y.group(1), y.group(2)),
+               ind + '        goto %s;' % found, ind + '    }', ind + '}', ind + '%s = %s;' % (x.group(1), x.group(2)),
+               found + ':']
+        lines[k:j + 2] = new
+        k += len(new)
+    return '\n'.join(lines)
+
+
+def irregular_switches(body):
+    """step 109a, a variant: m2c's `switch (X) { /* irregular */ case A: ... break; ... }` (its reading of a chain of
+    compares it could not take as a jump table) as the if / else-if chain the source wrote: main.dol reloads X for each
+    test (`lbz r0, 0x4855(r3); cmplwi r0, 0; bne; ... lbz r0, 0x4855(r3); cmplwi r0, 1`), the switch compiles to one
+    load and a compare tree (fn_80107310). Only switches whose cases all end in `break;` or `return;`, a `default:`
+    last; X loses a cast to the field's own type."""
+    lines = body.split('\n')
+    k = 0
+    while k < len(lines):
+        m = re.fullmatch(r'(\s*)switch \((.+)\) \{\s*/\* irregular \*/', lines[k])
+        if not m:
+            k += 1
+            continue
+        ind, x = m.group(1), m.group(2)
+        cm = re.fullmatch(r'\((u8|s8|u16|s16|s32|u32)\) (M2C_FIELD\(.*, (\w+) \*, \w+\))', x)
+        if cm and cm.group(1) == cm.group(3):
+            x = cm.group(2)
+        j = k + 1
+        arms, labels, cur, ok = [], [], None, True
+        while j < len(lines) and lines[j] != ind + '}':
+            l = lines[j]
+            lm = re.fullmatch(re.escape(ind) + r'(case (-?(?:0x[0-9A-Fa-f]+|\d+)U?)|default):', l)
+            if lm:
+                if cur is not None:
+                    ok = False   # a fall-through into the next label
+                    break
+                labels.append(lm.group(2) if lm.group(2) is not None else None)
+            elif (l.startswith(ind + '    ') or not l.strip()) and labels:
+                if cur is None:
+                    cur = []
+                cur.append(l)
+                if l == ind + '    break;' or l == ind + '    return;':
+                    arms.append((labels, cur))
+                    labels, cur = [], None
+            else:
+                ok = False
+                break
+            j += 1
+        if not ok or labels or cur is not None or j >= len(lines) or not arms or \
+                any(None in ls and (len(ls) > 1 or i != len(arms) - 1) for i, (ls, _) in enumerate(arms)):
+            k += 1
+            continue
+        new = []
+        for i, (ls, stmts) in enumerate(arms):
+            if stmts[-1].strip() == 'break;':
+                stmts = stmts[:-1]
+            if ls == [None]:
+                head = '} else {'
+            else:
+                test = ' || '.join('(%s == %s)' % (x, v) for v in ls) if len(ls) > 1 else '%s == %s' % (x, ls[0])
+                head = ('if (%s) {' if i == 0 else '} else if (%s) {') % test
+            new.append(ind + head)
+            new += stmts
+        new.append(ind + '}')
+        lines[k:j + 1] = new
+        k += len(new)
+    return '\n'.join(lines)
+
+
+def struct_copy_macro(body):
+    """step 109a, a variant: m2c's `M2C_STRUCT_COPY(D, S, N)` (its reading of a struct assignment's copy loop, `mtctr;
+    lwz; lwzu; stw; stwu; bdnz`, with both pointers biased by the unit: `(s32) (P - 4) + 4`) as the assignment it is,
+    `*(cr_CopyN_U *) (D) = *(cr_CopyN_U *) (S);` through a struct of N bytes of the unit U (4: words, 2: halfwords,
+    1: bytes), declared before the function. A macro nothing defines is a call to an unknown function in the draft
+    (cr_BattleRobo_InitBody's 0x78-byte body record)."""
+    types = {}
+
+    def fix(m):
+        args = _split_top(m.group(1), ', ')
+        if len(args) != 3 or not _NUM.fullmatch(args[2].strip()):
+            return m.group(0)
+        n = int(args[2].strip(), 0)
+        unit = 4
+        um = re.search(r'\) \+ ([124])$', args[0].strip())
+        if um:
+            unit = int(um.group(1))
+        if n % unit:
+            unit = 1
+        t = 'cr_Copy%X_%d' % (n, unit)
+        types[t] = (n, unit)
+
+        def addr(a):
+            # `(s32) (P - k) + k` is P itself (m2c's bias on a typed pointer would scale by the element)
+            b = re.fullmatch(r'\(s32\) \((.*) - (\d+)\) \+ (\d+)', a.strip())
+            return b.group(1) if b and b.group(2) == b.group(3) else a.strip()
+        return '*(%s *) (%s) = *(%s *) (%s);' % (t, addr(args[0]), t, addr(args[1]))
+    new = re.sub(r'\bM2C_STRUCT_COPY\((.*)\);', fix, body)
+    if not types:
+        return body
+    m = re.search(r'^\w[^;\n]*\)\s*\{$', new, re.M)
+    if not m:
+        return body
+    decl = ''.join('typedef struct %s {\n    %s w[0x%X];\n} %s;\n\n' % (t, {4: 'u32', 2: 'u16', 1: 'u8'}[u], n // u, t)
+                   for t, (n, u) in sorted(types.items()))
+    return new[:m.start()] + decl + new[m.start():]
+
+
+def named_param_homes(body):
+    """step 109a, a variant: param_homes for a parameter with a name of our prototypes (`u32 frame`, not m2c's argN):
+    `sp8 = frame;` among the first statements, sp8 declared with the parameter's type and never assigned again, is the
+    parameter's own stack home (level 0 keeps it there: `stw r4, 0x8(r1)`, then `lwz r3, 0x8(r1)` for its use;
+    m2c's copy adds a second slot: cr_Motion_Play). sp8 is renamed to the parameter."""
+    m = DEF.search(body)
+    if not m:
+        return body
+    params = {}
+    for p in m.group(3).split(','):
+        pm = re.match(r'^\s*(.*?)\s*\b(\w+)\s*$', p)
+        if pm and not re.fullmatch(r'f?arg\d+', pm.group(2)) and pm.group(1):
+            params[pm.group(2)] = re.sub(r'\s+', '', pm.group(1))
+    start = body.find('\n\n', m.end())
+    for a, t in params.items():
+        cm = re.search(r'^    (sp[0-9A-F]+) = %s;\n' % re.escape(a), body, re.M)
+        if not cm or start < 0 or cm.start() < start or len(re.findall(r'\b%s\b' % re.escape(a), body)) != 2:
+            continue
+        if not re.fullmatch(r'(    \w+ = \w+;\n)*', body[start + 2:cm.start()]):
+            continue
+        v = cm.group(1)
+        vd = re.search(r'^    ([^;=()\n]*?)\s*\b%s;\n' % v, body, re.M)
+        if not vd or re.sub(r'\s+', '', vd.group(1)) != t or assigned(v, body[:cm.start()] + body[cm.end():]):
+            continue
+        body = body[:cm.start()] + body[cm.end():]
+        vd = re.search(r'^    ([^;=()\n]*?)\s*\b%s;\n' % v, body, re.M)
+        body = body[:vd.start()] + body[vd.end():]
+        body = re.sub(r'\b%s\b' % v, a, body)
+    return body
+
+
+def byte_index_sums(body):
+    """step 109a, a variant: record_array_index's form for a byte step, an access at `B + (I + O)` (`(*(T *)((s8 *)((B
+    + (I + O))) + (0)))` or `M2C_FIELD((B + (I + O)), T *, 0)`) written `*(T *) &((u8 (*)[1]) (B))[I][O]`: the
+    compiler adds O to the index and stores indexed (`addi r0, r30, 0x488a; stbx r3, r31, r0`, fn_80104F70), where
+    the sum folds O into the displacement (`add; stb 0x488a(r3)`)."""
+    num = r'(?:0x[0-9A-Fa-f]+|\d+)'
+    body = re.sub(r'\(\*\((\w+ \*)\)\(\(s8 \*\)\(\((\w+) \+ \((\w+) \+ (%s)\)\)\) \+ \(0\)\)\)' % num,
+                  r'(*(\1) &((u8 (*)[1]) (\2))[\3][\4])', body)
+    return re.sub(r'M2C_FIELD\(\((\w+) \+ \((\w+) \+ (%s)\)\), (\w+ \*), 0\)' % num, r'(*(\4) &((u8 (*)[1]) (\1))[\2][\3])', body)
+
+
+def for_break_tails(body):
+    """step 109a, a variant: for_break_loops' search loop with the body before the test,
+           loop_N:                                  for (; C; I) {
+           if (C) {                                     S...
+               S...                     ->              if (!T) {
+               if (T) {                                     break;
+                   I;                                   }
+                   goto loop_N;                     }
+               }
+           }
+    (fn_8011725C: the `for` jumps to its test at the bottom, 190 -> 198 of 198). Only with the label used once and S
+    free of goto / break / continue / return."""
+    lines = body.split('\n')
+    k = 0
+    while k < len(lines):
+        m = re.fullmatch(r'\s*(loop_\d+):', lines[k])
+        if not m or k + 6 > len(lines) or len(re.findall(r'\bgoto %s;' % m.group(1), body)) != 1:
+            k += 1
+            continue
+        ind = re.match(r'\s*', lines[k + 1]).group(0)
+        c = re.fullmatch(re.escape(ind) + r'if \((.+)\) \{', lines[k + 1])
+        if not c:
+            k += 1
+            continue
+        j = k + 2
+        while j < len(lines) and (lines[j].startswith(ind + '    ') or not lines[j].strip()):
+            j += 1
+        # lines[k+2 .. j-1] the block; lines[j] its closing brace
+        blk = lines[k + 2:j]
+        if j >= len(lines) or lines[j] != ind + '}' or len(blk) < 4:
+            k += 1
+            continue
+        if blk[-1] != ind + '    }' or blk[-2] != ind + '        goto %s;' % m.group(1):
+            k += 1
+            continue
+        t = len(blk) - 3
+        incs = []
+        while t >= 0 and re.fullmatch(re.escape(ind) + r'        \w+ (?:\+=|-=) (?:0x[0-9A-Fa-f]+|\d+);', blk[t]):
+            incs.insert(0, blk[t].strip()[:-1])
+            t -= 1
+        tm = re.fullmatch(re.escape(ind) + r'    if \((.+)\) \{', blk[t]) if t >= 0 else None
+        s = blk[:t] if tm else None
+        if not incs or not tm or not s or any(re.search(r'\b(?:goto|break|continue|return)\b', x) for x in s):
+            k += 1
+            continue
+        test = tm.group(1)
+        neg = None
+        for op, n in ((' >= ', ' < '), (' <= ', ' > '), (' > ', ' <= '), (' < ', ' >= ')):
+            parts = _split_top(test, op)
+            if len(parts) == 2 and not any(len(_split_top(test, o)) > 1 for o in (' && ', ' || ')):
+                neg = parts[0] + n + parts[1]
+                break
+        new = [ind + 'for (; %s; %s) {' % (c.group(1), ', '.join(incs))] + s + \
+              [ind + '    if (%s) {' % (neg or _negate_test(test)), ind + '        break;', ind + '    }', ind + '}']
+        lines[k:j + 1] = new
+        k += len(new)
+    return '\n'.join(lines)
+
+
+def _wide_locals(body, consts):
+    for t, w in (('s16', 's32'), ('s8', 's32'), ('u16', 'u32'), ('u8', 'u32')):
+        for v in re.findall(r'^    %s (\w+);$' % t, body, re.M):
+            asg = re.findall(r'\b%s\s*(?:[-+*/%%&|^]|<<|>>)?=(?!=)\s*([^;]*);' % re.escape(v), body)
+            ok = r'-?(?:0x[0-9A-Fa-f]+|\d+)U?' if consts else r'M2C_FIELD\(.*, %s \*, \w+\)' % t
+            if asg and all(re.fullmatch(ok, a) for a in asg):
+                body = re.sub(r'^    %s %s;$' % (t, re.escape(v)), '    %s %s;' % (w, v), body, flags=re.M)
+    return body
+
+
+def wide_field_locals(body):
+    """step 109a, a variant: a local m2c typed by the field it is loaded from (`s16 v; v = M2C_FIELD(p, s16 *, 2);`)
+    as an int: main.dol shifts and masks the loaded halfword directly (`lha r30; srawi r28, r30, 5`), the s16 local
+    is extended again at each use (`extsh r3, r30`: cr_C_ACT_CHK_BIT). Every local whose only assignments are loads
+    of its own type becomes s32 (s8 / s16) or u32 (u8 / u16)."""
+    return _wide_locals(body, False)
+
+
+def wide_const_locals(body):
+    """step 109a, a variant: wide_field_locals for a narrow local that is only set and stepped by constants (`s16 y;
+    y = 0xC0; ... y += 0xF;`): an int in main.dol, converted without an `extsh` (`xoris r3, r29, 0x8000` for its
+    (f32): fn_800A514C)."""
+    return _wide_locals(body, True)
+
+
+def field_void_null(body):
+    """step 109a, a variant: void_null only for a field compared with NULL (`M2C_FIELD(p, T **, 4) == NULL` ->
+    `== ((void *) 0)`: `li r0, 0; cmplw`), the globals keeping NULL (`cmplwi`): cr_C_ACT_CHK_BIT tests both."""
+    out, i = [], 0
+    for m in re.finditer(r' ([=!]=) NULL\b', body):
+        j = m.start()
+        if j == 0 or body[j - 1] != ')':
+            continue
+        depth, a = 0, j - 1
+        while a >= 0:
+            depth += body[a] == ')'
+            depth -= body[a] == '('
+            if depth == 0:
+                break
+            a -= 1
+        if a >= 9 and body[a - 9:a] == 'M2C_FIELD':
+            out.append(body[i:m.start()] + ' %s ((void *) 0)' % m.group(1))
+            i = m.end()
+    out.append(body[i:])
+    return ''.join(out)
+
+
+def empty_macro_blocks(body):
+    """step 109a, a variant: an empty block of m2c (`if (C) {\n\n} else {`, its reading of a test that branches over
+    nothing but the jump to the else part) as an empty debug macro, `{ (void) 0; }`: the compiler keeps `beq else;
+    b end` for it, where an empty block gives one `bne end` (fn_800F6A44; step 108's hand drafts
+    cr_SEQ_MODE_SELECTOR_FrameA and fn_8008C054 are the same macro)."""
+    return re.sub(r'(?m)^(\s*)(.*\) \{)\n\n(\1\})', lambda m: '%s%s\n%s    (void) 0;\n%s' % (m.group(1), m.group(2), m.group(1), m.group(3)), body)
+
+
+def mask_compounds(body):
+    """step 109a, a variant: m2c's `L = (s32) (u16) L;` (a field truncated in place) as `L &= 0xFFFF;` (u8: 0xFF): the
+    compound assignment computes the field's address once (`lwz r5, 0xc(r5); lwz r0, 0x110(r5); clrlwi; stw r0,
+    0x110(r5)`), the plain one twice (fn_8002557C)."""
+    return re.sub(r'(?m)^(\s+)(.+) = \((?:s32|u32)\) \((u8|u16)\) (.+);$',
+                  lambda m: '%s%s &= %s;' % (m.group(1), m.group(2), '0xFF' if m.group(3) == 'u8' else '0xFFFF')
+                  if m.group(2) == m.group(4) else m.group(0), body)
+
+
+def macro_returns(body):
+    """step 109a, a variant: an early return alone in its block, `if (C) { return; }`, with an empty debug macro
+    before it, `{ (void) 0; return; }`: the compiler then keeps `beq next; b end` (the return's jump to the epilogue
+    behind the test), which the peephole otherwise folds into one `bne end` (fn_8002557C; empty_macro_blocks is the
+    same macro in an empty block)."""
+    return re.sub(r'(?m)^(\s*)(if \(.*\) \{)\n\1    return;\n\1\}', lambda m: '%s%s\n%s    (void) 0;\n%s    return;\n%s}' % (
+        m.group(1), m.group(2), m.group(1), m.group(1), m.group(1)), body)
+
+
+def refold_shifts(body):
+    """step 109a, a variant: `v = K; v = K >> N;` (m2c put the constant it knows into the shift) as the shift of the
+    variable, `v = K; v >>= N;` (fn_8000E1E4: `li r31, 0x8000...; srawi r31, r31, 1`)."""
+    return re.sub(r'(?m)^(\s+)(\w+) = (-?(?:0x[0-9A-Fa-f]+|\d+)U?);\n\1\2 = \3 >> (\d+|0x[0-9A-Fa-f]+);$',
+                  r'\1\2 = \3;\n\1\2 >>= \4;', body)
+
+
 def postprocess(body, skip=(), add=()):
     """the post-processing rules in order; skip: rules left out, add: OPTIONAL rules applied (one() VARIANTS)"""
     for f in (declare_stack_arrays, declare_unk_stack, drop_param_spills, drop_saved_reg_reads, type_void_stores,
               signed_fields, unsigned_fields, compound_assign, drop_same_casts, drop_same_assign_casts, drop_same_field_casts, while_loops,
               table_call_args, table_call_self, global_call_self, table_call_noargs, narrow_int_casts, minus_one_stores,
               unsigned_const_stores, redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign,
-              double_negation, assert_ternary, hsd_inlines, mixed_externs, byte_steps, same_type_copies, param_regs, param_homes,
+              double_negation, assert_ternary, hsd_inlines, mixed_externs, byte_steps, same_type_copies, param_retypes, param_regs, param_homes, named_param_homes,
               param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
               float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound,
               script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, struct_byte_offset, indexed_offset,
               fold_temp_compound, store_literals, hoist_float_temps, widen_narrow_params, masked_index_field, byte_compare_casts, shift_mask_order,
-              sink_const_global_stores, record_array_index, for_break_loops, clz_intrinsic, plain_byte_tests, bitwise_lvalues, void_self):
+              sink_const_global_stores, record_array_index, for_break_loops, clz_intrinsic, plain_byte_tests, bitwise_lvalues, void_self,
+              record_pointers, local_same_casts, byte_loops, wide_return_locals, advance_copies, unsigned_immediates,
+              field_pointer_tests, signed_temps, search_loops, irregular_switches, struct_copy_macro, byte_index_sums,
+              for_break_tails, wide_field_locals, field_void_null, empty_macro_blocks,
+              mask_compounds, macro_returns, wide_const_locals, refold_shifts):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -2773,7 +3405,11 @@ def postprocess(body, skip=(), add=()):
 OPTIONAL = (void_null, pointer_tests, drop_same_assign_casts, param_homes, float_literals, drop_same_field_casts, table_call_noargs, unsigned_fields, hsd_inlines, stack_struct, alias_offsets,
             redundant_returns, widen_masked_bytes, invert_early_returns, chain_assign, drop_same_member_casts, expand_ptr_compound, store_literals,
             hoist_float_temps, widen_narrow_params, masked_index_field, byte_compare_casts, shift_mask_order, sink_const_global_stores,
-            record_array_index, for_break_loops, plain_byte_tests, bitwise_lvalues, void_self)
+            record_array_index, for_break_loops, plain_byte_tests, bitwise_lvalues, void_self, param_retypes, record_pointers,
+            local_same_casts, byte_loops, wide_return_locals, advance_copies, unsigned_immediates,
+            field_pointer_tests, signed_temps, search_loops, irregular_switches, struct_copy_macro, named_param_homes,
+            byte_index_sums, for_break_tails, wide_field_locals, field_void_null, empty_macro_blocks,
+            mask_compounds, macro_returns, wide_const_locals, refold_shifts)
 VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
             ((), (void_null,)), ((register_order,), (void_null,)),
             # step 69
@@ -2809,6 +3445,49 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             ((), (bitwise_lvalues,)),
             # step 108: the function itself void again (r3_returns)
             ((), (void_self,)), ((register_order,), (void_self,)))
+# step 109a: tried only for a draft that is near already (NEAR_MIN, the best so far when they come): they change the
+# text of many drafts (loops, switches, returns), and the low ones do not come near 100% with them; the batch
+# would otherwise take several times as long
+NEAR_MIN = 70
+VARIANTS_NEAR = (
+            # step 109a: byte loops as `for` with `*p++`, same-type casts of locals, record pointers, retyped parameters
+            ((), (byte_loops,)), ((), (local_same_casts,)), ((), (record_pointers,)), ((), (record_pointers, local_same_casts)),
+            ((), (param_retypes,)), ((), (param_retypes, record_pointers)),
+            # step 109a: a narrow function's returned local as an int
+            ((), (wide_return_locals,)),
+            # step 109a: a value read before the global it comes from is advanced
+            ((), (advance_copies,)),
+            # step 109a: cmplwi's immediates unsigned
+            ((), (unsigned_immediates,)), ((), (unsigned_immediates, record_array_index)), ((), (unsigned_immediates, masked_index_field)),
+            ((), (unsigned_immediates, record_array_index, masked_index_field)),
+            # step 109a: a tested word field as a pointer; a halfword local signed at its load
+            ((), (field_pointer_tests,)), ((), (signed_temps,)), ((), (signed_temps, field_pointer_tests)),
+            # step 109a: a search loop with its result as `for` with a goto past the not-found value
+            ((), (search_loops,)), ((register_order,), (search_loops,)), ((), (search_loops, record_array_index)),
+            # step 109a: an irregular switch as the if / else-if chain
+            ((), (irregular_switches,)), ((register_order,), (irregular_switches,)),
+            # step 109a: m2c's struct-copy macro as a struct assignment
+            ((), (struct_copy_macro,)), ((), (struct_copy_macro, masked_index_field)), ((), (struct_copy_macro, param_homes)),
+            ((), (struct_copy_macro, masked_index_field, param_homes)),
+            # step 109a: a named parameter's stack home
+            ((), (named_param_homes,)), ((), (named_param_homes, float_literals)), ((), (named_param_homes, float_literals, stack_struct)),
+            # step 109a: a byte-step index sum as an indexed element
+            ((), (byte_index_sums,)), ((), (byte_index_sums, record_array_index)),
+            # step 109a: a search loop with its body before the test
+            ((), (for_break_tails,)), ((), (for_break_tails, for_break_loops)), ((), (for_break_tails, search_loops)),
+            ((), (for_break_tails, for_break_loops, search_loops)),
+            # step 109a: locals loaded from narrow fields as ints
+            ((), (wide_field_locals,)), ((), (wide_field_locals, field_void_null)), ((), (field_void_null,)),
+            # step 109a: m2c's empty blocks as an empty debug macro
+            ((), (empty_macro_blocks,)), ((), (empty_macro_blocks, irregular_switches)),
+            # step 109a: a field truncated in place as a compound mask; the debug macro before an early return
+            ((), (mask_compounds,)), ((), (macro_returns,)), ((), (mask_compounds, macro_returns)),
+            ((), (mask_compounds, macro_returns, stack_struct, float_literals)),
+            # step 109a: narrow locals set by constants as ints
+            ((), (wide_const_locals,)), ((), (wide_const_locals, float_literals)),
+            # step 109a: a shift of a variable m2c folded with its constant
+            ((), (refold_shifts,)), ((), (refold_shifts, unsigned_immediates, irregular_switches)))
+VARIANTS = VARIANTS + VARIANTS_NEAR
 
 
 VARIANT_MIN = 0   # the VARIANTS / REG_VARS drafts are tried for every compiled draft below 100% scoring at least this
@@ -3551,6 +4230,8 @@ def one(job):
             for skip, add in ((((), ()),) if src else ()) + VARIANTS:
                 if p == 100:
                     break
+                if p < NEAR_MIN and (skip, add) in VARIANTS_NEAR:
+                    continue
                 attempt(src, skip, add)
         if 80 <= p < 100 and best != ('', (), ()):
             src, bskip, badd = best
@@ -3699,6 +4380,7 @@ def main():
                     for fn, ps in fparams:
                         pars[fn].append(tuple(x.strip() for x in ps.split(',')))
         nr3 = r3_returns(sigs, rets)
+        r3_set(sigs)
         narrowed = narrow_returns(sigs, {f: ts - {'CR_R3'} for f, ts in rets.items()})
         nparams = narrow_params(sigs, pars)
         ptrs = {n: (next(iter(ts)) if len(ts) == 1 and ts != {'void *'} else MIXED if len(ts) > 1 else 'u8 *')

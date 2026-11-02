@@ -39,7 +39,7 @@ typedef struct cr_Pad
 __declspec(section ".data") extern cr_Pad cr_g_Pads[4];
 extern u8 lbl_8044C3F4;
 extern u8 lbl_801E1F90[1024];
-void fn_8006A4E0(void *arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4);
+s32 fn_8006A4E0(void *arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4);
 extern u8 lbl_8031BED8[124];
 extern u8 lbl_801E4A64[1472];
 

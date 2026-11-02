@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 typedef struct cr_FileSlot cr_FileSlot;
 cr_FileSlot *cr_Archive_OpenEntry(s32 archive, u16 entry);
-void cr_FileSlot_QueueRead(cr_FileSlot *slot, void *buffer);
+s32 cr_FileSlot_QueueRead(cr_FileSlot *slot, void *buffer);
 extern u8 *lbl_8044F2E8;
 extern u8 lbl_8034C100[32768];
 extern u32 lbl_8037569C[2417];

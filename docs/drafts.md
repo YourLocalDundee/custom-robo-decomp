@@ -1195,3 +1195,94 @@ written as a rule. All rules that the original's text cannot decide are VARIANTS
   uses), fn_8008E7EC, fn_800DF320 (scheduling), cr_CharaEntry_OnLoaded and fn_800F5EF0 (compile now by hand, far from
   equal).
 
+
+### Step 109a: hand drafts and generator rules for the 90-99% drafts (Nov 2, 2026, branch hand109a)
+
+Step 108's method on the 69 drafts at 90-99% of batch 12 (a second worker, branch hand109b, took the compile failures
+and the 80-89% drafts at the same time). Each draft diffed against the original with tools/sched/scratch/hd/pr.py in
+decomp/drafts/hand; where one fix is a pattern of m2c's reading, it became a draft_batch.py rule (all VARIANTS, tried
+per draft and kept when better).
+
+- **Hand drafts** (tools/hand_drafts; each file's first line says what was changed):
+  fn_80069614 (the pointer advanced before the return, `p += 0x10; return *(u16 *) p;`: lhzu), fn_80114420 (the
+  missing middle parameter declared: the u8 third one is homed on the stack and read there), fn_80095D7C (Melee's
+  inlined HSD_JObjSetupMatrix, `if (j == NULL || !dirty(j)) return;`), fn_80076404 (two 8-byte struct copies),
+  fn_80026A7C (record_pointers + local_same_casts with stack_struct: three variants together), cr_SEQ_BATTLE_FrameC
+  (the camera matrix set through a static inline: each inlined parameter its own saved register), fn_800ADDBC /
+  fn_800ADF7C / fn_800AE13C (the same body: four locals in r28-r31, the count copied once into the variable the test
+  reads, the level an u32), fn_800A44D4 / fn_800A4CEC / fn_800B1FBC (the same block: the index `(s16)` of the u16
+  field, the joint list against ((void *) 0), the 0x150 copy stored as s16), fn_800DF018 (the computed store before
+  the constant one), fn_80019E84 (a GXColor struct copy, the loop counter after the lookup, with
+  cr_FileSlot_QueueRead's s32), fn_80112294 (`x - (s8) ((s8) x / 6) * 6`: main.dol loads the byte twice),
+  fn_800F6A44 (the if chain on an u32 parameter and `{ (void) 0; }` in an empty then-block), fn_8008578C (three Vec3
+  and an Mtx: the frame of 0x70), fn_80086F54 (a 12-byte struct copy), fn_800440BC (`a = b = 0` for two flags),
+  fn_8007D638 (a switch with a break per case, `x = x - 0xC`, the 0.1 step compared in double), fn_8012855C
+  (fn_800AA17C called with its argument, s32 conversions, one constant left an extern). 21 files (37 in all).
+- **Rules** (draft_batch.py; each a VARIANT unless said otherwise):
+  - `byte_loops`: m2c's byte copy / fill loop as `for (c = 0, p = X; c < N; c += 1) { *p++ = V; }` (fn_80078F94,
+    fn_80078F00: the counter and the pointer in main.dol's registers).
+  - `local_same_casts`: `*d = (u8) (*s);` on a local `u8 *s` without the cast (drop_same_assign_casts for locals:
+    fn_80026C50, fn_80026B40, fn_8008E598).
+  - `record_pointers`: a pointer `p = B + ((I * S) + O)` or m2c's two statements `p = (I * S) + O; p += (s32) B;` as
+    `&((u8 (*)[S]) (B))[I][O]` (fn_800442EC, fn_80026BF4).
+  - `unsigned_immediates`: m2c's sign-extended `cmplwi` immediates (`!= -0x50D0U`, `(u32) (x + 0xFFE00000) !=
+    -0x50D0U`) as the unsigned constants (`x != 0x20AF30`: fn_8008E3F8, fn_8008FA8C, fn_8008FC38; with the two below
+    fn_8000E1E4, fn_8000F7A4).
+  - `refold_shifts`: `v = K; v = K >> N;` as `v >>= N;` (srawi of the variable).
+  - `irregular_switches`: m2c's `switch (X) { /* irregular */ ... }` with every case ending in break / return as the
+    if / else-if chain (X reloaded per test: fn_80107310, cr_Pad_StepIndex, fn_800E4618, fn_8000E1E4, fn_8000F7A4).
+  - `search_loops`: m2c's `loop: if (A) { R = X; } else if (B) { R = Y; } else { I; goto loop; }` (an inlined
+    lookup) as `for (; !A; I) { if (B) { R = Y; goto found; } } R = X; found:` (fn_800AF398; 676 m2c loop labels,
+    the CHAR / OBJ script commands' character lookup among them, which also need other things).
+  - `for_break_tails`: `loop: if (C) { S; if (T) { I; goto loop; } }` as `for (; C; I) { S; if (!T) break; }`
+    (fn_8011725C).
+  - `advance_copies`: `t = G; G += K; v = t;` as `v = G; G += K;` (cr_C_ACT_REPEAT).
+  - `wide_return_locals`: the returned local of a byte / halfword function as an int (`extsb r3` at the return:
+    fn_800EA548, fn_800EA6BC).
+  - `wide_field_locals` / `wide_const_locals`: a narrow local only loaded from a field of its type, or only set and
+    stepped by constants, as an int (no extsh at each use: cr_C_ACT_CHK_BIT, fn_800A514C); `field_void_null`:
+    void_null for fields only (cr_C_ACT_CHK_BIT).
+  - `signed_temps` / `field_pointer_tests`: a u16 local used only as `(s16) v` loaded as `(s16) LOAD` into an s16,
+    a `while` loop's word-field test against ((void *) 0) (fn_800BC768; the hand drafts fn_800A44D4 / A4CEC / B1FBC).
+  - `struct_copy_macro`: m2c's `M2C_STRUCT_COPY(D, S, N)` (a call to nothing in the draft) as a struct assignment
+    through a struct of N bytes (cr_BattleRobo_InitBody; 22 drafts have the macro).
+  - `named_param_homes`: param_homes for a parameter our prototypes name (cr_Motion_Play's `frame`).
+  - `byte_index_sums`: `B + (I + O)` as `&((u8 (*)[1]) (B))[I][O]` (addi + stbx: fn_80104F70).
+  - `mask_compounds` / `macro_returns`: `L = (s32) (u16) L;` as `L &= 0xFFFF;` (the address formed once), and
+    `{ (void) 0; return; }` for an early return alone in its block (beq / b kept: fn_8002557C);
+    `empty_macro_blocks`: `{ (void) 0; }` in m2c's empty blocks (fn_800F6A44 by hand); `param_retypes`: a `void *`
+    parameter copied once into a typed local takes its type (written for fn_800442EC, which record_pointers alone
+    fixed). The last two gave no draft at 100% by themselves in this batch.
+- **Prototypes** (pass 1, ctx_protos.h): `R3_SET` and `PARAM_SET`, return types and parameter lists that the callers'
+  code shows and the callee's own draft cannot. A caller that ignores the value of a value-returning call keeps r3
+  busy after it (its next temporary is r4), one that calls a void function takes r3: fn_8006A4E0 returns s32 (it
+  ends with `bl fn_8006A7D8`; fn_800F8D4C 100%), fn_80098484 and fn_80098290 are void (m2c returned a leftover r3:
+  main 100%, fn_80098290's 77 callers' near drafts up, none of the 100% ones changed); fn_80026F58 takes a u8 (its
+  caller passes it unextended), fn_800AA17C an s32 (fn_8012855C passes 0 / 1; its own 100% draft never reads it).
+  **symbols/cr_types.h**: cr_FileSlot_QueueRead returns s32 (`li r3, 0` before its blr; fn_80114214, fn_80019E84).
+- **pool_floats**: a float object of 8 bytes whose second word is zero (dtk's last float of a file pool with the
+  pool's padding, `f32 X[2]` in the context, read `*X`) is a literal for float_literals too (fn_8005C7F4's 0.0f; 69
+  such objects).
+- **Cost**: the new variants change the text of many drafts (loops, switches, returns), so they are tried only for a
+  draft whose best so far is at least `NEAR_MIN` = 70% (`VARIANTS_NEAR`); without that the batch took several times
+  as long.
+- Full batch 12: **531 -> 583 drafts at 100%** (52 new, none lost; at 90-99% 69 -> 35), compile failures 44 (unchanged),
+  533,876 bytes equal; promoted to decomp/src/game: **761 units from C** (721 before), 24.72% of the code; batch 9:
+  main.dol retail SHA-1, relocations and static shift PASS. gen_dtk_splits.py's CDEF (also promote_drafts.py's)
+  skips a `static inline` helper of a hand draft (cr_SEQ_BATTLE_FrameC, fn_80095D7C). The batch took 4,974 s with
+  7 jobs while the other worker's batch 12 ran on the same desktop.
+- New at 100% by rules alone (no hand draft): cr_BattleRobo_InitBody, cr_C_ACT_CHK_BIT, cr_C_ACT_REPEAT,
+  cr_Motion_Play, cr_Pad_StepIndex, fn_8000E1E4, fn_8000F7A4, fn_8002557C, fn_80026B40, fn_80026BF4, fn_80026C50,
+  fn_800442EC, fn_8005C7F4, fn_80078F00, fn_80078F94, fn_8008E3F8, fn_8008E598, fn_8008FA8C, fn_8008FC38,
+  fn_800A514C, fn_800AF398, fn_800BC768, fn_800E4618, fn_800EA548, fn_800EA6BC, fn_800F8D4C, fn_80104F70,
+  fn_80107310, fn_80114214, fn_8011725C, main (31; the other 21 are the hand drafts).
+- Left (tried): fn_800A0804 (the epilogue's `lwz r0` / `lwz r31` order after a store:
+  scheduling); fn_80080FD8 and cr_CAMMODE_MIDDLE_Frame (registers: main.dol saves r27-r31 with two of them unused,
+  or has the parameter in r31 before the flag; no copy or inline form tried gave it; fn_80080FD8 93 -> 92%, its
+  best variant changed); fn_80064FE4, fn_80050388, fn_80053A20, cr_Records_BuildBodyRows, fn_8001838C,
+  fn_800EAC48 (the order of independent loads, which volatile register: scheduling); fn_80038CF8, fn_800B7D8C (float
+  register numbering around a literal; fn_800B7D8C 249 of 256 with the record form by hand); fn_800B1B2C,
+  fn_80118C08 (an inlined lookup with one more saved register and a larger frame than any form tried); the CHAR /
+  OBJ commands search_loops brought to 90% (cr_CHAR_MOVE, cr_CHAR_MOVE_LENG, fn_800FBDF8: not looked at); step
+  108's list (the fn_80075258 family, fn_800F1860, fn_8008E7EC, fn_800DF320, cr_Text_MaskUnownedSpecialPart), not
+  taken up again.
