@@ -1943,6 +1943,10 @@ def byte_steps(body):
                 break
             j += 1
         rhs = body[m.end():j].rstrip()
+        if not rhs:   # step 109b: `sp26C - &x->m` (the operand starts with `&`): left as it is
+            out.append(body[i:m.end()])
+            i = m.end()
+            continue
         j = m.end() + len(rhs)
         name, op, assign = m.group(1), m.group(2), m.group(3)
         e = names[name]
@@ -3521,7 +3525,7 @@ def one(job):
     # VARIANTS. Then (step 69) a second round from the best one so far: each single VARIANT toggle added to it (two
     # rules a draft needs together: fn_8005C628's widened byte and its table call without arguments).
     tag = ''
-    if p < 100 and p >= VARIANT_MIN:
+    if p < 100 and p >= VARIANT_MIN and not variants_skipped(fixes):
         sources = [('', m2c_body)]
         rc2, so2, _ = m2c(['--reg-vars', REG_VARS])
         rbody = regvar_cleanup(so2.replace('\r\n', '\n'))
@@ -3564,6 +3568,706 @@ def one(job):
     note = ' '.join(filter(None, ['M2C_ERROR' if 'M2C_ERROR' in body else '', ('%d fixes' % len(fixes)) if fixes else '',
                                   ('[%s]' % tag) if tag else '']))
     return name, '%d%%' % p if p < 100 else '100% MATCH', note, eq * 4
+
+
+# ---- step 109b: more repair rules for the compile failures, and rules / VARIANTS for the 80-89% drafts ---------------
+# One self-contained block (merged with other branches' rules by appending): the repair loop and postprocess are
+# extended by wrapping them, VARIANTS / OPTIONAL by concatenation; nothing above is edited.
+SCALAR_PTR = re.compile(r'\b(u8|s8|u16|s16|u32|s32|f32|f64) \*')
+
+
+def _stmt_scalar(s, msg):
+    """the scalar type a struct-typed access of this line most likely is: the float of the message, the width of
+    another field the same statement reads or writes, a float local, else s32 (the width only decides a cast: these
+    drafts compile, they are not matches)"""
+    if "'float'" in msg or "'double'" in msg:
+        return 'f32'
+    m = SCALAR_PTR.search(s)
+    if m:
+        return m.group(1)
+    if re.search(r'\b(?:temp|var)_f\d+|\(f32\)|\blbl_8045\w+', s):
+        return 'f32'
+    return 's32'
+
+
+def _ctx_struct_members():
+    """{typedef name: set of member names} of the structs the drafts' context defines (ctx_pp.c, the preprocessed
+    context: cr_types.h, the HSD and SDK headers), read once per process"""
+    if 'ctxmembers' not in W:
+        out = {}
+        try:
+            text = open(os.path.join(W['out'], 'ctx_pp.c'), encoding='utf-8').read()
+        except OSError:
+            text = ''
+        for m in re.finditer(r'^typedef struct \w* ?\{\n((?:[^{}\n]*\n)*?)\} (\w+);', text, re.M):
+            out[m.group(2)] = set(re.findall(r'(\w+)(?:\[[^\]]*\])*;\s*$', m.group(1), re.M))
+        W['ctxmembers'] = out
+    return W['ctxmembers']
+
+
+def repair_109b(lines, e):
+    """step 109b: fixes for messages the rules of repair() leave (the 44 compile failures of step 108); each returns
+    the fix made, or None"""
+    ln, seg, col, msg = e
+    if not 1 <= ln <= len(lines):
+        return None
+    s = lines[ln - 1]
+    # 1. a struct-typed access used as a scalar: `*(((cr_BattleRobo *) ((u8 *) p + off))) |= 1;` (m2c typed the
+    #    address by its base; the load is a word / float / half at that byte address)
+    if msg in ('illegal operand', 'illegal type') or re.match(r"illegal (?:implicit|explicit) conversion from '.*' to '.*'$", msg):
+        for m in re.finditer(r'\*\(\(\((\w+) \*\) ', s):
+            if m.group(1) not in SCALARS and m.group(1) not in ('void', 'char'):
+                t = _stmt_scalar(s[:m.start()] + s[m.end():], msg)
+                lines[ln - 1] = s[:m.start()] + '*(((%s *) ' % t + s[m.end():]
+                return 'struct %s access as %s' % (m.group(1), t)
+    m = re.match(r"illegal implicit conversion from '(.*)' to '(struct|union) ?(\w*)'$", msg)
+    if m:
+        # 2. a scalar assigned to a local m2c declared as a struct (stack_struct's `Point3d sp14;` that m2c also reads
+        #    as a float): the store through the local's address
+        t = draft_type(m.group(1)) if m.group(1) in DRAFT else m.group(1)
+    if m or msg == 'illegal operand':
+        t = t if m else _stmt_scalar(s, msg)
+        text = '\n'.join(lines)
+        for dm in re.finditer(r'(?<![\w.&*>])(\w+) (=|\+=|-=) (?!=)', s):
+            n = re.escape(dm.group(1))
+            if re.search(r'^\s+(?!M2C_|BOOL\b)(?:cr_\w+|[A-Z]\w*|struct \w+) %s(?:\[\w*\])?;|^\s+\w+ %s\[\w*\];' % (n, n), text, re.M):
+                lines[ln - 1] = s[:dm.start()] + '*(%s *) &%s %s ' % (t, dm.group(1), dm.group(2)) + s[dm.end():]
+                return 'store to struct / array local %s as %s' % (dm.group(1), t)
+    if m:
+        # `*M2C_FIELD(p, cr_CustomizeState **, 0x5C) = (f32) x`, `*sp12C = (f32) x` (sp12C a cr_CustomizeState *):
+        # the pointer to a scalar
+        if m.group(3) and '(' not in t:
+            ns = re.sub(r'\b%s \*\*' % re.escape(m.group(3)), '%s **' % t, s, count=1)
+            if ns == s:
+                ns = re.sub(r'^(\s*)\*(\w+) (=|\+=|-=) ', r'\1*(%s *) \2 \3 ' % t, s, count=1)
+            if ns != s:
+                lines[ln - 1] = ns
+                return 'struct %s field as %s' % (m.group(3), t)
+    m = re.match(r"'(\w+)' is not a struct/union/class member$", msg) or (msg == 'not a struct/union/class' and True)
+    if m:
+        # 2b. a member read through a slot typed for another struct (m2c's reused stack slot): the slot cast to the
+        #     struct of cr_types.h that has that member
+        structs = _ctx_struct_members()
+        s = re.sub(r'\(\(__typeof__\([^;]*?\) \+ 0\)\) (\w+)\)', r'\1', s)   # a slot rule cast of the same slot
+        for fm in re.finditer(r'(?<![\w.>])(\w+)(\[[^\[\]]*\])?(->|\.)(\w+)\b', s):
+            if m is not True and fm.group(4) != m.group(1):
+                continue
+            owners = [k for k, v in structs.items() if fm.group(4) in v]
+            if owners:
+                if fm.group(2):
+                    rep = '((%s *) %s)%s%s%s' % (owners[0], fm.group(1), fm.group(2), fm.group(3), fm.group(4))
+                else:
+                    base = fm.group(1) if fm.group(3) == '->' else '&' + fm.group(1)
+                    rep = '((%s *) %s)->%s' % (owners[0], base, fm.group(4))
+                lines[ln - 1] = s[:fm.start()] + rep + s[fm.end():]
+                return 'slot %s read as a %s' % (fm.group(1), owners[0])
+    if msg.startswith('type mismatch') and ' - ' in s:
+        # 6a. a difference of two pointer types (member addresses): both as byte pointers
+        for dm in re.finditer(r' - ', s):
+            a = expr_start(s, dm.start())
+            depth, b = 0, dm.end()
+            while b < len(s) and not (depth == 0 and s[b] in ',;)'):
+                depth += s[b] in '(['
+                depth -= s[b] in ')]'
+                b += 1
+            left, right = s[a:dm.start()].strip(), s[dm.end():b].strip()
+            if re.match(r"type mismatch '[^']*\*' and '[^']*\*'$", msg) and left and right and not left.startswith('(u8 *)'):
+                lines[ln - 1] = s[:a] + '((u8 *) %s - (u8 *) (%s))' % (left, right) + s[b:]
+                return 'pointer difference in bytes'
+    text = '\n'.join(lines)
+    names = set(re.findall(r'\b([A-Za-z_]\w*)\b', s))
+    # 3. a local m2c declared `void *` (with m2c's `/* compiler-managed */` comment, which repair()'s own rule does not
+    #    read) or as a function pointer (`void (*temp_r31_48)();`, a slot of the script tables) that the line steps or
+    #    reads through: a byte pointer
+    if msg in ('illegal type', 'illegal operand') or msg.startswith('type mismatch'):
+        changed = []
+        for i, l in enumerate(lines):
+            dm = re.match(r'^(\s*)(?:void \*+\s*(\w+)|void \(\*(\w+)\)\([^()]*\)|\w+ \(\*(\w+)\)\[\w*\]);(\s*/\*.*\*/)?\s*$', l)
+            n = dm and (dm.group(2) or dm.group(3) or dm.group(4))
+            if n and n in names:
+                lines[i] = '%su8 *%s;' % (dm.group(1), n)
+                changed.append(n)
+        if changed:
+            return 'u8 * for ' + ' '.join(changed)
+    at = locate(s, seg, col)
+    if at is None and 'M2C_' in s:
+        s = lines[ln - 1] = expand_fields(s)
+        at = locate(s, seg, col)
+    decl = {}
+    for l in lines:
+        dm = re.match(r'^\s+((?:const |unsigned |signed |struct )*\w+)(\s*\**)\s*(\w+)((?:\[\w*\])*);', l)
+        if dm:
+            decl[dm.group(3)] = (dm.group(1), dm.group(2).strip(), dm.group(4))
+    floats = {n for n, d in decl.items() if d[0] in ('f32', 'f64') and not d[1] and not d[2]}
+    ptrs = ptr_names(lines)
+    if msg == 'illegal operand':
+        # 4. a float stack slot m2c reads as an integer (an index, a pointer step, a bit test): the slot as s32
+        for n in sorted(floats & names):
+            ns = re.sub(r'\[%s\]' % n, '[(s32) %s]' % n, s)
+            ns = re.sub(r'(&\w+ [+-] )%s\b' % n, r'\1(s32) %s' % n, ns)
+            if ns != s:
+                lines[ln - 1] = ns
+                return 'float slot %s as an index' % n
+            ns = re.sub(r'\(&%s\)\[' % n, '((s32 *) &%s)[' % n, s)
+            ns = re.sub(r'\*\(&%s ([+-])' % n, r'*((s32 *) &%s \1' % n, ns)
+            ns = re.sub(r'(?<![\w&*.>()])%s (&|\||<<|>>) ' % n, r'*(s32 *) &%s \1 ' % n, ns)
+            ns = re.sub(r'(?<![\w&*.>)])%s \* (?=0x|\d)' % n, r'(s32) %s * ' % n, ns)
+            if ns == s and re.search(r'&\w+ \+ \(%s [+-] ' % n, s):
+                ns = re.sub(r'(&\w+ \+ \()%s ([+-] )' % n, r'\1(s32) %s \2' % n, s)
+            if ns != s:
+                lines[ln - 1] = ns
+                return 'float slot %s as an integer' % n
+        # 5. a pointer in a product / shift / mask (m2c's `sp104 * 0x94` of a reused slot): the pointer as an integer
+        for m in re.finditer(r'(?<![\w.>*&])(\w+) (\*|<<|>>|&|\||/) |~(\w+)\b|(?:&|\||\^|\*|/) (\w+)\b(?!\s*[(\[.]|\s*->)', s):
+            n = m.group(1) or m.group(3) or m.group(4)
+            if n in ptrs:
+                k = m.start(1) if m.group(1) else m.start(3) if m.group(3) else m.start(4)
+                lines[ln - 1] = s[:k] + '(s32) ' + s[k:]
+                return 'pointer %s as an integer' % n
+        # 5b. a struct pointer slot indexed as bytes (`sp78[3] + 1`, sp78 a cr_BattleLoadout * m2c also stores
+        #     lbl_8044ECA8 into): the slot as a byte pointer
+        # 5e. a pointer as the first term of a bracketed byte offset (`(u8 *) sp24 + (sp104 + 0x19)`)
+        for m in re.finditer(r'[+-] \((\w+) [+-] ', s):
+            if m.group(1) in ptrs:
+                lines[ln - 1] = s[:m.start(1)] + '(s32) ' + s[m.start(1):]
+                return 'pointer %s as an integer' % m.group(1)
+        # 5d. a struct pointer dereferenced as a scalar (`*sp20 = (s32) (*sp20 | 0x40000)`, sp20 a cr_CustomizeState *)
+        sp = [n for n in re.findall(r'(?<![\w)\]])\*(\w+)\b(?!\s*(?:[\[.(]|->))', s)
+              if n in decl and decl[n][1] == '*' and not decl[n][2] and decl[n][0] not in SCALARS + ('void', 'char')]
+        if sp:
+            t = _stmt_scalar(s, msg)
+            lines[ln - 1] = re.sub(r'(?<![\w)\]])\*%s\b(?!\s*(?:[\[.(]|->))' % sp[0], '*(%s *) %s' % (t, sp[0]), s)
+            return 'struct pointer %s read as %s' % (sp[0], t)
+        # 5c. a struct / array local read as a scalar (`temp_f0_329 = sp14 + x`, sp14 a Point3d): its first element
+        for m in re.finditer(r'(?<![\w.>&*])(\w+)\b(?!\s*(?:[\[.(]|->|=[^=]|\+=|-=))', s):
+            d = decl.get(m.group(1))
+            if d and not d[1] and (d[2] or re.match(r'(?!M2C_|BOOL\b)(?:cr_\w+|[A-Z]\w*|struct \w+)$', d[0])):
+                t = _stmt_scalar(s, msg)
+                lines[ln - 1] = s[:m.start()] + '*(%s *) &%s' % (t, m.group(1)) + s[m.end():]
+                return 'struct / array local %s read as %s' % (m.group(1), t)
+    if msg == 'illegal operand' or re.match(r"illegal implicit conversion from '.*' to 'struct \w+'$", msg):
+        for m in re.finditer(r'(?<![\w.>])(\w+)\[|\*\((\w+) [+-] ', s):
+            n = m.group(1) or m.group(2)
+            d = decl.get(n)
+            if d and d[1] == '*' and not d[2] and d[0] not in SCALARS and d[0] != 'char':
+                k = m.start(1) if m.group(1) else m.start(2)
+                lines[ln - 1] = s[:k] + '((u8 *) %s)' % n + s[k + len(n):]
+                return 'struct pointer %s indexed in bytes' % n
+        for m in re.finditer(r'\*\((\w+) \+ (\w+)\)', s):
+            d = decl.get(m.group(2))
+            if d and d[1] == '*' and m.group(1) not in ptrs:
+                lines[ln - 1] = s[:m.start()] + '*((u8 *) %s + (s32) %s)' % (m.group(1), m.group(2)) + s[m.end():]
+                return 'integer plus pointer %s in bytes' % m.group(2)
+    if (msg == 'illegal operand' or msg.startswith('type mismatch')) and at is not None:
+        # 6. a comparison of a pointer with an integer / a function / another pointer type: both sides as u32
+        st = expr_start(s, at)
+        ex = s[st:at]
+        for op in (' == ', ' != ', ' <= ', ' >= ', ' < ', ' > '):
+            parts = _split_top(ex, op)
+            if len(parts) == 2 and not ex.startswith('(u32) ('):
+                lines[ln - 1] = s[:st] + '(u32) (%s)%s(u32) (%s)' % (parts[0].strip(), op, parts[1].strip()) + s[at:]
+                return 'comparison as u32'
+    if msg == 'illegal type':
+        # 7. a constant address cast to a function pointer and stepped: `(void (*)(void *))0x80390000 + 0x2A44`
+        ns = re.sub(r'\([\w ]+\s*\(\*\)\([^()]*\)\)\s*(0x[0-9A-Fa-f]+) \+ ', r'(u8 *) \1 + ', s)
+        if ns != s:
+            lines[ln - 1] = ns
+            return 'function address stepped in bytes'
+    m = re.match(r"illegal explicit conversion from '(.*)' to '(.*)'$", msg)
+    if m and at is not None:
+        a_t, t = m.group(1), m.group(2)
+        st = expr_start(s, at)
+        ex = s[st:at]
+        cm = re.match(r'(\(+)(f32|f64|float|double|u8|s8|u16|s16|u32|s32)\)\s*', ex)
+        if cm and a_t.endswith('*') and t in ('float', 'double'):
+            # 8. a float cast of a pointer (m2c's f1 after strcpy / strcat, a pointer slot read as a float): through
+            #    an integer
+            lines[ln - 1] = s[:st + cm.end()] + '(s32) ' + s[st + cm.end():]
+            return 'pointer to float through s32'
+        cm = re.match(r'(\(+)([\w ]+\*+)\)\s*', ex)
+        if cm and a_t in ('float', 'double') and t.endswith('*'):
+            # a float slot read as an address (`(s8*) (spF0)`): through an integer
+            lines[ln - 1] = s[:st + cm.end()] + '(s32) ' + s[st + cm.end():]
+            return 'float to pointer through s32'
+        if re.match(r'^(struct|union)\b', a_t) and not a_t.endswith('*'):
+            # 9. a struct local cast to a scalar (`(u8) sp8` of a GXColor): its first bytes
+            om = re.search(r'\((u8|s8|u16|s16|u32|s32|f32)\) (\w+)\s*$', ex)
+            if om:
+                lines[ln - 1] = s[:st + om.start()] + '*(%s *) &%s' % (om.group(1), om.group(2)) + s[st + om.end():]
+                return 'struct %s read as %s' % (om.group(2), om.group(1))
+            om = re.search(r'&\(u8 \*\) ([\w>.\-]+)', ex)
+            if om:
+                lines[ln - 1] = s[:st + om.start()] + '(u8 *) &' + om.group(1) + s[st + om.end():]
+                return 'address of struct member in bytes'
+    m = re.match(r"illegal implicit conversion from '(.*)' to '(.*)'$", msg)
+    if m and m.group(1) == m.group(2) and '(...)' in m.group(1):
+        # `(void (*)(...)) x` stored to a `void (*)()` member: the prototype-less pointer type
+        ns = s.replace('(void (*)(...)) ', '(void (*)()) ')
+        if ns != s:
+            lines[ln - 1] = ns
+            return 'function pointer without parameters'
+    if m and at is not None and not (re.match(r'^(struct|union)\b', m.group(2)) and not m.group(2).endswith('*')):
+        t = draft_type(m.group(2)) if m.group(2) in DRAFT else m.group(2)
+        # 10. `x = call(...)` / `x = array;` whose value the target's type does not take: the value cast
+        am = re.match(r'^(\s*[^=;]*?[\w\])] = )(.*);$', s)
+        if am and '(' not in t.replace('(*)', ''):
+            rhs = am.group(2)
+            if not rhs.startswith('(%s)' % t):
+                lines[ln - 1] = am.group(1) + '(%s) (%s);' % (t, rhs)
+                return 'value cast to ' + t
+    if msg == 'pointer/array required' and at is not None:
+        # 11. `(u8 *)0x801C0000[0x5BD0]`: the cast bracketed
+        ns = re.sub(r'&\((\w+ \*)\)(0x[0-9A-Fa-f]+)\[', r'&((\1) \2)[', s)
+        if ns != s:
+            lines[ln - 1] = ns
+            return 'constant address bracketed'
+        # 12. an integer slot used as a pointer (`sp90->unk_00`, `sp3C[1]`; m2c reuses one stack slot for a pointer
+        #     it stored there as `(long) (&cr_g_BodyData[i])`): the slot cast to the type of what was stored
+        for m in re.finditer(r'(?<![\w.>])(\w+)(->|\[)', s):
+            n = m.group(1)
+            if n in decl and not decl[n][1] and not decl[n][2] and m.start() < at + 2:
+                src = None
+                for am in re.finditer(r'^\s+%s = \((?:long|s32|u32|unsigned long)\) (.+);$' % n, text, re.M):
+                    x = unbracket(am.group(1))
+                    if x.startswith('&') or x in ptrs or re.fullmatch(r'(?:lbl_[0-9A-F]{8}|cr_g_\w+)', x):
+                        src = x
+                        break
+                if src is None and m.group(2) == '->':
+                    # the same member read through a typed expression elsewhere in the draft
+                    fm = re.search(r'([\w]+(?:\[[^\[\]]*\])?)(\.|->)%s\b' % re.escape(s[m.end():].split('-')[0].split('[')[0].split(')')[0].split(' ')[0]), text)
+                    if fm and (fm.group(1).split('[')[0] in ptrs or re.match(r'(?:lbl_[0-9A-F]{8}|cr_g_\w+)', fm.group(1))):
+                        src = ('&' + fm.group(1)) if fm.group(2) == '.' else fm.group(1)
+                cast = '__typeof__((%s) + 0)' % src if src else ('u8 *' if m.group(2) == '[' else None)
+                if cast:
+                    lines[ln - 1] = s[:m.start()] + '((%s) %s)' % (cast, n) + s[m.end(1):]
+                    return 'slot %s as a pointer' % n
+    if msg == 'illegal use of keyword' and re.match(r'^\s*(case [^:]+|default):\s*$', s):
+        # 13. a `case` / `default` label m2c placed outside its switch (an irregular switch): dropped (the draft
+        #     compiles; the jump into it is lost: it does not match)
+        lines[ln - 1] = re.sub(r'(case [^:]+|default):', r'/* \1: */', s)
+        return 'stray case label dropped'
+    return None
+
+
+_repair_108 = repair
+
+
+def variants_skipped(fixes):
+    """step 109b: a draft that compiles only through more than 20 fixes, some of them repair_109b's (the former compile
+    failures: 2-13 KB, dozens of fixes each) is not tried with the VARIANTS: each variant repeats the whole repair loop (hours for the batch) and
+    none of them is near a match"""
+    return len(fixes) > 20 and any(f.startswith('[109b] ') for f in fixes)
+
+
+def repair(lines, e):
+    """repair() of step 108, then repair_109b (whose fixes are marked `[109b] `); for two messages repair_109b's slot /
+    member-difference rules first (repair()'s `load through a T` reads `slot->member[i]` as a deref; its step 80 rule
+    splits `a[i].m - &a[i].n` inside a member)"""
+    if e and (e[3] == 'pointer/array required' or e[3].startswith('type mismatch')):
+        keep = list(lines)
+        f = repair_109b(lines, e)
+        if f is not None and f.startswith(('slot ', 'constant address', 'pointer difference')):
+            return '[109b] ' + f
+        lines[:] = keep
+    f = _repair_108(lines, e)
+    if f is None:
+        f = repair_109b(lines, e)
+        return None if f is None else '[109b] ' + f
+    return f
+
+
+def _local_decls(body):
+    """{name: (type, stars, dims)} of the draft's locals and parameters"""
+    out = {}
+    for m in re.finditer(r'^\s+((?:const |unsigned |signed |struct )*\w+)\s*(\**)\s*(\w+)((?:\[\w*\])*);', body, re.M):
+        out[m.group(3)] = (m.group(1), m.group(2), m.group(4))
+    dm = DEF.search(body)
+    if dm:
+        for p in dm.group(3).split(','):
+            pm = re.match(r'\s*((?:const |unsigned |signed |struct )*\w+)\s*(\**)\s*(\w+)\s*$', p)
+            if pm:
+                out[pm.group(3)] = (pm.group(1), pm.group(2), '')
+    return out
+
+
+def stack_param_alias(body):
+    """step 109b, a variant: m2c's `sp8 = arg0;` (the parameter's home slot at level 0, which m2c reads as a stack
+    local) written as the parameter itself: with the local, the compiler adds a saved register for it (fn_8006E690,
+    fn_8006E778: `stw r3, 0x8(r1)` and the reload in the loop come from the parameter alone)"""
+    dm = DEF.search(body)
+    params = set(re.findall(r'(\w+)\s*(?:,|$)', dm.group(3))) if dm else set()
+    for m in list(re.finditer(r'^[ \t]+((?:sp\.)?sp\w+) = (\w+);[ \t]*\n', body, re.M)):
+        sp, arg = m.group(1), m.group(2)
+        esp = re.escape(sp)
+        if arg not in params:
+            continue
+        if len(re.findall(r'(?<![\w.])%s\s*(?:[-+*/|&^]?=(?!=)|\+\+|--)' % esp, body)) != 1 or re.search(r'&%s\b' % esp, body) \
+                or re.search(r'\b%s\s*(?:[-+*/|&^]?=(?!=)|\+\+|--)' % arg, body) or body.find(m.group(0)) < 0:
+            continue
+        body = body.replace(m.group(0), '', 1)
+        if sp.startswith('sp.'):
+            # stack_struct's `struct { s32 sp8; } sp;`: the member goes, the struct with it when it was the only one
+            body = re.sub(r'^[ \t]+struct \{\n[ \t]+[\w ]+?\**\s*\b%s;\n[ \t]+\} sp;\n' % sp[3:], '', body, count=1, flags=re.M)
+            body = re.sub(r'^([ \t]+struct \{\n(?:[^}\n]*\n)*?)[ \t]+[\w ]+?\**\s*\b%s;\n' % sp[3:], r'\1', body, count=1, flags=re.M)
+        else:
+            body = re.sub(r'^[ \t]+[\w ]+?\**\s*\b%s;[^\n]*\n' % sp, '', body, count=1, flags=re.M)
+        body = re.sub(r'(?<![\w.])%s\b' % esp, arg, body)
+    return body
+
+
+def drop_local_deref_casts(body):
+    """step 109b, a variant: `*arg1 = (u8) (*arg0);` where arg0 is a `u8 *` (a local's or parameter's own element
+    type): the value as it is loaded. drop_same_assign_casts does this for globals; the cast of a local's element costs
+    a register of its own (fn_8008E598: `lbz r6` where the original stores r0)"""
+    decls = _local_decls(body)
+
+    def fix(m):
+        t, x = m.group(2), m.group(3)
+        d = decls.get(x)
+        if d and draft_type(d[0]) == t and d[1] == '*' and not d[2]:
+            return '%s*%s;' % (m.group(1), x)
+        return m.group(0)
+    body = re.sub(r'(= )\((%s)\) \(?\*(\w+)\)?;' % '|'.join(SCALARS), fix, body)
+
+    def fix2(m):
+        t, x, idx = m.group(2), m.group(3), m.group(4)
+        d = decls.get(x)
+        if d and draft_type(d[0]) == t and ((d[1] == '*' and not d[2]) or (not d[1] and d[2])):
+            return '%s%s%s;' % (m.group(1), x, idx)
+        return m.group(0)
+    return re.sub(r'(= )\((%s)\) (\w+)(\[[^\[\]=;]*\]);' % '|'.join(SCALARS), fix2, body)
+
+
+def goto_while_loops(body):
+    """step 109b, a variant: m2c's reading of a loop whose test it could not put on top,
+           loop_N:                      while (C) {
+               if (C) {         ->          S...
+                   S...                 }
+                   goto loop_N;
+               }
+    (the label used once; S without break / continue, which would change meaning). The compiler gives `while` its test
+    at the bottom (`b test`), m2c's `if` tests at the top (fn_800EA33C's cntlzw loop over a bit mask)"""
+    lines = body.split('\n')
+    k = 0
+    while k < len(lines):
+        m = re.fullmatch(r'(loop_\d+):', lines[k].strip())
+        if not m or len(re.findall(r'\b%s\b' % m.group(1), body)) != 2 or k + 1 >= len(lines):
+            k += 1
+            continue
+        ind = re.match(r'\s*', lines[k + 1]).group(0)
+        c1 = re.fullmatch(re.escape(ind) + r'if \((.+)\) \{', lines[k + 1])
+        if not c1:
+            k += 1
+            continue
+        j = k + 2
+        inner = []
+        while j < len(lines) and (lines[j].startswith(ind + '    ') or not lines[j].strip()):
+            inner.append(lines[j])
+            j += 1
+        if (not inner or inner[-1].strip() != 'goto %s;' % m.group(1) or j >= len(lines) or lines[j] != ind + '}'
+                or any(re.match(r'\s*(?:break|continue)\b', x) and len(re.match(r'\s*', x).group(0)) == len(ind) + 4
+                       for x in inner)):
+            k += 1
+            continue
+        new = [ind + 'while (%s) {' % c1.group(1)] + inner[:-1] + [ind + '}']
+        lines[k:j + 1] = new
+        body = '\n'.join(lines)
+        k += len(new)
+    return '\n'.join(lines)
+
+
+def goto_search_loops(body):
+    """step 109b, a variant: m2c's reading of a search loop that stops at the first hit,
+           loop_N:                              for (; C; I) {
+               if (C) {                             if (T) {
+                   if (T) {             ->              S...
+                       S...                             break;
+                   } else {                         }
+                       I;                       }
+                       goto loop_N;
+                   }
+               }
+    (the label used once, S without break / continue / goto). The compiler's `for` tests at the bottom; with
+    goto_while_loops for the loop around it (fn_80078B60: two searches in a loop over four records)"""
+    lines = body.split('\n')
+    k = 0
+    while k + 2 < len(lines):
+        m = re.fullmatch(r'(loop_\d+):', lines[k].strip())
+        if not m or len(re.findall(r'\b%s\b' % m.group(1), '\n'.join(lines))) != 2:
+            k += 1
+            continue
+        ind = re.match(r'\s*', lines[k + 1]).group(0)
+        c1 = re.fullmatch(re.escape(ind) + r'if \((.+)\) \{', lines[k + 1])
+        c2 = re.fullmatch(re.escape(ind) + r'    if \((.+)\) \{', lines[k + 2])
+        if not (c1 and c2):
+            k += 1
+            continue
+        j = k + 3
+        s_body = []
+        while j < len(lines) and lines[j].startswith(ind + '        '):
+            s_body.append(lines[j])
+            j += 1
+        tail = lines[j:j + 6]
+        inc = tail[1].strip() if len(tail) > 1 else ''
+        if (len(tail) < 6 or tail[0] != ind + '    } else {' or tail[2] != ind + '        goto %s;' % m.group(1)
+                or tail[3] != ind + '    }' or tail[4] != ind + '}'
+                or not re.fullmatch(r'\w+ (?:\+=|-=) (?:0x[0-9A-Fa-f]+|\d+);|\w+(?:\+\+|--);', inc)
+                or not tail[1].startswith(ind + '        ')
+                or any(re.match(r'\s*(?:goto|break|continue|loop_\d+:)\b', x) for x in s_body)):
+            k += 1
+            continue
+        new = [ind + 'for (; %s; %s) {' % (c1.group(1), inc[:-1]), ind + '    if (%s) {' % c2.group(1)]
+        new += s_body
+        new += [ind + '        break;', ind + '    }', ind + '}']
+        lines[k:j + 5] = new
+        k += len(new)
+    return '\n'.join(lines)
+
+
+SEARCH_LOOP = re.compile(
+    r'^[ \t]*(loop_\d+):\n'
+    r'([ \t]+)if \((\(u32\) )?(\w+) >= (\w+)\) \{\n'
+    r'\2    (\w+) = ([^;\n]+);\n'
+    r'\2\} else if \(([^\n]+)\) \{\n'
+    r'\2    \6 = \4;\n'
+    r'\2\} else \{\n'
+    r'\2    \4 \+= 1;\n'
+    r'\2    goto \1;\n'
+    r'\2\}\n', re.M)
+
+
+def inline_search_helpers(body):
+    """step 109b, a variant: m2c's reading of an inlined search function (the fn_800FA5AC family: 30 drafts),
+           I = 0; ...                           static inline T_R name_search0(params) {
+           loop_N:                                  T_I I;
+               if (I >= K) {                        for (I = 0; I < K; I += 1) {
+                   R = D;              ->               if (C) {
+               } else if (C) {                              return I;
+                   R = I;                               }
+               } else {                             }
+                   I += 1;                          return D;
+                   goto loop_N;                 }
+               }                                ... R = name_search0(args);
+    The inlined body keeps its own variables (in the original the search's index and result take saved registers of
+    their own: fn_800FA5AC r31 / r29, fn_800AC158, fn_800FBDF8), which no single function's C gives. The locals /
+    parameters C reads are passed as parameters of the same names and types; `I = 0;` before it goes when I has no other
+    use."""
+    decls = _local_decls(body)
+    dm = DEF.search(body)
+    if not dm:
+        return body
+    helpers = []
+    for k, m in enumerate(list(SEARCH_LOOP.finditer(body))):
+        if body.find(m.group(0)) < 0:
+            continue
+        label, ind, cast, i, lim, r, d, c = m.groups()
+        if i not in decls or r not in decls or re.search(r'\b(?:goto|return)\b', c):
+            continue
+        rest = body.replace(m.group(0), '')
+        free = [n for n in dict.fromkeys(re.findall(r'(?<![.>])\b([A-Za-z_]\w*)\b', c)) if n in decls and n != i]
+        if any(re.search(r'^\s*%s\s*=' % re.escape(n), c) for n in free):
+            continue
+        name = '%s_search%d' % (dm.group(2), k)
+        ti, tr = decls[i], decls[r]
+        params = ', '.join('%s %s%s' % (decls[n][0], decls[n][1], n) for n in free) or 'void'
+        helpers.append('static inline %s %s%s(%s) {\n    %s %s%s;\n\n    for (%s = 0; %s < %s; %s += 1) {\n        if (%s) {\n'
+                       '            return %s;\n        }\n    }\n    return %s;\n}\n'
+                       % (tr[0], tr[1], name, params, ti[0], ti[1], i, i, (cast or '') + i, lim, i, c, i, d))
+        call = '%s%s = %s(%s);\n' % (ind, r, name, ', '.join(free))
+        body = body.replace(m.group(0), call, 1)
+        # the index's own `I = 0;` and declaration go when nothing else uses it
+        others = re.sub(r'^[ \t]+%s = 0U?;\n' % i, '', body, count=1, flags=re.M)
+        if not re.search(r'\b%s\b' % i, re.sub(r'^[ \t]+[\w ]+?\**\s*\b%s;[^\n]*\n' % i, '', others, count=1, flags=re.M)):
+            body = re.sub(r'^[ \t]+[\w ]+?\**\s*\b%s;[^\n]*\n' % i, '', others, count=1, flags=re.M)
+    if helpers:
+        dm = DEF.search(body)
+        body = body[:dm.start()] + '\n'.join(helpers) + '\n' + body[dm.start():]
+    return body
+
+
+def goto_exit_loops(body):
+    """step 109b, a variant: m2c's reading of a loop whose exit test returns,
+           loop_N:                          while (!(T)) {
+               if (T) {                         S...
+                   return X;        ->      }
+               }                            return X;
+               S...
+               goto loop_N;
+    (the label used once, at the end of S, no break / continue in S at the loop's level): `while` tests at the bottom
+    (fn_800A4784's walk along a linked list: `lwz r31, 0x8(r31); cmplwi r31, 0; bne`)"""
+    lines = body.split('\n')
+    k = 0
+    while k + 3 < len(lines):
+        m = re.fullmatch(r'(loop_\d+):', lines[k].strip())
+        if not m or len(re.findall(r'\b%s\b' % m.group(1), '\n'.join(lines))) != 2:
+            k += 1
+            continue
+        ind = re.match(r'\s*', lines[k + 1]).group(0)
+        c1 = re.fullmatch(re.escape(ind) + r'if \((.+)\) \{', lines[k + 1])
+        rt = re.fullmatch(re.escape(ind) + r'    (return(?: [^;]+)?;)', lines[k + 2])
+        if not (c1 and rt and lines[k + 3] == ind + '}'):
+            k += 1
+            continue
+        j = k + 4
+        while j < len(lines) and lines[j] != ind + 'goto %s;' % m.group(1) and (lines[j].startswith(ind) or not lines[j].strip()):
+            j += 1
+        s_body = lines[k + 4:j]
+        if (j >= len(lines) or any(re.match(re.escape(ind) + r'(?:break|continue)\b', x) for x in s_body)
+                or any(re.match(re.escape(ind) + r'\S', x) and x.strip().endswith(':') for x in s_body)):
+            k += 1
+            continue
+        new = [ind + 'while (%s) {' % _negate_test(c1.group(1))] + ['    ' + x if x.strip() else x for x in s_body] + \
+              [ind + '}', ind + rt.group(1)]
+        lines[k:j + 1] = new
+        k += len(new)
+    return '\n'.join(lines)
+
+
+def irregular_switch_ifs(body):
+    """step 109b, a variant: a switch m2c marks `/* irregular */` (no jump table: the original compares the value
+    case by case in source order, `cmplwi 2; bne; ...; cmplwi 3; beq; cmplwi 4; bne`) written as the if / else-if chain
+    it was: the compiler's own switch code is a compare tree (`cmpwi 2; beq; bge; ...`). Only switches whose case groups
+    all end in `break;` / `return` and whose default (if any) is last (fn_8000F7A4, fn_8000E3B8)"""
+    lines = body.split('\n')
+    k = 0
+    while k < len(lines):
+        m = re.fullmatch(r'(\s*)switch \((.+)\) \{\s*/\* (?:switch \d+; )?irregular \*/', lines[k])
+        if not m:
+            k += 1
+            continue
+        ind, ex = m.group(1), m.group(2)
+        j = k + 1
+        groups, cur = [], None
+        ok = True
+        while j < len(lines) and lines[j] != ind + '}':
+            l = lines[j]
+            lm = re.fullmatch(re.escape(ind) + r'(case ([^:]+)|default):\s*(?:/\*.*\*/)?', l)
+            if lm:
+                if cur is None or cur[1]:
+                    cur = [[], []]
+                    groups.append(cur)
+                cur[0].append(lm.group(2) if lm.group(2) else None)
+            elif l.startswith(ind + '    ') and cur is not None:
+                cur[1].append(l)
+            elif l.strip():
+                ok = False
+                break
+            j += 1
+        if not ok or j >= len(lines) or not groups:
+            k += 1
+            continue
+        out = []
+        for gi, (labels, stmts) in enumerate(groups):
+            last = stmts[-1].strip() if stmts else ''
+            if None in labels and gi != len(groups) - 1:
+                ok = False
+                break
+            if last == 'break;':
+                stmts = stmts[:-1]
+            elif not (last.startswith('return') or (gi == len(groups) - 1)):
+                ok = False
+                break
+            if any(re.match(r'\s*(?:break|continue|case |default:)', x) for x in stmts) or any('switch' in x for x in stmts):
+                ok = False
+                break
+            if None in labels:
+                if len(labels) > 1:
+                    ok = False
+                    break
+                out.append(ind + ('} else {' if out else '{'))
+            else:
+                cond = ' || '.join('(%s == %s)' % (ex, v.strip()) for v in labels) if len(labels) > 1 else '%s == %s' % (ex, labels[0].strip())
+                out.append(ind + ('} else if (%s) {' if out else 'if (%s) {') % cond)
+            out += stmts
+        if not ok or not out:
+            k += 1
+            continue
+        out.append(ind + '}')
+        lines[k:j + 1] = out
+        k += len(out)
+    return '\n'.join(lines)
+
+
+def minus_one_compares(body):
+    """step 109b (on by default): `addis r0, r3, 1; cmplwi r0, 0xffff` is the compiler's `x == -1` (0xFFFFFFFF); m2c
+    prints it `(u32) (x + 0x10000) == -1U` (its immediate sign-extended), which is another value and compiles to an
+    extra add (fn_8000F7A4, fn_8000E3B8: lbl_8044F366): written `x == -1U`"""
+    return re.sub(r'\(u32\) \(([\w.\[\]>-]+) \+ 0x10000\) ([=!]=) -1U', r'\1 \2 -1U', body)
+
+
+def self_update_refs(body):
+    """step 109b, a variant: m2c folds a local's known value into its next update, `x = 0x80000000; x = 0x80000000 >>
+    1;` (two constants), where the original shifted the register (`lis r31, 0x8000; srawi r31, r31, 1`: fn_8000F7A4,
+    fn_8000E3B8): the second statement reads the local again, `x = x >> 1;`"""
+    return re.sub(r'^([ \t]+)(\w+) = ([^;\n]+);\n\1\2 = \3 (>>|<<|\+|-|\*|&|\||\^) ',
+                  lambda m: '%s%s = %s;\n%s%s = %s %s ' % (m.group(1), m.group(2), m.group(3), m.group(1), m.group(2), m.group(2),
+                                                            m.group(4)), body, flags=re.M)
+
+
+def word_table_rows(body):
+    """step 109b, a variant: a table of word pairs / rows read by m2c as byte offsets, `M2C_FIELD(T, f32 *, (R * 8) &
+    0x7F8)` and `*(f32 *) (T + 4 + R * 8)`, written as the 2-D array it is, `((f32 (*)[2]) T)[R][0]` / `[R][1]`: the
+    compiler then forms the row address once and loads at 0 / 4 (fn_800FA5AC's family: the original's `clrlslwi; add;
+    lfs 0x0` / `lfs 0x4`, where the masked byte offset gives other code)"""
+    def field(m):
+        t, r, n = m.group(2), m.group(3), int(m.group(4), 0)
+        return '((%s (*)[%d]) %s)[%s][0]' % (t, n // 4, m.group(1), r) if n % 4 == 0 and n >= 4 else m.group(0)
+    body = re.sub(r'M2C_FIELD\((\w+), (f32|s32|u32) \*, \((\w+) \* (0x[0-9A-Fa-f]+|\d+)\) & 0x[0-9A-Fa-f]+\)', field, body)
+
+    def elem(m):
+        t, base, off, r, n = m.group(1), m.group(2), int(m.group(3), 0), m.group(4), int(m.group(5), 0)
+        if n % 4 or off % 4 or off >= n:
+            return m.group(0)
+        return '((%s (*)[%d]) %s)[%s][%d]' % (t, n // 4, base, r, off // 4)
+
+    def member(m):
+        base, r, n, t, off = m.group(1), m.group(2), int(m.group(3), 0), m.group(4), int(m.group(5), 0)
+        if n % 4 or off % 4 or off >= n:
+            return m.group(0)
+        return '((%s (*)[%d]) %s)[%s][%d]' % (t, n // 4, base, r, off // 4)
+    body = re.sub(r'M2C_FIELD\(&(\w+)\[\((\w+) \* (0x[0-9A-Fa-f]+|\d+)\) & 0x[0-9A-Fa-f]+\], (f32|s32|u32) \*, '
+                  r'(0x[0-9A-Fa-f]+|\d+)\)', member, body)
+    return re.sub(r'\*\((f32|s32|u32) \*\) \((\w+) \+ (0x[0-9A-Fa-f]+|\d+) \+ (\w+) \* (0x[0-9A-Fa-f]+|\d+)\)', elem, body)
+
+
+def stack_element_steps(body):
+    """step 109b (on by default): m2c's `*(&sp8 + (I * 2))` on a u16 stack local (a stack array it split into scalars)
+    steps in BYTES; C scales it by the element: written `(&sp8)[I]` when the factor is the local's own size, which is
+    what the original computes (`clrlslwi 24, 1; lhzx`, fn_800FFA50's four u16 slots) instead of the doubled step"""
+    decls = _local_decls(body)
+    size = {'u8': 1, 's8': 1, 'u16': 2, 's16': 2, 'u32': 4, 's32': 4, 'f32': 4, 'f64': 8}
+
+    def fix(m):
+        cast = m.group(1) or ''
+        d = decls.get(m.group(2))
+        if d and not d[1] and not d[2] and size.get(d[0]) == int(m.group(4), 0) and size.get(d[0], 1) > 1:
+            # a cast to the slot's own type goes too (the `lhzx` value is stored as loaded: fn_800FFA50)
+            return '%s(&%s)[%s]' % ('' if cast == '(%s) ' % d[0] else cast, m.group(2), m.group(3))
+        return m.group(0)
+    return re.sub(r'(\(\w+\) )?\*\(&(sp\w+) \+ \((\w+) \* (0x[0-9A-Fa-f]+|\d+)\)\)', fix, body)
+
+
+RULES_109B = (stack_param_alias, drop_local_deref_casts, inline_search_helpers, goto_search_loops, goto_exit_loops, goto_while_loops,
+              word_table_rows, stack_element_steps, self_update_refs, minus_one_compares, irregular_switch_ifs)
+OPTIONAL = OPTIONAL + (stack_param_alias, drop_local_deref_casts, inline_search_helpers, goto_search_loops, goto_exit_loops, goto_while_loops,
+                       word_table_rows, self_update_refs, irregular_switch_ifs)
+VARIANTS = VARIANTS + (((), (stack_param_alias,)), ((), (drop_local_deref_casts,)), ((register_order,), (drop_local_deref_casts,)),
+                       ((), (goto_while_loops,)), ((register_order,), (goto_while_loops,)),
+                       ((), (goto_search_loops,)), ((), (goto_search_loops, goto_while_loops)),
+                       ((), (inline_search_helpers,)), ((), (inline_search_helpers, record_array_index)),
+                       ((), (word_table_rows,)), ((), (inline_search_helpers, word_table_rows)),
+                       ((), (goto_exit_loops,)), ((), (goto_exit_loops, goto_while_loops)),
+                       ((), (self_update_refs,)), ((), (irregular_switch_ifs,)), ((), (self_update_refs, irregular_switch_ifs)))
+_postprocess_108 = postprocess
+
+
+def postprocess(body, skip=(), add=()):
+    """the rules of step 108's postprocess, then step 109b's (RULES_109B, in order)"""
+    body = _postprocess_108(body, skip, add)
+    for f in RULES_109B:
+        if f not in skip and (f not in OPTIONAL or f in add):
+            body = f(body)
+    return body
 
 
 def main():
