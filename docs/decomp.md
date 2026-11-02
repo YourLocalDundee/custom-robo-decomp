@@ -390,6 +390,25 @@ A neighbour that kar's asm places in exactly one other file also counts as that 
 (no C linked): sysdolphin is 33 split objects, 24 from C. Still open (splits_report.txt): archive.c's end, synth.c's
 end, axdriver.c's end, devcom.c's start, particle.c's start (their neighbours are unnamed fn_ functions).
 
+### Pokemon XD's map for the core HSD files; displayfunc tries (step 107, Nov 1, 2026)
+
+**Names.** For each of the 37 unnamed functions of the core HSD files (0x80186490-0x801AEB40) the named neighbours on
+both sides were looked up in Pokemon XD's maps (GXXE01, NXXJ01): where XD has the same neighbours (its files in
+reverse order), the function between them is a lead. Named, because the KAR map agrees and our linked C compiles
+the body equal: **TObjInit** (0x80189A70, 0x58) and **HSD_MtxGetRotationMtx** (0x8019F2AC, 0x338); their `#define
+... fn_` lines in tobj.c / mtx.c are gone. Leads left (exact or near XD size, the C defines them under fn_ names, some
+called from game code, so a rename touches promoted game files and needs batch 12): fn_80196C50 = HSD_JObjReqAnimAll
+(0x24 == XD), fn_80198DC4 = HSD_IDGetData (0x2C == XD; jobj.c's out-of-line copy), fn_80190BBC = HSD_CObjSetUpVector
+(0x2FC vs 0x308), fn_801995CC = HSD_JObjClearFlagsAll (0x2DC vs 0x2D4), fn_8019FC14 = HSD_MtxSRT (0x2D8 vs 0x2E8),
+fn_8018F830 .. fn_8018FD60 among HSD_CObjSetupViewingMtx / MakeProjectionMtx / ReqAnim / Anim (sizes differ). The rest
+have a neighbour XD does not have (video, gx init, fog, memory, shadow, archive).
+
+**displayfunc.c's mkHBillBoardMtx (98.1%).** The difference is three registers in the PBILLBOARD up-vector block (eps in
+f0 and -py in f2 in main.dol, eps in f1 and -py in f0 here). Thirteen more spellings (negation first, the sum in the
+division, ay.y as the variable, eps after the root, `0.0F - py`, a double magnitude, store orders) give 85-98%;
+step 88's twenty forms are in its configure.py note. tools/sched/scratch/sh's harness has a general form now
+(nd.py: build.ninja's flags for any object).
+
 ### Particle family names round 2 (step 106, Nov 1, 2026)
 
 Pokemon XD's particle files (tools/refs/xd NXXJ01 splits, GSAPI/particle/*.cpp) list their functions in **reverse**

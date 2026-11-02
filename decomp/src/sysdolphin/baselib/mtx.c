@@ -7,10 +7,10 @@
 #define EPSILON 0.0000000001f
 #define FLOAT_MIN 1.1754943E-38f
 
-/* Custom Robo (step 88): the three functions of this revision that main.dol leaves unnamed (no call site in matched
- * C names them yet) keep their dtk names, so objdiff pairs them and nothing is named by the C alone */
+/* Custom Robo (step 88): the functions of this revision that main.dol leaves unnamed (no call site in matched
+ * C names them yet) keep their dtk names, so objdiff pairs them and nothing is named by the C alone (step 107:
+ * HSD_MtxGetRotationMtx named in symbols.txt from the KAR and Pokemon XD maps) */
 #define HSD_MtxInverseConcat fn_8019EB5C
-#define HSD_MtxGetRotationMtx fn_8019F2AC
 #define HSD_MtxSRT fn_8019FC14
 
 HSD_ObjAllocData HSD_Mtx_804C2310;
@@ -185,7 +185,7 @@ void HSD_MtxGetRotation(Mtx m, Vec3* vec)
     }
 }
 
-/* Custom Robo: HSD_MtxGetRotationMtx (fn_8019F2AC, 0x338) is wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 mtx.c HSD_MtxGetRotationMtx
+/* Custom Robo: HSD_MtxGetRotationMtx (0x8019F2AC, 0x338) is wowjinxy/KAR @ cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 mtx.c HSD_MtxGetRotationMtx
  * (doldecomp/kar's symbols: HSD_MtxGetRotationMtx 0x338 at the same place, between HSD_MtxGetRotation and
  * HSD_MtxGetTranslate), Vec3 = wowjinxy's Vec */
 void HSD_MtxGetRotationMtx(Mtx v0, Mtx dest, char axis0, char axis1)

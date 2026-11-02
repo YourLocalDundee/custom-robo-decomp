@@ -288,10 +288,9 @@ void HSD_TObjAnimAll(HSD_TObj* tobj)
  * cb94b157612a1d8d187f0bd6ecb5c02aa4c77b57 src/sysdolphin/tobj.c's (the same HSD revision as main.dol), adapted to Melee's
  * headers: hsdTObj is the class info itself here (wowjinxy: hsdTObj.info), tobj.h gains wowjinxy's u16 id at 0x4A
  * (Melee's id is map_id) and the update method; _HSD_NeedCacheInvalidate is fn_8019D398 (unnamed; the function both
- * TObjLoad and PObjLoad call with 2 / 1 in main.dol, wowjinxy's name there) and TObjInit is fn_80189A70 (the init
- * method TObjInfoInit stores at 0x2C in main.dol; its body is wowjinxy's TObjInit) */
+ * TObjLoad and PObjLoad call with 2 / 1 in main.dol, wowjinxy's name there); TObjInit (0x80189A70, the init method
+ * TObjInfoInit stores at 0x2C in main.dol; its body is wowjinxy's TObjInit) is named in symbols.txt since step 107 */
 #define _HSD_NeedCacheInvalidate fn_8019D398
-#define TObjInit fn_80189A70
 void _HSD_NeedCacheInvalidate(int);
 
 /* wowjinxy/KAR tobj.c TObjLoad */

@@ -2328,7 +2328,7 @@ DEF 0x80189970 HSD_TlutRemove sysdolphin/baselib/tobj.c .text size:0x2C global
 DEF 0x8018999C HSD_TObjTevAlloc sysdolphin/baselib/tobj.c .text size:0x58 global
 DEF 0x801899F4 HSD_ImageDescAlloc sysdolphin/baselib/tobj.c .text size:0x58 global
 DEF 0x80189A4C HSD_ImageDescFree sysdolphin/baselib/tobj.c .text size:0x24 global
-DEF 0x80189A70 fn_80189A70 sysdolphin/baselib/tobj.c .text size:0x58 global
+DEF 0x80189A70 TObjInit sysdolphin/baselib/tobj.c .text size:0x58 global
 DEF 0x80189AC8 TObjRelease sysdolphin/baselib/tobj.c .text size:0xBC local
 DEF 0x80189B84 TObjAmnesia sysdolphin/baselib/tobj.c .text size:0x60 local
 DEF 0x80189BE4 TObjInfoInit sysdolphin/baselib/tobj.c .text size:0xA4 local
@@ -2507,7 +2507,7 @@ DEF 0x8019E914 splArcLengthGetParameter sysdolphin/baselib/spline.c .text size:0
 DEF 0x8019EB14 splArcLengthPoint sysdolphin/baselib/spline.c .text size:0x48 global
 DEF 0x8019EB5C fn_8019EB5C sysdolphin/baselib/mtx.c .text size:0x430 global
 DEF 0x8019EF8C HSD_MtxGetRotation sysdolphin/baselib/mtx.c .text size:0x320 global
-DEF 0x8019F2AC fn_8019F2AC sysdolphin/baselib/mtx.c .text size:0x338 global
+DEF 0x8019F2AC HSD_MtxGetRotationMtx sysdolphin/baselib/mtx.c .text size:0x338 global
 DEF 0x8019F5E4 HSD_MtxGetTranslate sysdolphin/baselib/mtx.c .text size:0x1C global
 DEF 0x8019F600 HSD_MtxGetScale sysdolphin/baselib/mtx.c .text size:0x4D8 global
 DEF 0x8019FAD8 HSD_MkRotationMtx sysdolphin/baselib/mtx.c .text size:0x13C global
