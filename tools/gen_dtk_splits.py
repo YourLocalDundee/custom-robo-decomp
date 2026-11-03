@@ -2299,11 +2299,32 @@ def pool_restarts(audit, funcs, ours, data):
     def users_in(lo, hi):
         return {k for c, ks in users.items() if lo <= c < hi for k in ks}
 
+    # the second rule (roadblock_solutions.md section 5): a compiled object's .sdata2 starts 8-aligned, so the next
+    # file starts at an 8-aligned symbol start in the interval; zeros before it (alignment padding) make it stronger
+    sstarts = sorted(a for n, sec, a, sz, isf in ours if sec == ".sdata2")
+    sends = {a: a + sz for n, sec, a, sz, isf in ours if sec == ".sdata2"}
+
+    def aligned_starts(lo, hi):
+        out = []
+        for k, s in enumerate(sstarts):
+            if lo <= s <= hi and s % 8 == 0:
+                prev_end = sends[sstarts[k - 1]] if k else s
+                pad = s - prev_end if prev_end < s and all(elf.word(x) == 0 for x in range(prev_end & ~3, s, 4)) else 0
+                out.append((s, pad))
+        return out
+
     lines, nknown, nconf, ninside = [], 0, 0, 0
+    pinned_known = pinned_ok = 0
     starts = [ents[0][0] if ents else 0] + [c[2] for c in cuts]
     for i, (pa, psz, a, sz, v) in enumerate(cuts):
         lo, hi = pa + psz, a                                  # the boundary b: lo <= b <= hi
         known = any(lo <= e <= hi for e in edges)
+        al = aligned_starts(lo, hi)
+        padded = [s for s, p in al if p]
+        pin = padded[0] if len(padded) == 1 else al[0][0] if len(al) == 1 else None
+        if known and pin is not None:
+            pinned_known += 1
+            pinned_ok += any(e == pin for e in edges)
         inside = not known and any(plo < lo and hi < phi for plo, phi in pieces)
         nknown += known
         ninside += inside
@@ -2322,10 +2343,17 @@ def pool_restarts(audit, funcs, ours, data):
                 code = f".text users overlap (0x{tlo:08X} > 0x{thi:08X}): a shared pool or an inline's copy, no code interval"
         else:
             code = ".text: no user on one side"
+        if pin is not None:
+            why = "zero padding before it" if padded else "the only 8-aligned start"
+            code += f" | pinned .sdata2 0x{pin:08X} ({why})"
+        else:
+            code += f" | {len(al)} 8-aligned starts ({len(padded)} padded)"
         lines.append(f".sdata2 0x{lo:08X}-0x{hi:08X} {'known ' if known else 'inside' if inside else 'NEW   '} value {val} | {code}")
     head = [f"{len(ents)} 4- / 8-byte .sdata2 constants; {len(cuts)} restarts = at least {len(cuts) + 1} pools; "
             f"{nknown} intervals hold a proven .sdata2 edge (known), {ninside} lie inside one proven piece (inside: the "
-            f"rule's false positives), {len(cuts) - nknown - ninside} are new; {nconf} with overlapping users"]
+            f"rule's false positives), {len(cuts) - nknown - ninside} are new; {nconf} with overlapping users",
+            f"second rule (8-aligned start, zero padding): {sum(1 for l in lines if 'pinned' in l)} intervals pinned to "
+            f"one address; on the known intervals {pinned_ok} of {pinned_known} pins are the proven edge"]
     return head, lines
 
 

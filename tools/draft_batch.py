@@ -2251,6 +2251,38 @@ def script_counter_ptr(body):
     if anchor is None:
         return body
     body = head[:anchor] + ind + 'cmd_cnt = &cr_g_Script.cmd_count[cr_g_ScriptDepth];\n' + head[anchor:] + ind + '(*cmd_cnt)++;' + body[m.end():]
+    return declare_cmd_cnt(body)
+
+
+def script_head_dead(body):
+    """step 110: the script-command head as the original has it (cr_CM_DUMMY_008 38 of 38 words: decomp-permuter found
+    the order, docs/sched_model.md section 19). The statements in their plain order: the command word stored as
+    `(s16)` (m2c's `(s32)` changes the first pass), the history index stepped and masked, the counter incremented in
+    place, the PC advanced LAST; and the counter pointer local used only in dead code, `if (0) { (*cmd_cnt)++; }`: its
+    uses still count for the register order, so it keeps its callee-saved register (the saved, never used r30 of the
+    pure handlers) while its code is removed."""
+    m = re.search(r'^([ \t]+)cr_g_Script\.cmd_count\[cr_g_ScriptDepth\] \+= 1;$', body, re.M)
+    if not m or 'cmd_cnt' in body:
+        return body
+    ind = m.group(1)
+    head = body[:m.start()]
+    adv = list(re.finditer(r'^[ \t]*(cr_g_ScriptPC \+= \d+;)\n', head, re.M))
+    hist = list(re.finditer(r'^([ \t]+cr_g_Script\.cmd_history\[cr_g_Script\.history_index\] = )\(s32\) '
+                            r'(M2C_FIELD\(\w+, s16 \*, 0\)|\*\w+);$', head, re.M))
+    if not adv or not hist:
+        return body
+    h = hist[-1]
+    a = adv[-1]
+    if a.start() < h.start():
+        return body
+    head = head[:a.start()] + head[a.end():]
+    head = head[:h.start()] + h.group(1) + '(s16) ' + h.group(2) + ';' + head[h.end():]
+    body = (head + ind + 'cr_g_Script.cmd_count[cr_g_ScriptDepth] += 1;\n' + ind + a.group(1) + '\n' +
+            ind + 'if (0) {\n' + ind + '    (*cmd_cnt)++;\n' + ind + '}' + body[m.end():])
+    return declare_cmd_cnt(body)
+
+
+def declare_cmd_cnt(body):
     lines = body.split('\n')
     di = next((i for i, l in enumerate(lines) if DEF.match(l)), None)
     if di is None:
@@ -3392,7 +3424,7 @@ def postprocess(body, skip=(), add=()):
               double_negation, assert_ternary, hsd_inlines, mixed_externs, byte_steps, same_type_copies, param_retypes, param_regs, param_homes, named_param_homes,
               param_copies, param_aliases, inline_volatile_temps, register_order, narrow_minus_one, pointer_tests, void_null,
               float_literals, assign_in_cond, alias_offsets, stack_struct, struct_copies, drop_same_member_casts, expand_ptr_compound,
-              script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, struct_byte_offset, indexed_offset,
+              script_head_dead, script_counter_ptr, split_slot_structs, unsigned_not_mask, member_array_index, struct_byte_offset, indexed_offset,
               fold_temp_compound, store_literals, hoist_float_temps, widen_narrow_params, masked_index_field, byte_compare_casts, shift_mask_order,
               sink_const_global_stores, record_array_index, for_break_loops, clz_intrinsic, plain_byte_tests, bitwise_lvalues, void_self,
               record_pointers, local_same_casts, byte_loops, wide_return_locals, advance_copies, unsigned_immediates,
@@ -3427,6 +3459,8 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             ((), (drop_same_member_casts,)), ((), (expand_ptr_compound,)), ((), (drop_same_member_casts, expand_ptr_compound)),
             # step 80: the script-command head without the counter pointer (the rule is on by default)
             ((script_counter_ptr,), ()),
+            # step 110: the head as the original has it (script_head_dead, on by default); the step 80 pointer form as a variant
+            ((script_head_dead,), ()),
             # step 85: the stored float constants as literals, the others externs
             ((), (store_literals,)),
             # step 92: float temporaries before the stores

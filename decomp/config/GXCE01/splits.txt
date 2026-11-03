@@ -1357,8 +1357,491 @@ game/cr_C_ACT_MOT.c:
 game/cr_C_ACT_TURN_POINT.c:
 	.text       start:0x800BE248 end:0x800BE32C
 
+game/cr_F_DUMMY_016.c:
+	.text       start:0x800BE75C end:0x800BE7F4
+
+game/cr_F_DUMMY_015.c:
+	.text       start:0x800BE7F4 end:0x800BE88C
+
+game/cr_F_DUMMY_014.c:
+	.text       start:0x800BE88C end:0x800BE924
+
+game/cr_F_DUMMY_013.c:
+	.text       start:0x800BE924 end:0x800BE9BC
+
+game/cr_F_DUMMY_012.c:
+	.text       start:0x800BE9BC end:0x800BEA54
+
+game/cr_F_DUMMY_011.c:
+	.text       start:0x800BEA54 end:0x800BEAEC
+
+game/cr_F_DUMMY_010.c:
+	.text       start:0x800BEAEC end:0x800BEB84
+
+game/cr_F_DUMMY_009.c:
+	.text       start:0x800BEB84 end:0x800BEC1C
+
+game/cr_F_DUMMY_008.c:
+	.text       start:0x800BEC1C end:0x800BECB4
+
+game/cr_F_CHECK_G_TROPHY.c:
+	.text       start:0x800BECB4 end:0x800BF168
+
+game/cr_F_VIBRATION_OFF.c:
+	.text       start:0x800BF58C end:0x800BF78C
+
+game/cr_F_VIBRATION_ON.c:
+	.text       start:0x800BF78C end:0x800BF994
+
+game/cr_F_MAP_PLATE_CLEAR.c:
+	.text       start:0x800BF994 end:0x800BFB88
+
+game/cr_F_MAP_PLATE_SET.c:
+	.text       start:0x800BFB88 end:0x800BFD7C
+
+game/cr_F_GET_BTLFLD.c:
+	.text       start:0x800BFD7C end:0x800BFE14
+
+game/cr_F_REAL_POD.c:
+	.text       start:0x800BFE14 end:0x800BFEAC
+
+game/cr_F_GET_POD.c:
+	.text       start:0x800BFEAC end:0x800BFF44
+
+game/cr_F_REAL_BOM.c:
+	.text       start:0x800BFF44 end:0x800BFFDC
+
+game/cr_F_GET_BOM.c:
+	.text       start:0x800BFFDC end:0x800C0074
+
+game/cr_F_REAL_WEAPON.c:
+	.text       start:0x800C0074 end:0x800C010C
+
+game/cr_F_GET_WEAPON.c:
+	.text       start:0x800C010C end:0x800C01A4
+
+game/cr_F_REAL_ROBO.c:
+	.text       start:0x800C01A4 end:0x800C023C
+
+game/cr_F_GET_ROBO.c:
+	.text       start:0x800C023C end:0x800C02D4
+
+game/cr_F_ELIFE_GE.c:
+	.text       start:0x800C02D4 end:0x800C036C
+
+game/cr_F_ELIFE_GT.c:
+	.text       start:0x800C036C end:0x800C0404
+
+game/cr_F_ELIFE_LE.c:
+	.text       start:0x800C0404 end:0x800C049C
+
+game/cr_F_ELIFE_LT.c:
+	.text       start:0x800C049C end:0x800C0534
+
+game/cr_F_ELIFE_EQ.c:
+	.text       start:0x800C0534 end:0x800C05CC
+
+game/cr_F_LIFE_GE.c:
+	.text       start:0x800C05CC end:0x800C0664
+
+game/cr_F_LIFE_GT.c:
+	.text       start:0x800C0664 end:0x800C06FC
+
+game/cr_F_LIFE_LE.c:
+	.text       start:0x800C06FC end:0x800C0794
+
+game/cr_F_LIFE_LT.c:
+	.text       start:0x800C0794 end:0x800C082C
+
+game/cr_F_LIFE_EQ.c:
+	.text       start:0x800C082C end:0x800C08C4
+
+game/cr_F_BTL_DRAW.c:
+	.text       start:0x800C08C4 end:0x800C095C
+
+game/cr_F_BTL_RETIRE.c:
+	.text       start:0x800C095C end:0x800C09F4
+
+game/cr_F_BTL_LOSE.c:
+	.text       start:0x800C09F4 end:0x800C0A8C
+
+game/cr_F_BTL_WIN_COMBO.c:
+	.text       start:0x800C0A8C end:0x800C0B24
+
+game/cr_F_BTL_WIN.c:
+	.text       start:0x800C0B24 end:0x800C0BBC
+
+game/cr_F_CLR.c:
+	.text       start:0x800C1074 end:0x800C127C
+
+game/cr_F_SET.c:
+	.text       start:0x800C127C end:0x800C1484
+
+game/cr_F_SNR_SET.c:
+	.text       start:0x800C1484 end:0x800C151C
+
+game/cr_F_SNR_GE.c:
+	.text       start:0x800C151C end:0x800C15B4
+
+game/cr_F_SNR_GT.c:
+	.text       start:0x800C15B4 end:0x800C164C
+
+game/cr_F_SNR_LE.c:
+	.text       start:0x800C164C end:0x800C16E4
+
+game/cr_F_SNR_LT.c:
+	.text       start:0x800C16E4 end:0x800C177C
+
+game/cr_F_SNR_EQ.c:
+	.text       start:0x800C177C end:0x800C1814
+
+game/cr_E_DUMMY_016.c:
+	.text       start:0x800C1814 end:0x800C18AC
+
+game/cr_E_DUMMY_015.c:
+	.text       start:0x800C18AC end:0x800C1944
+
+game/cr_E_DUMMY_014.c:
+	.text       start:0x800C1944 end:0x800C19DC
+
+game/cr_E_DUMMY_013.c:
+	.text       start:0x800C19DC end:0x800C1A74
+
+game/cr_E_DUMMY_012.c:
+	.text       start:0x800C1A74 end:0x800C1B0C
+
+game/cr_E_DUMMY_011.c:
+	.text       start:0x800C1B0C end:0x800C1BA4
+
+game/cr_E_DUMMY_010.c:
+	.text       start:0x800C1BA4 end:0x800C1C3C
+
+game/cr_E_DUMMY_009.c:
+	.text       start:0x800C1C3C end:0x800C1CD4
+
+game/cr_E_DUMMY_008.c:
+	.text       start:0x800C1CD4 end:0x800C1D6C
+
+game/cr_E_DUMMY_007.c:
+	.text       start:0x800C1D6C end:0x800C1E04
+
+game/cr_E_END_WAIT.c:
+	.text       start:0x800C2B20 end:0x800C2BB8
+
+game/cr_S_DUMMY_016.c:
+	.text       start:0x800C3750 end:0x800C37E8
+
+game/cr_S_DUMMY_015.c:
+	.text       start:0x800C37E8 end:0x800C3880
+
+game/cr_S_DUMMY_014.c:
+	.text       start:0x800C3880 end:0x800C3918
+
+game/cr_S_DUMMY_013.c:
+	.text       start:0x800C3918 end:0x800C39B0
+
+game/cr_S_DUMMY_012.c:
+	.text       start:0x800C39B0 end:0x800C3A48
+
+game/cr_S_DUMMY_011.c:
+	.text       start:0x800C3A48 end:0x800C3AE0
+
+game/cr_S_DUMMY_010.c:
+	.text       start:0x800C3AE0 end:0x800C3B78
+
+game/cr_S_DUMMY_009.c:
+	.text       start:0x800C3B78 end:0x800C3C10
+
+game/cr_S_DUMMY_008.c:
+	.text       start:0x800C3C10 end:0x800C3CA8
+
+game/cr_S_DUMMY_007.c:
+	.text       start:0x800C3CA8 end:0x800C3D40
+
+game/cr_S_DUMMY_006.c:
+	.text       start:0x800C3D40 end:0x800C3DD8
+
+game/cr_S_DUMMY_005.c:
+	.text       start:0x800C3DD8 end:0x800C3E70
+
+game/cr_S_DUMMY_004.c:
+	.text       start:0x800C3E70 end:0x800C3F08
+
+game/cr_S_BGM_NO_CHANGE.c:
+	.text       start:0x800C4348 end:0x800C4554
+
+game/cr_S_SE_STOP.c:
+	.text       start:0x800C4554 end:0x800C4740
+
+game/cr_S_SE_PLAY.c:
+	.text       start:0x800C4740 end:0x800C4934
+
+game/cr_S_BGM_STOP.c:
+	.text       start:0x800C4934 end:0x800C4B34
+
+game/cr_LGT_DUMMY_016.c:
+	.text       start:0x800C54FC end:0x800C5594
+
+game/cr_LGT_DUMMY_015.c:
+	.text       start:0x800C5594 end:0x800C562C
+
+game/cr_LGT_DUMMY_014.c:
+	.text       start:0x800C562C end:0x800C56C4
+
+game/cr_LGT_DUMMY_013.c:
+	.text       start:0x800C56C4 end:0x800C575C
+
+game/cr_LGT_DUMMY_012.c:
+	.text       start:0x800C575C end:0x800C57F4
+
+game/cr_LGT_DUMMY_011.c:
+	.text       start:0x800C57F4 end:0x800C588C
+
+game/cr_LGT_DUMMY_010.c:
+	.text       start:0x800C588C end:0x800C5924
+
+game/cr_LGT_DUMMY_009.c:
+	.text       start:0x800C5924 end:0x800C59BC
+
+game/cr_LGT_DUMMY_008.c:
+	.text       start:0x800C59BC end:0x800C5A54
+
+game/cr_LGT_DUMMY_007.c:
+	.text       start:0x800C5A54 end:0x800C5AEC
+
+game/cr_LGT_DUMMY_006.c:
+	.text       start:0x800C5AEC end:0x800C5B84
+
+game/cr_LGT_DUMMY_005.c:
+	.text       start:0x800C5B84 end:0x800C5C1C
+
+game/cr_LGT_DUMMY_004.c:
+	.text       start:0x800C5C1C end:0x800C5CB4
+
+game/cr_LGT_SET_CAM_POS.c:
+	.text       start:0x800C5CB4 end:0x800C5DB4
+
+game/cr_CM_DUMMY_016.c:
+	.text       start:0x800C700C end:0x800C70A4
+
+game/cr_CM_DUMMY_015.c:
+	.text       start:0x800C70A4 end:0x800C713C
+
+game/cr_CM_DUMMY_014.c:
+	.text       start:0x800C713C end:0x800C71D4
+
+game/cr_CM_DUMMY_013.c:
+	.text       start:0x800C71D4 end:0x800C726C
+
+game/cr_CM_DUMMY_012.c:
+	.text       start:0x800C726C end:0x800C7304
+
+game/cr_CM_DUMMY_011.c:
+	.text       start:0x800C7304 end:0x800C739C
+
+game/cr_CM_DUMMY_010.c:
+	.text       start:0x800C739C end:0x800C7434
+
+game/cr_CM_DUMMY_009.c:
+	.text       start:0x800C7434 end:0x800C74CC
+
+game/cr_CM_DUMMY_008.c:
+	.text       start:0x800C74CC end:0x800C7564
+
+game/cr_CM_ROTATE.c:
+	.text       start:0x800C7854 end:0x800C7928
+
+game/cr_CM_SHAKE_STOP.c:
+	.text       start:0x800C88DC end:0x800C8ADC
+
+game/cr_CM_CIN_CLR.c:
+	.text       start:0x800C8D04 end:0x800C8D9C
+
+game/cr_CM_CIN_SET.c:
+	.text       start:0x800C946C end:0x800C9504
+
+game/cr_EV_DUMMY_016.c:
+	.text       start:0x800CA984 end:0x800CAA1C
+
+game/cr_EV_DUMMY_015.c:
+	.text       start:0x800CAA1C end:0x800CAAB4
+
+game/cr_EV_DUMMY_014.c:
+	.text       start:0x800CAAB4 end:0x800CAB4C
+
+game/cr_EV_DUMMY_013.c:
+	.text       start:0x800CAB4C end:0x800CABE4
+
+game/cr_EV_DUMMY_012.c:
+	.text       start:0x800CABE4 end:0x800CAC7C
+
+game/cr_EV_DUMMY_011.c:
+	.text       start:0x800CAC7C end:0x800CAD14
+
+game/cr_EV_DUMMY_010.c:
+	.text       start:0x800CAD14 end:0x800CADAC
+
+game/cr_EV_DUMMY_009.c:
+	.text       start:0x800CADAC end:0x800CAE44
+
+game/cr_EV_DUMMY_008.c:
+	.text       start:0x800CAE44 end:0x800CAEDC
+
+game/cr_EV_DUMMY_007.c:
+	.text       start:0x800CAEDC end:0x800CAF74
+
+game/cr_EV_DUMMY_006.c:
+	.text       start:0x800CAF74 end:0x800CB00C
+
+game/cr_EV_DUMMY_005.c:
+	.text       start:0x800CB00C end:0x800CB0A4
+
+game/cr_EV_DUMMY_004.c:
+	.text       start:0x800CB0A4 end:0x800CB13C
+
+game/cr_EV_DUMMY_003.c:
+	.text       start:0x800CB13C end:0x800CB1D4
+
+game/cr_EV_SET_BTL_RULE.c:
+	.text       start:0x800CB684 end:0x800CB71C
+
+game/cr_EV_SET_BATTLE.c:
+	.text       start:0x800CB71C end:0x800CB7B4
+
+game/cr_EV_CLR_LINE.c:
+	.text       start:0x800CBBB0 end:0x800CBC48
+
+game/cr_EV_SET_LINE.c:
+	.text       start:0x800CBC48 end:0x800CBCE0
+
+game/cr_OBJ_DUMMY_016.c:
+	.text       start:0x800CBCE0 end:0x800CBD78
+
+game/cr_OBJ_DUMMY_015.c:
+	.text       start:0x800CBD78 end:0x800CBE10
+
+game/cr_OBJ_DUMMY_014.c:
+	.text       start:0x800CBE10 end:0x800CBEA8
+
+game/cr_OBJ_DUMMY_013.c:
+	.text       start:0x800CBEA8 end:0x800CBF40
+
+game/cr_OBJ_DUMMY_012.c:
+	.text       start:0x800CBF40 end:0x800CBFD8
+
+game/cr_OBJ_DUMMY_011.c:
+	.text       start:0x800CBFD8 end:0x800CC070
+
+game/cr_OBJ_DUMMY_010.c:
+	.text       start:0x800CC070 end:0x800CC108
+
+game/cr_OBJ_MOT_SET.c:
+	.text       start:0x800CE2C4 end:0x800CE35C
+
+game/cr_CHAR_DUMMY_016.c:
+	.text       start:0x800CF2F4 end:0x800CF38C
+
+game/cr_CHAR_DUMMY_015.c:
+	.text       start:0x800CF38C end:0x800CF424
+
+game/cr_CHAR_DUMMY_014.c:
+	.text       start:0x800CF424 end:0x800CF4BC
+
+game/cr_CHAR_DUMMY_013.c:
+	.text       start:0x800CF4BC end:0x800CF554
+
+game/cr_CHAR_DUMMY_012.c:
+	.text       start:0x800CF554 end:0x800CF5EC
+
+game/cr_CHAR_COUSE_CLEAR.c:
+	.text       start:0x800D0684 end:0x800D088C
+
+game/cr_CHAR_COUSE_SET.c:
+	.text       start:0x800D088C end:0x800D0B54
+
+game/cr_CHAR_UNDISP.c:
+	.text       start:0x800D1BD0 end:0x800D1E6C
+
+game/cr_CHAR_CLR.c:
+	.text       start:0x800D4244 end:0x800D43D8
+
+game/cr_MAP_DUMMY_016.c:
+	.text       start:0x800D51C8 end:0x800D5260
+
+game/cr_MAP_DOOR_WAIT.c:
+	.text       start:0x800D58A4 end:0x800D5968
+
+game/cr_MAP_ENTER_FLAG_CLEAR.c:
+	.text       start:0x800D5F90 end:0x800D6184
+
+game/cr_MAP_ENTER_FLAG_SET.c:
+	.text       start:0x800D6184 end:0x800D6378
+
+game/cr_MAP_CLEAR_NO_ENTER_SCRIPT.c:
+	.text       start:0x800D6378 end:0x800D6578
+
+game/cr_MAP_CLEAR_INIT_SCRIPT.c:
+	.text       start:0x800D6578 end:0x800D6778
+
+game/cr_MAP_CLEAR_BEF_SCRIPT.c:
+	.text       start:0x800D6778 end:0x800D6978
+
+game/cr_MAP_NO_ENTER_SCRIPT.c:
+	.text       start:0x800D6978 end:0x800D6B78
+
+game/cr_MAP_INIT_SCRIPT.c:
+	.text       start:0x800D6B78 end:0x800D6D78
+
+game/cr_MAP_BEF_SCRIPT.c:
+	.text       start:0x800D6D78 end:0x800D6F78
+
+game/cr_SYS_DUMMY_016.c:
+	.text       start:0x800D7564 end:0x800D75FC
+
+game/cr_SYS_JP_GEKITOU.c:
+	.text       start:0x800D7C38 end:0x800D7E64
+
+game/cr_SYS_EXP_MESS.c:
+	.text       start:0x800D7F48 end:0x800D8068
+
+game/cr_SYS_PARTS_GEN.c:
+	.text       start:0x800D8878 end:0x800D8938
+
+game/cr_SYS_SAVE.c:
+	.text       start:0x800D8938 end:0x800D89D0
+
+game/cr_SYS_WINDOW_CLOSE_WAIT.c:
+	.text       start:0x800D8F4C end:0x800D9184
+
 game/fn_800D9A0C.c:
 	.text       start:0x800D9A0C end:0x800D9C88
+
+game/cr_SYS_BATTLE_NEXT.c:
+	.text       start:0x800DA048 end:0x800DA0E0
+
+game/cr_SYS_BATTLE_SET.c:
+	.text       start:0x800DA0E0 end:0x800DA178
+
+game/cr_SYS_PLAYER_UNLOCK.c:
+	.text       start:0x800DAA0C end:0x800DAC18
+
+game/cr_SYS_PLAYER_LOCK.c:
+	.text       start:0x800DAC18 end:0x800DAE1C
+
+game/cr_SYS_WINDOW_CLOSE.c:
+	.text       start:0x800DAE1C end:0x800DB028
+
+game/cr_SYS_WAIT_TM.c:
+	.text       start:0x800DB028 end:0x800DB0E8
+
+game/cr_SYS_JP.c:
+	.text       start:0x800DB4F0 end:0x800DB71C
+
+game/cr_SYS_START.c:
+	.text       start:0x800DB71C end:0x800DB7B4
+
+game/cr_SYS_SET_SCR.c:
+	.text       start:0x800DB8A4 end:0x800DBAD0
 
 game/fn_800DEFBC.c:
 	.text       start:0x800DEFBC end:0x800DEFC0

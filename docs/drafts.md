@@ -1144,6 +1144,15 @@ in tools/draft_batch.py handled `*(base + off)` and a plain identifier. It now a
 (`name[i]`, `a.b[i][j]`) and reads it as `*(T *) &name[i]`. `draft_batch.py --only` on the four: compile failures
 4 -> 0. The full batch 12 is the check (plan.md step 110).
 
+### Step 110: the script-command head (Nov 2, 2026, on main)
+
+Rule `script_head_dead` (on by default; the step 80 `script_counter_ptr` form stays as the variant that skips it). It
+writes the handler head as the original has it: the command word stored as `(s16)`, the history index stepped and
+masked, the counter incremented in place, the PC advance (`+= 2`, `+= 4`, ...) last, and the counter pointer local
+used only in `if (0) { (*cmd_cnt)++; }`. Why it matches is in docs/sched_model.md section 20. Full batch 12:
+**609 -> 777 drafts at 100%** (+168; 68 script-command handlers among the 100%s by name pattern), 707 promoted (was 546),
+0 compile failures.
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.

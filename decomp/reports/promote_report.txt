@@ -1,10 +1,10 @@
 m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md steps 58, 63)
 one object per function, or one per file of consecutive functions that share their constant pool (file objects); batch 9 links them and checks the SHA-1
 
-drafts at 100% MATCH: 609
-promoted: 546 (84220 bytes = 0x148FC)
+drafts at 100% MATCH: 777
+promoted: 707 (121396 bytes = 0x1DA34)
 file objects: 6 (6 functions, 2196 bytes = 0x894)
-left out: 57
+left out: 64
 kept from earlier runs (draft no longer 100%): 1
 removed (function name no longer ours): 0
 
@@ -424,7 +424,168 @@ removed (function name no longer ours): 0
 800BE050  cr_C_ACT_WAIT                                   68
 800BE094  cr_C_ACT_MOT                                   436
 800BE248  cr_C_ACT_TURN_POINT                            228
+800BE75C  cr_F_DUMMY_016                                 152
+800BE7F4  cr_F_DUMMY_015                                 152
+800BE88C  cr_F_DUMMY_014                                 152
+800BE924  cr_F_DUMMY_013                                 152
+800BE9BC  cr_F_DUMMY_012                                 152
+800BEA54  cr_F_DUMMY_011                                 152
+800BEAEC  cr_F_DUMMY_010                                 152
+800BEB84  cr_F_DUMMY_009                                 152
+800BEC1C  cr_F_DUMMY_008                                 152
+800BECB4  cr_F_CHECK_G_TROPHY                           1204
+800BF58C  cr_F_VIBRATION_OFF                             512
+800BF78C  cr_F_VIBRATION_ON                              520
+800BF994  cr_F_MAP_PLATE_CLEAR                           500
+800BFB88  cr_F_MAP_PLATE_SET                             500
+800BFD7C  cr_F_GET_BTLFLD                                152
+800BFE14  cr_F_REAL_POD                                  152
+800BFEAC  cr_F_GET_POD                                   152
+800BFF44  cr_F_REAL_BOM                                  152
+800BFFDC  cr_F_GET_BOM                                   152
+800C0074  cr_F_REAL_WEAPON                               152
+800C010C  cr_F_GET_WEAPON                                152
+800C01A4  cr_F_REAL_ROBO                                 152
+800C023C  cr_F_GET_ROBO                                  152
+800C02D4  cr_F_ELIFE_GE                                  152
+800C036C  cr_F_ELIFE_GT                                  152
+800C0404  cr_F_ELIFE_LE                                  152
+800C049C  cr_F_ELIFE_LT                                  152
+800C0534  cr_F_ELIFE_EQ                                  152
+800C05CC  cr_F_LIFE_GE                                   152
+800C0664  cr_F_LIFE_GT                                   152
+800C06FC  cr_F_LIFE_LE                                   152
+800C0794  cr_F_LIFE_LT                                   152
+800C082C  cr_F_LIFE_EQ                                   152
+800C08C4  cr_F_BTL_DRAW                                  152
+800C095C  cr_F_BTL_RETIRE                                152
+800C09F4  cr_F_BTL_LOSE                                  152
+800C0A8C  cr_F_BTL_WIN_COMBO                             152
+800C0B24  cr_F_BTL_WIN                                   152
+800C1074  cr_F_CLR                                       520
+800C127C  cr_F_SET                                       520
+800C1484  cr_F_SNR_SET                                   152
+800C151C  cr_F_SNR_GE                                    152
+800C15B4  cr_F_SNR_GT                                    152
+800C164C  cr_F_SNR_LE                                    152
+800C16E4  cr_F_SNR_LT                                    152
+800C177C  cr_F_SNR_EQ                                    152
+800C1814  cr_E_DUMMY_016                                 152
+800C18AC  cr_E_DUMMY_015                                 152
+800C1944  cr_E_DUMMY_014                                 152
+800C19DC  cr_E_DUMMY_013                                 152
+800C1A74  cr_E_DUMMY_012                                 152
+800C1B0C  cr_E_DUMMY_011                                 152
+800C1BA4  cr_E_DUMMY_010                                 152
+800C1C3C  cr_E_DUMMY_009                                 152
+800C1CD4  cr_E_DUMMY_008                                 152
+800C1D6C  cr_E_DUMMY_007                                 152
+800C2B20  cr_E_END_WAIT                                  152
+800C3750  cr_S_DUMMY_016                                 152
+800C37E8  cr_S_DUMMY_015                                 152
+800C3880  cr_S_DUMMY_014                                 152
+800C3918  cr_S_DUMMY_013                                 152
+800C39B0  cr_S_DUMMY_012                                 152
+800C3A48  cr_S_DUMMY_011                                 152
+800C3AE0  cr_S_DUMMY_010                                 152
+800C3B78  cr_S_DUMMY_009                                 152
+800C3C10  cr_S_DUMMY_008                                 152
+800C3CA8  cr_S_DUMMY_007                                 152
+800C3D40  cr_S_DUMMY_006                                 152
+800C3DD8  cr_S_DUMMY_005                                 152
+800C3E70  cr_S_DUMMY_004                                 152
+800C4348  cr_S_BGM_NO_CHANGE                             524
+800C4554  cr_S_SE_STOP                                   492
+800C4740  cr_S_SE_PLAY                                   500
+800C4934  cr_S_BGM_STOP                                  512
+800C54FC  cr_LGT_DUMMY_016                               152
+800C5594  cr_LGT_DUMMY_015                               152
+800C562C  cr_LGT_DUMMY_014                               152
+800C56C4  cr_LGT_DUMMY_013                               152
+800C575C  cr_LGT_DUMMY_012                               152
+800C57F4  cr_LGT_DUMMY_011                               152
+800C588C  cr_LGT_DUMMY_010                               152
+800C5924  cr_LGT_DUMMY_009                               152
+800C59BC  cr_LGT_DUMMY_008                               152
+800C5A54  cr_LGT_DUMMY_007                               152
+800C5AEC  cr_LGT_DUMMY_006                               152
+800C5B84  cr_LGT_DUMMY_005                               152
+800C5C1C  cr_LGT_DUMMY_004                               152
+800C5CB4  cr_LGT_SET_CAM_POS                             256
+800C700C  cr_CM_DUMMY_016                                152
+800C70A4  cr_CM_DUMMY_015                                152
+800C713C  cr_CM_DUMMY_014                                152
+800C71D4  cr_CM_DUMMY_013                                152
+800C726C  cr_CM_DUMMY_012                                152
+800C7304  cr_CM_DUMMY_011                                152
+800C739C  cr_CM_DUMMY_010                                152
+800C7434  cr_CM_DUMMY_009                                152
+800C74CC  cr_CM_DUMMY_008                                152
+800C7854  cr_CM_ROTATE                                   212
+800C88DC  cr_CM_SHAKE_STOP                               512
+800C8D04  cr_CM_CIN_CLR                                  152
+800C946C  cr_CM_CIN_SET                                  152
+800CA984  cr_EV_DUMMY_016                                152
+800CAA1C  cr_EV_DUMMY_015                                152
+800CAAB4  cr_EV_DUMMY_014                                152
+800CAB4C  cr_EV_DUMMY_013                                152
+800CABE4  cr_EV_DUMMY_012                                152
+800CAC7C  cr_EV_DUMMY_011                                152
+800CAD14  cr_EV_DUMMY_010                                152
+800CADAC  cr_EV_DUMMY_009                                152
+800CAE44  cr_EV_DUMMY_008                                152
+800CAEDC  cr_EV_DUMMY_007                                152
+800CAF74  cr_EV_DUMMY_006                                152
+800CB00C  cr_EV_DUMMY_005                                152
+800CB0A4  cr_EV_DUMMY_004                                152
+800CB13C  cr_EV_DUMMY_003                                152
+800CB684  cr_EV_SET_BTL_RULE                             152
+800CB71C  cr_EV_SET_BATTLE                               152
+800CBBB0  cr_EV_CLR_LINE                                 152
+800CBC48  cr_EV_SET_LINE                                 152
+800CBCE0  cr_OBJ_DUMMY_016                               152
+800CBD78  cr_OBJ_DUMMY_015                               152
+800CBE10  cr_OBJ_DUMMY_014                               152
+800CBEA8  cr_OBJ_DUMMY_013                               152
+800CBF40  cr_OBJ_DUMMY_012                               152
+800CBFD8  cr_OBJ_DUMMY_011                               152
+800CC070  cr_OBJ_DUMMY_010                               152
+800CE2C4  cr_OBJ_MOT_SET                                 152
+800CF2F4  cr_CHAR_DUMMY_016                              152
+800CF38C  cr_CHAR_DUMMY_015                              152
+800CF424  cr_CHAR_DUMMY_014                              152
+800CF4BC  cr_CHAR_DUMMY_013                              152
+800CF554  cr_CHAR_DUMMY_012                              152
+800D0684  cr_CHAR_COUSE_CLEAR                            520
+800D088C  cr_CHAR_COUSE_SET                              712
+800D1BD0  cr_CHAR_UNDISP                                 668
+800D4244  cr_CHAR_CLR                                    404
+800D51C8  cr_MAP_DUMMY_016                               152
+800D58A4  cr_MAP_DOOR_WAIT                               196
+800D5F90  cr_MAP_ENTER_FLAG_CLEAR                        500
+800D6184  cr_MAP_ENTER_FLAG_SET                          500
+800D6378  cr_MAP_CLEAR_NO_ENTER_SCRIPT                   512
+800D6578  cr_MAP_CLEAR_INIT_SCRIPT                       512
+800D6778  cr_MAP_CLEAR_BEF_SCRIPT                        512
+800D6978  cr_MAP_NO_ENTER_SCRIPT                         512
+800D6B78  cr_MAP_INIT_SCRIPT                             512
+800D6D78  cr_MAP_BEF_SCRIPT                              512
+800D7564  cr_SYS_DUMMY_016                               152
+800D7C38  cr_SYS_JP_GEKITOU                              556
+800D7F48  cr_SYS_EXP_MESS                                288
+800D8878  cr_SYS_PARTS_GEN                               192
+800D8938  cr_SYS_SAVE                                    152
+800D8F4C  cr_SYS_WINDOW_CLOSE_WAIT                       568
 800D9A0C  fn_800D9A0C                                    636
+800DA048  cr_SYS_BATTLE_NEXT                             152
+800DA0E0  cr_SYS_BATTLE_SET                              152
+800DAA0C  cr_SYS_PLAYER_UNLOCK                           524
+800DAC18  cr_SYS_PLAYER_LOCK                             516
+800DAE1C  cr_SYS_WINDOW_CLOSE                            524
+800DB028  cr_SYS_WAIT_TM                                 192
+800DB4F0  cr_SYS_JP                                      556
+800DB71C  cr_SYS_START                                   152
+800DB8A4  cr_SYS_SET_SCR                                 556
 800DEFBC  fn_800DEFBC                                      4
 800DEFC0  fn_800DEFC0                                      4
 800DEFC4  fn_800DEFC4                                     52
@@ -558,7 +719,7 @@ removed (function name no longer ours): 0
 
 == file runs of the drafts with data of their own (range, first..last, functions; the users of every entry the run's drafts own, closed: plan.md steps 63, 64)
 800057B8-8000860C  fn_800057B8..fn_8000805C  16 functions, 11 at 100%: not available yet (5 not matched: fn_800057B8, fn_80005BC8, cr_BattleRobo_InitFromLoadout, fn_80007CE4, fn_8000805C)
-8000768C-80131910  fn_8000768C..fn_801314D4  1739 functions, 601 at 100%: not available yet (1138 not matched: fn_80007CE4, fn_8000805C, fn_8000860C, cr_Game_Update, fn_80008CB0, fn_80009018 ...)
+8000768C-80131910  fn_8000768C..fn_801314D4  1739 functions, 769 at 100%: not available yet (970 not matched: fn_80007CE4, fn_8000805C, fn_8000860C, cr_Game_Update, fn_80008CB0, fn_80009018 ...)
 8001B1D4-8001F350  fn_8001B1D4..fn_8001F060  72 functions, 36 at 100%: not available yet (36 not matched: fn_8001B29C, cr_Rand_Float, cr_Vec3_Distance, fn_8001B6EC, cr_Vec3_RotateY, cr_Vec3_RotateAboutAxis ...)
 80021AB0-80021CB4  fn_80021AB0..fn_80021AB0  1 functions, 1 at 100%: FILE OBJECT game/fn_80021AB0_fn_80021AB0.c (.data 0x801F5D30-0x801F5D64)
 80024148-800373AC  fn_80024148..fn_80036FB0  76 functions, 20 at 100%: not available yet (56 not matched: fn_8002419C, fn_80024634, cr_CamMode_DefaultStart, fn_80024848, cr_CAMMODE_SNR_AUTO_Y_ANG_Frame, fn_80024A88 ...)
@@ -628,19 +789,26 @@ fn_8008E8F4: the users of the entries its draft owns span fn_8008A484..fn_800907
 fn_8008EE04: the users of the entries its draft owns span fn_8008D434..fn_80093AF0 (0x8008D434-0x80093C30, 57 functions, 26 at 100%)
 fn_80093180: the users of the entries its draft owns span fn_8008CCF8..fn_80093AF0 (0x8008CCF8-0x80093C30, 63 functions, 27 at 100%)
 cr_Bgm_GetVolume: the users of the entries its draft owns span cr_Bgm_GetVolume..fn_80098484 (0x80096594-0x80098F4C, 25 functions, 8 at 100%)
-fn_800A4CEC: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 84 at 100%)
-fn_800A514C: the users of the entries its draft owns span fn_800999F0..cr_MAP_LINK (0x800999F0-0x800D719C, 440 functions, 84 at 100%)
-fn_800A54A4: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 82 at 100%)
-fn_800A5638: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 82 at 100%)
-fn_800A6068: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_CM_PLAYER_RESET (0x80099EAC-0x800C7854, 310 functions, 81 at 100%)
-fn_800AA024: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 84 at 100%)
+fn_800A4CEC: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 223 at 100%)
+fn_800A514C: the users of the entries its draft owns span fn_800999F0..cr_MAP_LINK (0x800999F0-0x800D719C, 440 functions, 237 at 100%)
+fn_800A54A4: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 241 at 100%)
+fn_800A5638: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 241 at 100%)
+fn_800A6068: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_CM_PLAYER_RESET (0x80099EAC-0x800C7854, 310 functions, 182 at 100%)
+fn_800AA024: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 223 at 100%)
 fn_800AA130: the users of the entries its draft owns span fn_800AA130..fn_800AA130 (0x800AA130-0x800AA17C, 1 functions, 1 at 100%)
-fn_800AF398: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 81 at 100%)
-fn_800B1FBC: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 84 at 100%)
-fn_800B7B18: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 84 at 100%)
-cr_C_ACT_TURN: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 81 at 100%)
-cr_C_ACT_MOVE_LENG: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 82 at 100%)
-cr_C_ACT_MOVE: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 82 at 100%)
+fn_800AF398: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 234 at 100%)
+fn_800B1FBC: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 223 at 100%)
+fn_800B7B18: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 223 at 100%)
+cr_C_ACT_TURN: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 234 at 100%)
+cr_C_ACT_MOVE_LENG: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 241 at 100%)
+cr_C_ACT_MOVE: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 241 at 100%)
+cr_E_SISRIN: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 241 at 100%)
+cr_E_SISROUT: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 241 at 100%)
+cr_S_BGM_PLAY: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 241 at 100%)
+cr_S_BGM_FOUT: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 234 at 100%)
+cr_CM_WATCH_MAN_KEEP: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 223 at 100%)
+cr_CHAR_MOVE_LENG: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 241 at 100%)
+cr_CHAR_MOVE: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 241 at 100%)
 fn_800E4618: the users of the entries its draft owns span fn_800DBAD0..fn_800EAA38 (0x800DBAD0-0x800EAC38, 50 functions, 12 at 100%)
 fn_800FB688: the users of the entries its draft owns span fn_800FAE8C..fn_8010DBA8 (0x800FAE8C-0x8010DD74, 65 functions, 20 at 100%)
 fn_800FB924: the users of the entries its draft owns span fn_800FAE8C..fn_8010DBA8 (0x800FAE8C-0x8010DD74, 65 functions, 20 at 100%)
@@ -701,6 +869,13 @@ fn_8012855C: the users of the entries its draft owns span fn_80125C2C..fn_8012F3
 800BE32C  cr_C_ACT_TURN                                  352  has data of its own (.sdata2 0x8): needs the data piece split too
 800BE48C  cr_C_ACT_MOVE_LENG                             384  has data of its own (.sdata2 0x8): needs the data piece split too
 800BE60C  cr_C_ACT_MOVE                                  336  has data of its own (.sdata2 0x8): needs the data piece split too
+800C2DD0  cr_E_SISRIN                                    212  has data of its own (.sdata2 0x8): needs the data piece split too
+800C2EA4  cr_E_SISROUT                                   212  has data of its own (.sdata2 0x8): needs the data piece split too
+800C4B34  cr_S_BGM_PLAY                                  600  has data of its own (.sdata2 0x8): needs the data piece split too
+800C52A4  cr_S_BGM_FOUT                                  600  has data of its own (.sdata2 0x8): needs the data piece split too
+800C8218  cr_CM_WATCH_MAN_KEEP                           740  has data of its own (.sdata2 0x4): needs the data piece split too
+800D35A4  cr_CHAR_MOVE_LENG                              892  has data of its own (.sdata2 0x8): needs the data piece split too
+800D3D0C  cr_CHAR_MOVE                                   872  has data of its own (.sdata2 0x8): needs the data piece split too
 800E4618  fn_800E4618                                    344  has data of its own (.sdata2 0x18): needs the data piece split too
 800FB688  fn_800FB688                                    668  has data of its own (.sdata2 0x14): needs the data piece split too
 800FB924  fn_800FB924                                    400  has data of its own (.sdata2 0x10): needs the data piece split too

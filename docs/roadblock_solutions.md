@@ -470,6 +470,69 @@ batch 11 PASS.
 2. Add the float-pool restart intervals to gen_dtk_splits.py's report (report only), next to the padding candidates. **Done, step 101**: 48 of 51 testable intervals agree with proven edges, 3 false positives (SDK code), 47 new (docs/decomp.md "Float-pool restart intervals (step 101)").
 3. Read 0x80098EDC (fn_80170EAC's caller) and the archive.c tail's data order, to close two HSD edges. **Done, step 102**: fn_80170EAC has no reference to place it; archive.c runs to 0x801A5AE8 by its string pool, closing it needs the fn_801A5708 port (0.808, docs/decomp.md "The two HSD edges by caller and data order (step 102)").
 
+## 9. Splitting the remaining automatic objects: deep dive (Nov 2, 2026, step 110)
+
+Measured on main after step 110. The progress report counts 311 automatic objects (302 at the start of the day),
+1,329 functions, 0% from C. Of these, splits_report.txt lists **251 unproven code ranges**: 244 in the game code
+(1,198 functions) and 7 in the libraries (130 functions). The rest are data-only automatic objects.
+
+**What an automatic object is here.** dtk makes one wherever no split covers the code. A game function leaves its
+automatic object in one of two ways, and both are the draft path, not a split rule:
+
+1. **Promoted alone**: a 100% draft with no data of its own becomes a one-function object (546 today). The function
+   moves out of the automatic range; the range shrinks or splits in two.
+2. **Promoted with its file**: a 100% draft that owns data (its own float constants, strings, jump tables) can be
+   linked only with every function that uses that data, a *file run* (promote_drafts.py, plan.md steps 63-64). All the
+   run's functions must be 100%. Six file objects exist.
+
+So the 244 game ranges fall when their functions reach 100% and when the file runs are file-sized.
+
+**Sizes.** By function count the game ranges are 81 of 1, 58 of 2, 19 of 3, 18 of 4, 18 of 5, 25 of 6-9, and 24 of 10
+or more. Most ranges are a few functions between two promoted ones.
+
+**The blockers, measured.**
+
+| Blocker | Count | Fix |
+|---|---|---|
+| A 100% draft that owns data, its file run not all at 100% | 56 of the 57 left-out 100% drafts | the run's other drafts to 100% (item 4), or a run that is file-sized (next row) |
+| **File runs too big: one run of 1,739 functions** (0x8000768C-0x80131910, 601 at 100%) | 1 run, 4 more at 70-76 functions | **a bug**: see below |
+| Drafts below 100% inside the range | about 1,100 drafts | item 1 (the scheduler: today's head rule) and item 4 |
+| Library ranges | 7 ranges, 130 functions | the HSD work (item 5) |
+
+**The 1,739-function run is a bug, not a file.** mwcc keeps a file's constants in that file, so a run can only be as
+big as a source file. The closure grew through **one** entry: fn_8000F230's draft "owns" `cr_g_BattleRobos` (.bss,
+127 users). Its object defines only an anonymous local data symbol (`@747`, a switch table). At that instruction the
+original references cr_g_BattleRobos, and the draft is 100% only with relocations masked, so `Pools.owned` took main.elf's
+target as the draft's own data. Fix: an owned entry counts only when main.elf's target is in the **same section**
+as the draft's own symbol. Otherwise the draft owns nothing known (None) and starts no run. The next widest runs (74,
+71 functions) come from real shared constants (the int-to-float 0x4330000080000000 of one file) and are worth reading
+once the big one is gone.
+
+**Split rules for the edges themselves** (when the code is not from C yet):
+
+| Rule | Measured | Use |
+|---|---|---|
+| Float-pool restart (step 101) | 49 of 98 intervals hold a proven edge, 3 false positives | the interval holds a file edge |
+| 8-aligned start / zero padding (step 110) | pins 44 intervals; on known ones 10 of 22 right | **too weak**: report only |
+| Data-pool base (step 86 glue spans) | 89 spans, one of 62 functions | not tried as a split rule yet |
+| G3 file names (asserts) | 53 `.c` / `.h` names | only where the game asserts (few game files) |
+
+**The order to work in.**
+
+1. **Fix the file-run ownership** (promote_drafts.py `Pools.owned`, same-section check). Then rerun batch 12 and
+   read promote_report's runs. They should be file-sized, and runs whose drafts are all 100% become file objects
+   by themselves.
+2. **Today's head rule** (item 1) moves most of the ~300 script handlers to 100%. They are one-function objects, so
+   every flipped handler removes a function from an automatic range.
+3. **Per run**: list each blocked run's drafts below 100% in promote_report (it already does) and work those first
+   (item 4). A run of 5 functions with 1 left is the cheapest split there is.
+4. **Rules for the code that stays in asm**: the data-pool base as the second rule beside the float-pool restart;
+   accept an edge where both agree, report only first. The motion player (0x80053A20-0x8005C384) is the test case:
+   one float-pool interval, 17 functions, the player's own constants (65536, 360, -1).
+
+**Done when** every game range is either gone (its functions from C) or bounded by two agreeing rules; batch 9 retail
+SHA-1 and static shift PASS, batch 11 PASS.
+
 ## What to decide
 
 1. **A native toolchain for the compiler hook (roadblock 1).** The proxy DLL needs a 32-bit C compiler: MSVC Build

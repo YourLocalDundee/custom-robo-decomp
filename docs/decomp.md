@@ -577,6 +577,15 @@ accept an interval only where a second rule agrees (padding, a G3 run, an assert
 0x4330000080000000 / 0.0 repeats in SDK-style code. Next: the game-code intervals as boundaries for file objects
 (docs/decomp.md file objects), the HSD ones against the particle family's edges.
 
+**Step 110 (Nov 2, 2026): the 8-alignment rule measured, too weak to be the second rule.** The report (gen_dtk_splits.py
+`pool_restarts`) now pins each interval to one address where it can. The rule: a compiled object's section starts
+8-aligned, so the next file starts at an 8-aligned symbol start in the interval. With zero padding before one such
+start, that start is the pin; with a single 8-aligned start, that start is.
+Result: 44 intervals pinned (20 of them NEW). On the known intervals, only **10 of 22** pins are the proven edge, so
+it does not pin the boundary and is not used for splits (report only). The edge may fall at an unaligned start when
+the earlier object's .sdata2 ends on a 4-byte boundary without padding. Section 5's other second rules (a data-pool
+base, a G3 file-name run, a matching C file) stay the ones to try.
+
 ### Particle family names (step 100, Nov 1, 2026)
 
 Every function of 0x80179C14-0x80186490 was compared with Melee 598987cf's particle.c / generator.c / psdisp.c /

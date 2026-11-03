@@ -474,3 +474,42 @@ Main session, on main. Every result is by position against the original's 38 wor
 
 Next for the head: the permuter run once allowed. Then a coalesced copy whose source register is the increment's
 `lis` (a copy into a variable that colouring merges with the `lis` result), checked with shape_eval.py.
+
+## 20. Step 110, later the same day: the head solved (cr_CM_DUMMY_008 38 of 38)
+
+With the owner's approval the permuter ran (`tools/sched/permuter_setup.py FUNCTION SOURCE.c --run JOBS` does the whole setup now; by hand: section 19, plus a `cpp` on PATH: tools/downloads/cpp_shim/cpp.exe, a
+copy of LLVM's clang-cpp.exe; run_permuter.py needs the `__main__` guard on Windows). In about 40,000 iterations (12
+minutes) it went from score 840 to 300. Its best source (tools/sched/scratch/hd/perm110_best.c) drops the counter
+pointer: `(*(&cr_g_Script.cmd_count[cr_g_ScriptDepth]))++`. Every body instruction is then the original's, registers
+included. Only the save and restore of r30 were missing (36 of 38 words).
+
+The r30 save: a local whose only uses are in dead code, `u32 *cmd_cnt; ... if (0) { (*cmd_cnt)++; }` (also
+`cmd_cnt = cmd_cnt;` or `while (0) { ... }`). Its uses count for the callee-saved order, so it takes r30 and keeps the
+save, and the front end removes its code. `if (0) { cmd_cnt = 0; }` and `(void) cmd_cnt;` are not enough.
+
+The source, 38 of 38 with the project header (tools/sched/scratch/hd/head110.c):
+
+```c
+void cr_CM_DUMMY_008(void) {
+    s16 *pc;
+    u32 *cmd_cnt;
+
+    pc = cr_g_ScriptPC;
+    cr_g_Script.cmd_history[cr_g_Script.history_index] = (s16) *pc;
+    cr_g_Script.history_index += 1;
+    cr_g_Script.history_index &= 0x3F;
+    cr_g_Script.cmd_count[cr_g_ScriptDepth]++;
+    cr_g_ScriptPC += 2;
+    if (0) {
+        (*cmd_cnt)++;
+    }
+}
+```
+
+`(s16)` is needed: m2c's `(s32) M2C_FIELD(pc, s16 *, 0)` gives 13 of 38. So what sections 14-18 called a deleted
+instruction is a different first-pass shape: the counter written through no local at all. The scheduler model was
+right; the source shape was never in the searched space.
+
+The generator rule `script_head_dead` (tools/draft_batch.py, on by default; the step 80 pointer form stays a variant)
+writes this head for every handler, with whatever PC advance it has (`+= 2`, `+= 4`, ...). `--only` on 9 handlers: 5
+at 100% (cr_CM_DUMMY_008, cr_CM_SHAKE_STOP, cr_S_SE_STOP, cr_S_SE_PLAY, cr_S_BGM_STOP), 96-97% for two more. The full batch 12: **609 -> 777 drafts at 100%** (+168), 707 promoted, 948 of 1,300 units from C (27.14% of the code).

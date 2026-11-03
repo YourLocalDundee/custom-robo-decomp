@@ -1,8 +1,11 @@
 # Motion files: `motion.DBN` and `snr_motion.BIN` (research notes, Nov 2, 2026)
 
-The game's animation data. **Status: the container and track layout are verified** (by the code that loads them and
-by a check of every track in `motion.DBN`); **what the values mean is inferred** and marked so. The way to finish it:
-plan.md "Resume here", item 2.
+The game's animation data. **Status (Nov 2, 2026): the container, the track layout and what every track means are
+verified**, by the code that loads and plays them and by a check of every track. Tools convert motions both ways:
+motion <-> JSON, byte-identical on all 51 files; motion -> glTF animation on any robo; glTF -> motion. **Still needed: a
+human test in the game** (an imported motion played in Dolphin, in a battle); everything so far is checked by the
+game's code ported to Python, not by the running game. How the game plays a motion and the tools:
+[motion_playback.md](motion_playback.md).
 
 ## Files
 
@@ -39,15 +42,30 @@ tracks); several tracks share one time list. A value list is `count` u16 values,
 `motion.DBN` all 28,314 tracks of the 363 motions agree with this (empty tracks have count 0 and null offsets; every
 other time list starts at 0 and never goes down); the longest motion's last key is frame 330.
 
-## Inferred, to check against the code
+## What the values mean (verified from the player code; details in [motion_playback.md](motion_playback.md))
 
-- 78 tracks = 26 joints x 3 rotation axes (69 = 23 x 3): the track index k as joint k / 3, axis k % 3.
-- The u16 values as angles (0x10000 = one turn); the interpolation between keys (linear, since no tangents are stored).
-- **shared** as the skeleton's per-joint base values (offsets or scales) for the group's body type.
+- **Not** 26 joints x 3 rotation axes. The 78 tracks are: 7 IK points (tracks 0, 9, 15, 24, 36, 48, 60; x, y, z
+  each: the root, the upper body and head targets, two hands, two feet), 16 rotation joints of the game's default
+  skeleton (x, y, z in degrees), and 9 root tracks (69-71 translation, 72-74 rotation in degrees, 75-77 a vector
+  turned by the root rotation). The 69-track form has no root tracks.
+- A value word is **not** an angle. It is a 2-bit key kind and a 14-bit index into **shared**: the group's float
+  pool. The kinds are value + in-tangent + out-tangent; zero; value with flat tangents; value with one tangent.
+- Between keys the curve is a cubic Hermite (`cr_Motion_SampleTrack` 0x8001EB48). Tangents are per second, at 30
+  frames a second.
+- **shared** is that float pool: one per group, de-duplicated, at most 16,384 floats (14-bit index). Group 0 of
+  motion.DBN uses 13,867.
+- The game builds the body from the tracks by IK, two-bone arms and legs (`cr_Chara_PoseLimbs`). It writes 19 world
+  matrices onto the model's role joints (`cr_Battle_ApplyRoleMatrices`). A motion therefore plays on any robo,
+  rebuilt with that robo's own limb lengths.
 - The frame count is in `cr_g_MotionInfo[id]` (+4: u16 & 0xFFF; step 46) and the names in `cr_g_MotionNames`.
 - `motion.DBN` group 0 holds the battle motion IDs 0x001..0x0A8 (sf_ / mg_ / ab_), groups 1 and 2 more battle and
   field IDs; `snr_motion.BIN` holds field motions (IDs from 0x1C1) per scenario.
 
-The code that reads the tracks while a motion plays is not found yet: no function but the loader loops 0x45 / 0x4E
-times, so the player probably walks the model's own joints; the users of `cr_g_CurrentChara_06dc` (cr_Motion_Play,
-fn_80037FF0, fn_8003C4F0, fn_8004E8D4, fn_80053430 ...) are where to start.
+## Tools (tools/crmotion.py, tools/crmotion_rig.py)
+
+| Direction | Command | Checked |
+|---|---|---|
+| motion -> JSON -> motion | `crmotion.py export` / `import` / `roundtrip` | 51 of 51 files byte-identical; edited keys import |
+| motion -> glTF animation on a robo | `crmotion_rig.py gltf` | rendered on robos 0, 5, 30 (`tools/render_motion.py`) |
+| glTF animation -> motion | `crmotion_rig.py import-gltf` | re-posed within 0.0034 of the original on 3 robos; a hand-made animation within 0.0016 |
+| in the game | (a mod with an imported motion, then a battle in Dolphin) | **not yet: needs a human test** |
