@@ -1,0 +1,5 @@
+Atlas with a ninja run and a "butt shot" (step 110, Nov 2, 2026): the first in-game test of the motion tools.
+Build: python -I mods/atlas_ninja_run/make_motion.py  (writes files/motion.DBN: 15 *_normal_run motions with the arms swept
+back and the body leaned 45 degrees, 14 *_weapon_* gun motions turned around, bent over, the gun hand at the butt), then
+python -I tools/make_mod.py mods/atlas_ninja_run. models/ is a copy of mods/ray_legionnaire/models (Atlas on robo 0).
+Waiting on the owner's battle test; what to check and what to do if it fails: docs/MODDING.md "Motions (animations)".

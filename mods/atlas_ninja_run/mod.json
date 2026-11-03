@@ -1,0 +1,1 @@
+{"name": "atlas_ninja_run", "author": "model_loop", "description": "Atlas (the ray_legionnaire body on robo 0) with a ninja run: every *_normal_run motion of motion.DBN rebuilt with the arms swept straight back and the upper body leaned forward (mods/atlas_ninja_run/make_motion.py, tools/crmotion.py)"}

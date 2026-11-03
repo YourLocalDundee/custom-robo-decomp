@@ -19,6 +19,13 @@ by the code paths named and by the round trips at the end, unless marked otherwi
 `cr_g_MotionTracks`, `cr_g_MotionCounts`, `cr_g_MotionFloats`, `cr_g_MotionFrame`, `cr_g_MotionFlags`
 (symbols/cr_globals.txt).
 
+## The game's tables (main.dol .data; to be typed, plan.md item 4)
+
+| dtk object | Size | What (read from the bytes and the code above) |
+|---|---|---|
+| lbl_801F9B00 | 0x294 | +0x000: the default skeleton, 26 entries of 0x14 (u8 flags: bit 2 = a rotation joint; 3 bytes; 3 f32 lengths / offsets; a pointer). +0x208: 27 f32, the shape of a robo's block A (the limb code reads its indices 0..0x1A): most likely the default skeleton's limb parameters (0.358, 0.02, -0.02, -0.05, -0.16, 0.277, ...). +0x274: u8[16], the first track of each rotation joint in order (0x801F9D74). +0x284: u8[16], the same mirrored (0x801F9D84). |
+| lbl_801F9D94 | 0x34 | +0x00: u8[26], the first rotation track of each skeleton slot (0 = none); +0x1A: 2 bytes padding; +0x1C: 6 f32 (0, 1, 0, 0, 0, 1: not read yet) |
+
 ## A track: keys and the curve (`cr_Motion_SampleTrack` 0x8001EB48)
 
 A track is `count` u16 key frames and `count` u16 key words. A key word is a 2-bit kind (bits 14-15) and a 14-bit

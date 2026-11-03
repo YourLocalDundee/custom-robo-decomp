@@ -508,6 +508,20 @@ as the draft's own symbol. Otherwise the draft owns nothing known (None) and sta
 71 functions) come from real shared constants (the int-to-float 0x4330000080000000 of one file) and are worth reading
 once the big one is gone.
 
+**After the fix (measured).** No run is wider than a plausible source file. The widest left, 463 functions
+(0x800999F0-0x800DA048, the script-command region; 244 at 100%), is held together by constants 52 functions share,
+and the 124 identical handlers already looked like one generated file. Runs by size: 14 of one function, 18 of 6-19,
+114 of 20-99, 23 of 100 or more. **The cheapest splits** are the runs with the fewest drafts left (promote_report's
+"file runs"):
+
+| Run | Functions | At 100% | Left (their scores) |
+|---|---|---|---|
+| 0x8006EEF8-0x8006FE38 | 7 | 6 | fn_8006EEF8 (531 of 755 words; the permuter on it, step 110) |
+| 0x80080A94-0x80081430 | 9 | 5 | fn_80080FD8 92%, fn_80080E24 78%, fn_80080C7C 63%, fn_800812A4 55% |
+| 0x8008A0A8-0x8008BED4 | 11 | 6 | fn_8008A6B0 63%, fn_8008A8B0 57%, fn_8008A484 56%, fn_8008AAE8 55%, fn_8008ACEC 6% |
+| 0x800057B8-0x8000860C | 16 | 11 | fn_8000805C 68%, fn_80007CE4 65%, fn_80005BC8 56%, fn_800057B8 43%, cr_BattleRobo_InitFromLoadout 35% |
+| 0x80076B2C-0x80079CB8 | 31 | 24 | 7 |
+
 **Split rules for the edges themselves** (when the code is not from C yet):
 
 | Rule | Measured | Use |
@@ -516,6 +530,23 @@ once the big one is gone.
 | 8-aligned start / zero padding (step 110) | pins 44 intervals; on known ones 10 of 22 right | **too weak**: report only |
 | Data-pool base (step 86 glue spans) | 89 spans, one of 62 functions | not tried as a split rule yet |
 | G3 file names (asserts) | 53 `.c` / `.h` names | only where the game asserts (few game files) |
+
+**The data-pool base as the second rule (measured, step 110).** CodeWarrior addresses a file's own data from one base
+and other files' data by symbol. reloc_audit.py's CROSS events (a relocation to object S plus offset arithmetic that
+lands in another object) are those base accesses. For each anchor S, the functions doing it belong to S's file.
+Of the 21 anchors with 3 or more game users, compared with the file runs of promote_drafts.py (the float-pool closure):
+
+| Outcome | Anchors | Examples |
+|---|---|---|
+| the users end exactly at a run's edge (two rules agree) | 8 | lbl_80321DD0 users 0x80024EB0-0x800373AC, run 0x80024148-0x800373AC (camera code); lbl_8021AF28 and lbl_801C1678 end with the script run at 0x800DA048; lbl_8044F87C, lbl_8041A598, lbl_8023CF28 with the run 0x801147B4-0x80125884; lbl_8041CC10, lbl_802409E8 with 0x80125C2C-0x80130710 |
+| inside one run | 3 | lbl_801F5D68, lbl_801B6620, lbl_8031B5A0 |
+| across runs | 10 | lbl_803B8C00 (the script state: users 0x80099EAC-0x800DA780, past the run's 0x800DA048), lbl_80238008, lbl_80386550 ... |
+
+The crossings say a float-pool run is a part of a file: it holds only the functions that use the owned constants.
+So the file estimate is the union of both closures (float-pool users, data-pool users, everything in between,
+repeated until closed). The 8 agreeing edges are the first to accept as splits, two rules each (section 5's
+acceptance). Next: that union closure in promote_drafts.py's report (report only), then the agreeing edges as
+splits with batch 9 + batch 11.
 
 **The order to work in.**
 

@@ -369,6 +369,64 @@ glTF refuses, so the patched exporter writes +Y for it); the `basic_arena_pillar
   camera and the meaning of the collision attributes are not located yet.
 - `snr_map` (story maps: collision + model in one entry) is not in the loop yet.
 
+## Motions (animations)
+
+A motion lives in `motion.DBN` (battle and field motions, 3 groups) or a piece of `snr_motion.BIN` (story scenes). A mod
+replaces the whole file with `files/motion.DBN`. Every motion plays on every robo: the game rebuilds the body from the
+motion's IK points and joint angles with that robo's own limb lengths
+([formats/motion_playback.md](formats/motion_playback.md)). So one edited run changes the run of every robo that uses
+that motion. Motion names come from the game (`python -I tools/crmotion.py list "Custom Robo extracted/files/motion.DBN"`):
+`sf_` / `mg_` / `ab_` are the three body families; `*_normal_run*` are the runs, `*_weapon_*` the gun stance and shots,
+`win_*` / `lose_*` the end poses.
+
+### Three ways to edit, simplest first
+
+1. **By numbers (JSON)**: `crmotion.py export motion.DBN m.json`, change key values (each track has a `role` such as
+   `point3.y` = the left hand target's height or `joint6.rotz` = an arm joint in degrees), `crmotion.py import m.json
+   files/motion.DBN`. Unchanged motions stay byte-identical.
+2. **By script (as the Atlas mod does)**: a small Python script that samples a motion per frame
+   (`crmotion.sample`), computes new channel values and rebuilds those tracks with `crmotion_rig.reduce_keys`.
+   `mods/atlas_ninja_run/make_motion.py` is the example: the IK hand targets placed behind the hips and the chest
+   target tipped forward give the ninja run. The gun motions turned around (root rotation y + 180), bent over 85
+   degrees, with the gun hand at the butt, give the "butt shot".
+3. **In Blender (glTF)**: `python -I tools/crmotion_rig.py gltf motion.DBN <ID> unpacked/chara/000.bin
+   models_export/chara/chara_000/root0_joint.glb out.glb` gives the robo with the motion as a glTF animation. Edit it
+   in Blender: keyframe the bones that have a role, and export glTF with the animation and the same bone names
+   (JOBJ_n). Then `python -I tools/crmotion_rig.py import-gltf edited.glb <animation name or index>
+   unpacked/chara/000.bin motion.DBN <ID> files/motion.DBN` solves the game's rig backwards into that motion slot
+   (`--no-template` for a new animation; `--tolerance DEG`). `tools/pyenv/Scripts/python -I tools/render_motion.py
+   out.glb out.png` renders frames to check. Unity reads and writes the same glTF files if you prefer it; Blender is
+   what the model pipeline already uses.
+
+What the rig can show: role joints take their rotation from the animation and their position from the robo's limb
+lengths. An elbow or knee bends only one way, about its own axis, and a hand or foot is reached by two-bone IK. Moving
+a bone away from its limb's length does nothing in the game.
+
+**Size limit**: a group's float pool holds at most 16,384 floats. Group 0 of motion.DBN (the sf_ / mg_ / ab_ battle
+motions) has about 2,300 free. A dense imported motion takes 1,000-2,400. A script that rebuilds tracks from smooth
+values fits many motions; the Atlas mod rebuilds 29 at 14,649 floats.
+
+### The first in-game test (Nov 2, 2026; waiting for the owner)
+
+`build/mods/atlas_ninja_run/atlas_ninja_run.iso`. Rebuild it with `python -I mods/atlas_ninja_run/make_motion.py`
+(arguments: the lean in degrees, the position tolerance) and then `python -I tools/make_mod.py mods/atlas_ninja_run`.
+It is Atlas (the legionnaire body on robo 0) with the ninja run on the 15 run motions and the butt shot on the 14 gun
+motions. In a battle, check: (1) running shows the lean and the arms back; (2) shooting shows the bent-over back; (3)
+where the bullets come from; (4) nothing crashes and the other motions look as before.
+
+**If it does not work**, in this order:
+
+1. **Nothing changes in the game**: the game plays other IDs than the ones edited. Read the robo's motion set
+   (cr_g_BattleMotionSets, docs/robo_tables.md) and edit the IDs it names. A quicker check: edit one motion
+   drastically (all poses 90 degrees off) and see if anything moves.
+2. **A crash or a frozen robo**: build the file through `crmotion.py roundtrip` first (it must be byte-identical
+   unedited), then add one edited motion at a time to find the one that breaks.
+3. **The pose shows but looks wrong**: author it in Blender instead (way 3 above). You get a direct view of the
+   bones, and `import-gltf` keeps what the rig can show.
+4. **The bullet still leaves from the chest**: the game spawns shots from the robo, not from the gun model. Then the
+   spawn point is in code: find the function that creates the bullet (the users of the gun part's fire data in
+   docs/robo_tables.md) and patch its offset (`code/*.txt`, section 4).
+
 ## 3. Build it
 
 ```powershell

@@ -1657,6 +1657,9 @@ game/cr_CM_SHAKE_STOP.c:
 game/cr_CM_CIN_CLR.c:
 	.text       start:0x800C8D04 end:0x800C8D9C
 
+game/cr_CM_RESRV.c:
+	.text       start:0x800C8F88 end:0x800C9184
+
 game/cr_CM_CIN_SET.c:
 	.text       start:0x800C946C end:0x800C9504
 

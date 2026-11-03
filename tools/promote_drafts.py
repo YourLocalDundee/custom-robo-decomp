@@ -418,7 +418,11 @@ class Pools:
                     site = addr + off - fv
                     r = self.elf.relocs.get(site) or (self.elf.relocs.get(site & ~3) if typ == 109 else None)
                     c = self.dobjs.containing(r[1]) if r else None
-                    if not c:
+                    # step 110: the original's target must be in the section of the draft's own symbol. A 100% draft
+                    # matches with relocation fields masked, so its own table (fn_8000F230's switch table, .data) can
+                    # stand where the original reads a global of another section (cr_g_BattleRobos, .bss): that global
+                    # is not the draft's, and taking it chained one file run over 1,739 functions
+                    if not c or self.elf.section_of(r[1]) != secs[syms[si][5]][0]:
                         out = None
                         break
                     out.add(c[0])

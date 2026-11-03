@@ -7,8 +7,8 @@ m2c ok 1749
 m2c failed 2
 compile failed 0
 compiled 1749
-100% MATCH 777
-bytes matched 578272 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
+100% MATCH 778
+bytes matched 578284 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
 
 match % histogram of the 1749 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
     0- 9%  57
@@ -20,8 +20,8 @@ match % histogram of the 1749 compiled drafts (100% = every word equal, relocati
    60-69%  139
    70-79%  120
    80-89%  86
-   90-99%  72
-  100%     777
+   90-99%  71
+  100%     778
 
 most common failures:
       2  m2c: */

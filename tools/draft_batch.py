@@ -2282,6 +2282,22 @@ def script_head_dead(body):
     return declare_cmd_cnt(body)
 
 
+def cmd_cnt_last(body):
+    """step 110 (a variant): the dead-code counter pointer of script_head_dead declared after the other locals. Its
+    dead uses rank it among the live locals for the callee-saved registers; declared last it loses the ties
+    (cr_CM_RESRV: the camera local takes r30, as in the original)."""
+    if 'if (0) {' not in body or 'u32 *cmd_cnt;' not in body:
+        return body
+    lines = body.split('\n')
+    i = next(k for k, l in enumerate(lines) if l.strip() == 'u32 *cmd_cnt;')
+    d = lines.pop(i)
+    j = i
+    while j < len(lines) and re.match(r'^\s+[\w ]+?\**\s*\w+(?:\[\w*\])*;$', lines[j]):
+        j += 1
+    lines.insert(j, d)
+    return '\n'.join(lines)
+
+
 def declare_cmd_cnt(body):
     lines = body.split('\n')
     di = next((i for i, l in enumerate(lines) if DEF.match(l)), None)
@@ -3430,7 +3446,7 @@ def postprocess(body, skip=(), add=()):
               record_pointers, local_same_casts, byte_loops, wide_return_locals, advance_copies, unsigned_immediates,
               field_pointer_tests, signed_temps, search_loops, irregular_switches, struct_copy_macro, byte_index_sums,
               for_break_tails, wide_field_locals, field_void_null, empty_macro_blocks,
-              mask_compounds, macro_returns, wide_const_locals, refold_shifts):
+              mask_compounds, macro_returns, wide_const_locals, refold_shifts, cmd_cnt_last):
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -3445,7 +3461,7 @@ OPTIONAL = (void_null, pointer_tests, drop_same_assign_casts, param_homes, float
             local_same_casts, byte_loops, wide_return_locals, advance_copies, unsigned_immediates,
             field_pointer_tests, signed_temps, search_loops, irregular_switches, struct_copy_macro, named_param_homes,
             byte_index_sums, for_break_tails, wide_field_locals, field_void_null, empty_macro_blocks,
-            mask_compounds, macro_returns, wide_const_locals, refold_shifts)
+            mask_compounds, macro_returns, wide_const_locals, refold_shifts, cmd_cnt_last)
 VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, register_order), ()), ((), (param_homes,)),
             ((), (void_null,)), ((register_order,), (void_null,)),
             # step 69
@@ -3460,7 +3476,7 @@ VARIANTS = (((register_order,), ()), ((param_copies,), ()), ((param_copies, regi
             # step 80: the script-command head without the counter pointer (the rule is on by default)
             ((script_counter_ptr,), ()),
             # step 110: the head as the original has it (script_head_dead, on by default); the step 80 pointer form as a variant
-            ((script_head_dead,), ()),
+            ((script_head_dead,), ()), ((), (cmd_cnt_last,)),
             # step 85: the stored float constants as literals, the others externs
             ((), (store_literals,)),
             # step 92: float temporaries before the stores

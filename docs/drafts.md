@@ -1153,6 +1153,15 @@ used only in `if (0) { (*cmd_cnt)++; }`. Why it matches is in docs/sched_model.m
 **609 -> 777 drafts at 100%** (+168; 68 script-command handlers among the 100%s by name pattern), 707 promoted (was 546),
 0 compile failures.
 
+Variant `cmd_cnt_last` (optional rule, one VARIANTS entry): the dead-code counter declared after the other locals.
+Its dead uses rank it among the live locals for the callee-saved registers, and declared last it loses the ties.
+cr_CM_RESRV goes from 98% to 100% with it (the camera local takes r30, as in the original). The other 90-99% handlers
+differ in their bodies: a mask done in 8 bits (cr_S_BGM_CHANGE), a sign extension of a local (cr_CM_SHAKE). Those
+are hand-draft work.
+
+Note: `draft_batch.py --only` clears decomp/drafts/c, so afterwards only the listed drafts are there. The next full
+batch 12 writes them all again.
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.
