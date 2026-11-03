@@ -69,7 +69,7 @@ typedef struct cr_ScenarioSlot
   u8 unk_bc[0x10];
 } cr_ScenarioSlot;
 __declspec(section ".sdata") extern cr_ScenarioSlot *cr_g_ScenarioSlotPtr;
-extern u32 lbl_80451134;
+extern const u32 lbl_80451134;
 
 void cr_SYS_PARTS_GEN(void) {
     s16 *var_r31;

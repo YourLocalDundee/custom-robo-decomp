@@ -6,8 +6,8 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 void __assert(const char *, u32, const char *);
-extern char lbl_804510A0[7];
-extern char lbl_804510A7[5];
+extern const char lbl_804510A0[7];
+extern const char lbl_804510A7[5];
 
 f32 fn_80094394(void *arg0) {
     (arg0 != NULL) ? (void) 0 : __assert(lbl_804510A0, 0x95U, lbl_804510A7);

@@ -101,15 +101,15 @@ typedef struct cr_ScenarioState
   u32 unk_354[4];
 } cr_ScenarioState;
 __declspec(section ".data") extern cr_ScenarioState cr_g_Scenario;
-extern u32 lbl_80451104;
+extern const u32 lbl_80451104;
 __declspec(section ".sdata") extern s32 cr_g_ScriptCharaAct;
 typedef void (*cr_SeqFunc)(void);
 __declspec(section ".data") extern cr_SeqFunc cr_g_ScrCmdFuncs[300];
-extern u32 lbl_80451184;
-extern u32 lbl_80451180;
-extern u32 lbl_80451170;
-extern u32 lbl_80451168;
-extern u32 lbl_8045116C;
+extern const u32 lbl_80451184;
+extern const u32 lbl_80451180;
+extern const u32 lbl_80451170;
+extern const u32 lbl_80451168;
+extern const u32 lbl_8045116C;
 
 void cr_SYS_WINDOW_CLOSE_WAIT(void) {
     s16 var_r31;

@@ -5,7 +5,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern f32 lbl_80451518;
+extern const f32 lbl_80451518;
 extern u32 lbl_8044F500;
 int __cntlzw(unsigned int);
 __declspec(section ".sdata") extern u8 *cr_g_CurrentBattleRobo;

@@ -54,7 +54,7 @@ __declspec(section ".data") extern cr_ScriptState cr_g_Script;
 __declspec(section ".sdata") extern s32 cr_g_ScriptDepth;
 typedef struct cr_ScenarioSlot cr_ScenarioSlot;
 __declspec(section ".sdata") extern cr_ScenarioSlot *cr_g_ScenarioSlotPtr;
-extern u32 lbl_80451148;
+extern const u32 lbl_80451148;
 void fn_8001F6BC(s32 arg0, u16 arg1);
 __declspec(section ".sdata") extern s32 cr_g_ScriptCharaAct;
 typedef void (*cr_SeqFunc)(void);
@@ -105,11 +105,11 @@ typedef struct cr_ScenarioState
   u32 unk_354[4];
 } cr_ScenarioState;
 __declspec(section ".data") extern cr_ScenarioState cr_g_Scenario;
-extern u32 lbl_80451184;
-extern u32 lbl_80451180;
-extern u32 lbl_80451170;
-extern u32 lbl_80451168;
-extern u32 lbl_8045116C;
+extern const u32 lbl_80451184;
+extern const u32 lbl_80451180;
+extern const u32 lbl_80451170;
+extern const u32 lbl_80451168;
+extern const u32 lbl_8045116C;
 
 void cr_F_VIBRATION_ON(void) {
     s16 *var_r31;

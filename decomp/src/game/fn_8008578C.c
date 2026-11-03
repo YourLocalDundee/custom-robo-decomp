@@ -15,7 +15,7 @@ typedef Vec Vec3;
 typedef f32 Mtx[3][4];
 void PSMTXIdentity(Mtx m);
 void *fn_80084908(void *arg0, void *arg1, f64 farg0);
-extern f32 lbl_80450F58;
+extern const f32 lbl_80450F58;
 void fn_80084CFC(void *arg0, u8 arg1);
 void PSMTXConcat(Mtx mA, Mtx mB, Mtx mAB);
 typedef f32 Mtx44[4][4];

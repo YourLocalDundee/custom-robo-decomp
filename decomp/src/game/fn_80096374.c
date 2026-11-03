@@ -8,8 +8,8 @@
 typedef struct HSD_JObj HSD_JObj;
 typedef struct HSD_CObj HSD_CObj;
 void __assert(const char *, u32, const char *);
-extern char lbl_80451090[7];
-extern char lbl_80451097[5];
+extern const char lbl_80451090[7];
+extern const char lbl_80451097[5];
 typedef struct HSD_Obj HSD_Obj;
 struct _HSD_ClassInfo;
 typedef struct _HSD_Class

@@ -6,7 +6,7 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u16 lbl_8044F63A;
-extern f32 lbl_80450E40;
+extern const f32 lbl_80450E40;
 typedef enum cr_Seq
 {
   SEQ_LOGO,
@@ -45,7 +45,7 @@ typedef struct cr_SeqState
   u8 unk_44[4];
 } cr_SeqState;
 __declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
-extern f64 lbl_80450E70;
+extern const f64 lbl_80450E70;
 void fn_8008F6E8(u32 arg0);
 
 void fn_80080B80(void *arg0) {

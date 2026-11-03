@@ -1,15 +1,12 @@
 # name proposals: what the name batches (1, 6, 7) would change against the committed names
 # (tools/name_check.py; nothing applied - run tools/batches/run_all.ps1 -ApplyNames to take them)
-added 4, dropped 2 (1 used by the C sources), moved 0
+added 1, dropped 2 (1 used by the C sources), moved 0
 
-added   HSD_DevComARAMCallback 0x80170F48
-added   HSD_DevComARAMWakeUp 0x801710EC
-added   HSD_IDGetData 0x80198DC4
 added   hsd_8039DAD4 0x8017F4B8
 dropped psInitDataBankLoad 0x80179F88
 dropped setupInstanceMtx 0x80198014  (used by decomp/src)
 
-## symbols.txt: 119 lines differ
+## symbols.txt: 122 lines differ
 --- committed/symbols.txt
 +++ batches/symbols.txt
 @@ -843,0 +844,3 @@
@@ -163,6 +160,10 @@ dropped setupInstanceMtx 0x80198014  (used by decomp/src)
 +expLoadDesc = .text:0x801A26B4; // type:function size:0xF4 scope:global // lib-candidate R3 ref:kar/GKYE01 ref_size:0xF4 why: layout HSD_RvalueRemoveAll..bcexpLoadDesc (1 in gap), ref size 0xF4
 @@ -1882 +1883,0 @@
 -HSD_ShadowSetViewingRect = .text:0x801A4F00; // type:function size:0x1C0 scope:global // lib-candidate R3 ref:kar/GKYE01 ref_size:0x1CC why: layout makeMatrix..HSD_ViewingRectInit (1 in gap), ref size 0x1CC
+@@ -1888,3 +1888,0 @@
+-HSD_IDGetData = .text:0x80198DC4; // type:function size:0x2C scope:global // layout-proof ref:kar_wowjinxy/GKYE01 ref_size:0x2C anchors:0x80198144-0x8019902C
+-HSD_DevComARAMCallback = .text:0x80170F48; // type:function size:0x1A4 scope:global // lib-candidate R3 ref:kar/GKYE01 ref_size:0x1A4 why: layout HSD_DevComStdCallback..HSD_DevComARAMWakeUp (1 in gap), ref size 0x1A4
+-HSD_DevComARAMWakeUp = .text:0x801710EC; // type:function size:0x4D8 scope:global // lib-candidate R3 ref:kar/GKYE01 ref_size:0x4D8 why: layout HSD_DevComARAMCallback..HSD_DevComDVDStdCallback (1 in gap), ref size 0x4D8
 
 ## candidates_sdk.txt: 11 lines differ
 --- committed/candidates_sdk.txt
@@ -184,7 +185,7 @@ dropped setupInstanceMtx 0x80198014  (used by decomp/src)
 -TRKDoDisconnect = .text:0x8015B5F4; // type:function size:0x78 scope:global // R3 ref:ac-decomp/GAFU01_00 why: size 0x78 vs ref 0x78, between TRKDoOverride and TRKDoConnect
 -TRKTargetAccessFP = .text:0x8015D198; // type:function size:0x50C scope:global // R3 ref:ac-decomp/GAFU01_00 why: size 0x50C vs ref 0x50C, between TRKTargetAccessExtended1 and TRKTargetAccessDefault
 
-## candidates_hsd.txt: 10 lines differ
+## candidates_hsd.txt: 12 lines differ
 --- committed/candidates_hsd.txt
 +++ batches/candidates_hsd.txt
 @@ -4,0 +5,2 @@
@@ -204,3 +205,6 @@ dropped setupInstanceMtx 0x80198014  (used by decomp/src)
 +expLoadDesc = .text:0x801A26B4; // type:function size:0xF4 scope:global // R3 ref:kar/GKYE01 ref_size:0xF4 why: layout HSD_RvalueRemoveAll..bcexpLoadDesc (1 in gap), ref size 0xF4
 @@ -66 +66,0 @@
 -HSD_ShadowSetViewingRect = .text:0x801A4F00; // type:function size:0x1C0 scope:global // R3 ref:kar/GKYE01 ref_size:0x1CC why: layout makeMatrix..HSD_ViewingRectInit (1 in gap), ref size 0x1CC
+@@ -72,2 +71,0 @@
+-HSD_DevComARAMCallback = .text:0x80170F48; // type:function size:0x1A4 scope:global // R3 ref:kar/GKYE01 ref_size:0x1A4 why: layout HSD_DevComStdCallback..HSD_DevComARAMWakeUp (1 in gap), ref size 0x1A4
+-HSD_DevComARAMWakeUp = .text:0x801710EC; // type:function size:0x4D8 scope:global // R3 ref:kar/GKYE01 ref_size:0x4D8 why: layout HSD_DevComARAMCallback..HSD_DevComDVDStdCallback (1 in gap), ref size 0x4D8

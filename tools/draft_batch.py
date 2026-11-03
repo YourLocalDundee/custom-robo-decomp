@@ -497,16 +497,20 @@ def data_decls(ptrs={}, signs={}, extents={}):
         elif size <= 8:
             pre = 'CR_SECTION("%s") ' % DECL_SECTION[sec]
         es = ELEM[t]
+        # step 110: read-only data (.sdata2, .rodata) declared const. The compiler lets a load of a const object move
+        # ahead of stores through pointers (they cannot change it); declared plainly, every pointer store is a barrier
+        # for it (cr_CM_ZOOM: the flag lbl_8045110C read before the camera's byte stores, 82 -> 91 of 91 words)
+        cq = 'const ' if sec in ('sdata2', 'rodata') else ''
         if size == 4 and ptrs.get(name) == MIXED:
             out.append('// CR_MIXED %s %s\n' % (name, pre.strip()))
         elif size == 4 and name in ptrs:
-            out.append('%sextern %s%s;\n' % (pre, ptrs[name], name))
+            out.append('%sextern %s%s%s;\n' % (pre, ptrs[name], 'const ' if cq else '', name))
         elif size == es:
-            out.append('%sextern %s %s;\n' % (pre, t, name))
+            out.append('%sextern %s%s %s;\n' % (pre, cq, t, name))
         elif size % es == 0:
-            out.append('%sextern %s %s[%d];\n' % (pre, t, name, size // es))
+            out.append('%sextern %s%s %s[%d];\n' % (pre, cq, t, name, size // es))
         else:
-            out.append('%sextern u8 %s[%d];\n' % (pre, name, size))
+            out.append('%sextern %su8 %s[%d];\n' % (pre, cq, name, size))
     return ''.join(out)
 
 

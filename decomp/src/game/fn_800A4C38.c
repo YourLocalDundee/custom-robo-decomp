@@ -51,11 +51,11 @@ typedef struct cr_ScriptState
 } cr_ScriptState;
 __declspec(section ".data") extern cr_ScriptState cr_g_Script;
 extern u8 *lbl_8044F748;
-extern f32 lbl_804512BC;
+extern const f32 lbl_804512BC;
 f32 fn_8006207C(f32 farg0, f32 farg1, f32 farg2, f32 farg3);
-extern f32 lbl_80451388;
-extern f32 lbl_80451304;
-extern f32 lbl_80451280;
+extern const f32 lbl_80451388;
+extern const f32 lbl_80451304;
+extern const f32 lbl_80451280;
 void fn_800B1544(void);
 u32 cr_Bits_Test(u32 *set, u32 bit);
 typedef struct cr_ScenarioSlot

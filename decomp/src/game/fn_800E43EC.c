@@ -57,7 +57,7 @@ typedef struct cr_BattleRobo
 } cr_BattleRobo;
 __declspec(section ".data") extern cr_BattleRobo cr_g_BattleRobos[4];
 void fn_800E4618(void *arg0, void *arg1);
-extern f32 lbl_8045151C;
+extern const f32 lbl_8045151C;
 void fn_800E4770(void *arg0);
 
 void fn_800E43EC(u8 *arg0) {

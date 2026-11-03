@@ -58,7 +58,7 @@ typedef struct cr_BattleRobo
   u8 unk_3343a[0xE6];
 } cr_BattleRobo;
 __declspec(section ".data") extern cr_BattleRobo cr_g_BattleRobos[4];
-extern f32 lbl_80451768;
+extern const f32 lbl_80451768;
 void fn_8010D2D0(u8 arg0, u16 arg1);
 
 s32 fn_8010D980(void *arg0, u8 arg1) {

@@ -99,7 +99,7 @@ typedef struct cr_ScenarioState
 } cr_ScenarioState;
 __declspec(section ".data") extern cr_ScenarioState cr_g_Scenario;
 __declspec(section ".sdata") extern cr_ScenarioSlot *cr_g_ScenarioSlotPtr;
-extern u32 lbl_80451104;
+extern const u32 lbl_80451104;
 
 void cr_SYS_WAIT_TM(void) {
     s16 *temp_r31_11;

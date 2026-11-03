@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 1627
+files: 1679
 
 src/MSL/FILE_POS.c  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
@@ -207,13 +207,28 @@ src/game/cr_CAMMODE_PEAK_Frame.c  ours: a matching m2c draft of the game code, p
 src/game/cr_CAMMODE_SNR_AUTO_MOVE_Frame.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CHAR_CLR.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CHAR_COUSE_CLEAR.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_COUSE_CLEAR_PS.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CHAR_COUSE_SET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_COUSE_SET_PS.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CHAR_DUMMY_012.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CHAR_DUMMY_013.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CHAR_DUMMY_014.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CHAR_DUMMY_015.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CHAR_DUMMY_016.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_FOLLOW_SET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_FOLLOW_UNSET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_LOOK_SET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_LOOK_UNSET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_MOT_RET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_MOT_SET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_SET_A_SCRIPT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_SET_MODEL.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_SET_T_SCRIPT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_SPLINE_CLEAR.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_TALK.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CHAR_TURN_RET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CHAR_UNDISP.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CM_ANG.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CM_CIN_CLR.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CM_CIN_SET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CM_DUMMY_008.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -225,9 +240,17 @@ src/game/cr_CM_DUMMY_013.c  ours: a matching m2c draft of the game code, promote
 src/game/cr_CM_DUMMY_014.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CM_DUMMY_015.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CM_DUMMY_016.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CM_PLAYER.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CM_RESRV.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CM_RET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CM_RET_RESRV.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CM_ROTATE.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CM_SHAKE.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CM_SHAKE_STOP.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CM_WAIT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CM_WATCH_MAN.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CM_WATCH_MAN_KEEP.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CM_ZOOM.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_C_ACT_CHK_BIT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_C_ACT_JP.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_C_ACT_MOT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -268,12 +291,15 @@ src/game/cr_E_DUMMY_014.c  ours: a matching m2c draft of the game code, promoted
 src/game/cr_E_DUMMY_015.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_E_DUMMY_016.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_E_END_WAIT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_E_SISRIN.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_E_SISROUT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_BTL_DRAW.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_BTL_LOSE.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_BTL_RETIRE.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_BTL_WIN.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_BTL_WIN_COMBO.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_CHECK_G_TROPHY.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_F_CHK_BIT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_CLR.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_DUMMY_008.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_DUMMY_009.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -301,6 +327,7 @@ src/game/cr_F_LIFE_LE.c  ours: a matching m2c draft of the game code, promoted b
 src/game/cr_F_LIFE_LT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_MAP_PLATE_CLEAR.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_MAP_PLATE_SET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_F_PARTS_GET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_REAL_BOM.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_REAL_POD.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_F_REAL_ROBO.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -410,19 +437,24 @@ src/game/cr_SEQ_TITLE_FrameB.c  ours: a matching m2c draft of the game code, pro
 src/game/cr_SEQ_TITLE_FrameC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_BATTLE_NEXT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_BATTLE_SET.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_SYS_CALL.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_DUMMY_016.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_EXP_MESS.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_JP.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_JP_GEKITOU.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_SYS_OVERLAY.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_PARTS_GEN.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_SYS_PICKUP_BATTLE_END.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_PLAYER_LOCK.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_PLAYER_UNLOCK.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_SAVE.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_SYS_SEL_JP.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_SET_SCR.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_START.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_WAIT_TM.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_WINDOW_CLOSE.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_WINDOW_CLOSE_WAIT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_S_BGM_CHANGE.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_S_BGM_NO_CHANGE.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_S_BGM_STOP.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_S_DUMMY_004.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -440,6 +472,8 @@ src/game/cr_S_DUMMY_015.c  ours: a matching m2c draft of the game code, promoted
 src/game/cr_S_DUMMY_016.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_S_SE_PLAY.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_S_SE_STOP.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_Vec3_Normalize.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_Vec3_NormalizeTo.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800055E0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800055E4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800055E8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -484,6 +518,7 @@ src/game/fn_80019828.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_800199AC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80019E84.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001B1A0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8001B1D4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001B424.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001B42C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001C98C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -509,6 +544,7 @@ src/game/fn_8001D104.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_8001D1AC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001D254.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001D630.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8001DAF8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001DE38.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001E360.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001E3B8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -530,6 +566,7 @@ src/game/fn_80023570.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80023780.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80023990.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80023EC8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80024148.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8002444C_fn_8002444C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80024578.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80024590.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -548,6 +585,7 @@ src/game/fn_8003F000.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_8003F1E8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800412F8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800442EC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80044374.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8004505C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800498FC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80049904.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -574,6 +612,7 @@ src/game/fn_80061B38.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80061B90.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800640D8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80064150.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80064FE4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800668CC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800668DC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80066904.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -587,6 +626,7 @@ src/game/fn_800690D8.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80069614.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8006973C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8006B140.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8006B3D0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8006E628.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8006E690.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8006E6E8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -631,6 +671,7 @@ src/game/fn_80079080.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80079108.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80079544.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800796EC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80079C70.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007A130.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007A1D0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007A2C8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -642,22 +683,27 @@ src/game/fn_8007AAB4.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_8007AB14.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007BD64.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007CE1C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8007D0D4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007D17C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007D224.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007D2B8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8007DBF0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007DD14.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008052C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80080994.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80080B80.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80080F20.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80080FB4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800811E8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80081430.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80081438.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80085280.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008578C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008688C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80089F40.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80089FB8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008A030.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8008A0A8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008B930.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008B95C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008BA44.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -681,6 +727,7 @@ src/game/fn_8008E750.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_8008E9FC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008EDA8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008EDD8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8008EE04.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008F4F4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008F838.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008F890.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -692,6 +739,7 @@ src/game/fn_80090190.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_800920D0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80092108.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800929AC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80093180.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800932D0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80093818.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80093C30.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -734,6 +782,7 @@ src/game/fn_800A5844.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_800A5890.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800A5894.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800A5C60.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800AA024.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800AA130_fn_800AA130.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800AA17C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800AB468.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -764,6 +813,7 @@ src/game/fn_800B47F0.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_800B497C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800B5418.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800B77AC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800B7B18.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800BA770.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800BAF3C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800BB3F4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -820,6 +870,7 @@ src/game/fn_800FAC00.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_800FADE0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800FAE54.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800FAE88.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800FB924.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800FBC1C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800FBDF8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800FF958.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -877,6 +928,7 @@ src/game/fn_8011F270.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80122044.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80122088.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80124808.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8012481C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80124BCC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80124BFC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80124C28.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py

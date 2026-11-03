@@ -54,7 +54,7 @@ __declspec(section ".data") extern cr_ScriptState cr_g_Script;
 __declspec(section ".sdata") extern s32 cr_g_ScriptDepth;
 extern u8 lbl_803E66B4[324];
 f32 fn_8006207C(f32 farg0, f32 farg1, f32 farg2, f32 farg3);
-extern f32 lbl_80451280;
+extern const f32 lbl_80451280;
 typedef struct cr_ScenarioSlot cr_ScenarioSlot;
 __declspec(section ".sdata") extern cr_ScenarioSlot *cr_g_ScenarioSlotPtr;
 __declspec(section ".sdata") extern s32 cr_g_ScriptCharaAct;
@@ -106,11 +106,11 @@ typedef struct cr_ScenarioState
   u32 unk_354[4];
 } cr_ScenarioState;
 __declspec(section ".data") extern cr_ScenarioState cr_g_Scenario;
-extern u32 lbl_80451184;
-extern u32 lbl_80451180;
-extern u32 lbl_80451170;
-extern u32 lbl_80451168;
-extern u32 lbl_8045116C;
+extern const u32 lbl_80451184;
+extern const u32 lbl_80451180;
+extern const u32 lbl_80451170;
+extern const u32 lbl_80451168;
+extern const u32 lbl_8045116C;
 
 void cr_CHAR_COUSE_SET(void) {
     f32 var_f31_78;

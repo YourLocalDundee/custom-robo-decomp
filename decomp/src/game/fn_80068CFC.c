@@ -6,8 +6,8 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 s8 fn_80069AD8(void *arg0, void *arg1, u8 *arg2);
-extern u8 lbl_80450AB8[4];
-extern f32 lbl_80450AE0;
+extern const u8 lbl_80450AB8[4];
+extern const f32 lbl_80450AE0;
 
 void *fn_80068CFC(void *arg0, void *arg1, u8 *arg2) {
     s8 sp8;
@@ -27,7 +27,7 @@ void *fn_80068CFC(void *arg0, void *arg1, u8 *arg2) {
     if (var_r28 != 0) {
         M2C_FIELD(arg2, s32 *, 0x1C) = (s32) var_r29;
         M2C_FIELD(arg2, u16 *, 0x12) |= 0xC00;
-        fn_80069AD8(arg2, arg1, lbl_80450AB8);
+        fn_80069AD8(arg2, arg1, (unsigned char *) lbl_80450AB8);
         arg2 += 0x20;
     } else {
         M2C_FIELD(arg1, f32 *, 4) += lbl_80450AE0;

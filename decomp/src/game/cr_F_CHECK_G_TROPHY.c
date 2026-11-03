@@ -103,11 +103,11 @@ __declspec(section ".sdata") extern cr_ScenarioSlot *cr_g_ScenarioSlotPtr;
 __declspec(section ".sdata") extern s32 cr_g_ScriptCharaAct;
 typedef void (*cr_SeqFunc)(void);
 __declspec(section ".data") extern cr_SeqFunc cr_g_ScrCmdFuncs[300];
-extern u32 lbl_80451184;
-extern u32 lbl_80451180;
-extern u32 lbl_80451170;
-extern u32 lbl_80451168;
-extern u32 lbl_8045116C;
+extern const u32 lbl_80451184;
+extern const u32 lbl_80451180;
+extern const u32 lbl_80451170;
+extern const u32 lbl_80451168;
+extern const u32 lbl_8045116C;
 
 extern u8 *lbl_8044F788;
 

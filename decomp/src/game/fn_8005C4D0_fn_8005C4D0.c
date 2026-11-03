@@ -11,7 +11,7 @@ extern u16 lbl_803BFE68[16];
 void fn_80098104(s32 arg0, u8 arg1);
 extern u8 lbl_801F9E08[896];
 extern u32 lbl_8044F538;
-extern f32 lbl_8045099C;
+extern const f32 lbl_8045099C;
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_0678;
 extern u16 lbl_8044F58C;
 extern u32 lbl_8044F588;

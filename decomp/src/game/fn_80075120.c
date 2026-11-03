@@ -105,9 +105,9 @@ struct HSD_JObj
 };
 void HSD_JObjAnimAll(HSD_JObj *);
 void __assert(const char *, u32, const char *);
-extern char lbl_80450C48[7];
-extern char lbl_80450C4F[5];
-extern char lbl_80450C54[4];
+extern const char lbl_80450C48[7];
+extern const char lbl_80450C4F[5];
+extern const char lbl_80450C54[4];
 void PSMTXCopy(Mtx src, Mtx dst);
 void HSD_JObjSetMtxDirtySub(HSD_JObj *);
 void HSD_JObjDispAll(HSD_JObj *jobj, Mtx vmtx, u32 flags, u32 rendermode);

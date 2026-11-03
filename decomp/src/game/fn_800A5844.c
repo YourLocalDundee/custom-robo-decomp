@@ -6,8 +6,8 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 *lbl_8044F748;
-extern f32 lbl_80451280;
-extern f32 lbl_80451284;
+extern const f32 lbl_80451280;
+extern const f32 lbl_80451284;
 
 void fn_800A5844(void) {
     if (M2C_FIELD(lbl_8044F748, f32 *, 0x170) > lbl_80451280) {

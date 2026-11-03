@@ -8,7 +8,7 @@
 extern u32 lbl_8037569C[2417];
 typedef struct HSD_JObj HSD_JObj;
 void fn_80196C50(HSD_JObj *arg0, f32 farg0);
-extern f32 lbl_80450BAC;
+extern const f32 lbl_80450BAC;
 
 void fn_8006FAC4(void) {
     s32 var_r31_6;

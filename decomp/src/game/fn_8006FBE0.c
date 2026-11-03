@@ -7,9 +7,9 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u32 lbl_8037569C[2417];
 void __assert(const char *, u32, const char *);
-extern char lbl_80450BD0[7];
-extern char lbl_80450BD7[5];
-extern u8 lbl_801C0B58[24];
+extern const char lbl_80450BD0[7];
+extern const char lbl_80450BD7[5];
+extern const u8 lbl_801C0B58[24];
 typedef struct 
 {
   f32 x;
@@ -17,9 +17,9 @@ typedef struct
   f32 z;
 } Vec;
 typedef Vec Vec3;
-extern f32 lbl_80450BAC;
-extern f32 lbl_80450B90;
-extern f32 lbl_80450B94;
+extern const f32 lbl_80450BAC;
+extern const f32 lbl_80450B90;
+extern const f32 lbl_80450B94;
 
 void fn_8006FBE0(void *arg0) {
     struct {

@@ -136,11 +136,17 @@ def main(a):
         jobs = a[a.index('--run') + 1]
         minutes = int(a[a.index('--minutes') + 1]) if '--minutes' in a else 60
         env = dict(os.environ, PATH=os.path.dirname(CPP) + os.pathsep + os.environ.get('PATH', ''))
+        p = subprocess.Popen([PY, '-I', os.path.join(HERE, 'run_permuter.py'), name, '-j', jobs],
+                             cwd=os.path.join(HERE, 'permuter'), env=env)
         try:
-            subprocess.run([PY, '-I', os.path.join(HERE, 'run_permuter.py'), name, '-j', jobs],
-                           cwd=os.path.join(HERE, 'permuter'), env=env, timeout=60 * minutes)
+            p.wait(timeout=60 * minutes)
         except subprocess.TimeoutExpired:
-            pass
+            # the permuter's multiprocessing workers outlive their parent (and keep any pipe open): kill the tree
+            if os.name == 'nt':
+                subprocess.run(['taskkill', '/T', '/F', '/PID', str(p.pid)], capture_output=True)
+            else:
+                p.kill()
+            p.wait()
         best = sorted((d for d in os.listdir(out) if d.startswith('output-')), key=lambda d: int(d.split('-')[1]))
         print('best:', best[:3])
 

@@ -37,7 +37,7 @@ typedef struct cr_Pad
   u8 unk_a3;
 } cr_Pad;
 __declspec(section ".data") extern cr_Pad cr_g_Pads[4];
-extern f32 lbl_80450A70;
+extern const f32 lbl_80450A70;
 
 void fn_80064150(void *arg0) {
     u8 *var_r31_11;

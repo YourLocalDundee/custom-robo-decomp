@@ -9,11 +9,11 @@ void fn_800B1FBC(void);
 typedef struct HSD_JObj HSD_JObj;
 extern u8 *lbl_8044F748;
 void fn_80094DD8(HSD_JObj *arg0, f32 farg0);
-extern f32 lbl_80451280;
+extern const f32 lbl_80451280;
 extern u16 lbl_803BFE68[16];
 void fn_80098104(s32 arg0, u8 arg1);
 void fn_8001F6BC(s32 arg0, u16 arg1);
-extern f32 lbl_8045138C;
+extern const f32 lbl_8045138C;
 
 /* fn_800A5894: hand-written from main.dol's asm on its m2c draft (plan.md step 108): the list `((u8 (*)[4]) p)[i][0x90]` (addi + lwzx) tested against ((void *) 0) */
 void fn_800A5894(void) {

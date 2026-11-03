@@ -5,7 +5,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern f32 lbl_804503D0;
+extern const f32 lbl_804503D0;
 f64 sqrt(f64 x);
 
 f32 fn_8001CFA4(void *arg0) {

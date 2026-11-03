@@ -1162,6 +1162,25 @@ are hand-draft work.
 Note: `draft_batch.py --only` clears decomp/drafts/c, so afterwards only the listed drafts are there. The next full
 batch 12 writes them all again.
 
+### Step 110: the 29 script handlers at 90-99% (Nov 2, 2026, on main)
+
+After the head rule, 29 handlers were at 90-99%. 28 now have hand drafts (tools/hand_drafts, step 110 in their first
+line). cr_CM_ZOOM is fixed by a context rule. The fixes, each one a candidate generator rule:
+
+| Fix | Handlers | What the original has |
+|---|---|---|
+| dead uses in the head's `if (0)` block (`v = v;`, 1-3 times) and the counter's declaration position | cr_CHAR_SET_MODEL, _SET_T_SCRIPT, _SET_A_SCRIPT, cr_CM_WAIT, cr_CHAR_COUSE_CLEAR_PS, _LOOK_UNSET, _LOOK_SET, _MOT_SET, _FOLLOW_UNSET, _MOVE_COURSE(_PS), cr_SYS_OVERLAY | dead uses count for the callee-saved order: they raise a local's rank without code (scripts tools/sched/scratch/hd/dead_pos110.py, dead_uses110.py, dead_pairs110.py search them) |
+| three locals used only in dead code | cr_SYS_SEL_JP | saves r28-r31, uses only r30 |
+| the character search as a plain loop with the ID read before it, the result copied into a second local | cr_CHAR_MOT_RET, _TURN_RET, _TURN | the ID in a saved register, `mr. r31, r27` |
+| tied locals declared in the other order | cr_CHAR_FOLLOW_SET, cr_CHAR_TURN | declaration order breaks use-count ties |
+| a byte offset added to `(u8 *) &cr_g_Scenario`, not to the struct pointer | cr_SYS_PICKUP_BATTLE_END, cr_F_PARTS_GET | m2c's `&cr_g_Scenario + (i << 5) + 0x298` is scaled by the struct size |
+| the constant before the index: `(u8 *) p + 0x9FC + i * 0xC` | cr_CHAR_COUSE_SET_PS | stfsx with the index + constant |
+| `&= ~1`; no (u8) cast in a test; an s32 local instead of s16 | cr_S_BGM_CHANGE, cr_CHAR_TALK, cr_CHAR_COUSE_SET_PS, cr_CM_SHAKE, cr_F_CHK_BIT | word masks and compares, no extsh |
+| `>=` for m2c's `==` | cr_E_CIRCLE_SET | fcmpo + cror (ordered) |
+| the callee called with its real parameter types | cr_S_BGM_FIN | fn_80097670's third parameter is u8 (m2c inferred s8) |
+| the depth incremented in place after the call count | cr_SYS_CALL | no saved copy of the depth |
+| **.sdata2 / .rodata declared const** (data_decls, for every draft) | cr_CM_ZOOM 82 -> 91 of 91 | the compiler moves a load of const data ahead of pointer stores |
+
 ## Using it
 
 - The 100% matches are linked by batch 12 by itself (above); the ones left out are listed in promote_report.txt.

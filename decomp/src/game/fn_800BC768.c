@@ -468,7 +468,7 @@ typedef struct HSD_Joint HSD_Joint;
 HSD_JObj *HSD_JObjLoadJoint(HSD_Joint *);
 void HSD_JObjAddAnimAll(HSD_JObj *, HSD_AnimJoint *, HSD_MatAnimJoint *, HSD_ShapeAnimJoint *);
 void fn_80196C50(HSD_JObj *arg0, f32 farg0);
-extern f32 lbl_80451280;
+extern const f32 lbl_80451280;
 void fn_80095224(HSD_JObj *arg0, f32 farg0);
 
 void fn_800BC768(void) {

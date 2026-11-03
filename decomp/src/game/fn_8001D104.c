@@ -6,7 +6,7 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 f64 sqrt(f64 x);
-extern f32 lbl_80450408;
+extern const f32 lbl_80450408;
 
 f32 fn_8001D104(void *arg0) {
     f32 var_f31;

@@ -53,7 +53,7 @@ __declspec(section ".data") extern cr_StageSelectorState cr_g_StageSelector;
 extern u8 lbl_8023C6AC[416];
 extern f32 lbl_8044ECDC[2];
 extern f32 lbl_8044ECE8[2];
-extern f32 lbl_80451858;
+extern const f32 lbl_80451858;
 extern u16 lbl_8044ECE4;
 
 /* the file's functions (each is defined below, in address order) */

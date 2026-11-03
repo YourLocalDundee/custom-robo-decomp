@@ -91,7 +91,7 @@ s32 fn_80020A40(void *arg0);
 void fn_80075D14(void);
 void fn_80074FBC(void *arg0, void *arg1);
 void *HSD_ArchiveGetPublicAddress(HSD_Archive *, const char *);
-extern char lbl_801B69B4[11];
+extern const char lbl_801B69B4[11];
 typedef struct HSD_JObj HSD_JObj;
 extern u8 lbl_8032A624[608];
 HSD_JObj *HSD_JObjLoadJoint(HSD_Joint *);

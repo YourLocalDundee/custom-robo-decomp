@@ -47,7 +47,7 @@ __declspec(section ".sdata") extern u8 *cr_g_CurrentCam;
 extern u8 lbl_8044F670;
 extern u8 lbl_8044F66D;
 extern u8 lbl_8044F66F;
-extern f32 lbl_80451008;
+extern const f32 lbl_80451008;
 extern u8 lbl_8044F672;
 typedef struct cr_Pad
 {

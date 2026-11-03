@@ -8,7 +8,7 @@
 void fn_80015E18(void);
 extern u8 *lbl_8044F304;
 void cr_Mem_CopyWords(void *dst, void *src, u32 bytes);
-__declspec(section ".rodata") extern char lbl_801C3CF0[5];
+__declspec(section ".rodata") extern const char lbl_801C3CF0[5];
 typedef struct cr_BattleRecord
 {
   u32 battles;
@@ -75,7 +75,7 @@ void fn_800F5BE4(void) {
     fn_80015E18();
     var_r30 = lbl_8044F304;
     sp8 = var_r30;
-    cr_Mem_CopyWords(var_r30, lbl_801C3CF0, 0x10U);
+    cr_Mem_CopyWords(var_r30, (void *) lbl_801C3CF0, 0x10U);
     var_r30 += 0x10;
     cr_Mem_CopyWords(var_r30, &cr_g_SaveData, 0x1138U);
     var_r30 += 0x1138;

@@ -8,8 +8,8 @@
 void fn_8008E8F4(u32 arg0, u32 arg1);
 void fn_8008E7EC(u16 arg0, u16 arg1, u16 arg2, u16 arg3);
 extern f32 lbl_8038B420[4];
-extern f32 lbl_80451280;
-extern f32 lbl_804512A0;
+extern const f32 lbl_80451280;
+extern const f32 lbl_804512A0;
 void fn_8008E5D0(void *arg0);
 void fn_800B3EF8(void);
 void fn_800B3054(void);

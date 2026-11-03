@@ -140,7 +140,7 @@ __declspec(section ".data") extern cr_SeqState cr_g_SeqCurrent;
 extern u8 lbl_8041CDB4[24];
 f32 fn_800965EC(void);
 void fn_800965F4(f32 farg0);
-extern f32 lbl_80451A54;
+extern const f32 lbl_80451A54;
 typedef struct cr_BattleRecord
 {
   u32 battles;

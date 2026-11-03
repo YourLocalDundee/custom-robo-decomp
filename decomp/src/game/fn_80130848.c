@@ -10,7 +10,7 @@ __declspec(section ".data") extern u8 cr_g_MotionDataBit15[1280];
 __declspec(section ".data") extern u32 *cr_g_MotionData[1280];
 void fn_80092108(u8 arg0);
 void fn_8008C788(void);
-extern f32 lbl_80451BF8;
+extern const f32 lbl_80451BF8;
 void *fn_8008C664(s32 arg0, u16 arg1, void *arg2, void *arg3);
 void fn_800972D8(s32 arg0);
 extern u8 lbl_8041E938[24];

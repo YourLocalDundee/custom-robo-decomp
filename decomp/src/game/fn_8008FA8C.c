@@ -7,8 +7,8 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern u8 *lbl_8044F40C;
 void OSPanic(const char *file, int line, const char *msg, ...);
-extern char lbl_801C0D38[9];
-extern char lbl_801C0D41[43];
+extern const char lbl_801C0D38[9];
+extern const char lbl_801C0D41[43];
 
 extern s32 *lbl_8044F6B0;
 

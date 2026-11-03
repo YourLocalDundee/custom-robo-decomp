@@ -15,7 +15,7 @@ typedef struct HSD_Joint HSD_Joint;
 HSD_JObj *HSD_JObjLoadJoint(HSD_Joint *);
 void HSD_JObjAddAnimAll(HSD_JObj *, HSD_AnimJoint *, HSD_MatAnimJoint *, HSD_ShapeAnimJoint *);
 void fn_80196C50(HSD_JObj *arg0, f32 farg0);
-extern f32 lbl_80451280;
+extern const f32 lbl_80451280;
 
 /* fn_800A44D4: hand-written from main.dol's asm on its m2c draft (plan.md step 109a): the index read as `(s16)` of the u16 field into an s16 local (lhz r3 / extsh r26), the joint list tested against ((void *) 0) (li r0, 0 / cmplw), the 0x150 copy stored as s16 (the value in r5: with both u16 the compiler reuses r4) */
 void fn_800A44D4(void) {

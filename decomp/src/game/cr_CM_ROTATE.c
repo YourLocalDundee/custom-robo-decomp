@@ -54,8 +54,8 @@ __declspec(section ".data") extern cr_ScriptState cr_g_Script;
 __declspec(section ".sdata") extern s32 cr_g_ScriptDepth;
 void cr_Cam_SetMode(u8 mode);
 extern u16 lbl_8044F714;
-extern f32 lbl_804514AC;
-extern f32 lbl_804512A8;
+extern const f32 lbl_804514AC;
+extern const f32 lbl_804512A8;
 
 void cr_CM_ROTATE(void) {
     s16 *temp_r31_14;

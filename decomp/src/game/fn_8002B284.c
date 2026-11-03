@@ -16,7 +16,7 @@ typedef struct
 void PSMTXMultVec(Mtx44 m, Vec *src, Vec *dst);
 extern f32 lbl_8032344C[237];
 typedef Vec Point3d;
-extern f32 lbl_804504D0;
+extern const f32 lbl_804504D0;
 
 s32 fn_8002B284(void *arg0, f32 farg0) {
     struct {

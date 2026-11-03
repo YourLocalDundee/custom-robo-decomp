@@ -103,11 +103,11 @@ typedef struct cr_ScenarioState
   u32 unk_354[4];
 } cr_ScenarioState;
 __declspec(section ".data") extern cr_ScenarioState cr_g_Scenario;
-extern u32 lbl_80451184;
-extern u32 lbl_80451180;
-extern u32 lbl_80451170;
-extern u32 lbl_80451168;
-extern u32 lbl_8045116C;
+extern const u32 lbl_80451184;
+extern const u32 lbl_80451180;
+extern const u32 lbl_80451170;
+extern const u32 lbl_80451168;
+extern const u32 lbl_8045116C;
 
 void cr_F_SET(void) {
     s16 *var_r31;

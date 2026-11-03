@@ -5,12 +5,12 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern f32 lbl_804503D0;
-extern f32 lbl_804503FC;
-extern f32 lbl_804503F8;
+extern const f32 lbl_804503D0;
+extern const f32 lbl_804503FC;
+extern const f32 lbl_804503F8;
 extern u8 lbl_801E90B0[32784];
-extern f32 lbl_80450400;
-extern f32 lbl_80450404;
+extern const f32 lbl_80450400;
+extern const f32 lbl_80450404;
 
 f32 fn_8001B42C(f32 farg0) {
     f32 var_f30;

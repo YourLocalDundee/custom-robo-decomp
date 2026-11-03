@@ -55,7 +55,7 @@ __declspec(section ".data") extern cr_ScriptState cr_g_Script;
 s8 fn_80029060(void *arg0, f32 (*arg1)[4], void *arg2, f32 farg0);
 __declspec(section ".data") extern u8 cr_g_Cams[20288];
 extern u8 lbl_8032338C[192];
-extern f32 lbl_804512BC;
+extern const f32 lbl_804512BC;
 
 void fn_800B47F0(void) {
     struct {

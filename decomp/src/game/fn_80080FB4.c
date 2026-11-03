@@ -5,7 +5,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern f32 lbl_80450E78;
+extern const f32 lbl_80450E78;
 
 void fn_80080FB4(void *arg0) {
     *M2C_FIELD(arg0, f32 **, 0x5C) = lbl_80450E78;

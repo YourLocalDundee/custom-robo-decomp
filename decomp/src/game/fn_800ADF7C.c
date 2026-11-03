@@ -39,7 +39,7 @@ typedef struct cr_Pad
 __declspec(section ".data") extern cr_Pad cr_g_Pads[4];
 extern u8 lbl_8044F74C;
 extern f32 lbl_8044F750;
-extern f32 lbl_804512B4;
+extern const f32 lbl_804512B4;
 extern u32 lbl_8044F504;
 typedef struct cr_BattleLoadout
 {
@@ -49,7 +49,7 @@ typedef struct cr_BattleLoadout
   u16 unk_e;
 } cr_BattleLoadout;
 __declspec(section ".data") extern cr_BattleLoadout cr_g_BattleLoadouts[4];
-extern f32 lbl_804513EC;
+extern const f32 lbl_804513EC;
 extern u8 lbl_8044F756;
 extern u8 lbl_8044F72C;
 typedef enum cr_Seq

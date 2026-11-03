@@ -7,7 +7,7 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern f32 lbl_8021A9A4[10];
 extern f32 lbl_8021A9CC[13];
-extern f32 lbl_80450FB8;
+extern const f32 lbl_80450FB8;
 
 void fn_8008BBC8(void *arg0) {
 

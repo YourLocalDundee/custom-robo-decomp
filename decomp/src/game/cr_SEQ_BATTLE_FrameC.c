@@ -7,8 +7,8 @@
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 typedef struct HSD_CObj HSD_CObj;
 void __assert(const char *, u32, const char *);
-extern char lbl_80450328[7];
-extern char lbl_8045032F[5];
+extern const char lbl_80450328[7];
+extern const char lbl_8045032F[5];
 typedef f32 Mtx[3][4];
 void PSMTXCopy(Mtx src, Mtx dst);
 typedef struct cr_CamSystem

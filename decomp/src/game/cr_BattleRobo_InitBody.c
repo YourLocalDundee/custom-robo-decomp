@@ -59,7 +59,7 @@ typedef struct cr_BattleRobo
 __declspec(section ".data") extern cr_BattleRobo cr_g_BattleRobos[4];
 __declspec(section ".data") extern cr_BodyData cr_g_BodyData[34];
 void cr_Battle_SetCurrentPointers(void);
-extern f32 lbl_80451284;
+extern const f32 lbl_80451284;
 void cr_Motion_PlayFromFrame1(u32 id);
 extern u8 lbl_8024DFA0[352];
 void cr_Motion_UpdateRoot(void);

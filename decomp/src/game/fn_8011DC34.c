@@ -8,8 +8,8 @@
 void fn_8008D434(s32 arg0, s32 *arg1, u8 arg2, f32 farg0, f32 farg1);
 s32 fn_80066948(u8 arg0, u16 arg1);
 extern u8 lbl_8041CBC0[16];
-extern f32 lbl_80451978;
-extern f32 lbl_804519EC;
+extern const f32 lbl_80451978;
+extern const f32 lbl_804519EC;
 void fn_8008CE9C(void);
 typedef struct cr_Pad
 {

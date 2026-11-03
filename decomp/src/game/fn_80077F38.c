@@ -15,7 +15,7 @@ extern u32 lbl_80379970[344];
 typedef struct HSD_Archive HSD_Archive;
 void *HSD_ArchiveGetPublicAddress(HSD_Archive *, const char *);
 struct HSD_Archive;
-extern char lbl_801C0B90[11];
+extern const char lbl_801C0B90[11];
 void fn_80078000(void);
 typedef struct HSD_JObj HSD_JObj;
 extern HSD_JObj *lbl_8044F604;

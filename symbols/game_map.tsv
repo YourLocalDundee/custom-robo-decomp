@@ -2899,8 +2899,8 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 80170E5C	FUN_80170e5c	19	2	1				
 80170EAC	FUN_80170eac	10	1	1				
 80170ECC	HSD_DevComStdCallback	24	0	3		devcom.c		s_devcom_c_8024a5e8
-80170F48	FUN_80170f48	78	0	7		devcom.c		s_devcom_c_8024a5e8
-801710EC	FUN_801710ec	179	6	8		devcom.c		s_devcom_c_8024a5e8
+80170F48	HSD_DevComARAMCallback	78	0	7		devcom.c		s_devcom_c_8024a5e8
+801710EC	HSD_DevComARAMWakeUp	179	6	8		devcom.c		s_devcom_c_8024a5e8
 801715C4	HSD_DevComDVDStdCallback	23	0	3		devcom.c		s_devcom_c_8024a5e8
 8017163C	HSD_DevComDVDARAMEndCallback	77	0	7		devcom.c		s_devcom_c_8024a5e8
 801717DC	HSD_DevComDVDMemCallback	68	0	4		devcom.c		s_devcom_c_8024a5e8
@@ -3303,7 +3303,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 801989A4	HSD_JObjResolveRefs	36	1	5	model	jobj.c,object.h		s_HSD_OBJ_o__,s_jobj_,s_jobj_c_8044f0b8,s_object_h_8024c848
 80198A9C	HSD_JObjResolveRefsAll	114	1	11	model	jobj.c,object.h		s_HSD_OBJ_o__,s_jobj_,s_jobj_c_8044f0b8,s_object_h_8024c848
 80198D70	HSD_JObjRef	17	1	1		object.h		s_HSD_OBJ_o__,s_object_h_8024c848
-80198DC4	FUN_80198dc4	10	1	1				
+80198DC4	HSD_IDGetData	10	1	1				
 80198DF0	ref_INC	13	1	1		object.h		s_HSD_OBJ_o__,s_object_h_8024c848
 80198E3C	HSD_JObjUnref	53	48	1		object.h		s_HSD_OBJ_o__,s_object_h_8024c848
 80198F84	HSD_JObjUnrefThis	37	6	0				
