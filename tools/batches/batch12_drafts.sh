@@ -7,6 +7,9 @@
 #   3. python -I tools/promote_drafts.py: every 100% draft that can be linked as it is -> decomp/src/game/<function>.c
 #      (COMMITTED) and decomp/reports/promote_report.txt. When decomp/src/game changed, batch 9 runs again here.
 #      (Not with --sample: a sample's report lists only some functions.)
+#   4. the data-only game units (step 111): gen_data_c.py --scan-untyped, scan_lbl_types.py, gen_data_c.py --all
+#      (symbols/bss_untyped.txt, symbols/lbl_types.txt, decomp/src/game/data; COMMITTED), from the batch 9 build
+#      before this batch and this batch's context. Not with --sample. Batch 9 again when either step changed files.
 # Never commit anything in decomp/drafts/. Not in tools/checksums.sh (see docs/drafts.md "Determinism").
 # Usage:  tools/batches/batch12_drafts.sh [--sample N] [--jobs N]
 set -euo pipefail
@@ -31,10 +34,18 @@ args=(--jobs "$jobs")
 if [ "$sample" = 0 ]; then
     p=$("$PY" -I "$g/tools/promote_drafts.py") || die 'promote_drafts.py failed'
     printf '%s\n' "$p"
-    case "$(printf '%s\n' "$p" | tail -n 1)" in
-        changed*)
-            echo "== decomp/src/game changed: batch 9 again (the build links the promoted files)"
-            "$b/batch9_decomp_build.sh" ;;
-    esac
+    changed=0
+    case "$(printf '%s\n' "$p" | tail -n 1)" in changed*) changed=1 ;; esac
+    echo "== data units (step 4): untyped .bss / .sbss runs, typed lbl_ families, decomp/src/game/data"
+    "$PY" -I "$g/tools/gen_data_c.py" --scan-untyped || die 'gen_data_c.py --scan-untyped failed'
+    "$PY" -I "$g/tools/scan_lbl_types.py" || die 'scan_lbl_types.py failed (a family did not check; see its message)'
+    d=$("$PY" -I "$g/tools/gen_data_c.py" --all) || { printf '%s\n' "$d"; die 'gen_data_c.py --all failed'; }
+    du=$(printf '%s\n' "$d" | grep -E ': (written|rewritten|removed)' || true)
+    [ -z "$du" ] || { printf '%s\n' "$du"; changed=1; }
+    echo "data units: $(printf '%s\n' "$d" | grep -c ': unchanged' || true) unchanged, $(printf '%s' "$du" | grep -c . || true) written or removed"
+    if [ "$changed" = 1 ]; then
+        echo "== decomp/src/game or decomp/src/game/data changed: batch 9 again (the build links the new files)"
+        "$b/batch9_decomp_build.sh"
+    fi
 fi
 echo "drafts: decomp/drafts/draft_report.txt (local); counts: decomp/reports/draft_summary.txt; promoted: decomp/reports/promote_report.txt"

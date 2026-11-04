@@ -38,18 +38,18 @@ WORKDIR /home/friend/custom-robo-decomp
 # setup.sh is given /dev/null as the ISO: it prints every tool's version, then stops at the ISO check (expected).
 FROM yay AS yay-zsh
 SHELL ["/usr/bin/zsh", "-c"]
-RUN yes '' | yay -S --needed git curl unzip python jdk21-openjdk
+RUN yes '' | yay -Syu --needed git curl unzip python jdk21-openjdk
 RUN bash tools/setup.sh /dev/null 2>&1 | sed -n '/^checking tools/,$p'; java -version 2>&1 | head -n 1; echo "shell: $0"
 
 FROM yay AS yay-fish
 SHELL ["/usr/bin/fish", "-c"]
-RUN yes '' | yay -S --needed git curl unzip python jdk21-openjdk
+RUN yes '' | yay -Syu --needed git curl unzip python jdk21-openjdk
 RUN bash tools/setup.sh /dev/null 2>&1 | sed -n '/^checking tools/,$p'; java -version 2>&1 | head -n 1; echo "shell: fish $version"
 
 FROM base AS pacman
 ARG REPO
 ARG REF
-RUN yes '' | sudo pacman -S --needed git curl unzip python jdk21-openjdk \
+RUN yes '' | sudo pacman -Syu --needed git curl unzip python jdk21-openjdk \
  && git clone -b "$REF" "$REPO" custom-robo-decomp
 WORKDIR /home/friend/custom-robo-decomp
 RUN bash tools/setup.sh /dev/null 2>&1 | sed -n '/^checking tools/,$p'; java -version 2>&1 | head -n 1
@@ -57,5 +57,5 @@ RUN bash tools/setup.sh /dev/null 2>&1 | sed -n '/^checking tools/,$p'; java -ve
 # default target, last: yay from bash, the image tools/from_scratch.sh runs in
 FROM yay AS yay-bash
 SHELL ["/bin/bash", "-c"]
-RUN yes '' | yay -S --needed git curl unzip python jdk21-openjdk
+RUN yes '' | yay -Syu --needed git curl unzip python jdk21-openjdk
 RUN bash tools/setup.sh /dev/null 2>&1 | sed -n '/^checking tools/,$p'; java -version 2>&1 | head -n 1; echo "shell: $0 $BASH_VERSION"

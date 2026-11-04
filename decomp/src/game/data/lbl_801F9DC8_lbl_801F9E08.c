@@ -1,0 +1,99 @@
+/* Custom Robo game data, written by tools/gen_data_c.py; regenerate it, do not edit (python -I tools/gen_data_c.py --all).
+ * A data-only game unit (plan.md step 86, docs/decomp.md "Game data objects"): .data 0x801F9DC8-0x801FA188, 3 objects, linked from this file (batch 9: retail SHA-1, objdiff 100%, shift test).
+ * Types: symbols/cr_types.h (through the drafts' context), names and addresses: symbols/cr_globals.txt; the initialisers are main.dol's bytes, element by element.
+ * The compiler lays .data / .sdata / .rodata / .sdata2 out in declaration order, so the definitions are in that order:
+ *   0x801F9DC8 lbl_801F9DC8 (cr_MotionTagFunc[5], 0x14 bytes)
+ *   0x801F9DDC lbl_801F9DDC (cr_MotionTagFunc[11], 0x2C bytes)
+ *   0x801F9E08 lbl_801F9E08 (u32[56][4], 0x380 bytes)
+ * The game's own source files are not known: this unit is one contiguous run of its data, not the original file. */
+#include "game/cr_game.h"
+
+/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h */
+typedef void (*cr_MotionTagFunc)(void);
+
+/* what the pointers point at (names of decomp/config/GXCE01/symbols.txt) */
+extern void fn_8005C384(void);
+extern void fn_8005C4D0(void);
+extern void fn_8005C628(void);
+extern void fn_8005C720(void);
+extern void fn_8005C7F4(void);
+extern void fn_8005C954(void);
+extern void fn_8005C9F0(void);
+extern void fn_8005CA8C(void);
+extern void fn_8005CB28(void);
+extern void fn_8005CBC4(void);
+extern void fn_8005CC60(void);
+extern void fn_8005CD8C(void);
+extern void fn_8005CD90(void);
+extern void fn_8005CDDC(void);
+extern void fn_8005CE3C(void);
+extern void fn_8005CE70(void);
+
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
+cr_MotionTagFunc lbl_801F9DC8[5] = {
+    fn_8005CE70, fn_8005CE3C, fn_8005CDDC, fn_8005CD90, fn_8005CD8C
+};
+cr_MotionTagFunc lbl_801F9DDC[11] = {
+    fn_8005CC60, fn_8005CBC4, fn_8005CB28, fn_8005CA8C, fn_8005C9F0, fn_8005C954, fn_8005C7F4,
+    fn_8005C720, fn_8005C628, fn_8005C4D0, fn_8005C384
+};
+u32 lbl_801F9E08[56][4] = {
+    { 0x4008A, 0x4008B, 0x4008A, 0x4008B },
+    { 0x4008A, 0x4008B, 0x4008A, 0x4008B },
+    { 0x40023, 0x40024, 0x40023, 0x40024 },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4008A, 0x4008B, 0x4008A, 0x4008B },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x40023, 0x40024, 0x40023, 0x40024 },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x40023, 0x40024, 0x40023, 0x40024 },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x40023, 0x40024, 0x40023, 0x40024 },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x40017, 0x40018, 0x40017, 0x40018 },
+    { 0x4001B, 0x4001C, 0x4001B, 0x4001C },
+    { 0x40019, 0x4001A, 0x40019, 0x4001A },
+    { 0x4001F, 0x40020, 0x4001F, 0x40020 },
+    { 0x4001F, 0x40020, 0x4001F, 0x40020 },
+    { 0x40025, 0x40025, 0x40025, 0x40025 },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E },
+    { 0x4001D, 0x4001E, 0x4001D, 0x4001E }
+};
+#pragma force_active reset

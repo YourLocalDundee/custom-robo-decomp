@@ -372,6 +372,135 @@ cr_g_PartOrderLeg 0x24 vs 0x22); the string tables (cr_g_SeqNames, cr_g_MotionNa
   typed); the unreferenced tables after the cuts (lbl_801DEBE0, lbl_801F8098); the next objects of the scan
   (docs/name_evidence.md "Leads").
 
+**Nov 3, 2026: data units round 3 (step 111, uncommitted).** 26 -> 101 data-only units; main.dol's data from C
+**56.86% -> 88.54%** (0x17BF9E -> 0x24FB13 of 0x29C3E3 bytes); left in automatic objects 0x11F714 -> 0x4BB70 bytes.
+Batch 9 after each round: retail SHA-1, every C object 100% in objdiff, static shift PASS (batch 11, the boot of the
+shifted build, not run yet). How:
+- **Untyped .bss / .sbss** (What to decide #3, owner, Nov 3): a .bss / .sbss object no reader has typed yet is defined
+  as `u8 lbl_X[N]` under dtk's own name (zero bytes: no game bytes in the C), marked UNTYPED in the unit header; it
+  moves to cr_globals.txt when a reader types it. `python -I tools/gen_data_c.py --scan-untyped` writes
+  symbols/bss_untyped.txt from the last batch 9's automatic objects: dtk's lbl_ objects in contiguous runs, cut at
+  gaps, at a typed name of ours, where the small-data rule would move an object (.bss over 8 bytes, .sbss 8 or less),
+  started 8-aligned, and **ended where the compiled section's 8-byte padding does not reach into the next dtk symbol**
+  (found by batch 9: dtk refuses a split that ends within a symbol, 0x8044F44E). 65 runs, 679 objects, 0x9B23E bytes.
+  Initialised data is never untyped.
+- **Typed objects under dtk names** (symbols/lbl_types.txt, `python -I tools/scan_lbl_types.py`, from the config
+  symbols.txt and main.elf's words and relocations, so objects already linked from C are still seen): record families
+  whose type the code and the bytes prove keep their lbl_ names. Each family checks itself and stops on anything else:
+  - **motion_info**: everything cr_g_MotionInfo reaches, 0x801FA188-0x80206DB0, exactly contiguous: 940 cr_MotionTag
+    lists of (tag, data) ended by (0, NULL), 940 cr_MotionHeader (tag 0; frames & 0xFFF), cr_MotionEvent (tags 6 / 7 /
+    10), cr_MotionEventList (tag 8, values -> u32[9]); tags 1 / 2 / 3 / 9 point into .sdata. fn_8005CE74 walks a list
+    through the handler table lbl_801F9DC8 for tags 0-3 until tag 4. cr_g_MotionInfo is now cr_MotionTag*[1095].
+  - **sqrt_table**: lbl_801E90B0, 8,192 f32 = sqrt(i) within 3 ulp (fn_8001B42C), then 16 zero bytes.
+  - **ax_data**: __AXCompressorTable (u16[3360]) + axDspSlave (u16[3936], the DSP microcode), SDK names.
+  - **file_descs**: cr_g_FileDescs' 43 targets as cr_FileDesc[n] and the relocated `packed` tables as
+    cr_PackedEntry[n], 0x801F14E0-0x801F5D30 (`packed` = 1, a single file, is written `(void *) 1`).
+  - **stage_data**: **cr_g_StageData** (new name: 40 x 0x340, indexed by the stage id lbl_8037569C + 6, mulli 0x340;
+    Shift-JIS stage names at +0; +0x84 the only pointer, +0x324 u32 to fn_800972D8, +0x328 4 f32, +0x33A the stage
+    message the stage selector reads) and its 4 cr_KeyPath (6 x cr_KeyTrack: keys + a float count) and 24 cr_Key7 lists.
+  - **key_paths**: any other (keys, f32 count) object whose every count is a whole number equal to its list's length in
+    0x1C-byte cr_Key7: cr_KeyTrack[n], an object of pointers to them cr_KeyTrack*[n] (the camera modes' paths,
+    0x801F80D0-0x801F8894, one run since the cut 0x801F84B0: symbols/data_splits.txt, dtk's lbl_801F8494 is a key list +
+    an unreferenced path; the rescan after it joined the two units, 40 objects).
+  - **window_data** (later on Nov 3): what decomp.md first called "the stage / effect tables" at 0x8020A104 is the
+    **text window code's** .data (fn_80064DE4..fn_8006B848, the nine window creators of cr_g_WindowStyle). Typed from
+    the readers (symbols/cr_types.h, each type's comment lists them): cr_TextRecord is now field by field (the stores
+    of fn_80065270 / fn_80065E10 / fn_800666B8 ...: f32 +0 / +4, u16 +8 / +0xC / +0xE / +0x10 (0xFFFF ends a list) /
+    +0x12 (flags), four bytes +0x18..+0x1B); **cr_TextRecordList** (8 bytes: u16 code, 0xFFFF ends, 0xFFFE jumps, read
+    by fn_8008F3CC / fn_80091518; +4 the records) and **cr_TextBlock** (0x20, what a window object's +0x5C points at;
+    +0x1C its lists): the static pools are { records, { 0, records }, { 0xFFFE, NULL }, block } triples;
+    **cr_TextCell4** [17][12] / [96][5] (fn_80065270: row < 0x11 from the first); cr_TextLayout14[5] (ends at
+    +0x10 == 0xFFFF); cr_TextSound8[114] (the sound id passed to fn_80098104 per lbl_8044F5CA); cr_Area48 (what
+    lbl_8044F59C points at: 16 f32 + a u32); cr_TextPos0C; char[20] (Shift-JIS spaces, read with lbzx); and two
+    function-pointer types, **cr_WindowObjFunc** `void (*)(u8 *obj)` (lbl_8020AC50, table[byte] with an element of
+    lbl_8032CC20) and **cr_TextCmdFunc** `u32 (*)(u8 *cmd, u8 *style, u32 x)` (lbl_8020DD48, table[cmd +4] in
+    fn_80067904 / fn_8006A7D8, the result is the next x). Cut 0x8020ED90 (dtk's lbl_8020ED80 = list + block). Two
+    units: 0x8020A108-0x8020B0C0 (12 objects) and 0x8020DD48-0x8020EDB0 (5). Data from C **88.56% -> 88.86%**.
+    Not typed: lbl_8020B0C0 (0xB3C; fn_800668DC reads f32[5] at its head, nothing reads the rest: the path
+    "sound/sound_data.sem", a 0x78-byte block, then 0x330 + 0x780 bytes in the shape of the two cr_TextCell4 tables,
+    which fills the object exactly; no reader, so no type), and after it lbl_8020BBFC (cr_TextRecord[257]),
+    lbl_8020DC1C / DC2C (list + block + 0xE0 bytes of floats), the function tables lbl_8020DD2C / DD3C: all typed by
+    the same readers, but the run starts 4-aligned at 0x8020BBFC and can only come with lbl_8020B0C0.
+  - **script_tables** (later on Nov 3): 0x8021B240-0x8021B770, one unit: lbl_8021B240 = char*[47] (fn_800A0E64:
+    lwzx from its .data base lbl_8021AF28 + 0x318 by a signed byte x 4, passed to sprintf; "RPG_WRD01_BIN" ...),
+    lbl_8021B2FC = s32[47] (the BGM of each map id: fn_8009DAD8 / cr_S_BGM_DEFAULT index it by the u16 +0x7268 and
+    store it at +0xBA; cr_AreaBoxes_Update / cr_MAP_NEXT_SET compare by cmpw, signed), lbl_8021B3B8 = char*[238]
+    ("OBJ_BATTLE_SET_BIN" ... "ID_SUB_031_9"; no reader found: typed by its words, every one a relocation to a
+    NUL-terminated .rodata string). Cut 0x8021B3B8: dtk's lbl_8021B2FC was the numbers and the name pointers in one.
+    Data from C **88.86% -> 88.91%**. Not typed: **lbl_8021B770** (0xC84 up to cr_g_ScrCmdNames): 0x14-byte
+    records { u16 kind 0 / 1 / 2, 2 bytes, 4 f32 } that fn_8009EE8C picks by the u16 +0x14E of each lbl_803BC028
+    object (24 x 0x174), but their count is not proven: records [89] end at +0x6F4, where a 0xE0-byte float block
+    with no reader starts (the same bytes as lbl_8020DC2C's after its cr_TextBlock); it holds back cr_g_ScrCmdNames /
+    cr_g_ScrCmdFuncs (typed) and the cr_MotionSet run at 0x8021D364.
+  - **robo_tables** (later on Nov 3): 0x801F8EB8-0x801F9980, one unit: **cr_g_BattleRoboActionFuncs** is now
+    cr_RoboActionFunc[23], a function-pointer type `s32 (*)(void)` (cr_BattleRobo_UpdateAction calls table[action] with
+    no arguments set and keeps r3 as a word; fn_800498FC is `li r3, 1; blr`), then lbl_801F8F14 = s32[4] (fn_8004EDE4:
+    4 robo indices), lbl_801F8F24 = u32[42][2] (the robo's u16 +0x1CC, both words to the sound call fn_80097CA8),
+    lbl_801F9074 = **cr_RoboAction14**[67] (mulli 0x14 by the robo's u16 +0x1CE or lbl_801C5BD0's u16 +4: u32 +0 / +4,
+    the sound +8, u8 +0xC / +0xD; +0xE..+0x13 unread), lbl_801F95B0 = s32[53][2] (+0 compared with -1 by cmpwi),
+    lbl_801F9758 = u32[69][2] (both words to fn_80097CA8). Data from C **88.91% -> 89.01%**.
+    Then three more units of the same family: 0x801F9980-0x801F99A8 (lbl_801F9980 = u16[11], fn_8003F048 walks it
+    until 0xFFFF; lbl_801F9996 = u8[4][4], four lbz of [i << 2] in fn_80019E84 / fn_800392B0, then 2 zero bytes of
+    padding), **the default skeleton** lbl_801F9B00 = **cr_SkelSlot14**[26] (cut 0x801F9D08; the flag byte, the floats +4
+    / +0xC the limb solvers fn_8005AAA8 / fn_8005A668 read through &slot[5] / [10] / [16] / [21], +0x10 relocated: a
+    pointer), and 0x801F9DC8-0x801FA188 (lbl_801F9DC8 / lbl_801F9DDC = cr_MotionTagFunc[5] / [11], `void (*)(void)`:
+    the tag walkers call table[tag] with no arguments, fn_8005CE70 is a bare blr; lbl_801F9E08 = u32[56][4], the
+    sounds fn_8005C4D0 passes to fn_80098104). Data from C **89.07%**. Not typed here: lbl_801F99A8 (the path
+    "sound/sound_data.sem" and the float block with no reader, as in lbl_8020B0C0 / lbl_8021B770), lbl_801F9D08 (27
+    floats nothing reads, then the u8[16] track orders 0x801F9D74 / 0x801F9D84, 4-aligned behind them) and
+    lbl_801F9D94 (u8[26] + 6 floats nothing reads).
+  - **camera_data** (later on Nov 3): 0x801F8894-0x801F8E74, appended to the key-path unit (one unit
+    0x801F80D0-0x801F8E74, 71 objects). **Found on the way: a .data unit must start 8-aligned, its end need not**
+    (the key-path unit already ended at the 4-aligned 0x801F8894 and passed batch 9; the families now check the start
+    only). The camera objects are the split-screen layouts: **cr_CamRect** (4 f32, one per camera; { 0, 640, 0, 480 } is
+    the whole screen), arrays of 2 / 3 / 4 / 6 / 8 / 15, picked by layout[mode][camera] (i << 4) from the tables
+    lbl_801F8BDC (cr_CamRect*[10], lfs in cr_CAMMODE_BTL_WAIT_Frame / RESULT_Start) and lbl_801F8E54 (cr_CamRect*[8],
+    word copies to camera +0x38, which RESULT_Start reads with lfs); lbl_801F893C = f32*[8] to f32[3] / f32[4] per-camera
+    values (lfsx [camera << 2]); lbl_801F8894 = f32*[4] (fn_80027170 stores floats through them), then
+    cr_g_CamModeNames. All read from the .data base lbl_801F5D68 (+0x2B2C, +0x2BD4, +0x2E74, +0x30EC). Cuts 0x801F88A4,
+    0x801F8BDC, 0x801F8E74. Data from C **89.12%**. Not typed: 0x801F8E74-0x801F8EB8 (4 rectangles of a four-way split
+    and 4 zero bytes; nothing reads them) and 0x801F8098 (7 byte / float pairs, nothing reads them).
+  - **trig_tables** (later on Nov 3): 0x801E6580-0x801E90B0, one unit up to the sqrt table: lbl_801E6580 =
+    f32[1025], the quarter sine cr_Sin16 / cr_Cos16 / cr_SinCos16 read as [((angle & 0x3FFF) >> 4) + 1] (entry 0 is 0,
+    entries 1..1024 are sin(i * pi / 2 / 1023) within 2e-5: the scanner checks every one), then the five u16 tables
+    fn_8001F060 (an arctangent) reads from the same base at +0x1004 / +0x2006 / +0x2408 / +0x2A08 / +0x2A96 (every
+    branch ends in slwi 1, lhzx): u16[2049] / [513] / [768] / [71] / [77]. Five cuts (0x801E7584 ... 0x801E9016).
+    Data from C **89.52%**.
+  - **records / ui_tables** (later on Nov 3): lbl_802359F8 = **cr_Record10**[64] (fn_800DDCD4: the robo's u16 +0x1CE,
+    slwi 4; bytes +0..+3 / +8..+0xA, floats +4 / +0xC); lbl_802362A0 = **cr_CardImage** (0x1C40, the save file's memory
+    card image: fn_800EB158 sprintf's the date into comment 2 and memcpy's the 0xC00 banner, its 0x200 palette, three
+    0x400 icons and their 0x200 palette, then copies the whole 0x1C40 out: the GameCube comment / banner / icon
+    layout); lbl_80238160 = **cr_Record11C**[23] (fn_8010071C, mulli 0x11C: the pointers +0 / +4, the bytes +0x118 /
+    +0x119; cut 0x80239AE4, the 0x64 bytes after it are unread); 0x80239B48-0x8023A004 (17 objects: float arrays typed
+    by their strides f32[4][2], f32[20][6], f32[10][6] ..., cr_F32x10Pad, a text-record pool like the window code's;
+    cuts 0x80239EF8, 0x80239F20, 0x80239FCC, 0x80239FEC). Data from C **90.11%**, 1,087 units.
+  - **The data step is in batch 12 now** (step 4 of tools/batches/batch12_drafts.ps1 / .sh): after promote_drafts.py,
+    `gen_data_c.py --scan-untyped`, `scan_lbl_types.py`, `gen_data_c.py --all`, then batch 9 when a unit was written or
+    removed (as for promoted functions). Batch 12 writes the context the units' types come from, and runs after a batch 9
+    (run_all and the full run), so a new cut is seen. **Found by the dry run of that step**: `--scan-untyped` read only
+    dtk's automatic objects, so a second scan after the runs were linked found none and `--all` removed all 65 .bss /
+    .sbss units. Fixed: the scan also reads our own game/data units' .bss / .sbss (typed names still left out); it is
+    now a fixpoint (65 runs, 679 objects, 0x9B23E bytes again; a second pass of the whole step: 112 units unchanged).
+  - **records**: lbl_8022B3B8 = cr_Record8C[304] (the u16 table lbl_8044F7C0 picks one per robo; fn_800DDCD4 copies it
+    to the robo's 0x3798-byte object of lbl_803E83B8 at +0x3708). Field widths from the direct readers (+0x0..+0x8 u16,
+    +0x64 u32) and the readers of that copy (f32 at +0xC, +0x14..+0x20, +0x38, +0x3C, +0x48, +0x4C; u16 at +0x50..+0x56,
+    +0x7A..+0x80; u32 at +0x58, +0x60; u8 at +0x78); the bytes no reader was seen to read stay u8, as in cr_GunData.
+- **New named units**: cr_g_MotionNames (8-aligned once the motion info before it is a unit; its strings stay in their
+  automatic object, named by their symbols), **cr_g_PodData** (cr_PodData[57], 0x174 each: mulli 0x174 in fn_80066820 /
+  fn_800A2B9C; names at +0x00 / +0x20 like the gun and bomb records; ends at 0x801DE864, a cut: a table of 0x14-byte
+  model-loader entries follows).
+- **gen_data_c.py**: reads both lists next to cr_globals.txt (`# unit` blocks are units of `--all`); a pointer to an
+  object of the same unit is written by its name (`&x`, or `x` for an array) with a forward declaration only when the
+  target comes later; a small number in a `void *` slot is written `(void *) N`; container lookups are a sorted table (a
+  unit of 1,916 objects and 8,000 pointers); `--all` removes a generated unit no list produces any more.
+- **Left, with the reason** (see decomp/reports/progress_report.txt for the bytes left): of the camera region only
+  0x801F8098 and 0x801F8E74-0x801F8EB8 (no reader); of the robo tables (robo_tables above)
+  lbl_801F99A8 and 0x801F9D08-0x801F9DC8; of the window tables (window_data above) only
+  0x8020B0C0-0x8020DD48; of the script tables (script_tables above) 0x8021B770-0x8021D364 (lbl_8021B770's record
+  count, then the typed cr_g_ScrCmdNames / cr_g_ScrCmdFuncs) and the cr_MotionSet run at 0x8021D364 (4-aligned start:
+  comes with them); the .rodata string pool 0x801B6620 (strings come with their file);
+  0x801DEBE0's other tables, 0x8023B8D0, the .sdata / .sdata2 pools of files still in asm.
+
 #### Community address leads checked (Nov 2, 2026)
 
 Leads only until a name lands in cr_globals.txt with its own `why`; checked against main.dol and the code:

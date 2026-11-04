@@ -12,7 +12,7 @@ code (constant propagation, per pointer kind; "missed" = dtk made no relocation)
   relocated addresses used as numbers (bit mask / signed compare): 4 uses, 1 lis
 data: 12634 relocated words; unrelocated words in the moving range: 0
   relocated into the middle of a function: 1688 words in 83 tables; jump tables (the function holding the targets has a bctr and references the table): 82 (5 not named jumptable_ by dtk); not a jump table: 1
-glue (constant-offset arithmetic from one dtk object into another): 9038 accesses, 88 spans; padding must not be inserted inside a span
+glue (constant-offset arithmetic from one dtk object into another): 9043 accesses, 89 spans; padding must not be inserted inside a span
 
 fixes written: add_relocations 48, block_relocations 5
   add   .init:0x800036E4 hi TRKInterruptHandler  // MAT in pad_00_800034AC_init: value 0x8015C094 = TRKInterruptHandler+0x0; high half (lis) at 0x800036E4
@@ -90,7 +90,7 @@ named pointer tables (symbols/cr_globals.txt), words in their extent:
   ok   0x8021C3F4 cr_g_ScrCmdFuncs (cr_SeqFunc[300], 300 pointers): 300 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x801F88A4 cr_g_CamModeNames (char*[18], 18 pointers): 18 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x801F7FF0 cr_g_CamModeFuncs (cr_CamModeFunc[42], 42 pointers): 42 relocated words, 0 NULL, 0 unrelocated in-range words
-  ok   0x80205C94 cr_g_MotionInfo (u32*[1095], 1095 pointers): 1094 relocated words, 1 NULL, 0 unrelocated in-range words
+  ok   0x80205C94 cr_g_MotionInfo (cr_MotionTag*[1095], 1095 pointers): 1094 relocated words, 1 NULL, 0 unrelocated in-range words
   ok   0x80206DB0 cr_g_MotionNames (cr_MotionName[1095], struct data to 0x8020A108): 3285 relocated words, 1 NULL, 0 unrelocated in-range words
   ok   0x801C51B8 cr_g_BattleMotionSets (cr_BattleMotionSet[34], struct data to 0x801C5BD0): 0 relocated words, 0 NULL, 0 unrelocated in-range words
   ok   0x8044C3C0 cr_g_BodyCount (s32, struct data to 0x8044C3C4): 0 relocated words, 0 NULL, 0 unrelocated in-range words
@@ -111,7 +111,9 @@ named pointer tables (symbols/cr_globals.txt), words in their extent:
   ok   0x801C952C cr_g_LegData (cr_LegData[29], struct data to 0x801CA55F): 0 relocated words, 419 NULL, 0 unrelocated in-range words
   ok   0x801CA560 cr_g_GunData (cr_GunData[64], struct data to 0x801D4860): 0 relocated words, 4858 NULL, 0 unrelocated in-range words
   ok   0x801D4860 cr_g_BombData (cr_BombData[52], struct data to 0x801D9590): 0 relocated words, 2257 NULL, 0 unrelocated in-range words
-  ok   0x801F8EB8 cr_g_BattleRoboActionFuncs (void*[23], 23 pointers): 23 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x801F8EB8 cr_g_BattleRoboActionFuncs (cr_RoboActionFunc[23], 23 pointers): 23 relocated words, 0 NULL, 0 unrelocated in-range words
+  ok   0x801D9590 cr_g_PodData (cr_PodData[57], struct data to 0x801DE864): 0 relocated words, 2372 NULL, 0 unrelocated in-range words
+  ok   0x8020F4C8 cr_g_StageData (cr_StageData[40], struct data to 0x802176C8): 40 relocated words, 6654 NULL, 0 unrelocated in-range words
 
 glue spans (start .. end, section, the dtk objects at both ends):
   0x801B6620..0x801B6A29 .rodata lbl_801B6620 .. lbl_801B69CB
@@ -123,10 +125,11 @@ glue spans (start .. end, section, the dtk objects at both ends):
   0x801C1678..0x801C3C5C .rodata lbl_801C1678 .. lbl_801C3AA0
   0x801C4330..0x801C44E0 .rodata lbl_801C4330 .. lbl_801C43B0
   0x801C4668..0x801C4744 .rodata EndofProgramInstruction$162 .. lbl_801C466C
-  0x801C50D0..0x801D9590 .data lbl_801C50D0 .. lbl_801D9590
+  0x801C50D0..0x801D9590 .data lbl_801C50D0 .. cr_g_PodData
   0x801DEA78..0x801E62E0 .data cr_g_SeqFrameA .. lbl_801E628C
+  0x801E6580..0x801E9016 .data lbl_801E6580 .. lbl_801E9016
   0x801F5D68..0x801F8E54 .data lbl_801F5D68 .. lbl_801F8E54
-  0x801F99A8..0x801F9D84 .data lbl_801F99A8 .. lbl_801F9B00
+  0x801F99A8..0x801F9D84 .data lbl_801F99A8 .. lbl_801F9D08
   0x8020B0C0..0x8020DD74 .data lbl_8020B0C0 .. lbl_8020DD70
   0x80218808..0x80218C8C .data lbl_80218808 .. lbl_80218B0C
   0x802193D0..0x80219478 .data lbl_802193D0 .. lbl_80219478

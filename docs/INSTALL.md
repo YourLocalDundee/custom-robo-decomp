@@ -150,22 +150,31 @@ as `bash tools/...`, so they run in bash whatever your shell is.
 Install with **yay**:
 
 ```bash
-yay -S --needed git curl unzip python jdk21-openjdk
+yay -Syu --needed git curl unzip python jdk21-openjdk
 ```
 
 All five are repository packages (core / extra), nothing from the AUR: yay passes them to pacman, which asks for
 your sudo password and "Proceed with installation? [Y/n]". yay's clean-build and diff menus are only for AUR packages,
-so they do not come up. `--needed` skips what is already installed.
+so they do not come up. `--needed` skips what is already installed. `-Syu` also upgrades the rest of the system in
+the same step: that is on purpose (see the first note below).
 
 Without yay, the same with pacman:
 
 ```bash
-sudo pacman -S --needed git curl unzip python jdk21-openjdk
+sudo pacman -Syu --needed git curl unzip python jdk21-openjdk
 ```
 
-- If a download fails (404, "failed retrieving file"), your package lists are older than the mirrors: update the
-  system first (`yay`, or `sudo pacman -Syu`) and run the line again. Never `-Sy` without the `u`: Arch does not
-  support partial upgrades.
+- Keep the `yu` in `-Syu`. A plain `-S curl` on a system whose package lists are newer than its installed packages
+  (an earlier `-Sy`, or KDE Discover / a tray updater refreshing them in the background) installs the newest curl but
+  leaves its libraries old. Then everything that loads libcurl (pacman itself, git over https, flatpak) stops with
+  `symbol lookup error: /usr/lib/libcurl.so.4: undefined symbol: ngtcp2_...`, and pacman cannot fix itself. Arch does
+  not support partial upgrades; `-Syu` installs and upgrades in one transaction, so this cannot happen.
+- Already broken that way: take the newest `libngtcp2` (or whichever library the error names) from
+  `/var/cache/pacman/pkg/`, unpack only its `usr` folder over the system
+  (`sudo tar -xf /var/cache/pacman/pkg/libngtcp2-<version>-x86_64.pkg.tar.zst -C / usr`), then
+  `sudo pacman -Syu` and `sudo pacman -S libngtcp2` so pacman's database matches the files again.
+- If a download fails (404, "failed retrieving file"), the mirror you got is behind or your lists are stale: run the
+  same `-Syu` line again (or `sudo pacman -Syyu` once to force fresh lists).
 - Java: `jdk21-openjdk` becomes `java` through Arch's `archlinux-java`, no `PATH` or `JAVA_HOME` to set.
   `java -version` must say 21 or newer; only if you have several JDKs and it does not: `archlinux-java status` lists
   them and `sudo archlinux-java set java-21-openjdk` picks 21.

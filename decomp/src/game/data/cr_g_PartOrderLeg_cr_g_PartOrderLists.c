@@ -11,7 +11,6 @@
 extern u16 cr_g_PartOrderBody[];
 extern u16 cr_g_PartOrderBomb[];
 extern u16 cr_g_PartOrderGun[];
-extern u16 cr_g_PartOrderLeg[];
 extern u16 cr_g_PartOrderPod[];
 
 /* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */

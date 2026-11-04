@@ -17,7 +17,7 @@ import json, os, re, shutil, struct, sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # python -I drops the script dir
-import crmodel, iso_patch, robo_joints, sfd  # noqa: E402
+import crmodel, crmotion, iso_patch, robo_joints, sfd  # noqa: E402
 
 G = Path(__file__).resolve().parent.parent
 DISC = G / 'Custom Robo extracted'
@@ -164,6 +164,15 @@ def main():
                 rel = p.relative_to(mod / 'files')
                 if (stage / 'files' / rel).exists(): sys.exit(f'{rel}: replaced both as a file and through models/')
                 if not (DISC / 'files' / rel).exists(): sys.exit(f'{rel}: no such file on the disc')
+                if str(rel).lower() == 'motion.dbn':
+                    # the game never loads the loose motion.DBN: it plays the copy in logo_read_us.dbn (entry 8,
+                    # docs/formats/motion.md), so the edited motion file goes into that bundle instead
+                    bundle = mod / 'files' / crmotion.BOOT_BUNDLE
+                    if bundle.exists(): sys.exit(f'{rel} and {crmotion.BOOT_BUNDLE}: give one of them, not both')
+                    b = crmotion.boot_replace((DISC / 'files' / crmotion.BOOT_BUNDLE).read_bytes(), p.read_bytes())
+                    (stage / 'files' / crmotion.BOOT_BUNDLE).write_bytes(b)
+                    changed.append(f'{rel} -> {crmotion.BOOT_BUNDLE} entry {crmotion.BOOT_MOTION_ENTRY} (the copy the game plays)')
+                    continue
                 (stage / 'files' / rel).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(p, stage / 'files' / rel)
                 changed.append(f'{rel} (file)')

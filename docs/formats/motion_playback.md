@@ -1,6 +1,7 @@
 # Motion playback: what the tracks mean and how the game poses a robo (Nov 2, 2026)
 
-The file layout of `motion.DBN` and `snr_motion.BIN` is in [motion.md](motion.md). This page is what the game does with
+The file layout of the motion files is in [motion.md](motion.md); the motions the game plays are entry 8 of
+`logo_read_us.dbn`, not the loose `motion.DBN` ([the full path](motion.md#the-full-path-disc-to-screen-and-mod-to-iso)). This page is what the game does with
 the tracks, read from its code, and the tools that convert motions both ways. Everything below is **verified**
 by the code paths named and by the round trips at the end, unless marked otherwise.
 
@@ -41,7 +42,10 @@ index into the group's float pool (the "shared" table of motion.md):
 Between two keys the value is a cubic Hermite curve: s = (frame - t0) / (t1 - t0),
 v = p0 (1 - s)^2 (1 + 2 s) + p1 s^2 (3 - 2 s) + dt (m0 s (1 - s)^2 - m1 s^2 (1 - s)), with dt = (t1 - t0) / 30: the
 tangents are per second at 30 frames a second (constant 1/30 at 0x80450428). On a key, and before the first key, the
-value is the key's. Past the last key the code reads the word after the list; the files' motions end on a key.
+value is the key's. Past the last key the code reads the words after the list as more keys, so **every non-empty track
+must end on its motion's last frame**: all 52 motion files on the disc do, and `crmotion.build` refuses a file that
+does not. Nov 2, 2026: tracks with one key at frame 0 (held values) in the Atlas dash and gun motions made a battle
+glitch, a robo vanish and the screen go black; `crmotion_rig.reduce_keys` now keys a held value on both ends.
 
 The pool is shared by all motions of a group and de-duplicated, so a 14-bit index limits a group to 16,384 floats
 (group 0 of motion.DBN uses 13,867).
@@ -114,6 +118,24 @@ What the rig cannot do is projected onto what it can:
   targets can be authored.
 
 Robo 0's bind pose, for example, has its hands and foot plates parked away from the limbs; the game never shows that.
+
+**Authoring notes** (found making mods/atlas_ninja_run, Nov 2, 2026; each checked with `crmotion_rig.pose` numbers):
+- Facing: in the points' frame a robo faces -Z, except in the `*_r180` motions, which add 180 to root rotation y and
+  to joint 0's y (the body faces the same world way, the points' frame is turned): there forward is +Z and the sides
+  swap. Read it per frame from root rotation y.
+- Limb reach: `cr_Chara_SolveLegIK` / `SolveArmIK` measure the target on the **default** skeleton (0x801F9B00), then
+  the robo's own lengths are posed with those angles. On robo 0 a foot target 0.6 from the hip joint (0.08 below
+  point 0) gives a 96-degree knee, 0.8 gives 49 degrees, about 0.9 is straight (past it the solve leaves the cosine
+  range). The knee bends one way only, so a thigh swings only as far as the target direction allows.
+- The gun: the barrel is the gun hand's (role 9) X axis, along the forearm while joint 14 is 0. `joint14.rotz` pitches
+  it (-60: 33 degrees up from a forearm 24 degrees down), `joint14.roty` turns it sideways, `joint14.rotx` rolls it.
+  In a battle the game aims this arm itself, so what it keeps of these is for the in-game test to show.
+- The joint angle tracks of the lower body / thighs (15, 16, 21) barely move the knee once an IK target is set: pose
+  legs by their foot targets.
+- Root tracks (69-77) and joint 0: the game uses them beyond the pose. Battle results (Nov 2, 2026, not yet proven
+  one by one): root rotation x +20 on the air dash blacked the 3D screen on the dash; joint 0 rotation x +20 (dash)
+  with joint 0 rotation y +180 (gun motions) blacked it as the battle started; root rotation y +180 on the gun
+  motions ran. Lean a pose by its 7 targets; the port's equal pose is no proof here.
 
 **Capacity.** A group's float pool is limited to 16,384 floats by the 14-bit index. motion.DBN group 0 uses 13,867
 (about 2,300 free after the unused floats of a replaced motion are dropped), group 1 9,864, group 2 4,198. An imported

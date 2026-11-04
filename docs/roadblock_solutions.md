@@ -573,7 +573,7 @@ SHA-1 and static shift PASS, batch 11 PASS.
    count as "from C" for the super goal, or only as an interim state? **Decided (owner, Nov 1, 2026): no.** An `asm` function is the original machine code, not source, so it does not count toward the super goal; the one-function-away objects (shadow.c, jobj.c, lobj.c, displayfunc.c, psdisptev.c) stay unlinked until that function is written in C. Work goes to hand-writing instead.
 
 3. **Opaque data definitions (roadblock 2).** May the object before a 4-aligned start be defined as untyped bytes to
-   let the typed unit link?
+   let the typed unit link? **Decided (owner, Nov 3, 2026): yes for .bss / .sbss only** (zero bytes: no game bytes in the C), as an interim form under dtk's own lbl_ names, marked UNTYPED in the unit header, typed from the readers later (the object then moves to cr_globals.txt); initialised data is never untyped. Tool: `gen_data_c.py --scan-untyped` -> symbols/bss_untyped.txt (65 runs, 679 objects, 0x9B23E bytes; batch 9 PASS). With the typed families of the same day (symbols/lbl_types.txt) the data from C went 56.86% -> 88.54% (docs/decomp.md, Nov 3).
 4. **The `.sh` twins and the Linux notes (roadblock 7).** Delete, freeze, or keep maintaining?
 5. **CI (roadblock 7).** A self-hosted runner on the desktop (the ISO stays local), or the short check by hand?
 6. **Public tools that publish code (roadblock 4).** May game asm be uploaded to decomp.me scratches?

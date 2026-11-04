@@ -47,6 +47,16 @@ CTX = D / "drafts/ctx_pp.c"
 MARK = "/* Custom Robo game data, written by tools/gen_data_c.py"
 NL = "\n"
 GLINE = re.compile(r"^\s*(cr_g_\w+)\s*=\s*(\.[\w.]+):0x([0-9A-Fa-f]+);\s*//\s*type:object\s+datatype:(\S+)")
+# What to decide #3 (owner, Nov 2, 2026): a .bss / .sbss object no reader has typed yet may be defined as a sized byte
+# array under dtk's own lbl_ name (zero bytes: no game bytes in the C), an interim form marked untyped in the unit's
+# header; initialised data is never untyped. The list: symbols/bss_untyped.txt; a typed global moves to cr_globals.txt.
+UNTYPED = G / "symbols/bss_untyped.txt"
+ULINE = re.compile(r"^\s*(lbl_[0-9A-F]{8})\s*=\s*(\.[\w.]+):0x([0-9A-Fa-f]+);\s*//\s*type:object\s+datatype:u8\[(\d+)\]")
+UNTYPED_NAMES = set()
+# Types of objects that keep dtk's lbl_ names (no evidence names them; the code and the bytes prove their types):
+# symbols/lbl_types.txt, written by tools/scan_lbl_types.py; `# unit` blocks as in bss_untyped.txt.
+LTYPES = G / "symbols/lbl_types.txt"
+LLINE = re.compile(r"^\s*([A-Za-z_]\w*)\s*=\s*(\.[\w.]+):0x([0-9A-Fa-f]+);\s*//\s*type:object\s+datatype:(\S+)")
 DTYPE = re.compile(r"^([A-Za-z_]\w*)\s*(\**)\s*((?:\[\d+\])*)$")
 # the units written so far (plan.md steps 86 and 90): --all writes every one again
 UNITS = [
@@ -86,6 +96,11 @@ UNITS = [
     ["cr_g_SeqFrameA", "cr_g_SeqNames", "cr_g_SeqFrameB", "cr_g_SeqFrameC", "cr_g_SeqEnter", "cr_g_SeqLeave"],
     ["cr_g_CamModeFuncs"],
     ["cr_g_CharaYOffset", "cr_g_CharaMotionSets"],
+    # Nov 3: the motion name table (its strings stay in their automatic object, named by their symbols); 8-aligned now
+    # that the motion info records before it are a unit (symbols/lbl_types.txt)
+    ["cr_g_MotionNames"],
+    # Nov 3: the pod table, after the bomb table (its end is a cut in symbols/data_splits.txt: batch 9 applies it first)
+    ["cr_g_PodData"],
 ]
 INTS = {"char": (1, True), "signed char": (1, True), "unsigned char": (1, False), "short": (2, True),
         "unsigned short": (2, False), "int": (4, True), "unsigned int": (4, False), "unsigned": (4, False),
@@ -105,6 +120,25 @@ def read_globals():
         m = GLINE.match(ln)
         if m:
             out[m.group(1)] = (m.group(2), int(m.group(3), 16), m.group(4))
+    if UNTYPED.exists():
+        for ln in UNTYPED.read_text(encoding="utf-8").splitlines():
+            m = ULINE.match(ln)
+            if not m:
+                continue
+            n, sec, a, size = m.group(1), m.group(2), int(m.group(3), 16), int(m.group(4))
+            if sec not in (".bss", ".sbss"):
+                raise SystemExit(f"{UNTYPED.name}: {n} is in {sec}: only .bss / .sbss may be untyped (What to decide #3)")
+            if n in out:
+                raise SystemExit(f"{UNTYPED.name}: {n} is also in cr_globals.txt: a typed global leaves the untyped list")
+            out[n] = (sec, a, f"u8[{size}]")
+            UNTYPED_NAMES.add(n)
+    if LTYPES.exists():
+        for ln in LTYPES.read_text(encoding="utf-8").splitlines():
+            m = LLINE.match(ln)
+            if m:
+                if m.group(1) in out:
+                    raise SystemExit(f"{LTYPES.name}: {m.group(1)} is listed twice (or also untyped / in cr_globals.txt)")
+                out[m.group(1)] = (m.group(2), int(m.group(3), 16), m.group(4))
     return out
 
 
@@ -211,6 +245,7 @@ class Gen:
                 self.at[a] = (n,) + self.at[a][1:]
                 self.ours = [(n if (x[0], x[2]) == (old, a) else x[0],) + tuple(x[1:]) for x in self.ours]
         self.externs = {}   # name -> declaration line
+        self.unit_at, self.forward, self.cur = {}, {}, 0
 
     def bytes_at(self, a, n):
         for s in self.elf.alloc:
@@ -247,12 +282,21 @@ class Gen:
             if r is None:
                 if w == 0:
                     return "NULL"
+                if k == "ptr" and w < 0x10000 and self.types.pointee_name(t["to"]) == "void":
+                    # a marker value in a void * (cr_FileDesc.packed: 1 = a single file): no relocation, the same word
+                    return f"(void *) {w}"
                 raise Stop(f"0x{a:08X}: a pointer slot holds 0x{w:08X} without a relocation")
             tgt = r[1]
             if tgt not in self.at or (re.match(r"lbl_[0-9A-F]{8}$", self.at[tgt][0]) and self.container(tgt)):
                 # (a dtk default symbol inside a typed global of ours is one of its elements: batch 9 drops it, SYM_DROP)
                 return self.element_pointer(a, tgt, t)
             n, sec, sz, isf = self.at[tgt]
+            if n in self.unit_at and not isf:
+                # an object of this unit: by its name; declared ahead only when it is defined further down
+                ua, arr, udecl = self.unit_at[n]
+                if ua > self.cur:
+                    self.forward[n] = f"extern {udecl};"
+                return n if arr else f"&{n}"
             if k == "fptr":
                 if not isf:
                     raise Stop(f"0x{a:08X}: a function pointer to the data symbol {n}")
@@ -281,8 +325,11 @@ class Gen:
 
     def container(self, tgt):
         """the typed global of ours (cr_globals.txt) whose bytes hold tgt after its start, or None"""
-        for n, (sec, base, dtype) in self.globals.items():
-            if base < tgt and n in self.name_addr:
+        if not hasattr(self, "_spans"):
+            self._spans = []
+            for n, (sec, base, dtype) in self.globals.items():
+                if n not in self.name_addr:
+                    continue
                 m = DTYPE.match(dtype)
                 try:
                     size = 4 if m.group(2) else self.types.of_name(m.group(1))["size"]
@@ -290,9 +337,11 @@ class Gen:
                     continue
                 for d in re.findall(r"\[(\d+)\]", m.group(3)):
                     size *= int(d)
-                if tgt < base + size:
-                    return n
-        return None
+                self._spans.append((base, base + size, n))
+            self._spans.sort()
+            self._starts = [x[0] for x in self._spans]
+        i = bisect.bisect_left(self._starts, tgt) - 1   # typed globals do not overlap: the one starting before tgt
+        return self._spans[i][2] if i >= 0 and tgt < self._spans[i][1] else None
 
     def element_pointer(self, a, tgt, t):
         """a pointer into the middle of a symbol: `&name[i]` when the symbol is a typed global of ours (cr_globals.txt)
@@ -395,8 +444,11 @@ class Gen:
                 raise Stop(f"{n0} ends at 0x{e0:08X}, {n1} starts at 0x{a1:08X}: not contiguous")
         sec = items[0][2]
         zero = sec in (".bss", ".sbss")
+        self.unit_at = {n: (a, t["k"] == "array", decl) for a, n, s, dtype, decl, t in items}
+        self.forward = {}
         defs = []
         for a, n, s, dtype, decl, t in items:
+            self.cur = a
             if zero:
                 defs.append((a, f"{decl};"))
             else:
@@ -412,14 +464,25 @@ class Gen:
                 " * The compiler lays " + (".bss / .sbss out in reverse declaration order" if zero else
                                            ".data / .sdata / .rodata / .sdata2 out in declaration order")
                 + ", so the definitions are in that order:"]
-        for a, n, s, dtype, decl, t in (reversed(items) if zero else items):
-            head.append(f" *   0x{a:08X} {n} ({dtype}, 0x{t['size']:X} bytes)")
+        listed = list(reversed(items) if zero else items)
+        if len(listed) > 40:
+            kinds = {}
+            for a, n, s, dtype, decl, t in listed:
+                kinds[re.sub(r"\[\d+\]", "[]", dtype)] = kinds.get(re.sub(r"\[\d+\]", "[]", dtype), 0) + 1
+            head.append(" *   " + ", ".join(f"{c} x {k}" for k, c in sorted(kinds.items()))
+                        + " (each object's type: symbols/lbl_types.txt / cr_globals.txt / bss_untyped.txt)")
+            listed = []
+        for a, n, s, dtype, decl, t in listed:
+            head.append(f" *   0x{a:08X} {n} ({dtype}, 0x{t['size']:X} bytes)"
+                        + (", UNTYPED (symbols/bss_untyped.txt: size and place only, no reader typed it yet)" if n in UNTYPED_NAMES else ""))
         head.append(" * The game's own source files are not known: this unit is one contiguous run of its data, not the original file. */")
         text = NL.join(head) + NL + '#include "game/cr_game.h"' + NL + NL
         if self.emitter.out:
             text += "/* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h */" + NL + NL.join(self.emitter.out) + NL + NL
         if self.externs:
             text += "/* what the pointers point at (names of decomp/config/GXCE01/symbols.txt) */" + NL + NL.join(v for k, v in sorted(self.externs.items())) + NL + NL
+        if self.forward:
+            text += "/* objects of this unit that a pointer above their definition names */" + NL + NL.join(v for k, v in sorted(self.forward.items())) + NL + NL
         # mwld strips a data symbol nothing names (dtk's asm objects keep theirs): a table the code reaches as another
         # table's base + offset (cr_g_SeqEnter = cr_g_SeqFrameA + 0xF0) would go, and everything after it would move
         text += ("/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */" + NL
@@ -440,15 +503,124 @@ class Gen:
         return pieces, why
 
 
+def untyped_units():
+    """the units of symbols/bss_untyped.txt: each block after a `# unit` line is one contiguous run"""
+    units = []
+    if UNTYPED.exists():
+        for ln in UNTYPED.read_text(encoding="utf-8").splitlines():
+            if ln.startswith("# unit"):
+                units.append([])
+            else:
+                m = ULINE.match(ln)
+                if m and units:
+                    units[-1].append(m.group(1))
+    return [u for u in units if u]
+
+
+def typed_units():
+    """the units of symbols/lbl_types.txt: each `# unit` block; `= cr_g_X` puts a global of cr_globals.txt in it"""
+    units = []
+    if LTYPES.exists():
+        for ln in LTYPES.read_text(encoding="utf-8").splitlines():
+            if ln.startswith("# unit"):
+                units.append([])
+            elif units and (LLINE.match(ln) or ln.startswith("= ")):
+                units[-1].append(LLINE.match(ln).group(1) if LLINE.match(ln) else ln[2:].strip())
+    return [u for u in units if u]
+
+
+def scan_untyped():
+    """--scan-untyped: write symbols/bss_untyped.txt from the .bss / .sbss automatic objects of the last batch 9 build
+    (objdiff's report.json): dtk's lbl_ objects in contiguous runs, cut where a gap or a typed name of ours lies between
+    two, where an object breaks the small-data rule (.bss over 8 bytes, .sbss 8 or less), and moved on to an 8-aligned
+    start; the users of each object are the functions of batch 9's asm that take its address. Then --all checks them."""
+    import collections
+    import glob
+    import json
+    rep = json.loads((D / "build/GXCE01/report.json").read_text(encoding="utf-8"))
+    ranges = []
+    for u in rep["units"]:
+        # dtk's automatic objects, and our own data units (so a second scan, after the runs are linked, finds them again:
+        # the scan is a fixpoint; typed names of ours are still left out below)
+        if not u["metadata"].get("auto_generated") and not u["name"].startswith("main/game/data/"):
+            continue
+        for s in u["sections"]:
+            if s["name"] in (".bss", ".sbss") and int(s["size"]):
+                a = int(s["metadata"]["virtual_address"])
+                ranges.append((a, a + int(s["size"]), s["name"]))
+    typed = {a for _, (sec, a, _) in ((n, v) for n, v in read_globals().items() if n not in UNTYPED_NAMES)}
+    syms = []
+    for ln in gs.OURS.read_text(encoding="utf-8").splitlines():
+        m = re.match(r"(\S+) = (\.s?bss):0x([0-9A-F]+); // type:object size:0x([0-9A-F]+)", ln)
+        if m:
+            a = int(m.group(3), 16)
+            if any(lo <= a < hi and s == m.group(2) for lo, hi, s in ranges):
+                syms.append((a, m.group(1), m.group(2), int(m.group(4), 16)))
+    syms.sort()
+    runs, cur = [], []
+    for a, n, sec, size in syms:
+        ok = n.startswith("lbl_") and a not in typed and ((size > 8) if sec == ".bss" else (size <= 8))
+        if cur and (not ok or cur[-1][0] + cur[-1][3] != a or cur[-1][2] != sec):
+            runs.append(cur)
+            cur = []
+        if ok and (cur or a % 8 == 0):
+            cur.append((a, n, sec, size))
+    if cur:
+        runs.append(cur)
+    # the compiled section is padded to 8 bytes: a run's end must be 8-aligned or no dtk symbol may start before the
+    # next 8-byte boundary (dtk stops on a split that ends within a symbol: batch 9, Nov 3, 0x8044F44E)
+    starts = sorted(int(m.group(1), 16) for m in re.finditer(r"= \.s?bss:0x([0-9A-F]+);", gs.OURS.read_text(encoding="utf-8")))
+    fixed = []
+    for r in runs:
+        while r:
+            end = r[-1][0] + r[-1][3]
+            nxt = starts[bisect.bisect_left(starts, end)] if bisect.bisect_left(starts, end) < len(starts) else 1 << 40
+            if end % 8 == 0 or nxt >= (end + 7) & ~7:
+                break
+            r = r[:-1]
+        if r:
+            fixed.append(r)
+    runs = fixed
+    names = {n for r in runs for _, n, _, _ in r}
+    users = collections.defaultdict(set)
+    pat = re.compile(r"\b(lbl_[0-9A-F]{8})@(?:ha|l|sda21)")
+    for f in glob.glob(str(D / "build/GXCE01/asm/*_text.s")):
+        fn = None
+        for ln in open(f, encoding="utf-8", errors="replace"):
+            if ln.startswith(".fn "):
+                fn = ln.split()[1].rstrip(",")
+            for m in pat.finditer(ln):
+                if fn and m.group(1) in names:
+                    users[m.group(1)].add(fn)
+    out = ["# Untyped .bss / .sbss objects defined from C as sized byte arrays under dtk's own name (What to decide #3, owner,",
+           "# Nov 2, 2026): an interim form, zero bytes (no game bytes in the C), size and place only. Written by",
+           "# `python -I tools/gen_data_c.py --scan-untyped` (only .bss / .sbss; initialised data is never untyped); each `# unit`",
+           "# block is one contiguous run, one unit of `--all`. When a reader types an object, it moves to cr_globals.txt with a",
+           "# name and a why: line and the scan leaves it out. users: the functions that take its address (batch 9's asm)."]
+    for r in runs:
+        out.append(f"# unit {r[0][2]} 0x{r[0][0]:08X}-0x{r[-1][0] + r[-1][3]:08X} ({len(r)} objects, 0x{sum(x[3] for x in r):X} bytes)")
+        for a, n, sec, size in r:
+            u = sorted(users[n])
+            us = (", ".join(u[:6]) + (f" +{len(u) - 6}" if len(u) > 6 else "")) if u else "none by symbol (reached from a neighbour's base)"
+            out.append(f"{n} = {sec}:0x{a:08X}; // type:object datatype:u8[{size}] // users: {us}")
+    UNTYPED.write_text("\n".join(out) + "\n", encoding="utf-8", newline="\r\n")
+    print(f"symbols/bss_untyped.txt: {len(runs)} runs, {sum(len(r) for r in runs)} objects, "
+          f"0x{sum(x[3] for r in runs for x in r):X} bytes")
+
+
 def main(argv):
+    if "--scan-untyped" in argv:
+        scan_untyped()
+        return 0
     check = "--check" in argv
     args = [a for a in argv if not a.startswith("--")]
-    units = UNITS if "--all" in argv else [args]
+    units = UNITS + typed_units() + untyped_units() if "--all" in argv else [args]
     if not units or not units[0]:
         sys.exit(__doc__)
     if not CTX.exists():
         sys.exit(f"{CTX} is missing: run tools/batches/batch12_drafts.ps1 (or tools/draft_batch.py) once for the drafts' context")
     bad = 0
+    written = set()
     for names in units:
         g = Gen()
         try:
@@ -467,11 +639,18 @@ def main(argv):
             print(f"{stem}: OK ({where}); not written (--check)")
             continue
         OUT.mkdir(parents=True, exist_ok=True)
+        written.add(stem)
         p = OUT / f"{stem}.c"
         old = p.read_text(encoding="utf-8") if p.exists() else None
         p.write_text(text, encoding="utf-8", newline=NL)
         print(f"decomp/src/game/data/{stem}.c: {'written' if old is None else 'unchanged' if old == text else 'rewritten'} ({where}, "
               f"{len(items)} object{'s' if len(items) != 1 else ''})")
+    if "--all" in argv and not check and not bad:
+        # a generated unit no list produces any more (a type moved, a run changed): removed
+        for p in sorted(OUT.glob("*.c")):
+            if p.stem not in written and p.read_text(encoding="utf-8").startswith(MARK):
+                p.unlink()
+                print(f"decomp/src/game/data/{p.name}: removed (no unit of the lists produces it)")
     return 1 if bad else 0
 
 

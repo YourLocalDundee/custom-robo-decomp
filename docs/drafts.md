@@ -1450,3 +1450,272 @@ fields (fn_80112294, fn_8012855C).
   `register`, s32).
 - **`--only` runs use the last full run's ctx_protos.h**: a function renamed since then (cr_Rand_Int = fn_8001B3F0) has
   no prototype there and its callers fail to compile in a partial run only; the full batch 12 is the test.
+
+### Step 110: read-only data plain for one draft, the variant plain_readonly (Nov 2, 2026, drafted, not yet run)
+
+data_decls declares the .sdata2 / .rodata objects with `CR_RO`, which ctx.h defines as `const` unless the draft defines
+`CR_NO_RO` first. `const` lets a load move ahead of stores through pointers (cr_CM_ZOOM needs it), but four drafts
+that were 100% before need the plain order (fn_800055E8, fn_80038BD8, fn_800FFA50, fn_800FFBB0). The variant
+`plain_readonly` (alone and with register_order) marks the draft; build() writes `#define CR_NO_RO` before
+`#include "ctx.h"`. The context is preprocessed a second time with CR_NO_RO (decomp/drafts/ctx_pp_noro.c), and
+promote_drafts.py reads such a draft's declarations from it; a file object whose drafts differ in this is not formed.
+The full batch 12 is the check (plan.md item 3).
+Nov 3: a `--only` run of the four: fn_800055E8, fn_800FFA50, fn_800FFBB0 at 100%; fn_80038BD8 at 98% (one word:
+`clrlwi.` for m2c's `(u8) *(...) != 0`, the original `cmplwi`) until the variant (plain_readonly, plain_byte_tests)
+(step 108's byte test without the cast) was added: then 100% too. The full batch 12 is still the check.
+
+### HSD near misses by hand, Nov 3, 2026 (no gain; for the permuter next)
+
+Tried with a variant runner (each spelling compiled with the real build's flags and scored by nd.py; the scripts were
+in the session scratchpad):
+- **HSD_ShadowSetViewingRect (98.2% of words, one `fabs` one slot late)**: main.dol takes |right| before |left| in the
+  second max, as in the first block (which the double temporaries fixed in step 104). Eleven spellings of the second
+  block: double temporaries (plain, nested, declared apart, reused from the first block), the ternary, `!(l > r)`,
+  `height = r; if (l > r) height = l;`, one temporary for |right| only, casts, f32 temporaries, the comparison
+  reversed. Every double-temporary form puts the order right and hoists the call's `mr r3, r31` into the compare
+  block (main.dol keeps it after the branch): 92.9%; the others order the registers or the branch wrongly (95.5% at
+  best). Not reached by spelling.
+- **mkBillBoardMtx (98.3%, f2 / f3 swapped)**: in the else branch main.dol gives `BB_EPSILON + sqrt` f2 and `-az.y` f3,
+  and the quotient reuses the divisor's register; ours the other way. Thirteen spellings (chained assignment, through
+  ay.y, a temporary before / after, a local only in the else branch, two locals, the quotient into mag or a new local,
+  without the unused `f32 t`, negation first): identical code for all but one (negation first: 84.8%, the loads
+  move). The allocation does not follow these spellings; it is decided earlier (the inline bb_sqrtf's volatile
+  return is the last thing that differs from a plain sqrt).
+Next for both: the permuter on the corrected setups (plan.md item 5: `LIST="HSD_ShadowSetViewingRect:shadow
+mkBillBoardMtx:displayfunc ..." MINUTES=20 tools/sched/hsd_permute.sh`).
+
+### The run 0x80080A94-0x800811E8 and fn_800528B8 by hand, Nov 3, 2026 (in progress)
+
+The file runs one to three functions short of complete (promote_report.txt) are the cheapest code: one match links
+the whole run with its data. Hand drafts written from the asm (a quick checker compiled them with draft_batch.py's
+build() and compared in seconds; scratchpad scripts):
+- **fn_800528B8** (the run cr_Motion_UpdateBlend..fn_800528B8, 1 of 2): m2c 68% -> **96%**. Found: the saved
+  registers go by declaration order (u8 set, s16 kind, u32 flags, an unused s32, s32 diff -> r31..r27; the unused one
+  is the r28 the original saves and never touches); the never-read u16 at sp+8 is a plain `u16 sp8` stored once (as
+  in its matched neighbour cr_Motion_UpdateBlend); `sp8 = ...` before `set |= 1` makes the original's reload of
+  cr_g_CurrentChara_0678. Left: the frame count before its int-to-float conversion loads into r3 in the original, r0
+  in ours (32 spellings: casts, temporaries, inline helpers, dead uses; named locals and inline parameters always
+  take a saved register).
+- **fn_80080E24** (run of 7, 3 missing): 88% at the first draft; left: f2 / f3 of two constants (eight operand
+  orders of the expression and const / plain constants give identical code).
+- **fn_80080C7C**: 71% -> **83%**: the parameter used directly (the original keeps it in r30, no copy), the two
+  never-read stack floats declared in reverse order, a third u8 declared first for the original's r29, the two
+  unused saved registers r26 / r25 as dead locals after `b`, the store before the table load in each block. Left:
+  the third block (a bool the original folds into the direct test while keeping its register).
+- **A relocation dtk lacks**: both run functions index lbl_8044EAE0 by a register through r13 (`addi r4, rI,
+  -0x58E2; stbx r0, r4, r13`). MWCC emits R_PPC_EMB_SDA21 to lbl_8044EAE0-2 on that addi (mwld keeps rA), dtk's
+  object has no relocation there, so promote_drafts.py would refuse them even at 100% ("relocation sites differ").
+  **Done in promote_drafts.py** (check_one): a relocation only the draft has is accepted when it is
+  R_PPC_EMB_SDA21 on an `addi` whose rA is a general register (not r0 / r2 / r13); the bytes are compared before,
+  batch 9's retail SHA-1 checks the linked value. Not exercised yet: neither function is at 100%.
+Next for all three: the permuter on the hand drafts (with the HSD near misses, plan.md item 5).
+
+- **fn_800528B8**: 96% -> **100%** with the permuter (12 minutes, 8 workers): a reload of `flags` (+0x10, never
+  read) right after the `fn_80051384` call gives the original's r3 for the frame-count load. With it the file run
+  cr_Motion_UpdateBlend..fn_800528B8 (0x800527D4-0x8005299C) is complete.
+
+### The run 0x800057B8 by hand, Nov 3, 2026 (in progress)
+
+The file run 0x800057B8 (the robo input / init file: fn_800057B8, fn_80005BC8, cr_BattleRobo_InitFromLoadout,
+fn_80007CE4, fn_8000805C) was 5 short. fn_80005BC8 and fn_80007CE4 were done earlier the same day.
+
+- **fn_8000805C** (0x5B0): m2c 70% -> **100%** (tools/hand_drafts). The MSL `sqrtf` with its NaN branches written
+  out in the function: the `x > 0` Newton steps, `x < 0.0` (a double compare) and the `__fpclassifyf` switch on a
+  stack float with its result in a saved register (if / else, not `?:`: the ternaries took two more saved
+  registers). NAN is read through `__float_nan` as an array (`lis` / `lfs`: as a plain `f32` extern it was taken for
+  small data). Three more points: `arg1` is read through its address (the original spills it to 0x8 and reads it
+  back); the chained zero stores of the reset record are `a = b = 0` with the second store first; `fn_8001C98C` is
+  called as returning its first argument (the length call that follows reuses r3; its file keeps the void
+  prototype). The stack order (4 locals, 24 orders tried) and `dir.z * dir.z + dir.x * dir.x` set the rest.
+- **fn_800057B8** (0x3D0): first hand draft 69% -> **99%**. buttons is a `u32` (no `clrlwi` after each `ori`), the
+  stick bytes go through `(u8)` and then `(s8)` into s32 locals (the original's `lbz r28; extsb r28, r28`), the
+  fabs results are `f64` locals copied to `f32` ones (the six saved FP registers), `(s32) battle_mode == 2` (cmpwi).
+  Left: one `mulli` scheduled before the camera-pointer load (12 spellings of the stick reads and the camera test
+  give the same order); for the permuter.
+- **cr_BattleRobo_InitFromLoadout** (0x8B4): m2c 36%, hand draft ~50%. Every table it reads (the loadout rows at
+  0x801C5BD0, the part records at 0x801C6C44 / 0x801C952C / 0x801D4860 / 0x801D9590, the 0x78 records at
+  0x801C5C10, the floats at 0x801C5150) is reached from one base kept in r30 (`addi r30, lbl_801C50D0@l`), each
+  table's address computed fresh (`addi rX, r30, 0xB00`, seven times, hoisted to the top by the scheduler) and
+  indexed with the field offset in the index (`slwi 4; addi 2; lhzx`). The gun record is reached by its own symbol.
+  Small-file tests: GC 1.3.2 to 3.0a5.2 at levels 0-4, static / const / initialised tables and `#pragma pool_data`
+  never pool a file's data, so the base is a local of the source. A constant offset from it is always folded into
+  the displacement (seven forms tried); only an explicit pointer (a local or an inline function's return value)
+  gives the original's instruction pattern. The inline form takes saved registers for all seven pointers (r17-r24);
+  the original keeps them in volatile registers except r22-r24 (its named locals take r25-r31). Left: the form that
+  makes them temporaries.
+
+### Near misses by hand, Nov 3, 2026 (the 85-97% drafts of decomp/build/draftscan)
+
+Scored from the draftscan objects (761 drafts; 54 at 80-99%). Nine more at 100% (tools/hand_drafts, 94 files):
+
+- **Stack structs that are Vec / Mtx locals** (fn_8002EBB0 92%, fn_8002E564 91%, fn_8002E944 91%, fn_8002EFB0 85%):
+  m2c writes the stack as one struct with `f32 spXX[4]; u8 pad_YY[32];` for each matrix and drops the last
+  matrix's padding, so the frame is 0x20 short. As `Vec` and `Mtx` locals the frame is the original's; the
+  matrices are declared in reverse order of their stack slots. A converter (scratch `mtxconv.py`) does it; 15
+  drafts of the draftscan set have such a struct, the four above match, fn_80015388 differs in more than the frame.
+- **fn_8002E2A0** (97%): the two floats passed to fn_8001F060 are the y / z of a Vec (x unused).
+- **fn_800210B0** (96%), **fn_80021350** (95%): the queue head is advanced before the current read is taken
+  (the original materialises that address last). fn_80021350 also needs an empty statement in its early return,
+  `if (result == -1) { (void) 0; return; }`: it gives the original's `bne +8; b end` where a bare `return` gives
+  `beq end` (a compiled-out debug macro). Not a generator rule: `bne +8; b` is common for other reasons (3,328
+  sites in 262 functions).
+- **fn_80053A20** (96%): in each of three swaps, the two negated components read before the plain one.
+- **fn_80050388** (95%): in the reset of the best-hp list the count and the first entry are cleared before the
+  robo mask is read.
+- **cr_SEQ_TITLE_FrameA** (94%): fn_800EB518 called through a void cast (its r3 at return is a coincidental -1
+  that no caller reads; as an s32 call, r3 stays reserved) and in case 1 the flag set before the state store.
+- Left for the permuter (scratch queue 2): the fn_80075258 family (fn_80075258 / 388 / 4B8 / 5E8, 96%, one source
+  over four tables: the two parameters come out in swapped saved registers, a copy local spills to the stack),
+  fn_80038CF8 (96%, a compare against a zero register), fn_8001838C (95%), fn_8000E3B8 (94%, scheduling),
+  fn_800057B8 (99%), fn_8006EEF8 (74%, see above).
+
+## Nov 3, 2026 (evening): two step 111 rules and 7 more hand drafts (main session, uncommitted, the full batch 12 not run)
+
+Started from the 80-99% drafts of `scores.py decomp/build/draftscan` not yet in tools/hand_drafts (41), sorted by a
+scratch triage: a draft whose differing words are the original's words with other register numbers is
+**register-only** (12: the permuter's work, scratch queue 3 `tools/sched/scratch/hand/perm/run_queue3.sh`); the rest
+are **structural** (29: by hand, smallest first).
+
+- **param_self_copies** (draft_batch.py, step 111, a variant with param_copies and param_aliases left out): m2c's
+  `var_r30 = arg0;` copy of a parameter written as the parameter itself plus `arg0 = arg0;` in the copy's place.
+  param_copies drops the copy and the parameters come out in the other saved registers (arg0 r29, arg1 r30 where
+  the original has r30 / r29); the copy itself costs a stack round trip (`stw r3,8(r1); lwz r30,8(r1)`). The
+  self-assignment keeps the copy's place in the allocation without the spill. Found by decomp-permuter (queue 2,
+  score 0 on fn_80075258 in 12 minutes). On the drafts with a parameter copy: fn_80075258 / 75388 / 754B8 / 755E8
+  96% -> 100%, fn_80021014 65% -> 89%; others lower, which the variant scoring leaves out.
+- **goto_for_loops** (draft_batch.py, step 111, a variant): m2c's unstructured loop with its exit test at the top,
+  `X = I; loop_N: if (T) { E } S; INC; goto loop_N;`, as `for (X = I; !(T); INC) { S } E`, innermost loop first; E
+  ends in a return or a goto (a nested loop's exit block is the outer loop's `step; goto loop_M;`, which the next pass
+  reads as that loop's tail). goto_exit_loops (step 109b) takes only a single `return` as E. fn_800119A0 86% -> 100%.
+  Of the 87 drafts below 100% with goto loops only 3 have this shape: the rest jump into switch cases or else
+  branches (hand work).
+- Hand drafts (tools/hand_drafts, now 101 files): **cr_SEQ_OPTION_FrameA** (86%: the sub-frame table's functions
+  take no argument and return u8; m2c passed the index), **fn_800119A0** (the two loops as for loops),
+  **fn_80075258 / fn_80075388 / fn_800754B8 / fn_800755E8** (param_self_copies), **fn_80021014** (param_self_copies,
+  then the goto loop as `while (1) { if ((s32) b == 3 && n == 0) break; ... }`: the exit test at the top, the byte
+  compared signed, cmpwi).
+- **fn_80080C7C** (83%, one of the four drafts that hold back the 9-function file run 0x80080A94-0x80081430): the
+  original indexes `lbl_8044EAE0[idx - 2]` with idx in r31 inside `if (idx == 2)`; our compiler folds the known
+  value into a constant (`li r4, sym`). Not undone by: a copy of idx, compares written `2 == idx`, `idx - 2 == 0`,
+  `!(idx != 2)`, `(idx ^ 2) == 0`, an unsigned idx, an inline index helper, reading the field each time (worse:
+  reloads after each store). In queue 3.
+- **fn_8001E488** (83%): only the float registers of three loads differ (f1/f2/f3 in the original, f2/f1/f2 in
+  ours); Vec locals, declaration orders and sum orders tried, no gain. In queue 3.
+
+- **null_reg_compares / null_reg_compares_u** (draft_batch.py, step 111, variants): every `x != NULL` / `== NULL`
+  (the `_u` form also an unsigned `!= 0U` / `== 0U`) as `(u8 *) (x) != (u8 *) NULL`. mwcc then keeps the zero in a
+  register, `li r0, 0; cmplw r3, r0`, where `x != NULL` gives `cmplwi r3, 0`. The original has that form at 154 sites
+  in 68 drafts below 100% (a scan of draftscan/asm). All sites at once: on the 68, 20 gain (fn_80064234 73 -> 91%,
+  fn_80064AB8 69 -> 86%, cr_Heap2_Free / fn_800233D4 / fn_800237F8 52 -> 66%, fn_8007A800 82 -> 85%), none reach
+  100% alone; a function that mixes both forms needs a hand draft (fn_80038CF8: only the 0x964 / 0x968 tests, 97%).
+- **stack_struct_param_homes** (draft_batch.py, step 111, a variant, also with either null_reg_compares form):
+  m2c's `--stack-structs` puts a parameter's stack home into the stack struct (`sp.sp8 = arg0;`, sp.sp8 read for
+  arg0). The field and the copy go and the parameter is used; with a field of its own, the struct's other members
+  (spilled locals) sit one slot higher. 11 drafts have the form: fn_8003F248 46 -> 61%, fn_8006B46C 48 -> 62%,
+  fn_8000805C 70 -> 76%; with null_reg_compares_u **fn_80064234 73 -> 100%** (eight hand-nested levels of a walk:
+  the game code is built at level 0 without inlining, so the nesting is in the source).
+- More hand drafts (tools/hand_drafts, 118 files): **fn_80024848** (the else store written out, `p->f = p->f +
+  0xFFF7`, and the u32 counter compared as (u8)), **fn_8007D800** (a fade test in double, `0.05 + x < 1.0`; cases 2
+  / 3 as breaks; the +5 written out), **fn_8001D618 / fn_8001D9C8** (store order: the scheduler moves the zero stores
+  first), **fn_800443A0** (a chained assignment `p->x8 = p->xC = v`), **fn_80080558 / fn_80065DB0** (cast-NULL
+  compares), **fn_80023354 / fn_80023394 / fn_800232B4 / fn_80023304** (the clear / copy helpers: `for (n = ...,
+  d = dst, s = src; n > 0; n--) *d++ = *s++;`, counter r31, dst r30, src r29; the body form decides, not the for's
+  init), **cr_CamMode_DefaultStart** (the mode function is called with the camera), **fn_80029C20 / fn_80029F70**
+  (two destination pointers reserve r30 / r31, which the original saves unused), **fn_8007DA20** (the switch as its
+  compare tree reads: m2c had the clear as the default), **fn_80067250** (the out-parameter is a record of 0x18 or
+  more bytes: the 0x30 frame), **fn_80064234**.
+- **Checking relocations**: hd.py masks relocated fields, so two orders of stores of the same register value give
+  the same words with the symbols swapped (fn_8001D9C8: Top, MaxDepth, Depth matched word for word with the two zero
+  stores swapped). `hd.py ... -r` now prints our object's relocations to compare with the original .s; a hand
+  draft whose fix reorders statements is checked that way (promote_drafts.py checks them again at link time).
+- Queue 3 (`run_queue3.sh`) also takes fn_8003B1BC (87%: the distance table as a member array `dist[i]` gives the
+  original's `lfsx`; left: two saved registers swapped) and fn_80070130 (a table call whose first argument is the
+  table's own address; not found by hand).
+- **param_self_assign / param_self_assigns** (draft_batch.py, step 111, variants): `arg0 = arg0;` (or every
+  parameter) as the first statement. The self-assignment changes the order in which a parameter gets its
+  callee-saved register: **fn_800410C0 68 -> 100%** (the parameter r31, then the counter). On the 243 draftscan drafts
+  at 40-99%: 21 gain (fn_8000B258 52 -> 70%, fn_800208F0 51 -> 60%, fn_8007BB60 60 -> 68%; all parameters:
+  fn_8003F248 46 -> 60%, fn_8006B46C 48 -> 61%, fn_80066F58 59 -> 73%).
+- **The file run 0x800057B8-0x8000860C is one function short**: decomp-permuter (queue 2) found fn_8000860C (93%):
+  the hit flag `(arg0 & 0x3070) != 0` computed before the first counter `+= 1`; **fn_800057B8** 99% -> 100% with
+  the stick bytes read as `*(s8 *) &pad.stick_x` (the `(u8)` read and a later `(s8)` put the second `mulli` after
+  the camera load; the u8-then-s8 form is in the section above). Left: cr_BattleRobo_InitFromLoadout (~50%, the
+  table-pointer temporaries, section above).
+- More hand drafts (125 files): **cr_SEQ_STAGE_SELECTOR_FrameC** (both cameras typed `HSD_CObj *`; m2c had
+  the first as u32 with its view matrix at +0x54), **cr_SEQ_CUSTOMIZE_FrameC** (the saved matrix is a `Mtx`, m2c
+  f32[4]; cameras as HSD_CObj *; in the loop `flags | (0x80000000 | 2)`, one constant: a macro of the two flags),
+  **fn_80069504** (a GXColor copied out of a colour table: m2c's four u8 stack fields; the compiler copies it byte by
+  byte through the stack), **fn_800671C4** (the copy loop tests the terminator at the top: `for (;;)` with the end
+  first), **fn_800410C0**, **fn_8000860C**, **fn_800057B8**.
+- The `_Leave` functions (cr_SEQ_TITLE_Leave, cr_SEQ_STAGE_SELECTOR_Leave, ...) set the VI clear colour from a
+  GXColor constant through a stack copy, and call HSD object methods with one argument (m2c passed the vtable as a
+  second): cr_SEQ_TITLE_Leave 45 -> 97% (left: the order of the colour's byte loads around the register saves),
+  cr_SEQ_STAGE_SELECTOR_Leave 42 -> 78% (the save of the old colour and the set of the new one interleave); both in
+  queue 3.
+- Checked through the pipeline: `draft_batch.py --only` on the 43 uncommitted hand drafts of Nov 3 (a scratch
+  --out): compiled 43, **100% MATCH 43** (the 5 saved after that list was taken: in the next run).
+- More hand drafts (127 files): **fn_80023F0C** (the search for the first live robo as a for loop over the bitmask
+  with a signed test and an int bit index; the update pointer tested against a cast NULL; battle_mode without the
+  (u8) cast), **fn_8007D3C8** (fn_8007D800's sibling: the alpha steps written out, `x = x - 5`, breaks for cases
+  3 / 2 / 0, case 1's float step written out: the pointer chain is walked again).
+- Queue 3 also takes, at their improved scores: cr_Save_ApplyUnlocks (92 -> 93%: `cr_Bits_Clear(p, idx)` with the
+  index variable, not the constant m2c folded in; the bit-test result kept in a local, `mr. r24, r3`),
+  fn_80044A90 (91 -> 95%: the 3-word copy is a `Vec` assignment; the sum `u16_2 + u16_4 + (n - 1) * step`),
+  fn_800677C4 (68 -> 75%: m2c's offset temporary took a fourth saved register; left: two registers swapped),
+  cr_Text_GetBodyName / cr_Text_GetPartDescription / fn_80066EEC / fn_80067778 / cr_Archive_GetEntrySize (the
+  original adds `base + i * 4` and folds the field offset into the load, `lwz r0, 0x10(r5)`; every one-expression
+  spelling is reassociated to `lwzx` by our compile).
+- **fn_80015E2C** (84 -> 100%): the string table base kept in a local (r31) for the six text calls; the confirm /
+  cancel test is an if chain (m2c read a switch with a case inside an if). **cr_CAMMODE_MIDDLE_Frame** (91 ->
+  100%): param_self_assign, the "allowed" flag initialised to 0 at the top (m2c drops the dead store), unk_44 tested
+  without the (u8) cast.
+- **Relocations checked**: `tools/sched/scratch/hand/relcheck.py` compares the relocation symbol at every instruction
+  with the original .s (our literal constants such as `@729` must map one to one onto the original's pooled
+  `lbl_` constants). Every uncommitted hand draft passes.
+- **fn_8000DE50** (86 -> 100%): the robo count read into a local before the time-limit branch (the original saves
+  five registers, r29 holds it) and the time limit chosen by an if chain on it (unsigned compares; m2c read a
+  switch).
+- Queue 3 also takes fn_8003FB00 (84 -> 91%: the local matrix is a `Mtx`, m2c f32[4], which gives the 0x80 frame;
+  the outer goto loop as `for`; `(u8 *) mobj == (u8 *) NULL`; left: arg0 and the inner counter swap r30 / r27) and
+  cr_CAMMODE_SNR_AUTO_Y_ANG_Frame (63 -> 87%: fn_80024848's written-out update, `(u16) -v` for `0x10000 - v`).
+- **fn_8003D500** (82 -> 100%): `__fabs` (m2c's `fabs()` is MSL's static inline wrapper, which at level 0 keeps its
+  argument and result in three saved FP registers), the double constant compared without m2c's `(f32)` casts (an
+  extra `frsp` each), and the matrix source read before the joint in the loop. **fabs_intrinsic** (draft_batch.py,
+  step 111, a variant): every `fabs(` as `__fabs(`. On the 29 drafts with fabs: fn_800784B0 48 -> 67%,
+  fn_8005E270 18 -> 26%, fn_8003C4F0 51 -> 58%, fn_8004E8D4 51 -> 57%, fn_8003D500 82 -> 91%; some lower (the
+  variant scoring keeps the best).
+- **fn_80048B10** (83 -> 100%): MSL's inline sqrtf written out as in fn_8000805C, and the s16 copy at 0xE4 without
+  the (s16) cast. **msl_sqrtf_blocks** (draft_batch.py, step 111, a variant): m2c prints the inline sqrtf in one
+  fixed shape (the `__frsqrte` Newton steps in f64, the `(f64) (f32)` result, the `(f32)`-cast zero compare, the
+  fpclassify switch on `M2C_BITWISE(s32, sp.sp8)`); the rule writes the source form: an f32 result, the steps
+  `g = h * g * (t - g * g * x)`, the NaN through `__float_nan` as an array (`CR_NAN`), the double compare, the switch
+  on `*(s32 *) &sp.sp8`, and the copy declared before the value it copies (the copy takes f30, the value f29). On
+  the 15 drafts with the shape: **cr_Vec3_LengthInline 67 -> 100%, cr_Vec3_Distance 71 -> 100%** (both saved as hand
+  drafts too), fn_80048B10 83 -> 99%, cr_Vec3_RotateAboutAxis 70 -> 80%, fn_8000805C 70 -> 79%, fn_8001B6EC 52 ->
+  61%, fn_80076B2C 45 -> 53%.
+- Measured, not a rule: writing out every compound update through a pointer (`*p op= y`, `M2C_FIELD(...) op= y`,
+  `p->f op= y`, `a[i] op= y` -> `x = x op y`) on the 134 drafts at 30-99% that have one: 5 gain (fn_80016600
+  60 -> 68%, fn_8007B054 35 -> 45%), 81 lose. The written-out form is per statement (fn_80024848, fn_8007D800,
+  fn_8007D3C8: the ones the original reloads), so it stays a hand fix.
+- Queue 3 also takes fn_8006975C (80 -> 86%: m2c's `(x >> 31) + x >> 1` temporary is `/ 2` inline; left: the
+  `base + i * 2` then `lhz 0xC` addressing, as fn_80066EEC) and fn_8004FF64 (80 -> 96%: the four stack words are
+  one 16-byte local copied from the table lbl_801BCB60 (a struct assignment), the two counters an `u32[2]`, the
+  score add `w[i] += hp` through the float conversion; left: the copy's loads scheduled around the game-mode test).
+- Permuter queue 2 results: **fn_8001838C** (95 -> 100%: in the loop-restart branch of the THP read callback the
+  frame counter is cleared before the next read size is set) and **fn_80038CF8** (97 -> 100%: score 30 from the
+  permuter showed the `(s8)` cast on one float-to-byte colour store; without it on all three stores, and the 0x964 /
+  0x968 tests as cast-NULL compares, the function matches). `tools/sched/scratch/hand/permdiff.py FUNC` prints what
+  the permuter changed as a statement diff (it re-prints the whole file, so whitespace and parentheses are dropped
+  before comparing).
+- **The file run 0x80080A94-0x80081430 is two functions short**: **fn_800812A4** (58 -> 100%: the seven-object
+  setup loop with only the index and the object as locals, m2c's temporaries took three more saved registers; the
+  index compared unsigned); fn_80080E24 78 -> 88% (the last store is `lbl_8044EAE0[o->x10 - 2] = 0`, m2c invented a
+  `saved_reg_r13` local that also moved the conversion slot; left: the float multiply's operand registers) and
+  fn_80080C7C (83%) are first in queue 3 with double time. The `li r4, 0` / `addi r4, r4, -22754` lines hd.py shows
+  at that store are the SDA21 relocation mask (it covers the register field; the score masks both sides, and
+  promote_drafts.py's SDA21-on-addi exception links it).
+- **fn_8007DA80** (67 -> 100%): the frame count 180 is a local (r31) converted at run time in the fade step (m2c
+  folded it into the constant), the alpha stores unsigned (255, 200). With it the run 0x8007D0D4-0x8008052C (18
+  functions) has 7 left: fn_8007DD60 39% (a table base kept in r31, three counters zeroed at the top, a goto loop),
+  fn_8007E400 48%, the family fn_8007EA04 / EEB0 / F35C / F808 (56-57%: one more saved register and float local
+  than the drafts), fn_8007FCD8 5%.

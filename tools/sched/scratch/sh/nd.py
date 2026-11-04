@@ -9,7 +9,7 @@ BS = chr(92); key = 'build build' + BS + 'GXCE01' + BS + 'src' + BS + stem.repla
 i = nin.index(key); blk = nin[i:nin.index('\nbuild ', i+10)]
 cflags = re.search(r'\n  cflags = (.*)', blk)[1]; ver = re.search(r'mw_version = (\S+)', blk)[1]
 out = Path(tempfile.gettempdir())/'nd.o'
-args = shlex.split(cflags.replace(chr(92), '/'), posix=True)
+args = shlex.split(cflags.replace(chr(92), '/'), posix=True) + ['-i', 'src/' + stem.rsplit('/', 1)[0]]   # a copy elsewhere still finds the folder's own headers, after the -i paths
 cmd = [str(D/'build/tools/sjiswrap.exe'), str(D/'build/compilers'/ver.replace(chr(92),'/')/'mwcceppc.exe')] + args + ['-c', str(src), '-o', str(out)]
 r = subprocess.run(cmd, capture_output=True, cwd=str(D))
 if r.returncode: print((r.stdout+r.stderr).decode('latin-1')[-1500:]); sys.exit(1)

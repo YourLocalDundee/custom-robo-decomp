@@ -1,5 +1,44 @@
-Atlas with a ninja run and a "butt shot" (step 110, Nov 2, 2026): the first in-game test of the motion tools.
-Build: python -I mods/atlas_ninja_run/make_motion.py  (writes files/motion.DBN: 15 *_normal_run motions with the arms swept
-back and the body leaned 45 degrees, 14 *_weapon_* gun motions turned around, bent over, the gun hand at the butt), then
-python -I tools/make_mod.py mods/atlas_ninja_run. models/ is a copy of mods/ray_legionnaire/models (Atlas on robo 0).
-Waiting on the owner's battle test; what to check and what to do if it fails: docs/MODDING.md "Motions (animations)".
+Atlas: the legionnaire body on robo 0, with edited motions (the first in-game test of the motion tools).
+The folder keeps its first name (atlas_ninja_run); the ninja run was dropped on Nov 2: in a battle the game aims the gun
+arm and keeps the robos facing each other, so a run with both arms back cannot show.
+
+STATUS (Nov 2, 2026, 23:30; the owner tests later)
+- Works in a battle: the Roman march with the flailing off arm (8 walk / run motions) and the hip-thrust air dash.
+- Breaks a battle: the butt shot on the 6 sf_weapon_* motions (black 3D screen as the battle starts, the HUD and timer
+  still run; earlier builds: glitches, P2 vanishing). The same build with stock gun motions played fine.
+- Waiting for the owner's test, in this order (all three boot to the title; stop at the first answer):
+    1. build/mods/atlas_ninja_run/atlas_ninja_run.iso      all-fours butt shot turned 160 instead of 180 degrees
+    2. build/mods/atlas_gun_turnonly/atlas_gun_turnonly.iso  stock gun pose, only turned 180 (root.roty)
+    3. build/mods/atlas_gun_poseonly/atlas_gun_poseonly.iso  all-fours pose, no turn (the butt away from the target)
+  1 works: keep it. 2 black: the turn breaks it (likely the game's own gun aim with the target exactly behind); find
+  another way to face the butt. 3 black: the pose breaks it; make a milder bend. 2 and 3 fine: tune the combination.
+- Known good for comparison: build/mods/atlas_stockgun/atlas_stockgun.iso (march + dash, stock gun motions).
+
+What make_motion.py writes:
+- Roman march + off-arm flail on the 8 walk / run motions of robo 0's battle motion set (slots 1-6, 8, 9: sf_normal_walk,
+  sf_normal_run, sf_normal_walk_weapon_r180, sf_normal_run_weapon_r180, sf_back_walk_weapon_r180, sf_back_run_weapon_r180,
+  sf_back_run_guard_r180, sf_normal_run_guard_r180): upright, chest out 20 degrees, each swinging foot kicked forward on
+  a straight leg (up to hip height); the off hand (A) windmills beside the shoulder, about 4 turns a second. The gun hand
+  is left to the game.
+- Hip-thrust air dash on sf_jump_dash (slot 10): chest arched back 50 degrees, both arms thrown back, legs trailing
+  straight, the whole pose turned back 20 degrees by its targets (no root or joint 0 edit).
+- Butt shot on all fours on the 6 sf_weapon_* motions: turned (root.roty + GUN_TURN, default 160), bent over 150 degrees
+  (butt the highest point), legs straight and spread, the gun hand under the body between the legs, the wrist
+  (joint14.rotz -60) tipping the barrel up through the butt. Robo 0's arms are too short for the off hand to reach the
+  ground.
+Every sf_ body shares these motions, so other sf_ robos (P2 included) move the same way.
+
+What broke on the way (Nov 2) and the rule it gave (docs/formats/motion_playback.md "Authoring notes"):
+- 21:18: stock poses. The game never reads motion.DBN; it plays logo_read_us.dbn entry 8 (make_mod.py packs it now).
+- 22:31: glitches, P2 gone, black on dash. Held tracks had one key at frame 0; the game reads past a track's last key.
+  crmotion_rig.reduce_keys keys both ends now and crmotion.build refuses short tracks.
+- 22:48 / 23:00: black screen; a root rotation x on the dash, then joint 0 turns, then the butt shot alone.
+  No root or joint 0 edits except the butt shot's root.roty turn, which is under test.
+
+Build (main): python -I mods/atlas_ninja_run/make_motion.py [KICK_DEG] [TOL], then python -I tools/make_mod.py mods/atlas_ninja_run
+Diagnostic builds: copy models/ and a mod.json with a new "name" to a scratch folder D, then
+  python -I mods/atlas_ninja_run/make_motion.py <flags> --out D/files/motion.DBN  and  python -I tools/make_mod.py D
+  flags: atlas_stockgun --stock-gun; atlas_gun_turnonly --gun-turn 180 --gun-turn-only; atlas_gun_poseonly --gun-turn 0;
+  also --stock-dash. Group 0's float pool: about 16,150 of 16,384 used.
+Checked for every build: crmotion.build's track check, the ISO's logo_read_us.dbn (entries 0-7 unchanged, entry 8 = the
+motion file), boot to the title (tools/boot_check.ps1).

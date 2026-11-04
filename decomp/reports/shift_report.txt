@@ -1,6 +1,6 @@
 shift test (tools/shift_test.py, method: its docstring): padding inserted into a scratch copy of batch 9's
 build, relinked, and checked against the unshifted build.
-padding per point: 0x100 bytes; points: 42
+padding per point: 0x100 bytes; points: 115
    1. 0x800055E0 .text    start of .text -> everything from here moves by +0x100
    2. 0x8009D620 .text    inside the game code (auto_01_80099EAC_text), the first function after its middle -> everything from here moves by +0x200
    3. 0x80131C08 .text    between library objects: the start of dolphin/base/PPCArch.c -> everything from here moves by +0x300
@@ -11,59 +11,132 @@ padding per point: 0x100 bytes; points: 42
    8. 0x801C4EE0 .rodata  inside .rodata: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x800
    9. 0x801C4F80 .data    start of .data -> everything from here moves by +0x900
   10. 0x801DEA78 .data    inside .data: the data-only game unit game/data/cr_g_SeqFrameA_cr_g_SeqLeave.c (every reference to it is a relocation) -> everything from here moves by +0xA00
-  11. 0x801F1200 .data    inside .data: the data-only game unit game/data/cr_g_FileDescs.c (every reference to it is a relocation) -> everything from here moves by +0xB00
-  12. 0x801F5D30 .data    inside .data: the data piece of game/fn_80021AB0_fn_80021AB0.c (a proven object boundary) -> everything from here moves by +0xC00
-  13. 0x8020B0C0 .data    inside .data: the start of the glue span 0x8020B0C0.. (a file's statics base) -> everything from here moves by +0xD00
-  14. 0x80249588 .data    inside .data: the data piece of dolphin/gx/GXLight.c (a proven object boundary) -> everything from here moves by +0xE00
-  15. 0x8024DAD0 .data    inside .data: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0xF00
-  16. 0x8024DB20 .bss     start of .bss -> everything from here moves by +0x1000
-  17. 0x8024DC80 .bss     inside .bss: the data-only game unit game/data/cr_g_CharaEntries.c (every reference to it is a relocation) -> everything from here moves by +0x1100
-  18. 0x8024E120 .bss     inside .bss: the data-only game unit game/data/cr_g_BattleRobos.c (every reference to it is a relocation) -> everything from here moves by +0x1200
-  19. 0x8031FEA8 .bss     inside .bss: the data-only game unit game/data/cr_g_PadStatus_cr_g_Pads.c (every reference to it is a relocation) -> everything from here moves by +0x1300
-  20. 0x80320168 .bss     inside .bss: the data-only game unit game/data/cr_g_EntryTableLoad_cr_g_FileSlots.c (every reference to it is a relocation) -> everything from here moves by +0x1400
-  21. 0x80321D40 .bss     inside .bss: the data-only game unit game/data/cr_g_GameMode_cr_g_SeqCurrent.c (every reference to it is a relocation) -> everything from here moves by +0x1500
-  22. 0x8032A8C8 .bss     inside .bss: the data-only game unit game/data/cr_g_MotionDataBit15_cr_g_MotionData.c (every reference to it is a relocation) -> everything from here moves by +0x1600
-  23. 0x80330BC0 .bss     inside .bss: the data-only game unit game/data/cr_g_MessageFiles_cr_g_TextRecords.c (every reference to it is a relocation) -> everything from here moves by +0x1700
-  24. 0x80377E60 .bss     inside .bss: the start of the glue span 0x80377E60.. (a file's statics base) -> everything from here moves by +0x1800
-  25. 0x8037A400 .bss     inside .bss: the data-only game unit game/data/cr_g_ModelSlots.c (every reference to it is a relocation) -> everything from here moves by +0x1900
-  26. 0x803F6420 .bss     inside .bss: the data-only game unit game/data/cr_g_CardWorkArea.c (every reference to it is a relocation) -> everything from here moves by +0x1A00
-  27. 0x804198B0 .bss     inside .bss: the data-only game unit game/data/cr_g_UnlockBits.c (every reference to it is a relocation) -> everything from here moves by +0x1B00
-  28. 0x8041EB80 .bss     inside .bss: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0x1C00
-  29. 0x80439C28 .bss     inside .bss: the data piece of MetroTRK/msgbuf.c (a proven object boundary) -> everything from here moves by +0x1D00
-  30. 0x8044B710 .bss     inside .bss: the data piece of sysdolphin/baselib/list.c (a proven object boundary) -> everything from here moves by +0x1E00
-  31. 0x8044C3C0 .sdata   start of .sdata -> everything from here moves by +0x1F00
-  32. 0x8044ED50 .sdata   inside .sdata: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0x2000
-  33. 0x8044EEA0 .sdata   inside .sdata: the data piece of MSL/printf.c (a proven object boundary) -> everything from here moves by +0x2100
-  34. 0x8044F298 .sdata   inside .sdata: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x2200
-  35. 0x8044F2A0 .sbss    start of .sbss -> everything from here moves by +0x2300
-  36. 0x8044F898 .sbss    inside .sbss: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0x2400
-  37. 0x8044FC18 .sbss    inside .sbss: the data piece of dolphin/ax/AXProf.c (a proven object boundary) -> everything from here moves by +0x2500
-  38. 0x80450080 .sbss    inside .sbss: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x2600
-  39. 0x804501A0 .sdata2  start of .sdata2 -> everything from here moves by +0x2700
-  40. 0x804504E8 .sdata2  inside .sdata2: the data piece of game/fn_8002444C_fn_8002444C.c (a proven object boundary) -> everything from here moves by +0x2800
-  41. 0x804520A0 .sdata2  inside .sdata2: the data piece of MSL/e_log.c (a proven object boundary) -> everything from here moves by +0x2900
-  42. 0x804529F8 .sdata2  inside .sdata2: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x2A00
-objects linked from C (batch 9, configure.py CR_MATCHING): 974 in both links, 973 of them moved by the padding; 27 holding a point, reassembled from asm
+  11. 0x801E6580 .data    inside .data: the data-only game unit game/data/lbl_801E6580_lbl_801E9016.c (every reference to it is a relocation) -> everything from here moves by +0xB00
+  12. 0x801E90B0 .data    inside .data: the data-only game unit game/data/lbl_801E90B0.c (every reference to it is a relocation) -> everything from here moves by +0xC00
+  13. 0x801F1200 .data    inside .data: the data-only game unit game/data/cr_g_FileDescs.c (every reference to it is a relocation) -> everything from here moves by +0xD00
+  14. 0x801F14E0 .data    inside .data: the data-only game unit game/data/lbl_801F14E0_lbl_801F5D20.c (every reference to it is a relocation) -> everything from here moves by +0xE00
+  15. 0x801F5D30 .data    inside .data: the data piece of game/fn_80021AB0_fn_80021AB0.c (a proven object boundary) -> everything from here moves by +0xF00
+  16. 0x801F8EB8 .data    inside .data: the data-only game unit game/data/cr_g_BattleRoboActionFuncs_lbl_801F9758.c (every reference to it is a relocation) -> everything from here moves by +0x1000
+  17. 0x801F9980 .data    inside .data: the data-only game unit game/data/lbl_801F9980_lbl_801F9996.c (every reference to it is a relocation) -> everything from here moves by +0x1100
+  18. 0x801F9DC8 .data    inside .data: the data-only game unit game/data/lbl_801F9DC8_lbl_801F9E08.c (every reference to it is a relocation) -> everything from here moves by +0x1200
+  19. 0x801FA188 .data    inside .data: the data-only game unit game/data/lbl_801FA188_cr_g_MotionInfo.c (every reference to it is a relocation) -> everything from here moves by +0x1300
+  20. 0x80206DB0 .data    inside .data: the data-only game unit game/data/cr_g_MotionNames.c (every reference to it is a relocation) -> everything from here moves by +0x1400
+  21. 0x8020A108 .data    inside .data: the data-only game unit game/data/lbl_8020A108_lbl_8020AD30.c (every reference to it is a relocation) -> everything from here moves by +0x1500
+  22. 0x8020B0C0 .data    inside .data: the start of the glue span 0x8020B0C0.. (a file's statics base) -> everything from here moves by +0x1600
+  23. 0x8020EDB0 .data    inside .data: the data-only game unit game/data/lbl_8020EDB0_cr_g_StageData.c (every reference to it is a relocation) -> everything from here moves by +0x1700
+  24. 0x8022B3B8 .data    inside .data: the data-only game unit game/data/lbl_8022B3B8.c (every reference to it is a relocation) -> everything from here moves by +0x1800
+  25. 0x802359F8 .data    inside .data: the data-only game unit game/data/lbl_802359F8.c (every reference to it is a relocation) -> everything from here moves by +0x1900
+  26. 0x802362A0 .data    inside .data: the data-only game unit game/data/lbl_802362A0.c (every reference to it is a relocation) -> everything from here moves by +0x1A00
+  27. 0x80244AA0 .data    inside .data: the data-only game unit game/data/__AXCompressorTable_axDspSlave.c (every reference to it is a relocation) -> everything from here moves by +0x1B00
+  28. 0x80249588 .data    inside .data: the data piece of dolphin/gx/GXLight.c (a proven object boundary) -> everything from here moves by +0x1C00
+  29. 0x8024DAD0 .data    inside .data: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x1D00
+  30. 0x8024DB20 .bss     start of .bss -> everything from here moves by +0x1E00
+  31. 0x8024DC80 .bss     inside .bss: the data-only game unit game/data/cr_g_CharaEntries.c (every reference to it is a relocation) -> everything from here moves by +0x1F00
+  32. 0x8024DFA0 .bss     inside .bss: the data-only game unit game/data/lbl_8024DFA0_lbl_8024E100.c (every reference to it is a relocation) -> everything from here moves by +0x2000
+  33. 0x8024E120 .bss     inside .bss: the data-only game unit game/data/cr_g_BattleRobos.c (every reference to it is a relocation) -> everything from here moves by +0x2100
+  34. 0x8031B5A0 .bss     inside .bss: the data-only game unit game/data/lbl_8031B5A0_lbl_8031F268.c (every reference to it is a relocation) -> everything from here moves by +0x2200
+  35. 0x8031FEA8 .bss     inside .bss: the data-only game unit game/data/cr_g_PadStatus_cr_g_Pads.c (every reference to it is a relocation) -> everything from here moves by +0x2300
+  36. 0x80320168 .bss     inside .bss: the data-only game unit game/data/cr_g_EntryTableLoad_cr_g_FileSlots.c (every reference to it is a relocation) -> everything from here moves by +0x2400
+  37. 0x80321D40 .bss     inside .bss: the data-only game unit game/data/cr_g_GameMode_cr_g_SeqCurrent.c (every reference to it is a relocation) -> everything from here moves by +0x2500
+  38. 0x80321DD0 .bss     inside .bss: the data-only game unit game/data/lbl_80321DD0_lbl_80323800.c (every reference to it is a relocation) -> everything from here moves by +0x2600
+  39. 0x8032A8C8 .bss     inside .bss: the data-only game unit game/data/cr_g_MotionDataBit15_cr_g_MotionData.c (every reference to it is a relocation) -> everything from here moves by +0x2700
+  40. 0x8032C1C8 .bss     inside .bss: the data-only game unit game/data/lbl_8032C1C8_lbl_8032ECD0.c (every reference to it is a relocation) -> everything from here moves by +0x2800
+  41. 0x80330BC0 .bss     inside .bss: the data-only game unit game/data/cr_g_MessageFiles_cr_g_TextRecords.c (every reference to it is a relocation) -> everything from here moves by +0x2900
+  42. 0x80344550 .bss     inside .bss: the data-only game unit game/data/lbl_80344550_lbl_8037A190.c (every reference to it is a relocation) -> everything from here moves by +0x2A00
+  43. 0x80377E60 .bss     inside .bss: the start of the glue span 0x80377E60.. (a file's statics base) -> everything from here moves by +0x2B00
+  44. 0x8037A400 .bss     inside .bss: the data-only game unit game/data/cr_g_ModelSlots.c (every reference to it is a relocation) -> everything from here moves by +0x2C00
+  45. 0x80386000 .bss     inside .bss: the data-only game unit game/data/lbl_80386000_lbl_80386E44.c (every reference to it is a relocation) -> everything from here moves by +0x2D00
+  46. 0x80387DD0 .bss     inside .bss: the data-only game unit game/data/lbl_80387DD0_lbl_8039D920.c (every reference to it is a relocation) -> everything from here moves by +0x2E00
+  47. 0x803B8C00 .bss     inside .bss: the data-only game unit game/data/lbl_803B8C00_lbl_803BADA8.c (every reference to it is a relocation) -> everything from here moves by +0x2F00
+  48. 0x803F6420 .bss     inside .bss: the data-only game unit game/data/cr_g_CardWorkArea.c (every reference to it is a relocation) -> everything from here moves by +0x3000
+  49. 0x80400420 .bss     inside .bss: the data-only game unit game/data/lbl_80400420_lbl_80407260.c (every reference to it is a relocation) -> everything from here moves by +0x3100
+  50. 0x804198B0 .bss     inside .bss: the data-only game unit game/data/cr_g_UnlockBits.c (every reference to it is a relocation) -> everything from here moves by +0x3200
+  51. 0x80419958 .bss     inside .bss: the data-only game unit game/data/lbl_80419958_lbl_80419968.c (every reference to it is a relocation) -> everything from here moves by +0x3300
+  52. 0x8041A598 .bss     inside .bss: the data-only game unit game/data/lbl_8041A598_lbl_8041CDCC.c (every reference to it is a relocation) -> everything from here moves by +0x3400
+  53. 0x8041E938 .bss     inside .bss: the data-only game unit game/data/lbl_8041E938_lbl_8041EA18.c (every reference to it is a relocation) -> everything from here moves by +0x3500
+  54. 0x8041EB80 .bss     inside .bss: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0x3600
+  55. 0x80439C28 .bss     inside .bss: the data piece of MetroTRK/msgbuf.c (a proven object boundary) -> everything from here moves by +0x3700
+  56. 0x8043CFD0 .bss     inside .bss: the data-only game unit game/data/lbl_8043CFD0_lbl_80449C98.c (every reference to it is a relocation) -> everything from here moves by +0x3800
+  57. 0x80449E80 .bss     inside .bss: the data-only game unit game/data/lbl_80449E80_lbl_80449E8C.c (every reference to it is a relocation) -> everything from here moves by +0x3900
+  58. 0x8044B710 .bss     inside .bss: the data piece of sysdolphin/baselib/list.c (a proven object boundary) -> everything from here moves by +0x3A00
+  59. 0x8044B768 .bss     inside .bss: the data-only game unit game/data/lbl_8044B768.c (every reference to it is a relocation) -> everything from here moves by +0x3B00
+  60. 0x8044B7B0 .bss     inside .bss: the data-only game unit game/data/lbl_8044B7B0_lbl_8044BFB0.c (every reference to it is a relocation) -> everything from here moves by +0x3C00
+  61. 0x8044C3C0 .sdata   start of .sdata -> everything from here moves by +0x3D00
+  62. 0x8044ED50 .sdata   inside .sdata: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0x3E00
+  63. 0x8044EEA0 .sdata   inside .sdata: the data piece of MSL/printf.c (a proven object boundary) -> everything from here moves by +0x3F00
+  64. 0x8044F298 .sdata   inside .sdata: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x4000
+  65. 0x8044F2A0 .sbss    start of .sbss -> everything from here moves by +0x4100
+  66. 0x8044F2A8 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F2A8_lbl_8044F340.c (every reference to it is a relocation) -> everything from here moves by +0x4200
+  67. 0x8044F358 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F358_lbl_8044F366.c (every reference to it is a relocation) -> everything from here moves by +0x4300
+  68. 0x8044F370 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F370_lbl_8044F37A.c (every reference to it is a relocation) -> everything from here moves by +0x4400
+  69. 0x8044F388 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F388_lbl_8044F3A4.c (every reference to it is a relocation) -> everything from here moves by +0x4500
+  70. 0x8044F3A8 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F3A8_lbl_8044F3C4.c (every reference to it is a relocation) -> everything from here moves by +0x4600
+  71. 0x8044F3F0 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F3F0_lbl_8044F404.c (every reference to it is a relocation) -> everything from here moves by +0x4700
+  72. 0x8044F408 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F408_lbl_8044F444.c (every reference to it is a relocation) -> everything from here moves by +0x4800
+  73. 0x8044F468 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F468_lbl_8044F474.c (every reference to it is a relocation) -> everything from here moves by +0x4900
+  74. 0x8044F488 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F488_lbl_8044F48C.c (every reference to it is a relocation) -> everything from here moves by +0x4A00
+  75. 0x8044F490 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F490.c (every reference to it is a relocation) -> everything from here moves by +0x4B00
+  76. 0x8044F4A0 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F4A0_lbl_8044F4A4.c (every reference to it is a relocation) -> everything from here moves by +0x4C00
+  77. 0x8044F4B0 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F4B0_lbl_8044F53C.c (every reference to it is a relocation) -> everything from here moves by +0x4D00
+  78. 0x8044F568 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F568_lbl_8044F574.c (every reference to it is a relocation) -> everything from here moves by +0x4E00
+  79. 0x8044F588 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F588_lbl_8044F58C.c (every reference to it is a relocation) -> everything from here moves by +0x4F00
+  80. 0x8044F590 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F590_lbl_8044F59C.c (every reference to it is a relocation) -> everything from here moves by +0x5000
+  81. 0x8044F5A8 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F5A8_lbl_8044F5B4.c (every reference to it is a relocation) -> everything from here moves by +0x5100
+  82. 0x8044F5B8 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F5B8_lbl_8044F5DC.c (every reference to it is a relocation) -> everything from here moves by +0x5200
+  83. 0x8044F5E8 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F5E8_lbl_8044F62C.c (every reference to it is a relocation) -> everything from here moves by +0x5300
+  84. 0x8044F630 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F630.c (every reference to it is a relocation) -> everything from here moves by +0x5400
+  85. 0x8044F640 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F640.c (every reference to it is a relocation) -> everything from here moves by +0x5500
+  86. 0x8044F668 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F668_lbl_8044F66F.c (every reference to it is a relocation) -> everything from here moves by +0x5600
+  87. 0x8044F678 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F678_lbl_8044F694.c (every reference to it is a relocation) -> everything from here moves by +0x5700
+  88. 0x8044F6A0 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F6A0_lbl_8044F6A4.c (every reference to it is a relocation) -> everything from here moves by +0x5800
+  89. 0x8044F6A8 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F6A8_lbl_8044F6BC.c (every reference to it is a relocation) -> everything from here moves by +0x5900
+  90. 0x8044F6C0 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F6C0_lbl_8044F6C4.c (every reference to it is a relocation) -> everything from here moves by +0x5A00
+  91. 0x8044F6D8 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F6D8_lbl_8044F6F4.c (every reference to it is a relocation) -> everything from here moves by +0x5B00
+  92. 0x8044F6F8 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F6F8_lbl_8044F714.c (every reference to it is a relocation) -> everything from here moves by +0x5C00
+  93. 0x8044F718 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F718_lbl_8044F71E.c (every reference to it is a relocation) -> everything from here moves by +0x5D00
+  94. 0x8044F720 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F720_lbl_8044F72C.c (every reference to it is a relocation) -> everything from here moves by +0x5E00
+  95. 0x8044F730 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F730_lbl_8044F74C.c (every reference to it is a relocation) -> everything from here moves by +0x5F00
+  96. 0x8044F750 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F750_lbl_8044F756.c (every reference to it is a relocation) -> everything from here moves by +0x6000
+  97. 0x8044F758 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F758_lbl_8044F75C.c (every reference to it is a relocation) -> everything from here moves by +0x6100
+  98. 0x8044F780 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F780_lbl_8044F78C.c (every reference to it is a relocation) -> everything from here moves by +0x6200
+  99. 0x8044F798 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F798_lbl_8044F7A4.c (every reference to it is a relocation) -> everything from here moves by +0x6300
+  100. 0x8044F7A8 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F7A8_lbl_8044F7DC.c (every reference to it is a relocation) -> everything from here moves by +0x6400
+  101. 0x8044F7E0 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F7E0_lbl_8044F7F4.c (every reference to it is a relocation) -> everything from here moves by +0x6500
+  102. 0x8044F7F8 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F7F8_lbl_8044F808.c (every reference to it is a relocation) -> everything from here moves by +0x6600
+  103. 0x8044F818 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F818_lbl_8044F87C.c (every reference to it is a relocation) -> everything from here moves by +0x6700
+  104. 0x8044F890 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044F890_lbl_8044F894.c (every reference to it is a relocation) -> everything from here moves by +0x6800
+  105. 0x8044F898 .sbss    inside .sbss: the data piece of dolphin/os/OS.c (a proven object boundary) -> everything from here moves by +0x6900
+  106. 0x8044FC18 .sbss    inside .sbss: the data piece of dolphin/ax/AXProf.c (a proven object boundary) -> everything from here moves by +0x6A00
+  107. 0x8044FD48 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044FD48_lbl_8044FDCC.c (every reference to it is a relocation) -> everything from here moves by +0x6B00
+  108. 0x8044FDD0 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044FDD0_lbl_8044FED8.c (every reference to it is a relocation) -> everything from here moves by +0x6C00
+  109. 0x8044FEF0 .sbss    inside .sbss: the data-only game unit game/data/lbl_8044FEF0.c (every reference to it is a relocation) -> everything from here moves by +0x6D00
+  110. 0x80450008 .sbss    inside .sbss: the data-only game unit game/data/lbl_80450008_lbl_80450030.c (every reference to it is a relocation) -> everything from here moves by +0x6E00
+  111. 0x80450080 .sbss    inside .sbss: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x6F00
+  112. 0x804501A0 .sdata2  start of .sdata2 -> everything from here moves by +0x7000
+  113. 0x804504E8 .sdata2  inside .sdata2: the data piece of game/fn_8002444C_fn_8002444C.c (a proven object boundary) -> everything from here moves by +0x7100
+  114. 0x80452028 .sdata2  inside .sdata2: the data piece of MSL/e_exp.c (a proven object boundary) -> everything from here moves by +0x7200
+  115. 0x804529F8 .sdata2  inside .sdata2: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x7300
+objects linked from C (batch 9, configure.py CR_MATCHING): 1034 in both links, 1033 of them moved by the padding; 101 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
-shifted main.dol: SHA-1 1743c1eabbef2a4b64adf423f672f1ff914f648a (2431360 bytes, retail 2425472)
+shifted main.dol: SHA-1 bfd63385d01c21751dfb369353cbe7266d10ef70 (2434944 bytes, retail 2425472)
 sections, unshifted -> shifted:
   .init    0x80003100 size 0x0024D0 -> 0x80003100 size 0x0024D0
   .text    0x800055E0 size 0x1B0FF8 -> 0x800055E0 size 0x1B12F8
   .ctors   0x801B65E0 size 0x000004 -> 0x801B68E0 size 0x000004
   .dtors   0x801B6600 size 0x000008 -> 0x801B6900 size 0x000008
   .rodata  0x801B6620 size 0x00E950 -> 0x801B6920 size 0x00EE50
-  .data    0x801C4F80 size 0x088B8C -> 0x801C5780 size 0x08928C
-  .bss     0x8024DB20 size 0x1FE890 -> 0x8024EA20 size 0x1FF790
-  .sdata   0x8044C3C0 size 0x002EDC -> 0x8044E1C0 size 0x0032DC
-  .sbss    0x8044F2A0 size 0x000EF8 -> 0x804514A0 size 0x0012F8
-  .sdata2  0x804501A0 size 0x002874 -> 0x804527A0 size 0x002C74
-  .sbss2   0x80452A20 size 0x0000A0 -> 0x80455420 size 0x0000A0
-  _SDA_BASE_   0x804543C0 -> 0x804561C0
-  _SDA2_BASE_  0x804581A0 -> 0x8045A7A0
-  _stack_addr  0x80462AC0 -> 0x804654C0
-  __ArenaLo    0x80464AC0 -> 0x804674C0
+  .data    0x801C4F80 size 0x088B8C -> 0x801C5780 size 0x08A08C
+  .bss     0x8024DB20 size 0x1FE890 -> 0x8024F820 size 0x200790
+  .sdata   0x8044C3C0 size 0x002EDC -> 0x8044FFC0 size 0x0032DC
+  .sbss    0x8044F2A0 size 0x000EF8 -> 0x804532A0 size 0x003DF8
+  .sdata2  0x804501A0 size 0x002874 -> 0x804570A0 size 0x002C74
+  .sbss2   0x80452A20 size 0x0000A0 -> 0x80459D20 size 0x0000A0
+  _SDA_BASE_   0x804543C0 -> 0x80457FC0
+  _SDA2_BASE_  0x804581A0 -> 0x8045F0A0
+  _stack_addr  0x80462AC0 -> 0x80469DC0
+  __ArenaLo    0x80464AC0 -> 0x8046BDC0
 static check:
-  symbols compared (unique names): 15153
+  symbols compared (unique names): 15157
   symbols moved by the wrong amount: 0
   relocations of the unshifted build: 92803
   relocations missing after the shift: 0

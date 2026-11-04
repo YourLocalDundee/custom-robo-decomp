@@ -271,7 +271,7 @@ def robo_inputs(entry):
 
 
 def load_motion(path, mid):
-    m = crmotion.parse(Path(path).read_bytes())
+    m = crmotion.parse(crmotion.read_motion(path))
     return crmotion.find_motion(m, mid)
 
 
@@ -665,7 +665,12 @@ def reduce_keys(vals, eps):
     n = len(vals)
     if max(vals) - min(vals) <= min(eps):
         v = sum(vals) / n
-        return [] if abs(v) <= min(eps) else [{'frame': 0, 'kind': 'flat', 'value': v}]
+        if abs(v) <= min(eps):
+            return []
+        # a held value still needs a key on the last frame: past a track's last key the game reads the words after
+        # its list as more keys (cr_Motion_SampleTrack), and every track on the disc ends on its motion's last frame
+        # (found Nov 2, 2026: one key at frame 0 broke the Atlas dash and gun motions in a battle)
+        return [{'frame': f, 'kind': 'flat', 'value': v} for f in sorted({0, n - 1})]
     prior = []
     for i in range(n):
         d = (vals[min(n - 1, i + 1)] - vals[max(0, i - 1)]) / (min(n - 1, i + 1) - max(0, i - 1))
@@ -713,7 +718,7 @@ def cmd_import_gltf(glb, anim_sel, entry_path, motion_path, mid, out_path, dol, 
     tab = Tables(dol)
     byname = {n.get('name'): i for i, n in enumerate(j['nodes'])}
     role_node = [byname['JOBJ_%d' % jn] for jn in roles]
-    data = crmotion.parse(Path(motion_path).read_bytes())
+    data = crmotion.parse(crmotion.read_motion(motion_path))
     grp, e = crmotion.find_motion(data, mid)
     tmax = 0.0
     for s in anim['samplers']:

@@ -1,0 +1,22 @@
+/* Custom Robo game data, written by tools/gen_data_c.py; regenerate it, do not edit (python -I tools/gen_data_c.py --all).
+ * A data-only game unit (plan.md step 86, docs/decomp.md "Game data objects"): .sbss 0x8044F358-0x8044F368, 6 objects, linked from this file (batch 9: retail SHA-1, objdiff 100%, shift test).
+ * Types: symbols/cr_types.h (through the drafts' context), names and addresses: symbols/cr_globals.txt; zero-initialised, as main.dol has it.
+ * The compiler lays .bss / .sbss out in reverse declaration order, so the definitions are in that order:
+ *   0x8044F366 lbl_8044F366 (u8[2], 0x2 bytes), UNTYPED (symbols/bss_untyped.txt: size and place only, no reader typed it yet)
+ *   0x8044F365 lbl_8044F365 (u8[1], 0x1 bytes), UNTYPED (symbols/bss_untyped.txt: size and place only, no reader typed it yet)
+ *   0x8044F364 lbl_8044F364 (u8[1], 0x1 bytes), UNTYPED (symbols/bss_untyped.txt: size and place only, no reader typed it yet)
+ *   0x8044F360 lbl_8044F360 (u8[4], 0x4 bytes), UNTYPED (symbols/bss_untyped.txt: size and place only, no reader typed it yet)
+ *   0x8044F35C lbl_8044F35C (u8[4], 0x4 bytes), UNTYPED (symbols/bss_untyped.txt: size and place only, no reader typed it yet)
+ *   0x8044F358 lbl_8044F358 (u8[4], 0x4 bytes), UNTYPED (symbols/bss_untyped.txt: size and place only, no reader typed it yet)
+ * The game's own source files are not known: this unit is one contiguous run of its data, not the original file. */
+#include "game/cr_game.h"
+
+/* the code may reach an object as another's base + offset only: keep them all (mwld strips unnamed data) */
+#pragma force_active on
+u8 lbl_8044F366[2];
+u8 lbl_8044F365[1];
+u8 lbl_8044F364[1];
+u8 lbl_8044F360[4];
+u8 lbl_8044F35C[4];
+u8 lbl_8044F358[4];
+#pragma force_active reset

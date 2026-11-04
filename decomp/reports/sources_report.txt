@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 1679
+files: 1813
 
 src/MSL/FILE_POS.c  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
@@ -202,6 +202,7 @@ src/game/cr_Battle_SetCurrentPointers.c  ours: a matching m2c draft of the game 
 src/game/cr_Battle_UpdateBodyRecords.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CAMMODE_DEBUG_Frame.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CAMMODE_DRAW_Frame.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CAMMODE_MIDDLE_Frame.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CAMMODE_NOMOVE_Frame.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CAMMODE_PEAK_Frame.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CAMMODE_SNR_AUTO_MOVE_Frame.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -257,6 +258,7 @@ src/game/cr_C_ACT_MOT.c  ours: a matching m2c draft of the game code, promoted b
 src/game/cr_C_ACT_REPEAT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_C_ACT_TURN_POINT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_C_ACT_WAIT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_CamMode_DefaultStart.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_Cam_SetMode.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_CharaEntry_OnLoaded.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_Chara_PoseFromMotion.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -368,6 +370,7 @@ src/game/cr_MAP_NO_ENTER_SCRIPT.c  ours: a matching m2c draft of the game code, 
 src/game/cr_Mem_CopyWords.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_Motion_LoadInfo.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_Motion_PlayFromFrame1.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_Motion_UpdateBlend_fn_800528B8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_OBJ_DUMMY_010.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_OBJ_DUMMY_011.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_OBJ_DUMMY_012.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -384,6 +387,7 @@ src/game/cr_SEQ_BATTLE_FrameB.c  ours: a matching m2c draft of the game code, pr
 src/game/cr_SEQ_BATTLE_FrameC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_CUSTOMIZE_Enter.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_CUSTOMIZE_FrameB.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_SEQ_CUSTOMIZE_FrameC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_ENDING_Enter.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_ENDING_FrameA.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_ENDING_FrameB.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -424,6 +428,7 @@ src/game/cr_SEQ_NAME_ENTRY_FrameB.c  ours: a matching m2c draft of the game code
 src/game/cr_SEQ_NAME_ENTRY_FrameC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_NAME_ENTRY_Leave.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_OPTION_Enter.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_SEQ_OPTION_FrameA.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_OPTION_FrameB.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_OPTION_FrameC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_OPTION_Leave.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -432,7 +437,9 @@ src/game/cr_SEQ_SCENARIO_Leave.c  ours: a matching m2c draft of the game code, p
 src/game/cr_SEQ_STAGE_SELECTOR_Enter.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_STAGE_SELECTOR_FrameA.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_STAGE_SELECTOR_FrameB.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_SEQ_STAGE_SELECTOR_FrameC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_TITLE_Enter.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_SEQ_TITLE_FrameA.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_TITLE_FrameB.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SEQ_TITLE_FrameC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_SYS_BATTLE_NEXT.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -472,12 +479,15 @@ src/game/cr_S_DUMMY_015.c  ours: a matching m2c draft of the game code, promoted
 src/game/cr_S_DUMMY_016.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_S_SE_PLAY.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_S_SE_STOP.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_Vec3_Distance.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/cr_Vec3_LengthInline.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_Vec3_Normalize.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_Vec3_NormalizeTo.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800055E0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800055E4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800055E8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80005B88.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80005BC8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80005D38.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8000766C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8000768C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -487,6 +497,8 @@ src/game/fn_80007AE4.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80007BD4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80007C24.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80007C74.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80007CE4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8000860C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80008C90.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80008DC0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80008E30.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -505,14 +517,17 @@ src/game/fn_8000DB94.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_8000DCCC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8000DE04.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8000DE08.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8000DE50.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8000E1E4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8000E648.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8000F7A4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800119A0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80015E04.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80015E18.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80016064.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800165D4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80017668.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8001838C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800191E8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80019828.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800199AC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -543,7 +558,9 @@ src/game/fn_8001D05C.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_8001D104.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001D1AC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001D254.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8001D618.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001D630.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8001D9C8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001DAF8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001DE38.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001E360.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -556,40 +573,57 @@ src/game/fn_8001F6BC.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80020204.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80020A40.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80020A60.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80021014.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800210B0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80021350.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800215F8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80021A40.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80021AA4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80021AB0_fn_80021AB0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8002312C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80023164.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800232B4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80023304.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80023354.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80023394.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80023570.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80023780.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80023990.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80023EC8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80023F0C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80024148.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8002444C_fn_8002444C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80024578.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80024590.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800245E8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80024848.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80026A7C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80026B40.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80026BF4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80026C50.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80026CA0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80026F58.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80029C20.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80029F70.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8002B284.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8002E2A0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80037894.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80037A34.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80038BD8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8003D500.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8003F000.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8003F1E8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800410C0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800412F8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800442EC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80044374.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800443A0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8004505C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800498FC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80049904.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80050388.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80050F90.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80053A20.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8005C4D0_fn_8005C4D0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8005C628.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8005C720.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -612,10 +646,14 @@ src/game/fn_80061B38.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80061B90.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800640D8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80064150.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80064234.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80064FE4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80065DB0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800668CC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800668DC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80066904.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800671C4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80067250.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80068358.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800683A4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800683AC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -623,6 +661,7 @@ src/game/fn_80068978.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80068B50.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80068CFC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800690D8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80069504.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80069614.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8006973C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8006B140.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -641,6 +680,10 @@ src/game/fn_80071960.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_800746C4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800750F8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80075120.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80075258.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80075388.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800754B8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800755E8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80075718.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80075BBC.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80075C14.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -687,14 +730,18 @@ src/game/fn_8007D0D4.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_8007D17C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007D224.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007D2B8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8007D3C8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8007DA20.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007DBF0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8007DD14.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8008052C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80080558.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80080994.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80080B80.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80080F20.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80080FB4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800811E8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_800812A4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80081430.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80081438.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80085280.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -748,6 +795,7 @@ src/game/fn_800944B8.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80095700.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80095A30.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80095D7C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_80095E00.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80096374.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_800964B0.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_80096528.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -963,9 +1011,11 @@ src/game/fn_80130848.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_80130988.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8013149C.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/main.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/data/__AXCompressorTable_axDspSlave.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_AreaBoxes.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_BattleLoadouts_cr_g_LegData.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_BattleMotionSets.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_BattleRoboActionFuncs_lbl_801F9758.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_BattleRobos.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_BodyCount_cr_g_BombCount.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_CamModeFuncs.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
@@ -981,14 +1031,98 @@ src/game/data/cr_g_GunData_cr_g_BombData.c  ours: a data-only game unit, main.do
 src/game/data/cr_g_MessageFiles_cr_g_TextRecords.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_ModelSlots.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_MotionDataBit15_cr_g_MotionData.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_MotionNames.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_PackedArchives_cr_g_FileSysReady.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_PadStatus_cr_g_Pads.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_PartOrderLeg_cr_g_PartOrderLists.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/cr_g_PodData.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_ScenarioBuffer.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_ScriptReturnStack.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_Script_cr_g_Scenario.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_SeqFrameA_cr_g_SeqLeave.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/game/data/cr_g_UnlockBits.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_801E6580_lbl_801E9016.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_801E90B0.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_801F14E0_lbl_801F5D20.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_801F80D0_lbl_801F8E54.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_801F9980_lbl_801F9996.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_801F9B00.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_801F9DC8_lbl_801F9E08.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_801FA188_cr_g_MotionInfo.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8020A108_lbl_8020AD30.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8020DD48_lbl_8020ED90.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8020EDB0_cr_g_StageData.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8021B240_lbl_8021B3B8.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8022B3B8.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_802359F8.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_802362A0.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_80238160.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_80239B48_lbl_80239FEC.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8024DB20.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8024DFA0_lbl_8024E100.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8031B5A0_lbl_8031F268.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_80321DD0_lbl_80323800.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8032C1C8_lbl_8032ECD0.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_80344550_lbl_8037A190.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_80386000_lbl_80386E44.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_80387DD0_lbl_8039D920.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_803B7120_lbl_803B72E8.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_803B76E8.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_803B8C00_lbl_803BADA8.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_803BB628_lbl_803BE330.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_803BFC78_lbl_803BFE68.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_803E6688_lbl_803F63E8.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_80400420_lbl_80407260.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_80419958_lbl_80419968.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8041A598_lbl_8041CDCC.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8041E938_lbl_8041EA18.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8043CFD0_lbl_80449C98.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_80449E80_lbl_80449E8C.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044B768.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044B7B0_lbl_8044BFB0.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F2A8_lbl_8044F340.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F358_lbl_8044F366.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F370_lbl_8044F37A.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F388_lbl_8044F3A4.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F3A8_lbl_8044F3C4.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F3F0_lbl_8044F404.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F408_lbl_8044F444.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F468_lbl_8044F474.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F488_lbl_8044F48C.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F490.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F4A0_lbl_8044F4A4.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F4B0_lbl_8044F53C.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F568_lbl_8044F574.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F588_lbl_8044F58C.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F590_lbl_8044F59C.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F5A8_lbl_8044F5B4.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F5B8_lbl_8044F5DC.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F5E8_lbl_8044F62C.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F630.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F640.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F668_lbl_8044F66F.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F678_lbl_8044F694.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F6A0_lbl_8044F6A4.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F6A8_lbl_8044F6BC.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F6C0_lbl_8044F6C4.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F6D8_lbl_8044F6F4.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F6F8_lbl_8044F714.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F718_lbl_8044F71E.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F720_lbl_8044F72C.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F730_lbl_8044F74C.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F750_lbl_8044F756.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F758_lbl_8044F75C.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F780_lbl_8044F78C.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F798_lbl_8044F7A4.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F7A8_lbl_8044F7DC.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F7E0_lbl_8044F7F4.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F7F8_lbl_8044F808.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F818_lbl_8044F87C.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044F890_lbl_8044F894.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044FD48_lbl_8044FDCC.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044FDD0_lbl_8044FED8.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_8044FEF0.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
+src/game/data/lbl_80450008_lbl_80450030.c  ours: a data-only game unit, main.dol's bytes along our types, written by tools/gen_data_c.py
 src/sysdolphin/baselib/aobj.c  doldecomp/kar @ 3ed51a1a008a src/sysdolphin/aobj.c  changed (247 lines added / removed)
 src/sysdolphin/baselib/aobj.h  doldecomp/melee @ 24e685d57535 src/sysdolphin/baselib/aobj.h  identical
 src/sysdolphin/baselib/archive.c  ours (no reference)

@@ -459,7 +459,8 @@ def data_decls(ptrs={}, signs={}, extents={}):
     halfword (the fn_800AB468 family). Its section goes into a comment line `// CR_MIXED name prefix`, so a draft's
     own extern gets the same CR_SECTION (mixed_sections)."""
     out = ['\n// every lbl_ data object of decomp/config/GXCE01/symbols.txt with its size, so the compiler picks the\n'
-           '// same data model as the original (small data only for the small sections; tools/draft_batch.py data_decls)\n']
+           '// same data model as the original (small data only for the small sections; tools/draft_batch.py data_decls)\n'
+           '#ifndef CR_RO\n#ifdef CR_NO_RO\n#define CR_RO\n#else\n#define CR_RO const\n#endif\n#endif\n']
     lines = open(os.path.join(D, 'config/GXCE01/symbols.txt'), encoding='utf-8').read().split('\n')
     starts = collections.defaultdict(list)
     for l in lines:
@@ -500,11 +501,12 @@ def data_decls(ptrs={}, signs={}, extents={}):
         # step 110: read-only data (.sdata2, .rodata) declared const. The compiler lets a load of a const object move
         # ahead of stores through pointers (they cannot change it); declared plainly, every pointer store is a barrier
         # for it (cr_CM_ZOOM: the flag lbl_8045110C read before the camera's byte stores, 82 -> 91 of 91 words)
-        cq = 'const ' if sec in ('sdata2', 'rodata') else ''
+        # CR_RO is `const` unless a draft defines CR_NO_RO before the context (the variant plain_readonly)
+        cq = 'CR_RO ' if sec in ('sdata2', 'rodata') else ''
         if size == 4 and ptrs.get(name) == MIXED:
             out.append('// CR_MIXED %s %s\n' % (name, pre.strip()))
         elif size == 4 and name in ptrs:
-            out.append('%sextern %s%s%s;\n' % (pre, ptrs[name], 'const ' if cq else '', name))
+            out.append('%sextern %s%s%s;\n' % (pre, ptrs[name], cq, name))
         elif size == es:
             out.append('%sextern %s%s %s;\n' % (pre, cq, t, name))
         elif size % es == 0:
@@ -4204,8 +4206,11 @@ def one(job):
         compiler's text, fixes)"""
         # the context's prototype of the function itself (ctx_protos.h, from its first-pass draft) is renamed away
         # while the context is read: the draft defines the function with the signature of this pass
+        pre = ''
+        if body.startswith(NO_RO):   # the variant plain_readonly: the context's read-only data declared plainly
+            body, pre = body[len(NO_RO):], '#define CR_NO_RO\n'
         lines = ('// m2c draft of %s (0x%08X, %d bytes): decompiled output, gitignored, never commit\n'
-                 '#define %s %s__proto\n#include "ctx.h"\n#undef %s\n\n%s' % (name, addr, size, name, name, name, body)).split('\n')
+                 '%s#define %s %s__proto\n#include "ctx.h"\n#undef %s\n\n%s' % (name, addr, size, pre, name, name, name, body)).split('\n')
         cmd = mwcc_cmd(W['ver']) + ['-c'] + W['flags'] + CTX_DEFS + ['-DCR_DRAFT_CC', '-i', out.replace(os.sep, '/')] + sum([['-i', i] for i in CTX_INC], []) + ['-o', o, c.replace('\\', '/')]
         fixes = []
         while True:
@@ -5038,13 +5043,343 @@ VARIANTS = VARIANTS + (((), (stack_param_alias,)), ((), (drop_local_deref_casts,
                        ((), (goto_exit_loops,)), ((), (goto_exit_loops, goto_while_loops)),
                        ((), (self_update_refs,)), ((), (irregular_switch_ifs,)), ((), (self_update_refs, irregular_switch_ifs)),
                        ((), (record_array_address,)))
+NO_RO = '// CR_NO_RO\n'
+
+
+def plain_readonly(body):
+    """step 110, a variant: the context's .sdata2 / .rodata objects declared without const for this draft
+    (data_decls: CR_RO). const lets a load move ahead of pointer stores, which most drafts need (cr_CM_ZOOM); a few
+    were 100% before and need the plain order (fn_800055E8, fn_80038BD8, fn_800FFA50, fn_800FFBB0). The marker line
+    becomes `#define CR_NO_RO` before the draft's #include "ctx.h" (build), and promote_drafts.py then reads the
+    context preprocessed the same way (ctx_pp_noro.c)"""
+    return body if body.startswith(NO_RO) else NO_RO + body
+
+
+RULES_110 = (plain_readonly,)
+OPTIONAL = OPTIONAL + RULES_110
+# fn_80038BD8 needs both: the plain declarations and step 108's byte test without the (u8) cast (72 of 72 words)
+VARIANTS = VARIANTS + (((), (plain_readonly,)), ((register_order,), (plain_readonly,)),
+                       ((), (plain_readonly, plain_byte_tests)))
 _postprocess_108 = postprocess
 
 
 def postprocess(body, skip=(), add=()):
     """the rules of step 108's postprocess, then step 109b's (RULES_109B, in order)"""
     body = _postprocess_108(body, skip, add)
-    for f in RULES_109B:
+    for f in RULES_109B + RULES_110:
+        if f not in skip and (f not in OPTIONAL or f in add):
+            body = f(body)
+    return body
+
+
+# ---- step 111 (Nov 3, 2026): goto loops whose exit block leaves the loop, innermost first -------------------------
+_FOR_INC = re.compile(r'(\w+) (?:\+=|-=) (?:0x[0-9A-Fa-f]+|\d+);|(\w+)(?:\+\+|--);')
+
+
+def goto_for_loops(body):
+    """step 111, a variant: m2c's reading of a loop it did not structure, innermost loop first,
+           X = I;                               for (X = I; !(T); INC) {
+           loop_N:                                  S...
+           if (T) {                             }
+               E...                     ->      E...
+           }
+           S...
+           INC;
+           goto loop_N;
+    where E ends in a return or a goto (often the outer loop's `step; goto loop_M;`, which the next pass reads as that
+    loop's tail), the label is used once, and S has no label, break or continue. Without INC: `while (!(T))`.
+    goto_exit_loops (step 109b) takes only a single `return` as E and writes `while`; nested loops need this one.
+    The compiler's for / while tests at the bottom (`b test; body; test: cmpwi; blt body`), m2c's form at the top
+    (fn_800119A0: 63 -> 72 of 72)."""
+    lines = body.split('\n')
+    changed = True
+    while changed:
+        changed = False
+        for k in range(len(lines) - 2):
+            m = re.fullmatch(r'\s*(loop_\d+):', lines[k])
+            if not m:
+                continue
+            lab = m.group(1)
+            # the label once, its goto once (the loop's tail)
+            if len(re.findall(r'\b%s\b' % lab, '\n'.join(lines))) != 2:
+                continue
+            ind = re.match(r'\s*', lines[k + 1]).group(0)
+            c1 = re.fullmatch(re.escape(ind) + r'if \((.+)\) \{', lines[k + 1])
+            if not c1:
+                continue
+            # the exit block E: everything deeper than the if, up to its closing brace (no else)
+            e = k + 2
+            while e < len(lines) and (lines[e].startswith(ind + '    ') or not lines[e].strip()):
+                e += 1
+            if e >= len(lines) or lines[e] != ind + '}':
+                continue
+            ex = lines[k + 2:e]
+            last = [x for x in ex if x.strip()]
+            if not last or not re.match(r'\s*(?:return\b|goto \w+;)', last[-1]):
+                continue
+            # the loop body S: at the if's level or deeper, up to the tail goto
+            j = e + 1
+            while j < len(lines) and lines[j] != ind + 'goto %s;' % lab:
+                if lines[j].strip() and not lines[j].startswith(ind):
+                    break
+                j += 1
+            if j >= len(lines) or lines[j] != ind + 'goto %s;' % lab:
+                continue
+            s = lines[e + 1:j]
+            # an inner label is an unconverted inner loop: it goes first (the next pass comes back here)
+            if any(re.fullmatch(r'\s*\w+:', x) or re.match(r'\s*(?:break|continue)\b', x) for x in s):
+                continue
+            # S's last statement at the loop's level, when it steps a variable, becomes the for's step
+            nb = [i for i, x in enumerate(s) if x.strip()]
+            inc = None
+            if nb and s[nb[-1]].startswith(ind) and not s[nb[-1]].startswith(ind + ' ') and \
+                    _FOR_INC.fullmatch(s[nb[-1]].strip()):
+                inc = s[nb[-1]].strip()[:-1]
+                s = s[:nb[-1]] + s[nb[-1] + 1:]
+            start, init = k, ''
+            if inc:
+                var = re.match(r'\w+', inc).group(0)
+                pm = re.fullmatch(re.escape(ind) + r'(%s = [^;]+);' % var, lines[k - 1]) if k else None
+                if pm:
+                    init, start = pm.group(1), k - 1
+                head = ind + 'for (%s; %s; %s) {' % (init, _negate_test(c1.group(1)), inc)
+            else:
+                head = ind + 'while (%s) {' % _negate_test(c1.group(1))
+            new = [head] + ['    ' + x if x.strip() else x for x in s] + [ind + '}'] + \
+                  [x[4:] if x.startswith(ind + '    ') else x for x in ex]
+            lines[start:j + 1] = new
+            changed = True
+            break
+    return '\n'.join(lines)
+
+
+def param_self_copies(body):
+    """step 111, a variant: m2c's `var_r30 = arg0;` copy of a parameter (the copy assigned nowhere else, the parameter
+    never assigned, the copy declared with the parameter's own type) written as the parameter itself plus a
+    self-assignment `arg0 = arg0;` in the copy's place. param_copies drops the copy, which colours the parameters in
+    the other order (arg0 r29 / arg1 r30 where the original has r30 / r29); the self-assignment keeps the copy's
+    place in the allocation without its stack round trip (`stw r3,8(r1); lwz r30,8(r1)`). Found by decomp-permuter
+    on fn_80075258; with it fn_80075258 / 75388 / 754B8 / 755E8: 74 -> 76 of 76."""
+    m = re.search(r'^\w[\w \*]*?\b\w+\(([^;{]*)\) \{$', body, re.M)
+    if not m:
+        return body
+    params = {}
+    for p in m.group(1).split(','):
+        pm = re.fullmatch(r'\s*(.+?)\s*\b(\w+)\s*', p)
+        if pm:
+            params[pm.group(2)] = re.sub(r'\s+', '', pm.group(1))
+    for cm in list(re.finditer(r'^([ \t]+)(var_\w+) = (\w+);$', body, re.M)):
+        var, arg = cm.group(2), cm.group(3)
+        if arg not in params:
+            continue
+        dm = re.search(r'^[ \t]+([^;=\n(]+?)\s*\b%s;$' % var, body, re.M)
+        if not dm or re.sub(r'\s+', '', dm.group(1)) != params[arg]:
+            continue
+        # assignments to the name itself (not a store through it: `*var = x`, `var->f = x`)
+        lv = r'(?<![*.>\w])%s\s*(?:[-+*/&|^]?=(?!=)|\+\+|--)'
+        if len(re.findall(lv % var, body)) != 1 or re.search(lv % arg, body):
+            continue
+        new = body[:dm.start()] + body[dm.end() + 1:]
+        new = new.replace(cm.group(0), cm.group(1) + '%s = %s;' % (arg, arg), 1)
+        return re.sub(r'\b%s\b' % var, arg, new)
+    return body
+
+
+def _left_operand(s, end):
+    """the start of the operand that ends at s[end]: back to an unmatched '(' or a top-level && / || / , / ; / = """
+    depth, i = 0, end - 1
+    while i >= 0:
+        c = s[i]
+        if c == ')':
+            depth += 1
+        elif c == '(':
+            if depth == 0:
+                return i + 1
+            depth -= 1
+        elif depth == 0 and (s[i - 1:i + 1] in ('&&', '||') or c in ',;{}' or (c == '=' and s[i - 1] not in '!=<>')):
+            return i + 1
+        i -= 1
+    return 0
+
+
+def _null_reg_compares(body, unsigned_zero):
+    pat = r' (!=|==) (NULL|0U)\b' if unsigned_zero else r' (!=|==) (NULL)\b'
+    out, pos = [], 0
+    for m in re.finditer(pat, body):
+        st = _left_operand(body, m.start())
+        while st < m.start() and body[st] == ' ':
+            st += 1
+        x = body[st:m.start()]
+        if st < pos or not x or x.startswith('(u8 *) ('):
+            continue
+        out.append(body[pos:st] + '(u8 *) (%s) %s (u8 *) NULL' % (x, m.group(1)))
+        pos = m.end()
+    out.append(body[pos:])
+    return ''.join(out)
+
+
+def null_reg_compares(body):
+    """step 111, a variant: every `x != NULL` / `x == NULL` as `(u8 *) (x) != (u8 *) NULL`. mwcc then keeps the zero
+    in a register (`li r0, 0; cmplw r3, r0`, 154 sites in 68 drafts below 100%) where `x != NULL` gives
+    `cmplwi r3, 0` (fn_80080558, fn_80065DB0 by hand; fn_80064234 73 -> 91%, fn_80064AB8 69 -> 86%, the cr_Heap2_Free
+    family 52 -> 66%). All sites at once: a function that mixes both forms needs a hand draft (fn_80038CF8)."""
+    return _null_reg_compares(body, False)
+
+
+def null_reg_compares_u(body):
+    """step 111, a variant: null_reg_compares, and an unsigned `x != 0U` / `== 0U` the same way (fn_8007A800 82 ->
+    85%, fn_80064500 77 -> 81%)"""
+    return _null_reg_compares(body, True)
+
+
+def stack_struct_param_homes(body):
+    """step 111, a variant: m2c (--stack-structs) puts a parameter's stack home into the stack struct (`sp.sp8 =
+    arg0;`, then sp.sp8 read for arg0). The field and the copy go and the parameter is used: the compiler homes the
+    parameter itself, and with a field of its own the struct's other members (spilled locals) sit one slot higher
+    (fn_80064234 82 -> 100% with null_reg_compares; fn_8003F248 46 -> 61%, fn_8006B46C 48 -> 62%, fn_8000805C
+    70 -> 76%). Only when neither the field nor the parameter is assigned again."""
+    lv = r'(?<![*.>\w])%s\s*(?:[-+*/&|^]?=(?!=)|\+\+|--)'
+    for m in list(re.finditer(r'^([ \t]+)sp\.(sp[0-9A-Fa-f]+) = (arg\d+);\n', body, re.M)):
+        fld, arg = m.group(2), m.group(3)
+        if m.group(0) not in body:
+            continue
+        rest = body.replace(m.group(0), '', 1)
+        if re.search(r'(?<![\w.])sp\.%s\s*(?:[-+*/&|^]?=(?!=)|\+\+|--)' % fld, rest) or re.search(lv % arg, rest):
+            continue
+        dm = re.search(r'^[ \t]+[^;\n]*\b%s;\n' % fld, rest, re.M)
+        if not dm:
+            continue
+        rest = rest[:dm.start()] + rest[dm.end():]
+        body = re.sub(r'\bsp\.%s\b' % fld, arg, rest)
+    return body
+
+
+def _param_self_assigns(body, all_params):
+    m = re.search(r'^\w[\w \*]*?\b(\w+)\(([^;{]*)\) \{\n', body, re.M)
+    if not m or m.group(2).strip() in ('', 'void'):
+        return body
+    names = [re.search(r'(\w+)\s*$', p).group(1) for p in m.group(2).split(',') if re.search(r'(\w+)\s*$', p)]
+    names = [n for n in names if n.startswith('arg')]
+    if not names:
+        return body
+    names = names if all_params else names[:1]
+    # after the local declarations (lines with no `=`), before the first statement
+    i = m.end()
+    lines = body[i:].split('\n')
+    k = 0
+    while k < len(lines) and '=' not in lines[k] and \
+            re.match(r'\s+[\w\s\*\(\)\[\]]+;$|\s+struct \{|\s+\} sp;|\s+\w[^=;(]*\b\w+(\[[^\]]*\])?;$', lines[k]):
+        k += 1
+    lines[k:k] = ['    %s = %s;' % (n, n) for n in names]
+    return body[:i] + '\n'.join(lines)
+
+
+def param_self_assign(body):
+    """step 111, a variant: `arg0 = arg0;` as the first statement. A self-assignment changes the order in which the
+    parameter is given its callee-saved register (fn_800410C0: the parameter r31 before the counter, 68 -> 100%).
+    Measured on the 243 draftscan drafts at 40-99%: 21 gain (fn_8000B258 52 -> 70%, fn_800208F0 51 -> 60%,
+    fn_8007BB60 60 -> 68%), with every parameter (param_self_assigns) others (fn_8003F248 46 -> 60%, fn_8006B46C
+    48 -> 61%, fn_80066F58 59 -> 73%)."""
+    return _param_self_assigns(body, False)
+
+
+def param_self_assigns(body):
+    """step 111, a variant: param_self_assign for every parameter"""
+    return _param_self_assigns(body, True)
+
+
+def fabs_intrinsic(body):
+    """step 111, a variant: `fabs(x)` as the intrinsic `__fabs(x)`. The context's fabs is MSL's static inline wrapper;
+    at the game's level 0 its argument and result go through saved FP registers (fn_8003D500: f29-f31 saved for one
+    fabs); the intrinsic is the one instruction (fn_8003D500 82 -> 91%, 100% by hand; fn_800784B0 48 -> 67%,
+    fn_8005E270 18 -> 26%, fn_8003C4F0 51 -> 58%, fn_8004E8D4 51 -> 57%)."""
+    return re.sub(r'(?<![\w.])fabs\(', '__fabs(', body)
+
+
+_SQRT = re.compile(
+    r'(?P<i>[ \t]+)if \((?P<x>\w+) > (?P<c0>[^\n]+?)\) \{\n'
+    r'(?P=i)    (?P<a>\w+) = (?P=x);\n'
+    r'(?P=i)    (?P<g>\w+) = __frsqrte\((?P=a)\);\n'
+    r'(?P<steps>(?:(?P=i)    (?P=g) = [^\n]+? \* (?P=g) \* -\(\(\(f64\) (?P=a) \* \((?P=g) \* (?P=g)\)\) - [^\n]+?\);\n){1,4})'
+    r'(?P=i)    (?P<r>\w+) = \(f64\) (?P=a) \* (?P=g);\n'
+    r'(?P=i)    (?P=r) = \(f64\) \(f32\) (?P=r);\n'
+    r'(?P=i)\} else if \((?P=x) < (?P<c1>[^\n]+?)\) \{\n'
+    r'(?P=i)    (?P=r) = \(f64\) __float_nan;\n'
+    r'(?P=i)\} else \{\n'
+    r'(?P=i)    (?P<spv>sp\.\w+|\w+) = (?P=x);\n'
+    r'(?P<sw>(?P=i)    switch [^\n]*\n(?:(?P=i)    [ \t][^\n]*\n|(?P=i)    (?:case|default)[^\n]*\n)*?(?P=i)    \}\n)'
+    r'(?P=i)    if \((?P<k>\w+) == 1\) \{\n'
+    r'(?P=i)        (?P=r) = \(f64\) __float_nan;\n'
+    r'(?P=i)    \} else \{\n'
+    r'(?P=i)        (?P=r) = \(f64\) (?P=x);\n'
+    r'(?P=i)    \}\n'
+    r'(?P=i)\}\n')
+_STEP = re.compile(r'= ([^\n]+?) \* (\w+) \* -\(\(\(f64\) (\w+) \* \(\w+ \* \w+\)\) - ([^\n]+?)\);')
+
+
+def msl_sqrtf_blocks(body):
+    """step 111, a variant: MSL's inline sqrtf as m2c prints it -> the source form (fn_8000805C, fn_80048B10 by hand): the result an f32,
+    the Newton steps `g = h * g * (t - g * g * x)`, the NaN read through __float_nan as an array, the compare with
+    the double zero without m2c's (f32) cast, the fpclassify switch on the stack float, and the copy declared before
+    the value it copies (the copy takes f30, the value f29). On the 15 drafts with the shape: cr_Vec3_LengthInline
+    67 -> 100%, cr_Vec3_Distance 71 -> 100%, fn_80048B10 83 -> 99%, cr_Vec3_RotateAboutAxis 70 -> 80%, fn_8000805C
+    70 -> 79%, fn_8001B6EC 52 -> 61%, fn_80076B2C 45 -> 53%."""
+    changed = []
+
+    def fix(m):
+        i, x, a, g, r, k = m.group('i'), m.group('x'), m.group('a'), m.group('g'), m.group('r'), m.group('k')
+        steps = ''.join('%s    %s = %s * %s * (%s - %s * %s * %s);\n' % (i, g, s.group(1), g, s.group(4), g, g, a)
+                        for s in _STEP.finditer(m.group('steps')))
+        c1 = re.sub(r'^\(f32\) ', '', m.group('c1'))
+        sw = re.sub(r'M2C_BITWISE\(s32, %s\)' % re.escape(m.group('spv')), '*(s32 *) &%s' % m.group('spv'), m.group('sw'))
+        sw = sw.replace('switch ((*(s32 *) &%s & 0x7F800000))' % m.group('spv'), 'switch (*(s32 *) &%s & 0x7F800000)' % m.group('spv'))
+        changed.append((r, x, a))
+        return ('%sif (%s > %s) {\n%s    %s = %s;\n%s    %s = __frsqrte(%s);\n%s%s    %s = (f32) (%s * %s);\n'
+                '%s} else if (%s < %s) {\n%s    %s = CR_NAN;\n%s} else {\n%s    %s = %s;\n%s'
+                '%s    if (%s == 1) {\n%s        %s = CR_NAN;\n%s    } else {\n%s        %s = %s;\n%s    }\n%s}\n') % (
+            i, x, m.group('c0'), i, a, x, i, g, a, steps, i, r, a, g,
+            i, x, c1, i, r, i, i, m.group('spv'), x, sw,
+            i, k, i, r, i, i, r, x, i, i)
+    new = _SQRT.sub(fix, body)
+    if not changed:
+        return body
+    for r, x, a in changed:
+        new = re.sub(r'^([ \t]+)f64 %s;$' % r, r'\1f32 %s;' % r, new, flags=re.M)
+        # the copy is declared before the value it copies (the copy takes the higher register: f30 / f29)
+        dx = re.search(r'^[ \t]+f32 %s;\n' % x, new, re.M)
+        da = re.search(r'^[ \t]+f32 %s;\n' % a, new, re.M)
+        if dx and da and dx.start() < da.start():
+            line = da.group(0)
+            new = new[:da.start()] + new[da.end():]
+            new = new[:dx.start()] + line + new[dx.start():]
+    new = re.sub(r'^extern f32 __float_nan;$', 'extern u32 __float_nan[];\n#define CR_NAN (*(f32 *) __float_nan)', new, flags=re.M)
+    # every other read of the NaN through the array too
+    new = re.sub(r'(?:\(f64\) )?(?<![\w*] )(?<!\(f32 \*\) )\b__float_nan\b(?!\[)', 'CR_NAN', new)
+    if '#define CR_NAN' not in new:
+        new = 'extern u32 __float_nan[];\n#define CR_NAN (*(f32 *) __float_nan)\n' + new
+    return new
+
+
+RULES_111 = (goto_for_loops, param_self_copies, null_reg_compares, null_reg_compares_u, stack_struct_param_homes,
+             param_self_assign, param_self_assigns, fabs_intrinsic, msl_sqrtf_blocks)
+OPTIONAL = OPTIONAL + RULES_111
+VARIANTS = VARIANTS + (((), (goto_for_loops,)), ((), (goto_for_loops, plain_byte_tests)),
+                       ((register_order,), (goto_for_loops,)),
+                       ((param_copies, param_aliases), (param_self_copies,)),
+                       ((), (null_reg_compares,)), ((), (null_reg_compares_u,)),
+                       ((), (stack_struct_param_homes,)), ((), (stack_struct_param_homes, null_reg_compares)),
+                       ((), (stack_struct_param_homes, null_reg_compares_u)),
+                       ((), (param_self_assign,)), ((), (param_self_assigns,)),
+                       ((), (fabs_intrinsic,)), ((), (fabs_intrinsic, null_reg_compares)),
+                       ((), (msl_sqrtf_blocks,)), ((), (msl_sqrtf_blocks, param_self_assign)),
+                       ((), (msl_sqrtf_blocks, null_reg_compares)))
+_postprocess_110 = postprocess
+
+
+def postprocess(body, skip=(), add=()):
+    """step 110's postprocess, then step 111's rules (RULES_111)"""
+    body = _postprocess_110(body, skip, add)
+    for f in RULES_111:
         if f not in skip and (f not in OPTIONAL or f in add):
             body = f(body)
     return body
@@ -5138,6 +5473,11 @@ def main():
             sys.exit('context preprocess failed:\n' + so[:2000] + se[:2000])
         # m2c's context parser reads plain C: our own preprocessed text, with the macros it defines itself dropped
         open(os.path.join(out, 'ctx_pp.c'), 'w', encoding='utf-8', newline='\n').write(so)
+        # the same with CR_NO_RO (plain_readonly's drafts: promote_drafts.py reads their declarations from it)
+        rc, so3, se3 = run(cmd[:-1] + ['-DCR_NO_RO', ctxin], 120, cwd=D)
+        if rc != 0:
+            sys.exit('context preprocess (CR_NO_RO) failed:\n' + so3[:2000] + se3[:2000])
+        open(os.path.join(out, 'ctx_pp_noro.c'), 'w', encoding='utf-8', newline='\n').write(so3)
         if check:   # the compiler must accept the context as it is (every draft includes it)
             chk = os.path.join(out, 'ctx_check.c')
             open(chk, 'w', newline='\n').write('#include "ctx.h"\n')

@@ -15,6 +15,15 @@
 #      decomp/reports/promote_report.txt. Rerunnable; nothing changes when the drafts did not. When decomp/src/game
 #      changed, batch 9 runs again here, so the build (retail SHA-1, objdiff) and its reports include the new files.
 #      (Not with -Sample: a sample's report lists only some functions.)
+#   4. the data-only game units (docs/decomp.md "Game data objects", step 111), from the batch 9 build before this
+#      batch and this batch's context (decomp/drafts/ctx_pp.c, the types of symbols/cr_types.h):
+#      python -I tools/gen_data_c.py --scan-untyped (symbols/bss_untyped.txt: the untyped .bss / .sbss runs),
+#      python -I tools/scan_lbl_types.py (symbols/lbl_types.txt: the typed families under dtk names; each family checks
+#      itself and stops the batch on anything else), python -I tools/gen_data_c.py --all (decomp/src/game/data:
+#      every unit written again, compiled and placed before it is written; a unit no list produces is removed).
+#      COMMITTED: the two lists and decomp/src/game/data. A new cut in symbols/data_splits.txt needs one batch 9 before
+#      this step sees the object it makes (the full run's batch 9 -> batch 12 order does that). Not with -Sample.
+#      When decomp/src/game or decomp/src/game/data changed, batch 9 runs again.
 # Never commit anything in decomp/drafts/. Not in tools/checksums.ps1 (see docs/drafts.md "Determinism").
 # Usage:  pwsh tools/batches/batch12_drafts.ps1 [-Sample N] [-Jobs N]
 param([int]$Sample = 0, [int]$Jobs = [Environment]::ProcessorCount)
@@ -31,8 +40,20 @@ if (-not $Sample) {
     $p = python -I "$g/tools/promote_drafts.py"
     if ($LASTEXITCODE) { throw 'promote_drafts.py failed' }
     $p
-    if ($p[-1] -like 'changed*') {
-        "== decomp/src/game changed: batch 9 again (the build links the promoted files)"
+    $changed = $p[-1] -like 'changed*'
+    "== data units (step 4): untyped .bss / .sbss runs, typed lbl_ families, decomp/src/game/data"
+    python -I "$g/tools/gen_data_c.py" --scan-untyped
+    if ($LASTEXITCODE) { throw 'gen_data_c.py --scan-untyped failed' }
+    python -I "$g/tools/scan_lbl_types.py"
+    if ($LASTEXITCODE) { throw 'scan_lbl_types.py failed (a family did not check; see its message)' }
+    $d = python -I "$g/tools/gen_data_c.py" --all
+    if ($LASTEXITCODE) { $d; throw 'gen_data_c.py --all failed' }
+    $du = @($d | Where-Object { $_ -match ': (written|rewritten|removed)' })
+    $du
+    "data units: $(@($d).Count - $du.Count) unchanged, $($du.Count) written or removed"
+    if ($du.Count) { $changed = $true }
+    if ($changed) {
+        "== decomp/src/game or decomp/src/game/data changed: batch 9 again (the build links the new files)"
         & "$PSScriptRoot/batch9_decomp_build.ps1"
     }
 }

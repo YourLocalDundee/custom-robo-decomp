@@ -24,6 +24,10 @@ Usage:
   python -I tools/crmotion.py import <in.json> <out file>                  rebuild the file; edited keys get new floats
   python -I tools/crmotion.py roundtrip <motion file or folder>...         file -> JSON -> file, compare bytes
   python -I tools/crmotion.py sample <motion file> <motion ID> <frame>     every channel's value at that frame, by role
+  python -I tools/crmotion.py boot-extract <logo_read_us.dbn> <out file>   the motion file the game plays (bundle entry 8)
+  python -I tools/crmotion.py boot-pack <logo_read_us.dbn> <motion file> <out.dbn>   put a motion file into the bundle
+  A <motion file> argument may also be logo_read_us.dbn itself (its entry 8 is read). The game never loads the loose
+  motion.DBN: battle and field motions come from logo_read_us.dbn (docs/formats/motion.md).
 """
 import json
 import math
@@ -69,6 +73,50 @@ def f32(x):
 
 def u32(d, o):
     return struct.unpack_from('>I', d, o)[0]
+
+
+# ---- the motion file the game really plays: entry 8 of logo_read_us.dbn (found Nov 2, 2026)
+# main.dol never names motion.DBN (a leftover loose copy). At boot fn_80019E84 reads cr_g_FileDescs[0] entry 0,
+# logo_read_us.dbn, to the heap region lbl_8044F334 (base + 0x40000, fn_80023CBC; the next region starts at
+# base + 0x2F6000) and passes its entry 8 to cr_MotionFile_Register. A bundle is u32 count n, n + 1 u32 offsets (the
+# last is the file length), zeros to 0x40, the entries 0x20-aligned; the motion file is the last entry.
+BOOT_BUNDLE = 'logo_read_us.dbn'
+BOOT_MOTION_ENTRY = 8
+BOOT_BUNDLE_MAX = 0x2F6000 - 0x40000   # the bundle's load region
+
+
+def bundle_offsets(d):
+    n = u32(d, 0)
+    offs = list(struct.unpack_from('>%dI' % (n + 1), d, 4))
+    if n != 9 or offs[0] != 0x40 or offs[-1] != len(d):
+        raise SystemExit('not a logo_read_*.dbn bundle (count %d, offsets %s, length %#x)' % (n, offs[:2], len(d)))
+    return offs
+
+
+def boot_motion(d):
+    """logo_read_*.dbn -> the bytes of its motion file (entry 8)."""
+    offs = bundle_offsets(d)
+    return d[offs[BOOT_MOTION_ENTRY]:offs[BOOT_MOTION_ENTRY + 1]]
+
+
+def boot_replace(d, motion):
+    """logo_read_*.dbn with entry 8 replaced by `motion` (a motion file); later offsets and the length follow."""
+    offs = bundle_offsets(d)
+    k = BOOT_MOTION_ENTRY
+    motion = bytes(motion) + b'\0' * (-len(motion) % 0x20)
+    out = bytearray(d[:offs[k]]) + motion + d[offs[k + 1]:]
+    grow = len(motion) - (offs[k + 1] - offs[k])
+    for i in range(k + 1, len(offs)):
+        struct.pack_into('>I', out, 4 + 4 * i, offs[i] + grow)
+    if len(out) > BOOT_BUNDLE_MAX:
+        raise SystemExit('%s would be %d bytes; its load region holds %d (fn_80023CBC)' % (BOOT_BUNDLE, len(out), BOOT_BUNDLE_MAX))
+    return bytes(out)
+
+
+def read_motion(path):
+    """A motion file's bytes; a logo_read_*.dbn bundle gives its motion entry."""
+    d = Path(path).read_bytes()
+    return boot_motion(d) if Path(path).name.lower().startswith('logo_read') else d
 
 
 def align(n, a):
@@ -222,7 +270,26 @@ def build_group(grp, base):
     return bytes(out)
 
 
+def check_track_ends(motion):
+    """Every non-empty track must end on its motion's last key frame: past a track's last key the game reads the
+    words after the list as more keys (cr_Motion_SampleTrack 0x8001EB48). Every motion of the 52 motion files on the disc
+    follow this; a track left with one key at frame 0 broke a battle (Nov 2, 2026)."""
+    bad = []
+    for g in motion['groups']:
+        for e in g['motions']:
+            ts = [t for t in e['tracks'] if t and t['times']]
+            if not ts:
+                continue
+            last = max(t['times'][-1] for t in ts)
+            short = [i for i, t in enumerate(e['tracks']) if t and t['times'] and t['times'][-1] != last]
+            if short:
+                bad.append('%#06x (tracks %s end before frame %d)' % (e['id'], ', '.join(map(str, short[:6])), last))
+    if bad:
+        raise SystemExit('motion tracks end before their motion does (the game would read past them): ' + '; '.join(bad[:8]))
+
+
 def build(motion):
+    check_track_ends(motion)
     groups = motion['groups']
     head = align(8 + 4 * len(groups), 0x20)
     out = bytearray(head)
@@ -389,7 +456,7 @@ def is_motion(d):
 
 
 def cmd_list(path, dol):
-    m = parse(Path(path).read_bytes())
+    m = parse(read_motion(path))
     for gi, g in enumerate(m['groups']):
         print('group %d: %d motions, %d floats' % (gi, len(g['motions']), len(g['floats'])))
         for e in g['motions']:
@@ -436,7 +503,7 @@ def main(argv):
     if cmd == 'list':
         cmd_list(argv[2], load_dol(dolp))
     elif cmd == 'export':
-        j = to_json(parse(Path(argv[2]).read_bytes()), load_dol(dolp))
+        j = to_json(parse(read_motion(argv[2])), load_dol(dolp))
         Path(argv[3]).write_text(json.dumps(j, indent=1))
         print('wrote', argv[3])
     elif cmd == 'import':
@@ -446,11 +513,18 @@ def main(argv):
     elif cmd == 'roundtrip':
         sys.exit(1 if cmd_roundtrip(argv[2:]) else 0)
     elif cmd == 'sample':
-        m = parse(Path(argv[2]).read_bytes())
+        m = parse(read_motion(argv[2]))
         g, e = find_motion(m, int(argv[3], 0))
         for role, v in sample(e, g['floats'], float(argv[4])).items():
             extra = '  (%.2f deg)' % v if 'rot' in role else ''
             print('%-14s %12.5f%s' % (role, v, extra))
+    elif cmd == 'boot-extract':
+        Path(argv[3]).write_bytes(boot_motion(Path(argv[2]).read_bytes()))
+        print('wrote', argv[3])
+    elif cmd == 'boot-pack':
+        b = boot_replace(Path(argv[2]).read_bytes(), Path(argv[3]).read_bytes())
+        Path(argv[4]).write_bytes(b)
+        print('wrote %s (%d bytes)' % (argv[4], len(b)))
     else:
         raise SystemExit(__doc__)
 

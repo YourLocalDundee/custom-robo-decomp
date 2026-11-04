@@ -46,6 +46,10 @@ mods/**
 !mods/*/mod.json
 !mods/*/notes.txt
 !mods/*/*.py
+# permuter setups (this machine's paths), their log and the variant copies of tools/sched/scratch/hsd110
+tools/sched/permuter/
+tools/sched/hsd_permute.log
+tools/sched/scratch/hsd110/v_*/
 
 # Phase 4 build (decomp/): only decomp/config/ is ours. The template files, your DOL, the split asm / objects and
 # the linked main.dol are local (tools/setup_decomp.ps1 and the build make them).
@@ -76,3 +80,10 @@ tools/sched/ghidra_export/
 
 # raw community chat exports: read locally, never committed
 community_raw/
+
+# hand-draft scratch: m2c-derived draft text (variants, permuter inputs, unfinished drafts) stays local
+tools/sched/scratch/hand/hdvar_out/
+tools/sched/scratch/hand/specs/
+tools/sched/scratch/hand/wip/
+tools/sched/scratch/hand/perm/*.c
+tools/sched/scratch/hand/perm/*.log

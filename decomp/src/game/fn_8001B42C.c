@@ -8,7 +8,7 @@
 extern const f32 lbl_804503D0;
 extern const f32 lbl_804503FC;
 extern const f32 lbl_804503F8;
-extern u8 lbl_801E90B0[32784];
+extern u8 lbl_801E90B0[32768];
 extern const f32 lbl_80450400;
 extern const f32 lbl_80450404;
 

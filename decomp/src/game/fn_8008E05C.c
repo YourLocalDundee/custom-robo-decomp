@@ -8,9 +8,20 @@
 typedef struct cr_TextRecord cr_TextRecord;
 struct cr_TextRecord
 {
-  u8 unk_00[0x10];
+  f32 unk_00;
+  f32 unk_04;
+  u16 unk_08;
+  u8 unk_0a[2];
+  u16 unk_0c;
+  u16 unk_0e;
   u16 unk_10;
-  u8 unk_12[0xE];
+  u16 unk_12;
+  u8 unk_14[4];
+  u8 unk_18;
+  u8 unk_19;
+  u8 unk_1a;
+  u8 unk_1b;
+  u8 unk_1c[4];
 };
 __declspec(section ".data") extern cr_TextRecord cr_g_TextRecords[2496];
 

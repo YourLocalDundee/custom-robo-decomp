@@ -100,7 +100,7 @@ typedef struct HSD_AnimJoint HSD_AnimJoint;
 typedef struct HSD_MatAnimJoint HSD_MatAnimJoint;
 typedef struct HSD_ShapeAnimJoint HSD_ShapeAnimJoint;
 void HSD_JObjAddAnimAll(HSD_JObj *, HSD_AnimJoint *, HSD_MatAnimJoint *, HSD_ShapeAnimJoint *);
-extern u8 lbl_801F9996[18];
+extern u8 lbl_801F9996[16];
 void fn_80019AF0(void *arg0, u8 *arg1);
 void fn_8008E3F8(void *arg0);
 extern u8 *lbl_8044F32C;

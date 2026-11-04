@@ -79,7 +79,9 @@ typedef struct cr_BattleRobo
   s16 tag_cooldown;
   u8 unk_00148[0x84];
   u16 parts[5];
-  u8 unk_001d6[0x161E];
+  u8 unk_001d6[0x352];
+  u8 action;
+  u8 unk_00529[0x12CB];
   cr_BodyData body_data;
   u8 unk_0186c[0x32C];
   u8 body_stats[0x134];

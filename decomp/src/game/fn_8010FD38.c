@@ -5,6 +5,7 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+typedef struct cr_StageData cr_StageData;
 void fn_8008D434(s32 arg0, s32 *arg1, u8 arg2, f32 farg0, f32 farg1);
 s32 fn_80066D3C(u16 arg0);
 typedef struct cr_StageSelectorState
@@ -90,8 +91,24 @@ void fn_80098290(s32 arg0);
 extern u32 lbl_8023CE54[43];
 void fn_8008C8A8(void);
 extern u32 lbl_8037569C[2417];
-extern u8 *lbl_8044F5EC;
-extern u8 lbl_8020F4C8[33280];
+typedef struct cr_KeyPath cr_KeyPath;
+struct cr_StageData
+{
+  char name_jp[0x20];
+  u8 unk_020[0x60];
+  u8 unk_080;
+  u8 unk_081[3];
+  cr_KeyPath *path;
+  u8 unk_088[0x29C];
+  u32 unk_324;
+  f32 unk_328[4];
+  u8 unk_338[2];
+  u16 msg;
+  u8 unk_33c[4];
+};
+__declspec(section ".data") extern cr_StageData cr_g_StageData[40];
+
+extern cr_StageData *lbl_8044F5EC;
 
 s32 fn_8010FD38(void) {
     s32 var_r31_7;
@@ -105,7 +122,7 @@ s32 fn_8010FD38(void) {
         if ((s32) cr_g_StageSelector.unk_348 == 0) {
             M2C_FIELD(lbl_8037569C, u8 *, 6) = cr_g_StageSelector.stage;
             var_r31_7 = 0;
-            lbl_8044F5EC = lbl_8020F4C8 + ((s8) cr_g_StageSelector.stage * 0x340);
+            lbl_8044F5EC = &cr_g_StageData[(s8) cr_g_StageSelector.stage];
             M2C_FIELD(lbl_8037569C, u32 *, 0) = 0;
         } else {
             cr_g_StageSelector.state = cr_g_StageSelector.unk_34c;

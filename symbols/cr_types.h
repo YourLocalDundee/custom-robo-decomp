@@ -691,6 +691,42 @@ typedef struct cr_MotionName {
     /* +8 */ char* unk_08;   // "2001/**/**" in all 1095 entries
 } cr_MotionName;
 
+// The motion info records (.data 0x801FA188-0x80206DB0, 1,916 objects: exactly what cr_g_MotionInfo reaches; Nov 3, 2026).
+// ASSERT_SIZE(cr_MotionTag, 0x8)
+/// One entry of a motion's info list: cr_g_MotionInfo[id] points at a list of these, ended by tag 0 with NULL data.
+/// fn_8005CE74 walks the list and calls lbl_801F9DC8[tag] for tags 0..3 until tag 4 (whose data is NULL in all 82);
+/// in the disc data: tag 0 = cr_MotionHeader (first entry of all 940 lists), tags 1 / 2 / 3 / 9 = small .sdata
+/// objects, tags 6 / 7 / 10 = cr_MotionEvent, tag 8 = cr_MotionEventList.
+typedef struct cr_MotionTag {
+    /* +0 */ u32 tag;
+    /* +4 */ void* data;
+} cr_MotionTag;
+
+// ASSERT_SIZE(cr_MotionHeader, 0x10)   940 of them (tag 0)
+typedef struct cr_MotionHeader {
+    /* +00 */ u16 frames;      // & 0xFFF = the frame count (cr_Motion_LoadInfo, step 46)
+    /* +02 */ u16 unk_02;      // 0 in all 940
+    /* +04 */ u32 flags;       // 0x80 in all 940; with 0x200 / 0x400 / 0x20000000 / 0x80000000 / 0x20 in some
+    /* +08 */ u32 unk_08;      // 0x10000 in all 940
+    /* +0C */ u32 unk_0c;      // 0 in all 940
+} cr_MotionHeader;
+
+// ASSERT_SIZE(cr_MotionEvent, 0xC)   tags 6 / 7 / 10
+typedef struct cr_MotionEvent {
+    /* +0 */ u16 unk_00;       // small numbers (0x0B .. 0x4F): most likely a frame
+    /* +2 */ u16 unk_02;
+    /* +4 */ u32 unk_04;
+    /* +8 */ u32 unk_08;
+} cr_MotionEvent;
+
+// ASSERT_SIZE(cr_MotionEventList, 0xC)   tag 8
+typedef struct cr_MotionEventList {
+    /* +0 */ u16 unk_00;
+    /* +2 */ u16 unk_02;
+    /* +4 */ u32* values;      // u32[9] (each a pair of u16: 3, then a number near 0x28-0x39)
+    /* +8 */ u32 unk_08;
+} cr_MotionEventList;
+
 // ASSERT_SIZE(cr_BattleMotionSet, 0x4C)   sets are 0x4C apart from 0x801C51B8
 /// A battle body's 38 motion IDs (bit 15 is a separate flag: masked 0x7FFF, copied to object+0x85B). Slot names are the
 /// GAME'S OWN: every set holds the same name per slot, only the family prefix (sf_/mg_/ab_/<body>) changes.
@@ -2300,6 +2336,97 @@ typedef struct cr_BombData {
     /* +040 */ u8 unk_040[0x13C];
 } cr_BombData;
 
+// ASSERT_SIZE(cr_PodData, 0x174)       fn_80066820 / fn_800A2B9C index 0x801D9590 + pod * 0x174 (mulli 0x174)
+/// A pod's record (cr_g_PodData[57]), copied to cr_BattleRobo.pod_data (+0x2E2E8).
+typedef struct cr_PodData {
+    /* +000 */ char name_jp[0x20];   // the pod's name in Shift-JIS
+    /* +020 */ char name[0x20];      // the pod's English name ("Lineal Pod", "Seeker Pod #F", ...)
+    /* +040 */ u8 unk_040[0x134];    // stats from +0xE0 (docs/robo_tables.md); +0xE0 the illegal flag
+} cr_PodData;
+
+// ASSERT_SIZE(cr_Record8C, 0x8C)   304 of them at 0x8022B3B8 (Nov 3, 2026)
+/// A 0x8C-byte record of the table 0x8022B3B8, picked by the u16 table lbl_8044F7C0 [robo index] (stride 0x8C:
+/// fn_80081D9C, fn_80101E00, fn_80109314 ...); fn_800DDCD4 copies it to the robo's 0x3798-byte object of lbl_803E83B8
+/// at +0x3708. Field widths: the direct readers (+0x0..+0x8, +0x64) and the readers of that copy; the bytes no reader
+/// was seen to read stay u8 (meaning not known; many of the floats look like probabilities).
+typedef struct cr_Record8C {
+    /* +00 */ u16 unk_00;
+    /* +02 */ u16 unk_02;
+    /* +04 */ u16 unk_04;
+    /* +06 */ u16 unk_06;
+    /* +08 */ u16 unk_08;
+    /* +0A */ u8 unk_0a[2];
+    /* +0C */ f32 unk_0c;
+    /* +10 */ u8 unk_10[4];
+    /* +14 */ f32 unk_14;
+    /* +18 */ f32 unk_18;
+    /* +1C */ f32 unk_1c;
+    /* +20 */ f32 unk_20;
+    /* +24 */ u8 unk_24[0x14];
+    /* +38 */ f32 unk_38;
+    /* +3C */ f32 unk_3c;
+    /* +40 */ u8 unk_40[8];
+    /* +48 */ f32 unk_48;
+    /* +4C */ f32 unk_4c;
+    /* +50 */ u16 unk_50;
+    /* +52 */ u16 unk_52;
+    /* +54 */ u16 unk_54;
+    /* +56 */ u16 unk_56;
+    /* +58 */ u32 unk_58;
+    /* +5C */ u8 unk_5c[4];
+    /* +60 */ u32 unk_60;
+    /* +64 */ u32 unk_64;     // fn_80081D9C: compared with 0x14
+    /* +68 */ u8 unk_68[0x10];
+    /* +78 */ u8 unk_78;
+    /* +79 */ u8 unk_79;
+    /* +7A */ u16 unk_7a;
+    /* +7C */ u16 unk_7c;
+    /* +7E */ u16 unk_7e;
+    /* +80 */ u16 unk_80;
+    /* +82 */ u8 unk_82[0xA];
+} cr_Record8C;
+
+// ASSERT_SIZE(cr_Key7, 0x1C)   arrays of 1 / 3 / 4 / 5 (Nov 3, 2026)
+/// One key of a cr_KeyTrack: 7 floats; in a list, key i's last three values open key i+1 (spline segments, most likely
+/// time / value / slope pairs). Which code plays them is not traced yet.
+typedef struct cr_Key7 {
+    /* +00 */ f32 unk_00;
+    /* +04 */ f32 unk_04;
+    /* +08 */ f32 unk_08;
+    /* +0C */ f32 unk_0c;
+    /* +10 */ f32 unk_10;
+    /* +14 */ f32 unk_14;
+    /* +18 */ f32 unk_18;
+} cr_Key7;
+
+// ASSERT_SIZE(cr_KeyTrack, 0x8)
+typedef struct cr_KeyTrack {
+    /* +0 */ cr_Key7* keys;
+    /* +4 */ f32 count;          // the number of keys, as a float (5.0 for a 0x8C list)
+} cr_KeyTrack;
+
+// ASSERT_SIZE(cr_KeyPath, 0x30)
+/// Six key tracks; each stage of cr_g_StageData points at one (+0x84; the 40 stages share 4).
+typedef struct cr_KeyPath {
+    /* +00 */ cr_KeyTrack track[6];
+} cr_KeyPath;
+
+// ASSERT_SIZE(cr_StageData, 0x340)   the stage code indexes 0x8020F4C8 + stage id * 0x340 (mulli 0x340)
+/// A stage's record (cr_g_StageData[40], by stage id; 39 = the random stage).
+typedef struct cr_StageData {
+    /* +000 */ char name_jp[0x20];   // the stage's name in Shift-JIS ("Basic Stage", "Highrise Heaven", ...)
+    /* +020 */ u8 unk_020[0x60];
+    /* +080 */ u8 unk_080;           // read as a byte (one reader)
+    /* +081 */ u8 unk_081[3];
+    /* +084 */ cr_KeyPath* path;     // the stage's key path (the only pointer of the record)
+    /* +088 */ u8 unk_088[0x29C];
+    /* +324 */ u32 unk_324;          // passed to fn_800972D8 (cr_SEQ_BATTLE_FrameA, ...)
+    /* +328 */ f32 unk_328[4];       // read as floats
+    /* +338 */ u8 unk_338[2];
+    /* +33A */ u16 msg;              // the stage's message: cr_StageSelector.stage_msgs
+    /* +33C */ u8 unk_33c[4];
+} cr_StageData;
+
 /// One of the 256 model slots of cr_g_ModelSlots.
 typedef struct cr_ModelSlot {
     /* +00 */ u32 used;              // fn_80079080 draws the slot and fn_80078F94 frees it when it is not 0
@@ -2331,12 +2458,200 @@ typedef struct cr_WindowStyle {
     /* +2C */ u32 unk_2c;         // fn_80067904, fn_80069D20, fn_8006A7D8
 } cr_WindowStyle;
 
-/// One of the 0x9C0 records of cr_g_TextRecords.
+/// One of the 0x9C0 records of cr_g_TextRecords; also the static record lists of the window code's .data (0x8020AC00 [1],
+/// 0x8020BBFC [257], 0x8020DD80 [128]; Nov 3, 2026). A list ends at the first record whose +0x10 is 0xFFFF (fn_80065270,
+/// fn_80065E10, fn_8006611C loop `while (rec[i].unk_10 != 0xFFFF)`). Widths from the stores of fn_80065270 / fn_80065E10 /
+/// fn_8006611C / fn_80066904 / fn_800663A4 / fn_800666B8 / fn_800672AC (records indexed i << 5); the rest stay u8.
 typedef struct cr_TextRecord {
-    /* +00 */ u8 unk_00[0x10];
+    /* +00 */ f32 unk_00;         // stfsx: fn_80065E10, fn_8006611C
+    /* +04 */ f32 unk_04;         // stfsx: fn_80065E10, fn_8006611C
+    /* +08 */ u16 unk_08;         // sthx: fn_80065270
+    /* +0A */ u8 unk_0a[2];
+    /* +0C */ u16 unk_0c;         // sthx: fn_80065E10; sth: fn_80066904
+    /* +0E */ u16 unk_0e;         // sthx: fn_80065E10; sth: fn_80066904
     /* +10 */ u16 unk_10;         // 0xFFFF in every record after fn_8008E09C; fn_8000CB64 resets the first 0x80, fn_8008E05C the one it hands out
-    /* +12 */ u8 unk_12[0xE];
+    /* +12 */ u16 unk_12;         // flags: fn_80065270 sets 0x200 and sets / clears 0x4; lhz in fn_800672AC
+    /* +14 */ u8 unk_14[4];
+    /* +18 */ u8 unk_18;          // stb / stbx: fn_800663A4, fn_800666B8, fn_800672AC (four bytes, most likely a colour)
+    /* +19 */ u8 unk_19;
+    /* +1A */ u8 unk_1a;
+    /* +1B */ u8 unk_1b;
+    /* +1C */ u8 unk_1c[4];
 } cr_TextRecord;
+
+// ASSERT_SIZE(cr_TextRecordList, 0x8)   in arrays of 2 at 0x8020AC20, 0x8020DC1C, 0x8020ED80 (Nov 3, 2026)
+/// One entry of a cr_TextBlock's list: fn_8008F3CC / fn_80091518 read `list[i]` (i << 3): +0 0xFFFF ends, 0xFFFE jumps
+/// (the static lists are { 0, records }, { 0xFFFE, NULL }); fn_800663A4 / fn_8008E05C use +4, the records.
+typedef struct cr_TextRecordList {
+    /* +0 */ u16 code;            // lhz, compared with 0xFFFF / 0xFFFE
+    /* +2 */ u8 unk_2[2];
+    /* +4 */ cr_TextRecord* records;
+} cr_TextRecordList;
+
+// ASSERT_SIZE(cr_TextBlock, 0x20)   0x8020AC30 [1], 0x8020DC2C (first 0x20 bytes), 0x8020ED90 (Nov 3, 2026)
+/// What a window object's +0x5C points at (fn_80064DE4 stores &lbl_8020AC30[i] there); +0x1C its record lists
+/// (lwz 0x1C, then 0x4 in fn_80065270, fn_80065E10, fn_8006611C, fn_8008E05C ...). Widths: the loads through +0x5C.
+typedef struct cr_TextBlock {
+    /* +00 */ f32 unk_00;         // lfs / stfs (fn_80064150, fn_8006B848, ...)
+    /* +04 */ f32 unk_04;
+    /* +08 */ f32 unk_08;         // lfs / stfs in fn_800647CC, fn_80064AB8 (1.0 in the static blocks)
+    /* +0C */ u32 unk_0c;         // lwz: fn_80090710
+    /* +10 */ u32 unk_10;
+    /* +14 */ u32 unk_14;
+    /* +18 */ u8 unk_18[4];
+    /* +1C */ cr_TextRecordList* lists;
+} cr_TextBlock;
+
+// ASSERT_SIZE(cr_TextCell4, 0x4)   lbl_8020A150 [17][12], lbl_8020A480 [96][5] (Nov 3, 2026)
+/// fn_80065270 picks one by (code >> 8 & 0xFFFF, code & 0xFF): row < 0x11 from [17][12] (row stride 0x30), else row - 0x11
+/// from [96][5] (stride 0x14); it reads the byte +0 and the u16 +2 and stores them in a cr_TextRecord (+0x10, +0x08).
+typedef struct cr_TextCell4 {
+    /* +0 */ u8 unk_0;            // lbz
+    /* +1 */ u8 unk_1;
+    /* +2 */ u16 unk_2;           // lhz
+} cr_TextCell4;
+
+// ASSERT_SIZE(cr_TextLayout14, 0x14)   lbl_8020ACCC [5] (Nov 3, 2026)
+/// fn_80065E10 / fn_8006611C walk it (stride 0x14) until +0x10 is 0xFFFF: +0 / +4 become integers (fctiwz) and then a
+/// record's +0 / +4 floats; +8 / +0xC / +0x10 its u16 +0x0C / +0x0E / +0x10.
+typedef struct cr_TextLayout14 {
+    /* +00 */ f32 unk_00;
+    /* +04 */ f32 unk_04;
+    /* +08 */ u32 unk_08;         // lwz
+    /* +0C */ u32 unk_0c;         // lwz
+    /* +10 */ u32 unk_10;         // lwz, 0xFFFF ends the table
+} cr_TextLayout14;
+
+// ASSERT_SIZE(cr_TextSound8, 0x8)   lbl_8020AD30 [114] (Nov 3, 2026)
+/// Indexed by the u16 lbl_8044F5CA (slwi 3): fn_80065688 passes +0 to fn_80098104 (the sound call; 0x0004007D ...),
+/// fn_800674E4 stores the byte +4 in lbl_8044F5B4.
+typedef struct cr_TextSound8 {
+    /* +0 */ u32 sound;           // lwz
+    /* +4 */ u8 unk_4;            // lbz
+    /* +5 */ u8 unk_5[3];
+} cr_TextSound8;
+
+// ASSERT_SIZE(cr_TextPos0C, 0xC)   lbl_8020ACAC (Nov 3, 2026)
+/// Passed by fn_800663A4 to fn_80069DA4 (r5) and fn_800672AC (r4), which read the floats +4 and +0 (lfs); +8 not read.
+typedef struct cr_TextPos0C {
+    /* +0 */ f32 unk_0;
+    /* +4 */ f32 unk_4;
+    /* +8 */ u8 unk_8[4];
+} cr_TextPos0C;
+
+// ASSERT_SIZE(cr_Area48, 0x48)   lbl_8020A108 (Nov 3, 2026)
+/// What lbl_8044F59C points at (fn_80061BE8 stores &lbl_8020A108 there): fn_8005E270 / fn_8005ED28 / fn_80060284 /
+/// fn_80060FA4 / fn_80062894 read the 16 floats +0x00..+0x3C (lfs) and the word +0x40 (lwz); +0x44 not read.
+typedef struct cr_Area48 {
+    /* +00 */ f32 unk_00[16];
+    /* +40 */ u32 unk_40;
+    /* +44 */ u8 unk_44[4];
+} cr_Area48;
+
+/// One entry of cr_g_BattleRoboActionFuncs: cr_BattleRobo_UpdateAction calls table[action] with no arguments set and
+/// keeps r3 as a word (stw); the handlers return a word (fn_800498FC: li r3, 1; blr) and read the current robo themselves.
+typedef s32 (*cr_RoboActionFunc)(void);
+
+/// The entries of lbl_801F9DC8 (5) and lbl_801F9DDC (11): the motion tag walkers call table[tag] on the current tag of a
+/// cr_MotionTag list (fn_8005CE74 through lbl_8044F594, fn_8005C384 ... through lbl_8044F590) with no arguments and ignore r3;
+/// the handlers return nothing (fn_8005CE70 / fn_8005CD8C are a bare blr).
+typedef void (*cr_MotionTagFunc)(void);
+
+// ASSERT_SIZE(cr_CardImage, 0x1C40)   lbl_802362A0 (Nov 3, 2026)
+/// The save file's memory card image, filled by fn_800EB158 and copied out whole (memcpy 0x1C40): the two comment lines
+/// (+0x20: sprintf of the date), then the parts memcpy'd from loaded files with their sizes: 0xC00 at +0x40 and 0x200 at
+/// +0xC40 (a 96 x 32 CI8 banner + its 256-colour palette), 3 x 0x400 at +0xE40 + i * 0x400 and 0x200 at +0x1A40 (three
+/// 32 x 32 CI8 icons + their palette): the GameCube card's comment / banner / icon layout.
+typedef struct cr_CardImage {
+    /* +0000 */ char comment[0x20];      // "Custom Robo\n"
+    /* +0020 */ char comment2[0x20];     // Shift-JIS "save data\n"; fn_800EB158 sprintf's the date here
+    /* +0040 */ u8 banner[0xC00];
+    /* +0C40 */ u8 banner_tlut[0x200];
+    /* +0E40 */ u8 icons[3][0x400];
+    /* +1A40 */ u8 icon_tlut[0x200];
+} cr_CardImage;
+
+// ASSERT_SIZE(cr_Record11C, 0x11C)   lbl_80238160 [23] (Nov 3, 2026)
+/// fn_8010071C walks them (mulli 0x11C): the two pointers +0 / +4 (lwz; into .bss 0x80403xxx-0x80406xxx), the bytes +0x118 /
+/// +0x119 (lbz); the rest not read (u16 pairs ending 0xFFFF every 0x40 bytes or so).
+typedef struct cr_Record11C {
+    /* +000 */ void* unk_000;
+    /* +004 */ void* unk_004;
+    /* +008 */ u8 unk_008[0x110];
+    /* +118 */ u8 unk_118;
+    /* +119 */ u8 unk_119;
+    /* +11A */ u8 unk_11a[2];
+} cr_Record11C;
+
+// ASSERT_SIZE(cr_F32x10Pad, 0x30)   lbl_80239B78 (Nov 3, 2026)
+/// fn_800FEFF8 reads the ten floats +0x00..+0x24 (lfs); the last 8 bytes (zero) are not read.
+typedef struct cr_F32x10Pad {
+    /* +00 */ f32 v[10];
+    /* +28 */ u8 unk_28[8];
+} cr_F32x10Pad;
+
+// ASSERT_SIZE(cr_Record10, 0x10)   lbl_802359F8 [64] (Nov 3, 2026)
+/// fn_800DDCD4 picks one by the robo's u16 +0x1CE (slwi 4) and copies it into the robo object (+0x36C0.. by stbx):
+/// the bytes +0..+3 and +8..+0xA (lbz), the floats +4 and +0xC (lfs); +0xB not read.
+typedef struct cr_Record10 {
+    /* +0 */ u8 unk_0;
+    /* +1 */ u8 unk_1;
+    /* +2 */ u8 unk_2;
+    /* +3 */ u8 unk_3;
+    /* +4 */ f32 unk_4;
+    /* +8 */ u8 unk_8;
+    /* +9 */ u8 unk_9;
+    /* +A */ u8 unk_a;
+    /* +B */ u8 unk_b;
+    /* +C */ f32 unk_c;
+} cr_Record10;
+
+// ASSERT_SIZE(cr_CamRect, 0x10)   the camera layouts 0x801F895C..0x801F8E74, arrays of one per camera (Nov 3, 2026)
+/// A camera's screen rectangle in a split-screen layout ({ 0, 640, 0, 480 } is the whole screen; { 228, 620, 40, 284 } a
+/// window). fn_8002419C reads lbl_801F895C / lbl_801F8C04 with lfs into the camera (+0x50..+0x5C, +0x28..+0x34);
+/// cr_CAMMODE_BTL_WAIT_Frame / RESULT_Start take layout[mode][camera] (i << 4) from the tables lbl_801F8BDC (lfs) and
+/// lbl_801F8E54 (word copies to camera +0x38, which RESULT_Start then reads with lfs). Meaning of the four not traced.
+typedef struct cr_CamRect {
+    /* +0 */ f32 unk_0;
+    /* +4 */ f32 unk_4;
+    /* +8 */ f32 unk_8;
+    /* +C */ f32 unk_c;
+} cr_CamRect;
+
+// ASSERT_SIZE(cr_SkelSlot14, 0x14)   lbl_801F9B00 [26], the default skeleton (docs/formats/motion_playback.md; Nov 3, 2026)
+/// One slot of the game's default skeleton. cr_Motion_UpdatePoints / fn_80054238 read the flag byte +0 (lbz; bit 2 = a
+/// rotation joint); cr_Chara_PoseLimbs passes &slot[5] / [10] / [16] / [21] to the arm / leg solvers fn_8005AAA8 /
+/// fn_8005A668, which read the floats +0x4 and +0xC (lfs; and the next slots' +0x4 / +0xC: +0x18, +0x20, +0x2C, +0x40);
+/// cr_Chara_PoseLimbs reads slot[2] / [3] +0x4 directly. +0x10 is relocated in main.elf (a pointer into .sdata, or NULL).
+typedef struct cr_SkelSlot14 {
+    /* +00 */ u8 flags;
+    /* +01 */ u8 unk_01[3];
+    /* +04 */ f32 unk_04;            // a bone length (cr_Mtx_TranslateX in cr_Chara_PoseLimbs)
+    /* +08 */ u8 unk_08[4];
+    /* +0C */ f32 unk_0c;
+    /* +10 */ void* unk_10;
+} cr_SkelSlot14;
+
+// ASSERT_SIZE(cr_RoboAction14, 0x14)   lbl_801F9074 [67] (Nov 3, 2026)
+/// Indexed by the robo's u16 +0x1CE (fn_800381D0) or the u16 +0x4 of a 0x10-byte lbl_801C5BD0 entry (fn_80041358), mulli
+/// 0x14: +0 / +4 lwz (cr_BattleRobo_UpdateAction, fn_80042AB8, fn_8004B0A0), +8 the sound passed to fn_80097CA8
+/// (fn_80041358), +0xC / +0xD lbz (fn_800426D4, fn_80044174, fn_800381D0 compares +0xD); +0xE..+0x13 not read (+0x10 is
+/// 1.0f in every record).
+typedef struct cr_RoboAction14 {
+    /* +00 */ u32 unk_00;
+    /* +04 */ u32 unk_04;
+    /* +08 */ u32 sound;
+    /* +0C */ u8 unk_0c;
+    /* +0D */ u8 unk_0d;
+    /* +0E */ u8 unk_0e[6];
+} cr_RoboAction14;
+
+/// The entries of lbl_8020AC50 (7; entry 0 NULL): fn_80065BA0 calls table[byte] with an element of lbl_8032CC20 (0x28 each).
+typedef void (*cr_WindowObjFunc)(u8* obj);
+
+/// The entries of lbl_8020DD3C / lbl_8020DD48: fn_80067904 / fn_8006A7D8 call table[cmd +4] (cmd, &cr_g_WindowStyle, x) and
+/// keep the result as the next x (fn_800690F4 / fn_800690D8 return x unchanged, whole register).
+typedef u32 (*cr_TextCmdFunc)(u8* cmd, u8* style, u32 x);
 
 /// The state of fn_80021674, which reads the entry table of each packed archive (cr_g_ArchiveDvdEntry != -1) in turn into
 /// cr_g_PackedArchives, and the record of the built-in message file "MESGbmg1" (0x801F12C0) that cr_FileSys_Init sets up.

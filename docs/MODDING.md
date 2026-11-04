@@ -371,11 +371,15 @@ glTF refuses, so the patched exporter writes +Y for it); the `basic_arena_pillar
 
 ## Motions (animations)
 
-A motion lives in `motion.DBN` (battle and field motions, 3 groups) or a piece of `snr_motion.BIN` (story scenes). A mod
-replaces the whole file with `files/motion.DBN`. Every motion plays on every robo: the game rebuilds the body from the
+A motion lives in entry 8 of `logo_read_us.dbn` (battle and field motions, 3 groups) or a piece of `snr_motion.BIN`
+(story scenes). **The loose `motion.DBN` on the disc is never read by the game** (found Nov 2, 2026; the full path:
+[formats/motion.md](formats/motion.md#the-full-path-disc-to-screen-and-mod-to-iso)). A mod still gives its edited
+motion file as `files/motion.DBN`; `make_mod.py` puts it into `logo_read_us.dbn` as entry 8. Read the motions to edit
+from the bundle: every `crmotion.py` / `crmotion_rig.py` command that takes a motion file takes
+`"Custom Robo extracted/files/logo_read_us.dbn"` too (`crmotion.py boot-extract` writes entry 8 alone). Every motion plays on every robo: the game rebuilds the body from the
 motion's IK points and joint angles with that robo's own limb lengths
 ([formats/motion_playback.md](formats/motion_playback.md)). So one edited run changes the run of every robo that uses
-that motion. Motion names come from the game (`python -I tools/crmotion.py list "Custom Robo extracted/files/motion.DBN"`):
+that motion. Motion names come from the game (`python -I tools/crmotion.py list "Custom Robo extracted/files/logo_read_us.dbn"`):
 `sf_` / `mg_` / `ab_` are the three body families; `*_normal_run*` are the runs, `*_weapon_*` the gun stance and shots,
 `win_*` / `lose_*` the end poses.
 
@@ -398,6 +402,11 @@ that motion. Motion names come from the game (`python -I tools/crmotion.py list 
    out.glb out.png` renders frames to check. Unity reads and writes the same glTF files if you prefer it; Blender is
    what the model pipeline already uses.
 
+Rig facts found while making the Atlas motions (Nov 2, 2026; docs/formats/motion_playback.md "Authoring notes"):
+the `*_r180` motions face +Z in the points' frame (root rotation y 180), the others -Z; a leg or arm IK target is
+read on the game's default skeleton, so a straight leg needs its target about 0.9 from the hip joint (0.08 below
+point 0), not the robo's own leg length; the gun barrel is the gun hand's X axis, pitched by `joint14.rotz`.
+
 What the rig can show: role joints take their rotation from the animation and their position from the robo's limb
 lengths. An elbow or knee bends only one way, about its own axis, and a hand or foot is reached by two-bone IK. Moving
 a bone away from its limb's length does nothing in the game.
@@ -408,14 +417,30 @@ values fits many motions; the Atlas mod rebuilds 29 at 14,649 floats.
 
 ### The first in-game test (Nov 2, 2026; waiting for the owner)
 
+The 21:18 test showed stock poses: that build edited only the loose `motion.DBN`, which the game does not read. Rebuilt
+the same evening with the motions in `logo_read_us.dbn`. **The later battles (Nov 2, 22:31 to 23:30): the edited
+motions play.** The march with the flailing arm and the hip-thrust air dash work; the butt shot on the gun motions
+breaks the battle (black 3D screen, a robo vanishing), and a build with the stock gun motions plays fine. Three builds
+to tell why are waiting for a test: mods/atlas_ninja_run/notes.txt. On the way, two rules for any motion edit: every
+track must end on the motion's last frame (crmotion.build enforces it), and root / joint 0 tracks are best left alone.
+
 `build/mods/atlas_ninja_run/atlas_ninja_run.iso`. Rebuild it with `python -I mods/atlas_ninja_run/make_motion.py`
 (arguments: the lean in degrees, the position tolerance) and then `python -I tools/make_mod.py mods/atlas_ninja_run`.
-It is Atlas (the legionnaire body on robo 0) with the ninja run on the 15 run motions and the butt shot on the 14 gun
-motions. In a battle, check: (1) running shows the lean and the arms back; (2) shooting shows the bent-over back; (3)
-where the bullets come from; (4) nothing crashes and the other motions look as before.
+It is Atlas (the legionnaire body on robo 0). Since Nov 2 evening (the ninja run dropped: the game aims the gun arm
+and keeps the robos facing each other): a Roman march with the off arm flailing on the 8 walk / run motions of robo
+0's motion set, a groin-first hip-thrust air dash, and the butt shot on all fours on the 6 sf_weapon_* motions
+(mods/atlas_ninja_run/notes.txt). In a battle, check: (1) walking / running shows the high straight-leg kicks and the
+windmilling off arm; (2) the air dash (jump, then dash) flies hips first with the arms back; (3) shooting shows the
+bent-over stance with the butt to the target, and where the bullets come from; (4) nothing crashes and the other
+motions look as before.
 
 **If it does not work**, in this order:
 
+0. **Glitches, a robo vanishing, a black screen**: a track that ends before its motion does (the game reads past
+   it). `crmotion.build` now refuses such a file; if you write motion bytes another way, keep every non-empty track's
+   last key on the motion's last frame (docs/formats/motion_playback.md).
+0. **Nothing changes in the game, first check**: the ISO's `logo_read_us.dbn` must hold the edit (`make_mod.py`
+   prints `motion.DBN -> logo_read_us.dbn entry 8`). An edit only in `motion.DBN` on the disc never plays.
 1. **Nothing changes in the game**: the game plays other IDs than the ones edited. Read the robo's motion set
    (cr_g_BattleMotionSets, docs/robo_tables.md) and edit the IDs it names. A quicker check: edit one motion
    drastically (all poses 90 degrees off) and see if anything moves.

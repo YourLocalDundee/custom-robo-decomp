@@ -513,3 +513,27 @@ right; the source shape was never in the searched space.
 The generator rule `script_head_dead` (tools/draft_batch.py, on by default; the step 80 pointer form stays a variant)
 writes this head for every handler, with whatever PC advance it has (`+= 2`, `+= 4`, ...). `--only` on 9 handlers: 5
 at 100% (cr_CM_DUMMY_008, cr_CM_SHAKE_STOP, cr_S_SE_STOP, cr_S_SE_PLAY, cr_S_BGM_STOP), 96-97% for two more. The full batch 12: **609 -> 777 drafts at 100%** (+168), 707 promoted, 948 of 1,300 units from C (27.14% of the code).
+
+## 21. Step 110, the HSD near misses: the permuter on library objects (`--object`)
+
+`permuter_setup.py FUNCTION decomp/src/<stem>.c --object <stem>` sets a library function up with its object's own
+compile line from decomp/build.ninja (the compiler version, GC/1.3.2 for HSD, and the cflags without the include
+paths; the source is preprocessed first). Four things have to be as mwcc sees them, or base.c compiles to other code
+than the real build and the permuter searches the wrong function:
+
+| What | Why | Seen as |
+|---|---|---|
+| `#line 1 "<file>.c"` before the source | the asserts pass `__FILE__`; a path is another string, in another data model | texp, lobj: every assert's `li r3,x@sda21` a lis/addi |
+| include order: the object's `-i` paths, then the source's folder, then decomp/src | mwcc searches the `-i` paths before the source's folder (lobj.c's "lobj.h" is include/cr_kar/lobj.h) | lobj, pobj: setup failed |
+| `-D__MWERKS__=0x2301 -D__PPCGEKKO__` | platform.h's `MWERKS_GEKKO` turns on math_ppc.h's inline sqrtf | mkHBillBoardMtx: 169 instructions for 209 |
+| a header path in a string literal cut to its basename | `__FILE__` in a header's inline is the bare name for mwcc ("jobj.h", 7 bytes: small data), the opened path for cpp | JObjDispAll: 341 for 339 |
+
+With them every base.c compiles to the real build's instructions (checked for the nine near misses: displayfunc's two
+billboards, texp's TExpSetReg / TExp2TevDesc, lobj's SetupInit, pobj's PObjLoad / drawShapeAnim, jobj's DispAll,
+shadow's SetViewingRect). The remaining gaps are real: HSD_LObjSetupInit 753 / 751 (the last two loops rebuild
+`active_lights`' address where the original reuses the register of the stores at the top; a pointer local for the
+array does not do it), HSD_JObjDispAll 339 / 337 (two `mr` copies of `flags` in the self-inlined child loop). The
+driver tools/sched/hsd_permute.sh runs them one after another (`LIST="func:obj ..."`, `MINUTES`, 3 workers each).
+Score a variant with tools/sched/scratch/hsd110/var2.py (several edits per variant; each copy keeps the file name
+because of `__FILE__`); tools/sched/scratch/sh/nd.py adds the source's folder after the object's `-i` paths, so a copy
+elsewhere still finds the folder's headers.

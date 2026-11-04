@@ -5,19 +5,25 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
+typedef struct cr_MotionTag cr_MotionTag;
 __declspec(section ".data") extern u32 *cr_g_MotionData[1280];
 extern u32 lbl_8044F4E4;
 extern u32 lbl_8044F4DC;
 extern u32 lbl_8044F4CC;
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_0678;
 extern u32 lbl_8044F4E8;
-__declspec(section ".data") extern u32 *cr_g_MotionInfo[1095];
+struct cr_MotionTag
+{
+  u32 tag;
+  void *data;
+};
+__declspec(section ".data") extern cr_MotionTag *cr_g_MotionInfo[1095];
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_06dc;
 extern u32 lbl_8044F4D8;
 __declspec(section ".sdata") extern u8 *cr_g_CurrentChara_026c;
 void fn_8005CE74(void);
 
-extern u32 *lbl_8044F594;
+extern cr_MotionTag *lbl_8044F594;
 
 void cr_Motion_LoadInfo(void) {
     void *temp_r31_63;
@@ -36,7 +42,7 @@ void cr_Motion_LoadInfo(void) {
     M2C_FIELD(cr_g_CurrentChara_0678, u16 *, 0x36) = M2C_FIELD(cr_g_CurrentChara_0678, u16 *, 0x34);
     if (lbl_8044F4DC != 0) {
         lbl_8044F594 = cr_g_MotionInfo[lbl_8044F4DC];
-        temp_r31_63 = M2C_FIELD(lbl_8044F594, void **, 4);
+        temp_r31_63 = lbl_8044F594->data;
         lbl_8044F4CC = (u32) M2C_FIELD(cr_g_CurrentChara_0678, u16 *, 0x28);
         M2C_FIELD(cr_g_CurrentChara_0678, s16 *, 0x2A) = (s16) lbl_8044F4CC;
         lbl_8044F4E8 = lbl_8044F4DC;
@@ -70,7 +76,7 @@ void cr_Motion_LoadInfo(void) {
         M2C_FIELD(cr_g_CurrentChara_0678, u32 *, 0x14) = (u32) lbl_8044F4E8;
         M2C_FIELD(cr_g_CurrentChara_0678, u16 *, 0x32) = M2C_FIELD(temp_r31_63, u16 *, 8);
         M2C_FIELD(cr_g_CurrentChara_0678, u16 *, 0x34) = M2C_FIELD(temp_r31_63, u16 *, 0xA);
-        lbl_8044F594 += 2;
+        lbl_8044F594 = (cr_MotionTag *) ((u8 *) lbl_8044F594 + 8);
         fn_8005CE74();
     }
 }

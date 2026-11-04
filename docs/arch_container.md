@@ -11,9 +11,9 @@ No game data is in the image: the ISO (and, to save time, a download cache) is m
 |---|---|---|
 | `base` | `archlinux` at a fixed digest, `pacman -Syu sudo`, user `friend` (uid 1000) with sudo | |
 | `yay` | yay from the AUR as its README says (`sudo pacman -S --needed git base-devel`, `git clone https://aur.archlinux.org/yay-bin.git`, `makepkg -si`); fish and zsh (only to have them to test from); `git clone` of the repo (build argument `REF`, default `main`) | |
-| `yay-bash` (default) | the documented `yay -S --needed ...` line run from bash, then `bash tools/setup.sh /dev/null` (prints every tool's version, then stops at the ISO check) | `custom-robo-arch` |
+| `yay-bash` (default) | the documented `yay -Syu --needed ...` line run from bash, then `bash tools/setup.sh /dev/null` (prints every tool's version, then stops at the ISO check) | `custom-robo-arch` |
 | `yay-zsh`, `yay-fish` | the same two commands run from zsh / from fish | `custom-robo-arch:zsh`, `:fish` |
-| `pacman` | the pacman alternative `sudo pacman -S --needed ...` from bash, the clone, the same check | `custom-robo-arch:pacman` |
+| `pacman` | the pacman alternative `sudo pacman -Syu --needed ...` from bash, the clone, the same check | `custom-robo-arch:pacman` |
 
 Each documented install line is run unchanged, with `yes ''` piped in to give each prompt its default answer, as
 pressing Enter would.

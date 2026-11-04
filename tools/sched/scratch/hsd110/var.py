@@ -4,7 +4,7 @@ G = 'D:/emulators/gameTesting'
 obj, fn = sys.argv[1], sys.argv[2]
 src = open('%s/decomp/src/sysdolphin/baselib/%s.c' % (G, obj), newline='').read().replace('\r\n', '\n')
 base = G + '/decomp/src/sysdolphin/baselib/'
-src = re.sub(r'#include "([\w.]+)"', lambda m: '#include "%s%s"' % (base, m.group(1)), src)
+# (includes left as they are: nd.py adds the source folder after the object's -i paths)
 pairs = sys.argv[3:]
 def score(s, tag):
     import os

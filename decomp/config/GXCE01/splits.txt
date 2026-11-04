@@ -11,14 +11,140 @@ Sections:
 	.sdata2     type:rodata align:16
 	.sbss2      type:bss align:16
 
+game/data/lbl_8044F2A8_lbl_8044F340.c:
+	.sbss       start:0x8044F2A8 end:0x8044F348
+
+game/data/lbl_8044F358_lbl_8044F366.c:
+	.sbss       start:0x8044F358 end:0x8044F368
+
+game/data/lbl_8044F370_lbl_8044F37A.c:
+	.sbss       start:0x8044F370 end:0x8044F380
+
+game/data/lbl_8044F388_lbl_8044F3A4.c:
+	.sbss       start:0x8044F388 end:0x8044F3A5
+
+game/data/lbl_8044F3A8_lbl_8044F3C4.c:
+	.sbss       start:0x8044F3A8 end:0x8044F3C8
+
+game/data/lbl_8044F3F0_lbl_8044F404.c:
+	.sbss       start:0x8044F3F0 end:0x8044F405
+
+game/data/lbl_8044F408_lbl_8044F444.c:
+	.sbss       start:0x8044F408 end:0x8044F448
+
+game/data/lbl_8044F468_lbl_8044F474.c:
+	.sbss       start:0x8044F468 end:0x8044F478
+
+game/data/lbl_8044F488_lbl_8044F48C.c:
+	.sbss       start:0x8044F488 end:0x8044F48E
+
+game/data/lbl_8044F490.c:
+	.sbss       start:0x8044F490 end:0x8044F498
+
+game/data/lbl_8044F4A0_lbl_8044F4A4.c:
+	.sbss       start:0x8044F4A0 end:0x8044F4A8
+
+game/data/lbl_8044F4B0_lbl_8044F53C.c:
+	.sbss       start:0x8044F4B0 end:0x8044F540
+
+game/data/lbl_8044F568_lbl_8044F574.c:
+	.sbss       start:0x8044F568 end:0x8044F578
+
+game/data/lbl_8044F588_lbl_8044F58C.c:
+	.sbss       start:0x8044F588 end:0x8044F58E
+
+game/data/lbl_8044F590_lbl_8044F59C.c:
+	.sbss       start:0x8044F590 end:0x8044F5A0
+
+game/data/lbl_8044F5A8_lbl_8044F5B4.c:
+	.sbss       start:0x8044F5A8 end:0x8044F5B5
+
+game/data/lbl_8044F5B8_lbl_8044F5DC.c:
+	.sbss       start:0x8044F5B8 end:0x8044F5E0
+
+game/data/lbl_8044F5E8_lbl_8044F62C.c:
+	.sbss       start:0x8044F5E8 end:0x8044F62D
+
+game/data/lbl_8044F630.c:
+	.sbss       start:0x8044F630 end:0x8044F638
+
+game/data/lbl_8044F640.c:
+	.sbss       start:0x8044F640 end:0x8044F648
+
+game/data/lbl_8044F668_lbl_8044F66F.c:
+	.sbss       start:0x8044F668 end:0x8044F670
+
+game/data/lbl_8044F678_lbl_8044F694.c:
+	.sbss       start:0x8044F678 end:0x8044F698
+
+game/data/lbl_8044F6A0_lbl_8044F6A4.c:
+	.sbss       start:0x8044F6A0 end:0x8044F6A5
+
+game/data/lbl_8044F6A8_lbl_8044F6BC.c:
+	.sbss       start:0x8044F6A8 end:0x8044F6BD
+
+game/data/lbl_8044F6C0_lbl_8044F6C4.c:
+	.sbss       start:0x8044F6C0 end:0x8044F6C8
+
+game/data/lbl_8044F6D8_lbl_8044F6F4.c:
+	.sbss       start:0x8044F6D8 end:0x8044F6F5
+
+game/data/lbl_8044F6F8_lbl_8044F714.c:
+	.sbss       start:0x8044F6F8 end:0x8044F716
+
+game/data/lbl_8044F718_lbl_8044F71E.c:
+	.sbss       start:0x8044F718 end:0x8044F71F
+
+game/data/lbl_8044F720_lbl_8044F72C.c:
+	.sbss       start:0x8044F720 end:0x8044F72D
+
+game/data/lbl_8044F730_lbl_8044F74C.c:
+	.sbss       start:0x8044F730 end:0x8044F74D
+
+game/data/lbl_8044F750_lbl_8044F756.c:
+	.sbss       start:0x8044F750 end:0x8044F757
+
+game/data/lbl_8044F758_lbl_8044F75C.c:
+	.sbss       start:0x8044F758 end:0x8044F760
+
+game/data/lbl_8044F780_lbl_8044F78C.c:
+	.sbss       start:0x8044F780 end:0x8044F790
+
+game/data/lbl_8044F798_lbl_8044F7A4.c:
+	.sbss       start:0x8044F798 end:0x8044F7A5
+
+game/data/lbl_8044F7A8_lbl_8044F7DC.c:
+	.sbss       start:0x8044F7A8 end:0x8044F7DD
+
+game/data/lbl_8044F7E0_lbl_8044F7F4.c:
+	.sbss       start:0x8044F7E0 end:0x8044F7F5
+
+game/data/lbl_8044F7F8_lbl_8044F808.c:
+	.sbss       start:0x8044F7F8 end:0x8044F810
+
+game/data/lbl_8044F818_lbl_8044F87C.c:
+	.sbss       start:0x8044F818 end:0x8044F880
+
+game/data/lbl_8044F890_lbl_8044F894.c:
+	.sbss       start:0x8044F890 end:0x8044F898
+
 game/data/cr_g_BodyCount_cr_g_BombCount.c:
 	.sdata      start:0x8044C3C0 end:0x8044C3D0
+
+game/data/lbl_8024DB20.c:
+	.bss        start:0x8024DB20 end:0x8024DC80
 
 game/data/cr_g_CharaEntries.c:
 	.bss        start:0x8024DC80 end:0x8024DFA0
 
+game/data/lbl_8024DFA0_lbl_8024E100.c:
+	.bss        start:0x8024DFA0 end:0x8024E120
+
 game/data/cr_g_BattleRobos.c:
 	.bss        start:0x8024E120 end:0x8031B5A0
+
+game/data/lbl_8031B5A0_lbl_8031F268.c:
+	.bss        start:0x8031B5A0 end:0x8031FE68
 
 game/data/cr_g_PadStatus_cr_g_Pads.c:
 	.bss        start:0x8031FEA8 end:0x80320168
@@ -32,26 +158,56 @@ game/data/cr_g_PackedArchives_cr_g_FileSysReady.c:
 game/data/cr_g_GameMode_cr_g_SeqCurrent.c:
 	.bss        start:0x80321D40 end:0x80321DD0
 
+game/data/lbl_80321DD0_lbl_80323800.c:
+	.bss        start:0x80321DD0 end:0x80324BD0
+
 game/data/cr_g_Cams_cr_g_CamSystem.c:
 	.bss        start:0x80324BD0 end:0x80329B60
 
 game/data/cr_g_MotionDataBit15_cr_g_MotionData.c:
 	.bss        start:0x8032A8C8 end:0x8032C1C8
 
+game/data/lbl_8032C1C8_lbl_8032ECD0.c:
+	.bss        start:0x8032C1C8 end:0x80330BC0
+
 game/data/cr_g_MessageFiles_cr_g_TextRecords.c:
-	.bss        start:0x80330BC0 end:0x8034454C
+	.bss        start:0x80330BC0 end:0x80344550
+
+game/data/lbl_80344550_lbl_8037A190.c:
+	.bss        start:0x80344550 end:0x8037A400
 
 game/data/cr_g_ModelSlots.c:
 	.bss        start:0x8037A400 end:0x80386000
 
+game/data/lbl_80386000_lbl_80386E44.c:
+	.bss        start:0x80386000 end:0x80387160
+
+game/data/lbl_80387DD0_lbl_8039D920.c:
+	.bss        start:0x80387DD0 end:0x8039F120
+
 game/data/cr_g_ScenarioBuffer.c:
 	.bss        start:0x8039F120 end:0x803B7120
+
+game/data/lbl_803B7120_lbl_803B72E8.c:
+	.bss        start:0x803B7120 end:0x803B7678
+
+game/data/lbl_803B76E8.c:
+	.bss        start:0x803B76E8 end:0x803B8BE8
+
+game/data/lbl_803B8C00_lbl_803BADA8.c:
+	.bss        start:0x803B8C00 end:0x803BAF28
 
 game/data/cr_g_AreaBoxes.c:
 	.bss        start:0x803BAF28 end:0x803BB628
 
+game/data/lbl_803BB628_lbl_803BE330.c:
+	.bss        start:0x803BB628 end:0x803BE358
+
 game/data/cr_g_Script_cr_g_Scenario.c:
 	.bss        start:0x803BE358 end:0x803BFC78
+
+game/data/lbl_803BFC78_lbl_803BFE68.c:
+	.bss        start:0x803BFC78 end:0x803BFE88
 
 game/data/cr_g_Charas.c:
 	.bss        start:0x803BFE88 end:0x803E6648
@@ -59,11 +215,26 @@ game/data/cr_g_Charas.c:
 game/data/cr_g_ScriptReturnStack.c:
 	.bss        start:0x803E6648 end:0x803E6688
 
+game/data/lbl_803E6688_lbl_803F63E8.c:
+	.bss        start:0x803E6688 end:0x803F6420
+
 game/data/cr_g_CardWorkArea.c:
 	.bss        start:0x803F6420 end:0x80400420
 
+game/data/lbl_80400420_lbl_80407260.c:
+	.bss        start:0x80400420 end:0x804198B0
+
 game/data/cr_g_UnlockBits.c:
 	.bss        start:0x804198B0 end:0x80419958
+
+game/data/lbl_80419958_lbl_80419968.c:
+	.bss        start:0x80419958 end:0x80419CA8
+
+game/data/lbl_8041A598_lbl_8041CDCC.c:
+	.bss        start:0x8041A598 end:0x8041CDD8
+
+game/data/lbl_8041E938_lbl_8041EA18.c:
+	.bss        start:0x8041E938 end:0x8041EB80
 
 game/data/cr_g_BattleMotionSets.c:
 	.data       start:0x801C51B8 end:0x801C5BD0
@@ -74,11 +245,23 @@ game/data/cr_g_BattleLoadouts_cr_g_LegData.c:
 game/data/cr_g_GunData_cr_g_BombData.c:
 	.data       start:0x801CA560 end:0x801D9590
 
+game/data/cr_g_PodData.c:
+	.data       start:0x801D9590 end:0x801DE864
+
 game/data/cr_g_SeqFrameA_cr_g_SeqLeave.c:
 	.data       start:0x801DEA78 end:0x801DEBE0
 
+game/data/lbl_801E6580_lbl_801E9016.c:
+	.data       start:0x801E6580 end:0x801E90B0
+
+game/data/lbl_801E90B0.c:
+	.data       start:0x801E90B0 end:0x801F10B0
+
 game/data/cr_g_FileDescs.c:
 	.data       start:0x801F1200 end:0x801F12AC
+
+game/data/lbl_801F14E0_lbl_801F5D20.c:
+	.data       start:0x801F14E0 end:0x801F5D30
 
 game/fn_800055E0.c:
 	.text       start:0x800055E0 end:0x800055E4
@@ -94,6 +277,9 @@ game/main.c:
 
 game/fn_80005B88.c:
 	.text       start:0x80005B88 end:0x80005BC8
+
+game/fn_80005BC8.c:
+	.text       start:0x80005BC8 end:0x80005D38
 
 game/fn_80005D38.c:
 	.text       start:0x80005D38 end:0x80005DA4
@@ -121,6 +307,12 @@ game/fn_80007C24.c:
 
 game/fn_80007C74.c:
 	.text       start:0x80007C74 end:0x80007CE4
+
+game/fn_80007CE4.c:
+	.text       start:0x80007CE4 end:0x8000805C
+
+game/fn_8000860C.c:
+	.text       start:0x8000860C end:0x8000878C
 
 game/cr_SEQ_ILLUSTRATED_BOOK_Leave.c:
 	.text       start:0x80008C00 end:0x80008C20
@@ -248,6 +440,9 @@ game/fn_8000DE04.c:
 game/fn_8000DE08.c:
 	.text       start:0x8000DE08 end:0x8000DE50
 
+game/fn_8000DE50.c:
+	.text       start:0x8000DE50 end:0x8000E1E4
+
 game/fn_8000E1E4.c:
 	.text       start:0x8000E1E4 end:0x8000E3B8
 
@@ -259,6 +454,9 @@ game/fn_8000F7A4.c:
 
 game/cr_SEQ_STAGE_SELECTOR_Enter.c:
 	.text       start:0x8000FA54 end:0x8000FBC0
+
+game/cr_SEQ_STAGE_SELECTOR_FrameC.c:
+	.text       start:0x8000FBC0 end:0x8000FCC8
 
 game/cr_SEQ_STAGE_SELECTOR_FrameB.c:
 	.text       start:0x8000FCC8 end:0x8000FCCC
@@ -274,6 +472,9 @@ game/cr_SEQ_BATTLE_FrameC.c:
 
 game/cr_SEQ_BATTLE_FrameB.c:
 	.text       start:0x800101EC end:0x80010220
+
+game/fn_800119A0.c:
+	.text       start:0x800119A0 end:0x80011AC0
 
 game/cr_SEQ_MEMORY_CARD_Leave.c:
 	.text       start:0x80011FB8 end:0x80011FBC
@@ -299,6 +500,9 @@ game/cr_SEQ_SCENARIO_FrameA.c:
 game/cr_SEQ_CUSTOMIZE_Enter.c:
 	.text       start:0x800157F8 end:0x8001581C
 
+game/cr_SEQ_CUSTOMIZE_FrameC.c:
+	.text       start:0x8001581C end:0x8001596C
+
 game/cr_SEQ_CUSTOMIZE_FrameB.c:
 	.text       start:0x8001596C end:0x8001598C
 
@@ -313,6 +517,9 @@ game/cr_SEQ_OPTION_FrameC.c:
 
 game/cr_SEQ_OPTION_FrameB.c:
 	.text       start:0x80015D48 end:0x80015D4C
+
+game/cr_SEQ_OPTION_FrameA.c:
+	.text       start:0x80015D4C end:0x80015E04
 
 game/fn_80015E04.c:
 	.text       start:0x80015E04 end:0x80015E18
@@ -347,6 +554,9 @@ game/cr_SEQ_TITLE_FrameC.c:
 game/cr_SEQ_TITLE_FrameB.c:
 	.text       start:0x80016304 end:0x80016308
 
+game/cr_SEQ_TITLE_FrameA.c:
+	.text       start:0x80016308 end:0x800165D4
+
 game/fn_800165D4.c:
 	.text       start:0x800165D4 end:0x80016600
 
@@ -361,6 +571,9 @@ game/cr_SEQ_MOVIE_FrameB.c:
 
 game/fn_80017668.c:
 	.text       start:0x80017668 end:0x800177F0
+
+game/fn_8001838C.c:
+	.text       start:0x8001838C end:0x80018630
 
 game/fn_800191E8.c:
 	.text       start:0x800191E8 end:0x800192C4
@@ -395,6 +608,9 @@ game/fn_8001B424.c:
 game/fn_8001B42C.c:
 	.text       start:0x8001B42C end:0x8001B544
 
+game/cr_Vec3_Distance.c:
+	.text       start:0x8001B544 end:0x8001B6EC
+
 game/fn_8001C98C.c:
 	.text       start:0x8001C98C end:0x8001C9C0
 
@@ -412,6 +628,9 @@ game/fn_8001CA5C.c:
 
 game/cr_Vec3_Normalize.c:
 	.text       start:0x8001CA84 end:0x8001CB4C
+
+game/cr_Vec3_LengthInline.c:
+	.text       start:0x8001CB4C end:0x8001CCC4
 
 game/fn_8001CCC4.c:
 	.text       start:0x8001CCC4 end:0x8001CCD4
@@ -464,8 +683,14 @@ game/fn_8001D1AC.c:
 game/fn_8001D254.c:
 	.text       start:0x8001D254 end:0x8001D350
 
+game/fn_8001D618.c:
+	.text       start:0x8001D618 end:0x8001D630
+
 game/fn_8001D630.c:
 	.text       start:0x8001D630 end:0x8001D694
+
+game/fn_8001D9C8.c:
+	.text       start:0x8001D9C8 end:0x8001D9E8
 
 game/fn_8001DAF8.c:
 	.text       start:0x8001DAF8 end:0x8001DB5C
@@ -509,6 +734,15 @@ game/fn_80020A40.c:
 game/fn_80020A60.c:
 	.text       start:0x80020A60 end:0x80020A70
 
+game/fn_80021014.c:
+	.text       start:0x80021014 end:0x800210B0
+
+game/fn_800210B0.c:
+	.text       start:0x800210B0 end:0x80021350
+
+game/fn_80021350.c:
+	.text       start:0x80021350 end:0x800215F8
+
 game/fn_800215F8.c:
 	.text       start:0x800215F8 end:0x80021674
 
@@ -525,8 +759,41 @@ game/fn_80021AB0_fn_80021AB0.c:
 game/data/cr_g_CamModeFuncs.c:
 	.data       start:0x801F7FF0 end:0x801F8098
 
+game/data/lbl_801F80D0_lbl_801F8E54.c:
+	.data       start:0x801F80D0 end:0x801F8E74
+
+game/data/cr_g_BattleRoboActionFuncs_lbl_801F9758.c:
+	.data       start:0x801F8EB8 end:0x801F9980
+
+game/data/lbl_801F9980_lbl_801F9996.c:
+	.data       start:0x801F9980 end:0x801F99A8
+
+game/data/lbl_801F9B00.c:
+	.data       start:0x801F9B00 end:0x801F9D08
+
+game/data/lbl_801F9DC8_lbl_801F9E08.c:
+	.data       start:0x801F9DC8 end:0x801FA188
+
+game/data/lbl_801FA188_cr_g_MotionInfo.c:
+	.data       start:0x801FA188 end:0x80206DB0
+
+game/data/cr_g_MotionNames.c:
+	.data       start:0x80206DB0 end:0x8020A108
+
+game/data/lbl_8020A108_lbl_8020AD30.c:
+	.data       start:0x8020A108 end:0x8020B0C0
+
+game/data/lbl_8020DD48_lbl_8020ED90.c:
+	.data       start:0x8020DD48 end:0x8020EDB0
+
+game/data/lbl_8020EDB0_cr_g_StageData.c:
+	.data       start:0x8020EDB0 end:0x802176C8
+
 game/data/cr_g_CharaYOffset_cr_g_CharaMotionSets.c:
 	.data       start:0x8021B080 end:0x8021B240
+
+game/data/lbl_8021B240_lbl_8021B3B8.c:
+	.data       start:0x8021B240 end:0x8021B770
 
 game/fn_8002312C.c:
 	.text       start:0x8002312C end:0x80023164
@@ -536,6 +803,18 @@ game/fn_80023164.c:
 
 game/cr_Mem_CopyWords.c:
 	.text       start:0x80023264 end:0x800232B4
+
+game/fn_800232B4.c:
+	.text       start:0x800232B4 end:0x80023304
+
+game/fn_80023304.c:
+	.text       start:0x80023304 end:0x80023354
+
+game/fn_80023354.c:
+	.text       start:0x80023354 end:0x80023394
+
+game/fn_80023394.c:
+	.text       start:0x80023394 end:0x800233D4
 
 game/fn_80023570.c:
 	.text       start:0x80023570 end:0x800235E8
@@ -548,6 +827,9 @@ game/fn_80023990.c:
 
 game/fn_80023EC8.c:
 	.text       start:0x80023EC8 end:0x80023F0C
+
+game/fn_80023F0C.c:
+	.text       start:0x80023F0C end:0x80024148
 
 game/fn_80024148.c:
 	.text       start:0x80024148 end:0x8002419C
@@ -565,8 +847,14 @@ game/fn_80024590.c:
 game/fn_800245E8.c:
 	.text       start:0x800245E8 end:0x80024634
 
+game/cr_CamMode_DefaultStart.c:
+	.text       start:0x800247D0 end:0x80024830
+
 game/cr_Cam_SetMode.c:
 	.text       start:0x80024830 end:0x80024848
+
+game/fn_80024848.c:
+	.text       start:0x80024848 end:0x800249C4
 
 game/fn_80026A7C.c:
 	.text       start:0x80026A7C end:0x80026B40
@@ -586,8 +874,17 @@ game/fn_80026CA0.c:
 game/fn_80026F58.c:
 	.text       start:0x80026F58 end:0x80027170
 
+game/fn_80029C20.c:
+	.text       start:0x80029C20 end:0x80029C84
+
+game/fn_80029F70.c:
+	.text       start:0x80029F70 end:0x80029FD4
+
 game/fn_8002B284.c:
 	.text       start:0x8002B284 end:0x8002B3C4
+
+game/fn_8002E2A0.c:
+	.text       start:0x8002E2A0 end:0x8002E564
 
 game/cr_CAMMODE_SNR_AUTO_MOVE_Frame.c:
 	.text       start:0x8002FAB4 end:0x8002FAD0
@@ -597,6 +894,9 @@ game/cr_CAMMODE_DRAW_Frame.c:
 
 game/cr_CAMMODE_PEAK_Frame.c:
 	.text       start:0x800343CC end:0x80034498
+
+game/cr_CAMMODE_MIDDLE_Frame.c:
+	.text       start:0x80035BCC end:0x80035ED4
 
 game/cr_CAMMODE_DEBUG_Frame.c:
 	.text       start:0x80035ED4 end:0x80035F18
@@ -622,11 +922,17 @@ game/fn_80038BD8.c:
 game/cr_Chara_PoseFromMotion.c:
 	.text       start:0x8003D4C4 end:0x8003D500
 
+game/fn_8003D500.c:
+	.text       start:0x8003D500 end:0x8003D7E0
+
 game/fn_8003F000.c:
 	.text       start:0x8003F000 end:0x8003F048
 
 game/fn_8003F1E8.c:
 	.text       start:0x8003F1E8 end:0x8003F248
+
+game/fn_800410C0.c:
+	.text       start:0x800410C0 end:0x80041140
 
 game/fn_800412F8.c:
 	.text       start:0x800412F8 end:0x80041358
@@ -636,6 +942,9 @@ game/fn_800442EC.c:
 
 game/fn_80044374.c:
 	.text       start:0x80044374 end:0x800443A0
+
+game/fn_800443A0.c:
+	.text       start:0x800443A0 end:0x800443C0
 
 game/fn_8004505C.c:
 	.text       start:0x8004505C end:0x800450DC
@@ -652,6 +961,9 @@ game/fn_80049904.c:
 game/cr_Battle_UpdateBodyRecords.c:
 	.text       start:0x8004D790 end:0x8004DC78
 
+game/fn_80050388.c:
+	.text       start:0x80050388 end:0x800506DC
+
 game/cr_Chara_SetCurrentPointers.c:
 	.text       start:0x80050E74 end:0x80050F08
 
@@ -660,6 +972,13 @@ game/cr_Battle_SetCurrentPointers.c:
 
 game/fn_80050F90.c:
 	.text       start:0x80050F90 end:0x80051384
+
+game/cr_Motion_UpdateBlend_fn_800528B8.c:
+	.text       start:0x800527D4 end:0x8005299C
+	.sdata2     start:0x804507E8 end:0x804507F0
+
+game/fn_80053A20.c:
+	.text       start:0x80053A20 end:0x80053DA8
 
 game/fn_8005C4D0_fn_8005C4D0.c:
 	.text       start:0x8005C4D0 end:0x8005C628
@@ -729,8 +1048,14 @@ game/fn_800640D8.c:
 game/fn_80064150.c:
 	.text       start:0x80064150 end:0x80064234
 
+game/fn_80064234.c:
+	.text       start:0x80064234 end:0x80064500
+
 game/fn_80064FE4.c:
 	.text       start:0x80064FE4 end:0x80065270
+
+game/fn_80065DB0.c:
+	.text       start:0x80065DB0 end:0x80065E10
 
 game/fn_800668CC.c:
 	.text       start:0x800668CC end:0x800668DC
@@ -740,6 +1065,12 @@ game/fn_800668DC.c:
 
 game/fn_80066904.c:
 	.text       start:0x80066904 end:0x80066948
+
+game/fn_800671C4.c:
+	.text       start:0x800671C4 end:0x80067250
+
+game/fn_80067250.c:
+	.text       start:0x80067250 end:0x800672AC
 
 game/fn_80068358.c:
 	.text       start:0x80068358 end:0x800683A4
@@ -761,6 +1092,9 @@ game/fn_80068CFC.c:
 
 game/fn_800690D8.c:
 	.text       start:0x800690D8 end:0x800690F4
+
+game/fn_80069504.c:
+	.text       start:0x80069504 end:0x80069570
 
 game/fn_80069614.c:
 	.text       start:0x80069614 end:0x80069668
@@ -818,6 +1152,18 @@ game/fn_800750F8.c:
 
 game/fn_80075120.c:
 	.text       start:0x80075120 end:0x80075258
+
+game/fn_80075258.c:
+	.text       start:0x80075258 end:0x80075388
+
+game/fn_80075388.c:
+	.text       start:0x80075388 end:0x800754B8
+
+game/fn_800754B8.c:
+	.text       start:0x800754B8 end:0x800755E8
+
+game/fn_800755E8.c:
+	.text       start:0x800755E8 end:0x80075718
 
 game/fn_80075718.c:
 	.text       start:0x80075718 end:0x8007571C
@@ -960,6 +1306,12 @@ game/fn_8007D224.c:
 game/fn_8007D2B8.c:
 	.text       start:0x8007D2B8 end:0x8007D3C8
 
+game/fn_8007D3C8.c:
+	.text       start:0x8007D3C8 end:0x8007D638
+
+game/fn_8007DA20.c:
+	.text       start:0x8007DA20 end:0x8007DA80
+
 game/fn_8007DBF0.c:
 	.text       start:0x8007DBF0 end:0x8007DD14
 
@@ -968,6 +1320,9 @@ game/fn_8007DD14.c:
 
 game/fn_8008052C.c:
 	.text       start:0x8008052C end:0x80080558
+
+game/fn_80080558.c:
+	.text       start:0x80080558 end:0x8008057C
 
 game/fn_80080994.c:
 	.text       start:0x80080994 end:0x80080A94
@@ -983,6 +1338,9 @@ game/fn_80080FB4.c:
 
 game/fn_800811E8.c:
 	.text       start:0x800811E8 end:0x800812A4
+
+game/fn_800812A4.c:
+	.text       start:0x800812A4 end:0x80081430
 
 game/fn_80081430.c:
 	.text       start:0x80081430 end:0x80081438
@@ -1143,6 +1501,9 @@ game/fn_80095A30.c:
 game/fn_80095D7C.c:
 	.text       start:0x80095D7C end:0x80095E00
 
+game/fn_80095E00.c:
+	.text       start:0x80095E00 end:0x80095E6C
+
 game/fn_80096374.c:
 	.text       start:0x80096374 end:0x800964B0
 
@@ -1254,6 +1615,21 @@ game/fn_800AA024.c:
 game/fn_800AA130_fn_800AA130.c:
 	.text       start:0x800AA130 end:0x800AA17C
 	.data       start:0x8022B130 end:0x8022B204
+
+game/data/lbl_8022B3B8.c:
+	.data       start:0x8022B3B8 end:0x802359F8
+
+game/data/lbl_802359F8.c:
+	.data       start:0x802359F8 end:0x80235DF8
+
+game/data/lbl_802362A0.c:
+	.data       start:0x802362A0 end:0x80237EE0
+
+game/data/lbl_80238160.c:
+	.data       start:0x80238160 end:0x80239AE4
+
+game/data/lbl_80239B48_lbl_80239FEC.c:
+	.data       start:0x80239B48 end:0x8023A004
 
 game/data/cr_g_PartOrderLeg_cr_g_PartOrderLists.c:
 	.data       start:0x8023B898 end:0x8023B8D0
@@ -2630,10 +3006,13 @@ dolphin/ax/AXSPB.c:
 
 dolphin/ax/AXVPB.c:
 	.text       start:0x801464C0 end:0x80147A48
-	.data       start:0x802449C8 end:0x80244A9C
+	.data       start:0x802449C8 end:0x80244AA0
 	.bss        start:0x80427900 end:0x80439100
 	.sbss       start:0x8044FC08 end:0x8044FC18
 	.sdata2     start:0x80451D10 end:0x80451D18
+
+game/data/__AXCompressorTable_axDspSlave.c:
+	.data       start:0x80244AA0 end:0x802483A0
 
 dolphin/ax/AXProf.c:
 	.text       start:0x80147A48 end:0x80147A90
@@ -3157,10 +3536,19 @@ dolphin/si/SIBios.c:
 	.sdata      start:0x8044EEC8 end:0x8044EECC
 	.sbss       start:0x8044FD30 end:0x8044FD40
 
+game/data/lbl_8043CFD0_lbl_80449C98.c:
+	.bss        start:0x8043CFD0 end:0x80449D18
+
 dolphin/si/SISamplingRate.c:
 	.text       start:0x8016D324 end:0x8016D42C
 	.data       start:0x8024A358 end:0x8024A3EC
-	.sbss       start:0x8044FD40 end:0x8044FD44
+	.sbss       start:0x8044FD40 end:0x8044FD48
+
+game/data/lbl_8044FD48_lbl_8044FDCC.c:
+	.sbss       start:0x8044FD48 end:0x8044FDCD
+
+game/data/lbl_8044FDD0_lbl_8044FED8.c:
+	.sbss       start:0x8044FDD0 end:0x8044FEE0
 
 sysdolphin/baselib/synth.c:
 	.text       start:0x80172DD8 end:0x80179C14
@@ -3168,6 +3556,9 @@ sysdolphin/baselib/synth.c:
 sysdolphin/baselib/psdisptev.c:
 	.text       start:0x801851D4 end:0x801859E8
 	.sbss       start:0x8044FEE0 end:0x8044FEE8
+
+game/data/lbl_8044FEF0.c:
+	.sbss       start:0x8044FEF0 end:0x8044FEF8
 
 sysdolphin/baselib/dobj.c:
 	.text       start:0x80186490 end:0x80186B44
@@ -3253,6 +3644,12 @@ sysdolphin/baselib/displayfunc.c:
 	.sdata      start:0x8044F0D8 end:0x8044F100
 	.sbss       start:0x8044FFE8 end:0x80450008
 
+game/data/lbl_80450008_lbl_80450030.c:
+	.sbss       start:0x80450008 end:0x80450038
+
+game/data/lbl_80449E80_lbl_80449E8C.c:
+	.bss        start:0x80449E80 end:0x80449EA0
+
 sysdolphin/baselib/initialize.c:
 	.text       start:0x8019CC64 end:0x8019D3EC
 	.data       start:0x8024CB00 end:0x8024CB6D
@@ -3325,6 +3722,9 @@ sysdolphin/baselib/list.c:
 	.bss        start:0x8044B710 end:0x8044B768
 	.sdata      start:0x8044F1E8 end:0x8044F205
 
+game/data/lbl_8044B768.c:
+	.bss        start:0x8044B768 end:0x8044B780
+
 sysdolphin/baselib/object.c:
 	.text       start:0x801A3FA8 end:0x801A3FEC
 	.data       start:0x8024D050 end:0x8024D0A4
@@ -3337,6 +3737,9 @@ sysdolphin/baselib/shadow.c:
 	.text       start:0x801A4154 end:0x801A5558
 	.data       start:0x8024D0D0 end:0x8024D268
 	.bss        start:0x8044B780 end:0x8044B7B0
+
+game/data/lbl_8044B7B0_lbl_8044BFB0.c:
+	.bss        start:0x8044B7B0 end:0x8044C280
 
 sysdolphin/baselib/archive.c:
 	.text       start:0x801A5558 end:0x801A5708

@@ -78,8 +78,9 @@ def main(a):
     flags, ver = FLAGS, '2.6'
     if obj:
         flags, ver, inc_dirs, defs = object_flags(dec, obj)
-        incs = ['-I', os.path.dirname(src)] + sum((['-I', os.path.join(dec, d)] for d in inc_dirs), [])
-        defs = defs + ['-D__declspec(x)=', '-D__attribute__(x)=']
+        # mwcc searches the -i paths before the source's own folder (lobj.c's "lobj.h" is include/cr_kar/lobj.h)
+        incs = sum((['-I', os.path.join(dec, d)] for d in inc_dirs), []) + ['-I', os.path.dirname(src), '-I', os.path.join(dec, 'src')]
+        defs = defs + ['-D__declspec(x)=', '-D__attribute__(x)=', '-D__MWERKS__=0x2301', '-D__PPCGEKKO__']   # the headers' mwcc-only parts (platform.h's MWERKS_GEKKO: math_ppc.h's inline sqrtf) as mwcc sees them
     else:
         incs = ['-I', os.path.join(dec, 'drafts'), '-I', os.path.dirname(src)]
         for i in db.CTX_INC:
@@ -92,11 +93,13 @@ def main(a):
         feed = os.path.join(out, '_line_' + os.path.basename(src))
         body = open(src, encoding='utf-8', errors='replace').read()
         open(feed, 'w', encoding='utf-8').write('#line 1 "%s"\n' % os.path.basename(src) + body)
-        incs = ['-I', os.path.dirname(src)] + incs
     pp = subprocess.run([CPP, '-P', '-nostdinc'] + defs + incs + [feed], capture_output=True, text=True, cwd=dec)
     if pp.returncode:
         raise SystemExit('cpp failed: ' + pp.stderr[-2000:])
     base = re.sub(r'__declspec\(section "[^"]*"\)\s*', '', pp.stdout)
+    # __FILE__ of a header's inline (jobj.h's asserts): cpp writes the path it opened, mwcc the bare name ("jobj.h",
+    # 7 bytes: small data, one `li r3,x@sda21` where the path costs lis/addi)
+    base = re.sub(r'"[A-Za-z]:[^"]*?([\w.]+)"', r'"\1"', base)
     # an mwcc-only fixed-address declaration (`T x : 0xADDR;`) as a macro the parser reads
     base = re.sub(r'^(?:volatile\s+)?(\w+)\s+(\w+)\s*:\s*(0x[0-9A-Fa-f]+);$', r'#define \2 (*(volatile \1 *) \3)', base, flags=re.M)
     open(os.path.join(out, 'base.c'), 'w', encoding='utf-8').write(base)

@@ -77,6 +77,7 @@ HEADER = "game/cr_game.h"
 MARK = "/* Custom Robo game code, promoted by tools/promote_drafts.py"
 NL = "\n"
 SPACE = (".rodata", ".data", ".bss", ".sdata", ".sbss", ".sdata2", ".sbss2", ".ctors", ".dtors")
+SDA21 = 109   # R_PPC_EMB_SDA21
 
 
 # ---- the drafts' context, parsed once ----------------------------------------------------------------------------------
@@ -332,6 +333,12 @@ def header_names():
     return set(re.findall(r"^typedef .*?\b(\w+);", (D / "include" / HEADER).read_text(encoding="utf-8"), re.M))
 
 
+def no_ro(name):
+    """the draft was compiled with CR_NO_RO (draft_batch.py plain_readonly): its .sdata2 / .rodata objects plain"""
+    t = (DRAFTS / "c" / f"{name}.c").read_text(encoding="utf-8")
+    return "#define CR_NO_RO" in t.split("\n")[1:4]
+
+
 def draft_body(name):
     t = (DRAFTS / "c" / f"{name}.c").read_text(encoding="utf-8")
     lines = t.split("\n")
@@ -473,7 +480,19 @@ def main(argv):
     where = {f[0]: (f[1], f[2], f[4]) for f in funcs}
     end = db.game_end()
     cc, flags = mwcc()
-    ctx = Context(DRAFTS / "ctx_pp.c")
+    ctx0 = Context(DRAFTS / "ctx_pp.c")
+    ctxs = {}
+
+    def context_of(names):
+        """the context the drafts were compiled with (all with CR_NO_RO or none), or None when they differ"""
+        k = {no_ro(n) for n in names}
+        if len(k) > 1:
+            return None
+        if k == {True}:
+            if True not in ctxs:
+                ctxs[True] = Context(DRAFTS / "ctx_pp_noro.c")
+            return ctxs[True]
+        return ctx0
     provided = header_names()
     shutil.rmtree(WORK, ignore_errors=True)
     (WORK / "src").mkdir(parents=True)
@@ -495,6 +514,7 @@ def main(argv):
 
     def promoted_text(name, a, size, body, full, keep):
         """the promoted file's text for one draft -> (text, "") or the reason it cannot be generated"""
+        ctx = context_of([name])
         e = Emitter(ctx, provided, full)
         try:
             pp = WORK / "src" / f"{name}.pp.c"
@@ -560,6 +580,14 @@ def main(argv):
                 return f"relocation to its own symbol {sn} at +0x{off:X}"
             tgt = a + ad if sn == name else (addr_of(sn) + ad if addr_of(sn) is not None else None)
             mine[off] = (t, tgt, sn)
+        # an r13-indexed array (`addi r4, rI, sym-2; stbx r0, r4, r13`): MWCC puts R_PPC_EMB_SDA21 on the addi of the
+        # index (rA a general register), mwld writes sym - _SDA_BASE_ and keeps rA; dtk's object has no relocation
+        # there. The bytes are compared above; batch 9's retail SHA-1 checks the linked value.
+        text = sec[".text"][2]
+        for off in sorted(set(mine) - set(orl)):
+            w = int.from_bytes(text[off & ~3:(off & ~3) + 4], "big")
+            if mine[off][0] == SDA21 and mine[off][1] is not None and w >> 26 == 14 and (w >> 16) & 31 not in (0, 2, 13):
+                del mine[off]
         if set(mine) != set(orl):
             return "relocation sites differ from the original's"
         for off in sorted(mine):
@@ -602,6 +630,9 @@ def main(argv):
         first, last = mem[0][0], mem[-1][0]
         a, b = mem[0][1], mem[-1][1] + mem[-1][2]
         bodies = [draft_body(f[0]) for f in mem]
+        ctx = context_of([f[0] for f in mem])
+        if ctx is None:
+            return "its drafts were compiled with different contexts (CR_NO_RO)"
         want = b""
         for f in mem:
             dsec = gs.read_obj(DRAFTS / "obj" / f"{f[0]}.o")[0]

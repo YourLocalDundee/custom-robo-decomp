@@ -28,7 +28,7 @@ Only the US `scenario_us` archives are extracted to `models_dat/`; `scenario_jp`
 | `message/*.bmc` | magic `MGCLbmc1` (not BMG; likely a colour table — not verified) | header bytes |
 | `thpdemo/*.thp` | THP video | extension |
 | `sound/*.hps`, `*.ssm`, `*.sem` | audio | extension |
-| `*.dbn` (`logo_read_*`, `efc_common`, `motion.DBN`) | header looks like u32 count + offsets; `motion.DBN` is a motion file: [motion.md](motion.md); the others not parsed | header bytes |
+| `*.dbn` (`logo_read_*`, `efc_common`, `motion.DBN`) | u32 count + offsets. `logo_read_us.dbn` is the boot bundle: 9 entries, entry 8 the motion file the game plays ([motion.md](motion.md#the-boot-bundle-logo_read_usdbn)); `motion.DBN` is a loose motion file the game never reads; `efc_common` not parsed | header bytes; fn_80019E84 |
 | `*.bnr` | GameCube banner (`BNR1`) | header bytes |
 | `viewer.ini`, `IS USBServer.ini` | text config left on the disc | text |
 | `gcflag_joy.bin` | unknown | — |
