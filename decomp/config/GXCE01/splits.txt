@@ -710,6 +710,9 @@ game/fn_8001E3B8.c:
 game/fn_8001E424.c:
 	.text       start:0x8001E424 end:0x8001E488
 
+game/fn_8001E488.c:
+	.text       start:0x8001E488 end:0x8001E51C
+
 game/cr_Vec3_NormalizeTo.c:
 	.text       start:0x8001E51C end:0x8001E5E4
 
@@ -730,6 +733,9 @@ game/fn_8001F6BC.c:
 
 game/fn_80020204.c:
 	.text       start:0x80020204 end:0x800202EC
+
+game/cr_Archive_GetEntrySize.c:
+	.text       start:0x800202EC end:0x8002036C
 
 game/fn_80020A40.c:
 	.text       start:0x80020A40 end:0x80020A60

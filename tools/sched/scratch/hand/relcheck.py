@@ -9,7 +9,8 @@ out, func, src = sys.argv[1:4]
 r = subprocess.run([sys.executable, '-I', 'tools/sched/scratch/hand/hd.py', out, func, src, '-r'], capture_output=True, text=True)
 mine = {}
 for m in re.finditer(r'^\s*([0-9a-f]+): R_PPC_\w+\s+(\S+)', r.stdout, re.M):
-    sym = re.sub(r'[+-]0x[0-9a-f]+$', '', m.group(2))
+    # a literal keeps its addend (`@715+0x1`): dtk labels each byte of a pooled GXColor on its own (lbl_8045025C..F)
+    sym = m.group(2) if m.group(2).startswith('@') else re.sub(r'[+-]0x[0-9a-f]+$', '', m.group(2))
     mine[int(m.group(1), 16) // 4] = sym
 orig = {}
 k = 0

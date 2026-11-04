@@ -18,6 +18,11 @@ main.dol's own bytes, independently of dtk:
     EA    a D-form load / store whose effective address is in M: from a raw lis -> both instructions need
           relocations; from r2 / r13 -> an @sda21 relocation (small-data access);
     SDAADDR  addi rD, r2/r13, imm (the address of a small-data object) -> @sda21;
+    SDAIDX   addi rD, rI, imm whose rD indexes an r13 access (`stbx rS, rD, r13`: sym[i - k] in small data), value
+             _SDA_BASE_ + imm (Code._sdaidx, a pattern pass: rI is unknown). Counted, not a miss to fix: MWCC's own
+             object has R_PPC_EMB_SDA21 there and mwld keeps rI, but an @sda21 in dtk's asm leaves rA to the linker,
+             which writes r13 (tried Nov 4, 2026: the SHA-1 broke at all 7 sites of fn_80080C7C). The offset is
+             sym - _SDA_BASE_, which a shift keeps unless something is inserted into .sdata / .sbss before sym;
     CROSS a value anchored by a relocation to object S (+ offset arithmetic, e.g. lis/addi of S then lwz 0x120(rX))
           that lands in a DIFFERENT dtk object T: not a miss, the code builds T's address arithmetically from S, so S
           and T must stay together ("glued": padding between them would break it).
@@ -152,7 +157,48 @@ class Code:
     def run(self):
         for s, sz, name in self.funcs:
             self._func(s, s + sz, name)
+            self._sdaidx(s, s + sz, name)
         return self.events
+
+    XFORM_SDA = (87, 215, 23, 151, 279, 407, 343, 535, 663, 599, 727)   # lbzx stbx lwzx stwx lhzx sthx lhax lfsx stfsx lfdx stfdx
+
+    def _sdaidx(self, s, e, name):
+        """SDAIDX: an r13-indexed array, `addi rD, rI, sym - _SDA_BASE_` then `stbx rS, rD, r13` (MWCC's code for
+        sym[i - k] in .sdata / .sbss): the addi needs an @sda21 relocation (mwld writes sym - _SDA_BASE_ and keeps
+        rI). The constant propagation cannot see it (rI is unknown), so this pass looks for the pattern: the
+        indexed access, then back to the addi that set its other register, within its block (stops at a branch or
+        any other instruction that may write that register). Not in functions that write r13 (hand-written asm)."""
+        w = self.elf.word
+        words = [w(a) for a in range(s, e, 4)]
+        if any(((x >> 26) in (14, 15, 32, 33, 34, 35, 40, 41, 42, 43, 46) and (x >> 21) & 31 == 13)
+               or ((x >> 26) in (24, 21) and (x >> 16) & 31 == 13) for x in words):
+            return
+        rel = self.elf.relocs
+        for a in range(s, e, 4):
+            x = w(a)
+            if x >> 26 != 31 or (x >> 1) & 0x3ff not in self.XFORM_SDA:
+                continue
+            ra_, rb = (x >> 16) & 31, (x >> 11) & 31
+            if 13 not in (ra_, rb) or ra_ == rb:
+                continue
+            rx = rb if ra_ == 13 else ra_
+            for b in range(a - 4, max(s, a - 40) - 4, -4):
+                y = w(b)
+                op, d, sa = y >> 26, (y >> 21) & 31, (y >> 16) & 31
+                if da._branch(y, b):
+                    break
+                if op == 14 and d == rx:
+                    if sa not in (0, 2, 13):
+                        v = (self.sda[13] + _s16(y & 0xffff)) & 0xffffffff
+                        if self.inm(v):
+                            r = rel.get(b + 2) or rel.get(b)
+                            ok = r is not None and r[0] == R_SDA21
+                            self._ev(name, 'SDAIDX', b, v, reloc=ok, reg=sa, access=a, target=r[1] if ok else None)
+                    break
+                # any other writer of rx ends the search (D-form rD, rlwinm / ori / ... rA, X-form rD or rA)
+                if (op in (7, 12, 13, 14, 15, 32, 33, 34, 35, 40, 41, 42, 43, 48, 49, 50, 51) and d == rx) or \
+                        (op in (21, 24, 25, 26, 27, 28, 29) and sa == rx) or (op == 31 and rx in (d, sa)):
+                    break
 
     def _entry(self):
         return {r: (v, 'sda', None) for r, v in self.sda.items()}
@@ -428,7 +474,7 @@ def consistency(elf, events, rels):
     """every relocated value the code makes / every relocated data word equals its relocation target"""
     bad = []
     for k, a, v, d in events:
-        if k in ('RELMAT', 'SDAADDR') and d.get('target') is not None and v != d['target']: bad.append((k, a, v, d))
+        if k in ('RELMAT', 'SDAADDR', 'SDAIDX') and d.get('target') is not None and v != d['target']: bad.append((k, a, v, d))
         if k == 'EA' and d.get('reloc') and d.get('target') is not None and v != d['target']: bad.append((k, a, v, d))
     for a, r in rels:
         if elf.word(a) != r[1]: bad.append(('ADDR32', a, elf.word(a), {'target': r[1]}))

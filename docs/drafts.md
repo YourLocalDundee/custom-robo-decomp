@@ -1738,3 +1738,40 @@ are **structural** (29: by hand, smallest first).
   fn_80070130 615, fn_80075950 875, fn_8006975C 920, cr_Vec3_RotateAboutAxis 4860, fn_8006EEF8 5300;
   fn_8003FB00 wrote no output (its setup is to be checked). The outputs are in tools/sched/permuter/<func>/
   (untracked); `permdiff.py FUNC` shows each change.
+- **Nov 4, 2026: the queue 3 near misses by hand** (owner order: apply the score-0 results, full run, then these).
+  Four more at 100% (tools/hand_drafts, hd.py + relcheck.py): **fn_8001E488** (83%: the three differences as
+  initialised declarations in x, y, z order; m2c wrote them z, y, x as assignments), **cr_Archive_GetEntrySize**
+  (78%: typed, `&a->entries[entry]` and `cr_g_FileDescs[archive][entry].size`; m2c scaled the packed index twice),
+  **cr_SEQ_TITLE_Leave** (97%: the clear colour as a literal initialiser `GXColor c = {0, 0, 0, 255}`, the pooled
+  .sdata2 bytes lbl_8045025C..F; copied from the label, the scheduler pulls the four byte loads into the
+  prologue), **fn_80080E24** (88%: the clamped step `*p + a * K < lim ? *p += a * K : *p = lim` through two static
+  inlines, the compare and the add; the permuter's score 40 showed the inline compare). relcheck.py now keeps a
+  literal's addend (`@715+0x1`), so a pooled GXColor that dtk labels byte by byte maps one to one.
+  The file run 0x80080A94-0x80081430 is one function short again (fn_80080C7C 83%: the original keeps r29 saved and
+  never uses it, and tests 0x80 directly where the draft has a flag; no dead-use position tried gives r29 to a dead
+  local). Not closed by hand:
+  cr_SEQ_STAGE_SELECTOR_Leave is 100% once lbl_8044F848 (.sbss, four byte labels 0x8044F848..B) is a `GXColor`
+  object (the saved clear colour; any 4-byte type works): a data-typing change (merge the four labels in the
+  config symbols.txt, type it in symbols/bss_untyped.txt / lbl_types.txt), not done yet. fn_80067778,
+  cr_Text_GetBodyName and cr_Text_GetPartDescription are one shape (a message table: `u16` count at +8, `u32`
+  offsets from +0x10, the text at base + 8 + offset): the original adds the index to the base and loads 0x10 from
+  it, our compiler folds 0x10 into the index (`lwzx`) for every pointer, array, struct-member and cast spelling
+  tried; only a named temporary (a saved register here) or the permuter's chain of 64-bit identity masks keeps the
+  add; best fn_80067778 89% (wip/), cr_Text_GetBodyName 77%. fn_8001EA48 (89%) is volatile float register
+  colouring only.
+- Nov 4, the full batch 12 with the four: 880 drafts at 100%, main.dol = retail SHA-1. Promoted: fn_8001E488.
+  Held back, and fixed in the tools: **cr_Archive_GetEntrySize** (the promoted file declared cr_PackedEntry
+  incomplete; indexing a pointer to it is MWCC's "illegal type", not "incomplete struct", so promote_drafts.py did
+  not retry with the structs defined: it now retries on both, promoted). **fn_80080E24** stays a 100% draft: the
+  first real use of the SDA21-on-addi exception (`lbl_8044EAE0[o->x10 - 2] = 0`: `addi r4, r4, sym - 2 -
+  _SDA_BASE_` then `stbx r0, r4, r13`). MWCC's object has R_PPC_EMB_SDA21 on that addi and mwld keeps rA, so the
+  linked bytes are main.dol's, but dtk's split object has no relocation there and objdiff scores the unit 99.05%
+  (batch 9's check_c_objects stops). Adding the relocation to dtk (config.yml add_relocations, type sda21, target
+  lbl_8044EAE0 - 2) does not work: an @sda21 in dtk's asm leaves rA to the linker, which writes r13 (the SHA-1 broke
+  at the 7 sites of fn_80080C7C). Kept from the attempt: tools/reloc_audit.py counts these sites (SDAIDX, 8 in
+  main.dol: 7 in fn_80080C7C, 1 in fn_80080E24; relocs_report.txt), not as misses. Open: an objdiff-side exception
+  in check_c_objects.py for exactly these sites (the bytes are proven by the SHA-1), or the file object
+  0x80080A94-0x800811E8 once fn_80080C7C matches has the same problem.
+  Held back by data placement: **cr_SEQ_TITLE_Leave** (its GXColor pool, 4 bytes at 0x8045025C, is 4-aligned in
+  main.dol, our object's .sdata2 is 8-aligned: it links only in a file object with the function whose pool ends
+  there), like fn_8000AFBC.

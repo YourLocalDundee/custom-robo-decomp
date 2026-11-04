@@ -9,6 +9,7 @@ code (constant propagation, per pointer kind; "missed" = dtk made no relocation)
   loads / stores at a lis address: 920 (0 missed)
   small-data accesses (r13 / r2 + offset): 29137 (0 missed)
   small-data addresses (addi rD, r13 / r2, offset): 2238 (0 missed)
+  r13-indexed arrays (addi rD, rI, sym - _SDA_BASE_ then an indexed access with r13): 8 (not relocatable through the asm of dtk: an @sda21 there makes mwld write r13 into rA; reloc_audit.py SDAIDX)
   relocated addresses used as numbers (bit mask / signed compare): 4 uses, 1 lis
 data: 12634 relocated words; unrelocated words in the moving range: 0
   relocated into the middle of a function: 1688 words in 83 tables; jump tables (the function holding the targets has a bctr and references the table): 82 (5 not named jumptable_ by dtk); not a jump table: 1

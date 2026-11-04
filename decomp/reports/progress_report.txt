@@ -8,11 +8,11 @@ MSL                               49     49   0x00939C/0x00939C 100.00%   0x0014
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
 sysdolphin                        36     27   0x0147F0/0x02F3F8  43.38%   0x0033CD/0x00412D  79.48%    333/  552
-game                             930    930   0x028944/0x028944 100.00%   0x232980/0x232980 100.00%    819/  819
-automatic objects (unsplit)      378      0   0x000000/0x117FA8   0.00%   0x000000/0x041430   0.00%      0/ 1063
-main.dol (all units)            1525   1138   0x080880/0x1B3430  29.53%   0x25A253/0x29C3E3  90.11%   2251/ 3533
+game                             932    932   0x028A58/0x028A58 100.00%   0x232980/0x232980 100.00%    821/  821
+automatic objects (unsplit)      377      0   0x000000/0x117E94   0.00%   0x000000/0x041430   0.00%      0/ 1061
+main.dol (all units)            1526   1140   0x080994/0x1B3430  29.55%   0x25A253/0x29C3E3  90.11%   2253/ 3533
 
-game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 818 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0x28944 bytes = 13.51% of the game code, 9.32% of all code
+game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 820 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0x28A58 bytes = 13.53% of the game code, 9.34% of all code
 game data (decomp/src/game/data, tools/gen_data_c.py): 112 data-only units from C, 0x232828 bytes; all game data from C (with the file objects pools): 0x232980 bytes = 84.19% of all data
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
@@ -197,6 +197,7 @@ dolphin/texPalette/texPalette.c               code 0x1EC/0x1EC  data 0x8/0x8  fu
 dolphin/thp/THPAudio.c                        code 0x530/0x530  data 0x0/0x0  functions 3/3  linked from C
 dolphin/thp/THPDec.c                          code 0x7568/0x7568  data 0x334/0x334  functions 19/19  linked from C
 dolphin/vi/vi.c                               code 0x1E54/0x1E54  data 0x588/0x588  functions 22/22  linked from C
+game/cr_Archive_GetEntrySize.c                code 0x80/0x80  data 0x0/0x0  functions 1/1  linked from C
 game/cr_BattleRobo_InitBody.c                 code 0x288/0x288  data 0x0/0x0  functions 1/1  linked from C
 game/cr_BattleRobo_TagCooldownIsZero.c        code 0x10/0x10  data 0x0/0x0  functions 1/1  linked from C
 game/cr_Battle_SetCurrentPointers.c           code 0x88/0x88  data 0x0/0x0  functions 1/1  linked from C
@@ -680,6 +681,7 @@ game/fn_8001DE38.c                            code 0x34/0x34  data 0x0/0x0  func
 game/fn_8001E360.c                            code 0x58/0x58  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8001E3B8.c                            code 0x6C/0x6C  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8001E424.c                            code 0x64/0x64  data 0x0/0x0  functions 1/1  linked from C
+game/fn_8001E488.c                            code 0x94/0x94  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8001E5E4.c                            code 0x28/0x28  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8001E684.c                            code 0x2C/0x2C  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8001F654.c                            code 0x68/0x68  data 0x0/0x0  functions 1/1  linked from C

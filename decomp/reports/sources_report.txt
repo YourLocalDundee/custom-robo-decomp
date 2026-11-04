@@ -1,7 +1,7 @@
 C sources and headers in decomp/src and decomp/include (tools/check_c_objects.py)
 Each file is copied from a pinned reference decomp (the community's matching C; never decompiler output) by tools/import_ref_source.py, which puts the provenance on its first line. The game files (decomp/src/game) are ours: m2c drafts that compile to the retail bytes (tools/promote_drafts.py).
 Columns: path in decomp/, reference repo @ commit (tools/pins.txt), path in the reference, state (identical = byte for byte the reference file after the provenance comment).
-files: 1816
+files: 1818
 
 src/MSL/FILE_POS.c  zeldaret/tp @ c8fa8c9e2aab libs/PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/FILE_POS.c  identical
 src/MSL/abort_exit.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/PowerPC_EABI_Support/src/MSL_C/PPC_EABI/abort_exit.c  identical
@@ -196,6 +196,7 @@ src/dolphin/thp/THPAudio.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/thp/T
 src/dolphin/thp/THPDec.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/thp/THPDec.c  identical
 src/dolphin/vi/__vi.h  doldecomp/dolsdk2004 @ 2328b4164b1a src/vi/__vi.h  identical
 src/dolphin/vi/vi.c  bfbbdecomp/bfbb @ d8e8eac38dd6 src/dolphin/src/vi/vi.c  changed (15 lines added / removed)
+src/game/cr_Archive_GetEntrySize.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_BattleRobo_InitBody.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_BattleRobo_TagCooldownIsZero.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/cr_Battle_SetCurrentPointers.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
@@ -567,6 +568,7 @@ src/game/fn_8001DE38.c  ours: a matching m2c draft of the game code, promoted by
 src/game/fn_8001E360.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001E3B8.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001E424.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
+src/game/fn_8001E488.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001E5E4.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001E684.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py
 src/game/fn_8001F654.c  ours: a matching m2c draft of the game code, promoted by tools/promote_drafts.py

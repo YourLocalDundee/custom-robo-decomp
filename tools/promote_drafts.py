@@ -581,8 +581,9 @@ def main(argv):
             tgt = a + ad if sn == name else (addr_of(sn) + ad if addr_of(sn) is not None else None)
             mine[off] = (t, tgt, sn)
         # an r13-indexed array (`addi r4, rI, sym-2; stbx r0, r4, r13`): MWCC puts R_PPC_EMB_SDA21 on the addi of the
-        # index (rA a general register), mwld writes sym - _SDA_BASE_ and keeps rA; dtk's object has no relocation
-        # there. The bytes are compared above; batch 9's retail SHA-1 checks the linked value.
+        # index (rA a general register), mwld writes sym - _SDA_BASE_ and keeps rA. Since Nov 4, 2026
+        # gen_dtk_relocs.py adds those to dtk's objects (reloc_audit's SDAIDX), so this is only a fallback for a site
+        # its pattern pass does not see; objdiff (batch 9) then fails on that one instruction and says so.
         text = sec[".text"][2]
         for off in sorted(set(mine) - set(orl)):
             w = int.from_bytes(text[off & ~3:(off & ~3) + 4], "big")
@@ -612,7 +613,8 @@ def main(argv):
                                                 str(src.relative_to(D)).replace("\\", "/")])
             if rc or not obj.exists():
                 err = db.compile_error(txt)
-                if full != "deep" and "incomplete struct" in err:
+                # indexing a pointer to an incomplete struct (`&a->entries[i]`) is reported as "illegal type"
+                if full != "deep" and ("incomplete struct" in err or "illegal type" in err):
                     continue
                 return "the promoted file does not compile: " + err
             break

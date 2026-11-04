@@ -163,7 +163,7 @@ def write_config(adds, blocks):
         out.append('add_relocations:')
         for sec, a, ty, n, add, ev in adds:
             out += [f'- source: {sec}:0x{a:08X}', f'  type: {ty}', f'  target: {n}']
-            if add: out.append(f'  addend: 0x{add:X}')
+            if add: out.append(f'  addend: {"-" if add < 0 else ""}0x{abs(add):X}')
     out.append(END)
     open(p, 'wb').write((y + '\n'.join(out) + '\n').replace('\n', eol).encode())
 
@@ -211,6 +211,8 @@ def describe(elf, objs, c, raw, rels, adds, blocks):
         f'({sum(1 for k, a, v, d in c["misses"] if k == "EA" and d["base"] == "sda")} missed)',
         f'  small-data addresses (addi rD, r13 / r2, offset): {st["SDAADDR"]} '
         f'({sum(1 for k, a, v, d in c["misses"] if k == "SDAADDR")} missed)',
+        f'  r13-indexed arrays (addi rD, rI, sym - _SDA_BASE_ then an indexed access with r13): {st["SDAIDX"]} '
+        '(not relocatable through the asm of dtk: an @sda21 there makes mwld write r13 into rA; reloc_audit.py SDAIDX)',
         f'  relocated addresses used as numbers (bit mask / signed compare): {st["LOGIC"] + st["SCMP"]} uses, '
         f'{len(c["fp_code"])} lis',
         f'data: {len(rels)} relocated words; unrelocated words in the moving range: {len(raw)}',
