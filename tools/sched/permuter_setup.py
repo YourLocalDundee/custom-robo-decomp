@@ -18,6 +18,7 @@ binutils_ppc, cpp_shim/cpp.exe (a copy of LLVM's clang-cpp.exe).
 """
 import os
 import re
+import shlex
 import subprocess
 import sys
 
@@ -35,6 +36,52 @@ MACROS = os.path.join(G, 'decomp', 'build', 'GXCE01', 'include', 'macros.inc')
 FLAGS = ('-nodefaults -proc gekko -align powerpc -enum int -fp hardware -Cpp_exceptions off -pragma "cats off" '
          '-pragma "warn_notinlined off" -maxerrors 1 -nosyspath -multibyte -W off '
          '-opt level=0,peephole,schedule,speed -use_lmw_stmw on -fp_contract on -str reuse,readonly')
+
+
+DECL_VAR = re.compile(r'^extern\b[^(]*?\b(\w+)\s*(?:\[[^\]]*\]\s*)*;$')
+C_WORDS = {'return', 'if', 'while', 'for', 'switch', 'sizeof', 'do', 'else', 'case', 'goto'}
+DECL_FN = re.compile(r'^(?:extern\s+)?[\w\s\*]*?\b(\w+)\s*\([^;{]*\)\s*;$')
+
+
+def prune(text):
+    """the preprocessed base without the one-line extern variables and prototypes that nothing else in it names
+    (Nov 4, 2026: of the ~22,000 lines of a draft's context, ~11,400 are extern variables and ~3,400 prototypes;
+    the permuter rewrites and compiles the whole file on every try). Types, inline bodies and the function stay;
+    a declaration stays when its name appears in any line that is not such a declaration. main() checks that the
+    pruned file compiles to the same objdump as the full one, else it keeps the full one."""
+    lines = text.split('\n')
+    kind = []
+    prev = ';'
+    for l in lines:
+        # only whole top-level declarations: in column 0 (statements of inline bodies are indented) and starting a
+        # statement (the previous line ended one; a prototype split over lines keeps all its lines)
+        start = prev in (';', '}', '')
+        m = None if l[:1].isspace() or not start else (DECL_VAR.match(l.rstrip()) or DECL_FN.match(l.rstrip()))
+        kind.append(m.group(1) if m and m.group(1) not in C_WORDS else None)
+        if l.strip():
+            prev = l.rstrip()[-1:]
+    words = set()
+    for l, k in zip(lines, kind):
+        if k is None:
+            words.update(re.findall(r'[A-Za-z_]\w*', l))
+    return '\n'.join(l for l, k in zip(lines, kind) if k is None or k in words)
+
+
+def same_code(mw, flags, a_text, b_text, tmpdir):
+    """True when the two sources compile to the same objdump -dr (what the permuter scores)"""
+    dumps = []
+    for i, t in enumerate((a_text, b_text)):
+        c, o = os.path.join(tmpdir, '_prune_%d.c' % i), os.path.join(tmpdir, '_prune_%d.o' % i)
+        open(c, 'w', encoding='utf-8').write(t)
+        cmd = ([os.environ.get('WIBO') or os.path.join(G, 'decomp', 'build', 'tools', 'wibo')] if os.name != 'nt' else []) + \
+            [mw] + shlex.split(flags) + ['-c', c, '-o', o]
+        if subprocess.run(cmd, capture_output=True).returncode or not os.path.exists(o):
+            return False
+        d = subprocess.run([OBJDUMP, '-dr', '-EB', '-mpowerpc', '-M', 'broadway', o], capture_output=True, text=True).stdout
+        dumps.append(d.split('\n', 3)[-1])   # without the file name line
+        for p in (c, o):
+            os.remove(p)
+    return dumps[0] == dumps[1]
 
 
 def fwd(p):
@@ -102,6 +149,9 @@ def main(a):
     base = re.sub(r'"[A-Za-z]:[^"]*?([\w.]+)"', r'"\1"', base)
     # an mwcc-only fixed-address declaration (`T x : 0xADDR;`) as a macro the parser reads
     base = re.sub(r'^(?:volatile\s+)?(\w+)\s+(\w+)\s*:\s*(0x[0-9A-Fa-f]+);$', r'#define \2 (*(volatile \1 *) \3)', base, flags=re.M)
+    full = base
+    if '--no-prune' not in a:
+        base = prune(base)
     open(os.path.join(out, 'base.c'), 'w', encoding='utf-8').write(base)
     # target.o from the original's asm
     if obj:
@@ -129,16 +179,33 @@ def main(a):
     if r.returncode:
         raise SystemExit('as failed: ' + r.stderr[-2000:])
     mw = fwd(os.path.join(dec, 'build', 'compilers', 'GC', ver, 'mwcceppc.exe'))
+    # the permuter passes the paths of its temp files as the OS gives them (Windows paths from a Windows python), so
+    # the compiler takes them as they are: no cygpath (two process starts fewer per try, Nov 4, 2026). On Linux the
+    # Windows compiler runs through the pinned wibo (WIBO, or the build's own)
+    run = '"%s"' % mw
+    if os.name != 'nt':
+        wibo = os.environ.get('WIBO') or fwd(os.path.join(dec, 'build', 'tools', 'wibo'))
+        run = '"%s" %s' % (wibo, run)
     open(os.path.join(out, 'compile.sh'), 'w', newline='\n').write(
         '#!/bin/bash\n# permuter compile step: GC/2.6 with the game flags (configure.py); written by permuter_setup.py\n'
-        '"%s" %s -c "$(cygpath -w "$1")" -o "$(cygpath -w "$3")" >/dev/null 2>&1\n' % (mw, flags))
+        '%s %s -c "$1" -o "$3" >/dev/null 2>&1\n' % (run, flags))
     open(os.path.join(out, 'settings.toml'), 'w').write(
         'func_name = "%s"\ncompiler_type = "mwcc"\nobjdump_command = "%s -dr -EB -mpowerpc -M broadway"\n' % (name, fwd(OBJDUMP)))
+    if base is not full and not same_code(mw, flags, full, base, out):
+        open(os.path.join(out, 'base.c'), 'w', encoding='utf-8').write(full)
+        print('pruned context compiles differently: kept the full one')
+    elif base is not full:
+        print('pruned context: %d of %d lines' % (base.count('\n') + 1, full.count('\n') + 1))
     print('set up', fwd(out))
     if '--run' in a:
         jobs = a[a.index('--run') + 1]
         minutes = int(a[a.index('--minutes') + 1]) if '--minutes' in a else 60
         env = dict(os.environ, PATH=os.path.dirname(CPP) + os.pathsep + os.environ.get('PATH', ''))
+        # its temp files (a .c and a .o per try) next to the build on D:, not in the user's C: temp folder, so a
+        # drive-level antivirus exclusion covers them (CR_PERM_TMP to choose another place)
+        tmp = os.environ.get('CR_PERM_TMP') or os.path.join(dec, 'build', 'permtmp')
+        os.makedirs(tmp, exist_ok=True)
+        env.update(TMP=tmp, TEMP=tmp, TMPDIR=tmp)
         p = subprocess.Popen([PY, '-I', os.path.join(HERE, 'run_permuter.py'), name, '-j', jobs],
                              cwd=os.path.join(HERE, 'permuter'), env=env)
         try:

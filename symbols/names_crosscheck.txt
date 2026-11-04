@@ -1,4 +1,4 @@
-names_crosscheck: 2469 names; FAIL 0, WEAK 476, UNCHECKABLE 44, OK 1949; symbols OK=1279/WEAK=446, cand_hsd OK=63/WEAK=9, cand_sdk OK=33/WEAK=5, cand_rt OK=16/WEAK=15, descriptive OK=459/UNCHECKABLE=32, cr_globals OK=97/UNCHECKABLE=12
+names_crosscheck: 2471 names; FAIL 0, WEAK 476, UNCHECKABLE 44, OK 1951; symbols OK=1279/WEAK=446, cand_hsd OK=63/WEAK=9, cand_sdk OK=33/WEAK=5, cand_rt OK=16/WEAK=15, descriptive OK=459/UNCHECKABLE=32, cr_globals OK=99/UNCHECKABLE=12
 // tools/crosscheck_names.py: VERDICT ADDR NAME SOURCE TAG | AGAINST (contradictions) | independent kinds | evidence | notes
 WEAK        80003424 __flush_cache                        symbols     dtk                          independent: none | evidence: size: size within 10% of melee/GALE01 | size 0x34/melee/GALE01 0x34=1.00 (46 refs)
 WEAK        800034AC gTRKInterruptVectorTable             symbols     dtk                          independent: none | no reference map has this name
@@ -478,7 +478,7 @@ WEAK        80141070 PADTypeAndStatusCallback             cand_sdk    R3 ac-deco
 WEAK        80153040 __GXWriteFifoIntReset                cand_sdk    R5 bfbb/gxfifo.c             independent: none | evidence: callers: caller GXSetGPFifo | size 0x30/ac-decomp/GAFU01_00 0x30=1.00 (39 refs)
 UNCHECKABLE 801C51B8 cr_g_BattleMotionSets                cr_globals  why                          checked: nothing mechanical | unconfirmed: FUN_80037d14: no direct reference into it in the index (computed address?) ; FUN_8004b0a0: no direct reference into it in the index (computed address?) ; FUN_80101730: no direct reference into it in the index (computed address?)
 UNCHECKABLE 801C6C00 cr_g_BattleParams                    cr_globals  why                          checked: nothing mechanical
-UNCHECKABLE 801F8EB8 cr_g_BattleRoboActionFuncs           cr_globals  why                          checked: nothing mechanical
+UNCHECKABLE 801D9590 cr_g_PodData                         cr_globals  why                          checked: nothing mechanical | unconfirmed: cr_ModelEntry_LoadAndBuild: no direct reference into it in the index (computed address?) ; cr_WeaponModel_OnLoaded: no direct reference into it in the index (computed address?)
 UNCHECKABLE 8023B8BC cr_g_PartOrderLists                  cr_globals  why                          checked: nothing mechanical
 UNCHECKABLE 8031FE68 cr_g_CurrentMtx                      cr_globals  why                          checked: nothing mechanical
 UNCHECKABLE 80330D1C cr_g_WindowStyle                     cr_globals  why                          checked: nothing mechanical
@@ -1928,8 +1928,10 @@ OK          801DEBA4 cr_g_SeqLeave                        cr_globals  why       
 OK          801F1200 cr_g_FileDescs                       cr_globals  why                          checked: cr_FileSys_Init references cr_g_FileDescs
 OK          801F7FF0 cr_g_CamModeFuncs                    cr_globals  why                          checked: 42 words are code pointers | unconfirmed: FUN_80035f1c: no direct reference into it in the index (computed address?) ; FUN_80036100: no direct reference into it in the index (computed address?) ; FUN_8003633c: no direct reference into it in the index (computed address?)
 OK          801F88A4 cr_g_CamModeNames                    cr_globals  why                          checked: 18 words point to strings | unconfirmed: cr_Cam_SetMode: no direct reference into it in the index (computed address?)
+OK          801F8EB8 cr_g_BattleRoboActionFuncs           cr_globals  why                          checked: 23 words are code pointers
 OK          80205C94 cr_g_MotionInfo                      cr_globals  why                          checked: FUN_80037a80 references cr_g_MotionInfo | unconfirmed: FUN_8005ce74: no direct reference into it in the index (computed address?)
 OK          80206DB0 cr_g_MotionNames                     cr_globals  why                          checked: FUN_800a0e64 references cr_g_MotionNames ; "MOTION = %s" used by the function named with it | unconfirmed: FUN_80037fbc: no direct reference into it in the index (computed address?)
+OK          8020F4C8 cr_g_StageData                       cr_globals  why                          checked: cr_SEQ_BATTLE_FrameA references cr_g_StageData ; cr_StageSelector_Init references cr_g_StageData
 OK          8021B080 cr_g_CharaYOffset                    cr_globals  why                          checked: cr_Chara_BuildModel references cr_g_CharaYOffset | unconfirmed: FUN_8002fefc: no direct reference into it in the index (computed address?)
 OK          8021B160 cr_g_CharaMotionSets                 cr_globals  why                          checked: FUN_800cf5ec references cr_g_CharaMotionSets ; FUN_800d0268 references cr_g_CharaMotionSets ; cr_Chara_BuildModel references cr_g_CharaMotionSets
 OK          8021BF44 cr_g_ScrCmdNames                     cr_globals  why                          checked: 300 words point to strings

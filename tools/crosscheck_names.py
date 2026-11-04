@@ -781,6 +781,8 @@ def check_game(r, ours, dol, all_names, glob_addr, names_at):
         a = int(m.group(1), 16)
         if a not in ours.funcs and a not in ours.gfuncs: bad.append(f'FUN_{m.group(1)} is not a function')
     for m in CRREF.finditer(why):
+        if re.match(r'\.(h|c|py|txt)\b', why[m.end():]):
+            continue   # a file name (symbols/cr_types.h), not a symbol
         t = m.group(1).rstrip('_')
         if t not in all_names and t not in TYPE_NAMES and not re.match(r'^cr_g_\w+$', t) and not t.endswith('_'):
             if not any(k.startswith(t) for k in all_names): bad.append(f'{t} is not a known name')
