@@ -1799,3 +1799,9 @@ are **structural** (29: by hand, smallest first).
   95%; fn_800ECA28 8 KB: 50% / 93%). The near-miss pool for register work (the permuter, rules that remove m2c's
   extra temporaries as in fn_800812A4) is 2-4x the 65 KB the exact 80-99% band shows. The structure work is in the
   25% of bytes below ops 60%.
+- Queue 4 finished Nov 4 16:58 (about 34 iterations a second over 8 workers, as queue 3): no score 0. Best:
+  fn_80067778 35, fn_8003B1BC 45, fn_80044A90 50, cr_Text_GetBodyName 50, cr_Text_GetPartDescription 65,
+  fn_8001EA48 40, fn_800389C8 80, fn_800192C4 85, fn_80023CBC 320; fn_80080C7C did not run ("Syntax error in
+  base.c" from the permuter's parser; the setup itself succeeds). Applied by hand: fn_8003B1BC 87 -> 92% (the
+  robo pointer computed before the xor; left: r25 / r26 swapped; wip/). The other outputs are identity-mask noise
+  (`& 0xFFFF` on a u16, `0, x` comma forms).
