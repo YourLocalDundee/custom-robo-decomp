@@ -15,4 +15,6 @@ done
 for f in fn_8001E488 fn_8001EA48 fn_800699E0 fn_8000AFBC cr_Vec3_RotateY fn_800389C8 fn_800192C4 fn_800506DC fn_80075950 fn_80023CBC fn_8003B1BC fn_80070130 fn_80066EEC fn_80067778 cr_Archive_GetEntrySize cr_SEQ_TITLE_Leave cr_SEQ_STAGE_SELECTOR_Leave cr_Text_GetBodyName cr_Text_GetPartDescription fn_800677C4 cr_Save_ApplyUnlocks fn_80044A90 cr_CAMMODE_SNR_AUTO_Y_ANG_Frame fn_8003FB00 cr_Vec3_RotateAboutAxis fn_8006975C fn_8004FF64; do
   run "$f" "$M"
 done
+# fn_8006EEF8 (74%) last: its queue 2 run did not start (a one-off failure, the run works by hand)
+run fn_8006EEF8 $((M * 2))
 echo "== queue3 done $(date +%T)"

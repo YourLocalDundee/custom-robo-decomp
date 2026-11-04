@@ -1719,3 +1719,10 @@ are **structural** (29: by hand, smallest first).
   functions) has 7 left: fn_8007DD60 39% (a table base kept in r31, three counters zeroed at the top, a goto loop),
   fn_8007E400 48%, the family fn_8007EA04 / EEB0 / F35C / F808 (56-57%: one more saved register and float local
   than the drafts), fn_8007FCD8 5%.
+- Queue 2 finished 20:51: **fn_8000E3B8** 94 -> 100% (the 0x400000 mode flag set after the team flags, next to the
+  0x01000000 one; checked by `draft_batch.py --only`, in tools/hand_drafts, not yet in a full batch 12);
+  fn_8006EEF8's run did not start (a one-off failure, it runs by hand; last in queue 3). HSD near misses, best
+  permuter scores (12 minutes each, none 0): mkBillBoardMtx 10, HSD_ShadowSetViewingRect 20, HSD_TExpSetReg 25,
+  drawShapeAnim 1075 (base 1570), TExp2TevDesc 1965, HSD_JObjDispAll 9325, PObjLoad 9690, HSD_LObjSetupInit 37985;
+  the outputs are in tools/sched/permuter/<func>/ (untracked); the three below 30 are worth a `permdiff.py` read.
+  Queue 3 started 20:52 (30 functions, about 5.5 h, log tools/sched/scratch/hand/perm/queue3.log).
