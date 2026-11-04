@@ -35,6 +35,64 @@ REPORTS = os.path.join(D, 'reports')
 TAG = re.compile(rb'^/\* Custom Robo: from (\S+) @ ([0-9a-f]{40}), (\S+) \*/ ')
 
 
+SDA21 = 109
+
+
+def sdaidx_proof(base, target, addr_of, sda_base):
+    """the r13-indexed arrays (Nov 4, 2026; tools/reloc_audit.py SDAIDX): MWCC puts R_PPC_EMB_SDA21 on the addi of the
+    index (`addi r4, rI, sym - k - _SDA_BASE_; stbx r0, r4, r13`) and mwld keeps rI, but dtk's split object has no
+    relocation there (an @sda21 in its asm makes mwld write r13 into rA), so objdiff counts that instruction as a
+    difference. -> the list of such sites when they are the ONLY difference of the two .text sections, else None:
+    every other word equal or relocated alike in both (same type, symbol, addend), and at each site dtk's word is ours
+    with the immediate sym + addend - _SDA_BASE_ (the value mwld writes). Batch 9's retail SHA-1 checks the result."""
+    import gen_dtk_splits as gs
+    from pathlib import Path
+    out = []
+    try:
+        (bs, bsy, br), (ts, tsy, tr) = gs.read_obj(Path(base)), gs.read_obj(Path(target))
+    except Exception:
+        return None
+    bi = [i for i, x in enumerate(bs) if x[0] == '.text']
+    ti = [i for i, x in enumerate(ts) if x[0] == '.text']
+    if len(bi) != 1 or len(ti) != 1 or bs[bi[0]][2] != ts[ti[0]][2]:
+        return None
+    bt, tt = bs[bi[0]][4], ts[ti[0]][4]
+
+    def rmap(rels, syms):
+        m = {}
+        for off, typ, si, add in rels:
+            m[off & ~3] = (typ, syms[si][0], add, off)
+        return m
+    bm, tm = rmap(br.get(bi[0], []), bsy), rmap(tr.get(ti[0], []), tsy)
+    for o in range(0, len(bt), 4):
+        bw, tw = struct.unpack_from('>I', bt, o)[0], struct.unpack_from('>I', tt, o)[0]
+        b, t = bm.get(o), tm.get(o)
+        if b and t:
+            if b[:3] != t[:3]:
+                return None
+        elif not b and not t:
+            if bw != tw:
+                return None
+        elif b and not t and b[0] == SDA21 and bw >> 26 == 14 and (bw >> 16) & 31 not in (0, 2, 13):
+            a = addr_of(b[1])
+            if a is None or tw != (bw & 0xFFFF0000) | ((a + b[2] - sda_base) & 0xFFFF):
+                return None
+            out.append((o, b[1], b[2]))
+        else:
+            return None
+    return out or None
+
+
+def symbol_addresses():
+    """name -> address from the config symbols.txt"""
+    out = {}
+    for ln in open(os.path.join(D, 'config', 'GXCE01', 'symbols.txt'), encoding='utf-8'):
+        m = re.match(r'^(\S+) = \.[\w.]+:0x([0-9A-Fa-f]+);', ln)
+        if m:
+            out[m.group(1)] = int(m.group(2), 16)
+    return out
+
+
 def configure_lists():
     """CR_MATCHING (list) and CR_NOT_MATCHING (dict) from decomp/configure.py, read as literals"""
     tree = ast.parse(open(os.path.join(D, 'configure.py'), 'rb').read())
@@ -186,6 +244,7 @@ def main(argv):
     libs = {}
     complete = set()
     cands = []
+    addrs = sda_base = None
     for u in od['units']:
         name = u['name'][len('main/'):]
         r = runits[u['name']]
@@ -214,6 +273,17 @@ def main(argv):
         src = u['metadata'].get('source_path')
         has_src = 'base_path' in u
         full = has_src and mc == tc and md == td and m.get('matched_functions', 0) == m.get('total_functions', 0)
+        sda_note = ''
+        if has_src and not full and md == td and cname in matching:
+            if addrs is None:
+                import reloc_audit as ra
+                addrs = symbol_addresses()
+                sda_base = ra.Elf(os.path.join(B, 'main.elf')).sym('_SDA_BASE_')
+            proof = sdaidx_proof(os.path.join(D, u['base_path']), os.path.join(D, u['target_path']), addrs.get, sda_base)
+            if proof:
+                full, mc = True, tc
+                sda_note = ('  (objdiff: %d r13-indexed SDA21 addi only, proven: %s)'
+                            % (len(proof), ', '.join(f'+0x{o:X} {n}{a:+d}' for o, n, a in proof)))
         if cname in matching:
             if not has_src:
                 errors.append(f'{cname}: in CR_MATCHING but decomp/src/{cname} is missing')
@@ -243,7 +313,7 @@ def main(argv):
                     hint = '  (C has data the split object lacks: ' + ', '.join(extra) + ')'
             state = 'linked from C' if cname in matching else 'not linked: ' + not_matching.get(cname, '(no reason given)')
             rows.append((cname, f'{cname:45} code 0x{mc:X}/0x{tc:X}  data 0x{md:X}/0x{td:X}  functions '
-                                f'{m.get("matched_functions", 0)}/{m.get("total_functions", 0)}  {state}{hint if cname not in matching else ""}'))
+                                f'{m.get("matched_functions", 0)}/{m.get("total_functions", 0)}  {state}{hint if cname not in matching else ""}{sda_note}'))
     for name in not_matching:
         if name not in objects:
             errors.append(f'CR_NOT_MATCHING names {name}, not an object of splits.txt')

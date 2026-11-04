@@ -1769,9 +1769,12 @@ are **structural** (29: by hand, smallest first).
   (batch 9's check_c_objects stops). Adding the relocation to dtk (config.yml add_relocations, type sda21, target
   lbl_8044EAE0 - 2) does not work: an @sda21 in dtk's asm leaves rA to the linker, which writes r13 (the SHA-1 broke
   at the 7 sites of fn_80080C7C). Kept from the attempt: tools/reloc_audit.py counts these sites (SDAIDX, 8 in
-  main.dol: 7 in fn_80080C7C, 1 in fn_80080E24; relocs_report.txt), not as misses. Open: an objdiff-side exception
-  in check_c_objects.py for exactly these sites (the bytes are proven by the SHA-1), or the file object
-  0x80080A94-0x800811E8 once fn_80080C7C matches has the same problem.
+  main.dol: 7 in fn_80080C7C, 1 in fn_80080E24; relocs_report.txt), not as misses. **Then solved on the objdiff
+  side**: check_c_objects.sdaidx_proof accepts a CR_MATCHING unit whose only differences from dtk's object are such
+  sites (every other word equal or relocated alike; at each site dtk's word is ours with the immediate sym + addend
+  - _SDA_BASE_), and the progress report names the sites; gen_dtk_splits.game_file_data takes the same sites.
+  fn_80080E24 links from C as a file object (with its .sdata2 piece): 1,141 C objects, 29.56% code, retail SHA-1,
+  batch 11 PASS. The file 0x80080A94-0x800811E8 waits only for fn_80080C7C now.
   Held back by data placement: **cr_SEQ_TITLE_Leave** (its GXColor pool, 4 bytes at 0x8045025C, is 4-aligned in
   main.dol, our object's .sdata2 is 8-aligned: it links only in a file object with the function whose pool ends
   there), like fn_8000AFBC.

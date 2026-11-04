@@ -1921,6 +1921,14 @@ def game_file_data(elf, dobjs, opath, text_start, text_end, addr_of):
         r = elf.relocs.get(site)
         if r is None and typ == 109:
             r = elf.relocs.get(site & ~3)
+        if r is None and typ == 109 and shn == 0:
+            # an r13-indexed array (`addi r4, rI, sym-2; stbx r0, r4, r13`; reloc_audit.py SDAIDX): MWCC puts
+            # R_PPC_EMB_SDA21 on the addi of the index (rA a general register) and mwld keeps rA; dtk cannot relocate
+            # it (an @sda21 in its asm makes mwld write r13). check_c_objects.sdaidx_proof proves the word against
+            # dtk's object, batch 9's retail SHA-1 the linked value
+            w = elf.word(site & ~3)
+            if w is not None and w >> 26 == 14 and (w >> 16) & 31 not in (0, 2, 13):
+                continue
         if r is None or r[0] != typ:
             return {}, f"main.elf has no relocation of type {typ} at 0x{site:08X}"
         if shn in own:

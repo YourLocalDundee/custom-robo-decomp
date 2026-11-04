@@ -8,12 +8,12 @@ MSL                               49     49   0x00939C/0x00939C 100.00%   0x0014
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
 sysdolphin                        36     27   0x0147F0/0x02F3F8  43.38%   0x0033CD/0x00412D  79.48%    333/  552
-game                             932    932   0x028A58/0x028A58 100.00%   0x232980/0x232980 100.00%    821/  821
-automatic objects (unsplit)      377      0   0x000000/0x117E94   0.00%   0x000000/0x041430   0.00%      0/ 1061
-main.dol (all units)            1526   1140   0x080994/0x1B3430  29.55%   0x25A253/0x29C3E3  90.11%   2253/ 3533
+game                             933    933   0x028B54/0x028B54 100.00%   0x232988/0x232988 100.00%    822/  822
+automatic objects (unsplit)      378      0   0x000000/0x117D98   0.00%   0x000000/0x041428   0.00%      0/ 1060
+main.dol (all units)            1528   1141   0x080A90/0x1B3430  29.56%   0x25A25B/0x29C3E3  90.11%   2254/ 3533
 
-game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 820 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0x28A58 bytes = 13.53% of the game code, 9.34% of all code
-game data (decomp/src/game/data, tools/gen_data_c.py): 112 data-only units from C, 0x232828 bytes; all game data from C (with the file objects pools): 0x232980 bytes = 84.19% of all data
+game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 821 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0x28B54 bytes = 13.55% of the game code, 9.35% of all code
+game data (decomp/src/game/data, tools/gen_data_c.py): 112 data-only units from C, 0x232828 bytes; all game data from C (with the file objects pools): 0x232988 bytes = 84.19% of all data
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
 MSL/FILE_POS.c                                code 0x3C0/0x3C0  data 0x0/0x0  functions 3/3  linked from C
@@ -856,6 +856,7 @@ game/fn_8008052C.c                            code 0x2C/0x2C  data 0x0/0x0  func
 game/fn_80080558.c                            code 0x24/0x24  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80080994.c                            code 0x100/0x100  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80080B80.c                            code 0xFC/0xFC  data 0x0/0x0  functions 1/1  linked from C
+game/fn_80080E24_fn_80080E24.c                code 0xFC/0xFC  data 0x8/0x8  functions 0/1  linked from C  (objdiff: 1 r13-indexed SDA21 addi only, proven: +0xE0 lbl_8044EAE0-2)
 game/fn_80080F20.c                            code 0x94/0x94  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80080FB4.c                            code 0x24/0x24  data 0x0/0x0  functions 1/1  linked from C
 game/fn_800811E8.c                            code 0xBC/0xBC  data 0x0/0x0  functions 1/1  linked from C

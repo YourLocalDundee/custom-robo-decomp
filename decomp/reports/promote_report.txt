@@ -3,8 +3,8 @@ one object per function, or one per file of consecutive functions that share the
 
 drafts at 100% MATCH: 880
 promoted: 812 (163756 bytes = 0x27FAC)
-file objects: 5 (6 functions, 2000 bytes = 0x7D0)
-left out: 62
+file objects: 6 (7 functions, 2252 bytes = 0x8CC)
+left out: 61
 kept from earlier runs (draft no longer 100%): 3
 removed (function name no longer ours): 0
 
@@ -838,7 +838,7 @@ removed (function name no longer ours): 0
 8007D0D4-8008052C  fn_8007D0D4..fn_8007FCD8  18 functions, 11 at 100%: not available yet (7 not matched: fn_8007DD60, fn_8007E400, fn_8007EA04, fn_8007EEB0, fn_8007F35C, fn_8007F808 ...)
 8007DA80-8007FCD8  fn_8007DA80..fn_8007F808  9 functions, 3 at 100%: not available yet (6 not matched: fn_8007DD60, fn_8007E400, fn_8007EA04, fn_8007EEB0, fn_8007F35C, fn_8007F808)
 80080A94-800811E8  fn_80080A94..fn_80080FD8  7 functions, 6 at 100%: not available yet (1 not matched: fn_80080C7C)
-80080E24-80080F20  fn_80080E24..fn_80080E24  1 functions, 1 at 100%: main.elf has no relocation of type 109 at 0x80080F04
+80080E24-80080F20  fn_80080E24..fn_80080E24  1 functions, 1 at 100%: FILE OBJECT game/fn_80080E24_fn_80080E24.c (.sdata2 0x80450E90-0x80450E98)
 80081440-80089550  fn_80081440..fn_80089140  27 functions, 4 at 100%: not available yet (23 not matched: fn_80081440, fn_80081908, fn_80081B54, fn_80081D9C, fn_80082364, fn_80082A00 ...)
 8008A484-80092610  fn_8008A484..fn_8009247C  74 functions, 36 at 100%: not available yet (38 not matched: fn_8008A484, fn_8008A6B0, fn_8008A8B0, fn_8008AAE8, fn_8008ACEC, fn_8008C430 ...)
 8008C054-8008C3B4  fn_8008C054..fn_8008C054  1 functions, 1 at 100%: .sdata2 piece 0x80450FF4 is not in main.dol's .sdata2 or not aligned
@@ -947,7 +947,6 @@ fn_8012855C: the users of the entries its draft owns span fn_80125C2C..fn_8012F3
 8007D800  fn_8007D800                                    544  has data of its own (.sdata2 0x24): needs the data piece split too
 8007DA80  fn_8007DA80                                    368  has data of its own (.sdata2 0x8): needs the data piece split too
 80080A94  fn_80080A94                                    236  has data of its own (.sdata2 0x8): needs the data piece split too
-80080E24  fn_80080E24                                    252  has data of its own (.sdata2 0x8): needs the data piece split too
 80080FD8  fn_80080FD8                                    528  has data of its own (.sdata2 0x8): needs the data piece split too
 800858B0  fn_800858B0                                   1076  has data of its own (.sdata2 0x10): needs the data piece split too
 8008C054  fn_8008C054                                    864  has data of its own (.sdata2 0x4): needs the data piece split too

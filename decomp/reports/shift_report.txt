@@ -116,9 +116,9 @@ padding per point: 0x100 bytes; points: 115
   113. 0x804504E8 .sdata2  inside .sdata2: the data piece of game/fn_8002444C_fn_8002444C.c (a proven object boundary) -> everything from here moves by +0x7100
   114. 0x80452028 .sdata2  inside .sdata2: the data piece of MSL/e_exp.c (a proven object boundary) -> everything from here moves by +0x7200
   115. 0x804529F8 .sdata2  inside .sdata2: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x7300
-objects linked from C (batch 9, configure.py CR_MATCHING): 1039 in both links, 1038 of them moved by the padding; 101 holding a point, reassembled from asm
+objects linked from C (batch 9, configure.py CR_MATCHING): 1040 in both links, 1039 of them moved by the padding; 101 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
-shifted main.dol: SHA-1 bfd63385d01c21751dfb369353cbe7266d10ef70 (2434944 bytes, retail 2425472)
+shifted main.dol: SHA-1 a2c0b482eaf7f0373058c4d1e16129694b8274e5 (2434944 bytes, retail 2425472)
 sections, unshifted -> shifted:
   .init    0x80003100 size 0x0024D0 -> 0x80003100 size 0x0024D0
   .text    0x800055E0 size 0x1B0FF8 -> 0x800055E0 size 0x1B12F8
@@ -136,12 +136,12 @@ sections, unshifted -> shifted:
   _stack_addr  0x80462AC0 -> 0x80469DC0
   __ArenaLo    0x80464AC0 -> 0x8046BDC0
 static check:
-  symbols compared (unique names): 15157
+  symbols compared (unique names): 15156
   symbols moved by the wrong amount: 0
-  relocations of the unshifted build: 92803
+  relocations of the unshifted build: 92804
   relocations missing after the shift: 0
   relocation targets moved by the wrong amount: 0
-  relocations in the shifted build: 92803
+  relocations in the shifted build: 92804
   relocated values (data words, lis pairs, small-data, loads) different from their target: 0
   relocated branches that miss their target: 0
   numbers relocated as addresses (audit false positives) in the shifted build: 0

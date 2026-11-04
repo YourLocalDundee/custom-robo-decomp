@@ -1345,6 +1345,10 @@ game/fn_80080994.c:
 game/fn_80080B80.c:
 	.text       start:0x80080B80 end:0x80080C7C
 
+game/fn_80080E24_fn_80080E24.c:
+	.text       start:0x80080E24 end:0x80080F20
+	.sdata2     start:0x80450E90 end:0x80450E98
+
 game/fn_80080F20.c:
 	.text       start:0x80080F20 end:0x80080FB4
 
