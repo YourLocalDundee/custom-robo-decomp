@@ -22,3 +22,6 @@ Scratch tools of the main session's hand drafting (docs/drafts.md, the Nov 3 sec
   swapped). Our literal constants (`@729`) are accepted when they map one to one onto the original's pooled ones.
 - `hd.py ... -r`: our object's disassembly with relocations.
 - `permdiff.py FUNC [OUTPUT]`: what decomp-permuter changed (statement diff of base.c and the best output).
+- `structscore.py [OUTDIR]`: three scores per draft (exact, noreg = register fields masked, ops = opcodes only),
+  OUTDIR/structscore.txt sorted by size; finds the functions whose structure is right and only registers / operands
+  differ (Nov 4: 334 unmatched functions, 243 KB, at ops >= 85%; 214, 136 KB, at noreg >= 85%).

@@ -1790,3 +1790,12 @@ are **structural** (29: by hand, smallest first).
   perm/queue4.log; 20 minutes each, about 3.7 h): fn_80080C7C (double time), fn_80044A90 (96% base), fn_80067778
   (89% base), cr_Text_GetBodyName, cr_Text_GetPartDescription, fn_8001EA48, fn_8003B1BC, fn_800389C8,
   fn_800192C4, fn_80023CBC. Queue 3's fn_8003FB00 "best: []" is not a setup failure: nothing beat its base score.
+- **Nov 4: where the game code's bytes are** (tools/sched/scratch/hand/structscore.py, on the full batch 12 drafts).
+  draft_batch's score is exact words aligned by difflib; masking the register fields too (noreg) or keeping only the
+  opcodes (ops) shows how much is already the right code. Of the 1.23 MB of game code: exact >= 90% 18.5%, >= 80%
+  22.4%; noreg >= 90% 23.8%, >= 80% 34.0%; ops >= 90% 30.4%, >= 80% 45.2%. 334 unmatched functions (243 KB, 20%
+  of the game code) have the instruction sequence >= 85% right, 214 (136 KB) are >= 85% with only the registers
+  ignored: register allocation, not structure (fn_8000E64C 3 KB: exact 9%, ops 94%; cr_SEQ_BATTLE_FrameA 5 KB: 30% /
+  95%; fn_800ECA28 8 KB: 50% / 93%). The near-miss pool for register work (the permuter, rules that remove m2c's
+  extra temporaries as in fn_800812A4) is 2-4x the 65 KB the exact 80-99% band shows. The structure work is in the
+  25% of bytes below ops 60%.
