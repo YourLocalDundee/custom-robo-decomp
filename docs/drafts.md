@@ -1778,3 +1778,15 @@ are **structural** (29: by hand, smallest first).
   Held back by data placement: **cr_SEQ_TITLE_Leave** (its GXColor pool, 4 bytes at 0x8045025C, is 4-aligned in
   main.dol, our object's .sdata2 is 8-aligned: it links only in a file object with the function whose pool ends
   there), like fn_8000AFBC.
+- Nov 4: **cr_SEQ_STAGE_SELECTOR_Leave and lbl_8044F848** (the saved clear colour, .sbss 0x8044F848, written here
+  and read back by cr_SEQ_CUSTOMIZE_Leave): the draft is 100% only when the object is declared with 4-byte
+  alignment (any 4-byte type: GXColor is u8-aligned, so the original's variable is a word or a struct holding the
+  colour). Casts in the draft do not do it (u32 casts, unions, an aligned wrapper: 78-84%); MWCC takes the alignment
+  from the declaration. dtk labels the four bytes on their own (lbl_8044F848..B, the last 5 bytes long), and
+  tools/gen_dtk_symbols.py only renames or cuts dtk symbols, never merges them (its rule: dtk's analysis and the
+  linked main.dol cannot change). Needs a decision: a merge rule (symbols/data_merges.txt, the code that proves the
+  4-byte access), then the type in symbols/bss_untyped.txt / the data unit lbl_8044F818_lbl_8044F87C.
+- Permuter queue 4 (Nov 4, tools/sched/scratch/hand/perm/run_queue4.sh, bases in perm/q4/, gitignored; log
+  perm/queue4.log; 20 minutes each, about 3.7 h): fn_80080C7C (double time), fn_80044A90 (96% base), fn_80067778
+  (89% base), cr_Text_GetBodyName, cr_Text_GetPartDescription, fn_8001EA48, fn_8003B1BC, fn_800389C8,
+  fn_800192C4, fn_80023CBC. Queue 3's fn_8003FB00 "best: []" is not a setup failure: nothing beat its base score.
