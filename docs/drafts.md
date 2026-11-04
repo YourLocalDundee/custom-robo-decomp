@@ -1726,3 +1726,15 @@ are **structural** (29: by hand, smallest first).
   drawShapeAnim 1075 (base 1570), TExp2TevDesc 1965, HSD_JObjDispAll 9325, PObjLoad 9690, HSD_LObjSetupInit 37985;
   the outputs are in tools/sched/permuter/<func>/ (untracked); the three below 30 are worth a `permdiff.py` read.
   Queue 3 started 20:52 (30 functions, about 5.5 h, log tools/sched/scratch/hand/perm/queue3.log).
+- Queue 3 finished Nov 4 02:01 (30 functions, 10 minutes each, 20 for the first two). **Score 0 for three**, each
+  checked with hd.py (100%) and relcheck.py (relocations equal) and saved to tools/hand_drafts: **fn_800699E0**
+  (the offset-4 sum computed before the offset-0 one), **fn_8000AFBC** (`temp_r31_14++; temp_r31_14--;` at the
+  head of the `lbl_8044F377 == 0` branch: a dead use that keeps the original's register allocation),
+  **fn_800677C4** (`t = t;` inside the first scan loop). Best scores of the rest: fn_8001E488 10,
+  cr_Archive_GetEntrySize 15, cr_SEQ_TITLE_Leave 15, cr_SEQ_STAGE_SELECTOR_Leave 30, fn_80067778 35, fn_80080E24 40,
+  fn_8001EA48 40, fn_8003B1BC 55, fn_80044A90 60, cr_Text_GetBodyName 65, cr_Save_ApplyUnlocks 75,
+  cr_Text_GetPartDescription 75, fn_800389C8 80, fn_800192C4 100, fn_80066EEC 115, fn_800506DC 120,
+  fn_80080C7C 175, fn_8004FF64 305, fn_80023CBC 320, cr_Vec3_RotateY 590, cr_CAMMODE_SNR_AUTO_Y_ANG_Frame 600,
+  fn_80070130 615, fn_80075950 875, fn_8006975C 920, cr_Vec3_RotateAboutAxis 4860, fn_8006EEF8 5300;
+  fn_8003FB00 wrote no output (its setup is to be checked). The outputs are in tools/sched/permuter/<func>/
+  (untracked); `permdiff.py FUNC` shows each change.

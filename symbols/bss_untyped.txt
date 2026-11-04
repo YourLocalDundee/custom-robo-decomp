@@ -448,7 +448,7 @@ lbl_8044F53C = .sbss:0x8044F53C; // type:object datatype:u8[4] // users: cr_Batt
 lbl_8044F568 = .sbss:0x8044F568; // type:object datatype:u8[4] // users: cr_Chara_PoseLimbA, cr_Chara_PoseLimbB, cr_Chara_PoseLimbs, cr_Chara_SolveArmIK, cr_Chara_SolveLegIK, cr_Motion_UpdatePoints +9
 lbl_8044F56C = .sbss:0x8044F56C; // type:object datatype:u8[4] // users: cr_Chara_PoseLimbA, cr_Chara_PoseLimbB, cr_Chara_PoseLimbs, cr_Chara_SolveArmIK, cr_Chara_SolveLegIK, cr_Motion_UpdatePoints +9
 lbl_8044F570 = .sbss:0x8044F570; // type:object datatype:u8[4] // users: cr_Chara_PoseLimbA, cr_Chara_PoseLimbB, cr_Chara_PoseLimbs, cr_Chara_SolveArmIK, cr_Chara_SolveLegIK, cr_Motion_UpdatePoints +9
-lbl_8044F574 = .sbss:0x8044F574; // type:object datatype:u8[4] // users: cr_Battle_ApplyRoleMatrices, cr_Chara_BuildJointRotations, cr_Motion_UpdateBlend, cr_Motion_UpdatePoints, fn_800392B0, fn_80050F90 +5
+lbl_8044F574 = .sbss:0x8044F574; // type:object datatype:u8[4] // users: cr_Battle_ApplyRoleMatrices, cr_Chara_BuildJointRotations, cr_Motion_UpdatePoints, fn_800392B0, fn_80050F90, fn_80051384 +4
 # unit .sbss 0x8044F588-0x8044F58E (2 objects, 0x6 bytes)
 lbl_8044F588 = .sbss:0x8044F588; // type:object datatype:u8[4] // users: fn_80037FF0, fn_8005C384, fn_8005C4D0, fn_8005C628, fn_8005C720, fn_8005C7F4 +7
 lbl_8044F58C = .sbss:0x8044F58C; // type:object datatype:u8[2] // users: fn_80037FF0, fn_8005C384, fn_8005C4D0, fn_8005C628, fn_8005C720, fn_8005C7F4 +7

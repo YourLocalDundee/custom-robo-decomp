@@ -446,6 +446,9 @@ game/fn_8000DE50.c:
 game/fn_8000E1E4.c:
 	.text       start:0x8000E1E4 end:0x8000E3B8
 
+game/fn_8000E3B8.c:
+	.text       start:0x8000E3B8 end:0x8000E648
+
 game/fn_8000E648.c:
 	.text       start:0x8000E648 end:0x8000E64C
 
@@ -1072,6 +1075,9 @@ game/fn_800671C4.c:
 game/fn_80067250.c:
 	.text       start:0x80067250 end:0x800672AC
 
+game/fn_800677C4.c:
+	.text       start:0x800677C4 end:0x80067848
+
 game/fn_80068358.c:
 	.text       start:0x80068358 end:0x800683A4
 
@@ -1101,6 +1107,9 @@ game/fn_80069614.c:
 
 game/fn_8006973C.c:
 	.text       start:0x8006973C end:0x8006975C
+
+game/fn_800699E0.c:
+	.text       start:0x800699E0 end:0x80069AD8
 
 game/fn_8006B140.c:
 	.text       start:0x8006B140 end:0x8006B144

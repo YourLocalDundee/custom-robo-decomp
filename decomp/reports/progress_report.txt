@@ -8,11 +8,11 @@ MSL                               49     49   0x00939C/0x00939C 100.00%   0x0014
 Runtime                            5      5   0x0009DC/0x0009DC 100.00%   0x00009C/0x00009C 100.00%     19/   19
 MetroTRK                          29     29   0x0062D4/0x0062D4 100.00%   0x003675/0x003675 100.00%    164/  164
 sysdolphin                        36     27   0x0147F0/0x02F3F8  43.38%   0x0033CD/0x00412D  79.48%    333/  552
-game                             927    927   0x028538/0x028538 100.00%   0x232980/0x232980 100.00%    816/  816
-automatic objects (unsplit)      377      0   0x000000/0x1183B4   0.00%   0x000000/0x041430   0.00%      0/ 1066
-main.dol (all units)            1521   1135   0x080474/0x1B3430  29.47%   0x25A253/0x29C3E3  90.11%   2248/ 3533
+game                             930    930   0x028944/0x028944 100.00%   0x232980/0x232980 100.00%    819/  819
+automatic objects (unsplit)      378      0   0x000000/0x117FA8   0.00%   0x000000/0x041430   0.00%      0/ 1063
+main.dol (all units)            1525   1138   0x080880/0x1B3430  29.53%   0x25A253/0x29C3E3  90.11%   2251/ 3533
 
-game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 815 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0x28538 bytes = 13.42% of the game code, 9.26% of all code
+game code (.text 0x800055E0-0x80131C08, 0x12C628 bytes): 818 objects from C (one function each, or one file of consecutive functions with their own data: tools/promote_drafts.py), 0x28944 bytes = 13.51% of the game code, 9.32% of all code
 game data (decomp/src/game/data, tools/gen_data_c.py): 112 data-only units from C, 0x232828 bytes; all game data from C (with the file objects pools): 0x232980 bytes = 84.19% of all data
 
 == C objects (decomp/src): objdiff matched bytes, and whether linked
@@ -632,6 +632,7 @@ game/fn_8000DE04.c                            code 0x4/0x4  data 0x0/0x0  functi
 game/fn_8000DE08.c                            code 0x48/0x48  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8000DE50.c                            code 0x394/0x394  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8000E1E4.c                            code 0x1D4/0x1D4  data 0x0/0x0  functions 1/1  linked from C
+game/fn_8000E3B8.c                            code 0x290/0x290  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8000E648.c                            code 0x4/0x4  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8000F7A4.c                            code 0x15C/0x15C  data 0x0/0x0  functions 1/1  linked from C
 game/fn_800119A0.c                            code 0x120/0x120  data 0x0/0x0  functions 1/1  linked from C
@@ -767,6 +768,7 @@ game/fn_800668DC.c                            code 0x28/0x28  data 0x0/0x0  func
 game/fn_80066904.c                            code 0x44/0x44  data 0x0/0x0  functions 1/1  linked from C
 game/fn_800671C4.c                            code 0x8C/0x8C  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80067250.c                            code 0x5C/0x5C  data 0x0/0x0  functions 1/1  linked from C
+game/fn_800677C4.c                            code 0x84/0x84  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80068358.c                            code 0x4C/0x4C  data 0x0/0x0  functions 1/1  linked from C
 game/fn_800683A4.c                            code 0x8/0x8  data 0x0/0x0  functions 1/1  linked from C
 game/fn_800683AC.c                            code 0x8/0x8  data 0x0/0x0  functions 1/1  linked from C
@@ -777,6 +779,7 @@ game/fn_800690D8.c                            code 0x1C/0x1C  data 0x0/0x0  func
 game/fn_80069504.c                            code 0x6C/0x6C  data 0x0/0x0  functions 1/1  linked from C
 game/fn_80069614.c                            code 0x54/0x54  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8006973C.c                            code 0x20/0x20  data 0x0/0x0  functions 1/1  linked from C
+game/fn_800699E0.c                            code 0xF8/0xF8  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8006B140.c                            code 0x4/0x4  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8006B3D0.c                            code 0x9C/0x9C  data 0x0/0x0  functions 1/1  linked from C
 game/fn_8006E628.c                            code 0x68/0x68  data 0x0/0x0  functions 1/1  linked from C
