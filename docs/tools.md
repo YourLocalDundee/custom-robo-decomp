@@ -131,6 +131,16 @@ Durations are from the development desktop (8 cores, Oct 31, 2026); "quick" is u
 | `boot_check.ps1` | Windows: boots an ISO (or a folder's `sys\main.dol`) in Dolphin (`-DolphinDir`, else `CR_DOLPHIN_DIR`, else the pinned `tools/dolphin/Dolphin-x64` that `setup.ps1` downloads; used by batch 11 and `model_loop -Boot`), reports warning dialogs, exit 1 on one (`-Snapshot` saves a picture of the dialog, `-Screenshot` the game window, `-Log` Dolphin's log of that run, `-PressA 16` the A button every 2 s from 16 s until the title file is read: for a Dolphin without a Custom Robo save). The first-start usage-statistics prompt is answered through command-line config | `pwsh tools\boot_check.ps1 <game.iso or folder\sys\main.dol> [seconds] [-Snapshot x.png] [-Screenshot x.png] [-Log x.log] [-DolphinDir <folder>] [-PressA 16]` |
 | `boot_test.ps1` | Windows: boots a build folder in Dolphin (`CR_DOLPHIN_DIR`, else the pinned `tools/dolphin`, else the Project Hive build on this desktop), takes a screenshot after a delay, closes Dolphin. Older than `boot_check.ps1` | `pwsh tools\boot_test.ps1 test_build shot.png 40` |
 
+## Reading aids (Nov 5, 2026)
+
+- `python -I tools/callmap.py SEED... [--up N] [--down N] [--out FILE.md]`: callers N levels up and callees N down of
+  each seed (name or address), from Ghidra's references in decompiled/index.db, each with its size and decomp status
+  (C linked / draft % / m2c fails). Used for the part chain map in docs/formats/model_entry.md "Part files".
+- `tools/sched/scratch/hand/hsdparts.py FILE.dat ...`: root joints, joints, DObjs and PObj kinds of a standard HSD
+  .dat (models_dat/); `tools/sched/scratch/hand/structscore.py`: exact / register-blind / opcode-only draft scores.
+- `python -I tools/part_mounts.py [--check]`: the part mount table of docs/robo_tables.md from main.dol (cr_g_BodyData);
+  `--check` compares the doc's table with it.
+
 ## Batches (`tools/batches`)
 
 Each batch can run alone: `pwsh tools\batches\<name>.ps1` on Windows, `tools/batches/<name>.sh` on Linux / macOS

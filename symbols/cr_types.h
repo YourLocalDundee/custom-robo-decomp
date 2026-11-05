@@ -2184,7 +2184,18 @@ typedef struct cr_BodyData {
     /* +00 */ f32 unk_00;                       // with unk_04: frame the robo in cr_CAMMODE_CUSTOMIZE_Start / Frame and fn_800A63C0
     /* +04 */ f32 unk_04;
     /* +08 */ cr_BattleMotionSet* motion_set;   // the body's entry of cr_g_BattleMotionSets (all 34 relocated, record i -> set i); fn_80101730 copies it to the battle object +0x554
-    /* +0C */ f32 unk_0c[27];                   // floats only (1.0 triples and small offsets); not traced
+    /* The part mounts (Nov 5, 2026): fn_80039FAC places each active part root on a body role matrix with the matrix
+       stack: load the role's matrix, translate by the offset, scale by 0.1, scale by the vector (docs/formats/model_entry.md,
+       "Part files"). Gun on role 8, bomb on role 4, both pods on role 0, legs on roles 16 / 17 and 12 / 13. */
+    /* +0C */ Vec gun_scale;                    // battle robo +0x1800
+    /* +18 */ Vec gun_offset;                   // +0x180C
+    /* +24 */ Vec bomb_scale;                   // +0x1818
+    /* +30 */ Vec bomb_offset;                  // +0x1824
+    /* +3C */ Vec pod_scale;                    // +0x1830 (both pods)
+    /* +48 */ Vec pod_offset_a;                 // +0x183C (the pod root at +0x950)
+    /* +54 */ Vec pod_offset_b;                 // +0x1848 (the pod root at +0x94C)
+    /* +60 */ Vec leg_scale;                    // +0x1854 (all four leg roots)
+    /* +6C */ Vec shin_offset;                  // +0x1860 (the two shin roots +0x954 / +0x95C; the ankle roots have none)
 } cr_BodyData;
 
 /// A battle robo (cr_g_BattleRobos[4]; the current one is cr_g_CurrentBattleRobo). Only what cr_BattleRobo_InitFromLoadout

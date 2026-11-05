@@ -121,9 +121,9 @@ player, 4 players), by part type (the low half of the request word; the high hal
 battle robo (cr_g_CurrentBattleRobo+0x90C, in the order of the table) and then names the ones the robo uses:
 **gun root 0** (+0x944), **bomb root 1** (+0x948), **pod roots 0 and 1** (+0x950 / +0x94C), **leg roots 4 / 1**
 (+0x954 / +0x958) and **5 / 3** (+0x95C / +0x960); the four header[4] joints to +0x964..+0x970 and some joint picks to
-+0x8F0..+0x908. Leg roots 0 and 2 are never part of the battle set. **A second set**: `fn_800A5C60` (C at 100%) copies
++0x8F0..+0x908. Leg roots 0 and 2 are never part of the battle set (they are the Customize screen's form 0). **A second set**: `fn_800A5C60` (C at 100%) copies
 gun root 0, **bomb root 0**, pod roots 0 / 1 and **leg roots 0..3** into `lbl_803BFC78` (+0x1AC..+0x1B8, its header[4]
-joint at +0x1BC): another view of the parts (which screen: open). `fn_8010D2D0` releases the roots
+joint at +0x1BC): the story-mode robos (see "Where each set is used" below). `fn_8010D2D0` releases the roots
 (`HSD_JObjUnref`) and clears the battle robo's copies.
 
 **What is in them** (`tools/sched/scratch/hand/hsdparts.py` on `models_dat/`, the first entry of each file):
@@ -144,8 +144,109 @@ and turn. Applying the joint matrices is the standard HSD model transform, which
 exports in models_export/ come from `tools/crmodel.py to-dat` + HSDRawViewer; not yet compared with in-game views here). The big roots also carry a joint animation started at frame 0: their rest pose is the
 joints' own transforms, and the animation moves them from there.
 
-**Open**: what the second set (lbl_803BFC78) shows; why the bomb uses root 1 in battle and root 0 there; what
-record[2] / record[3] are when they are not 0; the meaning of each joint pick (the gun's 4, the legs' 8).
+**Two forms per part, and who switches them.** `fn_80007C74` (gun), `fn_80007C24` (bomb), `fn_80007BD4` (pod) and
+`fn_80007AE4` (legs), all C at 100%, take 0 or 1 and point the battle robo's active roots at one form:
+
+| Part | Form 0 | Form 1 | Battle start (`FUN_80101950`) | Switched by |
+|---|---|---|---|---|
+| gun | root 0 (+ joint picks 0, 1) | root 1 (+ picks 2, 3) | form 0 | `FUN_80042AB8` |
+| bomb | root 0 (+ pick 4) | root 1 (+ pick 5) | form 1 | `FUN_8003FE98` |
+| pod | roots 0 + 1 | roots 2 + 3 | form 0 | `FUN_8003DD38` |
+| legs | roots 0 + 2 (+ picks 6..9) | roots 4 + 5 (+ picks 10..13) | form 1 | `FUN_8003D500` |
+
+(leg roots 1 and 3 are active in both forms.) `FUN_801076D8` (called by `cr_SEQ_CUSTOMIZE_FrameA`) puts all four in form 0, and `FUN_80101950` (called by
+`cr_SEQ_CUSTOMIZE_Leave`) sets the battle-start forms. Each switcher keeps a float per
+part (gun state +0x2B4, bomb +0x1B0, pod +0x190, legs +0xB4), clamped to 0..1, and chooses **form 1 when it is exactly
+1.0, form 0 otherwise**; for the legs that float follows a target 0.05 per frame (20 frames from one end to the
+other), and a pod in some states (battle robo +0x1F4 & 0x30) is forced to form 0. **The legs and the bomb then call
+their switch with 1 again, unconditionally**: in battle the legs always show roots 4 + 5 (with 1 + 3) and the bomb
+root 1. Leg roots 0 / 2 and bomb root 0 (the big animated ones) are not shown in battle; they are in the second set
+(lbl_803BFC78, `fn_800A5C60`), which belongs to the story-mode characters (see "Where each set is used" below).
+
+**How the parts are placed on the body** (`fn_80039FAC`, every frame). The body is not moved by its own HSD animation
+alone: the game's motion code (the 78 tracks, docs/formats/motion_playback.md) computes 20 bone matrices
+(battle robo +0x1434, 0x30 each), and the loop writes matrix i+1 into **role joint i** (19 roles, the joints of
+block C, kept at +0x864) with `PSMTXCopy` and sets the joint flags 0x3800000 (the matrix is used as given). Then each
+active part root gets its matrix the same way, from the game's matrix stack: load a role's matrix, translate by the
+body's offset for that part, scale by 0.1, scale by the body's vector (both from `cr_g_BodyData`, symbols/cr_types.h
+`cr_BodyData`; the table per body is in [robo_tables.md, "Part mounts per body"](../robo_tables.md#part-mounts-per-body-cr_g_bodydata-nov-5-2026)):
+
+| Part root | Role joint (block C) |
+|---|---|
+| gun | 8, arm_b_fore |
+| bomb | 4, arm_a_fore |
+| both pods | 0, upper_body (offset A / B) |
+| legs +0x954 / +0x958 | 16 / 17, leg_b_shin / leg_b_ankle |
+| legs +0x95C / +0x960 | 12 / 13, leg_a_shin / leg_a_ankle |
+
+Only the shin roots take the leg offset. The 0.1 means the parts are modelled at ten times the scale of the role
+matrices: a part exported from its file and placed on a robo needs that factor.
+
+**How the parts animate.** A part root's joint animation (the one the loader attached) is not played by time: the game
+sets its frame with `FUN_80095700(frame, root)` when a state float changes, **frame = 10 x the float** (gun: battle
+robo +0x20D4; legs: +0x333B4), so each part animation is an 11-frame pose (frames 0..10) driven by a 0..1 value.
+The body's own HSD animation (+0x860) is set the same way (frame 0, or +0x550 in some states).
+
+**Joint picks are effect anchors.** `FUN_8003D500` copies the matrices of the leg roots' picked joints (+0x8FC..+0x908)
+into the joints of four effect objects (battle robo +0x333E0..+0x333EC, each object's joint at +0x90) while the leg
+value is above 0: the header[8] joint picks of a part file are anchor points for effects (which effect: open).
+
+**Questions a model parser runs into, answered from the code** (Nov 5, 2026):
+
+- *Which "draw groups" are drawn?* The root records the battle robo's active slots point at (the forms table above);
+  the choice is per part type and state, not per robo body. What is per body is the mount (cr_g_BodyData).
+- *Why does a part with one PObj come out right and one with many PObjs garbled?* Every part PObj is rigid; its
+  vertices are in its joint's space. Apply each joint's world matrix (parents first, scale / rotation / translation of
+  the joint, HSD's order) before placing the vertices.
+- *Is anything mirrored?* No mirroring at run time: every scale in cr_g_BodyData is positive, and the left / right
+  pods and legs are separate roots in the file, each with its own joints (pod roots 0 / 1 on the same role joint,
+  told apart by the offsets A / B; leg roots on the two leg chains).
+- *Why does the standard pod show extra geometry on one side?* Roots 0 and 1 are the two pods (form 0); drawn together
+  without their mounts they overlap. The small roots 2 / 3 are the other form, not part of the same view.
+- *Why are only some leg pieces ever drawn?* In battle the legs are forced to form 1 (roots 4 + 5, with 1 + 3); roots
+  0 / 2 are the Customize display models
+  (form 0) and are also in the story-mode set.
+
+**Code status of this chain (priority list for the decomp; `draft_report.txt`, Nov 5)**. Matched and linked from C:
+`fn_80007CE4`, the four switches `fn_80007AE4 / BD4 / C24 / C74`, `fn_8003D500` (legs), `fn_800A5C60` (second set),
+`fn_8010D2D0` (release), `fn_80095700` (set frame), `fn_80095A30` (matrix update), `cr_BattleRobo_InitBody`.
+Matched, not linked: `fn_80038CF8` (draw). **Not matched yet, the decisions that are still only read from m2c /
+Ghidra output** (in order of how much of this write-up rests on them):
+
+| Function | Bytes | Draft | What it decides |
+|---|---|---|---|
+| `fn_80039FAC` | 3060 | 87% | role matrices into the joints, part placement, part animation frames |
+| `fn_8001DF6C` / `DD68` / `D9E8` / `DA70` | 124-208 | 8-34% | the matrix stack steps (load, translate, scale, scale xyz): small, first to hand-write |
+| `fn_80042AB8` | 5636 | 34% | the gun's state float and form |
+| `fn_8003FE98` | 4648 | 38% | the bomb's state float and form |
+| `fn_8003DD38` | 4808 | 31% | the pods' state float and form |
+| `fn_80101950` | 136 | 79% | the battle-start forms |
+| `fn_801076D8` | 2904 | 32% | all forms 0 (which mode: open) |
+| `cr_WeaponModel_OnLoaded` | 1112 | 48% | part records, slot table, joint picks |
+| `cr_BattleRobo_InitFromMenu` / `_InitFromLoadout` | 544 / 2228 | 91% / 36% | the copy of cr_g_BodyData (mounts) |
+| `fn_800A63C0` | 15404 | m2c fails | the screen that reads the second set |
+| `fn_80095E6C` | 1288 | 60% | drawing a joint tree with a matrix |
+| `cr_Chara_BuildModel` | 1460 | 47% | the robo model, roles, block A |
+
+**Where each set is used** (`tools/callmap.py`, from Ghidra's call references):
+
+- **Battle**: `cr_SEQ_BATTLE_FrameA` -> `cr_Battle_UpdateRobos` (34%) -> the four part updaters (gun `FUN_80042AB8`,
+  bomb `FUN_8003FE98`, pods `FUN_8003DD38`, legs `FUN_8003D500`); `cr_SEQ_BATTLE_FrameB` -> `cr_Battle_ApplyRoleMatrices`
+  (C) -> `fn_80039FAC` (placement).
+- **Customize**: `cr_SEQ_CUSTOMIZE_FrameA` -> `FUN_801076D8` (every part in form 0: the big animated roots gun 0, bomb 0,
+  pods 0 + 1, legs 0 + 2, i.e. the full display models); `cr_SEQ_CUSTOMIZE_FrameB` -> `FUN_80101284` -> `fn_80039FAC`;
+  `cr_SEQ_CUSTOMIZE_Leave` -> `FUN_80101950` (back to the battle-start forms).
+- **Story mode**: `cr_SEQ_SCENARIO_FrameA` -> `cr_Chara_UpdateAll` (C) -> `FUN_800A63C0` (15 KB, m2c fails) ->
+  `fn_800A5C60` (the second set: gun 0, bomb 0, pods 0 + 1, legs 0..3) and `fn_80039FAC`; the part files are loaded
+  from there too (`cr_WeaponModel_OnLoaded` is its load callback).
+
+**What moves the state floats.** Gun (`FUN_80042AB8`, gun state +0x2B4): + 1/60 every frame, clamped to 0..1, so form 1
+(root 1) after 60 frames unless something sets it back (the reset is not in this function: open). Pods
+(`FUN_8003DD38`, +0x190): + 1/60 per frame while the pods in flight (+0x188, counted down when one ends) are fewer
+than the robo's pod count (+0xE9), - 1/60 otherwise; battle robo flags +0x1F4 & 0x30 force 0 and form 0. Legs: + or -
+0.05 per frame toward a target (+0xA4). Bomb (+0x1B0): eased the same way, then overridden to form 1.
+
+**Open**: what the gun's form 1 looks like in play (root 1, 6 joints, 1 PObj) and what resets its float; the bomb pick's and the gun picks' users; record[2] / record[3].
 
 ## Open questions
 

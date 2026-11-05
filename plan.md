@@ -30,7 +30,21 @@ per minute, docs/drafts.md "Nov 4, evening"); **permuter queue 5 RUNNING in cr-l
 functions x 20 min, about 5.5 h; log `~/custom-robo-decomp/tools/sched/scratch/hand/perm/queue5.log`, outputs in
 `~/custom-robo-decomp/tools/sched/permuter/<func>/`, readable from Windows as
 `\wsl$\cr-linux\home\joe\custom-robo-decomp`): apply its score-0 results as for queue 3 (permdiff.py, hd.py,
-relcheck.py, then tools/hand_drafts and the verify order below); (c) the Resume here first bullet.
+relcheck.py, then tools/hand_drafts and the verify order below); (c) apply permuter queue 6's score-0 results (cr-linux, perm/queue6.log; started Nov 5 ~11:14, 17 x 20 min);
+(d) the part chain's unmatched functions (docs/formats/model_entry.md "Part files", the priority list); (e) the Resume
+here first bullet.
+
+**Decide: move the whole project to cr-linux? (owner, Nov 5: move only if it is faster overall, else keep this setup)**
+Measured so far (same desktop): one compile 9 ms in cr-linux through wibo vs 37 ms on Windows (pruned permuter file,
+with the Defender exclusions); permuter tries in 2 minutes 24,075 vs 10,148; the fresh-clone `from_scratch.sh` in
+cr-linux took 246 min (setup, Ghidra, every batch including batch 10, the compiler probe) and ended 33 / 33
+checksums. Not measured yet: batch 12 alone on both systems (Windows ~26 min). Next session, first: time
+`bash tools/batches/batch12_drafts.sh` in cr-linux against `pwsh tools/batches/batch12_drafts.ps1` on the same commit
+(nothing else running), and batch 9 the same way. Windows-only parts that stay on Windows whatever is decided: batch 11
+(boots the shifted build in Dolphin), the HSDRawViewer model export, the motion mods' ISO boot checks. If batch 12 /
+batch 9 are clearly faster in cr-linux: do the compile-heavy loops there (drafts, permuter, builds; push from there or
+pull on Windows) and keep Windows for Dolphin and the model tools; a full move only if the owner wants Dolphin there
+too. Otherwise keep Windows as the main tree and cr-linux for the permuter.
 
 **Verify order after code changes (Windows)**: batch 12 (it runs batch 9) -> batch 11 -> rebuild_decomp ->
 `python -I tools/build_index.py` -> `python -I tools/game_map.py` -> batch 8 (the name cross-check) -> checksums

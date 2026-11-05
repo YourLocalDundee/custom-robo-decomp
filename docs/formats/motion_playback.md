@@ -96,7 +96,16 @@ procedural chain). The parts are different: each weapon_gun / weapon_bom / weapo
 root joints, and the big ones carry a standard sysdolphin joint animation (`HSD_JObjAddAnimAll`, started at frame 0
 by the loader). Which roots the battle robo uses (gun 0, bomb 1, pod 0 + 1, legs 4 / 1 and 5 / 3), and why a part
 looks garbled without its joint matrices: [model_entry.md, "Part files"](model_entry.md#part-files-root-joints-draw-groups-which-ones-the-game-uses-and-why-a-part-can-come-out-garbled-nov-5-2026).
-Open: how the parts' joints attach to the robo's role joints (block C) and whether the body motions drive them.
+**How the motions reach the model and the parts (Nov 5, 2026).** The chain above ends in 20 bone matrices in the battle
+robo (+0x1434, 0x30 each). `fn_80039FAC` writes matrix i+1 into the HSD joint of role i (the 19 roles of the model's
+block C, kept at +0x864) with `PSMTXCopy` and joint flags 0x3800000, so the HSD skeleton shows exactly what the motion
+code computed (the model's own joint animation at +0x860 is held at frame 0 or a state frame). Then it places each
+part root on a role matrix: gun on role 8, bomb on role 4, pods on role 0, legs on roles 16 / 17 / 12 / 13, with the
+body's offset, a 0.1 scale and the body's scale vector (cr_g_BodyData). So the body motions do drive the parts: a part
+follows its role joint. The parts' own joint animations are poses set by a 0..1 state float (frame = 10 x value), not
+timed animations. Details and the table per body: model_entry.md "Part files", robo_tables.md "Part mounts per
+body". For modders: editing a role joint's motion moves the part mounted on it (an arm edit moves the gun or the
+bomb; an upper_body edit moves both pods).
 
 ## Tools
 

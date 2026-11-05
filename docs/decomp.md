@@ -335,7 +335,7 @@ cr_g_PartOrderLeg 0x24 vs 0x22); the string tables (cr_g_SeqNames, cr_g_MotionNa
   steps 79 / 81 as a tool: `top N --default` ranks the dtk default objects by accesses, `fields SYM` / `fields '*SYM'`
   lists offset, width and functions through the object or through a pointer variable): the battle robos
   `cr_g_BattleRobos` (`cr_BattleRobo[4]`, 0xCD480: the 0x33520 stride of 125 functions; the fields
-  cr_BattleRobo_InitFromLoadout writes: hp +0x74, index +0x8C, parts +0x1CC, the copies of the body data +0x17F4, body
+  cr_BattleRobo_InitFromLoadout writes: hp +0x74, index +0x8C, parts +0x1CC, the copies of the body data +0x17F4, body (Nov 5, 2026: the record's 27 floats after `motion_set` are the part mounts, `cr_BodyData` in symbols/cr_types.h; docs/robo_tables.md "Part mounts per body")
   stats +0x1B98, gun +0x1E28, bomb +0x28D48, pod +0x2E2E8, leg +0x33308), the records it copies from (`cr_g_BattleLoadouts`,
   `cr_g_BodyData` as `cr_BodyData[34]` with its `motion_set` pointer, `cr_g_BattleParams`, `cr_g_BodyStats`,
   `cr_g_LegData`, `cr_g_GunData`, `cr_g_BombData`: names at +0x00 / +0x20, sizes from the copy loops), cr_g_FileSlots'

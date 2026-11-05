@@ -37,12 +37,26 @@ __declspec(section ".data") extern cr_BattleLoadout cr_g_BattleLoadouts[4];
 extern s16 lbl_8044F366;
 void fn_800F6A44(u16 arg0);
 typedef struct cr_BattleMotionSet cr_BattleMotionSet;
+typedef struct 
+{
+  f32 x;
+  f32 y;
+  f32 z;
+} Vec;
 typedef struct cr_BodyData
 {
   f32 unk_00;
   f32 unk_04;
   cr_BattleMotionSet *motion_set;
-  f32 unk_0c[27];
+  Vec gun_scale;
+  Vec gun_offset;
+  Vec bomb_scale;
+  Vec bomb_offset;
+  Vec pod_scale;
+  Vec pod_offset_a;
+  Vec pod_offset_b;
+  Vec leg_scale;
+  Vec shin_offset;
 } cr_BodyData;
 typedef struct cr_RoboLegStats
 {
