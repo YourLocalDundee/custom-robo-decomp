@@ -287,6 +287,40 @@ bash tools/from_scratch.sh "$HOME/Games/Custom Robo (USA).iso"
 Or step by step: `pwsh tools/setup.ps1 -Iso ...`, `pwsh tools/batches/run_all.ps1`, `pwsh tools/checksums.ps1 -Compare`
 (Windows), or `tools/setup.sh "<iso>"`, `tools/batches/run_all.sh`, `tools/checksums.sh --compare` (Linux / macOS).
 
+## Speed: antivirus exclusions and a WSL2 Linux on the same PC (Nov 4, 2026)
+
+The compile loop (the permuter, batch 12, batch 10) starts the CodeWarrior compiler thousands of times; on Windows the
+cost of one compile is mostly process start-up and the antivirus scan of each new file, not the source. Measured on
+the development machine: a 7-line compile 133 ms with Windows Defender scanning, 33 ms with the exclusions below; the
+same compile through wibo in WSL2 6 ms (a permuter try: 37 ms on Windows, 9 ms in WSL2).
+
+**Windows Defender exclusions** (an administrator PowerShell; `Remove-MpPreference` with the same arguments undoes them):
+
+```powershell
+Get-MpPreference | Select-Object -ExpandProperty ExclusionPath      # what is excluded already
+Add-MpPreference -ExclusionPath 'D:\'                               # the drive that holds the project (or its folder)
+$repo = 'D:\emulators\gameTesting'
+Get-ChildItem "$repo\decomp\build\compilers", "$repo\tools\dtk" -Recurse -Include mwcceppc.exe, mwldeppc.exe, dtk.exe |
+    ForEach-Object { Add-MpPreference -ExclusionProcess $_.FullName }   # files these open anywhere (temp files on C:)
+```
+
+**WSL2 Ubuntu on the data drive** (an administrator PowerShell; it asks for a Linux user name and password):
+
+```powershell
+wsl --update
+wsl --install Ubuntu-24.04 --name cr-linux --location 'D:\WSL\cr-linux'
+"[wsl2]`nprocessors=8`nmemory=40GB`nswap=8GB" | Set-Content -Encoding ascii "$env:USERPROFILE\.wslconfig"
+wsl --shutdown
+wsl -d cr-linux -u root -- apt-get install -y unzip openjdk-21-jdk python3-venv cpp
+```
+
+Then inside it (`wsl -d cr-linux`): clone into the Linux home folder, not under `/mnt/d` (the Windows drives are mounted
+through a slow file bridge), and run `bash tools/from_scratch.sh "/mnt/d/<path>/Custom Robo (USA).iso"`. First run
+on the development machine, Nov 4, 2026 (commit 11a443d): setup PASS, every batch PASS (batch 9: retail SHA-1),
+checksums 31 of 33, the two others stale on Windows (an index and a map not rebuilt there since Nov 2); after
+refreshing them on Windows both are byte-identical to the Linux ones. The whole run took about 4 hours there (batch 10,
+the compiler probe, which compiles every file under many compiler versions, is the likely bulk; not timed per batch).
+
 ## Limits and status
 
 - **Windows is the verified system** (every step up to plan.md step 83, Oct 31, 2026, on the machine in the table

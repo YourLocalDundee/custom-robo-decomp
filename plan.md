@@ -6,7 +6,30 @@ This file is the project log and roadmap. Reference documentation (formats, tool
 
 ## Fresh session: start here
 
-This file is the carry-over between sessions. Read, in this order: (1) [Resume here](#resume-here) below: the first bullet is the current queue, in the owner's order; (2) the docs those bullets link to, only the ones the task needs (the index of every doc: [docs/README.md](docs/README.md); the status numbers: [README.md](README.md) and `decomp/reports/progress_report.txt` of the last full run); (3) the numbered step log and every earlier hand-off only when a bullet points at a step: [docs/history.md](docs/history.md). The worktree recipe and the verification steps of a merge: [docs/workflows.md](docs/workflows.md#14-work-in-a-worktree-and-merge-it-back), [docs/REPRODUCE.md](docs/REPRODUCE.md).
+This file is the carry-over between sessions. Read, in this order: (0) [Owner: what needs you](#owner-what-needs-you-updated-nov-4-2026-evening) just below, and tell the owner its items first; (1) [Resume here](#resume-here) below: the first bullet is the current queue, in the owner's order; (2) the docs those bullets link to, only the ones the task needs (the index of every doc: [docs/README.md](docs/README.md); the status numbers: [README.md](README.md) and `decomp/reports/progress_report.txt` of the last full run); (3) the numbered step log and every earlier hand-off only when a bullet points at a step: [docs/history.md](docs/history.md). The worktree recipe and the verification steps of a merge: [docs/workflows.md](docs/workflows.md#14-work-in-a-worktree-and-merge-it-back), [docs/REPRODUCE.md](docs/REPRODUCE.md).
+
+## Owner: what needs you (updated Nov 4, 2026, evening)
+
+A fresh session reads this block first and tells the owner these items before starting its own work.
+
+1. **Nothing is needed for the WSL setup: it is done.** `cr-linux` (Ubuntu 24.04, user `joe`) lives in
+   `D:\WSL\cr-linux`, all 8 cores and 40 GB; the repo is cloned at `~/custom-robo-decomp`; unzip, Java 21 and
+   python3-venv are installed. The session can run anything as root itself with `wsl -d cr-linux -u root -- <cmd>`
+   (no password), so further packages (`cpp` for the permuter) do not need the owner. Windows Defender exclusions
+   for D:\ and the build tools are in (owner, Nov 4); the commands and the measurements are in
+   [docs/INSTALL.md "Speed"](docs/INSTALL.md). The old `kali-linux` was removed by the owner.
+2. **A decision: may a dtk label merge be added?** cr_SEQ_STAGE_SELECTOR_Leave is 100% once `lbl_8044F848` (.sbss,
+   the saved clear colour, four dtk byte labels) is one 4-byte object; tools/gen_dtk_symbols.py by design only renames
+   or cuts dtk symbols. Yes = a `symbols/data_merges.txt` rule with the code evidence (docs/drafts.md, Nov 4).
+3. **In-game tests still waiting** (the "Waiting on the user" bullet under Resume here): the Atlas motion ISOs, the
+   legionnaire build, a battle in the shifted build, the edited arena.
+
+**The session's own next steps** (no owner needed), in order: (a) rerun `bash tools/from_scratch.sh` in cr-linux
+(`git pull` first) to see 33 of 33 checksums (the two Windows files that were stale are refreshed); (b) the permuter
+on Linux: install `cpp` as root, check what tools/sched/permuter_setup.py needs there (the Linux binutils, the
+decomp-permuter clone and its venv; it already puts wibo into compile.sh on Linux), then a queue 5 from the
+register-allocation pool of `tools/sched/scratch/hand/structscore.py` (docs/drafts.md, "where the game code's bytes
+are"); (c) the Resume here first bullet.
 
 ## File sources
 

@@ -945,7 +945,7 @@ addr	name	lines	callers	callees	hints	source_files	file_names	strings
 800A0CB0	FUN_800a0cb0	39	0	0				
 800A0E14	FUN_800a0e14	10	0	1				
 800A0E3C	FUN_800a0e3c	10	0	1	~light,~model			
-800A0E64	FUN_800a0e64	1036	0	39	model,video,~file-io,~input,~render			s_MOTION____s_801c3bb3,s__2_4f_8045132f,s__2d____2d__s_801c3b9d,s__d____d_801c3baa
+800A0E64	FUN_800a0e64	1034	0	39	model,video,~file-io,~input,~render			s_MOTION____s_801c3bb3,s__2_4f_8045132f,s__2d____2d__s_801c3b9d,s__d____d_801c3baa
 800A3C0C	FUN_800a3c0c	179	1	2				
 800A4440	FUN_800a4440	10	0	0				
 800A4478	FUN_800a4478	21	0	4	model,~math			

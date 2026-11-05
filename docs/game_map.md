@@ -106,7 +106,7 @@ Functions below 0x80131000: 1761 (1255 still `FUN_`). All functions in the expor
 |---|---|---|---|
 | 800A63C0 | 1406 | 1 | light,model,~anim,~file-io,~math |
 | 800F21C8 | 1171 | 1 | ~file-io,~input,~math,~model,~render,~video |
-| 800A0E64 | 1036 | 0 | model,video,~file-io,~input,~render |
+| 800A0E64 | 1034 | 0 | model,video,~file-io,~input,~render |
 | 8010A5CC | 1022 | 1 | light,model |
 | 800ECA28 | 989 | 1 | memcard,~memory |
 | 800B81C4 | 925 | 0 | math,model |
