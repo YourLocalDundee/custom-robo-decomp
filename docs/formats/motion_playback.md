@@ -89,6 +89,15 @@ Off for a robo at the origin facing +Z and not modelled by the tools: the facing
 (`cr_g_MotionFlags` & 2), blending (& 4), the relative root modes (& 1, & 8), the y-offset scale, the per-character
 point offset at chara +0x9A0.
 
+## Part animations are standard HSD joint animations
+
+The robo body's motions are the game's own key format above (motion.DBN / logo_read_us.dbn entry 8, played by the
+procedural chain). The parts are different: each weapon_gun / weapon_bom / weapon_pod / weapon_leg entry has several
+root joints, and the big ones carry a standard sysdolphin joint animation (`HSD_JObjAddAnimAll`, started at frame 0
+by the loader). Which roots the battle robo uses (gun 0, bomb 1, pod 0 + 1, legs 4 / 1 and 5 / 3), and why a part
+looks garbled without its joint matrices: [model_entry.md, "Part files"](model_entry.md#part-files-root-joints-draw-groups-which-ones-the-game-uses-and-why-a-part-can-come-out-garbled-nov-5-2026).
+Open: how the parts' joints attach to the robo's role joints (block C) and whether the body motions drive them.
+
 ## Tools
 
 | Command | What |

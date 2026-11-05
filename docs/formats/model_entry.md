@@ -97,6 +97,56 @@ Source: joint positions of robo 0's bind pose (glTF export; joint numbers verifi
 
 The game draws every robo at the same scale: the factor the limb code multiplies block A by (cr_Chara+0x3C0) is set to 1.0 for every robo (FUN_800ba488), and every robo model's root joint has scale (1, 1, 1). A robo's size is in its vertices. Setting the root joint scale (HSD_Joint +0x20) scales the drawn model (`tools/robo_swap.py --size`). **Tested in game: no visible effect** - the root scale is overridden at run time, most likely by the joint animations.
 
+## Part files: root joints ("draw groups"), which ones the game uses, and why a part can come out garbled (Nov 5, 2026)
+
+`weapon_gun` / `weapon_bom` / `weapon_pod` / `weapon_leg` entries (the "rel" variant) hold **several root joints**:
+header[2] is an array of header[3] records of 0x10 bytes, and `cr_WeaponModel_OnLoaded` (0x80073CB8) does, for each
+record i: `jobj = HSD_JObjLoadJoint(record[0])`; when record[1] is not 0, `HSD_JObjAddAnimAll(jobj, *record[1], NULL,
+NULL)` (record[1] points to a list of joint animations, the first is used) and `FUN_80196c50(0.0, jobj)` (laid out
+right after `HSD_JObjReqAnimAllByFlags`, where sysdolphin has `HSD_JObjReqAnimAll`: start the animation at frame 0).
+record[2] / record[3] are not read here (0 in the files checked). Community parsers call these root joints "draw
+groups"; the numbers below are the record index.
+
+**Where they go.** The loader files each part's roots into a per-player table, `lbl_80377C60` (.bss, 0x80 bytes per
+player, 4 players), by part type (the low half of the request word; the high half is the player):
+
+| Type | Part | Roots (slots) | Table offset | header[4] joint at | header[8] joint picks at |
+|---|---|---|---|---|---|
+| 0 | gun | 2 | +0x00 | +0x38 | +0x48 (4) |
+| 1 | bomb | 2 | +0x08 | +0x3C | +0x58 (2) |
+| 2 | pod | 4 | +0x10 | +0x40 | none |
+| 3 | legs | 6 | +0x20 | +0x44 | +0x60 (8) |
+
+**The battle set.** `fn_80007CE4` (C at 100%, tools/hand_drafts) copies the 14 roots of the current player to the
+battle robo (cr_g_CurrentBattleRobo+0x90C, in the order of the table) and then names the ones the robo uses:
+**gun root 0** (+0x944), **bomb root 1** (+0x948), **pod roots 0 and 1** (+0x950 / +0x94C), **leg roots 4 / 1**
+(+0x954 / +0x958) and **5 / 3** (+0x95C / +0x960); the four header[4] joints to +0x964..+0x970 and some joint picks to
++0x8F0..+0x908. Leg roots 0 and 2 are never part of the battle set. **A second set**: `fn_800A5C60` (C at 100%) copies
+gun root 0, **bomb root 0**, pod roots 0 / 1 and **leg roots 0..3** into `lbl_803BFC78` (+0x1AC..+0x1B8, its header[4]
+joint at +0x1BC): another view of the parts (which screen: open). `fn_8010D2D0` releases the roots
+(`HSD_JObjUnref`) and clears the battle robo's copies.
+
+**What is in them** (`tools/sched/scratch/hand/hsdparts.py` on `models_dat/`, the first entry of each file):
+
+| Part (entry 0) | Root: joints / PObjs / joint animation |
+|---|---|
+| gun | 0: 21 / 12 / yes; 1: 6 / 1 / no |
+| bomb | 0: 18 / 12 / yes; 1: 5 / 1 / no |
+| pod | 0: 13 / 9 / yes; 1: 13 / 9 / yes; 2: 4 / 1 / no; 3: 4 / 1 / no |
+| legs | 0: 15 / 6 / yes; 1: 5 / 1 / no; 2: 15 / 6 / yes; 3: 5 / 1 / no; 4: 3 / 1 / no; 5: 3 / 1 / no |
+
+**Every PObj in these parts is rigid** (PObj flags & 0x3000 = 0: no envelope / skin weights, no shape animation):
+its vertices are in the local space of the joint that owns its DObj. Most of the joints of the big roots are moved
+(gun root 0: 18 of 21 joints have a rotation, scale or translation that is not identity). **A parser that places the
+vertices without each joint's world matrix** (the parent chain of scale, rotation, translation) gets the single-PObj
+roots about right (one joint, close to identity) and the many-PObj roots garbled: the pieces pile up near the origin
+and turn. Applying the joint matrices is the standard HSD model transform, which HSDRawViewer's glTF export does (the part
+exports in models_export/ come from `tools/crmodel.py to-dat` + HSDRawViewer; not yet compared with in-game views here). The big roots also carry a joint animation started at frame 0: their rest pose is the
+joints' own transforms, and the animation moves them from there.
+
+**Open**: what the second set (lbl_803BFC78) shows; why the bomb uses root 1 in battle and root 0 there; what
+record[2] / record[3] are when they are not 0; the meaning of each joint pick (the gun's 4, the legs' 8).
+
 ## Open questions
 
 - The meaning of each block A float; what the block B material is used for; header word 5.

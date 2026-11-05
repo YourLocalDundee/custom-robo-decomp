@@ -25,3 +25,5 @@ Scratch tools of the main session's hand drafting (docs/drafts.md, the Nov 3 sec
 - `structscore.py [OUTDIR]`: three scores per draft (exact, noreg = register fields masked, ops = opcodes only),
   OUTDIR/structscore.txt sorted by size; finds the functions whose structure is right and only registers / operands
   differ (Nov 4: 334 unmatched functions, 243 KB, at ops >= 85%; 214, 136 KB, at noreg >= 85%).
+- `hsdparts.py FILE.dat ...`: per root joint of a standard HSD .dat (models_dat/): joints, DObjs, PObj kinds
+  (plain / shape animation / envelope), hidden and moved joints (docs/formats/model_entry.md, "Part files").
