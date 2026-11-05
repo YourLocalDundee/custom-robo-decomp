@@ -2520,6 +2520,9 @@ game/fn_800FBC1C.c:
 game/fn_800FBDF8.c:
 	.text       start:0x800FBDF8 end:0x800FBFD4
 
+game/fn_800FEFF8.c:
+	.text       start:0x800FEFF8 end:0x800FF614
+
 game/fn_800FF958.c:
 	.text       start:0x800FF958 end:0x800FFA50
 

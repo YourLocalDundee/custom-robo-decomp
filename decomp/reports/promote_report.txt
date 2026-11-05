@@ -1,8 +1,8 @@
 m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md steps 58, 63)
 one object per function, or one per file of consecutive functions that share their constant pool (file objects); batch 9 links them and checks the SHA-1
 
-drafts at 100% MATCH: 880
-promoted: 812 (163756 bytes = 0x27FAC)
+drafts at 100% MATCH: 881
+promoted: 813 (165320 bytes = 0x285C8)
 file objects: 6 (7 functions, 2252 bytes = 0x8CC)
 left out: 61
 kept from earlier runs (draft no longer 100%): 3
@@ -732,6 +732,7 @@ removed (function name no longer ours): 0
 800FB924  fn_800FB924                                    400
 800FBC1C  fn_800FBC1C                                     44
 800FBDF8  fn_800FBDF8                                    476
+800FEFF8  fn_800FEFF8                                   1564
 800FF958  fn_800FF958                                    248
 800FFA50  fn_800FFA50                                    352
 800FFBB0  fn_800FFBB0                                    352

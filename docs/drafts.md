@@ -1805,3 +1805,19 @@ are **structural** (29: by hand, smallest first).
   base.c" from the permuter's parser; the setup itself succeeds). Applied by hand: fn_8003B1BC 87 -> 92% (the
   robo pointer computed before the xor; left: r25 / r26 swapped; wip/). The other outputs are identity-mask noise
   (`& 0xFFFF` on a u16, `0, x` comma forms).
+- **Nov 4, evening: the permuter on Linux and a faster one on Windows.** tools/sched/permuter_setup.py: no cygpath in
+  compile.sh, temp files in decomp/build/permtmp, the context pruned to the declarations the function names (about a
+  third of the lines; kept only when it compiles to the same objdump), and on Linux the system cpp, the build's
+  binutils, wibo in compile.sh and a process-group kill at the timeout. Two minutes on fn_8001EA48, 8 workers: 3,109
+  tries (Windows, before), 10,148 (Windows, after; with the Defender exclusions of docs/INSTALL.md "Speed"), 24,075
+  (cr-linux); the same base score (40) on both systems. The Linux permuter needs tools/downloads/decomp-permuter_dl
+  (simonlindholm/decomp-permuter @ 8556c81d80d1c1af98a858c8f4dc951357f29139) and tools/downloads/permuter_venv
+  (Levenshtein 0.27.5, RapidFuzz 3.14.6, toml 0.10.2), set up by hand as on Windows.
+- **fn_800FEFF8** (99 -> 100%, tools/hand_drafts): the player index loaded from arg0->x10 as a u8 local (m2c: an s32
+  temporary cast to u8 at every use; the original keeps the truncated byte in r31). As a rule,
+  **narrow_cast_locals** (draft_batch.py, a variant: a local whose every use is the same narrowing cast takes that
+  type): it changes 45 unmatched drafts; in a `--only` run 8 improve (fn_8007A230 70 -> 82%, fn_8011A8FC 87 -> 90%,
+  fn_8011A37C 88 -> 91%, fn_80119C8C 84 -> 87%), none reaches 100%; fn_800FEFF8 itself is not one of them (it also
+  passes the value uncast to its search helper).
+- Permuter queue 5 (tools/sched/scratch/hand/perm/run_queue5.sh, portable, for cr-linux): the 14 largest unmatched
+  drafts at noreg >= 90% plus fn_8000E64C and cr_SEQ_BATTLE_FrameA, 20 minutes each.

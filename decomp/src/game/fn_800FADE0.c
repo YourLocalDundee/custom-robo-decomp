@@ -10,10 +10,10 @@ extern u8 lbl_80407260[75344];
 /* nothing in main.dol references it: keep it (mwld strips unreferenced C functions) */
 #pragma force_active on
 void fn_800FADE0(void *arg0) {
-    u8 var_r31;
+    u8 temp_r5_6;
 
-    var_r31 = (u8) M2C_FIELD(arg0, s32 *, 0x10);
-    if ((M2C_FIELD((lbl_80407260 + (var_r31 * 0x4994)), s32 *, 0x498C) & 0x80000000) && (M2C_FIELD((lbl_80407260 + (var_r31 * 0x4994)), u8 *, 0x4855) != 3)) {
+    temp_r5_6 = M2C_FIELD(arg0, s32 *, 0x10);
+    if ((M2C_FIELD((lbl_80407260 + (temp_r5_6 * 0x4994)), s32 *, 0x498C) & 0x80000000) && (M2C_FIELD((lbl_80407260 + (temp_r5_6 * 0x4994)), u8 *, 0x4855) != 3)) {
         M2C_FIELD(arg0, s32 *, 0) |= 1;
         return;
     }

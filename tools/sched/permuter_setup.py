@@ -28,10 +28,19 @@ sys.path.insert(0, os.path.join(G, 'tools'))
 import draft_batch as db  # noqa: E402
 
 DL = os.path.join(G, 'tools', 'downloads')
-CPP = os.path.join(DL, 'cpp_shim', 'cpp.exe')
-AS = os.path.join(DL, 'binutils_ppc', 'powerpc-eabi-as.exe')
-OBJDUMP = os.path.join(DL, 'binutils_ppc', 'powerpc-eabi-objdump.exe')
-PY = os.path.join(DL, 'permuter_venv', 'Scripts', 'python.exe')
+if os.name == 'nt':
+    CPP = os.path.join(DL, 'cpp_shim', 'cpp.exe')
+    AS = os.path.join(DL, 'binutils_ppc', 'powerpc-eabi-as.exe')
+    OBJDUMP = os.path.join(DL, 'binutils_ppc', 'powerpc-eabi-objdump.exe')
+    PY = os.path.join(DL, 'permuter_venv', 'Scripts', 'python.exe')
+else:
+    # Linux (cr-linux, Nov 4, 2026): the system cpp (apt `cpp`), the build's own binutils (dtk-template, setup.sh),
+    # the same decomp-permuter commit and package versions in tools/downloads (docs/tools.md, "the permuter")
+    import shutil
+    CPP = shutil.which('cpp') or '/usr/bin/cpp'
+    AS = os.path.join(G, 'decomp', 'build', 'binutils', 'powerpc-eabi-as')
+    OBJDUMP = os.path.join(G, 'decomp', 'build', 'binutils', 'powerpc-eabi-objdump')
+    PY = os.path.join(DL, 'permuter_venv', 'bin', 'python')
 MACROS = os.path.join(G, 'decomp', 'build', 'GXCE01', 'include', 'macros.inc')
 FLAGS = ('-nodefaults -proc gekko -align powerpc -enum int -fp hardware -Cpp_exceptions off -pragma "cats off" '
          '-pragma "warn_notinlined off" -maxerrors 1 -nosyspath -multibyte -W off '
@@ -196,7 +205,7 @@ def main(a):
         print('pruned context compiles differently: kept the full one')
     elif base is not full:
         print('pruned context: %d of %d lines' % (base.count('\n') + 1, full.count('\n') + 1))
-    print('set up', fwd(out))
+    print('set up', fwd(out), flush=True)
     if '--run' in a:
         jobs = a[a.index('--run') + 1]
         minutes = int(a[a.index('--minutes') + 1]) if '--minutes' in a else 60
@@ -206,8 +215,9 @@ def main(a):
         tmp = os.environ.get('CR_PERM_TMP') or os.path.join(dec, 'build', 'permtmp')
         os.makedirs(tmp, exist_ok=True)
         env.update(TMP=tmp, TEMP=tmp, TMPDIR=tmp)
+        # on Linux in its own process group, so the timeout can end the workers too (os.killpg below)
         p = subprocess.Popen([PY, '-I', os.path.join(HERE, 'run_permuter.py'), name, '-j', jobs],
-                             cwd=os.path.join(HERE, 'permuter'), env=env)
+                             cwd=os.path.join(HERE, 'permuter'), env=env, start_new_session=os.name != 'nt')
         try:
             p.wait(timeout=60 * minutes)
         except subprocess.TimeoutExpired:
@@ -215,7 +225,8 @@ def main(a):
             if os.name == 'nt':
                 subprocess.run(['taskkill', '/T', '/F', '/PID', str(p.pid)], capture_output=True)
             else:
-                p.kill()
+                import signal
+                os.killpg(p.pid, signal.SIGKILL)
             p.wait()
         best = sorted((d for d in os.listdir(out) if d.startswith('output-')), key=lambda d: int(d.split('-')[1]))
         print('best:', best[:3])

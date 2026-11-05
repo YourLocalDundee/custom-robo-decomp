@@ -5385,6 +5385,32 @@ def postprocess(body, skip=(), add=()):
     return body
 
 
+def narrow_cast_locals(body):
+    """step 111 (Nov 4, 2026), a variant: a local m2c declared wider (s32 / u32 / s16 / u16) whose every use apart from
+    its assignments is the same narrowing cast, `(u8) x` (or s8 / u16 / s16), declared with that narrow type and the
+    casts dropped: the assignment truncates once and the original keeps the truncated value in its register
+    (fn_800FEFF8: `lwz r5, 0x10(r3); clrlwi r31, r5, 24`, 99 -> 100%; 45 unmatched drafts, 131 KB, have such a local).
+    Only 4-space-indented declarations (the function's own locals, not a static inline's parameters)."""
+    for t, v in re.findall(r'^    (s32|u32|s16|u16) (\w+);$', body, re.M):
+        uses = re.findall(r'(\((u8|s8|u16|s16)\) )?\b%s\b(\s*=(?!=))?' % re.escape(v), body)
+        rest = [u for u in uses[1:] if not u[2]]
+        casts = {u[1] for u in rest}
+        if not rest or not all(u[1] for u in rest) or len(casts) != 1:
+            continue
+        n = casts.pop()
+        if (t, n) in (('s16', 's16'), ('u16', 'u16')):
+            continue
+        body = re.sub(r'^    %s %s;$' % (t, re.escape(v)), '    %s %s;' % (n, v), body, count=1, flags=re.M)
+        body = re.sub(r'\(%s\) \b%s\b' % (n, re.escape(v)), v, body)
+    return body
+
+
+RULES_111 = RULES_111 + (narrow_cast_locals,)
+OPTIONAL = OPTIONAL + (narrow_cast_locals,)
+VARIANTS = VARIANTS + (((), (narrow_cast_locals,)), ((register_order,), (narrow_cast_locals,)),
+                       ((), (narrow_cast_locals, null_reg_compares)))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', default=os.path.join(D, 'drafts'))

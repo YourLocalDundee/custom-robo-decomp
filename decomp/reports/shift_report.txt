@@ -116,7 +116,7 @@ padding per point: 0x100 bytes; points: 115
   113. 0x804504E8 .sdata2  inside .sdata2: the data piece of game/fn_8002444C_fn_8002444C.c (a proven object boundary) -> everything from here moves by +0x7100
   114. 0x80452028 .sdata2  inside .sdata2: the data piece of MSL/e_exp.c (a proven object boundary) -> everything from here moves by +0x7200
   115. 0x804529F8 .sdata2  inside .sdata2: the data piece of dolphin/thp/THPDec.c (a proven object boundary) -> everything from here moves by +0x7300
-objects linked from C (batch 9, configure.py CR_MATCHING): 1040 in both links, 1039 of them moved by the padding; 101 holding a point, reassembled from asm
+objects linked from C (batch 9, configure.py CR_MATCHING): 1041 in both links, 1040 of them moved by the padding; 101 holding a point, reassembled from asm
 control (same objects reassembled without padding): SHA-1 6a73cd111ef349b20be294511b8c51a8addfb50b = retail
 shifted main.dol: SHA-1 a2c0b482eaf7f0373058c4d1e16129694b8274e5 (2434944 bytes, retail 2425472)
 sections, unshifted -> shifted:

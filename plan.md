@@ -24,12 +24,19 @@ A fresh session reads this block first and tells the owner these items before st
 3. **In-game tests still waiting** (the "Waiting on the user" bullet under Resume here): the Atlas motion ISOs, the
    legionnaire build, a battle in the shifted build, the edited arena.
 
-**The session's own next steps** (no owner needed), in order: (a) rerun `bash tools/from_scratch.sh` in cr-linux
-(`git pull` first) to see 33 of 33 checksums (the two Windows files that were stale are refreshed); (b) the permuter
-on Linux: install `cpp` as root, check what tools/sched/permuter_setup.py needs there (the Linux binutils, the
-decomp-permuter clone and its venv; it already puts wibo into compile.sh on Linux), then a queue 5 from the
-register-allocation pool of `tools/sched/scratch/hand/structscore.py` (docs/drafts.md, "where the game code's bytes
-are"); (c) the Resume here first bullet.
+**The session's own next steps** (no owner needed), in order: (a) done: cr-linux shows 33 of 33 checksums;
+(b) done: the permuter runs on Linux (cpp, the decomp-permuter clone and its venv set up there; 2.4x the Windows tries
+per minute, docs/drafts.md "Nov 4, evening"); **permuter queue 5 RUNNING in cr-linux** (started Nov 4 evening, 16
+functions x 20 min, about 5.5 h; log `~/custom-robo-decomp/tools/sched/scratch/hand/perm/queue5.log`, outputs in
+`~/custom-robo-decomp/tools/sched/permuter/<func>/`, readable from Windows as
+`\wsl$\cr-linux\home\joe\custom-robo-decomp`): apply its score-0 results as for queue 3 (permdiff.py, hd.py,
+relcheck.py, then tools/hand_drafts and the verify order below); (c) the Resume here first bullet.
+
+**Verify order after code changes (Windows)**: batch 12 (it runs batch 9) -> batch 11 -> rebuild_decomp ->
+`python -I tools/build_index.py` -> `python -I tools/game_map.py` -> batch 8 (the name cross-check) -> checksums
+-Write, then -Compare -> commit (no AI attribution) -> push. rebuild_decomp alone leaves decompiled/index.db,
+symbols/game_map.tsv and symbols/names_crosscheck.txt stale (found Nov 4 by the first fresh Linux run). After a
+config.yml change, batch 9 first (batch 12 reruns it only when sources change).
 
 ## File sources
 
