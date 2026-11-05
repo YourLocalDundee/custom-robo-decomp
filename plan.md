@@ -12,6 +12,13 @@ This file is the carry-over between sessions. Read, in this order: (0) [Owner: w
 
 A fresh session reads this block first and tells the owner these items before starting its own work.
 
+**FIRST TASK of the next session (owner, Nov 5): the Linux timing test.** Same commit on both trees, nothing else
+running (check that no permuter queue is still going in cr-linux: `wsl -d cr-linux -- pgrep -fc run_queue`):
+time `pwsh tools/batches/batch12_drafts.ps1` on Windows and `bash tools/batches/batch12_drafts.sh` in cr-linux
+(`~/custom-robo-decomp`, `git pull` first), then batch 9 the same way; write the times into the "Decide: move the
+whole project to cr-linux?" item below and tell the owner which way it points. Only after that: queue 6's results
+and the rest.
+
 1. **Nothing is needed for the WSL setup: it is done.** `cr-linux` (Ubuntu 24.04, user `joe`) lives in
    `D:\WSL\cr-linux`, all 8 cores and 40 GB; the repo is cloned at `~/custom-robo-decomp`; unzip, Java 21 and
    python3-venv are installed. The session can run anything as root itself with `wsl -d cr-linux -u root -- <cmd>`
