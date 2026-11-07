@@ -366,7 +366,7 @@ glTF refuses, so the patched exporter writes +Y for it); the `basic_arena_pillar
   group), add the new faces in Blender (normals toward where a robo stands: an obstacle's faces out), then
   `stage_collision.py import S edited.obj --mod MYMOD`; unchanged quads keep their bytes (all 39 retail entries
   round-trip byte for byte). Formats, the breakable / moving model flags and the rules:
-  [SCENE_GUIDE.md](SCENE_GUIDE.md#5-stages-verified-fn_80072064-fn_80072b90-fn_80070170-fn_80072a58).
+  [WHERE_IS_EVERYTHING.md](WHERE_IS_EVERYTHING.md#10-byte-level-reference-for-tool-writers) ("Stage collision").
 - Meshes on scaled joints (Dead Line model 0: joints at scale 0.667; Battle Gear Station model 11) come back from
   Blender with another size: they are kept as they were (the import warns and ignores the difference), but do not
   edit their geometry.

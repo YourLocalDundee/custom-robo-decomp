@@ -1,6 +1,6 @@
 """stage_collision.py: export / import a stage's collision (bg_data.BIN entry 2s+1) as an OBJ for Blender.
 
-Standard library only. Format (docs/stage_tables.md "Entry 2s+1", docs/SCENE_GUIDE.md; read by fn_80072A58):
+Standard library only. Format (docs/stage_tables.md "Entry 2s+1", docs/WHERE_IS_EVERYTHING.md section 10; read by fn_80072A58):
   +0x00 u32 N groups, +0x04 offset of N group-header offsets, +0x08 offset of N quad-array offsets,
   +0x0C offset of section C (0x284-byte waypoint records) or 0
   group header (0x20): bounding sphere x, y, z, r; u32 quad count; u32 model flags (scene model n's +0xF8); 2 x u32 0

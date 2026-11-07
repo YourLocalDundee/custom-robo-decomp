@@ -2,7 +2,7 @@
 
 A front end over HSDRawViewer (tools/HSDLib: --export / --import of the standard HSD .dat files, Windows), tools/
 scene_data.py (the scene_data structures) and tools/stage_collision.py (the collision entries).
-docs/SCENE_GUIDE.md explains every format and what the game does with it.
+docs/WHERE_IS_EVERYTHING.md (sections 7 and 10) explains every format and what the game does with it.
 
   python -I tools/scene.py list stages            ids, names, entries, scene models, collision groups
   python -I tools/scene.py list effects [--kind gun]   per effect entry: its two pieces (models / emitters)
@@ -112,7 +112,7 @@ def cmd_list(a):
                     sc = scene_data.scene(d, so[0]) if so else None
                     if sc:
                         ms = sc['models']
-                        ptcl = sum(1 for m in ms for x in m['joint_anim'] if 'type40' in x[2])
+                        ptcl = sum(1 for m in ms for x in m['joint_anim'] if 'ptcl' in x[2])
                         row.append('%d models / %d meshes / %d particle tracks' % (len(ms), sum(m['dobjs'] for m in ms), ptcl))
                 print('  %03d  piece 0: %-40s piece 1: %s' % (i, row[0], row[1] if len(row) > 1 else '-'))
 

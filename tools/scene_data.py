@@ -3,7 +3,7 @@
 Standard library only. The layout is sysdolphin's (as Super Smash Bros. Melee; HSDLib reads and writes it): a 0x20
 header (file size, data size, relocation count, root count, reference count), the data block, the relocation table
 (offsets of every pointer word in the data block), the roots (data offset, name offset), the references, then the
-name strings. A root named `scene_data` is an HSD scene (HSDLib HSD_SOBJ): docs/SCENE_GUIDE.md.
+name strings. A root named `scene_data` is an HSD scene (HSDLib HSD_SOBJ): docs/WHERE_IS_EVERYTHING.md section 10.
 
   python -I tools/scene_data.py info models_dat/bg_data/bg_data_000.dat [--joints]
       roots, then the scene: every model (joints, DObjs, PObjs, materials, textures; its joint / material / shape
@@ -19,7 +19,7 @@ import struct
 import sys
 
 # FObj track types (HSDLib JointTrackType / MatTrackType; the joint ones are what the game's stages and effects use)
-JOINT_TRACKS = {1: 'rot_x', 2: 'rot_y', 3: 'rot_z', 4: 'path', 5: 'trans_x', 6: 'trans_y', 7: 'trans_z', 8: 'scale_x',
+JOINT_TRACKS = {40: 'ptcl', 1: 'rot_x', 2: 'rot_y', 3: 'rot_z', 4: 'path', 5: 'trans_x', 6: 'trans_y', 7: 'trans_z', 8: 'scale_x',
                 9: 'scale_y', 10: 'scale_z', 11: 'node', 12: 'branch', 20: 'set_byte0', 21: 'set_byte1',
                 22: 'set_byte2', 23: 'set_byte3', 24: 'set_byte4', 25: 'set_byte5', 26: 'set_byte6', 27: 'set_byte7',
                 28: 'set_byte8', 29: 'set_byte9', 30: 'set_float0', 31: 'set_float1', 32: 'set_float2',
@@ -129,10 +129,20 @@ def dobj_info(d, dobj):
 
 # ---- animations ------------------------------------------------------------------------------------------------
 
+PTCL_CODES = []   # (bank, generator) of every PTCL key read by fobj_tracks, in order
+
+
 def fobj_tracks(d, f, names):
     out = []
     while f is not None:
-        out.append(names.get(d.u8(f + 0xC), 'type%d' % d.u8(f + 0xC)))
+        t = d.u8(f + 0xC)
+        out.append(names.get(t, 'type%d' % t))
+        if names is JOINT_TRACKS and t == 40:
+            # PTCL: the key's bytes 1..3 little-endian; bank = bits 0-5, generator number = bits 6-23 (HSDLib FOBJ_Player)
+            dp, ln = d.ptr(f + 0x10), d.u32(f + 4)
+            if dp is not None and ln >= 4:
+                code = d.data[dp + 1] | (d.data[dp + 2] << 8) | (d.data[dp + 3] << 16)
+                PTCL_CODES.append((code & 0x3F, code >> 6))
         f = d.ptr(f)
     return out
 
@@ -211,6 +221,7 @@ def scene(d, s):
             mobjs |= m
             n_t += t
         ja, ma, sa = [], [], []
+        del PTCL_CODES[:]
         for aj in d.ptr_array(d.ptr(jd + 4)) if d.ptr(jd + 4) is not None else []:
             walk_animjoint(d, aj, ja)
         n_janim = len(d.ptr_array(d.ptr(jd + 4))) if d.ptr(jd + 4) is not None else 0
@@ -218,7 +229,8 @@ def scene(d, s):
             walk_matanimjoint(d, mj, ma)
         n_manim = len(d.ptr_array(d.ptr(jd + 8))) if d.ptr(jd + 8) is not None else 0
         n_sanim = len(d.ptr_array(d.ptr(jd + 0xC))) if d.ptr(jd + 0xC) is not None else 0
-        out['models'].append({'offset': jd, 'joints': len(joints), 'root_dobjs': dobj_info(d, d.ptr(root + 0x10))[0] if root is not None else 0,
+        ptcl = list(PTCL_CODES)
+        out['models'].append({'ptcl': ptcl, 'offset': jd, 'joints': len(joints), 'root_dobjs': dobj_info(d, d.ptr(root + 0x10))[0] if root is not None else 0,
                               'dobjs': n_d, 'pobjs': n_p, 'mobjs': len(mobjs), 'tobjs': n_t,
                               'joint_anims': n_janim, 'joint_anim': ja, 'mat_anims': n_manim, 'mat_anim': ma,
                               'shape_anims': n_sanim, 'joint_list': joints})
@@ -265,6 +277,8 @@ def info(path, show_joints=False):
                 print('     material anims %d: %s' % (m['mat_anims'], anim_summary(m['mat_anim'], True)))
                 if m['shape_anims']:
                     print('     shape anims %d' % m['shape_anims'])
+                if m['ptcl']:
+                    print('     particles fired: %s' % ', '.join('%d (bank %d)' % (g, b) for b, g in m['ptcl']))
             if show_joints:
                 for j, dep, fl, dobj in m['joint_list']:
                     tr = tuple(round(d.f32(j + 0x2C + 4 * k), 3) for k in range(3))
