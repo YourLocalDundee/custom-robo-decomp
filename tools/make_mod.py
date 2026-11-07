@@ -7,7 +7,8 @@ A mod folder:
   mod.json                       {"name": "...", "author": "...", "description": "..."}   (optional)
   models/<category>/<name>.dat   edited models, named exactly as in models_dat/ (e.g. chara/chara_005.dat);
                                  robo/weapon/story-character models go back through crmodel.from_dat with the
-                                 original entry as template; stage/object models replace the entry as-is
+                                 original entry as template; stage/object models replace the entry as-is;
+                                 effect models (attack/bomb/gun/pod_effect_NNN_i.dat) replace piece i of entry NNN
   files/<disc path>              any disc file, replaced as-is (e.g. files/font.tpl)
   code/*.txt                     main.dol patches, one per line:  80012345: 38600001 [was 38600000] ; comment
                                  (addresses are RAM addresses; "was" is checked against the clean DOL)
@@ -27,7 +28,33 @@ ARCHIVES = {
     'weapon_pod': ('weapon_pod.BIN', 'cr'), 'weapon_leg': ('weapon_leg.BIN', 'cr'),
     'snr_chara': ('scenario_us/snr_chara.BIN', 'cr'),
     'bg_data': ('bg_data.BIN', 'std'), 'leg_effect': ('leg_effect.BIN', 'std'), 'snr_obj': ('scenario_us/snr_obj.BIN', 'std'),
+    'attack_effect': ('attack_effect.BIN', 'split'), 'bomb_effect': ('bomb_effect.BIN', 'split'),
+    'gun_effect': ('gun_effect.BIN', 'split'), 'pod_effect': ('pod_effect.BIN', 'split'),
 }
+
+
+def split_entry(e):
+    """A *_effect entry (kind 'split'): u32 count, count+1 offsets (the last = the end), zero-padded to 0x20, then
+    count standard HSD .dat files, each zero-padded to 0x20 (all 207 entries of the four containers have 2 pieces,
+    each with the root scene_data; tools/extract_models.py writes them as <cat>_NNN_<i>.dat). Returns the bare pieces."""
+    n = struct.unpack_from('>I', e)[0]
+    offs = struct.unpack_from('>%dI' % (n + 1), e, 4)
+    return [e[a:a + struct.unpack_from('>I', e, a)[0]] for a in offs[:-1]]
+
+
+def build_split(pieces):
+    """Inverse of split_entry (rebuilds all 207 clean entries byte for byte)."""
+    n = len(pieces)
+    head = -(-(4 + 4 * (n + 1)) // 0x20) * 0x20
+    offs, body = [head], b''
+    for p in pieces:
+        p += b'\0' * (-len(p) % 0x20)
+        body += p
+        offs.append(offs[-1] + len(p))
+    h = struct.pack('>I%dI' % (n + 1), n, *offs)
+    return h + b'\0' * (head - len(h)) + body
+
+
 PATCH_LINE = re.compile(r'^\s*([0-9A-Fa-f]{8})\s*:\s*([0-9A-Fa-f\s]+?)\s*(?:\[\s*was\s+([0-9A-Fa-f\s]+?)\s*\])?\s*(?:;.*)?$')
 
 
@@ -71,6 +98,11 @@ def sync_entry_table(dol, arch, old_archive, new_archive):
     sys.exit(f'{arch}: not found among main.dol file descriptors; cannot keep its entry table in sync')
 
 
+# effect entries: each robo's load buffer per container (fn_80075950 opens gun / bomb / pod / leg_effect by the robo's
+# part number and attack_effect by its body number, and reads them to i * size from lbl_8044F2E4 / F2E0 / F2DC / F2CC /
+# F2D8); the largest clean entries are 0x146E0, 0x218E0, 0x220E0, 0x3C0, 0x13B80
+EFFECT_ENTRY_MAX = {'gun_effect': 0x16000, 'bomb_effect': 0x40000, 'pod_effect': 0x40000, 'leg_effect': 0x1000,
+                    'attack_effect': 0x14000}
 CHARA_ENTRY_MAX = 0x3A000   # per-robo body load buffer (docs/robo_tables.md, part load requests)
 # stage entries (docs/stage_tables.md): the model (even entry) is read to the 0x100000-byte region at lbl_8044F2E8
 # (fn_80023CBC), the collision entry (odd) to the 0x8000-byte buffer lbl_8034C100 (fn_8011449C / fn_80114214)
@@ -124,6 +156,11 @@ def main():
     for p in sorted((mod / 'models').glob('*/*.dat')) if (mod / 'models').exists() else []:
         cat = p.parent.name
         if cat not in ARCHIVES: sys.exit(f'{p}: category {cat} not supported yet (supported: {", ".join(ARCHIVES)})')
+        if ARCHIVES[cat][1] == 'split':
+            m = re.fullmatch(re.escape(cat) + r'_(\d{3})_(\d)', p.stem)
+            if not m: sys.exit(f'{p}: name must be {cat}_NNN_I.dat like in models_dat/{cat}/')
+            groups.setdefault(cat, []).append(((int(m.group(1)), int(m.group(2))), p))
+            continue
         m = re.fullmatch(re.escape(cat) + r'_(\d{3})', p.stem)
         if not m: sys.exit(f'{p}: name must be {cat}_NNN.dat like in models_dat/{cat}/')
         groups.setdefault(cat, []).append((int(m.group(1)), p))
@@ -131,6 +168,19 @@ def main():
         arch, kind = ARCHIVES[cat]
         entries = list(sfd.read_entries((DISC / 'files' / arch).read_bytes()))
         for idx, p in items:
+            if kind == 'split':
+                (idx, piece) = idx
+                if idx >= len(entries): sys.exit(f'{p}: {arch} has only {len(entries)} entries')
+                pieces = split_entry(entries[idx])
+                if piece >= len(pieces): sys.exit(f'{p}: entry {idx:03d} of {arch} has only {len(pieces)} pieces')
+                dat = p.read_bytes()
+                pieces[piece] = dat[:struct.unpack_from('>I', dat)[0]]  # the extracted .dat may carry the old padding
+                entries[idx] = build_split(pieces)
+                if len(entries[idx]) > EFFECT_ENTRY_MAX[cat]:
+                    sys.exit(f"{p}: entry {idx:03d} would be {len(entries[idx]):#x} bytes; the game's load buffer for "
+                             f'{cat} entries is {EFFECT_ENTRY_MAX[cat]:#x} bytes (docs/MODDING.md "Effects")')
+                changed.append(f'{arch} entry {idx:03d} piece {piece} <- {p.relative_to(mod)}')
+                continue
             if idx >= len(entries): sys.exit(f'{p}: {arch} has only {len(entries)} entries')
             dat = p.read_bytes()
             if kind == 'cr':
@@ -144,6 +194,9 @@ def main():
                                  f'{CHARA_ENTRY_MAX:#x}-byte load buffer (docs/robo_tables.md)')
             else:
                 entries[idx] = dat
+                if cat in EFFECT_ENTRY_MAX and len(dat) > EFFECT_ENTRY_MAX[cat]:
+                    sys.exit(f"{p}: entry is {len(dat):#x} bytes; the game's load buffer for {cat} entries is "
+                             f'{EFFECT_ENTRY_MAX[cat]:#x} bytes (docs/MODDING.md "Effects")')
                 if cat == 'bg_data':
                     limit = BG_COLLISION_MAX if idx % 2 else BG_MODEL_MAX
                     if len(dat) > limit:

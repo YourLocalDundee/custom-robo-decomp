@@ -13,6 +13,7 @@ Tools, file-format docs, a named symbol map and a growing matching-C decompilati
 |---|---|
 | Look at / export the robots, weapons, stages (Blender, glTF) | [docs/workflows.md](docs/workflows.md) |
 | Make a mod (models, files, code) and share it as a patch | [docs/MODDING.md](docs/MODDING.md) |
+| Write my own model exporter / importer (robos, parts, stages, effects) | [docs/IMPORT_EXPORT_GUIDE.md](docs/IMPORT_EXPORT_GUIDE.md) |
 | Apply someone's mod to my ISO | [docs/MODDING.md](docs/MODDING.md#5-players-apply-a-patch) |
 | Read the game's code as C, search it | [Reading the code](#reading-the-code) below, [docs/workflows.md](docs/workflows.md#5-read-and-search-the-code) |
 | Help name functions | [CONTRIBUTING.md](CONTRIBUTING.md) |

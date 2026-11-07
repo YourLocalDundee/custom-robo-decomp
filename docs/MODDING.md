@@ -32,7 +32,8 @@ Everything is optional; use what your mod needs.
 Or script the edit in Blender and let one command do export, import and the build: [Blender loop](#blender-loop).
 
 Supported categories: `chara` (robos), `weapon_gun`, `weapon_bom`, `weapon_pod`, `weapon_leg`, `snr_chara`
-(story characters), `bg_data` (stages: [Stages](#stages)), `leg_effect`, `snr_obj`. Effects in `*_effect` containers are not yet.
+(story characters), `bg_data` (stages: [Stages](#stages)), `leg_effect`, `snr_obj`, and the effect containers
+`gun_effect`, `bomb_effect`, `pod_effect`, `attack_effect` ([Effects](#effects-projectiles)).
 
 ### A robo with a different skeleton (more / fewer / other bones)
 
@@ -368,6 +369,36 @@ glTF refuses, so the patched exporter writes +Y for it); the `basic_arena_pillar
 - Animations, cameras, lights and fog are kept as they are; the loop does not edit them. Spawn points, the battle
   camera and the meaning of the collision attributes are not located yet.
 - `snr_map` (story maps: collision + model in one entry) is not in the loop yet.
+
+### Effects (projectiles)
+
+`gun_effect.BIN`, `bomb_effect.BIN`, `pod_effect.BIN` and `attack_effect.BIN` hold the effect models (shots, blasts).
+Every entry is a small wrapper around **two standard HSD .dat files**, each with the root `scene_data`, the same
+scene format as a stage (models, a camera, lights, fog; joint and material animations): a u32 count (2), count+1
+offsets (the last is the end), zero padding to 0x20, then each .dat zero-padded to 0x20. `extract_models.py` writes
+them as `<container>_NNN_0.dat` and `<container>_NNN_1.dat`; `make_mod.py` puts an edited piece back into entry NNN
+and rebuilds the wrapper (byte for byte for all 207 clean entries) and main.dol's entry table copy.
+
+```powershell
+pwsh tools\model_loop.ps1 -Mod rt_gun_effect -Script roundtrip -Category gun_effect -Entries 000_0   # no edit
+```
+
+The [Stages](#stages) notes on export, import and the file layout apply as they are (one glb per scene model).
+Tested (Nov 6, 2026): the no-edit loop above (export -> Blender `roundtrip.py` -> `--import` of all four scene
+models -> `make_mod.py`) and `make_mod.py` with unchanged pieces of gun_effect 000 / 012 and pod_effect 020 give
+the clean archives byte for byte (the ISO reports 0 files changed). A test edit:
+`pwsh tools\model_loop.ps1 -Mod gun0_effect_red -Script effect_tint -Category gun_effect -Entries 000_0`
+(`tools/blender/effect_tint.py`: every material x (1, 0.25, 0.25), a Multiply node behind a texture; the import
+changes the diffuse colour of models 0-2, the entry keeps its size) builds `build/mods/gun0_effect_red/gun0_effect_red.iso`
+(SHA-1 079972ca...) and boots (40 s, no warning); not checked in game. Model 0's texture replaces its diffuse
+colour (COLORMAP_BLEND, blend 1), so a tint can only show on models 1 and 2 (MODULATE).
+
+**Which entry**: fn_80075950 loads, for each of the four battle robos, gun_effect / bomb_effect / pod_effect /
+leg_effect entry = its gun / bomb / pod / leg number and attack_effect entry = its **body** number (34 bodies, 34
+entries), so gun_effect_012 is the effect of gun 12 (the same number as weapon_gun_012). **Size limits** (each robo's
+load buffer, `make_mod.py` refuses more): gun_effect 0x16000, bomb_effect and pod_effect 0x40000, attack_effect
+0x14000, leg_effect 0x1000 bytes per entry (largest clean entries: 0x146E0, 0x218E0, 0x220E0, 0x13B80, 0x3C0).
+Open: what the second piece of each entry is.
 
 ## Motions (animations)
 

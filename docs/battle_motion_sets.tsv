@@ -1,0 +1,1293 @@
+body	body_name	slot	request	motion_id	flags	name
+0	Ray 01	0	0x0010	16		sf_normal_ta_kamae
+0	Ray 01	1	0x0015	21		sf_normal_walk
+0	Ray 01	2	0x000F	15		sf_normal_run
+0	Ray 01	3	0x0013	19		sf_normal_walk_weapon_r180
+0	Ray 01	4	0x000D	13		sf_normal_run_weapon_r180
+0	Ray 01	5	0x0009	9		sf_back_walk_weapon_r180
+0	Ray 01	6	0x0003	3		sf_back_run_weapon_r180
+0	Ray 01	7	0x0052	82		sf_weapon_jump
+0	Ray 01	8	0x0001	1		sf_back_run_guard_r180
+0	Ray 01	9	0x000B	11		sf_normal_run_guard_r180
+0	Ray 01	10	0x0047	71		sf_jump_dash
+0	Ray 01	11	0x0046	70		sf_double_jump
+0	Ray 01	12	0x0048	72		sf_landing
+0	Ray 01	13	0x0049	73		sf_landing_2
+0	Ray 01	14	0x0042	66		sf_bomb_l90
+0	Ray 01	15	0x0043	67		sf_bomb_r90
+0	Ray 01	16	0x0044	68		sf_bomb_ta_kamae
+0	Ray 01	17	0x0041	65		sf_bomb_jump
+0	Ray 01	18	0x004F	79		sf_pod
+0	Ray 01	19	0x0050	80		sf_pod_jump
+0	Ray 01	20	0x0056	86		sf_weapon_ta_kamae
+0	Ray 01	21	0x0052	82		sf_weapon_jump
+0	Ray 01	22	0x0051	81		sf_weapon_jump_stiff
+0	Ray 01	23	0x0053	83		sf_weapon_l90
+0	Ray 01	24	0x0054	84		sf_weapon_r90
+0	Ray 01	25	0x0055	85		sf_weapon_stiff
+0	Ray 01	26	0x004B	75		sf_fall_back
+0	Ray 01	27	0x004A	74		sf_fall_back_wall
+0	Ray 01	28	0x004D	77		sf_fall_front
+0	Ray 01	29	0x004C	76		sf_fall_front_wall
+0	Ray 01	30	0x004E	78		sf_fall_magma
+0	Ray 01	31	0x00F5	245		sf_sf011_powerup
+0	Ray 01	32	0x00A9	169		sf_lose_sf011_01
+0	Ray 01	33	0x0065	101		sf_win_sf011_01
+0	Ray 01	34	0x0066	102		sf_win_sf011_02
+0	Ray 01	35	0x00CB	203		cr_atk_sf011_tackl_n
+0	Ray 01	36	0x0040	64		sf_change
+0	Ray 01	37	0x0040	64		sf_change
+1	Splendor	0	0x0010	16		sf_normal_ta_kamae
+1	Splendor	1	0x0015	21		sf_normal_walk
+1	Splendor	2	0x000F	15		sf_normal_run
+1	Splendor	3	0x0013	19		sf_normal_walk_weapon_r180
+1	Splendor	4	0x000D	13		sf_normal_run_weapon_r180
+1	Splendor	5	0x0009	9		sf_back_walk_weapon_r180
+1	Splendor	6	0x0003	3		sf_back_run_weapon_r180
+1	Splendor	7	0x0052	82		sf_weapon_jump
+1	Splendor	8	0x0001	1		sf_back_run_guard_r180
+1	Splendor	9	0x000B	11		sf_normal_run_guard_r180
+1	Splendor	10	0x0047	71		sf_jump_dash
+1	Splendor	11	0x0046	70		sf_double_jump
+1	Splendor	12	0x0048	72		sf_landing
+1	Splendor	13	0x0049	73		sf_landing_2
+1	Splendor	14	0x0042	66		sf_bomb_l90
+1	Splendor	15	0x0043	67		sf_bomb_r90
+1	Splendor	16	0x0044	68		sf_bomb_ta_kamae
+1	Splendor	17	0x0041	65		sf_bomb_jump
+1	Splendor	18	0x004F	79		sf_pod
+1	Splendor	19	0x0050	80		sf_pod_jump
+1	Splendor	20	0x0056	86		sf_weapon_ta_kamae
+1	Splendor	21	0x0052	82		sf_weapon_jump
+1	Splendor	22	0x0051	81		sf_weapon_jump_stiff
+1	Splendor	23	0x0053	83		sf_weapon_l90
+1	Splendor	24	0x0054	84		sf_weapon_r90
+1	Splendor	25	0x0055	85		sf_weapon_stiff
+1	Splendor	26	0x004B	75		sf_fall_back
+1	Splendor	27	0x004A	74		sf_fall_back_wall
+1	Splendor	28	0x004D	77		sf_fall_front
+1	Splendor	29	0x004C	76		sf_fall_front_wall
+1	Splendor	30	0x004E	78		sf_fall_magma
+1	Splendor	31	0x00F5	245		sf_sf011_powerup
+1	Splendor	32	0x00AA	170		sf_lose_sf012_01
+1	Splendor	33	0x0067	103		sf_win_sf012_01
+1	Splendor	34	0x0068	104		sf_win_sf012_02
+1	Splendor	35	0x00CC	204		cr_atk_sf012_diving
+1	Splendor	36	0x0040	64		sf_change
+1	Splendor	37	0x0040	64		sf_change
+2	Glory	0	0x0010	16		sf_normal_ta_kamae
+2	Glory	1	0x0015	21		sf_normal_walk
+2	Glory	2	0x000F	15		sf_normal_run
+2	Glory	3	0x0013	19		sf_normal_walk_weapon_r180
+2	Glory	4	0x000D	13		sf_normal_run_weapon_r180
+2	Glory	5	0x0009	9		sf_back_walk_weapon_r180
+2	Glory	6	0x0003	3		sf_back_run_weapon_r180
+2	Glory	7	0x0052	82		sf_weapon_jump
+2	Glory	8	0x0001	1		sf_back_run_guard_r180
+2	Glory	9	0x000B	11		sf_normal_run_guard_r180
+2	Glory	10	0x0047	71		sf_jump_dash
+2	Glory	11	0x0046	70		sf_double_jump
+2	Glory	12	0x0048	72		sf_landing
+2	Glory	13	0x0049	73		sf_landing_2
+2	Glory	14	0x0042	66		sf_bomb_l90
+2	Glory	15	0x0043	67		sf_bomb_r90
+2	Glory	16	0x0044	68		sf_bomb_ta_kamae
+2	Glory	17	0x0041	65		sf_bomb_jump
+2	Glory	18	0x004F	79		sf_pod
+2	Glory	19	0x0050	80		sf_pod_jump
+2	Glory	20	0x0056	86		sf_weapon_ta_kamae
+2	Glory	21	0x0052	82		sf_weapon_jump
+2	Glory	22	0x0051	81		sf_weapon_jump_stiff
+2	Glory	23	0x0053	83		sf_weapon_l90
+2	Glory	24	0x0054	84		sf_weapon_r90
+2	Glory	25	0x0055	85		sf_weapon_stiff
+2	Glory	26	0x004B	75		sf_fall_back
+2	Glory	27	0x004A	74		sf_fall_back_wall
+2	Glory	28	0x004D	77		sf_fall_front
+2	Glory	29	0x004C	76		sf_fall_front_wall
+2	Glory	30	0x004E	78		sf_fall_magma
+2	Glory	31	0x00F5	245		sf_sf011_powerup
+2	Glory	32	0x00AB	171		sf_lose_sf013_01
+2	Glory	33	0x0069	105		sf_win_sf013_01
+2	Glory	34	0x006A	106		sf_win_sf013_02
+2	Glory	35	0x00CD	205		cr_atk_sf013_upper
+2	Glory	36	0x0040	64		sf_change
+2	Glory	37	0x0040	64		sf_change
+3	Milky Way	0	0x003A	58		ab_normal_ta_kamae
+3	Milky Way	1	0x003F	63		ab_normal_walk
+3	Milky Way	2	0x0039	57		ab_normal_run
+3	Milky Way	3	0x003D	61		ab_normal_walk_weapon_r180
+3	Milky Way	4	0x0037	55		ab_normal_run_weapon_r180
+3	Milky Way	5	0x0032	50		ab_back_walk_weapon_r180
+3	Milky Way	6	0x002D	45		ab_back_run_weapon_r180
+3	Milky Way	7	0x0052	82		sf_weapon_jump
+3	Milky Way	8	0x002B	43		ab_back_run_guard_r180
+3	Milky Way	9	0x0035	53		ab_normal_run_guard_r180
+3	Milky Way	10	0x0047	71		sf_jump_dash
+3	Milky Way	11	0x0046	70		sf_double_jump
+3	Milky Way	12	0x0048	72		sf_landing
+3	Milky Way	13	0x0049	73		sf_landing_2
+3	Milky Way	14	0x0063	99		ab_bomb_l90
+3	Milky Way	15	0x0064	100		ab_bomb_r90
+3	Milky Way	16	0x005F	95		ab_bomb_ta_kamae
+3	Milky Way	17	0x0041	65		sf_bomb_jump
+3	Milky Way	18	0x004F	79		sf_pod
+3	Milky Way	19	0x0050	80		sf_pod_jump
+3	Milky Way	20	0x005E	94		ab_weapon_ta_kamae
+3	Milky Way	21	0x0052	82		sf_weapon_jump
+3	Milky Way	22	0x0051	81		sf_weapon_jump_stiff
+3	Milky Way	23	0x0061	97		ab_weapon_l90
+3	Milky Way	24	0x0062	98		ab_weapon_r90
+3	Milky Way	25	0x0060	96		ab_weapon_stiff
+3	Milky Way	26	0x004B	75		sf_fall_back
+3	Milky Way	27	0x004A	74		sf_fall_back_wall
+3	Milky Way	28	0x004D	77		sf_fall_front
+3	Milky Way	29	0x004C	76		sf_fall_front_wall
+3	Milky Way	30	0x004E	78		sf_fall_magma
+3	Milky Way	31	0x00F6	246		ab_ab021_powerup
+3	Milky Way	32	0x00AC	172		ab_lose_ab021_01
+3	Milky Way	33	0x006B	107		ab_win_ab021_01
+3	Milky Way	34	0x006C	108		ab_win_ab021_02
+3	Milky Way	35	0x00CE	206		cr_atk_ab021_hiza
+3	Milky Way	36	0x0040	64		sf_change
+3	Milky Way	37	0x0040	64		sf_change
+4	Earth	0	0x003A	58		ab_normal_ta_kamae
+4	Earth	1	0x003F	63		ab_normal_walk
+4	Earth	2	0x0039	57		ab_normal_run
+4	Earth	3	0x003D	61		ab_normal_walk_weapon_r180
+4	Earth	4	0x0037	55		ab_normal_run_weapon_r180
+4	Earth	5	0x0032	50		ab_back_walk_weapon_r180
+4	Earth	6	0x002D	45		ab_back_run_weapon_r180
+4	Earth	7	0x0052	82		sf_weapon_jump
+4	Earth	8	0x002B	43		ab_back_run_guard_r180
+4	Earth	9	0x0035	53		ab_normal_run_guard_r180
+4	Earth	10	0x0047	71		sf_jump_dash
+4	Earth	11	0x0046	70		sf_double_jump
+4	Earth	12	0x0048	72		sf_landing
+4	Earth	13	0x0049	73		sf_landing_2
+4	Earth	14	0x0063	99		ab_bomb_l90
+4	Earth	15	0x0064	100		ab_bomb_r90
+4	Earth	16	0x005F	95		ab_bomb_ta_kamae
+4	Earth	17	0x0041	65		sf_bomb_jump
+4	Earth	18	0x004F	79		sf_pod
+4	Earth	19	0x0050	80		sf_pod_jump
+4	Earth	20	0x005E	94		ab_weapon_ta_kamae
+4	Earth	21	0x0052	82		sf_weapon_jump
+4	Earth	22	0x0051	81		sf_weapon_jump_stiff
+4	Earth	23	0x0061	97		ab_weapon_l90
+4	Earth	24	0x0062	98		ab_weapon_r90
+4	Earth	25	0x0060	96		ab_weapon_stiff
+4	Earth	26	0x004B	75		sf_fall_back
+4	Earth	27	0x004A	74		sf_fall_back_wall
+4	Earth	28	0x004D	77		sf_fall_front
+4	Earth	29	0x004C	76		sf_fall_front_wall
+4	Earth	30	0x004E	78		sf_fall_magma
+4	Earth	31	0x00F6	246		ab_ab021_powerup
+4	Earth	32	0x00AD	173		ab_lose_ab022_01
+4	Earth	33	0x006D	109		ab_win_ab022_01
+4	Earth	34	0x006E	110		ab_win_ab022_02
+4	Earth	35	0x00CF	207		cr_atk_ab022_suso
+4	Earth	36	0x0040	64		sf_change
+4	Earth	37	0x0040	64		sf_change
+5	Sol	0	0x003A	58		ab_normal_ta_kamae
+5	Sol	1	0x003F	63		ab_normal_walk
+5	Sol	2	0x0039	57		ab_normal_run
+5	Sol	3	0x003D	61		ab_normal_walk_weapon_r180
+5	Sol	4	0x0037	55		ab_normal_run_weapon_r180
+5	Sol	5	0x0032	50		ab_back_walk_weapon_r180
+5	Sol	6	0x002D	45		ab_back_run_weapon_r180
+5	Sol	7	0x0052	82		sf_weapon_jump
+5	Sol	8	0x002B	43		ab_back_run_guard_r180
+5	Sol	9	0x0035	53		ab_normal_run_guard_r180
+5	Sol	10	0x0047	71		sf_jump_dash
+5	Sol	11	0x0046	70		sf_double_jump
+5	Sol	12	0x0048	72		sf_landing
+5	Sol	13	0x0049	73		sf_landing_2
+5	Sol	14	0x0063	99		ab_bomb_l90
+5	Sol	15	0x0064	100		ab_bomb_r90
+5	Sol	16	0x005F	95		ab_bomb_ta_kamae
+5	Sol	17	0x0041	65		sf_bomb_jump
+5	Sol	18	0x004F	79		sf_pod
+5	Sol	19	0x0050	80		sf_pod_jump
+5	Sol	20	0x005E	94		ab_weapon_ta_kamae
+5	Sol	21	0x0052	82		sf_weapon_jump
+5	Sol	22	0x0051	81		sf_weapon_jump_stiff
+5	Sol	23	0x0061	97		ab_weapon_l90
+5	Sol	24	0x0062	98		ab_weapon_r90
+5	Sol	25	0x0060	96		ab_weapon_stiff
+5	Sol	26	0x004B	75		sf_fall_back
+5	Sol	27	0x004A	74		sf_fall_back_wall
+5	Sol	28	0x004D	77		sf_fall_front
+5	Sol	29	0x004C	76		sf_fall_front_wall
+5	Sol	30	0x004E	78		sf_fall_magma
+5	Sol	31	0x00F6	246		ab_ab021_powerup
+5	Sol	32	0x00AE	174		ab_lose_ab023_01
+5	Sol	33	0x006F	111		ab_win_ab023_01
+5	Sol	34	0x0070	112		ab_win_ab023_02
+5	Sol	35	0x00D0	208		cr_atk_ab023_spnkkt
+5	Sol	36	0x0040	64		sf_change
+5	Sol	37	0x0040	64		sf_change
+6	Metal Ape	0	0x0025	37		mg_normal_ta_kamae
+6	Metal Ape	1	0x002A	42		mg_normal_walk
+6	Metal Ape	2	0x0024	36		mg_normal_run
+6	Metal Ape	3	0x0028	40		mg_normal_walk_weapon_r180
+6	Metal Ape	4	0x0022	34		mg_normal_run_weapon_r180
+6	Metal Ape	5	0x001E	30		mg_back_walk_weapon_r180
+6	Metal Ape	6	0x0018	24		mg_back_run_weapon_r180
+6	Metal Ape	7	0x0052	82		sf_weapon_jump
+6	Metal Ape	8	0x0016	22		mg_back_run_guard_r180
+6	Metal Ape	9	0x0020	32		mg_normal_run_guard_r180
+6	Metal Ape	10	0x0047	71		sf_jump_dash
+6	Metal Ape	11	0x0046	70		sf_double_jump
+6	Metal Ape	12	0x0048	72		sf_landing
+6	Metal Ape	13	0x0049	73		sf_landing_2
+6	Metal Ape	14	0x005C	92		mg_bomb_l90
+6	Metal Ape	15	0x005D	93		mg_bomb_r90
+6	Metal Ape	16	0x0058	88		mg_bomb_ta_kamae
+6	Metal Ape	17	0x0041	65		sf_bomb_jump
+6	Metal Ape	18	0x004F	79		sf_pod
+6	Metal Ape	19	0x0050	80		sf_pod_jump
+6	Metal Ape	20	0x0057	87		mg_weapon_ta_kamae
+6	Metal Ape	21	0x0052	82		sf_weapon_jump
+6	Metal Ape	22	0x0051	81		sf_weapon_jump_stiff
+6	Metal Ape	23	0x005A	90		mg_weapon_l90
+6	Metal Ape	24	0x005B	91		mg_weapon_r90
+6	Metal Ape	25	0x0059	89		mg_weapon_stiff
+6	Metal Ape	26	0x004B	75		sf_fall_back
+6	Metal Ape	27	0x004A	74		sf_fall_back_wall
+6	Metal Ape	28	0x004D	77		sf_fall_front
+6	Metal Ape	29	0x004C	76		sf_fall_front_wall
+6	Metal Ape	30	0x004E	78		sf_fall_magma
+6	Metal Ape	31	0x00F7	247		mg_mg031_powerup
+6	Metal Ape	32	0x00AF	175		mg_lose_mg031_01
+6	Metal Ape	33	0x0071	113		mg_win_mg031_01
+6	Metal Ape	34	0x0072	114		mg_win_mg031_02
+6	Metal Ape	35	0x00D1	209		cr_atk_mg031_spin
+6	Metal Ape	36	0x0040	64		sf_change
+6	Metal Ape	37	0x0040	64		sf_change
+7	Metal Bear	0	0x0025	37		mg_normal_ta_kamae
+7	Metal Bear	1	0x002A	42		mg_normal_walk
+7	Metal Bear	2	0x0024	36		mg_normal_run
+7	Metal Bear	3	0x0028	40		mg_normal_walk_weapon_r180
+7	Metal Bear	4	0x0022	34		mg_normal_run_weapon_r180
+7	Metal Bear	5	0x001E	30		mg_back_walk_weapon_r180
+7	Metal Bear	6	0x0018	24		mg_back_run_weapon_r180
+7	Metal Bear	7	0x0052	82		sf_weapon_jump
+7	Metal Bear	8	0x0016	22		mg_back_run_guard_r180
+7	Metal Bear	9	0x0020	32		mg_normal_run_guard_r180
+7	Metal Bear	10	0x0047	71		sf_jump_dash
+7	Metal Bear	11	0x0046	70		sf_double_jump
+7	Metal Bear	12	0x0048	72		sf_landing
+7	Metal Bear	13	0x0049	73		sf_landing_2
+7	Metal Bear	14	0x005C	92		mg_bomb_l90
+7	Metal Bear	15	0x005D	93		mg_bomb_r90
+7	Metal Bear	16	0x0058	88		mg_bomb_ta_kamae
+7	Metal Bear	17	0x0041	65		sf_bomb_jump
+7	Metal Bear	18	0x004F	79		sf_pod
+7	Metal Bear	19	0x0050	80		sf_pod_jump
+7	Metal Bear	20	0x0057	87		mg_weapon_ta_kamae
+7	Metal Bear	21	0x0052	82		sf_weapon_jump
+7	Metal Bear	22	0x0051	81		sf_weapon_jump_stiff
+7	Metal Bear	23	0x005A	90		mg_weapon_l90
+7	Metal Bear	24	0x005B	91		mg_weapon_r90
+7	Metal Bear	25	0x0059	89		mg_weapon_stiff
+7	Metal Bear	26	0x004B	75		sf_fall_back
+7	Metal Bear	27	0x004A	74		sf_fall_back_wall
+7	Metal Bear	28	0x004D	77		sf_fall_front
+7	Metal Bear	29	0x004C	76		sf_fall_front_wall
+7	Metal Bear	30	0x004E	78		sf_fall_magma
+7	Metal Bear	31	0x00F7	247		mg_mg031_powerup
+7	Metal Bear	32	0x00B0	176		mg_lose_mg032_01
+7	Metal Bear	33	0x0073	115		mg_win_mg032_01
+7	Metal Bear	34	0x0074	116		mg_win_mg032_02
+7	Metal Bear	35	0x00D2	210		cr_atk_mg032_zutuki
+7	Metal Bear	36	0x0040	64		sf_change
+7	Metal Bear	37	0x0040	64		sf_change
+8	Metal Ox	0	0x0025	37		mg_normal_ta_kamae
+8	Metal Ox	1	0x002A	42		mg_normal_walk
+8	Metal Ox	2	0x0024	36		mg_normal_run
+8	Metal Ox	3	0x0028	40		mg_normal_walk_weapon_r180
+8	Metal Ox	4	0x0022	34		mg_normal_run_weapon_r180
+8	Metal Ox	5	0x001E	30		mg_back_walk_weapon_r180
+8	Metal Ox	6	0x0018	24		mg_back_run_weapon_r180
+8	Metal Ox	7	0x0052	82		sf_weapon_jump
+8	Metal Ox	8	0x0016	22		mg_back_run_guard_r180
+8	Metal Ox	9	0x0020	32		mg_normal_run_guard_r180
+8	Metal Ox	10	0x0047	71		sf_jump_dash
+8	Metal Ox	11	0x0046	70		sf_double_jump
+8	Metal Ox	12	0x0048	72		sf_landing
+8	Metal Ox	13	0x0049	73		sf_landing_2
+8	Metal Ox	14	0x005C	92		mg_bomb_l90
+8	Metal Ox	15	0x005D	93		mg_bomb_r90
+8	Metal Ox	16	0x0058	88		mg_bomb_ta_kamae
+8	Metal Ox	17	0x0041	65		sf_bomb_jump
+8	Metal Ox	18	0x004F	79		sf_pod
+8	Metal Ox	19	0x0050	80		sf_pod_jump
+8	Metal Ox	20	0x0057	87		mg_weapon_ta_kamae
+8	Metal Ox	21	0x0052	82		sf_weapon_jump
+8	Metal Ox	22	0x0051	81		sf_weapon_jump_stiff
+8	Metal Ox	23	0x005A	90		mg_weapon_l90
+8	Metal Ox	24	0x005B	91		mg_weapon_r90
+8	Metal Ox	25	0x0059	89		mg_weapon_stiff
+8	Metal Ox	26	0x004B	75		sf_fall_back
+8	Metal Ox	27	0x004A	74		sf_fall_back_wall
+8	Metal Ox	28	0x004D	77		sf_fall_front
+8	Metal Ox	29	0x004C	76		sf_fall_front_wall
+8	Metal Ox	30	0x004E	78		sf_fall_magma
+8	Metal Ox	31	0x00F7	247		mg_mg031_powerup
+8	Metal Ox	32	0x00B1	177		mg_lose_mg033_01
+8	Metal Ox	33	0x0075	117		mg_win_mg033_01
+8	Metal Ox	34	0x0076	118		mg_win_mg033_02
+8	Metal Ox	35	0x00D3	211		cr_atk_mg033_headjump
+8	Metal Ox	36	0x0040	64		sf_change
+8	Metal Ox	37	0x0040	64		sf_change
+9	Swift	0	0x003A	58		ab_normal_ta_kamae
+9	Swift	1	0x003F	63		ab_normal_walk
+9	Swift	2	0x0039	57		ab_normal_run
+9	Swift	3	0x003D	61		ab_normal_walk_weapon_r180
+9	Swift	4	0x0037	55		ab_normal_run_weapon_r180
+9	Swift	5	0x0032	50		ab_back_walk_weapon_r180
+9	Swift	6	0x002D	45		ab_back_run_weapon_r180
+9	Swift	7	0x0052	82		sf_weapon_jump
+9	Swift	8	0x002B	43		ab_back_run_guard_r180
+9	Swift	9	0x0035	53		ab_normal_run_guard_r180
+9	Swift	10	0x0047	71		sf_jump_dash
+9	Swift	11	0x0046	70		sf_double_jump
+9	Swift	12	0x0048	72		sf_landing
+9	Swift	13	0x0049	73		sf_landing_2
+9	Swift	14	0x0063	99		ab_bomb_l90
+9	Swift	15	0x0064	100		ab_bomb_r90
+9	Swift	16	0x005F	95		ab_bomb_ta_kamae
+9	Swift	17	0x0041	65		sf_bomb_jump
+9	Swift	18	0x004F	79		sf_pod
+9	Swift	19	0x0050	80		sf_pod_jump
+9	Swift	20	0x005E	94		ab_weapon_ta_kamae
+9	Swift	21	0x0052	82		sf_weapon_jump
+9	Swift	22	0x0051	81		sf_weapon_jump_stiff
+9	Swift	23	0x0061	97		ab_weapon_l90
+9	Swift	24	0x0062	98		ab_weapon_r90
+9	Swift	25	0x0060	96		ab_weapon_stiff
+9	Swift	26	0x004B	75		sf_fall_back
+9	Swift	27	0x004A	74		sf_fall_back_wall
+9	Swift	28	0x004D	77		sf_fall_front
+9	Swift	29	0x004C	76		sf_fall_front_wall
+9	Swift	30	0x004E	78		sf_fall_magma
+9	Swift	31	0x00F8	248		lr_lr041_powerup
+9	Swift	32	0x00B2	178		lr_lose_lr041_01
+9	Swift	33	0x0077	119		lr_win_lr041_01
+9	Swift	34	0x0078	120		lr_win_lr041_02
+9	Swift	35	0x00D4	212		cr_atk_lr041_vrot
+9	Swift	36	0x0040	64		sf_change
+9	Swift	37	0x0040	64		sf_change
+10	Shrike	0	0x0010	16		sf_normal_ta_kamae
+10	Shrike	1	0x0015	21		sf_normal_walk
+10	Shrike	2	0x000F	15		sf_normal_run
+10	Shrike	3	0x0013	19		sf_normal_walk_weapon_r180
+10	Shrike	4	0x000D	13		sf_normal_run_weapon_r180
+10	Shrike	5	0x0009	9		sf_back_walk_weapon_r180
+10	Shrike	6	0x0003	3		sf_back_run_weapon_r180
+10	Shrike	7	0x0052	82		sf_weapon_jump
+10	Shrike	8	0x0001	1		sf_back_run_guard_r180
+10	Shrike	9	0x000B	11		sf_normal_run_guard_r180
+10	Shrike	10	0x0047	71		sf_jump_dash
+10	Shrike	11	0x0046	70		sf_double_jump
+10	Shrike	12	0x0048	72		sf_landing
+10	Shrike	13	0x0049	73		sf_landing_2
+10	Shrike	14	0x0042	66		sf_bomb_l90
+10	Shrike	15	0x0043	67		sf_bomb_r90
+10	Shrike	16	0x0044	68		sf_bomb_ta_kamae
+10	Shrike	17	0x0041	65		sf_bomb_jump
+10	Shrike	18	0x004F	79		sf_pod
+10	Shrike	19	0x0050	80		sf_pod_jump
+10	Shrike	20	0x0056	86		sf_weapon_ta_kamae
+10	Shrike	21	0x0052	82		sf_weapon_jump
+10	Shrike	22	0x0051	81		sf_weapon_jump_stiff
+10	Shrike	23	0x0053	83		sf_weapon_l90
+10	Shrike	24	0x0054	84		sf_weapon_r90
+10	Shrike	25	0x0055	85		sf_weapon_stiff
+10	Shrike	26	0x004B	75		sf_fall_back
+10	Shrike	27	0x004A	74		sf_fall_back_wall
+10	Shrike	28	0x004D	77		sf_fall_front
+10	Shrike	29	0x004C	76		sf_fall_front_wall
+10	Shrike	30	0x004E	78		sf_fall_magma
+10	Shrike	31	0x00F8	248		lr_lr041_powerup
+10	Shrike	32	0x00B3	179		lr_lose_lr042_01
+10	Shrike	33	0x0079	121		lr_win_lr042_01
+10	Shrike	34	0x007A	122		lr_win_lr042_02
+10	Shrike	35	0x00D5	213		cr_atk_lr042_shoryu
+10	Shrike	36	0x0040	64		sf_change
+10	Shrike	37	0x0040	64		sf_change
+11	Peregrine	0	0x0010	16		sf_normal_ta_kamae
+11	Peregrine	1	0x0015	21		sf_normal_walk
+11	Peregrine	2	0x000F	15		sf_normal_run
+11	Peregrine	3	0x0013	19		sf_normal_walk_weapon_r180
+11	Peregrine	4	0x000D	13		sf_normal_run_weapon_r180
+11	Peregrine	5	0x0009	9		sf_back_walk_weapon_r180
+11	Peregrine	6	0x0003	3		sf_back_run_weapon_r180
+11	Peregrine	7	0x0052	82		sf_weapon_jump
+11	Peregrine	8	0x0001	1		sf_back_run_guard_r180
+11	Peregrine	9	0x000B	11		sf_normal_run_guard_r180
+11	Peregrine	10	0x0047	71		sf_jump_dash
+11	Peregrine	11	0x0046	70		sf_double_jump
+11	Peregrine	12	0x0048	72		sf_landing
+11	Peregrine	13	0x0049	73		sf_landing_2
+11	Peregrine	14	0x0042	66		sf_bomb_l90
+11	Peregrine	15	0x0043	67		sf_bomb_r90
+11	Peregrine	16	0x0044	68		sf_bomb_ta_kamae
+11	Peregrine	17	0x0041	65		sf_bomb_jump
+11	Peregrine	18	0x004F	79		sf_pod
+11	Peregrine	19	0x0050	80		sf_pod_jump
+11	Peregrine	20	0x0056	86		sf_weapon_ta_kamae
+11	Peregrine	21	0x0052	82		sf_weapon_jump
+11	Peregrine	22	0x0051	81		sf_weapon_jump_stiff
+11	Peregrine	23	0x0053	83		sf_weapon_l90
+11	Peregrine	24	0x0054	84		sf_weapon_r90
+11	Peregrine	25	0x0055	85		sf_weapon_stiff
+11	Peregrine	26	0x004B	75		sf_fall_back
+11	Peregrine	27	0x004A	74		sf_fall_back_wall
+11	Peregrine	28	0x004D	77		sf_fall_front
+11	Peregrine	29	0x004C	76		sf_fall_front_wall
+11	Peregrine	30	0x004E	78		sf_fall_magma
+11	Peregrine	31	0x00F8	248		lr_lr041_powerup
+11	Peregrine	32	0x00B4	180		lr_lose_lr043_01
+11	Peregrine	33	0x007B	123		lr_win_lr043_01
+11	Peregrine	34	0x007C	124		lr_win_lr043_02
+11	Peregrine	35	0x00D6	214		cr_atk_lr043_zujump
+11	Peregrine	36	0x0040	64		sf_change
+11	Peregrine	37	0x0040	64		sf_change
+12	Javelin	0	0x0010	16		sf_normal_ta_kamae
+12	Javelin	1	0x0015	21		sf_normal_walk
+12	Javelin	2	0x000F	15		sf_normal_run
+12	Javelin	3	0x0013	19		sf_normal_walk_weapon_r180
+12	Javelin	4	0x000D	13		sf_normal_run_weapon_r180
+12	Javelin	5	0x0009	9		sf_back_walk_weapon_r180
+12	Javelin	6	0x0003	3		sf_back_run_weapon_r180
+12	Javelin	7	0x0052	82		sf_weapon_jump
+12	Javelin	8	0x0001	1		sf_back_run_guard_r180
+12	Javelin	9	0x000B	11		sf_normal_run_guard_r180
+12	Javelin	10	0x0047	71		sf_jump_dash
+12	Javelin	11	0x0046	70		sf_double_jump
+12	Javelin	12	0x0048	72		sf_landing
+12	Javelin	13	0x0049	73		sf_landing_2
+12	Javelin	14	0x0042	66		sf_bomb_l90
+12	Javelin	15	0x0043	67		sf_bomb_r90
+12	Javelin	16	0x0044	68		sf_bomb_ta_kamae
+12	Javelin	17	0x0041	65		sf_bomb_jump
+12	Javelin	18	0x004F	79		sf_pod
+12	Javelin	19	0x0050	80		sf_pod_jump
+12	Javelin	20	0x0056	86		sf_weapon_ta_kamae
+12	Javelin	21	0x0052	82		sf_weapon_jump
+12	Javelin	22	0x0051	81		sf_weapon_jump_stiff
+12	Javelin	23	0x0053	83		sf_weapon_l90
+12	Javelin	24	0x0054	84		sf_weapon_r90
+12	Javelin	25	0x0055	85		sf_weapon_stiff
+12	Javelin	26	0x004B	75		sf_fall_back
+12	Javelin	27	0x004A	74		sf_fall_back_wall
+12	Javelin	28	0x004D	77		sf_fall_front
+12	Javelin	29	0x004C	76		sf_fall_front_wall
+12	Javelin	30	0x004E	78		sf_fall_magma
+12	Javelin	31	0x00F9	249		sv_sv051_powerup
+12	Javelin	32	0x00B5	181		sv_lose_sv051_01
+12	Javelin	33	0x007D	125		sv_win_sv051_01
+12	Javelin	34	0x007E	126		sv_win_sv051_02
+12	Javelin	35	0x00D7	215		cr_atk_sv051_tetsuzan
+12	Javelin	36	0x0040	64		sf_change
+12	Javelin	37	0x0040	64		sf_change
+13	Glaive	0	0x0010	16		sf_normal_ta_kamae
+13	Glaive	1	0x0015	21		sf_normal_walk
+13	Glaive	2	0x000F	15		sf_normal_run
+13	Glaive	3	0x0013	19		sf_normal_walk_weapon_r180
+13	Glaive	4	0x000D	13		sf_normal_run_weapon_r180
+13	Glaive	5	0x0009	9		sf_back_walk_weapon_r180
+13	Glaive	6	0x0003	3		sf_back_run_weapon_r180
+13	Glaive	7	0x0052	82		sf_weapon_jump
+13	Glaive	8	0x0001	1		sf_back_run_guard_r180
+13	Glaive	9	0x000B	11		sf_normal_run_guard_r180
+13	Glaive	10	0x0047	71		sf_jump_dash
+13	Glaive	11	0x0046	70		sf_double_jump
+13	Glaive	12	0x0048	72		sf_landing
+13	Glaive	13	0x0049	73		sf_landing_2
+13	Glaive	14	0x0042	66		sf_bomb_l90
+13	Glaive	15	0x0043	67		sf_bomb_r90
+13	Glaive	16	0x0044	68		sf_bomb_ta_kamae
+13	Glaive	17	0x0041	65		sf_bomb_jump
+13	Glaive	18	0x004F	79		sf_pod
+13	Glaive	19	0x0050	80		sf_pod_jump
+13	Glaive	20	0x0056	86		sf_weapon_ta_kamae
+13	Glaive	21	0x0052	82		sf_weapon_jump
+13	Glaive	22	0x0051	81		sf_weapon_jump_stiff
+13	Glaive	23	0x0053	83		sf_weapon_l90
+13	Glaive	24	0x0054	84		sf_weapon_r90
+13	Glaive	25	0x0055	85		sf_weapon_stiff
+13	Glaive	26	0x004B	75		sf_fall_back
+13	Glaive	27	0x004A	74		sf_fall_back_wall
+13	Glaive	28	0x004D	77		sf_fall_front
+13	Glaive	29	0x004C	76		sf_fall_front_wall
+13	Glaive	30	0x004E	78		sf_fall_magma
+13	Glaive	31	0x00F9	249		sv_sv051_powerup
+13	Glaive	32	0x00B6	182		sv_lose_sv052_01
+13	Glaive	33	0x007F	127		sv_win_sv052_01
+13	Glaive	34	0x0080	128		sv_win_sv052_02
+13	Glaive	35	0x00D8	216		cr_atk_sv052_utan
+13	Glaive	36	0x0040	64		sf_change
+13	Glaive	37	0x0040	64		sf_change
+14	Halberd	0	0x0010	16		sf_normal_ta_kamae
+14	Halberd	1	0x0015	21		sf_normal_walk
+14	Halberd	2	0x000F	15		sf_normal_run
+14	Halberd	3	0x0013	19		sf_normal_walk_weapon_r180
+14	Halberd	4	0x000D	13		sf_normal_run_weapon_r180
+14	Halberd	5	0x0009	9		sf_back_walk_weapon_r180
+14	Halberd	6	0x0003	3		sf_back_run_weapon_r180
+14	Halberd	7	0x0052	82		sf_weapon_jump
+14	Halberd	8	0x0001	1		sf_back_run_guard_r180
+14	Halberd	9	0x000B	11		sf_normal_run_guard_r180
+14	Halberd	10	0x0047	71		sf_jump_dash
+14	Halberd	11	0x0046	70		sf_double_jump
+14	Halberd	12	0x0048	72		sf_landing
+14	Halberd	13	0x0049	73		sf_landing_2
+14	Halberd	14	0x0042	66		sf_bomb_l90
+14	Halberd	15	0x0043	67		sf_bomb_r90
+14	Halberd	16	0x0044	68		sf_bomb_ta_kamae
+14	Halberd	17	0x0041	65		sf_bomb_jump
+14	Halberd	18	0x004F	79		sf_pod
+14	Halberd	19	0x0050	80		sf_pod_jump
+14	Halberd	20	0x0056	86		sf_weapon_ta_kamae
+14	Halberd	21	0x0052	82		sf_weapon_jump
+14	Halberd	22	0x0051	81		sf_weapon_jump_stiff
+14	Halberd	23	0x0053	83		sf_weapon_l90
+14	Halberd	24	0x0054	84		sf_weapon_r90
+14	Halberd	25	0x0055	85		sf_weapon_stiff
+14	Halberd	26	0x004B	75		sf_fall_back
+14	Halberd	27	0x004A	74		sf_fall_back_wall
+14	Halberd	28	0x004D	77		sf_fall_front
+14	Halberd	29	0x004C	76		sf_fall_front_wall
+14	Halberd	30	0x004E	78		sf_fall_magma
+14	Halberd	31	0x00F9	249		sv_sv051_powerup
+14	Halberd	32	0x00B7	183		sv_lose_sv053_01
+14	Halberd	33	0x0081	129		sv_win_sv053_01
+14	Halberd	34	0x0082	130		sv_win_sv053_02
+14	Halberd	35	0x00D9	217		cr_atk_sv053_hiki
+14	Halberd	36	0x0040	64		sf_change
+14	Halberd	37	0x0040	64		sf_change
+15	Criminal	0	0x0010	16		sf_normal_ta_kamae
+15	Criminal	1	0x0015	21		sf_normal_walk
+15	Criminal	2	0x000F	15		sf_normal_run
+15	Criminal	3	0x0013	19		sf_normal_walk_weapon_r180
+15	Criminal	4	0x000D	13		sf_normal_run_weapon_r180
+15	Criminal	5	0x0009	9		sf_back_walk_weapon_r180
+15	Criminal	6	0x0003	3		sf_back_run_weapon_r180
+15	Criminal	7	0x0052	82		sf_weapon_jump
+15	Criminal	8	0x0001	1		sf_back_run_guard_r180
+15	Criminal	9	0x000B	11		sf_normal_run_guard_r180
+15	Criminal	10	0x0047	71		sf_jump_dash
+15	Criminal	11	0x0046	70		sf_double_jump
+15	Criminal	12	0x0048	72		sf_landing
+15	Criminal	13	0x0049	73		sf_landing_2
+15	Criminal	14	0x0042	66		sf_bomb_l90
+15	Criminal	15	0x0043	67		sf_bomb_r90
+15	Criminal	16	0x0044	68		sf_bomb_ta_kamae
+15	Criminal	17	0x0041	65		sf_bomb_jump
+15	Criminal	18	0x004F	79		sf_pod
+15	Criminal	19	0x0050	80		sf_pod_jump
+15	Criminal	20	0x0056	86		sf_weapon_ta_kamae
+15	Criminal	21	0x0052	82		sf_weapon_jump
+15	Criminal	22	0x0051	81		sf_weapon_jump_stiff
+15	Criminal	23	0x0053	83		sf_weapon_l90
+15	Criminal	24	0x0054	84		sf_weapon_r90
+15	Criminal	25	0x0055	85		sf_weapon_stiff
+15	Criminal	26	0x004B	75		sf_fall_back
+15	Criminal	27	0x004A	74		sf_fall_back_wall
+15	Criminal	28	0x004D	77		sf_fall_front
+15	Criminal	29	0x004C	76		sf_fall_front_wall
+15	Criminal	30	0x004E	78		sf_fall_magma
+15	Criminal	31	0x00FA	250		tf_tf061_powerup
+15	Criminal	32	0x00B8	184		tf_lose_tf061_01
+15	Criminal	33	0x0083	131		tf_win_tf061_01
+15	Criminal	34	0x0084	132		tf_win_tf061_02
+15	Criminal	35	0x00DA	218		cr_atk_tf061_propkick
+15	Criminal	36	0x0040	64		sf_change
+15	Criminal	37	0x0040	64		sf_change
+16	Buggy	0	0x0010	16		sf_normal_ta_kamae
+16	Buggy	1	0x0015	21		sf_normal_walk
+16	Buggy	2	0x000F	15		sf_normal_run
+16	Buggy	3	0x0013	19		sf_normal_walk_weapon_r180
+16	Buggy	4	0x000D	13		sf_normal_run_weapon_r180
+16	Buggy	5	0x0009	9		sf_back_walk_weapon_r180
+16	Buggy	6	0x0003	3		sf_back_run_weapon_r180
+16	Buggy	7	0x0052	82		sf_weapon_jump
+16	Buggy	8	0x0001	1		sf_back_run_guard_r180
+16	Buggy	9	0x000B	11		sf_normal_run_guard_r180
+16	Buggy	10	0x0047	71		sf_jump_dash
+16	Buggy	11	0x0046	70		sf_double_jump
+16	Buggy	12	0x0048	72		sf_landing
+16	Buggy	13	0x0049	73		sf_landing_2
+16	Buggy	14	0x0042	66		sf_bomb_l90
+16	Buggy	15	0x0043	67		sf_bomb_r90
+16	Buggy	16	0x0044	68		sf_bomb_ta_kamae
+16	Buggy	17	0x0041	65		sf_bomb_jump
+16	Buggy	18	0x004F	79		sf_pod
+16	Buggy	19	0x0050	80		sf_pod_jump
+16	Buggy	20	0x0056	86		sf_weapon_ta_kamae
+16	Buggy	21	0x0052	82		sf_weapon_jump
+16	Buggy	22	0x0051	81		sf_weapon_jump_stiff
+16	Buggy	23	0x0053	83		sf_weapon_l90
+16	Buggy	24	0x0054	84		sf_weapon_r90
+16	Buggy	25	0x0055	85		sf_weapon_stiff
+16	Buggy	26	0x004B	75		sf_fall_back
+16	Buggy	27	0x004A	74		sf_fall_back_wall
+16	Buggy	28	0x004D	77		sf_fall_front
+16	Buggy	29	0x004C	76		sf_fall_front_wall
+16	Buggy	30	0x004E	78		sf_fall_magma
+16	Buggy	31	0x00FA	250		tf_tf061_powerup
+16	Buggy	32	0x00B9	185		tf_lose_tf062_01
+16	Buggy	33	0x0085	133		tf_win_tf062_01
+16	Buggy	34	0x0086	134		tf_win_tf062_02
+16	Buggy	35	0x00DB	219		cr_atk_tf062_propeller
+16	Buggy	36	0x0040	64		sf_change
+16	Buggy	37	0x0040	64		sf_change
+17	Juggler	0	0x0010	16		sf_normal_ta_kamae
+17	Juggler	1	0x0015	21		sf_normal_walk
+17	Juggler	2	0x000F	15		sf_normal_run
+17	Juggler	3	0x0013	19		sf_normal_walk_weapon_r180
+17	Juggler	4	0x000D	13		sf_normal_run_weapon_r180
+17	Juggler	5	0x0009	9		sf_back_walk_weapon_r180
+17	Juggler	6	0x0003	3		sf_back_run_weapon_r180
+17	Juggler	7	0x0052	82		sf_weapon_jump
+17	Juggler	8	0x0001	1		sf_back_run_guard_r180
+17	Juggler	9	0x000B	11		sf_normal_run_guard_r180
+17	Juggler	10	0x0047	71		sf_jump_dash
+17	Juggler	11	0x0046	70		sf_double_jump
+17	Juggler	12	0x0048	72		sf_landing
+17	Juggler	13	0x0049	73		sf_landing_2
+17	Juggler	14	0x0042	66		sf_bomb_l90
+17	Juggler	15	0x0043	67		sf_bomb_r90
+17	Juggler	16	0x0044	68		sf_bomb_ta_kamae
+17	Juggler	17	0x0041	65		sf_bomb_jump
+17	Juggler	18	0x004F	79		sf_pod
+17	Juggler	19	0x0050	80		sf_pod_jump
+17	Juggler	20	0x0056	86		sf_weapon_ta_kamae
+17	Juggler	21	0x0052	82		sf_weapon_jump
+17	Juggler	22	0x0051	81		sf_weapon_jump_stiff
+17	Juggler	23	0x0053	83		sf_weapon_l90
+17	Juggler	24	0x0054	84		sf_weapon_r90
+17	Juggler	25	0x0055	85		sf_weapon_stiff
+17	Juggler	26	0x004B	75		sf_fall_back
+17	Juggler	27	0x004A	74		sf_fall_back_wall
+17	Juggler	28	0x004D	77		sf_fall_front
+17	Juggler	29	0x004C	76		sf_fall_front_wall
+17	Juggler	30	0x004E	78		sf_fall_magma
+17	Juggler	31	0x00FA	250		tf_tf061_powerup
+17	Juggler	32	0x00BA	186		tf_lose_tf063_01
+17	Juggler	33	0x0087	135		tf_win_tf063_01
+17	Juggler	34	0x0088	136		tf_win_tf063_02
+17	Juggler	35	0x00DC	220		cr_atk_tf063_spin
+17	Juggler	36	0x0040	64		sf_change
+17	Juggler	37	0x0040	64		sf_change
+18	Defender	0	0x0025	37		mg_normal_ta_kamae
+18	Defender	1	0x002A	42		mg_normal_walk
+18	Defender	2	0x0024	36		mg_normal_run
+18	Defender	3	0x0028	40		mg_normal_walk_weapon_r180
+18	Defender	4	0x0022	34		mg_normal_run_weapon_r180
+18	Defender	5	0x001E	30		mg_back_walk_weapon_r180
+18	Defender	6	0x0018	24		mg_back_run_weapon_r180
+18	Defender	7	0x0052	82		sf_weapon_jump
+18	Defender	8	0x0016	22		mg_back_run_guard_r180
+18	Defender	9	0x0020	32		mg_normal_run_guard_r180
+18	Defender	10	0x80EE	238	T	ls_change_skyer_ls071
+18	Defender	11	0x0046	70		sf_double_jump
+18	Defender	12	0x0048	72		sf_landing
+18	Defender	13	0x0049	73		sf_landing_2
+18	Defender	14	0x005C	92		mg_bomb_l90
+18	Defender	15	0x005D	93		mg_bomb_r90
+18	Defender	16	0x0058	88		mg_bomb_ta_kamae
+18	Defender	17	0x0041	65		sf_bomb_jump
+18	Defender	18	0x004F	79		sf_pod
+18	Defender	19	0x0050	80		sf_pod_jump
+18	Defender	20	0x0057	87		mg_weapon_ta_kamae
+18	Defender	21	0x0052	82		sf_weapon_jump
+18	Defender	22	0x0051	81		sf_weapon_jump_stiff
+18	Defender	23	0x005A	90		mg_weapon_l90
+18	Defender	24	0x005B	91		mg_weapon_r90
+18	Defender	25	0x0059	89		mg_weapon_stiff
+18	Defender	26	0x004B	75		sf_fall_back
+18	Defender	27	0x004A	74		sf_fall_back_wall
+18	Defender	28	0x004D	77		sf_fall_front
+18	Defender	29	0x004C	76		sf_fall_front_wall
+18	Defender	30	0x004E	78		sf_fall_magma
+18	Defender	31	0x00FB	251		ls_ls071_powerup
+18	Defender	32	0x80BB	187	T	ls_lose_ls071_01
+18	Defender	33	0x8089	137	T	ls_win_ls071_01
+18	Defender	34	0x008A	138		ls_win_ls071_02
+18	Defender	35	0x00DD	221		cr_atk_ls071_skyerspn
+18	Defender	36	0x0040	64		sf_change
+18	Defender	37	0x0040	64		sf_change
+19	Seeker	0	0x003A	58		ab_normal_ta_kamae
+19	Seeker	1	0x003F	63		ab_normal_walk
+19	Seeker	2	0x0039	57		ab_normal_run
+19	Seeker	3	0x003D	61		ab_normal_walk_weapon_r180
+19	Seeker	4	0x0037	55		ab_normal_run_weapon_r180
+19	Seeker	5	0x0032	50		ab_back_walk_weapon_r180
+19	Seeker	6	0x002D	45		ab_back_run_weapon_r180
+19	Seeker	7	0x0052	82		sf_weapon_jump
+19	Seeker	8	0x002B	43		ab_back_run_guard_r180
+19	Seeker	9	0x0035	53		ab_normal_run_guard_r180
+19	Seeker	10	0x80F0	240	T	ls_change_skyer_ls072
+19	Seeker	11	0x0046	70		sf_double_jump
+19	Seeker	12	0x0048	72		sf_landing
+19	Seeker	13	0x0049	73		sf_landing_2
+19	Seeker	14	0x0063	99		ab_bomb_l90
+19	Seeker	15	0x0064	100		ab_bomb_r90
+19	Seeker	16	0x005F	95		ab_bomb_ta_kamae
+19	Seeker	17	0x0041	65		sf_bomb_jump
+19	Seeker	18	0x004F	79		sf_pod
+19	Seeker	19	0x0050	80		sf_pod_jump
+19	Seeker	20	0x005E	94		ab_weapon_ta_kamae
+19	Seeker	21	0x0052	82		sf_weapon_jump
+19	Seeker	22	0x0051	81		sf_weapon_jump_stiff
+19	Seeker	23	0x0061	97		ab_weapon_l90
+19	Seeker	24	0x0062	98		ab_weapon_r90
+19	Seeker	25	0x0060	96		ab_weapon_stiff
+19	Seeker	26	0x004B	75		sf_fall_back
+19	Seeker	27	0x004A	74		sf_fall_back_wall
+19	Seeker	28	0x004D	77		sf_fall_front
+19	Seeker	29	0x004C	76		sf_fall_front_wall
+19	Seeker	30	0x004E	78		sf_fall_magma
+19	Seeker	31	0x00FB	251		ls_ls071_powerup
+19	Seeker	32	0x80BC	188	T	ls_lose_ls072_01
+19	Seeker	33	0x808B	139	T	ls_win_ls072_01
+19	Seeker	34	0x008C	140		ls_win_ls072_02
+19	Seeker	35	0x00DE	222		cr_atk_ls072_skyeratk
+19	Seeker	36	0x0040	64		sf_change
+19	Seeker	37	0x0040	64		sf_change
+20	Breaker	0	0x0010	16		sf_normal_ta_kamae
+20	Breaker	1	0x0015	21		sf_normal_walk
+20	Breaker	2	0x000F	15		sf_normal_run
+20	Breaker	3	0x0013	19		sf_normal_walk_weapon_r180
+20	Breaker	4	0x000D	13		sf_normal_run_weapon_r180
+20	Breaker	5	0x0009	9		sf_back_walk_weapon_r180
+20	Breaker	6	0x0003	3		sf_back_run_weapon_r180
+20	Breaker	7	0x0052	82		sf_weapon_jump
+20	Breaker	8	0x0001	1		sf_back_run_guard_r180
+20	Breaker	9	0x000B	11		sf_normal_run_guard_r180
+20	Breaker	10	0x80F2	242	T	ls_change_skyer_ls073
+20	Breaker	11	0x0046	70		sf_double_jump
+20	Breaker	12	0x0048	72		sf_landing
+20	Breaker	13	0x0049	73		sf_landing_2
+20	Breaker	14	0x0042	66		sf_bomb_l90
+20	Breaker	15	0x0043	67		sf_bomb_r90
+20	Breaker	16	0x0044	68		sf_bomb_ta_kamae
+20	Breaker	17	0x0041	65		sf_bomb_jump
+20	Breaker	18	0x004F	79		sf_pod
+20	Breaker	19	0x0050	80		sf_pod_jump
+20	Breaker	20	0x0056	86		sf_weapon_ta_kamae
+20	Breaker	21	0x0052	82		sf_weapon_jump
+20	Breaker	22	0x0051	81		sf_weapon_jump_stiff
+20	Breaker	23	0x0053	83		sf_weapon_l90
+20	Breaker	24	0x0054	84		sf_weapon_r90
+20	Breaker	25	0x0055	85		sf_weapon_stiff
+20	Breaker	26	0x004B	75		sf_fall_back
+20	Breaker	27	0x004A	74		sf_fall_back_wall
+20	Breaker	28	0x004D	77		sf_fall_front
+20	Breaker	29	0x004C	76		sf_fall_front_wall
+20	Breaker	30	0x004E	78		sf_fall_magma
+20	Breaker	31	0x00FD	253		ls_ls073_powerup
+20	Breaker	32	0x80BD	189	T	ls_lose_ls073_01
+20	Breaker	33	0x008D	141		ls_win_ls073_01
+20	Breaker	34	0x808E	142	T	ls_win_ls073_02
+20	Breaker	35	0x80DF	223	T	cr_atk_ls073_skyeratk
+20	Breaker	36	0x0040	64		sf_change
+20	Breaker	37	0x0040	64		sf_change
+21	Seal Head	0	0x0025	37		mg_normal_ta_kamae
+21	Seal Head	1	0x002A	42		mg_normal_walk
+21	Seal Head	2	0x0024	36		mg_normal_run
+21	Seal Head	3	0x0028	40		mg_normal_walk_weapon_r180
+21	Seal Head	4	0x0022	34		mg_normal_run_weapon_r180
+21	Seal Head	5	0x001E	30		mg_back_walk_weapon_r180
+21	Seal Head	6	0x0018	24		mg_back_run_weapon_r180
+21	Seal Head	7	0x0052	82		sf_weapon_jump
+21	Seal Head	8	0x0016	22		mg_back_run_guard_r180
+21	Seal Head	9	0x0020	32		mg_normal_run_guard_r180
+21	Seal Head	10	0x0047	71		sf_jump_dash
+21	Seal Head	11	0x0046	70		sf_double_jump
+21	Seal Head	12	0x0048	72		sf_landing
+21	Seal Head	13	0x0049	73		sf_landing_2
+21	Seal Head	14	0x005C	92		mg_bomb_l90
+21	Seal Head	15	0x005D	93		mg_bomb_r90
+21	Seal Head	16	0x0058	88		mg_bomb_ta_kamae
+21	Seal Head	17	0x0041	65		sf_bomb_jump
+21	Seal Head	18	0x004F	79		sf_pod
+21	Seal Head	19	0x0050	80		sf_pod_jump
+21	Seal Head	20	0x0057	87		mg_weapon_ta_kamae
+21	Seal Head	21	0x0052	82		sf_weapon_jump
+21	Seal Head	22	0x0051	81		sf_weapon_jump_stiff
+21	Seal Head	23	0x005A	90		mg_weapon_l90
+21	Seal Head	24	0x005B	91		mg_weapon_r90
+21	Seal Head	25	0x0059	89		mg_weapon_stiff
+21	Seal Head	26	0x004B	75		sf_fall_back
+21	Seal Head	27	0x004A	74		sf_fall_back_wall
+21	Seal Head	28	0x004D	77		sf_fall_front
+21	Seal Head	29	0x004C	76		sf_fall_front_wall
+21	Seal Head	30	0x004E	78		sf_fall_magma
+21	Seal Head	31	0x00FE	254		fb_fb081_powerup
+21	Seal Head	32	0x00BE	190		fb_lose_fb081_01
+21	Seal Head	33	0x008F	143		fb_win_fb081_01
+21	Seal Head	34	0x0090	144		fb_win_fb081_02
+21	Seal Head	35	0x00E0	224		cr_atk_fb081_zutsuki
+21	Seal Head	36	0x0040	64		sf_change
+21	Seal Head	37	0x0040	64		sf_change
+22	Dour Head	0	0x0025	37		mg_normal_ta_kamae
+22	Dour Head	1	0x002A	42		mg_normal_walk
+22	Dour Head	2	0x0024	36		mg_normal_run
+22	Dour Head	3	0x0028	40		mg_normal_walk_weapon_r180
+22	Dour Head	4	0x0022	34		mg_normal_run_weapon_r180
+22	Dour Head	5	0x001E	30		mg_back_walk_weapon_r180
+22	Dour Head	6	0x0018	24		mg_back_run_weapon_r180
+22	Dour Head	7	0x0052	82		sf_weapon_jump
+22	Dour Head	8	0x0016	22		mg_back_run_guard_r180
+22	Dour Head	9	0x0020	32		mg_normal_run_guard_r180
+22	Dour Head	10	0x0047	71		sf_jump_dash
+22	Dour Head	11	0x0046	70		sf_double_jump
+22	Dour Head	12	0x0048	72		sf_landing
+22	Dour Head	13	0x0049	73		sf_landing_2
+22	Dour Head	14	0x005C	92		mg_bomb_l90
+22	Dour Head	15	0x005D	93		mg_bomb_r90
+22	Dour Head	16	0x0058	88		mg_bomb_ta_kamae
+22	Dour Head	17	0x0041	65		sf_bomb_jump
+22	Dour Head	18	0x004F	79		sf_pod
+22	Dour Head	19	0x0050	80		sf_pod_jump
+22	Dour Head	20	0x0057	87		mg_weapon_ta_kamae
+22	Dour Head	21	0x0052	82		sf_weapon_jump
+22	Dour Head	22	0x0051	81		sf_weapon_jump_stiff
+22	Dour Head	23	0x005A	90		mg_weapon_l90
+22	Dour Head	24	0x005B	91		mg_weapon_r90
+22	Dour Head	25	0x0059	89		mg_weapon_stiff
+22	Dour Head	26	0x004B	75		sf_fall_back
+22	Dour Head	27	0x004A	74		sf_fall_back_wall
+22	Dour Head	28	0x004D	77		sf_fall_front
+22	Dour Head	29	0x004C	76		sf_fall_front_wall
+22	Dour Head	30	0x004E	78		sf_fall_magma
+22	Dour Head	31	0x00FE	254		fb_fb081_powerup
+22	Dour Head	32	0x00BF	191		fb_lose_fb082_01
+22	Dour Head	33	0x0091	145		fb_win_fb082_01
+22	Dour Head	34	0x0092	146		fb_win_fb082_02
+22	Dour Head	35	0x00E1	225		cr_atk_fb082_sideroll
+22	Dour Head	36	0x0040	64		sf_change
+22	Dour Head	37	0x0040	64		sf_change
+23	Tank Head	0	0x0025	37		mg_normal_ta_kamae
+23	Tank Head	1	0x002A	42		mg_normal_walk
+23	Tank Head	2	0x0024	36		mg_normal_run
+23	Tank Head	3	0x0028	40		mg_normal_walk_weapon_r180
+23	Tank Head	4	0x0022	34		mg_normal_run_weapon_r180
+23	Tank Head	5	0x001E	30		mg_back_walk_weapon_r180
+23	Tank Head	6	0x0018	24		mg_back_run_weapon_r180
+23	Tank Head	7	0x0052	82		sf_weapon_jump
+23	Tank Head	8	0x0016	22		mg_back_run_guard_r180
+23	Tank Head	9	0x0020	32		mg_normal_run_guard_r180
+23	Tank Head	10	0x0047	71		sf_jump_dash
+23	Tank Head	11	0x0046	70		sf_double_jump
+23	Tank Head	12	0x0048	72		sf_landing
+23	Tank Head	13	0x0049	73		sf_landing_2
+23	Tank Head	14	0x005C	92		mg_bomb_l90
+23	Tank Head	15	0x005D	93		mg_bomb_r90
+23	Tank Head	16	0x0058	88		mg_bomb_ta_kamae
+23	Tank Head	17	0x0041	65		sf_bomb_jump
+23	Tank Head	18	0x004F	79		sf_pod
+23	Tank Head	19	0x0050	80		sf_pod_jump
+23	Tank Head	20	0x0057	87		mg_weapon_ta_kamae
+23	Tank Head	21	0x0052	82		sf_weapon_jump
+23	Tank Head	22	0x0051	81		sf_weapon_jump_stiff
+23	Tank Head	23	0x005A	90		mg_weapon_l90
+23	Tank Head	24	0x005B	91		mg_weapon_r90
+23	Tank Head	25	0x0059	89		mg_weapon_stiff
+23	Tank Head	26	0x004B	75		sf_fall_back
+23	Tank Head	27	0x004A	74		sf_fall_back_wall
+23	Tank Head	28	0x004D	77		sf_fall_front
+23	Tank Head	29	0x004C	76		sf_fall_front_wall
+23	Tank Head	30	0x004E	78		sf_fall_magma
+23	Tank Head	31	0x00FE	254		fb_fb081_powerup
+23	Tank Head	32	0x00C0	192		fb_lose_fb083_01
+23	Tank Head	33	0x0093	147		fb_win_fb083_01
+23	Tank Head	34	0x0094	148		fb_win_fb083_02
+23	Tank Head	35	0x00E2	226		cr_atk_fb083_hippress
+23	Tank Head	36	0x0040	64		sf_change
+23	Tank Head	37	0x0040	64		sf_change
+24	Ray Legend	0	0x0010	16		sf_normal_ta_kamae
+24	Ray Legend	1	0x0015	21		sf_normal_walk
+24	Ray Legend	2	0x000F	15		sf_normal_run
+24	Ray Legend	3	0x0013	19		sf_normal_walk_weapon_r180
+24	Ray Legend	4	0x000D	13		sf_normal_run_weapon_r180
+24	Ray Legend	5	0x0009	9		sf_back_walk_weapon_r180
+24	Ray Legend	6	0x0003	3		sf_back_run_weapon_r180
+24	Ray Legend	7	0x0052	82		sf_weapon_jump
+24	Ray Legend	8	0x0001	1		sf_back_run_guard_r180
+24	Ray Legend	9	0x000B	11		sf_normal_run_guard_r180
+24	Ray Legend	10	0x0047	71		sf_jump_dash
+24	Ray Legend	11	0x0046	70		sf_double_jump
+24	Ray Legend	12	0x0048	72		sf_landing
+24	Ray Legend	13	0x0049	73		sf_landing_2
+24	Ray Legend	14	0x0042	66		sf_bomb_l90
+24	Ray Legend	15	0x0043	67		sf_bomb_r90
+24	Ray Legend	16	0x0044	68		sf_bomb_ta_kamae
+24	Ray Legend	17	0x0041	65		sf_bomb_jump
+24	Ray Legend	18	0x004F	79		sf_pod
+24	Ray Legend	19	0x0050	80		sf_pod_jump
+24	Ray Legend	20	0x0056	86		sf_weapon_ta_kamae
+24	Ray Legend	21	0x0052	82		sf_weapon_jump
+24	Ray Legend	22	0x0051	81		sf_weapon_jump_stiff
+24	Ray Legend	23	0x0053	83		sf_weapon_l90
+24	Ray Legend	24	0x0054	84		sf_weapon_r90
+24	Ray Legend	25	0x0055	85		sf_weapon_stiff
+24	Ray Legend	26	0x004B	75		sf_fall_back
+24	Ray Legend	27	0x004A	74		sf_fall_back_wall
+24	Ray Legend	28	0x004D	77		sf_fall_front
+24	Ray Legend	29	0x004C	76		sf_fall_front_wall
+24	Ray Legend	30	0x004E	78		sf_fall_magma
+24	Ray Legend	31	0x00FF	255		sp_sp091_powerup
+24	Ray Legend	32	0x00C1	193		sp_lose_sp091_01
+24	Ray Legend	33	0x0095	149		sp_win_sp091_01
+24	Ray Legend	34	0x0096	150		sp_win_sp091_02
+24	Ray Legend	35	0x00E3	227		cr_atk_sp091_tackl
+24	Ray Legend	36	0x0040	64		sf_change
+24	Ray Legend	37	0x0040	64		sf_change
+25	Oil Can	0	0x0010	16		sf_normal_ta_kamae
+25	Oil Can	1	0x0015	21		sf_normal_walk
+25	Oil Can	2	0x000F	15		sf_normal_run
+25	Oil Can	3	0x0013	19		sf_normal_walk_weapon_r180
+25	Oil Can	4	0x000D	13		sf_normal_run_weapon_r180
+25	Oil Can	5	0x0009	9		sf_back_walk_weapon_r180
+25	Oil Can	6	0x0003	3		sf_back_run_weapon_r180
+25	Oil Can	7	0x0052	82		sf_weapon_jump
+25	Oil Can	8	0x0001	1		sf_back_run_guard_r180
+25	Oil Can	9	0x000B	11		sf_normal_run_guard_r180
+25	Oil Can	10	0x0047	71		sf_jump_dash
+25	Oil Can	11	0x0046	70		sf_double_jump
+25	Oil Can	12	0x0048	72		sf_landing
+25	Oil Can	13	0x0049	73		sf_landing_2
+25	Oil Can	14	0x0042	66		sf_bomb_l90
+25	Oil Can	15	0x0043	67		sf_bomb_r90
+25	Oil Can	16	0x0044	68		sf_bomb_ta_kamae
+25	Oil Can	17	0x0041	65		sf_bomb_jump
+25	Oil Can	18	0x004F	79		sf_pod
+25	Oil Can	19	0x0050	80		sf_pod_jump
+25	Oil Can	20	0x0056	86		sf_weapon_ta_kamae
+25	Oil Can	21	0x0052	82		sf_weapon_jump
+25	Oil Can	22	0x0051	81		sf_weapon_jump_stiff
+25	Oil Can	23	0x0053	83		sf_weapon_l90
+25	Oil Can	24	0x0054	84		sf_weapon_r90
+25	Oil Can	25	0x0055	85		sf_weapon_stiff
+25	Oil Can	26	0x004B	75		sf_fall_back
+25	Oil Can	27	0x004A	74		sf_fall_back_wall
+25	Oil Can	28	0x004D	77		sf_fall_front
+25	Oil Can	29	0x004C	76		sf_fall_front_wall
+25	Oil Can	30	0x004E	78		sf_fall_magma
+25	Oil Can	31	0x0100	256		sp_sp092_powerup
+25	Oil Can	32	0x00C2	194		sp_lose_sp092_01
+25	Oil Can	33	0x0097	151		sp_win_sp092_01
+25	Oil Can	34	0x0098	152		sp_win_sp092_02
+25	Oil Can	35	0x00E4	228		cr_atk_sp092_dada
+25	Oil Can	36	0x0040	64		sf_change
+25	Oil Can	37	0x0040	64		sf_change
+26	Ray Warrior	0	0x0010	16		sf_normal_ta_kamae
+26	Ray Warrior	1	0x0015	21		sf_normal_walk
+26	Ray Warrior	2	0x000F	15		sf_normal_run
+26	Ray Warrior	3	0x0013	19		sf_normal_walk_weapon_r180
+26	Ray Warrior	4	0x000D	13		sf_normal_run_weapon_r180
+26	Ray Warrior	5	0x0009	9		sf_back_walk_weapon_r180
+26	Ray Warrior	6	0x0003	3		sf_back_run_weapon_r180
+26	Ray Warrior	7	0x0052	82		sf_weapon_jump
+26	Ray Warrior	8	0x0001	1		sf_back_run_guard_r180
+26	Ray Warrior	9	0x000B	11		sf_normal_run_guard_r180
+26	Ray Warrior	10	0x0047	71		sf_jump_dash
+26	Ray Warrior	11	0x0046	70		sf_double_jump
+26	Ray Warrior	12	0x0048	72		sf_landing
+26	Ray Warrior	13	0x0049	73		sf_landing_2
+26	Ray Warrior	14	0x0042	66		sf_bomb_l90
+26	Ray Warrior	15	0x0043	67		sf_bomb_r90
+26	Ray Warrior	16	0x0044	68		sf_bomb_ta_kamae
+26	Ray Warrior	17	0x0041	65		sf_bomb_jump
+26	Ray Warrior	18	0x004F	79		sf_pod
+26	Ray Warrior	19	0x0050	80		sf_pod_jump
+26	Ray Warrior	20	0x0056	86		sf_weapon_ta_kamae
+26	Ray Warrior	21	0x0052	82		sf_weapon_jump
+26	Ray Warrior	22	0x0051	81		sf_weapon_jump_stiff
+26	Ray Warrior	23	0x0053	83		sf_weapon_l90
+26	Ray Warrior	24	0x0054	84		sf_weapon_r90
+26	Ray Warrior	25	0x0055	85		sf_weapon_stiff
+26	Ray Warrior	26	0x004B	75		sf_fall_back
+26	Ray Warrior	27	0x004A	74		sf_fall_back_wall
+26	Ray Warrior	28	0x004D	77		sf_fall_front
+26	Ray Warrior	29	0x004C	76		sf_fall_front_wall
+26	Ray Warrior	30	0x004E	78		sf_fall_magma
+26	Ray Warrior	31	0x0101	257		sp_sp093_powerup
+26	Ray Warrior	32	0x00C3	195		sp_lose_sp093_01
+26	Ray Warrior	33	0x0099	153		sp_win_sp093_01
+26	Ray Warrior	34	0x009A	154		sp_win_sp093_02
+26	Ray Warrior	35	0x00E5	229		cr_atk_sp093_tackl_n
+26	Ray Warrior	36	0x0040	64		sf_change
+26	Ray Warrior	37	0x0040	64		sf_change
+27	Rakansen	0	0x0010	16		sf_normal_ta_kamae
+27	Rakansen	1	0x0015	21		sf_normal_walk
+27	Rakansen	2	0x000F	15		sf_normal_run
+27	Rakansen	3	0x0013	19		sf_normal_walk_weapon_r180
+27	Rakansen	4	0x000D	13		sf_normal_run_weapon_r180
+27	Rakansen	5	0x0009	9		sf_back_walk_weapon_r180
+27	Rakansen	6	0x0003	3		sf_back_run_weapon_r180
+27	Rakansen	7	0x0052	82		sf_weapon_jump
+27	Rakansen	8	0x0001	1		sf_back_run_guard_r180
+27	Rakansen	9	0x000B	11		sf_normal_run_guard_r180
+27	Rakansen	10	0x0047	71		sf_jump_dash
+27	Rakansen	11	0x0046	70		sf_double_jump
+27	Rakansen	12	0x0048	72		sf_landing
+27	Rakansen	13	0x0049	73		sf_landing_2
+27	Rakansen	14	0x0042	66		sf_bomb_l90
+27	Rakansen	15	0x0043	67		sf_bomb_r90
+27	Rakansen	16	0x0044	68		sf_bomb_ta_kamae
+27	Rakansen	17	0x0041	65		sf_bomb_jump
+27	Rakansen	18	0x004F	79		sf_pod
+27	Rakansen	19	0x0050	80		sf_pod_jump
+27	Rakansen	20	0x0056	86		sf_weapon_ta_kamae
+27	Rakansen	21	0x0052	82		sf_weapon_jump
+27	Rakansen	22	0x0051	81		sf_weapon_jump_stiff
+27	Rakansen	23	0x0053	83		sf_weapon_l90
+27	Rakansen	24	0x0054	84		sf_weapon_r90
+27	Rakansen	25	0x0055	85		sf_weapon_stiff
+27	Rakansen	26	0x004B	75		sf_fall_back
+27	Rakansen	27	0x004A	74		sf_fall_back_wall
+27	Rakansen	28	0x004D	77		sf_fall_front
+27	Rakansen	29	0x004C	76		sf_fall_front_wall
+27	Rakansen	30	0x004E	78		sf_fall_magma
+27	Rakansen	31	0x0103	259		ug_ug101_powerup
+27	Rakansen	32	0x00C5	197		ug_lose_ug101_01
+27	Rakansen	33	0x009D	157		ug_win_ug101_01
+27	Rakansen	34	0x009E	158		ug_win_ug101_02
+27	Rakansen	35	0x00E7	231		cr_atk_ug101_ude
+27	Rakansen	36	0x0040	64		sf_change
+27	Rakansen	37	0x0040	64		sf_change
+28	Ruhiel	0	0x0010	16		sf_normal_ta_kamae
+28	Ruhiel	1	0x0015	21		sf_normal_walk
+28	Ruhiel	2	0x000F	15		sf_normal_run
+28	Ruhiel	3	0x0013	19		sf_normal_walk_weapon_r180
+28	Ruhiel	4	0x000D	13		sf_normal_run_weapon_r180
+28	Ruhiel	5	0x0009	9		sf_back_walk_weapon_r180
+28	Ruhiel	6	0x0003	3		sf_back_run_weapon_r180
+28	Ruhiel	7	0x0052	82		sf_weapon_jump
+28	Ruhiel	8	0x0001	1		sf_back_run_guard_r180
+28	Ruhiel	9	0x000B	11		sf_normal_run_guard_r180
+28	Ruhiel	10	0x80F4	244	T	ug_change_skyer_ug102
+28	Ruhiel	11	0x0046	70		sf_double_jump
+28	Ruhiel	12	0x0048	72		sf_landing
+28	Ruhiel	13	0x0049	73		sf_landing_2
+28	Ruhiel	14	0x0042	66		sf_bomb_l90
+28	Ruhiel	15	0x0043	67		sf_bomb_r90
+28	Ruhiel	16	0x0044	68		sf_bomb_ta_kamae
+28	Ruhiel	17	0x0041	65		sf_bomb_jump
+28	Ruhiel	18	0x004F	79		sf_pod
+28	Ruhiel	19	0x0050	80		sf_pod_jump
+28	Ruhiel	20	0x0056	86		sf_weapon_ta_kamae
+28	Ruhiel	21	0x0052	82		sf_weapon_jump
+28	Ruhiel	22	0x0051	81		sf_weapon_jump_stiff
+28	Ruhiel	23	0x0053	83		sf_weapon_l90
+28	Ruhiel	24	0x0054	84		sf_weapon_r90
+28	Ruhiel	25	0x0055	85		sf_weapon_stiff
+28	Ruhiel	26	0x004B	75		sf_fall_back
+28	Ruhiel	27	0x004A	74		sf_fall_back_wall
+28	Ruhiel	28	0x004D	77		sf_fall_front
+28	Ruhiel	29	0x004C	76		sf_fall_front_wall
+28	Ruhiel	30	0x004E	78		sf_fall_magma
+28	Ruhiel	31	0x0104	260		ug_ug102_powerup
+28	Ruhiel	32	0x80C6	198	T	ug_lose_ug102_01
+28	Ruhiel	33	0x009F	159		ug_win_ug102_01
+28	Ruhiel	34	0x80A0	160	T	ug_win_ug102_02
+28	Ruhiel	35	0x00E8	232		cr_atk_ug102_drill
+28	Ruhiel	36	0x0040	64		sf_change
+28	Ruhiel	37	0x0040	64		sf_change
+29	Athena	0	0x003A	58		ab_normal_ta_kamae
+29	Athena	1	0x003F	63		ab_normal_walk
+29	Athena	2	0x0039	57		ab_normal_run
+29	Athena	3	0x003D	61		ab_normal_walk_weapon_r180
+29	Athena	4	0x0037	55		ab_normal_run_weapon_r180
+29	Athena	5	0x0032	50		ab_back_walk_weapon_r180
+29	Athena	6	0x002D	45		ab_back_run_weapon_r180
+29	Athena	7	0x0052	82		sf_weapon_jump
+29	Athena	8	0x002B	43		ab_back_run_guard_r180
+29	Athena	9	0x0035	53		ab_normal_run_guard_r180
+29	Athena	10	0x0047	71		sf_jump_dash
+29	Athena	11	0x0046	70		sf_double_jump
+29	Athena	12	0x0048	72		sf_landing
+29	Athena	13	0x0049	73		sf_landing_2
+29	Athena	14	0x0063	99		ab_bomb_l90
+29	Athena	15	0x0064	100		ab_bomb_r90
+29	Athena	16	0x005F	95		ab_bomb_ta_kamae
+29	Athena	17	0x0041	65		sf_bomb_jump
+29	Athena	18	0x004F	79		sf_pod
+29	Athena	19	0x0050	80		sf_pod_jump
+29	Athena	20	0x005E	94		ab_weapon_ta_kamae
+29	Athena	21	0x0052	82		sf_weapon_jump
+29	Athena	22	0x0051	81		sf_weapon_jump_stiff
+29	Athena	23	0x0061	97		ab_weapon_l90
+29	Athena	24	0x0062	98		ab_weapon_r90
+29	Athena	25	0x0060	96		ab_weapon_stiff
+29	Athena	26	0x004B	75		sf_fall_back
+29	Athena	27	0x004A	74		sf_fall_back_wall
+29	Athena	28	0x004D	77		sf_fall_front
+29	Athena	29	0x004C	76		sf_fall_front_wall
+29	Athena	30	0x004E	78		sf_fall_magma
+29	Athena	31	0x0105	261		ug_ug103_powerup
+29	Athena	32	0x00C7	199		ug_lose_ug103_01
+29	Athena	33	0x00A1	161		ug_win_ug103_01
+29	Athena	34	0x00A2	162		ug_win_ug103_02
+29	Athena	35	0x00E9	233		cr_atk_ug103_hiji
+29	Athena	36	0x0040	64		sf_change
+29	Athena	37	0x0040	64		sf_change
+30	Rahu I	0	0x0010	16		sf_normal_ta_kamae
+30	Rahu I	1	0x0015	21		sf_normal_walk
+30	Rahu I	2	0x000F	15		sf_normal_run
+30	Rahu I	3	0x0013	19		sf_normal_walk_weapon_r180
+30	Rahu I	4	0x000D	13		sf_normal_run_weapon_r180
+30	Rahu I	5	0x0009	9		sf_back_walk_weapon_r180
+30	Rahu I	6	0x0003	3		sf_back_run_weapon_r180
+30	Rahu I	7	0x0052	82		sf_weapon_jump
+30	Rahu I	8	0x0001	1		sf_back_run_guard_r180
+30	Rahu I	9	0x000B	11		sf_normal_run_guard_r180
+30	Rahu I	10	0x0047	71		sf_jump_dash
+30	Rahu I	11	0x0046	70		sf_double_jump
+30	Rahu I	12	0x0048	72		sf_landing
+30	Rahu I	13	0x0049	73		sf_landing_2
+30	Rahu I	14	0x0042	66		sf_bomb_l90
+30	Rahu I	15	0x0043	67		sf_bomb_r90
+30	Rahu I	16	0x0044	68		sf_bomb_ta_kamae
+30	Rahu I	17	0x0041	65		sf_bomb_jump
+30	Rahu I	18	0x004F	79		sf_pod
+30	Rahu I	19	0x0050	80		sf_pod_jump
+30	Rahu I	20	0x0056	86		sf_weapon_ta_kamae
+30	Rahu I	21	0x0052	82		sf_weapon_jump
+30	Rahu I	22	0x0051	81		sf_weapon_jump_stiff
+30	Rahu I	23	0x0053	83		sf_weapon_l90
+30	Rahu I	24	0x0054	84		sf_weapon_r90
+30	Rahu I	25	0x0055	85		sf_weapon_stiff
+30	Rahu I	26	0x004B	75		sf_fall_back
+30	Rahu I	27	0x004A	74		sf_fall_back_wall
+30	Rahu I	28	0x004D	77		sf_fall_front
+30	Rahu I	29	0x004C	76		sf_fall_front_wall
+30	Rahu I	30	0x004E	78		sf_fall_magma
+30	Rahu I	31	0x0106	262		rr_rr111_powerup
+30	Rahu I	32	0x00C8	200		rr_lose_rr111_01
+30	Rahu I	33	0x00A3	163		rr_win_rr111_01
+30	Rahu I	34	0x00A4	164		rr_win_rr111_02
+30	Rahu I	35	0x00EA	234		cr_atk_rr111_spinrari
+30	Rahu I	36	0x0040	64		sf_change
+30	Rahu I	37	0x0040	64		sf_change
+31	Rahu II	0	0x0010	16		sf_normal_ta_kamae
+31	Rahu II	1	0x0015	21		sf_normal_walk
+31	Rahu II	2	0x000F	15		sf_normal_run
+31	Rahu II	3	0x0013	19		sf_normal_walk_weapon_r180
+31	Rahu II	4	0x000D	13		sf_normal_run_weapon_r180
+31	Rahu II	5	0x0009	9		sf_back_walk_weapon_r180
+31	Rahu II	6	0x0003	3		sf_back_run_weapon_r180
+31	Rahu II	7	0x0052	82		sf_weapon_jump
+31	Rahu II	8	0x0001	1		sf_back_run_guard_r180
+31	Rahu II	9	0x000B	11		sf_normal_run_guard_r180
+31	Rahu II	10	0x0047	71		sf_jump_dash
+31	Rahu II	11	0x0046	70		sf_double_jump
+31	Rahu II	12	0x0048	72		sf_landing
+31	Rahu II	13	0x0049	73		sf_landing_2
+31	Rahu II	14	0x0042	66		sf_bomb_l90
+31	Rahu II	15	0x0043	67		sf_bomb_r90
+31	Rahu II	16	0x0044	68		sf_bomb_ta_kamae
+31	Rahu II	17	0x0041	65		sf_bomb_jump
+31	Rahu II	18	0x004F	79		sf_pod
+31	Rahu II	19	0x0050	80		sf_pod_jump
+31	Rahu II	20	0x0056	86		sf_weapon_ta_kamae
+31	Rahu II	21	0x0052	82		sf_weapon_jump
+31	Rahu II	22	0x0051	81		sf_weapon_jump_stiff
+31	Rahu II	23	0x0053	83		sf_weapon_l90
+31	Rahu II	24	0x0054	84		sf_weapon_r90
+31	Rahu II	25	0x0055	85		sf_weapon_stiff
+31	Rahu II	26	0x004B	75		sf_fall_back
+31	Rahu II	27	0x004A	74		sf_fall_back_wall
+31	Rahu II	28	0x004D	77		sf_fall_front
+31	Rahu II	29	0x004C	76		sf_fall_front_wall
+31	Rahu II	30	0x004E	78		sf_fall_magma
+31	Rahu II	31	0x0106	262		rr_rr111_powerup
+31	Rahu II	32	0x00C8	200		rr_lose_rr111_01
+31	Rahu II	33	0x00A3	163		rr_win_rr111_01
+31	Rahu II	34	0x00A4	164		rr_win_rr111_02
+31	Rahu II	35	0x00EA	234		cr_atk_rr111_spinrari
+31	Rahu II	36	0x0040	64		sf_change
+31	Rahu II	37	0x0040	64		sf_change
+32	Rahu III	0	0x0010	16		sf_normal_ta_kamae
+32	Rahu III	1	0x0015	21		sf_normal_walk
+32	Rahu III	2	0x000F	15		sf_normal_run
+32	Rahu III	3	0x0013	19		sf_normal_walk_weapon_r180
+32	Rahu III	4	0x000D	13		sf_normal_run_weapon_r180
+32	Rahu III	5	0x0009	9		sf_back_walk_weapon_r180
+32	Rahu III	6	0x0003	3		sf_back_run_weapon_r180
+32	Rahu III	7	0x0052	82		sf_weapon_jump
+32	Rahu III	8	0x0001	1		sf_back_run_guard_r180
+32	Rahu III	9	0x000B	11		sf_normal_run_guard_r180
+32	Rahu III	10	0x0047	71		sf_jump_dash
+32	Rahu III	11	0x0046	70		sf_double_jump
+32	Rahu III	12	0x0048	72		sf_landing
+32	Rahu III	13	0x0049	73		sf_landing_2
+32	Rahu III	14	0x0042	66		sf_bomb_l90
+32	Rahu III	15	0x0043	67		sf_bomb_r90
+32	Rahu III	16	0x0044	68		sf_bomb_ta_kamae
+32	Rahu III	17	0x0041	65		sf_bomb_jump
+32	Rahu III	18	0x004F	79		sf_pod
+32	Rahu III	19	0x0050	80		sf_pod_jump
+32	Rahu III	20	0x0056	86		sf_weapon_ta_kamae
+32	Rahu III	21	0x0052	82		sf_weapon_jump
+32	Rahu III	22	0x0051	81		sf_weapon_jump_stiff
+32	Rahu III	23	0x0053	83		sf_weapon_l90
+32	Rahu III	24	0x0054	84		sf_weapon_r90
+32	Rahu III	25	0x0055	85		sf_weapon_stiff
+32	Rahu III	26	0x004B	75		sf_fall_back
+32	Rahu III	27	0x004A	74		sf_fall_back_wall
+32	Rahu III	28	0x004D	77		sf_fall_front
+32	Rahu III	29	0x004C	76		sf_fall_front_wall
+32	Rahu III	30	0x004E	78		sf_fall_magma
+32	Rahu III	31	0x0106	262		rr_rr111_powerup
+32	Rahu III	32	0x00C8	200		rr_lose_rr111_01
+32	Rahu III	33	0x00A3	163		rr_win_rr111_01
+32	Rahu III	34	0x00A4	164		rr_win_rr111_02
+32	Rahu III	35	0x00EA	234		cr_atk_rr111_spinrari
+32	Rahu III	36	0x0040	64		sf_change
+32	Rahu III	37	0x0040	64		sf_change
+33	Chickenheart	0	0x0010	16		sf_normal_ta_kamae
+33	Chickenheart	1	0x0015	21		sf_normal_walk
+33	Chickenheart	2	0x000F	15		sf_normal_run
+33	Chickenheart	3	0x0013	19		sf_normal_walk_weapon_r180
+33	Chickenheart	4	0x000D	13		sf_normal_run_weapon_r180
+33	Chickenheart	5	0x0009	9		sf_back_walk_weapon_r180
+33	Chickenheart	6	0x0003	3		sf_back_run_weapon_r180
+33	Chickenheart	7	0x0052	82		sf_weapon_jump
+33	Chickenheart	8	0x0001	1		sf_back_run_guard_r180
+33	Chickenheart	9	0x000B	11		sf_normal_run_guard_r180
+33	Chickenheart	10	0x0047	71		sf_jump_dash
+33	Chickenheart	11	0x0046	70		sf_double_jump
+33	Chickenheart	12	0x0048	72		sf_landing
+33	Chickenheart	13	0x0049	73		sf_landing_2
+33	Chickenheart	14	0x0042	66		sf_bomb_l90
+33	Chickenheart	15	0x0043	67		sf_bomb_r90
+33	Chickenheart	16	0x0044	68		sf_bomb_ta_kamae
+33	Chickenheart	17	0x0041	65		sf_bomb_jump
+33	Chickenheart	18	0x004F	79		sf_pod
+33	Chickenheart	19	0x0050	80		sf_pod_jump
+33	Chickenheart	20	0x0056	86		sf_weapon_ta_kamae
+33	Chickenheart	21	0x0052	82		sf_weapon_jump
+33	Chickenheart	22	0x0051	81		sf_weapon_jump_stiff
+33	Chickenheart	23	0x0053	83		sf_weapon_l90
+33	Chickenheart	24	0x0054	84		sf_weapon_r90
+33	Chickenheart	25	0x0055	85		sf_weapon_stiff
+33	Chickenheart	26	0x004B	75		sf_fall_back
+33	Chickenheart	27	0x004A	74		sf_fall_back_wall
+33	Chickenheart	28	0x004D	77		sf_fall_front
+33	Chickenheart	29	0x004C	76		sf_fall_front_wall
+33	Chickenheart	30	0x004E	78		sf_fall_magma
+33	Chickenheart	31	0x0102	258		sp_sp094_powerup
+33	Chickenheart	32	0x00C4	196		sp_lose_sp094_01
+33	Chickenheart	33	0x009B	155		sp_win_sp094_01
+33	Chickenheart	34	0x009C	156		sp_win_sp094_02
+33	Chickenheart	35	0x00E6	230		cr_atk_sp094_kakku
+33	Chickenheart	36	0x0040	64		sf_change
+33	Chickenheart	37	0x0040	64		sf_change
