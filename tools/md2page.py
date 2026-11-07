@@ -32,6 +32,18 @@ while i < len(lines):
         sid = 's' + num
         nav.append('<li><a href="#%s"><span class="k">%s</span>%s</a></li>' % (sid, num, inline(re.sub(r' \(.*\)$', '', t))))
         body.append('<h2 id="%s"><span class="k">%s</span>%s</h2>' % (sid, num, inline(t)))
+    elif l.startswith('### '):
+        flush_par(par); par = []
+        body.append('<h3>%s</h3>' % inline(l[4:]))
+    elif re.match(r'\d+\. ', l):
+        flush_par(par); par = []
+        items = []
+        while i < len(lines) and (re.match(r'\d+\. ', lines[i]) or (lines[i].startswith('   ') and items)):
+            if re.match(r'\d+\. ', lines[i]): items.append(re.sub(r'^\d+\. ', '', lines[i]))
+            else: items[-1] += ' ' + lines[i].strip()
+            i += 1
+        i -= 1
+        body.append('<ol>' + ''.join('<li>%s</li>' % inline(x) for x in items) + '</ol>')
     elif l.startswith('|'):
         flush_par(par); par = []
         rows = []
