@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom Robo Model Guide</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a field manual. Left rail of numbered steps (the real reading order), one text column, tables in their own scrollers. */
+:root {
+  --bg: #f3f5f7; --paper: #ffffff; --fg: #1b2530; --muted: #5b6876; --rule: #d6dde4;
+  --accent: #1d5f8a; --accent-soft: #e2edf5; --warn: #9a5b00; --warn-soft: #fbf0dc; --ok: #2b6e46; --code-bg: #eef2f5;
+  --display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11171d; --paper: #172029; --fg: #dbe4ec; --muted: #94a3b2; --rule: #2a3742;
+  --accent: #7cb7e0; --accent-soft: #1b3346; --warn: #e7b25c; --warn-soft: #33270f; --ok: #7fc79c; --code-bg: #1d2832; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11171d; --paper: #172029; --fg: #dbe4ec; --muted: #94a3b2; --rule: #2a3742;
+  --accent: #7cb7e0; --accent-soft: #1b3346; --warn: #e7b25c; --warn-soft: #33270f; --ok: #7fc79c; --code-bg: #1d2832; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 16px/1.6 var(--body); margin: 0 }
+.wrap { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: 2.5rem; max-width: 72rem; margin: 0 auto;
+  padding-block: 2.5rem 4rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+nav { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1.5rem); align-self: start; font-size: .9rem }
+nav ol { list-style: none; margin: 0; padding: 0; display: grid; gap: .15rem; counter-reset: s }
+nav a { display: block; color: var(--muted); text-decoration: none; padding: .3rem .6rem; border-left: 2px solid var(--rule) }
+nav a:hover, nav a:focus-visible { color: var(--accent); border-left-color: var(--accent); outline: none }
+nav .k { font-family: var(--mono); font-size: .8rem; color: var(--accent); margin-right: .4rem }
+main { min-width: 0; max-width: 46rem }
+header { border-bottom: 1px solid var(--rule); padding-bottom: 1.5rem; margin-bottom: 1rem }
+.eyebrow { font: 600 .78rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--accent) }
+h1 { font: 700 2.4rem/1.1 var(--display); margin: .5rem 0 .8rem; text-wrap: balance }
+h2 { font: 600 1.5rem/1.2 var(--display); margin: 3rem 0 .8rem; text-wrap: balance; scroll-margin-top: 1rem }
+h2 .k { font-family: var(--mono); font-size: 1rem; color: var(--accent); margin-right: .6rem; vertical-align: .15em }
+h3 { font: 600 1.12rem/1.3 var(--display); margin: 1.8rem 0 .5rem }
+p, li { max-width: 65ch }
+.lede { font-size: 1.08rem; color: var(--muted) }
+a { color: var(--accent) }
+code { font: .88em var(--mono); background: var(--code-bg); padding: .08em .3em; border-radius: 3px }
+pre { font: .85rem/1.5 var(--mono); background: var(--code-bg); padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 1rem 0 }
+pre code { background: none; padding: 0 }
+.tbl { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper) }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums }
+th, td { text-align: left; vertical-align: top; padding: .55rem .75rem; border-bottom: 1px solid var(--rule) }
+th { font: 600 .78rem/1.3 var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--code-bg) }
+tr:last-child td { border-bottom: 0 }
+.key { background: var(--accent-soft); border-radius: 8px; padding: 1.1rem 1.3rem; margin: 1.5rem 0 }
+.key h3 { margin-top: 0 }
+.key ol { margin: 0; padding-left: 1.3rem; display: grid; gap: .45rem }
+.note { border-left: 3px solid var(--warn); background: var(--warn-soft); padding: .8rem 1rem; border-radius: 0 6px 6px 0; margin: 1.2rem 0 }
+.note b { color: var(--warn) }
+.tag { font: 600 .7rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; padding: .2rem .45rem; border-radius: 3px; vertical-align: .12em }
+.v { background: var(--accent-soft); color: var(--accent) }
+.o { background: var(--warn-soft); color: var(--warn) }
+.flow { display: grid; gap: .5rem; margin: 1.2rem 0; counter-reset: f }
+.flow div { background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: .6rem .9rem; display: flex; gap: .8rem; align-items: baseline }
+.flow div::before { counter-increment: f; content: counter(f); font: 600 .85rem var(--mono); color: var(--accent); min-width: 1.2rem }
+footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: .88rem }
+@media (max-width: 860px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 1rem } nav { position: static }
+  nav ol { grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)) } h1 { font-size: 1.9rem } }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth } }
+</style>
+</head><body>
+
+<div class="wrap">
+<nav aria-label="Sections"><ol>
+  <li><a href="#disc"><span class="k">1</span>On the disc</a></li>
+  <li><a href="#hsd"><span class="k">2</span>HSD structures</a></li>
+  <li><a href="#vertices"><span class="k">3</span>Vertices</a></li>
+  <li><a href="#textures"><span class="k">4</span>Textures</a></li>
+  <li><a href="#bodies"><span class="k">5</span>Robo bodies</a></li>
+  <li><a href="#parts"><span class="k">6</span>Parts</a></li>
+  <li><a href="#stages"><span class="k">7</span>Stages</a></li>
+  <li><a href="#effects"><span class="k">8</span>Effects</a></li>
+  <li><a href="#anims"><span class="k">8b</span>Battle animations</a></li>
+  <li><a href="#roundtrip"><span class="k">9</span>Round trip</a></li>
+  <li><a href="#code"><span class="k">10</span>Code map</a></li>
+  <li><a href="#open"><span class="k">11</span>Open questions</a></li>
+</ol></nav>
+
+<main>
+<header>
+  <div class="eyebrow">Custom Robo · GameCube · US (GXCE01)</div>
+  <h1>Importing and exporting models</h1>
+  <p class="lede">A reading guide for anyone writing an exporter or importer for robos, parts, stages and effects, in the order you meet things: from the disc down to the vertices. Each step says what is <span class="tag v">verified</span> (read from the game's own code or checked over every file) and what is still <span class="tag o">open</span>.</p>
+</header>
+
+<section class="key">
+  <h3>The short version</h3>
+  <ol>
+    <li>Every model is HAL's <b>sysdolphin (HSD)</b> format, the same as Super Smash Bros. Melee. Stages and effects are plain HSD <code>.dat</code> files; robos and parts are HSD data behind a 0x40-byte header.</li>
+    <li>Vertices land right only with three things a quick parser skips: <b>each joint's world matrix</b>, the <b>fixed-point scale (<code>frac</code>) of every vertex attribute</b>, and for the transforming bodies <b>their own joint animation at frame 0</b>.</li>
+    <li>A robo body draws with <b>one material</b> (one texture atlas). Parts are rigid and modelled at <b>10×</b> the body's scale.</li>
+    <li>A stage is a model entry plus a collision entry. An effect entry holds two <code>.dat</code> files.</li>
+    <li>A working round trip (export → Blender → import → playable ISO and a patch without game data) exists for robos, parts, stages and effects.</li>
+  </ol>
+</section>
+
+<h2 id="disc"><span class="k">1</span>Where the models are on the disc</h2>
+<p>All models sit in SFD archives (<code>.BIN</code>), one model per entry. The project's one-time build unpacks them and converts every model to a standard HSD <code>.dat</code> (1,006 models) plus glTF.</p>
+<div class="tbl"><table>
+<tr><th>What</th><th>Archive</th><th>Entry</th><th>Format</th></tr>
+<tr><td>Robo bodies</td><td><code>chara.BIN</code></td><td>body N = entries 5N … 5N+4. The game loads 5N; the other four are most likely colour variants (not verified)</td><td>model entry, "abs" header</td></tr>
+<tr><td>Guns, bombs, pods, legs</td><td><code>weapon_gun / _bom / _pod / _leg</code></td><td>part number</td><td>model entry, "rel" header, several root joints</td></tr>
+<tr><td>Stages</td><td><code>bg_data.BIN</code></td><td>stage s: 2s = model, 2s+1 = collision</td><td>HSD <code>.dat</code>, root <code>scene_data</code>; collision has its own format</td></tr>
+<tr><td>Shots, blasts, attacks</td><td><code>gun / bomb / pod / attack_effect</code></td><td>part number; attack_effect by <b>body</b> number</td><td>wrapper around two HSD <code>.dat</code> files</td></tr>
+<tr><td>Leg effects</td><td><code>leg_effect.BIN</code></td><td>leg number</td><td>HSD <code>.dat</code>, root <code>scene_data</code></td></tr>
+<tr><td>Story characters, objects, maps</td><td><code>scenario_us/snr_chara, snr_obj, snr_map</code></td><td></td><td>model entry / <code>.dat</code> / model + collision in one entry</td></tr>
+</table></div>
+<div class="note"><b>Gotcha</b> <span class="tag v">verified</span> The game keeps its own copy of most archives' entry tables inside main.dol (chara, weapon_*, *_effect, snr_*). An edit that changes an entry's size must update that copy, or the game reports a disc read error. <code>bg_data.BIN</code> has no copy. The project's <code>make_mod.py</code> handles both.</div>
+
+<h2 id="hsd"><span class="k">2</span>The HSD structures you will walk</h2>
+<p>The same structures as Melee; HSDLib's layouts are right for this game. The path from a model's root joint to its triangles:</p>
+<pre><code>JObj (joint)     +08 child  +0C next  +10 DObj  +14 rotation xyz  +20 scale xyz
+                 +2C translation xyz  +38 inverse bind matrix
+ └ DObj (mesh)   +04 next  +08 MObj  +0C PObj
+    ├ MObj       +04 render mode  +08 TObj chain  +0C material colours
+    │  └ TObj    +04 next  +0C coordinate source  +10 rot / +1C scale / +28 translation
+    │            +34 / +38 wrap S / T  +3C / +3D repeat S / T  +4C image
+    │     └ Image  +00 data  +04 width  +06 height  +08 GX format (CMPR = 14)
+    └ PObj       +08 vertex attribute list  +10 display list  +14 envelopes (skin weights)</code></pre>
+<p>Robo and part entries put a 0x40-byte header in front: word 2 points at the root joint (bodies) or at an array of root records (parts). After the HSD data come the game's own blocks: A (limb measurements), B (the material joint) and C (19 joint roles).</p>
+
+<h2 id="vertices"><span class="k">3</span>Vertices: three things that make or break the shape</h2>
+<h3>3a. Joint world matrices <span class="tag v">verified</span></h3>
+<p>A PObj without envelopes is <b>rigid</b>: its vertices are in the local space of the joint that owns its mesh. Build each joint's world matrix (parents first; HSD order scale, rotation, translation) and transform the vertices by it. Every part PObj is rigid. Skipping this gives the classic result where the one-joint roots look fine and the many-joint roots pile up near the origin.</p>
+<p>Skinned PObjs (robo bodies) carry a matrix index plus up to 4 weights per vertex (0.1 steps); their vertices are in the bind pose.</p>
+
+<h3>3b. Fixed-point vertex formats: read <code>frac</code> per attribute <span class="tag v">verified</span></h3>
+<p>GameCube vertex components are often integers with a fixed-point shift: <b>value = raw ÷ 2<sup>frac</sup></b>. The component type (u8, s8, u16, s16, f32) and <code>frac</code> are stored in each attribute descriptor (0x18 bytes: +0x0C type, +0x10 frac), and <b>they differ between files and between meshes of one file</b>. Counted over every model:</p>
+<div class="tbl"><table>
+<tr><th>Models</th><th>UV formats seen</th><th>Positions</th><th>Normals</th></tr>
+<tr><td>Robo bodies</td><td>u16 frac 15 (most); <b>u16 frac 14</b> (Javelin, Glaive); <b>s16 frac 14</b> (Ray Legend)</td><td>s16 frac 11, 12, 13</td><td>s16 frac 14</td></tr>
+<tr><td>Parts</td><td>f32; u16 frac 15; <b>u16 frac 14</b> (legs 2, 10); <b>s16 frac 14</b> (pods 16, 17, 25; legs 11, 13, 14)</td><td>f32 or s16 frac 10 to 13</td><td>f32 or s16 frac 14</td></tr>
+<tr><td>Stages</td><td>f32</td><td>f32</td><td>f32</td></tr>
+<tr><td>Effects</td><td>u16 frac 14 or 15; <b>u8 frac 7</b></td><td>s16 frac 10 to 14</td><td>s16 frac 14</td></tr>
+</table></div>
+<p>A parser that assumes one scale (÷32768 for every u16 UV) draws the frac-14 UVs at half size, and one that reads s16 as u16 wraps negative coordinates. Both look like a texture that is offset or misaligned on some robos only. TEX0 and TEX1 point at the same UV buffer on robos.</p>
+
+<h3>3c. Transforming bodies: apply their own animation at frame 0 <span class="tag v">verified</span></h3>
+<p>Four bodies carry a joint animation of their own: <b>Defender, Seeker, Breaker</b> (10 frames) and <b>Ruhiel</b> (9 frames). Their bind pose is not what the game draws. Every frame the game sets that animation to a frame:</p>
+<ul>
+  <li><b>frame 0</b> normally;</li>
+  <li>during a motion whose id has bit 0x8000 set (the transform moves), a value the action code steps from 0 up to 10, then holds at 9.9.</li>
+</ul>
+<p>So the battle form is the body animation at <b>frame 0</b>, and the frames in between are the transformation. Breaker's bind pose is its other form, which matches what the export showed. <b>Exporter rule:</b> if the model has a joint animation, apply it at frame 0 before baking positions. The other 30 bodies have no body animation; the game poses them through 19 role joints, so their bind pose is their rest pose.</p>
+
+<h2 id="textures"><span class="k">4</span>Textures and materials</h2>
+<ul>
+  <li><b>Format.</b> Robo, part and almost every stage texture is <b>CMPR</b> (GX format 14): 8×8 tiles, each four 4×4 DXT1-style blocks (top-left, top-right, bottom-left, bottom-right), RGB565 colours big-endian, 2-bit indices most significant bit first. <b>Alpha:</b> when colour 0 ≤ colour 1 (as u16), index 3 is fully transparent, so CMPR carries 1-bit alpha. A decoder that drops it loses the cut-outs.</li>
+  <li><b>One material per robo body</b> <span class="tag v">verified</span> The draw code sets up only the block-B joint's material and draws every mesh with it, so every body is one atlas. Two texture stages: the diffuse CMPR (TEX0; the image replaces the diffuse colour) and a quarter-size grey specular mask (TEX1, blend 0.8, same UVs).</li>
+  <li><b>No texture transforms on robos and parts</b> <span class="tag v">verified</span> All 13,518 of their textures have identity scale, rotation and translation, repeat 1×1 and CLAMP wrap. A misplaced robo texture comes from the UV format (3b), not from a texture matrix.</li>
+  <li><b>Stages do use them.</b> 291 of 1,414 stage textures tile, mostly the detail and environment layers (TEX1, TEX2) with REPEAT wrap and repeat 8×8, 16×2, 24×24 or 40×40. Multiply those layers' UVs by the repeat counts and the texture's scale. Some stage materials take coordinates from the normals (reflection maps) and some colour from the vertices.</li>
+  <li><b>Colour variants</b> are separate entries with their own images; there is no palette swap.</li>
+</ul>
+
+<h2 id="bodies"><span class="k">5</span>Robo bodies: the skeleton the game expects</h2>
+<ul>
+  <li>One root joint, 51 to 69 joints. The game finds <b>19 role joints</b> through paths stored after the HSD data (block C): upper body, head, two 4-joint arms, lower body, two 4-joint legs. The motion system drives those.</li>
+  <li>Hands and feet are IK effectors; their bind pose sits at odd places and the game moves them. Robo 0 faces +Y in Blender.</li>
+  <li><b>Size lives in the vertices.</b> There is no per-robo scale; the root scale is overridden at run time. A body entry must stay under <b>0x3A000 bytes</b>.</li>
+  <li>A new skeleton works with a roles file naming which joint plays each role.</li>
+</ul>
+
+<h2 id="parts"><span class="k">6</span>Parts: draw groups, forms, mounts <span class="tag v">verified</span></h2>
+<p>A part file holds several root joints ("draw groups"). The game shows one form of each part at a time:</p>
+<div class="tbl"><table>
+<tr><th>Part</th><th>Roots</th><th>Form 0</th><th>Form 1</th><th>In battle</th></tr>
+<tr><td>Gun</td><td>2</td><td>root 0 (large, animated)</td><td>root 1</td><td>starts in form 0; its state value reaches form 1 after 60 frames unless reset</td></tr>
+<tr><td>Bomb</td><td>2</td><td>root 0</td><td>root 1</td><td>root 1</td></tr>
+<tr><td>Pod</td><td>4</td><td>roots 0 + 1 (left and right)</td><td>roots 2 + 3</td><td>form 0 mostly</td></tr>
+<tr><td>Legs</td><td>6</td><td>roots 0 + 2 (with 1, 3)</td><td>roots 4 + 5 (with 1, 3)</td><td>roots 4 + 5 with 1 + 3</td></tr>
+</table></div>
+<ul>
+  <li>The Customize screen shows every part in form 0, the large display models.</li>
+  <li><b>Placement:</b> each root hangs on a body role joint (gun on one forearm, bomb on the other, pods on the upper body, legs on shins and ankles), then a per-body offset, then <b>scale 0.1</b>, then a per-body scale vector.</li>
+  <li><b>Part animations are poses, not clips:</b> frame = 10 × a 0-to-1 state value (11 frames).</li>
+  <li>Nothing is mirrored at run time: left and right pods and legs are separate roots.</li>
+</ul>
+
+<h2 id="stages"><span class="k">7</span>Stages</h2>
+<ul>
+  <li><b>Model</b> (entry 2s): <code>scene_data</code> holds up to <b>20 models</b>, one camera, up to 10 lights and fog. Each model is a joint tree with its first joint and material animation attached at load.</li>
+  <li><b>Collision</b> (entry 2s+1) <span class="tag v">verified</span> A u32 group count, offsets to group headers and to quad arrays, and an optional section C. Group n belongs to scene model n. Header: bounding sphere (x, y, z, r), quad count, model flags. Quad (0x44 bytes): 4 corners, plane normal, plane distance, a u32 surface attribute. Section C looks like a waypoint graph for computer players (not verified).</li>
+  <li><b>Limits:</b> model entry ≤ 0x100000 bytes, collision ≤ 0x8000, and models after the first may have at most 21 meshes on their root joint (the game hangs otherwise).</li>
+  <li><span class="tag o">open</span> Spawn points, the battle camera, the meaning of the surface attributes.</li>
+</ul>
+
+<h2 id="effects"><span class="k">8</span>Effects (projectiles, blasts)</h2>
+<p>Each <code>*_effect.BIN</code> entry is a u32 count (2), count + 1 offsets, padding to 0x20, then two standard <code>.dat</code> files, each with a <code>scene_data</code> root (models, camera, lights, fog, joint and material animations) and padded to 0x20. Size limits per entry: gun 0x16000, bomb and pod 0x40000, attack 0x14000, leg 0x1000. <span class="tag o">open</span> What the second <code>.dat</code> is for.</p>
+
+<h2 id="anims"><span class="k">8b</span>Battle animations: victory, lose, charge attack <span class="tag v">verified</span></h2>
+<p>Every body has a set of <b>38 motion slots</b>. The body's entry in <code>cr_g_BodyData</code> points at its set (Chickenheart uses set 27 and bodies 27 to 32 use sets 28 to 33, so always follow the pointer). Motion data for all 1,095 motions is one file, entry 8 of <code>logo_read_us.dbn</code>. A slot holds a motion ID plus flag 0x8000, which also runs the transforming bodies' own animation.</p>
+<div class="tbl"><table>
+<tr><th>Slot</th><th>Motion</th><th>When</th><th>Length and timing</th></tr>
+<tr><td>0x21 / 0x22</td><td><code>*_win_*_01</code> / <code>_02</code></td><td>end of battle, winner. Free battle: pose chosen at random. Team result: by placing. Tag: <code>_01</code></td><td>139 frames, played once over the 140-frame end sequence after a wait on frame 0 (120 frames, or 30 for a second-placed robo)</td></tr>
+<tr><td>0x20</td><td><code>*_lose_*_01</code></td><td>end of battle, every loser still standing</td><td>same as victory</td></tr>
+<tr><td>0x23</td><td><code>cr_atk_*</code> (charge attack)</td><td>input from standing; three phases</td><td><b>60 frames = three 20-frame blocks</b>, each stretched over that phase's duration from the body's stats</td></tr>
+<tr><td>0x1F</td><td><code>*_powerup</code></td><td>getting up after a knockdown (not a charge)</td><td>20 frames over 30 game frames</td></tr>
+<tr><td>0x0A</td><td><code>sf_jump_dash</code>; transformers <code>*_change_skyer_*</code></td><td>air dash: the transforming bodies change form here</td><td>by the jump state</td></tr>
+</table></div>
+<p><b>Charge attack phases.</b> Each phase takes its duration, speed (×0.1) and climb angle from the body's stats record (+0xDA/DC/DE, +0xE0/E2/E4, +0xE6/E8/EA), and phases 0 and 1 home on the target by up to (+0xD8)/1000 radians per frame. It also switches on an extra attack model (most likely from the body's attack_effect entry). Changing a phase's duration retimes only that phase's 20-frame block of the motion.</p>
+<p><b>Replacing an animation:</b> keep the length (win and lose 139 frames, charge attack 60, get-up 20). The game maps its own timers onto those frames, so a longer motion is cut off and a shorter one holds its last frame.</p>
+
+<h2 id="roundtrip"><span class="k">9</span>The working round trip</h2>
+<div class="flow">
+  <div>Disc ISO → the one-time build → every model as a standard <code>.dat</code></div>
+  <div><code>HSDRawViewer --export</code> → glTF (one per root joint or scene model)</div>
+  <div>Blender, by hand or by script</div>
+  <div><code>HSDRawViewer --import</code> over the original <code>.dat</code>: everything you did not change stays byte-identical</div>
+  <div><code>make_mod.py</code> → a playable ISO and a patch with no game data, which players apply to their own ISO</div>
+</div>
+<p>One command runs all of it per category (robos, parts, stages, effects). With no edit, the round trip gives back the clean disc byte for byte for robos, all 40 stages and the effect archives.</p>
+<p><b>Bring your own tool:</b> anything that writes a standard HSD <code>.dat</code> plugs in. For robos and parts the project's converter rebuilds the game entry from the <code>.dat</code> and keeps blocks A, B and C; stage and effect <code>.dat</code> files go in as they are.</p>
+
+<h2 id="code"><span class="k">10</span>Who reads what in the game's code</h2>
+<div class="tbl"><table>
+<tr><th>Asset</th><th>Loaded by</th><th>Built or drawn by</th></tr>
+<tr><td>Robo body</td><td><code>cr_CharaEntry_OnLoaded</code> 0x800747B0</td><td><code>cr_Chara_BuildModel</code> 0x80074110; draw <code>fn_800BCC60</code> → <code>fn_80095E6C</code></td></tr>
+<tr><td>Parts</td><td><code>cr_WeaponModel_OnLoaded</code> 0x80073CB8</td><td>slots <code>fn_80007CE4</code>; forms <code>fn_80007AE4 / BD4 / C24 / C74</code>; placement <code>fn_80039FAC</code></td></tr>
+<tr><td>Body and part animation frame</td><td></td><td><code>fn_80095700</code>, called from <code>fn_80039FAC</code></td></tr>
+<tr><td>Stage model</td><td><code>fn_8011449C</code> (entry 2s)</td><td><code>fn_80072064</code> (models, lights, fog)</td></tr>
+<tr><td>Stage collision</td><td><code>fn_8011449C</code> (entry 2s+1)</td><td><code>fn_80072A58</code></td></tr>
+<tr><td>Effects</td><td><code>fn_80075950</code> (per robo)</td><td></td></tr>
+</table></div>
+
+<h2 id="open"><span class="k">11</span>Open questions</h2>
+<ul>
+  <li>Which motion ids carry the transform bit 0x8000.</li>
+  <li>Spawn points, the battle camera, the collision surface attributes and group flags.</li>
+  <li>The second <code>.dat</code> of each effect entry.</li>
+  <li>Memory and vertex limits beyond the entry sizes.</li>
+  <li>The meaning of each limb measurement in block A.</li>
+</ul>
+
+<footer>From the Custom Robo decompilation project's format notes and code traces (docs/IMPORT_EXPORT_GUIDE.md and the pages it links). Values marked verified come from the game's code or from scans of every model file.</footer>
+</main>
+</div>
+
+</body></html>

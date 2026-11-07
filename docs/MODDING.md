@@ -361,8 +361,12 @@ glTF refuses, so the patched exporter writes +Y for it); the `basic_arena_pillar
 - Model entry (2s) at most **0x100000 bytes** (its load region; `make_mod.py` refuses more); the largest retail one
   is 0xEC220. Collision entry (2s+1) at most **0x8000 bytes**.
 - At most 20 models per scene; at most 21 DObjs on the root joint of models 1 and up (the game hangs otherwise).
-- **No collision for new geometry**: the collision is entry 2s+1, a separate format (quads with plane equations per
-  model, stage_tables.md); robos walk through the pillar. Editing it (moving or adding quads) is not in the loop yet.
+- **Collision for new geometry**: the collision is entry 2s+1 (quads with plane equations per scene model); the
+  model loop does not touch it. `python -I tools/stage_collision.py export S` writes it as an OBJ (one object per
+  group), add the new faces in Blender (normals toward where a robo stands: an obstacle's faces out), then
+  `stage_collision.py import S edited.obj --mod MYMOD`; unchanged quads keep their bytes (all 39 retail entries
+  round-trip byte for byte). Formats, the breakable / moving model flags and the rules:
+  [SCENE_GUIDE.md](SCENE_GUIDE.md#5-stages-verified-fn_80072064-fn_80072b90-fn_80070170-fn_80072a58).
 - Meshes on scaled joints (Dead Line model 0: joints at scale 0.667; Battle Gear Station model 11) come back from
   Blender with another size: they are kept as they were (the import warns and ignores the difference), but do not
   edit their geometry.
@@ -401,6 +405,11 @@ load buffer, `make_mod.py` refuses more): gun_effect 0x16000, bomb_effect and po
 Open: what the second piece of each entry is.
 
 ## Motions (animations)
+
+**Quick route by body and slot** (victory, charge, get-up, ...): `python -I tools/anim.py slots --body N` lists the
+38 slots; `anim.py export --body N --slot victory2` writes a glTF for Blender; `anim.py import --body N --slot victory2
+my.glb --mod MYMOD` writes `mods/MYMOD/files/motion.DBN` (stretched to the game's length); then `make_mod.py`. Every
+format and rule in one page: [ANIMATION_GUIDE.md](ANIMATION_GUIDE.md).
 
 A motion lives in entry 8 of `logo_read_us.dbn` (battle and field motions, 3 groups) or a piece of `snr_motion.BIN`
 (story scenes). **The loose `motion.DBN` on the disc is never read by the game** (found Nov 2, 2026; the full path:

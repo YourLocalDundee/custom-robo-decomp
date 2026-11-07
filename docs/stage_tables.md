@@ -100,7 +100,7 @@ A standard HSD .dat (0x20 header, data, relocation table, one root `scene_data`,
   (MObj and DObj flags, up to 20 slots at +0x150 / +0x1A0) and **hangs in an endless loop if a root joint has more than
   21 DObjs** (`loop_101` in the draft); model 0 is not checked.
 - Each model's record +0xF8 is the word at +0x14 of the model's collision group (below), its bits pick a per-model
-  handler (`lbl_802176C8[(flags * 4) & 0x1C]`, and `*lbl_8044EA50` for bits 3-4 or 0x20); not mapped further.
+  handler. Mapped Nov 6 (docs/SCENE_GUIDE.md section 5): bits 0-2 make a **breakable** model, hit points = the float table `lbl_802176C8` = {1000, 100, 150, 200, 250, 300, 350, 400}[flags & 7] (record +0x100; damage at +0x104, break effect 0x3000F, `fn_80070170`); bits 3-4 or 0x20 a **moving** collision group, copied each frame through the model's matrix by `*lbl_8044EA50` = `fn_800730F8` (at most 20 groups of at most 100 quads, buffers 0x803754BC / 0x8035417C, `fn_80072B90`). Editing tool: `tools/stage_collision.py`.
 - **Lights**: every light desc (null-terminated array) -> `HSD_LObjLoadDesc` (up to 10, `lbl_80354154`); the first
   LObj with type bits == 1 also gets a shadow (`HSD_ShadowAlloc`, 600 x 440).
 - **Fog**: `HSD_FogLoadDesc` when present; its colour is copied to `lbl_80449EA0 + 0x48` (the clear colour, likely).

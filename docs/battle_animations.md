@@ -171,6 +171,9 @@ frame = **20 x (30 - countdown) / 30**; every `*_powerup` motion is 20 frames. O
   20-frame phases), get-up 20 - the game maps its own timers onto those frames, so a longer motion is cut and a
   shorter one holds its last frame.
 - Charge attack **timing / movement** is in the body's stats record (table above), independent of the motion.
+- Quick route: `python -I tools/anim.py export --body N --slot victory2` (glTF for Blender), then `anim.py import
+  --body N --slot victory2 my.glb --mod MYMOD` (stretches to the length above, keeps root / joint 0, warns about
+  bodies sharing the motion) and `tools/make_mod.py mods/MYMOD`. All formats in one page: [ANIMATION_GUIDE.md](ANIMATION_GUIDE.md).
 
 ## Open
 
