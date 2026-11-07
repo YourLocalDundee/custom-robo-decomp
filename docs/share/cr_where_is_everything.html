@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where everything is: animations, stages, effects (the short version)</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a field manual. Left rail of numbered steps (the real reading order), one text column, tables in their own scrollers. */
+:root {
+  --bg: #f3f5f7; --paper: #ffffff; --fg: #1b2530; --muted: #5b6876; --rule: #d6dde4;
+  --accent: #1d5f8a; --accent-soft: #e2edf5; --warn: #9a5b00; --warn-soft: #fbf0dc; --ok: #2b6e46; --code-bg: #eef2f5;
+  --display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11171d; --paper: #172029; --fg: #dbe4ec; --muted: #94a3b2; --rule: #2a3742;
+  --accent: #7cb7e0; --accent-soft: #1b3346; --warn: #e7b25c; --warn-soft: #33270f; --ok: #7fc79c; --code-bg: #1d2832; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11171d; --paper: #172029; --fg: #dbe4ec; --muted: #94a3b2; --rule: #2a3742;
+  --accent: #7cb7e0; --accent-soft: #1b3346; --warn: #e7b25c; --warn-soft: #33270f; --ok: #7fc79c; --code-bg: #1d2832; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 16px/1.6 var(--body); margin: 0 }
+.wrap { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: 2.5rem; max-width: 72rem; margin: 0 auto;
+  padding-block: 2.5rem 4rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+nav { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1.5rem); align-self: start; font-size: .9rem }
+nav ol { list-style: none; margin: 0; padding: 0; display: grid; gap: .15rem; counter-reset: s }
+nav a { display: block; color: var(--muted); text-decoration: none; padding: .3rem .6rem; border-left: 2px solid var(--rule) }
+nav a:hover, nav a:focus-visible { color: var(--accent); border-left-color: var(--accent); outline: none }
+nav .k { font-family: var(--mono); font-size: .8rem; color: var(--accent); margin-right: .4rem }
+main { min-width: 0; max-width: 46rem }
+header { border-bottom: 1px solid var(--rule); padding-bottom: 1.5rem; margin-bottom: 1rem }
+.eyebrow { font: 600 .78rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--accent) }
+h1 { font: 700 2.4rem/1.1 var(--display); margin: .5rem 0 .8rem; text-wrap: balance }
+h2 { font: 600 1.5rem/1.2 var(--display); margin: 3rem 0 .8rem; text-wrap: balance; scroll-margin-top: 1rem }
+h2 .k { font-family: var(--mono); font-size: 1rem; color: var(--accent); margin-right: .6rem; vertical-align: .15em }
+h3 { font: 600 1.12rem/1.3 var(--display); margin: 1.8rem 0 .5rem }
+p, li { max-width: 65ch }
+.lede { font-size: 1.08rem; color: var(--muted) }
+a { color: var(--accent) }
+code { font: .88em var(--mono); background: var(--code-bg); padding: .08em .3em; border-radius: 3px }
+pre { font: .85rem/1.5 var(--mono); background: var(--code-bg); padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 1rem 0 }
+pre code { background: none; padding: 0 }
+.tbl { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper) }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums }
+th, td { text-align: left; vertical-align: top; padding: .55rem .75rem; border-bottom: 1px solid var(--rule) }
+th { font: 600 .78rem/1.3 var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--code-bg) }
+tr:last-child td { border-bottom: 0 }
+.key { background: var(--accent-soft); border-radius: 8px; padding: 1.1rem 1.3rem; margin: 1.5rem 0 }
+.key h3 { margin-top: 0 }
+.key ol { margin: 0; padding-left: 1.3rem; display: grid; gap: .45rem }
+.note { border-left: 3px solid var(--warn); background: var(--warn-soft); padding: .8rem 1rem; border-radius: 0 6px 6px 0; margin: 1.2rem 0 }
+.note b { color: var(--warn) }
+.tag { font: 600 .7rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; padding: .2rem .45rem; border-radius: 3px; vertical-align: .12em }
+.v { background: var(--accent-soft); color: var(--accent) }
+.o { background: var(--warn-soft); color: var(--warn) }
+.flow { display: grid; gap: .5rem; margin: 1.2rem 0; counter-reset: f }
+.flow div { background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: .6rem .9rem; display: flex; gap: .8rem; align-items: baseline }
+.flow div::before { counter-increment: f; content: counter(f); font: 600 .85rem var(--mono); color: var(--accent); min-width: 1.2rem }
+footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: .88rem }
+@media (max-width: 860px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 1rem } nav { position: static }
+  nav ol { grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)) } h1 { font-size: 1.9rem } }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth } }
+</style>
+</head><body>
+<div class="wrap">
+<nav aria-label="Sections"><ol><li><a href="#s1"><span class="k">1</span>Robo animations</a></li><li><a href="#s2"><span class="k">2</span>Other animations and where each lives</a></li><li><a href="#s3"><span class="k">3</span>Stages</a></li><li><a href="#s4"><span class="k">4</span>Shots, blasts, charge attacks</a></li><li><a href="#s5"><span class="k">5</span>One table: what to open for what</a></li></ol></nav>
+<main>
+<header><div class="eyebrow">GameCube &middot; GXCE01 &middot; Custom Robo</div>
+<h1>Where everything is: animations, stages, effects (the short version)</h1>
+<p class="lede">The plain-language map. For the byte-level details see ANIMATION_GUIDE.md (animations) and SCENE_GUIDE.md (stages, effects, particles). All file names are under the disc's <code>files/</code> folder (<code>Custom Robo extracted/files/</code> after the one-time build).</p></header>
+<h2 id="s1"><span class="k">1</span>Robo animations (walk, jump, shoot, victory, charge attack ...)</h2>
+<p><b>Stored in:</b> <code>logo_read_us.dbn</code>, entry 8. Not <code>motion.DBN</code> (the game never reads that file).</p>
+<p><b>What it is:</b> a list of motions, each with a number (its ID, 0..1094). A motion is a set of curves for an invisible stick figure: where the hips, hands, feet and head should be, and how 16 joints turn. It does not store the robo's bones. Every frame the game bends each robo's own arms and legs to reach those points, so one motion works for every robo.</p>
+<p><b>How a robo picks its animation:</b></p>
+<p>1. Each body has a list of 38 "slots" in main.dol (stance, walk, run, jump, gun, bomb, pod, falls, get-up, lose, victory 1 and 2, charge attack, ...). Each slot holds one motion ID. 2. What the robo is doing (its action: moving, shooting, falling, winning ...) picks the slot every frame. 3. When the slot's motion is a different one from what is playing, the game switches to it and <b>blends from the old pose to the new one over 16 frames</b>, so moves flow into each other. 4. Most motions run at 30 frames a second. Victory, lose, charge attack and get-up do not: the game sets their frame from its own timers (victory waits, then plays over 140 game frames; the charge attack plays its 60 frames as three 20-frame parts, each stretched to that phase's duration).</p>
+<p><b>Find it:</b></p>
+<pre><code>python -I tools/anim.py slots --body 20                  # Breaker&#x27;s 38 slots: motion name, ID, length
+python -I tools/anim.py export --body 20 --slot victory2 # -&gt; build/anim/&lt;name&gt;.glb, open in Blender
+python -I tools/battle_motions.py --tsv                   # every body x slot</code></pre>
+<h2 id="s2"><span class="k">2</span>Other animations and where each lives</h2>
+<div class="tbl"><table><thead><tr><th>Animation</th><th>Stored in</th><th>How it plays</th></tr></thead><tbody><tr><td>Story-mode character moves</td><td><code>scenario_us/snr_motion.BIN</code></td><td>same format as the robo motions</td></tr><tr><td>Transforming bodies' own change (Defender, Seeker, Breaker, Ruhiel)</td><td>inside the body's model in <code>chara.BIN</code></td><td>standard HSD animation; held at frame 0, run to frame 10 during the moves that change form</td></tr><tr><td>Part animations (gun, bomb, pod, leg opening / changing)</td><td>inside the part's model in <code>weapon_gun.BIN</code>, <code>weapon_bom.BIN</code>, <code>weapon_pod.BIN</code>, <code>weapon_leg.BIN</code></td><td>standard HSD animation, frames 0..10: the game sets the frame from the part's state (frame = 10 x state)</td></tr><tr><td>Stage animations (moving platforms, spinning things, flashing lights)</td><td>inside the stage model, <code>bg_data.BIN</code> entry 2s</td><td>standard HSD joint / material / texture animation attached to a scene model; <b>loops</b> (every stage animation has the loop flag), e.g. Basic Arena models 2-4 run 720 frames</td></tr><tr><td>Stage break animations</td><td>the same stage models</td><td>a breakable model plays its animation once when its hit points run out</td></tr><tr><td>Shot, blast, charge attack, leg jet effects</td><td><code>gun_effect.BIN</code>, <code>bomb_effect.BIN</code>, <code>pod_effect.BIN</code>, <code>attack_effect.BIN</code>, <code>leg_effect.BIN</code></td><td>standard HSD animation, <b>played once</b> per spawned effect (no loop flag); keyframes of type 40 fire particles</td></tr><tr><td>Particles (sparks, smoke, flashes)</td><td><code>logo_read_us.dbn</code> entry 0: 8 particle banks</td><td>started by an effect's particle keys (bank + generator number)</td></tr><tr><td>Common effects</td><td><code>efc_common.dbn</code> (4 scenes)</td><td>standard HSD animation</td></tr><tr><td>Story objects / maps</td><td><code>scenario_us/snr_obj.BIN</code>, <code>scenario_us/snr_map.BIN</code></td><td>standard HSD</td></tr><tr><td>Title screen</td><td><code>TITLE_MODEL.dat</code></td><td>standard HSD</td></tr></tbody></table></div>
+<p>"Standard HSD animation" is the same system as Super Smash Bros. Melee: HSDRawViewer opens it, and the exports in <code>models_export/</code> already include it.</p>
+<h2 id="s3"><span class="k">3</span>Stages</h2>
+<p>A stage with id s is two entries of <code>bg_data.BIN</code>:</p>
+<div class="tbl"><table><thead><tr><th>Entry</th><th>What</th></tr></thead><tbody><tr><td><b>2s</b></td><td>the look: up to 20 models (each can carry its own looping animation), lights, fog</td></tr><tr><td><b>2s + 1</b></td><td>the walls and floors robos collide with: one group of flat four-cornered faces per model, plus a waypoint list (most likely for computer players)</td></tr></tbody></table></div>
+<p>A model's collision group also says whether that model is <b>breakable</b> (and how many hit points: 100 to 400) or <b>moving</b> (its collision follows its animation).</p>
+<p><b>Find it:</b></p>
+<pre><code>python -I tools/scene.py list stages            # id, name, entries, how many models / collision groups
+python -I tools/scene.py info stage 0           # every model, its animation (length, what it moves), lights, fog, collision
+python -I tools/scene.py export stage 0         # -&gt; build/scene/stage_000/: one .glb per model + the collision .obj
+python -I tools/stage_collision.py info 0       # collision groups, breakable / moving flags</code></pre>
+<h2 id="s4"><span class="k">4</span>Shots, blasts, charge attacks (effects)</h2>
+<p>Each gun, bomb and pod has its own effect entry (same number as the part); charge attacks are by <b>body</b> number. Every entry holds two model files:</p>
+<div class="tbl"><table><thead><tr><th>Piece</th><th>What</th></tr></thead><tbody><tr><td><b>0</b></td><td>what flies: the shot or blast meshes, one copy per shot</td></tr><tr><td><b>1</b></td><td>what happens on hit: particle emitters (guns) or the explosion meshes (bombs, pods, charge attacks)</td></tr></tbody></table></div>
+<p><b>Find it:</b></p>
+<pre><code>python -I tools/scene.py list effects --kind gun   # per gun: models, meshes, particle tracks of both pieces
+python -I tools/scene.py info effect gun 12        # both pieces of gun 12&#x27;s effect
+python -I tools/scene.py export effect bomb 3      # -&gt; build/scene/bomb_effect_003/</code></pre>
+<p>Ready-made exports of everything are in <code>models_export/</code> (made by the one-time build): <code>models_export/chara/</code>, <code>bg_data/</code>, <code>gun_effect/</code>, ... one folder per entry.</p>
+<h2 id="s5"><span class="k">5</span>One table: what to open for what</h2>
+<div class="tbl"><table><thead><tr><th>I want ...</th><th>Open</th></tr></thead><tbody><tr><td>a robo's victory / charge / walk animation</td><td><code>tools/anim.py export --body N --slot NAME</code></td></tr><tr><td>which motion a robo uses for something</td><td><code>tools/anim.py slots --body N</code></td></tr><tr><td>a stage's models and their animations</td><td><code>tools/scene.py export stage S</code> (or <code>models_export/bg_data/bg_data_&lt;2S&gt;/</code>)</td></tr><tr><td>a stage's collision</td><td><code>tools/stage_collision.py export S</code></td></tr><tr><td>a gun's shot</td><td><code>tools/scene.py export effect gun N</code></td></tr><tr><td>a part's open / change animation</td><td><code>models_export/weapon_gun/</code> (and <code>weapon_bom</code>, <code>weapon_pod</code>, <code>weapon_leg</code>)</td></tr><tr><td>a transforming body's change</td><td><code>models_export/chara/chara_&lt;5N&gt;/</code></td></tr><tr><td>the particle banks</td><td><code>logo_read_us.dbn</code> entry 0 (format: SCENE_GUIDE.md section 4)</td></tr></tbody></table></div>
+<footer>Read from the game's code (function addresses given) and checked against every file on the disc; unverified points say so. Generated from the repository's docs by tools/md2page.py.</footer>
+</main></div>
+</body></html>

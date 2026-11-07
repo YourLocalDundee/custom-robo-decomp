@@ -50,6 +50,13 @@ while i < len(lines):
             i += 1
         i -= 1
         body.append('<ul>' + ''.join('<li>%s</li>' % inline(x) for x in items) + '</ul>')
+    elif l.startswith('```'):
+        flush_par(par); par = []
+        code = []
+        i += 1
+        while i < len(lines) and not lines[i].startswith('```'):
+            code.append(lines[i]); i += 1
+        body.append('<pre><code>%s</code></pre>' % html.escape(chr(10).join(code)))
     elif l.startswith('`v = '):
         flush_par(par); par = []
         body.append('<pre><code>%s</code></pre>' % html.escape(l.strip('`')))

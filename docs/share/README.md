@@ -9,3 +9,4 @@ tools/md2page.py docs/SCENE_GUIDE.md docs/share/cr_model_guide.html out.html`: t
 | [cr_model_guide.html](cr_model_guide.html) | [IMPORT_EXPORT_GUIDE.md](../IMPORT_EXPORT_GUIDE.md) |
 | [cr_anim_guide.html](cr_anim_guide.html) | [ANIMATION_GUIDE.md](../ANIMATION_GUIDE.md) |
 | [cr_scene_guide.html](cr_scene_guide.html) | [SCENE_GUIDE.md](../SCENE_GUIDE.md) |
+| [cr_where_is_everything.html](cr_where_is_everything.html) | [WHERE_IS_EVERYTHING.md](../WHERE_IS_EVERYTHING.md) |
