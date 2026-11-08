@@ -46,6 +46,7 @@ mods/**
 !mods/*/mod.json
 !mods/*/notes.txt
 !mods/*/*.py
+!mods/*/particles.json
 # permuter setups (this machine's paths), their log and the variant copies of tools/sched/scratch/hsd110
 tools/sched/permuter/
 tools/sched/hsd_permute.log

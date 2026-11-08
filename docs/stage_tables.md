@@ -88,6 +88,28 @@ camera desc. Animations: the game attaches each model's first joint / material /
 the stage (`HSD_JObjAddAnimAll` in `fn_80072064`) and marks the model animated (+0x10000000 in its 0x13C-byte record);
 the loop does not export or change animations (they stay in the file untouched).
 
+## What each stage looks like
+
+Drawn from the game's own stage models (entry 2s, every model of the scene, the game's textures and vertex colours)
+by `python -I tools/render_stages.py` (HSDRawViewer `--export`, then Blender, `tools/blender/stage_preview.py ... auto`:
+Basic Arena's opening-camera direction pulled back to fit the stage). These are renders of the files, not in-game
+screenshots: the battle camera is closer, and effects, robos and the game's lighting extras are not drawn. Oversize
+untextured helper meshes are left out. Menu = place in the stage select (- = hidden).
+
+| | | | |
+|---|---|---|---|
+| ![stage 0](images/stages/stage_00.jpg)<br>**0** Basic Arena (menu 0) | ![stage 1](images/stages/stage_01.jpg)<br>**1** High-Rise Plaza (menu 2) | ![stage 2](images/stages/stage_02.jpg)<br>**2** High-Rise Cell (menu 5) | ![stage 3](images/stages/stage_03.jpg)<br>**3** Nature Park (menu 15) |
+| ![stage 4](images/stages/stage_04.jpg)<br>**4** Dead Line (menu 22) | ![stage 5](images/stages/stage_05.jpg)<br>**5** Flower Garden (menu 12) | ![stage 6](images/stages/stage_06.jpg)<br>**6** Basic Arena (Test Use) (menu -) | ![stage 7](images/stages/stage_07.jpg)<br>**7** RPG Test (menu -) |
+| ![stage 7 from above](images/stages/stage_07_top.jpg)<br>**7** RPG Test from above: sofas around a table, counter, doorway | ![stage 8](images/stages/stage_08.jpg)<br>**8** Diamond Cell (menu 4) | ![stage 9](images/stages/stage_09.jpg)<br>**9** Chinese Bowl (menu 13) | ![stage 10](images/stages/stage_10.jpg)<br>**10** Practice Stage (menu alt of 0) |
+| ![stage 11](images/stages/stage_11.jpg)<br>**11** No-Man's Land (menu alt of 27) | ![stage 12](images/stages/stage_12.jpg)<br>**12** Ice and Snow (menu 20) | ![stage 13](images/stages/stage_13.jpg)<br>**13** Castle Keep (menu 9) | ![stage 14](images/stages/stage_14.jpg)<br>**14** Crevice Court (menu 6) |
+| ![stage 15](images/stages/stage_15.jpg)<br>**15** Diamond Fences (menu 1) | ![stage 16](images/stages/stage_16.jpg)<br>**16** Frozen Field (menu 21) | ![stage 17](images/stages/stage_17.jpg)<br>**17** L Formation (menu 7) | ![stage 18](images/stages/stage_18.jpg)<br>**18** Checkmate Foundry (menu 8) |
+| ![stage 19](images/stages/stage_19.jpg)<br>**19** Little Locomotive (menu 16) | ![stage 20](images/stages/stage_20.jpg)<br>**20** Magma Hole (menu 18) | ![stage 21](images/stages/stage_21.jpg)<br>**21** Castle Citadel (menu 10) | ![stage 22](images/stages/stage_22.jpg)<br>**22** Panic Cubes (menu 24) |
+| ![stage 23](images/stages/stage_23.jpg)<br>**23** Magma Ruins (menu 19) | ![stage 24](images/stages/stage_24.jpg)<br>**24** Impact Craters (menu 29) | ![stage 25](images/stages/stage_25.jpg)<br>**25** Sudden Death (menu 30) | ![stage 26](images/stages/stage_26.jpg)<br>**26** Gigantix Sprawl (menu 31) |
+| ![stage 27](images/stages/stage_27.jpg)<br>**27** No-Man's Land (menu 32) | ![stage 28](images/stages/stage_28.jpg)<br>**28** Robo's Room (menu 14) | ![stage 29](images/stages/stage_29.jpg)<br>**29** Practice Stage (menu 33) | ![stage 30](images/stages/stage_30.jpg)<br>**30** Double Dead Line (menu 23) |
+| ![stage 31](images/stages/stage_31.jpg)<br>**31** Merry-Go-Round (menu 17) | ![stage 32](images/stages/stage_32.jpg)<br>**32** Loading Dock (menu 27) | ![stage 33](images/stages/stage_33.jpg)<br>**33** Battle Gear Station (menu 28) | ![stage 34](images/stages/stage_34.jpg)<br>**34** Panic Walls (menu 25) |
+| ![stage 35](images/stages/stage_35.jpg)<br>**35** Lost World (menu 11) | ![stage 36](images/stages/stage_36.jpg)<br>**36** Scramble Walls (menu 26) | ![stage 37](images/stages/stage_37.jpg)<br>**37** Dark Star (menu 34) | ![stage 38](images/stages/stage_38.jpg)<br>**38** Basic Cell (menu 3) |
+| ![stage 39](images/stages/stage_39.jpg)<br>**39** Random Stage (menu 35) |  |  |  |
+
 ## Entry 2s: the stage model (`scene_data`)
 
 A standard HSD .dat (0x20 header, data, relocation table, one root `scene_data`, as `HSDRawViewer --info` shows;
@@ -146,6 +168,21 @@ Read by `fn_80072A58(lbl_8037569C, buffer)`, which turns the offsets into pointe
   Keep's collision (entry 027) that is group 9's header (the middle wall at x 0, z 4.2): its sphere z and the low byte
   of its quad count. Its other hook, 0x8007202C (`fn_80071974 +0x6B8`), reads the model count (`lbl_8037569C + 8`).
 - RPG Test's collision (015) has another layout (1 group, offsets past the end of the entry when read this way).
+- **The two hidden stages (community find, Nov 7, 2026, checked here):** stage 6 is a copy of Basic Arena (entries
+  012 / 013 are the same sizes as 000 / 001, 0x96100 / 0x45c0). Stage 7 "RPG Test" (entry 014) was identified by the
+  community as the back room of Bogey's cafe from story mode, a hint that real story locations were once planned as
+  arenas. Our render of entry 014 (`HSDRawViewer --export`, `tools/blender/stage_preview.py`;
+  docs/images/stages/stage_07.jpg, stage_07_top.jpg) fits that: one model, one 128x128 tiled stone floor texture, the rest untextured
+  white - a walled room with two sofas around a low table, a counter block, a pillar and a doorway. **Confirmed
+  against the story maps (Nov 7):** the finished, textured room is `scenario_us/snr_map.BIN` entry 2 (same layout:
+  sofa - table - sofa in the middle, the L-shaped block and corridor on the right; red sofas, glass table, a
+  console, a ceiling fan); entry 49 (its pair, 2 + 0x2F) is the same room without the sofas and table. Stage 7 is an
+  early grey blockout of it (only the floor is textured). Where the bytes are (US disc, `files/`):
+  - RPG Test model: `bg_data.BIN` entry 14 at 0x49E800, 0xE580 bytes (a standard HSD .dat, root `scene_data`);
+    its collision: entry 15 at 0x4AD000, 0x1540 bytes.
+  - Finished room: `scenario_us/snr_map.BIN` entry 2 at 0x13C000; the model .dat inside it starts at 0x13CE00
+    (entry + the u32 at entry +0x04), 0x4A38F bytes. Entry 49: model at 0x1546AC0, 0x4326F bytes.
+  - Side by side: ![stage 7 vs snr_map 2](images/stages/stage_07_vs_snr_map_002.jpg)
 
 ## The stage record (main.dol 0x8020F4C8, 0x340 bytes x 40)
 

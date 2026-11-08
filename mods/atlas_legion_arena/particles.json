@@ -1,0 +1,1 @@
+{"comment": "Atlas (robo 0) charge attack sparks: generators fired only by attack_effect entry 000 (4000, 4001, 4002 -> children 4005, 4006); gold to match the recoloured charge textures", "groups": [{"generators": [4000, 4001, 4005, 4006], "palette": "gold"}]}

@@ -138,11 +138,33 @@ def fobj_tracks(d, f, names):
         t = d.u8(f + 0xC)
         out.append(names.get(t, 'type%d' % t))
         if names is JOINT_TRACKS and t == 40:
-            # PTCL: the key's bytes 1..3 little-endian; bank = bits 0-5, generator number = bits 6-23 (HSDLib FOBJ_Player)
+            # PTCL: runs of [header byte: interpolation (low 4 bits; 0 ends), key count - 1 (bits 4-6, continued in
+            # 7-bit groups while bit 7 is set)], then per key a u32 little-endian code (bank = bits 0-5, generator =
+            # bits 6-23) and a frame wait (7-bit groups, bit 7 = more). Every key is read (HSDLib's FOBJ_Player and
+            # the first version here read only the first key, misreading tracks whose header byte continues).
             dp, ln = d.ptr(f + 0x10), d.u32(f + 4)
-            if dp is not None and ln >= 4:
-                code = d.data[dp + 1] | (d.data[dp + 2] << 8) | (d.data[dp + 3] << 16)
-                PTCL_CODES.append((code & 0x3F, code >> 6))
+            if dp is not None:
+                b, p = d.data[dp:dp + ln], 0
+                while p < len(b):
+                    h = b[p]
+                    p += 1
+                    kind, n, sh = h & 0xF, (h >> 4) & 7, 3
+                    while h & 0x80 and p < len(b):
+                        h = b[p]
+                        p += 1
+                        n |= (h & 0x7F) << sh
+                        sh += 7
+                    if kind == 0:
+                        break
+                    for _ in range(n + 1):
+                        if p + 4 > len(b):
+                            break
+                        code = int.from_bytes(b[p:p + 4], 'little')
+                        p += 4
+                        PTCL_CODES.append((code & 0x3F, (code >> 6) & 0x3FFFF))
+                        while p < len(b) and b[p] & 0x80:
+                            p += 1
+                        p += 1
         f = d.ptr(f)
     return out
 

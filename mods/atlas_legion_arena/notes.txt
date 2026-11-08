@@ -1,0 +1,99 @@
+atlas_legion_arena: Atlas (robo 0) with new motions, and Legion Arena (stage 0, Basic Arena's slot) - one ISO to test
+"new everything".
+
+ISO:   build/mods/atlas_legion_arena/atlas_legion_arena.iso      patch: mods/atlas_legion_arena/atlas_legion_arena.crpatch
+
+WHAT IS IN IT
+1. Atlas, robo 0 (Ray 01's slot, chara entries 000-004): a Roman general made with AI (make_body.py; "Atlas from
+   AI" below), the "Hollywood hero" look: polished steel helmet with gold brow band and a tall crimson crest, bearded
+   face, sculpted steel muscle cuirass with a gold eagle, gold-tipped crimson leather strips at shoulders and hips,
+   crimson tunic, embossed steel greaves, leather bracers and boots; a curved red scutum (bronze boss, gold
+   lightning) rigid on the left forearm and a gladius in the right fist. 3,148 triangles (--tris=3150: body 2,650,
+   scutum 300, gladius 198) on Ray 01's own skeleton, one 512x256 texture baked from the AI models' 2K colour maps
+   with their ambient occlusion, metal graded to iron, specular mask from the metallic maps. 234,499 bytes per entry
+   (limit 237,568).
+2. Motions (make_motion.py -> files/motion.DBN; make_mod.py packs it into logo_read_us.dbn entry 8):
+   - shooting: the 6 sf_weapon_* motions get the shield brace (off hand across the chest, chest leaned 6 degrees into
+     the shot); the two recoil motions (sf_weapon_stiff, sf_weapon_jump_stiff) get the cadence: a triple tap
+     "da-da-DUM" (kicks on frames 0, 6, 12, the last the strongest), the chest rocking back on each beat. The gun
+     hand's aim stays the game's. Every sf_ robo shares these motions (P2 too, if it is an sf_ body).
+   - air dash (sf_jump_dash): the spear dive - leaned 40 degrees forward, shield thrust ahead, gun arm swept back,
+     legs straight and trailing.
+   - charge attack (cr_atk_sf011_tackl_n, robo 0's own): the shield bash - wind-up, rush with the shield punched
+     ahead at shoulder height, recovery; the stock forward travel kept.
+   - victory 1 (sf_win_sf011_01): gladiator salute - standing tall, shield planted, gun raised and pumped 3 times.
+   - victory 2 (sf_win_sf011_02): shield raised overhead, gun pointed up, then 3 strikes of the gun on the shield.
+   - lose (sf_lose_sf011_01): down on one knee, chest and head slumped, gun arm hanging, shield leaned in front.
+   - every other motion of the body (25 more, so all 38 of robo 0's slots are new): the shield held up in front
+     while standing (a slow breath), walking and running (leaning 6 / 14 degrees into the run; back-runs 2 / 4;
+     legs and the gun-arm swing stock), bomb and pod motions (the gun brace), held overhead on the double jump,
+     braced low on both landings, covering the face on all 5 knock-downs (in a frame that tips with the body), low to
+     guard while getting up, and a quick raised-shield salute on the transform (sf_change).
+     sf_ motions are shared: every robo of the same body type (bodies 1, 2, 10-17, 20, 24, ...) moves the same way.
+   Rules kept: no root / joint 0 tracks; every track ends on the motion's last frame. Float pools: group 0 16,147
+   of 16,384, group 1 10,775.
+3. Charge effect and particles (Atlas's own only; shared shots, hits and leg jets stay stock):
+   - attack_effect entry 000 (robo 0's charge): its 3 paletted textures (aura band, impact flash, shockwave ring)
+     recoloured from blue to gold (tools/recolour_dat.py, palettes only; models/attack_effect/).
+   - the charge's particles: generators 4000, 4001 (fired by piece 0) and 4005, 4006 (spawned by 4002, piece 1),
+     used by nothing else, recoloured gold (particles.json; tools/ptcl.py; make_mod.py applies it to
+     logo_read_us.dbn entry 0 in place, 10 colour commands, same size).
+4. Legion Arena (make_stage.py + tools/blender/legion_arena.py; bg_data entries 000 and 001):
+   - a Roman amphitheatre around Basic Arena's 16 x 16 floor: sand, a brick podium wall with marble coping and two
+     wooden gates, red banners on bronze rods, 9 tiers of travertine seats rounding into an oval, a marble
+     colonnade, a paved terrace, upper seating, a three-storey arcade facade with 16 banners, a sunset sky dome.
+   - textures: CC0 photo materials from ambientCG (Ground080 sand, Travertine009, Bricks076C, PavingStones151,
+     Marble021, Planks037A, Fabric085; build/legion/cc0, downloaded by make_stage.py), a painted arch texture, a
+     bronze texture, a sky; all CMP 256 / 128.
+   - lighting baked into vertex colours (sun from the stage light's direction with ray-cast shadows, sky light with
+     ambient occlusion); the materials are the stage's own unlit "texture x vertex colour" kind.
+   - obstacles on their exact collision boxes: stone walls with marble coping (models 1, 5, 6, 7), wooden
+     barricades with bronze bands (models 8, 9).
+   - moving: model 9 (the east barricade) slides 2.4 toward the centre and back every 8 seconds (a looping joint
+     animation added to the scene) and its collision group has flag 8, so robos are pushed by it.
+   - breakable: the three pods (models 2-4, hit points 100 / 200 / 400) kept with their break animations,
+     recoloured bronze and gold.
+   - lights warm (ambient 120,100,92; sun 255,226,186), fog added (colour 232,168,120 = the background; haze from 60).
+   - entry 000: 741,823 bytes (load region 0x100000); collision 001: Basic Arena's, group 9 flag 8.
+
+ATLAS FROM AI (all local, on the RTX 5080; D:\ai)
+  1. a pose guide: Atlas's legionnaire body rendered front-on in its T-pose, colour + depth (D:\ai\work\depth_render.py)
+  2. FLUX.2-dev (Black Forest Labs, 32B; D:\ai\work\gen_flux2b.py, look "hero"): the guide render turned into a
+     photorealistic Roman general in exactly that pose (picked flux2/f_hero_0.png, seed 600), cut out by cutout.py.
+     Two passes so it fits 16 GB VRAM + 48 GB RAM: the 24B text encoder (bnb 4-bit) encodes the prompt and exits;
+     then the transformer (GGUF Q6_K, unsloth/FLUX.2-dev-GGUF) is held in RAM and group-offloaded block by block to
+     the GPU (9.6 s/step, ~6.5 min an image). The earlier body came from Qwen-Image-2.1 (20B, 4-bit nf4, image edit,
+     ~1 s/step; gen_qwen21.py, q21/e_0.png). The props: Qwen-Image-2.1 text-to-image, product shots on white
+     (gen_props.py; scutum_0, gladius_0); the scutum cut out by cutout.py (Hunyuan's own background remover kept
+     only the boss). Tried first: SDXL + depth ControlNet (looked like a mannequin), Qwen-Image 20B +
+     ControlNet-Union (noisy), FLUX.2-dev's bnb 4-bit build (overflowed 16 GB VRAM; crashed in cuBLAS when streamed).
+  3. Hunyuan3D 2.1 (Tencent, open weights; Windows portable pack v4-cu129 in D:\ai\hy3d): shape and PBR paint (40k
+     faces, 2K colour / metallic / roughness; the body painted at 768) (D:\ai\work\hy21.py; outputs in hy_hero,
+     hy_scutum_cut, hy_gladius_0)
+     Setup it needed: CUDA 12.9, VS 2022 Build Tools (CUDA 12.9 rejects VS 2026's compiler), pip fast_simplification,
+     simplify_mesh_utils.py patched (face_count=) for trimesh 4.7.
+  4. tools/blender/atlas_ai_body.py: fit onto the guide, decimate, weight to Ray 01's bones, hands / feet onto their
+     IK effector joints, props rigid (scutum on the left forearm's mesh joint, gladius on the right hand's, moved with
+     the hand to its bind position), bake, export; HSDRawViewer --import --replace over chara 000-004 (make_body.py).
+
+REBUILD
+  python -I mods/atlas_legion_arena/make_body.py D:\ai\work\hy_hero\textured.obj --scutum=D:\ai\work\hy_scutum_cut\textured.obj --gladius=D:\ai\work\hy_gladius_0\textured.obj --tris=3150
+  python -I mods/atlas_legion_arena/make_motion.py
+  python -I mods/atlas_legion_arena/make_stage.py          (Blender + HSDRawViewer; --skip-blender reuses the glbs)
+  python -I tools/make_mod.py mods/atlas_legion_arena
+Previews: blender -b --factory-startup --python tools/blender/stage_preview.py -- build/legion/arena out.png [camera]
+
+CHECKED
+- Motion renders (tools/render_motion.py): build/legion/render/m_*.png.
+- Stage previews from the opening camera and in the arena: build/legion/arena_*.png.
+- The ISO boots (tools/boot_check.ps1, 60 s, no warning; full build with all 38 motion slots, the gold charge effect
+  and particles: SHA-1 6948f25eedcb1bab33cbe962895aa91da4fde14b).
+
+TO SEE IN GAME
+1. Pick Basic Arena: the amphitheatre loads (if the game freezes on loading, the new stage file is the cause).
+2. The east barricade slides and pushes robos; the pods break.
+3. Shooting shows the shield brace and the triple-tap recoil; the air dash, the charge, both victories and the
+   lose pose.
+4. Standing, walking and running with the shield up; double jump (shield overhead), landings, knock-downs (shield
+   over the face), getting up, the transform.
+5. The charge attack's aura, flash, ring and sparks are gold instead of blue.

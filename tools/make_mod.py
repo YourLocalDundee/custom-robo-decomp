@@ -230,6 +230,16 @@ def main():
                 shutil.copyfile(p, stage / 'files' / rel)
                 changed.append(f'{rel} (file)')
 
+    # 2b. particle recolours (particles.json: {"generators": [...], "palette": ...}, tools/ptcl.py): applied to the
+    #     boot bundle's entry 0 in place (same size), on top of the motion copy if the mod has one
+    if (mod / 'particles.json').exists():
+        import ptcl
+        bundle = stage / 'files' / crmotion.BOOT_BUNDLE
+        src = bundle if bundle.exists() else DISC / 'files' / crmotion.BOOT_BUNDLE
+        bundle.parent.mkdir(parents=True, exist_ok=True)
+        n = ptcl.recolour_bytes_file(src, bundle, mod / 'particles.json')
+        changed.append(f'particles.json -> {crmotion.BOOT_BUNDLE} entry 0 ({n} colour commands recoloured)')
+
     # 3. code patches
     patches = sorted((mod / 'code').glob('*.txt')) if (mod / 'code').exists() else []
     clean = clean_dol

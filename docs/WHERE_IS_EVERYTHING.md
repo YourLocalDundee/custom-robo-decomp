@@ -131,7 +131,7 @@ Entries are `bg_data.BIN` entry numbers; models / animated = scene models / mode
 | 4 | Dead Line | 22 | 008 / 009 | 8 | 2 | 2 | no | 8 / 50 | 0 | 2 | 19 |
 | 5 | Flower Garden | 12 | 010 / 011 | 13 | 1 | 2 | yes | 13 / 97 | 1 | 0 | 21 |
 | 6 | Basic Arena (Test Use) | hidden | 012 / 013 | 10 | 3 | 2 | no | 10 / 56 | 3 | 0 | 21 |
-| 7 | RPG Test | hidden | 014 / 015 | 1 | 0 | 3 | no | other layout | - | - | - |
+| 7 | RPG Test (grey blockout of the story room in snr_map entry 2, see stage_tables.md) | hidden | 014 / 015 | 1 | 0 | 3 | no | other layout | - | - | - |
 | 8 | Diamond Cell | 4 | 016 / 017 | 9 | 2 | 2 | no | 9 / 56 | 2 | 0 | 15 |
 | 9 | Chinese Bowl | 13 | 018 / 019 | 8 | 2 | 2 | yes | 8 / 130 | 0 | 2 | 27 |
 | 10 | Practice Stage | alt of 0 | 020 / 021 | 10 | 3 | 2 | no | 10 / 56 | 3 | 0 | 21 |
@@ -259,9 +259,25 @@ generators are 6000, 6001, ...). Gun 0's hit, for example, fires generators 6107
 | 6 | 6000..6574 | 575 | hits and explosions (piece 1 of every gun, bomb and pod) |
 | 7 | 7000..7017 | 18 | common effect 1 |
 
-**Find it:** `python -I tools/scene.py info effect gun 0` lists the generator numbers each model fires. The
-generators' own byte format is HSD's particle system (as in Melee) and is not mapped here yet, so particles can be
-moved between effects (by changing the key's number) but not yet edited themselves.
+**Find it:** `python -I tools/scene.py info effect gun 0` lists the generator numbers each model fires.
+
+**Format (mapped Nov 7, `tools/ptcl.py`):** entry 0 starts with `u32 0x20`, then 8 x 4 section offsets (+ the end).
+Per bank: section 0 = the generator list (HSD particle group, as in Melee: `u16 0x43`, `u16 bank`, `u32` first
+generator number, `u32` count, count offsets; each generator = a 0x3C-byte header - shape, texture group, life, kind
+flags, gravity, friction, velocity, radius, angle, random, size - then a byte-code track ending in FD / FE / FF);
+section 1 = the pictures (texg: count, offsets; each image count, GX format, palette format, size); sections 2 and 3
+small tables (not decoded). The sections hold banks 0, 1, 2, 3, 4, 6, 7, 5 in that order. In the track, `C0..CF` set
+the particle colour and `D0..DF` the glow colour (a time, then the R / G / B / A bytes the low 4 bits select), `EF` /
+`F0` spawn a child generator (its index in the bank). 1,395 of the 1,396 generators decode to their terminator
+(bank 5's numbers 0..12 repeat bank 0's: a generator is (bank, number)).
+
+```
+python -I tools/ptcl.py list [bank]          every generator with its colour commands
+python -I tools/ptcl.py recolour <in.dbn> <out.dbn> <plan.json>   hue-shift chosen generators in place (same size)
+```
+A mod applies a plan with `particles.json` in its folder (make_mod.py). Effect-model textures are paletted (CI8):
+`tools/recolour_dat.py <in.dat> <out.dat> gold` hue-shifts their palettes in place. Most generators are shared
+(gun 0's shot sparks are used by 13-64 guns); a robo's charge (bank 4) is its own (robo 0: 4000-4002, 4005, 4006).
 
 ## 6. Common effects
 
@@ -547,6 +563,8 @@ effect loaders `fn_8007571C`, `fn_80078000`, `fn_80077F38` and the spawners (sec
   pointer; robos start from thrown cubes, so the start spots may be aimed in battle (not verified).
 - What the collision surface numbers mean; the waypoint record's fields; the RPG test stage's collision layout
   (entry 015).
+- Which story scene loads snr_map entry 2 (the finished room that stage 7 RPG Test is a blockout of; matched by
+  layout Nov 7, see stage_tables.md) - the community calls it Bogey's cafe back room; the map script was not traced.
 - The button that picks the alternate stages (10 and 11).
 - The particle generator format (bank blocks 2-4), so particles cannot be edited yet.
 - What each common effect looks like in game; what gun piece 0's model 3 is for; leg_effect's 5 extra entries (34
