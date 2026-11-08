@@ -131,7 +131,7 @@ Entries are `bg_data.BIN` entry numbers; models / animated = scene models / mode
 | 4 | Dead Line | 22 | 008 / 009 | 8 | 2 | 2 | no | 8 / 50 | 0 | 2 | 19 |
 | 5 | Flower Garden | 12 | 010 / 011 | 13 | 1 | 2 | yes | 13 / 97 | 1 | 0 | 21 |
 | 6 | Basic Arena (Test Use) | hidden | 012 / 013 | 10 | 3 | 2 | no | 10 / 56 | 3 | 0 | 21 |
-| 7 | RPG Test (grey blockout of the story room in snr_map entry 2, see stage_tables.md) | hidden | 014 / 015 | 1 | 0 | 3 | no | other layout | - | - | - |
+| 7 | RPG Test (grey blockout of the story office, map 2 OFC = snr_map entry 2, see hidden_content.md) | hidden | 014 / 015 | 1 | 0 | 3 | no | other layout | - | - | - |
 | 8 | Diamond Cell | 4 | 016 / 017 | 9 | 2 | 2 | no | 9 / 56 | 2 | 0 | 15 |
 | 9 | Chinese Bowl | 13 | 018 / 019 | 8 | 2 | 2 | yes | 8 / 130 | 0 | 2 | 27 |
 | 10 | Practice Stage | alt of 0 | 020 / 021 | 10 | 3 | 2 | no | 10 / 56 | 3 | 0 | 21 |
@@ -563,8 +563,6 @@ effect loaders `fn_8007571C`, `fn_80078000`, `fn_80077F38` and the spawners (sec
   pointer; robos start from thrown cubes, so the start spots may be aimed in battle (not verified).
 - What the collision surface numbers mean; the waypoint record's fields; the RPG test stage's collision layout
   (entry 015).
-- Which story scene loads snr_map entry 2 (the finished room that stage 7 RPG Test is a blockout of; matched by
-  layout Nov 7, see stage_tables.md) - the community calls it Bogey's cafe back room; the map script was not traced.
 - The button that picks the alternate stages (10 and 11).
 - The particle generator format (bank blocks 2-4), so particles cannot be edited yet.
 - What each common effect looks like in game; what gun piece 0's model 3 is for; leg_effect's 5 extra entries (34

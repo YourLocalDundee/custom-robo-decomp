@@ -13,11 +13,13 @@ was checked. Tools: `tools/bmg.py` (game text), `tools/ptcl.py` (particles), `to
 | Guns | sound banks `WIDEVULCAN.ssm` and `LIGHT_ARC.ssm` that the game never loads | yes: two cut guns, only their sounds survived |
 | Stages | stage 6 (copy of Basic Arena) and stage 7 "RPG Test" (grey blockout of a story room) | yes, both hidden from the stage select |
 | Battle animations | 52 never used: Rahu II / III's own victories, loses and arm-strike charges; "change back" motions of the 4 transforming robos; Seeker's own get-up; a jump; older walk / run sets | yes |
-| Story animations | up to 148 of 646 never played (phone calls, crying, knock-outs, posed walks ...) | mostly yes (upper bound) |
+| Story animations | 59 of 646 never played (battle poses, a shout, posed walks, an office phone pair ...) | yes |
 | Particles | 494 of 1,396 particle effects never started | yes (or leftovers) |
 | Debug menu | "Start Debug Mode" text on the story file screen, never shown | the entry was cut; only its text remains |
 | Developer files | HAL model viewer config, debugger config, test fonts, placeholder dialogue, the Japanese GBA link program ("ROBO GX") | leftovers; the US game never loads them |
-| Test text | `SNT_TEST.bmg`: early Japanese system text with a glossary from the N64 game's story and a cut "robo fusion / Dual Dive" machine | loaded at every boot; whether shown is open |
+| Debug camera | camera mode 0 `CAMMODE_DEBUG`: a free camera on controller 1 (d-pad orbits, X / Y raise and lower) | left in and **live**: it is the mode every camera starts in; the title runs it until its 3D model is loaded (checked in Dolphin), and mode select, the main menu and the encyclopedia never set another mode (from the code) |
+| Story maps | map 33 (a grey placeholder square) is used by neither story; 4 test scripts and a blank chapter template are left in the chapter list; characters 50 / 54 and 27 object slots are placeholder copies | leftovers |
+| Test text | `SNT_TEST.bmg`: early Japanese system text with a glossary from the N64 game's story and a cut "robo fusion / Dual Dive" machine | leftover: the logo sequence prepares a load request for it but never sends it, so it is never read or shown (checked in Dolphin) |
 
 ## Parts: 49 "Dummy" slots (checked)
 
@@ -80,7 +82,7 @@ only 0, 0x2BF and 0x3E6 appear as constants), and no file names a motion (names 
 - `down_b_kamae`, `ta_dn_f_hi_c_grt` (group 2).
 - The list: [data_unused_battle_motions.txt](data_unused_battle_motions.txt).
 
-## Story-mode motions: 148 of 646 never found played (checked, upper bound)
+## Story-mode motions: 59 of 646 never played (checked)
 
 Story people move with group 2 of `logo_read_us.dbn` entry 8 and the 50 pieces of `scenario_us/snr_motion.BIN`
 (646 motions; `m_` = men, `w_` = women, `r_` = robos in story scenes). They are played three ways:
@@ -89,17 +91,25 @@ Story people move with group 2 of `logo_read_us.dbn` entry 8 and the 50 pieces o
   run, turn left / right, talk a-e / question / yes / no / oh, battle in / wait / out);
 - story script commands: `CHAR_MOT_SET` (character, motion, mode: 0 = index into the character's set, else the
   motion number), `CHAR_SET_WMOT` (a character placed with a motion: argument 13 when argument 14 is 1),
-  `C_ACT_MOT`;
+  `C_ACT_MOT` (motion, mode);
 - code: `m_pinpon` (0x2BF) and `m_sw_on` (0x3E6), the only motion numbers passed as constants.
 
-Scripts were decoded with `tools/scr.py` (new: the 300 commands' sizes read from where each handler advances the
-script pointer, `tools/scr_sizes.tsv`); 8,296 motion commands found. 1,757 of the 7,112 entry points of the
-script files do not decode to the end (1,342 are not code: data tables), so a few motions counted as never played
-may be played from code the walk did not reach. Never found played: 148, among them whole scenes' worth of
-acting (`m_keitai_01..04` / `m_call_keitai` phone calls, `m_dead`, `m_knockout`, `w_sya_cry_01`, `m_cry_02`,
-`w_wt_dead_iza`, `r_stop_shinka`, `r_battle_01_beat`, `m_battle_in_pose` / `m_battle_out_pose`, `w_battle_out_lucy`)
-and 7 posed walk variants of the women's set (`w_walk_fa_2_st` ... `_kosiude_m_sp`). The list:
-[data_unused_story_motions.txt](data_unused_story_motions.txt).
+Scripts were decoded with `tools/scr.py` (the 300 commands' sizes read from where each handler advances the
+script pointer, `tools/scr_sizes.tsv`). The first count (148 never played) followed the code from each entry point
+and stopped at the first end, so it missed code reached by jumps; the code of every real chapter script decodes
+without a gap from its first entry point to its name table, and decoding all of it finds 89 of the 148 played
+(the phone calls `m_keitai_01..04` / `m_call_keitai` in `snr_t_02`, `m_dead`, `m_knockout`, `w_sya_cry_01`,
+`m_cry_02`, `r_stop_shinka`, `w_battle_out_lucy` ...). **Never played: 59**, among them `m_battle_in_pose` /
+`m_battle_out_pose`, `m_battle_in_guts`, `w_wt_dead_iza` / `w_wt_dead_ira`, `m_tk_sakebi` (a shout), `m_tape_on`,
+`m_nage_watch`, `r_weapon_stiff`, `r_battle_01_beat`, the office phone pair `m_is2_ude_tel_pickup` /
+`m_is2_ude_tel_put`, and the 6 posed walk variants of the women's set (`w_walk_fa_2_st` ... `_kosiude_m_sp`). The
+list: [data_unused_story_motions.txt](data_unused_story_motions.txt).
+
+**Robo motions in story scenes** (`r_`): 10, in `snr_motion` pieces 9, 15 and 17 (scene pieces that also hold the
+people's motions). 8 are played, all in A New Journey (`r_battle_01`, `r_jump` in `snr_t_16`; `r_last_battle_in` /
+`_out`, `r_fuyu`, `r_weapon_stiff_2` in `snr_t_10`; `r_stop_shinka`, `r_down`, `r_battle_01`, `r_last_battle_in` /
+`_out` in `snr_t_18`); `r_weapon_stiff` and `r_battle_01_beat` are never played, though `r_battle_01_beat` is in
+all three pieces.
 
 main.dol's motion name table also has `battle_dummy_046` .. `battle_dummy_102` (reserved names) and the script
 name tables have `OBJ_DUMMY_*`, `CHAR_DUMMY_*`, `EV_DUMMY_*`, `CM_DUMMY_*`, `LGT_DUMMY_*`, `S_DUMMY_*`, `E_DUMMY_*`,
@@ -126,7 +136,7 @@ cursor plus a base (0x5.., 0x9.., 0xC.., 0x11.., 0x15.., 0x18.., 0x1A.., 0x1D..:
 | `gcflag_joy.bin` | a GBA program, header title "ROBO GX", game code ARJJ (the Japanese GBA Custom Robo GX): the link-cable part transfer | not named in the US main.dol: the GBA link was left out of the US release |
 | `mess_test.bmg` | placeholder dialogue ("Player line 1..5", "Character 1 line 1..") | not named |
 | `ascii_test.tpl`, `debug_ascii.tpl` | debug fonts | not named |
-| `scenario/sentence/SNT_TEST.bmg` | 207 Japanese messages: part-data materialise prompts, menu words, the robo / gun / bomb stat explanations, and a glossary from another story (Takuma's school, Yurie's mascot dolls, the Great Robo Cup, a Marine Park tournament, "dark battles", a syndicate whose boss Shinonome was arrested - the N64 game's setting), ending with "a machine that rebuilds two or more robos into one powerful robo; robos made there show their full power through a Dual Dive" | **loaded on every boot**: file descriptor 28 (`cr_g_FileDescs`, list 0x801F4880); the logo sequence `cr_SEQ_LOGO_FrameA` calls `fn_800AF2E0`, which queues the request at 0x802299D8 (descriptor 28, entry 0, callback `fn_800AF2A4`). Whether any of its text is shown in the US game is not traced |
+| `scenario/sentence/SNT_TEST.bmg` | 207 Japanese messages: part-data materialise prompts, menu words, the robo / gun / bomb stat explanations, and a glossary from another story (Takuma's school, Yurie's mascot dolls, the Great Robo Cup, a Marine Park tournament, "dark battles", a syndicate whose boss Shinonome was arrested - the N64 game's setting), ending with "a machine that rebuilds two or more robos into one powerful robo; robos made there show their full power through a Dual Dive" | **never read**. main.dol names it (file descriptor 28 in `cr_g_FileDescs`, list 0x801F4880) and the logo sequence `cr_SEQ_LOGO_FrameA` calls `fn_800AF2E0`, which fills a load request for it (0x802299D8: descriptor 28, entry 0, into the buffer at `lbl_8044F314`, callback `fn_800AF2A4`). Nothing hands that request to the loader: 0x802299D8 is used by no other code and no pointer to it exists in main.dol, the callback's "loaded" flag (`lbl_8044F720`) stays 0, the buffer holds the save-data defaults (it is the same address as `lbl_8044F310`), and Dolphin's file log of a boot to the title shows no read of the file. A request left in after the loading it belonged to was taken out |
 
 ## Particles: 494 of 1,396 generators never started (checked)
 
@@ -152,15 +162,125 @@ The numbers never started: [data_unused_particles.txt](data_unused_particles.txt
 like HSDLib's FOBJ_Player, read only a track's first key and misread tracks whose header byte continues; fixed in
 `tools/scene_data.py` Nov 7.)
 
+## Debug camera: CAMMODE_DEBUG (checked, also in Dolphin)
+
+The camera code has 21 modes (`cr_g_CamModeFuncs` 0x801F7FF0: a start and a per-frame function each; names for
+the first 18 in `cr_g_CamModeNames` 0x801F88A4). Mode 0 is `CAMMODE_DEBUG`, a free camera worked from controller 1.
+
+| Mode | Name | Set by |
+|---|---|---|
+| 0 | CAMMODE_DEBUG | nothing: it is the value `cr_Cam_Init` leaves (it clears the four cameras) |
+| 1 | NOMOVE | logo |
+| 2, 3, 6, 9, 10 | MIDDLE, OPENING, RESULT, PEAK, DRAW | battle (4 BTL_WAIT, 5 DICE_WAIT and 8 ROT_WAIT are handed on by the modes themselves) |
+| 7, 17, 18 | CUSTOMIZE, STAGE_INFO (2nd), - | customize |
+| 11-14 | SNR_CHARA, SNR_AUTO_MOVE, SNR_AUTO_Y_ANG, SNR_WATCH_MEM | story (the `CM_*` script commands) |
+| 15, 16 | STAGE_SELECT, STAGE_INFO | stage select |
+| 19, 20 | - | battle (19), title once its 3D model is loaded (20) |
+
+No code ever writes 0 to the mode byte (byte 0 of the camera, `cr_Cam_SetMode` 0x80024830 and 7 direct writes, all
+checked). But `cr_Cam_Update` runs every frame (from `main`, unless sequence flag 0x4000 is set) and calls the
+current mode's function, so **the debug camera is running wherever a sequence calls `cr_Cam_Init` and sets no
+mode**: the title until its model is loaded (watched in Dolphin's RAM: mode 0 from the title's start, 20 once
+`TITLE_MODEL.dat` is read; with no save on the card it waits there at the "no save data" message), and, from the
+code, mode select, the main menu and the encyclopedia (they call `cr_Cam_Init` and never set a mode).
+
+Controls (`cr_CAMMODE_DEBUG_Frame` 0x80035ED4 = `fn_8002E2A0`, `fn_8002E564`, `fn_8002EBB0`, `fn_8002E944`;
+held in Dolphin on the title's no-save message, the camera block diffed before and after):
+
+| Controller 1 | Effect |
+|---|---|
+| d-pad up / down | orbit up / down around the target (+0x11C, 0xB6 per frame, stops near 85 degrees) |
+| d-pad left / right | orbit left / right (+0x120) |
+| Y / X | move the camera and its target up / down together (+0x78, +0x84, +0x9C ...) |
+| A or B held | the slow step (0x12 per frame instead of 0xB6), and the stick functions read the stick only then (code; not tried) |
+
+On the screens where it runs nothing 3D is drawn with this camera, so it shows nothing: a developer tool left in,
+not a hidden feature. A Gecko code that sets byte 0 of `cr_g_CurrentCam` (0x8044F480 points at it) to 0 during a
+battle or the story would give a free camera there (not tried).
+
+## Story mode: the two stories, their maps and chapters (checked)
+
+**Two stories.** Each save file holds two story slots (`cr_g_Scenario` +0x2F, set by `fn_800F21C8(file, slot)`):
+slot 0 is "A New Journey" (the main story) and slot 1 "The Grand Battle" (the after-story; the file-select's
+message 33 offers it once the main story is done). They have their own chapter scripts and their own copy of
+every map:
+
+| | A New Journey | The Grand Battle |
+|---|---|---|
+| Chapter scripts (`scenario/`, text in `scenario_us/`) | `snr_t_01`..`t_19`, one after another (`SYS_SNR_NEXT`; `t_19` ends with `SYS_ENDING`) | `snr_f_01` is a hub that loads `f_02`..`f_24` on top of itself (`SYS_OVERLAY 21`..`43`; overlay n = script file n, `t_01`..`t_20` = 0..19, `f_01`..`f_30` = 20..49); each returns to it (`SYS_RET_GEKITOU`); `f_23` holds the ending |
+| Maps (`scenario_us/snr_map.BIN`) | map m = entry m (0..46) | map m = entry m + 47 (47..93) |
+
+38 of the 47 map pairs are byte for byte the same room; 9 differ: 8 in their model (2 OFC, 5 BAR, 6 BAR02, 10 PLH,
+11 NXD, 17 LB03, 30 ZXL, 32 ZXR) and 36 AMP only in its collision block (0x120 bytes longer in The Grand Battle):
+the same room as each story shows it (entry 49, the office in The Grand Battle, has no sofas and table). `MAP_SET`, `MAP_LINK` and the area-box code (`cr_AreaBoxes_Update`) pick the entry the same way.
+
+**Map names.** The scripts end with a table of their entry points' developer names (an entry's id + 0x40 is its
+name), and the map scripts are named after the map (`map_init_ZXP`, `Map_set_bar_01`, `snr_f_24_map_STF01_init_scr`
+...). With the map-link test script below this gives every map's code:
+
+| Map | Code | Map | Code | Map | Code | Map | Code |
+|---|---|---|---|---|---|---|---|
+| 0 | WORLD (world map) | 12 | RST | 24 | PCR | 36 | AMP |
+| 1 | WRD02 | 13 | LBD (from the link order) | 25 | PCT | 37 | AMT |
+| 2 | OFC (the office: stage 7 RPG Test is its blockout) | 14 | LBP | 26 | STN01 | 38 | GHT01 |
+| 3 | LAB | 15 | LB01 | 27 | STN02 (from the link order) | 39 | GHT02 |
+| 4 | PRR | 16 | LB02 | 28 | OBR | 40 | ZXL02 |
+| 5 | BAR | 17 | LB03 | 29 | ZXP | 41 | ZXP02 |
+| 6 | BAR02 | 18 | LBL (from the link order) | 30 | ZXL | 42 | ZXP03 |
+| 7 | TRN (gym) | 19 | PTR | 31 | ZXT | 43 | ZXP04 |
+| 8 | PRK (park) | 20 | MHH | 32 | ZXR | 44 | GHT03 |
+| 9 | EXM | 21 | PXE | 33 | - (unused, below) | 45 | STF01 |
+| 10 | PLH | 22 | PXM (from the link order) | 34 | ZBS | 46 | STF02 |
+| 11 | NXD | 23 | PCP | 35 | AME | | |
+
+**Which maps each story uses** (every map command in the code of every chapter script - the code decodes without a
+gap from the first entry point to the name table - test scripts left out: `MAP_SET`, `MAP_LINK`, `MAP_NEXT_SET`, `MAP_INIT_SCRIPT`, `MAP_NO_ENTER_SCRIPT`, `MAP_BEF_SCRIPT`,
+`MAP_DOOR_OUT` and the `MAP_CLEAR_*` commands):
+
+- A New Journey: every map except 33, 45 and 46 (STF01, STF02: rooms of The Grand Battle only).
+- The Grand Battle: every map except 18 (LBL), 25-28 (PCT, STN01, STN02, OBR) and 33.
+- **Map 33 is used by neither**: entries 33 and 80 (identical) are 0x2220 bytes, with no collision block and no
+  area table: one untextured grey square of 38 x 38 units, a placeholder.
+
+The map entry layout (header +0x00 collision offset, +0x04 model, +0x08..+0x14 x / z bounds, +0x18 the last block or
+0): the last block is a 0xE0-byte table (88 of the 94 entries; 50 of them follow it with a second small `scene_data`
+model); it is not door data. Doors and areas are set up by the scripts (`EV_SET_SQARE`: box number, corners, the script to run; `MAP_LINK`
+puts a destination map in the box).
+
+**Characters and objects** (`scenario_us/snr_chara.BIN` 56 characters, `snr_obj.BIN` 89 objects; the characters
+named by `CHAR_SET`, `CHAR_SET_WMOT`, `CHAR_SET_WMOT_Y` and `CHAR_SET_MODEL`, the objects by `OBJ_SET`,
+`OBJ_SET_CHARA_POS`, `OBJ_SET_RANGE`, `OBJ_SCALE_SET` and `OBJ_SCALE_SET_CHARA_POS`, in the whole code of every
+chapter script; the code also sets object 88 (`fn_8005C384`) and 73 (`fn_8009AEC4`) itself):
+
+- Every map also loads its own model pack with it (`MAP_SET`: `scenario_us/rpg_t_models.BIN` entry m for A New
+  Journey, `rpg_f_models.BIN` for The Grand Battle; 48 entries, entry 47 shared by all maps). A pack is a count,
+  then (id, offset) pairs, then the models: id 0x0001nnnn = object nnnn, 0x0000nnnn = character nnnn.
+- Characters: every one is placed by a script or carried by a map pack except 50 and 54, which are byte for byte
+  the same file (a spare slot, unused). 13-16 and 58, 60, 63 appear only in A New Journey's scripts, 18 and 55 only
+  in The Grand Battle's (58, 60 and 63, in `snr_t_05` and `snr_t_07`, are not `snr_chara` entries and no pack or loader fills those
+  slots of `cr_g_CharaEntries`; `cr_Chara_BuildModel` draws a number whose slot is not loaded as character 0, so
+  from the code they show as character 0 - not checked in the game).
+- Objects: 27 entries (3, 9-31, 36, 51, 52) are copies of one 2,592-byte placeholder (one textured square), never
+  used. Every real object is used: those no script places come with a map pack: 54-63 the world map's place signs
+  ("Steel Hearts", "Hero's Home", "Lab", "Test Hall", "Training Gym", "Bogey's Cafe", "Daimon", "Hub Park",
+  "Police Squad HQ", "Harry's Home") and 64-66 ("Dome", "Amusement Park", "Z's Hideout") with WRD02, the office
+  furniture 81-83 (desks, the red sofa, a table) only in The Grand Battle's office pack (its office model has no
+  furniture of its own), 79-80 with The Grand Battle's PRR, 47 (a framed handprint) with PCT, 48 (a long building)
+  with STN01 / STN02, 85 (a tea set) with PTR, 41 with BAR02, and the shared pack 47 holds 2 (the parts machine)
+  and 7 (the red guide arrow).
+
+**Test scripts left in the chapter list** (each script file carries the date it was built, at +0x20):
+
+| File | Built | What it is |
+|---|---|---|
+| `snr_f_25` .. `snr_f_28` | 2003/4/14 | four copies of a command test script (`cmd_test_spt_start`, `event_obj_test`, `main_script_2..9`, `chara_a_script` ...); their "US" text files are still the Japanese test messages |
+| `snr_f_29` | 2003/6/3 | a map-link test: one entry per door of the map network of that time (`map_link_ofc_world`, `map_link_lbp_lb01`, `map_link_stn02_obr` ... `world_link_set`), and a name entry |
+| `snr_f_30`, `snr_t_20` | 2003/8/20 | the same 216-byte blank chapter: map 0, one character, start, loop |
+
+None of them is ever loaded: `t_20` would follow `t_19`, which ends the story, and the only overlays of The Grand
+Battle are `f_02`..`f_24` (the hub's `SYS_OVERLAY 21`..`43`; `SYS_OVERLAY` takes its number straight from the
+command). `f_29` itself overlays `t_01`, `t_03` and `f_01` (0, 2, 20): it was a tool for walking the maps.
+
 ## Still to trace
 
-- `CAMMODE_DEBUG`: camera mode 0 of `cr_g_CamModeNames` (0x801F88A4, 18 modes) has its own update function
-  (0x80035ED4 in `cr_g_CamModeFuncs`); whether anything sets mode 0 is not traced.
-- Whether any `SNT_TEST.bmg` message is shown (it is loaded at boot; its first messages are the part-data download prompts).
-- Story maps, characters and objects no script loads. From the decoded scripts (`tools/scr.py grep MAP_SET MAP_LINK
-  CHAR_SET OBJ_SET ...`): maps 1, 11, 24-28, 30, 31, 33, 36-38, 41, 43, 46 and character models 16, 38, 46, 50, 54
-  never appear in a command - not conclusive: maps are also entered through door / area data inside the maps (the
-  last block of a `snr_map` entry, not decoded) and part of the script code is not reached by the walk.
-- The 8 `snr_map` pairs whose two versions differ (2/49, 5/52, 6/53, 10/57, 11/58, 17/64, 30/77, 32/79): entry 49
-  is entry 2 without the sofas and table, so they look like the same room at two points of the story.
-- The 13 robo-motion `snr_motion` pieces and the `r_*` story robo motions.
+- Characters 58 / 60 / 63 in `snr_t_05` and `snr_t_07`: confirm in the game that they show as character 0.

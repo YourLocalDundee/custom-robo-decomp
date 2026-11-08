@@ -147,6 +147,14 @@ Durations are from the development desktop (8 cores, Oct 31, 2026); "quick" is u
   .dat (models_dat/); `tools/sched/scratch/hand/structscore.py`: exact / register-blind / opcode-only draft scores.
 - `python -I tools/part_mounts.py [--check]`: the part mount table of docs/robo_tables.md from main.dol (cr_g_BodyData);
   `--check` compares the doc's table with it.
+- `python -I tools/scr.py info / dump / grep`: the story scripts (`scenario/snr_*.bin`): a file's build date and named
+  entry points, the commands from an entry point, every use of given commands in the whole code of all scripts
+  (command sizes in `tools/scr_sizes.tsv`). Used for docs/hidden_content.md "Story mode".
+- `python -I tools/bmg.py [file] [first] [count]`: the game text in `bmg/info_usa.bin` (29 message files).
+- `python -I tools/ptcl.py list / users / recolour`: the particle generators of `logo_read_us.dbn` entry 0 and their
+  colour commands; recolour by a plan (`mods/*/particles.json`, applied by `make_mod.py`).
+- `python -I tools/recolour_dat.py <in.dat> <out.dat> gold | crimson | <hue> [sat] [val]`: hue-shift every texture
+  palette of an HSD .dat in place.
 
 ## Batches (`tools/batches`)
 

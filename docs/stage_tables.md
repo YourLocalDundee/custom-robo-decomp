@@ -176,7 +176,7 @@ Read by `fn_80072A58(lbl_8037569C, buffer)`, which turns the offsets into pointe
   white - a walled room with two sofas around a low table, a counter block, a pillar and a doorway. **Confirmed
   against the story maps (Nov 7):** the finished, textured room is `scenario_us/snr_map.BIN` entry 2 (same layout:
   sofa - table - sofa in the middle, the L-shaped block and corridor on the right; red sofas, glass table, a
-  console, a ceiling fan); entry 49 (its pair, 2 + 0x2F) is the same room without the sofas and table. Stage 7 is an
+  console, a ceiling fan); entry 49 (its pair, 2 + 0x2F) is the same room without the sofas and table. It is story map 2, developer code OFC (the office): A New Journey loads entry 2, The Grand Battle entry 49 (hidden_content.md, "Story mode"). Stage 7 is an
   early grey blockout of it (only the floor is textured). Where the bytes are (US disc, `files/`):
   - RPG Test model: `bg_data.BIN` entry 14 at 0x49E800, 0xE580 bytes (a standard HSD .dat, root `scene_data`);
     its collision: entry 15 at 0x4AD000, 0x1540 bytes.
