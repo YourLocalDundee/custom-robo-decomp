@@ -72,7 +72,9 @@ def main():
         sets = None
         mid = (ids[k] if ids else struct.unpack('>38H', dol.read(SETS + a.body * 0x4C, 0x4C))[k]) & 0x1FFF
         mg = tmp / f'{name}.glb'
-        crmotion_rig.cmd_gltf(str(src), mid, str(binp), str(glb), str(mg), dol)
+        # baked against the body under test (Nov 12, 2026): Blender keeps an action relative to the rest pose of the
+        # skeleton it was imported with, so a body bound in another pose (tools/blender/rebind.py) needs its own rest
+        crmotion_rig.cmd_gltf(str(src), mid, str(binp), str(a.body_glb), str(mg), dol)
         last = max(1, int(anim.last_frame(c.parse(c.read_motion(src)), mid)[2]))
         row = []
         for i in range(a.frames):

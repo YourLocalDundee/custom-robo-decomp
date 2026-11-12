@@ -47,7 +47,9 @@ def main():
         k = anim.slot_of(name)
         mid = (ids[k] if ids else struct.unpack('>38H', dol.read(SETS + a.body * 0x4C, 0x4C))[k]) & 0x1FFF
         mg = out / f'{name}.motion.glb'
-        crmotion_rig.cmd_gltf(str(src), mid, str(binp), str(glb), str(mg), dol)
+        # baked against the body under test (Nov 12, 2026): Blender keeps an action relative to the rest pose of the
+        # skeleton it was imported with, so a body bound in another pose (tools/blender/rebind.py) needs its own rest
+        crmotion_rig.cmd_gltf(str(src), mid, str(binp), str(a.body_glb), str(mg), dol)
         r = subprocess.run([BLENDER, '-b', '--factory-startup', '--python', str(G / 'tools' / 'blender' / 'deform_check.py'),
                             '--', a.body_glb, str(mg), a.roles, str(out / name), f'--step={a.step}'],
                            capture_output=True, text=True)

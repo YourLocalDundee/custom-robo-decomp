@@ -340,7 +340,11 @@ def fall(frames, height, back=True):
         # the stock lying height (0.14) is Ray 01's slim body: the samurai's back and helmet went 0.4 through the
         # floor (deform_check ground); his hips stay at LIE_Y or above
         y = max(ch['point0.y'], LIE_Y * down + ch['point0.y'] * (1 - down))
-        tilt = (-1.0 if back else 1.0) * 50.0 * smooth(down * 1.2)
+        # Nov 12 (deform sweep of the rebound body: hips 75-100 degrees off the chest, thighs 110-150 off the hips): the
+        # game lays the hips with joint0.rotx (fall_back -90, fall_front +90) and the stock targets lie in line with
+        # that (fall_back: chest toward -z, feet toward +z); a fixed tilt of the opposite sign folded him in half.
+        # The chest now follows joint0 itself (90% of it: a slight curl), the legs the other way
+        tilt = -0.9 * ch.get('joint0.rotx', 0.0)
         hips = [tr[t][0], y, tr[t][1]]
         v = {}
         put(v, 0, hips)

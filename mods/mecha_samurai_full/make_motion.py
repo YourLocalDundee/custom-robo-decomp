@@ -367,7 +367,7 @@ def iai(frames):
     return out
 
 
-CLEAR = 0.28        # a hand's least distance from the body's centre line (hips -> chest)
+CLEAR = 0.32        # a hand's least distance from the body's centre line (hips -> chest)
 
 
 def clear_body(per, frames):

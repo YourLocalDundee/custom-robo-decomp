@@ -36,7 +36,7 @@ def main():
     # joints share them before the import (tools/deform_sweep.py: the stance's stretched / squashed triangles 26k ->
     # 10k at 30,0.5,4; owner: "look for stretching ... neck chest collarbone shoulders sides hips waist legs").
     # --reuse=<samurai.glb>: skip atlas_ai_body.py and start from an earlier build's glb (weight-only changes)
-    own_keys = ('--work=', '--dst=', '--reweight=', '--reuse=', '--weight_step=')
+    own_keys = ('--work=', '--dst=', '--reweight=', '--reuse=', '--weight_step=', '--bind=')
     own = {k[2:]: v for k, _, v in (x.partition('=') for x in sys.argv[2:] if x.startswith(own_keys))}
     sys.argv = [x for x in sys.argv if not x.startswith(own_keys)]
     work = G / 'build' / 'mecha_samurai_full' / own.get('work', 'body')
@@ -70,7 +70,9 @@ def main():
         o = dst / f'chara_{n:03d}.dat'
         # --weight_step=0.05: finer envelope weights for --reweight's smooth weights (HSDRawViewer --weight-step)
         step = ['--weight-step', own['weight_step']] if own.get('weight_step') else []
-        run([EXE, '--import', G / 'models_dat' / 'chara' / f'chara_{n:03d}.dat', out, o, '--replace'] + step)
+        # --bind=glb (Nov 12, tools/blender/rebind.py): the glb's own bind pose (joint rotations and inverse binds)
+        bind = ['--skeleton', 'glb', '--bind', 'glb'] if own.get('bind') == 'glb' else []
+        run([EXE, '--import', G / 'models_dat' / 'chara' / f'chara_{n:03d}.dat', out, o, '--replace'] + step + bind)
         size = o.stat().st_size
         print(f'{o.name}: {size} bytes (limit {LIMIT})')
         if size > LIMIT:

@@ -11,6 +11,11 @@ seams) are one point: they get the same weights, so the smoothing never opens a 
   atlas_ai_body.py moved to the game's bind positions and must stay rigid)
 - per iteration each point in the zone takes (1 - factor) of its own weights + factor x its neighbours' mean;
   at most 4 joints, normalised
+- --roles=<roles json> (Nov 12, 2026): weights only along the skeleton. A point keeps only joints whose role is its
+  strongest role or a direct neighbour of it (chest - head / shoulders / hips, chest - upper arm (the armpit: Ray's shoulder joint is a short clavicle), shoulder - upper arm - forearm - hand,
+  hips - thighs, thigh - shin - ankle - foot); applied every iteration, and once more with --iters=0. The plain
+  smoothing spread weights over mesh edges, so the skirt between the legs took both legs and the collar both arms
+  and the head (deform check: those triangles tear when the limbs part)
 
 Measure with tools/deform_sweep.py (stretch / clipping per motion) before and after.
 """
@@ -32,6 +37,57 @@ RING = int(opts.get('ring') or 2)
 
 arm = common.load(SRC)
 meshes = common.model_meshes()
+ADJ = {}
+role_of_bone = {}
+if opts.get('roles'):
+    import json
+    _roles = json.load(open(opts['roles'], encoding='utf-8'))['C']
+    _rb = {f'JOBJ_{v}': k for k, v in _roles.items()}
+    for b in arm.data.bones:
+        x = b
+        while x is not None and x.name not in _rb:
+            x = x.parent
+        role_of_bone[b.name] = _rb[x.name] if x is not None else ''
+    links = [('upper_body', 'head'), ('upper_body', 'lower_body')]
+    for s_ in 'ab':
+        links += [('upper_body', f'arm_{s_}_shoulder'), ('upper_body', f'arm_{s_}_upper'), (f'arm_{s_}_shoulder', f'arm_{s_}_upper'),
+                  (f'arm_{s_}_upper', f'arm_{s_}_fore'), (f'arm_{s_}_fore', f'arm_{s_}_hand'),
+                  ('lower_body', f'leg_{s_}_thigh'), (f'leg_{s_}_thigh', f'leg_{s_}_shin'),
+                  (f'leg_{s_}_shin', f'leg_{s_}_ankle'), (f'leg_{s_}_ankle', f'leg_{s_}_foot')]
+    for r in set(_rb.values()) | {''}:
+        ADJ[r] = {r}
+    for x, y in links:
+        ADJ.setdefault(x, {x}).add(y)
+        ADJ.setdefault(y, {y}).add(x)
+
+
+def prune(rows, names):
+    """keep only joints whose role is the row's strongest role or its skeleton neighbour; normalised"""
+    if not ADJ:
+        return rows, 0
+    jr = [role_of_bone.get(n, '') for n in names]
+    roles_u = sorted(set(jr))
+    ri = {r: i for i, r in enumerate(roles_u)}
+    R = np.zeros((rows.shape[0], len(roles_u)))
+    for j, r in enumerate(jr):
+        R[:, ri[r]] += rows[:, j]
+    dom = [roles_u[i] for i in R.argmax(1)]
+    mask = np.array([[jr[j] in ADJ.get(d, {d}) for j in range(len(names))] for d in dom])
+    off = (rows > 1e-4) & ~mask
+    changed = int(off.any(1).sum())
+    if opts.get('debug'):
+        from collections import Counter
+        c = Counter()
+        wsum = Counter()
+        for i in np.nonzero(off.any(1))[0]:
+            for j in np.nonzero(off[i])[0]:
+                c[(dom[i], jr[j])] += 1
+                wsum[(dom[i], jr[j])] += rows[i, j]
+        for k, n in c.most_common(25):
+            print(f'reweight: prune {n:5d} x  {k[0]} -/- {k[1]}  mean weight {wsum[k] / n:.3f}')
+    rows = rows * mask
+    rows /= np.maximum(rows.sum(1, keepdims=True), 1e-9)
+    return rows, changed
 for o in meshes:
     me = o.data
     names = [g.name for g in o.vertex_groups]
@@ -88,8 +144,11 @@ for o in meshes:
             idx = np.argsort(-sub, 1)[:, 4:]
             np.put_along_axis(sub, idx, 0.0, 1)
         sub /= np.maximum(sub.sum(1, keepdims=True), 1e-9)
-        new[zone] = sub
+        new[zone], _ = prune(sub, names)
         PW = new
+    PW, n_pruned = prune(PW, names)
+    if ADJ:
+        print(f'reweight: {o.name}: {n_pruned} points had weights off the skeleton (pruned)')
     # write back: every vertex takes its point's weights
     for j, nm in enumerate(names):
         o.vertex_groups[nm].remove(list(range(nv)))
