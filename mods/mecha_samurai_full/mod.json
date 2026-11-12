@@ -1,0 +1,8 @@
+{
+ "name": "mecha_samurai_full",
+ "author": "model_loop",
+ "body_buffer": "0x200000",
+ "part_buffer": "0x40000",
+ "needs": "Dolphin MEM1 64 MB (Config > Advanced > Enable Emulated Memory Size Override)",
+ "description": "The AI mecha samurai on robo 0 (Ray 01's slot) with his own gun, bomb, pods, legs, shots, stats, motions and names: docs/full_custom_robo.md. Needs Dolphin MEM1 64 MB."
+}

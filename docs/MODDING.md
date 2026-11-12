@@ -305,7 +305,31 @@ Taken from Ray 01 (chara_000) with `HSDRawViewer --info`; every robo body seen f
 - No vertex colours, no new texture formats (the template's CMP), no mipmaps, no animations, no shape keys.
 - A new texture is always the template MObj's two-stage scheme; other TEV setups need code.
 - Size: body entries must stay under 0x3A000 bytes; memory / vertex limits beyond that are unknown (the legionnaire:
-  3,756 triangles, 58 joints, 44 DObjs, 54 PObjs, boots).
+  3,756 triangles, 58 joints, 44 DObjs, 54 PObjs, boots). **Bigger: "Big bodies" below (Dolphin only).**
+
+### Big bodies (1 MB per robo, Dolphin with 64 MB; tested Nov 9, 2026)
+
+`mods/mecha_samurai_big` runs a 767,919-byte body (14,000 triangles, 1024x512 texture) in Customize and a versus
+battle, both players, no warning (Dolphin screenshots taken with `tools/dolphin_drive.ps1`). How:
+
+1. **Where bodies load.** The part load requests `lbl_8023BA84` (0x14 per record: archive, 0, offset, loader, part
+   index; 5 parts x 4 robos) are read by `fn_8010DE04` / `fn_8010DBA8`: destination = `*lbl_8044F2EC` + offset.
+   `*lbl_8044F2EC` is 0x80C07040 at run time (read with `tools/dolphin_mem.py`, the same with and without the
+   override); each robo's block is 0x7E000 bytes (body 0x3A000, gun 0x12000, bomb 0x12000, pod 0x14000, legs 0xC000).
+   Only these two menu functions use the region: the battle builds from what Customize loaded.
+2. **Where to put them.** Dolphin's memory override (Config > Advanced, MEM1 64 MB; `-Mem1Mb 64` in
+   `tools/boot_check.ps1` / `tools/dolphin_drive.ps1`) adds RAM the game never uses: its own top is ArenaHi
+   0x817F9BC0. The mod's `code/big_body.txt` sets the four body offsets so robo r loads at 0x81A00000 + r x 0x100000.
+3. **Let the CPU read it.** The SDK's `__OSInitMemoryProtection` (0x80136650) picks the BAT layout from the
+   *simulated* size at 0x800000F0, which stays 24 MB under the override (only 0x80000028 grows), so `Config24MB` maps
+   up to 0x817FFFFF and the first read at 0x81A00000 is "Invalid read, PC 0x800748D0". Two patched branches take
+   `Config48MB` (maps to 0x82FFFFFF) and skip the above-24 MB write protection.
+4. **Let make_mod accept it.** `mod.json` `"body_buffer": "0x100000"`.
+
+Not covered yet: the menu screen `fn_800A63C0` (the parts encyclopedia, most likely) allocates its own two 0x3A000
+body buffers on `cr_Heap2`: opening a big body there would overflow. On a real 24 MB console these addresses do not
+exist; a title-screen scan found 4.9 MB never written at 0x81330000 .. 0x817F9BC0 (a real-hardware lead, to be
+checked during a battle before use).
 - New bones need the roles file; `make_mod.py` refuses a changed skeleton without one.
 - A grown archive moves to unused disc space (`iso_patch.py build`; Custom Robo's files sit at the end of the disc),
   so a size change no longer needs room after the last file.

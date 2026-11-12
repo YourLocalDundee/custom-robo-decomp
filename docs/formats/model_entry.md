@@ -210,23 +210,24 @@ value is above 0: the header[8] joint picks of a part file are anchor points for
 **Code status of this chain (priority list for the decomp; `draft_report.txt`, Nov 5)**. Matched and linked from C:
 `fn_80007CE4`, the four switches `fn_80007AE4 / BD4 / C24 / C74`, `fn_8003D500` (legs), `fn_800A5C60` (second set),
 `fn_8010D2D0` (release), `fn_80095700` (set frame), `fn_80095A30` (matrix update), `cr_BattleRobo_InitBody`.
-Matched, not linked: `fn_80038CF8` (draw). **Not matched yet, the decisions that are still only read from m2c /
-Ghidra output** (in order of how much of this write-up rests on them):
+Matched, not linked: `fn_80038CF8` (draw). **Hand-matched Nov 5 (tools/hand_drafts, 100%, not yet in a full run)**:
+the matrix stack steps `fn_8001DF6C` (load) / `fn_8001DD68` (translate) / `fn_8001D9E8` (scale) / `fn_8001DA70`
+(scale xyz), `fn_80101950` (the battle-start forms), `cr_BattleRobo_InitFromMenu` (the copy of the model slot) and
+`cr_Chara_BuildModel` (the robo model, the 19 role joints, the material and the extra joint paths): these decisions
+are now read from C that compiles to the original. **Not matched yet, still read from m2c / Ghidra output** (in order
+of how much of this write-up rests on them; wip drafts in tools/sched/scratch/hand/wip):
 
 | Function | Bytes | Draft | What it decides |
 |---|---|---|---|
-| `fn_80039FAC` | 3060 | 87% | role matrices into the joints, part placement, part animation frames |
-| `fn_8001DF6C` / `DD68` / `D9E8` / `DA70` | 124-208 | 8-34% | the matrix stack steps (load, translate, scale, scale xyz): small, first to hand-write |
-| `fn_80042AB8` | 5636 | 34% | the gun's state float and form |
-| `fn_8003FE98` | 4648 | 38% | the bomb's state float and form |
-| `fn_8003DD38` | 4808 | 31% | the pods' state float and form |
-| `fn_80101950` | 136 | 79% | the battle-start forms |
-| `fn_801076D8` | 2904 | 32% | all forms 0 (which mode: open) |
-| `cr_WeaponModel_OnLoaded` | 1112 | 48% | part records, slot table, joint picks |
-| `cr_BattleRobo_InitFromMenu` / `_InitFromLoadout` | 544 / 2228 | 91% / 36% | the copy of cr_g_BodyData (mounts) |
-| `fn_800A63C0` | 15404 | m2c fails | the screen that reads the second set |
-| `fn_80095E6C` | 1288 | 60% | drawing a joint tree with a matrix |
-| `cr_Chara_BuildModel` | 1460 | 47% | the robo model, roles, block A |
+| `fn_80039FAC` | 3060 | 93% (wip, Nov 6; registers only) | role matrices into the joints, part placement, part animation frames |
+| `cr_WeaponModel_OnLoaded` | 1112 | 97% (wip, Nov 6; three saved registers swapped) | part records, slot table, joint picks |
+| `fn_80095E6C` | 1288 | 96% (wip; stack slots only) | drawing a joint tree with a matrix |
+| `fn_80042AB8` | 5636 | 56% (wip, Nov 6; frame and stack slots match, 94.7% with registers normalized) | the gun's state float and form |
+| `fn_8003FE98` | 4648 | 71% (wip, Nov 6; frame and stack slots match, 97.3% with registers normalized) | the bomb's state float and form |
+| `fn_8003DD38` | 4808 | 33% (wip, Nov 6: 79.3% normalized; frame 16 bytes short) | the pods' state float and form |
+| `fn_801076D8` | 2904 | 44% | all forms 0 (which mode: open); blocked: it reads its file's data through the pool base (r27 = lbl_80238008, the tables at +0x38C8 / +0x3C20 / +0x3C30 are other objects of the same file), so it can only match in a file object that defines that data |
+| `cr_BattleRobo_InitFromLoadout` | 2228 | ~50% | the copy of cr_g_BodyData (mounts) |
+| `fn_800A63C0` | 15404 | 3% (Nov 6: m2c drafts it since draft_batch.py rewrites its stack-spilled switch; compiles) | the screen that reads the second set |
 
 **Where each set is used** (`tools/callmap.py`, from Ghidra's call references):
 

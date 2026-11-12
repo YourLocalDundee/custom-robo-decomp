@@ -104,6 +104,8 @@ def sync_entry_table(dol, arch, old_archive, new_archive):
 EFFECT_ENTRY_MAX = {'gun_effect': 0x16000, 'bomb_effect': 0x40000, 'pod_effect': 0x40000, 'leg_effect': 0x1000,
                     'attack_effect': 0x14000}
 CHARA_ENTRY_MAX = 0x3A000   # per-robo body load buffer (docs/robo_tables.md, part load requests)
+# per-robo part load buffers (the same requests: gun +0x3A000, bomb +0x4C000, pod +0x5E000, legs +0x72000 of the block)
+WEAPON_ENTRY_MAX = {'weapon_gun': 0x12000, 'weapon_bom': 0x12000, 'weapon_pod': 0x14000, 'weapon_leg': 0xC000}
 # stage entries (docs/stage_tables.md): the model (even entry) is read to the 0x100000-byte region at lbl_8044F2E8
 # (fn_80023CBC), the collision entry (odd) to the 0x8000-byte buffer lbl_8034C100 (fn_8011449C / fn_80114214)
 BG_MODEL_MAX, BG_COLLISION_MAX = 0x100000, 0x8000
@@ -143,6 +145,11 @@ def main():
     iso = Path(sys.argv[2]) if len(sys.argv) > 2 else G / 'Custom Robo (USA).iso'
     if not iso.exists(): sys.exit(f'clean ISO not found: {iso} (pass it as the 2nd argument)')
     meta = json.loads((mod / 'mod.json').read_text(encoding='utf-8')) if (mod / 'mod.json').exists() else {}
+    # "body_buffer": a mod whose code/ patch moves the body load slots (docs/MODDING.md "Big bodies") may declare a
+    # bigger body limit; its code/ patch must give every robo a slot that size
+    body_max = int(str(meta.get('body_buffer', CHARA_ENTRY_MAX)), 0)
+    # "part_buffer": the same for the gun / bomb / pod / legs slots (one size for all four)
+    part_max = int(str(meta['part_buffer']), 0) if 'part_buffer' in meta else None
     name = re.sub(r'[^A-Za-z0-9_.-]+', '_', meta.get('name', mod.name))
     stage = G / 'build' / 'mods' / name / 'disc'
     shutil.rmtree(stage, ignore_errors=True)
@@ -189,9 +196,13 @@ def main():
                 if not crmodel.parse(entries[idx]): sys.exit(f'{p}: rebuilt entry does not parse')
                 if cat == 'chara':
                     entries[idx] = robo_roles(p, entries[idx], template, entries)
-                    if len(entries[idx]) > CHARA_ENTRY_MAX:
+                    if len(entries[idx]) > body_max:
                         sys.exit(f"{p}: entry is {len(entries[idx]):#x} bytes; a body entry must fit the game's "
-                                 f'{CHARA_ENTRY_MAX:#x}-byte load buffer (docs/robo_tables.md)')
+                                 f'{body_max:#x}-byte load buffer (docs/robo_tables.md'
+                                 + ('' if body_max == CHARA_ENTRY_MAX else '; mod.json "body_buffer"') + ')')
+                elif cat in WEAPON_ENTRY_MAX and len(entries[idx]) > (part_max or WEAPON_ENTRY_MAX[cat]):
+                    sys.exit(f"{p}: entry is {len(entries[idx]):#x} bytes; the game's load buffer for {cat} is "
+                             f'{part_max or WEAPON_ENTRY_MAX[cat]:#x} bytes (docs/robo_tables.md; mod.json "part_buffer")')
             else:
                 entries[idx] = dat
                 if cat in EFFECT_ENTRY_MAX and len(dat) > EFFECT_ENTRY_MAX[cat]:

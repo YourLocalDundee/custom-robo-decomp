@@ -91,3 +91,6 @@ tools/sched/scratch/hand/perm/*.log
 tools/sched/scratch/hand/perm/q4/
 tools/sched/scratch/hand/perm/q5/
 tools/sched/scratch/hand/perm/q6/
+
+# Community Discord record and fetched links (other people's posts, docs and repos): local reference only
+research/discord/

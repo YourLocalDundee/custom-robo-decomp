@@ -1,0 +1,7 @@
+{
+ "name": "mecha_samurai_big",
+ "author": "model_loop",
+ "body_buffer": "0x100000",
+ "needs": "Dolphin MEM1 64 MB (Config > Advanced > Enable Emulated Memory Size Override)",
+ "description": "Big-body test: the AI mecha samurai on robo 0 with about 4x the triangles and a 1024x512 texture, in a 1 MB body slot per robo moved to Dolphin expanded RAM (code/big_body.txt). Needs Dolphin MEM1 64 MB."
+}

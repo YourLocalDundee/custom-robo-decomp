@@ -2272,7 +2272,7 @@ def script_head_dead(body):
         return body
     ind = m.group(1)
     head = body[:m.start()]
-    adv = list(re.finditer(r'^[ \t]*(cr_g_ScriptPC \+= \d+;)\n', head, re.M))
+    adv = list(re.finditer(r'^[ \t]*(cr_g_ScriptPC \+= (?:0x[0-9A-Fa-f]+|\d+);)\n', head, re.M))  # hex steps too (Nov 6: 20 handlers)
     hist = list(re.finditer(r'^([ \t]+cr_g_Script\.cmd_history\[cr_g_Script\.history_index\] = )\(s32\) '
                             r'(M2C_FIELD\(\w+, s16 \*, 0\)|\*\w+);$', head, re.M))
     if not adv or not hist:
@@ -2623,11 +2623,11 @@ def shift_mask_order(body):
     """step 96, a variant: m2c's `(E << N) & M` (its reading of `clrlslwi`) written `(E & (M >> N)) << N` when M is
     a mask shifted by N; with sink_const_global_stores fn_80037894 matches (docs/drafts.md "Step 96")."""
     def f(m):
-        n, mask = int(m.group(2)), int(m.group(3), 16)
+        n, mask = int(m.group(2), 0), int(m.group(3), 16)
         if mask & ((1 << n) - 1) or not mask:
             return m.group(0)
         return '(%s & 0x%X) << %d' % (m.group(1), mask >> n, n)
-    return re.sub(r'\(([\w.\[\]>-]+) << (\d+)\) & 0x([0-9A-Fa-f]+)', f, body)
+    return re.sub(r'\(([\w.\[\]>-]+) << (0x[0-9A-Fa-f]+|\d+)\) & 0x([0-9A-Fa-f]+)', f, body)  # m2c: shifts >= 10 in hex
 
 
 def sink_const_global_stores(body):
@@ -3242,7 +3242,7 @@ def struct_copy_macro(body):
 
         def addr(a):
             # `(s32) (P - k) + k` is P itself (m2c's bias on a typed pointer would scale by the element)
-            b = re.fullmatch(r'\(s32\) \((.*) - (\d+)\) \+ (\d+)', a.strip())
+            b = re.fullmatch(r'\(s32\) \((.*) - (0x[0-9A-Fa-f]+|\d+)\) \+ (0x[0-9A-Fa-f]+|\d+)', a.strip())
             return b.group(1) if b and b.group(2) == b.group(3) else a.strip()
         return '*(%s *) (%s) = *(%s *) (%s);' % (t, addr(args[0]), t, addr(args[1]))
     new = re.sub(r'\bM2C_STRUCT_COPY\((.*)\);', fix, body)
@@ -5453,6 +5453,65 @@ def main():
                 l = '	.4byte .L_%08X' % (starts[m.group(1)] + int(m.group(2), 16))
             out.append(l)
         return ['.obj %s, local' % name] + out + ['.endobj %s' % name]
+    # Nov 6, 2026: a switch whose table address and scaled index go through stack slots (level-0 spills: fn_800A0E64,
+    # fn_800A63C0; in fn_800A63C0 the table address is even built from plain numbers, `lis r0, 0x8023` / `subi`, with
+    # no relocation). m2c cannot follow it and fails on both. The window between the bound check (`cmplwi rK, N; bgt`)
+    # and the bctr is rebuilt in the usual form from rK, and the table (a data object of `.4byte fn+0xOFF` entries)
+    # becomes a local jumptable_<address> for the loop below.
+    def spilled_switches(b):
+        nb, i = list(b), 0
+        while i < len(nb):
+            if not re.search(r'\tbctr\s*$', nb[i]):
+                i += 1
+                continue
+            k = i - 1
+            while k > 0 and not re.search(r'\tbgt ', nb[k]) and i - k < 24:
+                k -= 1
+            ck = re.search(r'\tcmplwi (r\d+), ', nb[k - 1]) if k > 0 else None
+            win = [re.sub(r'^/\* [0-9A-F]{8} [0-9A-F]{8}  (?:[0-9A-F]{2} ){4}\*/\t', '', x).strip() for x in nb[k + 1:i]]
+            ok = ck and win and all(re.match(r'(lis|slwi|addi|subi|lwzx|mtctr|stw r\d+, -?0x[0-9a-f]+\(r1\)|lwz r\d+, -?0x[0-9a-f]+\(r1\))(?=\s|$)', w) for w in win)
+            if not ok or not any(w.startswith('lwzx') for w in win):
+                i += 1
+                continue
+            hi = next((w for w in win if w.startswith('lis')), '')
+            lo = next((w for w in win if re.match(r'(addi|subi) ', w)), '')
+            ms = re.search(r'(lbl|jumptable)_([0-9A-F]{8})@ha', hi)
+            if ms:
+                ta = int(ms.group(2), 16)
+            else:
+                mh, ml = re.search(r', 0x([0-9a-f]+)$', hi), re.search(r', (-?0x[0-9a-f]+)$', lo)
+                if not mh or not ml:
+                    i += 1
+                    continue
+                ta = (int(mh.group(1), 16) << 16) + (int(ml.group(1), 16) if lo.startswith('addi') else -int(ml.group(1), 16))
+            tn = 'jumptable_%08X' % ta
+            if tn not in jt and ta in data_tables:
+                jt[tn] = data_tables[ta]
+            if tn not in jt:
+                i += 1
+                continue
+            a0 = re.match(r'^/\* ([0-9A-F]{8}) ([0-9A-F]{8}) ', nb[k + 1])
+            pre = lambda n: '/* %08X %08X  00 00 00 00 */\t' % (int(a0.group(1), 16) + 4 * n, int(a0.group(2), 16) + 4 * n)
+            rk = ck.group(1)
+            new = [pre(0) + 'lis r12, %s@ha' % tn, pre(1) + 'slwi r11, %s, 2' % rk, pre(2) + 'addi r12, r12, %s@l' % tn,
+                   pre(3) + 'lwzx r12, r12, r11', pre(4) + 'mtctr r12', nb[i]]
+            nb[k + 1:i + 1] = new
+            i = k + 1 + len(new)
+        return nb
+    data_tables = {}
+    for ds in sorted(os.path.join(B, 'asm', x) for x in os.listdir(os.path.join(B, 'asm')) if x.endswith('_data.s')):
+        cur = None
+        for l in open(ds, encoding='utf-8').read().split(chr(10)):
+            m = re.match(r'^\.obj lbl_([0-9A-F]{8}), ', l)
+            if m:
+                cur = (int(m.group(1), 16), [])
+            elif cur and l.startswith('.endobj'):
+                if cur[1] and all(re.match(r'^\t\.4byte fn_[0-9A-F]{8}\+0x[0-9A-F]+$', x) for x in cur[1]):
+                    data_tables[cur[0]] = cur[1]
+                cur = None
+            elif cur is not None:
+                cur[1].append(l)
+    funcs = [(n, ad, sz, spilled_switches(b) if any(re.search(r'\tbctr\s*$', x) for x in b) else b, o) for n, ad, sz, b, o in funcs]
     for name, ad, sz, b, _ in funcs + [lib[n] for n in libcalled]:
         for t in sorted(set(re.findall(r'jumptable_[0-9A-F]{8}', chr(10).join(b)))):
             if t in jt:

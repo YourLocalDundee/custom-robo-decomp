@@ -7,13 +7,14 @@
 #   -Screenshot x.png  picture of the game window at the end (a screen copy: the window is brought to the front)
 #   -Log x.log         Dolphin's log of this run only (OS reports, files read from the disc, boot / core / CPU
 #                      messages), switched on with command-line config: Dolphin's own settings are not changed
+#   -Mem1Mb 64        Dolphin's emulated memory size override (MEM1 64 MB), for mods that use RAM above 24 MB
 #   -PressA 16         from that second on, press the GameCube A button every 2 s (the X key, Dolphin's default keyboard
 #                      mapping; the Dolphin window is brought to the front for it) until the log shows the title
 #                      screen's sprite/us_title.tpl (with -Log) or the run ends. For a Dolphin whose memory card has
 #                      no Custom Robo save: the game then waits at "There is no save data on the Memory Card in
 #                      Slot A" for A, and reaches the title screen at about 23 s instead of 13 s (batch 11 uses it)
 param([Parameter(Mandatory)][string]$Iso, [int]$Seconds = 60, [string]$Snapshot, [string]$Screenshot, [string]$Log,
-      [string]$DolphinDir, [int]$PressA = 0)
+      [string]$DolphinDir, [int]$PressA = 0, [int]$Mem1Mb = 0)
 # Dolphin folder: -DolphinDir, else $env:CR_DOLPHIN_DIR, else the pinned Dolphin tools/setup.ps1 downloads
 # (tools/dolphin/Dolphin-x64, made portable so its User/ and log stay in that folder; stock settings, no cheats).
 $Iso = (Resolve-Path -LiteralPath $Iso).Path   # Dolphin starts in its own folder: a relative path would not be found
@@ -84,6 +85,9 @@ $dlog = Join-Path $DolphinDir 'User\Logs\dolphin.log'
 # a Dolphin that was never started (the pinned one right after setup) asks "Allow Usage Statistics Reporting" in a modal
 # dialog before the game runs: answered here (no) through command-line config, like the log settings below
 $dargs = @('-b', '-C', 'Dolphin.Analytics.PermissionAsked=True', '-C', 'Dolphin.Analytics.Enabled=False')
+# -Mem1Mb 64: Dolphin's emulated memory size override (Config > Advanced), for mods that use RAM above 24 MB
+# (a "body_buffer" mod, docs/MODDING.md "Big bodies"); command-line config only, Dolphin's settings are not changed
+if ($Mem1Mb) { $dargs += '-C', 'Dolphin.Core.RAMOverrideEnable=True', '-C', "Dolphin.Core.MEM1Size=$($Mem1Mb * 1048576)" }
 if ($Log) {
     $dargs += 'Logger.Options.WriteToFile=True', 'Logger.Options.Verbosity=3', 'Logger.Logs.OSREPORT=True',
         'Logger.Logs.FileMon=True', 'Logger.Logs.BOOT=True', 'Logger.Logs.CORE=True', 'Logger.Logs.POWERPC=True',

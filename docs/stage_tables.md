@@ -184,6 +184,28 @@ Read by `fn_80072A58(lbl_8037569C, buffer)`, which turns the offsets into pointe
     (entry + the u32 at entry +0x04), 0x4A38F bytes. Entry 49: model at 0x1546AC0, 0x4326F bytes.
   - Side by side: ![stage 7 vs snr_map 2](images/stages/stage_07_vs_snr_map_002.jpg)
 
+## Community stage exports (Discord #modding, Nov 7-8, 2026)
+
+A community member is exporting stages with textures (from the raw `bg_data` / scene_data files to OBJ + MTL for
+Blender; another member is placing them in VRChat as arenas). Their status, matched to this page's data. The
+"likely cause" column is our reading of the data, **not verified**:
+
+| Stage (id) | Their result | What this page says about it | Likely cause / lead |
+|---|---|---|---|
+| Basic Arena (0) | works; **skybox texture wrong**; **breakables scaled up and stacked in pieces**; tree textures in the background ("Basic Arena is a variant of Nature Park") | 10 models, 3 with joint + 3 with material animations; 3 breakable groups (WHERE_IS_EVERYTHING.md section 3) | breakables: each breakable model's pieces are placed by its joint animation / joint transforms, which a static OBJ export drops, so they land at the bind pose, unscaled frames stacked; the background: shared texture atlas or shared background models with Nature Park (3), not checked byte-wise |
+| Robo's Room (28) | works ("coherent") | 10 models, **no** joint animation, 1 material animation, no breakables | the easy case: nothing placed by animation |
+| Basic Arena (Test Use) (6), RPG Test (7), Practice Stage (0x0A), No-Man's Land alt (0x0B) | work | hidden / alternate ids (above) | - |
+| Diamond Fences (15) | **failed** ("failed horribly") | 4 models with joint and 4 with material animations, 3 breakables: the most animated of the early stages | same as the breakables above, more of them; the fences' see-through materials (`XLU`) |
+| Ice and Snow (12), Frozen Field (16) | mostly right; **purple glow missing**, **breakables wrong**, Frozen Field has **one wall displaced** | Ice and Snow has **7 light descs** (every other stage 2-3); Frozen Field 3 joint / 4 material animations, 3 breakables | glow: lights, a material animation (colour / alpha) or vertex colours the OBJ path drops (MTL has no vertex colours or light); the wall: a model positioned by its joint animation's first frame |
+| Scene textures in general | some materials show the wrong colour ("color modulation?") | lit materials are `CONSTANT, DIFFUSE, TEX0, TEX1` (diffuse x texture, plus an environment map on TEX1); unlit ones `VERTEX, TEX0` (vertex colour x texture) | the export takes the texture alone: the material diffuse colour and the CLR0 vertex colours multiply it in the game |
+
+Our own path goes through HSD-aware exporters rather than raw OBJ: `tools/scene.py export stage <id>` (.glb per
+model) and the `HSDRawViewer --export` renders in the gallery above, where Diamond Fences, Ice and Snow and Frozen
+Field look assembled. Whether our .glb keeps vertex colours, material colours and the animated models' placement
+was not checked against these exact complaints. To check here: (1) export stages 0, 12, 15, 16 to .glb and look for
+the same faults; (2) Basic Arena vs Nature Park shared textures (image hashes); (3) what the purple glow is (an
+in-game look, then lights / material animation / particles of stages 12 and 16).
+
 ## The stage record (main.dol 0x8020F4C8, 0x340 bytes x 40)
 
 `lbl_8020F4C8 + id * 0x340` (`lbl_8044F5EC` while a stage is loaded). Fields read by the code:

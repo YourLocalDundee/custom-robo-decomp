@@ -233,6 +233,18 @@ python -I tools/scene.py export effect gun 0       # -> build/scene/gun_effect_0
 Ready-made exports: `models_export/gun_effect/gun_effect_000_0/` (piece 0), `..._000_1/` (piece 1), and the same
 for `bomb_effect`, `pod_effect`, `attack_effect`, `leg_effect`.
 
+**Projectile trails (community, Discord #modding, Nov 7, 2026).** Exporting `gun_effect` piece 0 shows that some
+shots carry their trail as **geometry** (a mesh in the shot model), not only as particles: Gravity (gun 31: 7
+meshes, the most of these), Vertical (3) and Sword Storm (36) looked like that in the export. A community member
+(who plays it) says none of those three shows a real trail in game, and that **trails can be controlled from a
+gun's bytes** - a lead for `cr_g_GunData` (0x801CA560, 0x28C per gun; hidden_content.md), not traced here. Other
+notes from the thread: V Laser (16, 4 meshes / 5 particle tracks) exported with correct geometry and textures but
+without its transparency (the game draws it see-through, `XLU` materials); Claw (25) exported but its textures
+failed; the effect files' textures need the material colour applied ("color modulation"), same as stages
+(stage_tables.md, "Community stage exports"). Gun numbers = message file 9 index - 34. Basic Gun (0) is the
+simple test case (3 meshes, 3 particle tracks). The 12 dummy guns (52-63) carry Basic Gun's effect byte for byte
+(hidden_content.md).
+
 **Edit it:** edit the .glb in Blender, then
 `python -I tools/scene.py import effect gun 0 --piece 0 --model 1 edited.glb --mod MYMOD` and
 `python -I tools/make_mod.py mods/MYMOD`. The entry must stay under its size limit (make_mod checks, and keeps
@@ -564,6 +576,8 @@ effect loaders `fn_8007571C`, `fn_80078000`, `fn_80077F38` and the spawners (sec
 - What the collision surface numbers mean; the waypoint record's fields; the RPG test stage's collision layout
   (entry 015).
 - The button that picks the alternate stages (10 and 11).
+- Which `cr_g_GunData` bytes switch a shot's trail on or off (community lead, section 4); what the "purple glow"
+  of Ice and Snow / Frozen Field is (stage_tables.md, "Community stage exports").
 - The particle generator format (bank blocks 2-4), so particles cannot be edited yet.
 - What each common effect looks like in game; what gun piece 0's model 3 is for; leg_effect's 5 extra entries (34
   entries for 29 legs); a few pod particle keys that decode to bank numbers above 7 (probably not real particle

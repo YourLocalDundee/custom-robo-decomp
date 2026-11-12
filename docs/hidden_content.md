@@ -57,6 +57,21 @@ a developer label at +0x20. The labels show how the 64 slots were used:
 
 Wide Vulcan and Light Arc have no record, name, model or effect: only the two sound banks.
 
+**Dummy Guns 12-23 = slots 0x34-0x3F: community cross-check (Discord #modding, Nov 7, 2026; checked here Nov 8).**
+The community counted the same 12 slots (0x34-0x3F = 52-63) and called all of them "copies of Basic Gun", with the
+projectile archive (`gun_effect.BIN`) following gun order and holding 12 duplicates of Basic Gun's projectiles.
+Checked against `models_dat/`:
+
+| File | Entries 52-63 | Same bytes as Basic Gun (0)? |
+|---|---|---|
+| `gun_effect.BIN` (the shot and hit) | all 12 identical | **yes**: `gun_effect_052_0/1.dat` .. `_063_*` = `gun_effect_000_0/1.dat` (MD5 46d2bc6e... / e84b9826...) |
+| `weapon_gun` (the gun on the arm) | all 12 identical | **no**: one shared placeholder (59,623 bytes, MD5 2aeb5dfb...) vs Basic Gun's 55,399 bytes; it may look like Basic Gun, but it is its own file |
+
+So a mod that fills a dummy slot replaces three things: the arm model (the placeholder), the effect entry (Basic
+Gun's shot until replaced) and the `cr_g_GunData` record (the test stats above). Gun numbers for the guns named in
+the same thread (number = message file 9 index - 34): Basic 0, Vertical 3, V Laser 16, Claw 25, Twin Fang 30,
+Gravity 31, Sword Storm 36 (their projectile notes: WHERE_IS_EVERYTHING.md section 4).
+
 ## Bodies (checked)
 
 All 34 bodies are in the body list; `chara.BIN` has 170 entries = 5 per body. No hidden body model.
@@ -119,6 +134,13 @@ name tables have `OBJ_DUMMY_*`, `CHAR_DUMMY_*`, `EV_DUMMY_*`, `CM_DUMMY_*`, `LGT
 
 40 stage records, 80 `bg_data` entries (2 per stage). Hidden in the select (record +0x80 = 0): stage 6 Basic Arena
 (Test Use), a copy of Basic Arena, and stage 7 RPG Test, a grey blockout of the story room in `snr_map` entry 2.
+
+The community (Discord #modding, Nov 8, 2026) exported the hidden and alternate ids as "unused arenas" 06, 07, 0A,
+0B: 06 = duplicate of Basic Arena, 07 = a "real-world" room (our RPG Test / office blockout), 0A = "a greybox stage
+with placeholders", 0B = "a placeholder plane". This matches stage_tables.md: 0x0A and 0x0B are not unused but the
+**alternates** the select swaps in for Basic Arena (Practice Stage, 0x2E9A0-byte model, 10 models) and No-Man's
+Land (one-model plane) while a pad bit is held (button not identified). Their export results per stage:
+stage_tables.md, "Community stage exports".
 
 ## The story file-select: "Start Debug Mode" (checked)
 

@@ -1821,3 +1821,469 @@ are **structural** (29: by hand, smallest first).
   passes the value uncast to its search helper).
 - Permuter queue 5 (tools/sched/scratch/hand/perm/run_queue5.sh, portable, for cr-linux): the 14 largest unmatched
   drafts at noreg >= 90% plus fn_8000E64C and cr_SEQ_BATTLE_FrameA, 20 minutes each.
+- Queue 5 finished Nov 5 04:31 (cr-linux): no new match. Best scores: fn_800B1B2C 210, fn_80101284 390, fn_801019D8 500, fn_80089550 515, fn_801314D4 720, fn_800381D0 880, fn_8008538C 1295, fn_800177F0 1630, fn_80039FAC 1635, fn_80090298 1940, fn_801166E4 2485, fn_80045FEC 4685, fn_8000E64C 9710, fn_8003C4F0 13695, cr_SEQ_BATTLE_FrameA 14595. fn_800B7D8C reached 0 (a `(long long)` byte offset), but its hand draft was already at 100% in tools/hand_drafts. The register-allocation pool past the first few needs more than 20 minutes per function.
+- **Nov 5, 2026: the part chain's small functions (main session).** Six more hand drafts at 100% in tools/hand_drafts
+  (hd.py 100%, relcheck.py equal): the matrix stack steps fn_8001D9E8 (scale), fn_8001DA70 (scale x / y / z),
+  fn_8001DD68 (translate) and fn_8001DF6C (load), fn_80101950 (the battle-start forms), cr_BattleRobo_InitFromMenu.
+  What they needed: one local pointer to cr_g_CurrentMtx (m2c re-read the global, 8-34%); the translate's three rows
+  interleaved step by step, sums in locals (a sum per row written whole gives 44%, row by row 76%); the load's last copy
+  as `*(m += 11) = *(v += 11)` (the original's lfsu / stfsu pair; the moved pointer is the return value); the robo
+  pointer set before the index (fn_80101950); in InitFromMenu the 19 words of the model slot copied as struct array
+  fields (`robo->a864[i] = slot->a8[i]`: (i << 2) + 0x864 and stwx, m2c had a byte store there).
+- **fn_80095E6C 60% -> 96% (wip/, not linked)**: the game's own HSD_JObjDispAll with a specular light pass. The source
+  shape: MWCC inlined the function into itself one level (written out as an inline copy `Disp_inl` of the body that
+  calls the real functions fn_80096374 / fn_80095D7C / fn_80095E6C; the top level uses inline copies of those two
+  helpers); the instance-matrix setup of the top level written flat (its two dirty flags are locals of the function:
+  r18 / r17; as locals of an inline they go to the stack); **the child loops reuse the joint parameter**
+  (`for (jobj = jobj->child; jobj != NULL; jobj = jobj->next)`, the original's `lwz r31,0x10(r31)`; a separate
+  `child` variable took two more saved registers and pushed the dirty flags to the stack: 72 -> 87%); the NULL tests
+  of both copies against `(void *) 0` (li r0,0; cmplw); the camera pointer assigned in the condition (no reload);
+  and, from a Windows permuter run (score 0 in 20 minutes), one of the two light-flag clears as
+  `lobj->flags = lobj->flags & ~0x100` (a register swap). Left: only stack slot offsets (the view-matrix getter's
+  parameter and return slots and the light counts): the permuter's score ignores stack offsets, so its 0 is not a
+  match. MWCC level 0 rule seen here and in cr_Chara_BuildModel: when the 15 saved registers r17-r31 run out, the
+  locals that lose are kept on the stack, and the slot order follows the inline nesting (return slots of the inlines
+  called from the function first, their insides after).
+- **cr_Chara_BuildModel 47% -> 100% (tools/hand_drafts)**: written from the asm with inline helpers: child / next
+  getters with `(void *) 0` tests (their return slots are m2c's sp40 / sp3C ...), the material lookup as an inline
+  over `cr_DObjGetMObj(jobj->u.dobj)` (one inline level: two gave one stack copy too many), the role-joint walk with
+  the 0xFF exit and the `path++` inside the loop, `(u32) number` compares (cmplwi), and **the extra-joint path walk as
+  an inline that takes the path pointer by address**: `cr_WalkPath(root, &path2)`. MWCC folds `*pp` back to the
+  caller's register variable (r31 stays the path; no stack home), so the walk advances it in place, and the walk's
+  result and return slot get the original's registers and stack copies (86% written in the function, 42% as an inline
+  taking the path by value: MWCC copies a parameter the inline modifies). Last fix: the header address, then path2,
+  then has_extra_paths = 1 (other orders swap r3 / r4). The helpers are under `#ifndef CR_CHARA_PATH_INLINES` so the
+  file's other function (cr_WeaponModel_OnLoaded, the same walks) can share them in a file object.
+- **cr_WeaponModel_OnLoaded 48% -> 88% (wip/)**: the same walk and material inlines; the relocation loop; `(x &
+  0xFFFF0000) >> 16` for the model id (the peephole folds the mask into the srwi and leaves the original's dead
+  `clrrwi`); `addis r0,r3,1; cmplwi r0,0xFFFF` is `(u32) x != 0xFFFFFFFF`; **the stack homes of the locals that lose
+  the register race are given in declaration order** (relocs, p, kind: first declared, highest slot). Left: two
+  register swaps (path / header, out / slots) that declaration order and reference counts did not move.
+- **fn_80039FAC 87% -> 92% (wip/)**: the 13 role / part matrix stores as one inline `cr_JObjSetMtx_9FAC(jobj, mtx)`
+  (HSD's matrix copy with this build's assert lines 0x495 / 0x496, `flags |= 0x03800000`, then the dirty marking); each
+  call's joint parameter is a register of its own (r31 down to r23) and the dirty results r19-r17 then stack slots, as
+  in the original. Left: the scratch register of a few loads (r0 against r3 / r4).
+- **fn_801076D8 (32% -> 44%): blocked by its data pool.** r27 is `lbl_80238008`, and the sound table (+0x38C8, read as
+  `addi r3,r27,0x38C8; lwz r3,0x28(r3)`, index 0 folded), the state handlers (+0x3C20) and the input handlers
+  (+0x3C30) are reached from it: other objects of the same file addressed from the file's data-pool base (the step 86
+  rule). No C form against extern declarations keeps that `addi` (struct members, nested structs, byte arithmetic,
+  local copies and inline parameters all fold, tested in small files); it can match only in a file object that defines
+  the file's data.
+- cr_BattleRobo_InitFromLoadout (~50%, wip/) has the same block: r30 is lbl_801C50D0 (a 232-byte object), and the
+  tables it copies from (+0xB00, +0xB40, +0x1B74, +0x445C, +0xF790, +0x144C0) are reached as r30 + offset (the
+  "unfolded table pointers" of Nov 3): the file's data-pool base again, so it waits for its file object too.
+- Permuter on Windows: a draft for permuter_setup.py must be the wrapped form (`#define F F__proto`,
+  `#include "ctx.h"`, `#undef F`, then the body; tools/sched/scratch/hand/perm/), else base.c has no context and the
+  permuter stops with "Syntax error in base.c".
+- **The model / stage file 0x800730F8-0x800751xx, Nov 5 (main session).** With the path inlines of cr_Chara_BuildModel:
+  **cr_ModelEntry_LoadAndBuild 79 -> 100%** (the relocation loop and the role loop share ONE counter: r26 in both, one
+  variable at level 0; signed for the `< 19` loop; the relocation table pointer a local declared before the entry
+  pointer; the model's part list is one pointer level deeper than the weapon file's), **fn_80074FBC 77 -> 100%** (the
+  file layout from its header: each size computed before its pointer is stored; a zero local for the +0x40 store),
+  **fn_80073728 65 -> 100%** (the stage loader: it takes the archive as its SECOND argument, which m2c could not see;
+  the counter s32; the model count passed on as fn_8006E83C's u8 second argument; the light count stored as `i - 1`
+  before `i = 0`, a variable for it takes a saved register). Signatures read from the callers' code went into
+  symbols/cr_types.h (fn_80073728, fn_8006E83C, fn_800B54E8; a context refresh with `--sample 1` compiles once the stale
+  ctx_protos.h lines are gone, which a full run rewrites; m2c then drafts the other callers, cr_SEQ_SCENARIO_Enter and
+  fn_800A0228, with the second argument). Near misses in wip/: fn_80073A74 60 -> 93% (registers of three locals left;
+  `(u8 *) ofs + (u32) objs` gives the original's add operand order), fn_800735C8 29 -> 87% (two header variables, the
+  copy `h = hdr` is the original's r30; the parameter's register is the one left), cr_MotionFile_Register 58 -> 71%
+  (its record fields are reached as add + displacement, `(base + j * 12)` then +4, a form that every expression spelling
+  tested folds into addi + lwzx; only a local pointer or an inline's return value keeps it, and both change the
+  registers), cr_WeaponModel_OnLoaded 88% (a 20-minute permuter run found nothing better).
+- Same file, Nov 5: **fn_80075950 86 -> 100%** (the five part-file queues; every buffer address in the first loop's
+  form `(void *) (buf + ((s32) (i * N * 4) / 4))`; the slot table is a [5][4] array), **fn_80075D14 70 -> 100%** (the
+  sound banks; the table words as `*(tbl + i + k)`, which gives i * 4 + 4k where `tbl[i + k]` gives (i + k) * 4; two
+  local arrays, the first declared gets the higher slot). **fn_8007571C (17%) is pool-blocked** like fn_801076D8:
+  r31 = lbl_80377E60 is the base of the file's data, and the slot table (+0), the address tables (+0x50 ...) and the
+  archives (+0x90 ... +0x3C0) are reached as `addi rX, r31, off` (fn_80075950 touches only the slot table and
+  addresses it directly). Pool-blocked so far: fn_801076D8, cr_BattleRobo_InitFromLoadout, fn_8007571C.
+- **The epilogue order `lwz r0` before `lwz r31` (fn_800F1860 90 -> 100%)**: the final scheduling pass reschedules a
+  block only when an earlier pass inserted or deleted an instruction in it (docs/sched_model.md); fn_800F1860 saves
+  r31 without using it, the trace of a local the peephole folded away: `p = (s32 *) lbl_8044F304; fn_80023354(p,
+  ...)` gives the saved r31, the deleted `mr r3,r31`, the rescheduled epilogue and 100% (a dead `x = 1; ... x = x;`
+  does too). fn_800A0804 has the same epilogue with r31 in use (its parameter): no deleted instruction found for
+  its last block yet (local pointer, dead locals, call result kept, mask spellings `~(1 << 10)`, `(u32) -0x401`,
+  a mask local: 52-95%). Among the unmatched drafts at 85-99%, fn_800A0804 is the only one whose difference is
+  only the epilogue.
+- **Nov 5, more near misses (main session), all hand drafts at 100%:** fn_800A0C20 86 (the relocation loop as
+  `p = (u8 **) (base + relocs[i++])`), fn_8008E7EC 92 (stores in field order), fn_8007A230 82 (the divisor 10 is a
+  local: `li r30,10; divw`), fn_800EEC1C 89 (the markers are 0xFFFF, not -1; `addis r0,r4,0; cmplwi r0,0xFFFF` is a
+  signed int against 65535), fn_80096C28 / fn_80096D28 81 (a channel local `ch = 0xFF` / `ch = 0` passed once: the
+  peephole folds it into the `li r3` but it keeps its saved register r28, which main.dol saves and never uses; and
+  `r1 = 1; if (r1 == 1)` as written).
+- **The "folded local" rule for saved registers that are never used.** At level 0 every local that is assigned gets a
+  saved register; when its only use is a copy into an argument register, the peephole removes the copy and the
+  register stays saved but unused, and the deletion also makes the final pass reschedule that block (the epilogue
+  order of fn_800F1860). A scan of the original asm finds **229 unmatched functions whose prologue saves a register
+  their body never uses** (the "gap register" of the script handlers and others), e.g. fn_800FBFD4 / fn_800FBAB4 98%
+  (r28), fn_800B1B2C 94% (r28), fn_80118C08 92% (r26). For each, the candidate is a local copied once into a call
+  argument, declared where its register falls. Tried so far: fn_800943D8 (85 -> 89%, the local took the lowest
+  register instead of r28), cr_EV_CLR_SQARE (89 -> 91%, the search inline takes the id as an s32 parameter, the
+  original's r26; the PC and result registers stay swapped). Next: a generator variant that tries one such local per
+  call argument.
+- Nov 5, three more at 100%: fn_800FBAB4 98 (the unused local from +0x14 is a u8: clrlwi, not extsb), fn_800FBFD4 98
+  (the player index kept as a u8 local: clrlwi once, not a cast at every use), fn_800FB688 92 (**four u16 constants
+  copied into a local array are an initializer with literals**: `u16 v[4] = {36, 37, 38, 39}`, read from main.dol at
+  0x804516F8; the compiler pools them and copies them with lhz / sth; assignments from extern consts add clrlwi; a
+  generator rule could turn m2c's `spN = lbl_...;` runs from .sdata2 into such initializers).
+- Nov 5, **the dead-use rule of the script handlers works outside them**: one `if (0) { x = x; }` with a local
+  that should rank higher (a dead use counts toward its priority, adds no code) fixed three register-order near misses:
+  cr_EV_CLR_SQARE 91 (the PC copy), fn_80073A74 93 (the record pointer `rec`), fn_8003B1BC 92 (var_r26). Two dead
+  uses overshoot in all three; one is the usual answer. It does not help the folded-local misses (fn_800730F8 97:
+  its spare register is the folded `u8 s`). Swept by a scratch script over the wip near misses and the m2c drafts at
+  80% or more (one or two dead uses of each local of the main function).
+- Nov 5, fn_80101284 88 -> 96: a zero-initialized local array (`u8 v[4] = {0, 0, 0, 0}`, the m2c `sp8..spB` from
+  .sbss2 at 0x80452A84, outside main.dol's sections, so zero), the switch with its real case set (0 and 3-5 share,
+  no default: the original compares 2, 0, then the 6 bound) and the pointer test against 0 (`cmplwi`, not a
+  `(void *) 0` compare). Left: one volatile register (r4 / r5) and the f-register order of the three sums.
+- Nov 5, cr_MotionFile_Register stays at 71%: the original reaches the 12-byte records as `add rX,base,j*12` and then
+  a displacement (4 / 8 / 12); every plain C form tried (struct array, `rec[j].b`, 2-D array, byte offsets, an
+  integer base) folds the field offset into the index (`lwzx`), and an inline getter gives the add but spills its
+  temporaries.
+- Nov 5, **a compare with no branch after it is an assert without its message call**: `(c) ? (void) 0 : (void) 0`
+  (fn_80092A5C 87 -> 100 with it, a folded local `id` for the spare r29 and `return var_r30`). An empty `if`, an
+  `if / else` with empty bodies and a bare `c;` all drop the compare. A scan of the original asm finds 31 unmatched
+  functions with such a compare (fn_80091F84 87 -> 92 with `(lbl_8044F690 < 0x154000) ? (void) 0 : (void) 0`).
+  Also fn_800192C4 88 -> 100: one dead use and the pairs of lbl_801E13F4 as a struct array.
+- Nov 6, two more at 100%: fn_801019D8 93 (a local `ret = 10` set at the top for the **last** return only: the
+  original keeps it in a saved register and returns it with `mr r3,r24`, while the earlier `return 10`s stay
+  literals; plus a `for` loop for m2c's `goto loop` (test at the bottom)), cr_CHAR_POS_GET 87 (the shape of
+  cr_CHAR_COUSE_CLEAR_PS: the chara pointer set to NULL before anything else, the id read into a local before the
+  search loop, 2 dead uses of the PC copy). cr_CHAR_TURN_POINT stays at 98% (the id as an s32 inline parameter;
+  left: the saved current-chara copy one register too low, with the unused saved register on the wrong side).
+- Nov 6, **the script-handler head rule does not catch m2c's `cmd_cnt` pointer head**: 20 drafts start with
+  `cmd_cnt = &cr_g_Script.cmd_count[cr_g_ScriptDepth]; ... (*cmd_cnt)++;` in m2c's order. Rewritten to the head of the
+  matched handlers (history store, index += 1, &= 0x3F, `cmd_count[depth] += 1`, the PC step, then
+  `if (0) { (*cmd_cnt)++; }`; any other head line, e.g. the saved current chara, tried in each place), six reach 100%:
+  cr_CHAR_MOVE_REL 89 (plus dead uses), cr_CM_SET 80, cr_CM_ZOOM_XYZ 76, cr_LGT_MOVE 84, cr_SYS_SAVE_TABLE 44 and
+  cr_S_BGM_CROSS 85 (plus fn_80097670 called with a u8 third parameter: the generated prototype's s8 adds an extsb).
+  The other 13 gain 2-13 points (cr_CHAR_SET_POS_DIR 86, cr_CHAR_SET_WMOT_Y 85, ...). **Cause, fixed in the
+  generator**: script_head_dead (step 110) only took a decimal PC step (`cr_g_ScriptPC += \d+;`); these 20 step by a
+  hex amount (`+= 0xA`, `0xC`, ...), so the rule skipped them and the step 80 pointer form won. With hex accepted
+  (`draft_batch.py --only` on the 20, hand drafts moved aside): cr_CM_SET, cr_CM_ZOOM_XYZ, cr_LGT_MOVE and
+  **cr_SYS_GRID_SIZE** (no hand draft) at 100%, cr_CHAR_MOVE_REL 99, cr_S_BGM_CROSS 96, cr_CHAR_SET 73 -> 85,
+  cr_CHAR_SET_POS_DIR 76 -> 89, cr_CHAR_SET_WMOT 75 -> 86, cr_CHAR_SET_WMOT_Y 76 -> 87, the camera handlers +7 to +13.
+- Nov 6, two more by the compiled-out macros: fn_80091F84 87 (the 256 x 8-word table cleared as
+  `((u32 (*)[8]) lbl_8044F694)[i][j] = 0`: index first, then the base, where byte offsets load the base first; and the
+  bare compare is an assert **after** the last store in the source, which the compiler schedules before it) and
+  fn_8008C664 78 (an assert on the slot counter before the call, `(void *) 0` compares, and **an empty then-branch
+  that holds `(void) 0;`**: a compiled-out macro keeps the original's `bne else; b end`, a truly empty branch drops
+  the jump). Generator: shift_mask_order and the struct-copy bias also took decimal constants only (m2c writes 10 and
+  up in hex); both take hex now (no score change on the 7 drafts with a hex shift). After a batch 12 run the
+  generated context declares fn_80073728 / fn_8006E83C / fn_800B54E8 again with the pass-1 types next to
+  symbols/cr_types.h: delete those three lines from decomp/drafts/ctx_protos.h, ctx_pp.c and ctx_pp_noro.c before a
+  permuter run (until the next full run picks up cr_types.h).
+- Nov 6, fn_800F7914 98 -> 100: **m2c's parameter aliases** (`var_r29 = arg1; var_r28 = arg0;` at the top) spill the
+  parameters to their stack homes; the original uses the parameters themselves, in r28 / r29, with 1 dead use of
+  arg0 in an `if (0)` block for its rank. A sweep of the 9 unmatched drafts at 50% or more with such an alias: no
+  other match (fn_800EA830 66 -> 76, fn_800EAA38 63 -> 73). fn_8001C5AC (97%) needs a context change: its file
+  declared lbl_8044EEB0 without a size (`extern f32 lbl_8044EEB0[];`: `lis` / `@l`), our context declares it [2]
+  (sda21); only 3 small-data symbols other than __float_nan are read through `@ha` in the original
+  (lbl_8044EEB0, lbl_8044F7C0, lbl_8044ECAD).
+- Nov 6, cr_CHAR_SET_POS_DIR 76 -> 100: the generator's draft with the hex-step head (89%) plus **4** dead uses of the
+  PC copy in the head's `if (0)` block. 1 to 3 change nothing, so a greedy search that needs a gain at each step
+  never gets there: try counts up to 6-8 per local. A 3-6 sweep over the 45 unmatched drafts at 85% or more found
+  no other match (fn_80044A90, fn_800F9014 +2-4). Also tried and left: declaration order for the fn_800E9C90 family
+  (5 copies, 73 -> 75% at best over all 720 orders), pairwise dead uses for cr_CHAR_TURN_POINT 98 and
+  cr_SYS_OVERLAY_WAIT 96.
+- Nov 6, **the adjacent-swap sweep** (scratch script: swap each pair of neighbouring one-line statements at the same
+  indent, keep the best, 2 rounds; the statement order m2c reads back is often one step off where only volatile
+  registers or the scheduling differ). On the 45 unmatched drafts at 85% or more: fn_800B1944 95, fn_8010E47C 92,
+  cr_Vec3_RotateY 87 to 100% outright; with one more fix each: fn_80100484 95 (the robo record pointer before the
+  joint pointer), fn_80100350 85 (the unused byte local u8, not s8), fn_800506DC 86 (bit loops as
+  `for (m = mask; m != 0; m ^= 0x80000000 >> i) { i = __cntlzw(m); ... }`: the clear after the body). A 4-round run
+  over the 170 drafts at 70% or more is next. **Check relocations after every sweep match** (hd.py scores words only).
+- Nov 6, more single fixes: cr_Text_MaskUnownedSpecialPart 94 (`(arg1 - 0x1E) + count`: the compiler adds first and
+  subtracts last; m2c's `(arg1 + count) - 0x1E` folds the constant into the count; and the plain sum body + gun +
+  bomb + pod + leg for the load order), cr_Records_BuildBodyRows 94 (`tbl[i++]` inside the read, the row pointer
+  stepped before the counter), fn_800DF320 93 (`(void *) 0` test, x negated before y copied), fn_800DF018 93 and
+  fn_80086F54 92 (the drafts still called **fn_8001B3F0**, cr_Rand_Int's old name, with an s32 prototype: srawi
+  instead of rlwinm; the only stale name in the drafts; and fn_80086F54's 12 bytes from lbl_801C0C8C are a local
+  initializer `Vec v = {0.0f, 1.0f, 0.0f};`, which relcheck maps to the original's symbol).
+- Nov 6, fn_801010A8 87 (the identity matrix local is a whole `Mtx`: m2c's `f32 spC[4]` left the frame 32 bytes
+  short; the current robo pointer set before the index, as in fn_80101950) and fn_800FA9CC 90 (the switch reads the
+  record byte itself: m2c's temp took a saved register the original does not have; then the swap sweep). Open
+  idiom, 27 functions: the store pair `obj->x30->x5C[0] = lbl_8044ED08[0]; ...[1] = lbl_8044ED08[1];` at the end of
+  the lbl_8041A648 UI functions (fn_80118468 89, fn_80118C08 92, fn_8011936C 87, fn_80119C8C 92, fn_8011A37C 91,
+  fn_8011A8FC 90, fn_80121098 93, fn_8012180C 92) comes out with every register one lower; in permuter queue 7.
+- Nov 6, three more: fn_800EAC48 93 (the last block's stores to cr_g_SeqCurrent in another order: both unk_38 updates
+  before `unk_40 = 1`; found by trying every order of the 5 statements: a block-permutation sweep over the drafts
+  at 80% or more is running), fn_80100C30 89 (m2c folded `0x80000000 >> var_r31` with var_r31 = 0 to `>> 0`; the
+  loadouts compared as records `cr_g_BattleLoadouts[i].unk_0`; one store through an s8 field) and **fn_8008CFD0 87:
+  the float parameters come first, `(f32, f32, f32, f32, u8)`**. m2c always lists the integer parameters first; the
+  registers are the same either way (r3, f1-f4) but the stack homes follow the declaration order. Swept every
+  interleaving for the 38 unmatched drafts with both kinds of parameters: no other match.
+- Nov 6, five more: fn_80092138 87 (each call result stored straight into its global: **m2c's `temp_r0_NN` /
+  `temp_r3_NN` locals are named after volatile registers but become saved-register locals when compiled**),
+  fn_800BCD80 87 (an area bound read as `s32` and converted: it is an f32; no `(u8)` on slot_index), fn_801177CC 89
+  (lbl_8041C828[1] is a signed byte: an s8 view of the context's u8[20]), fn_800BD658 69 (**m2c put a scheduled
+  `i += 1` before a store that uses the old index** and wrote that store with i + 1; the loop body in source order
+  matches) and fn_8003764C 78 (statement order inside the switch cases: adjacent swaps + block permutations).
+  Sweeps now chained per function (scratch pipeline.sh: volatile temps -> adjacent swaps, 4 rounds -> block
+  permutations of 3-5 statement runs), running over the 278 unmatched drafts at 60-95% under 2000 bytes.
+- Nov 6, cr_CHAR_TURN_POINT 98 -> 100 from **permuter queue 7** (cr-linux, perm/q7: the 13 parked hand near misses,
+  20 minutes each): the dead-code counter pointer `cmd_cnt` declared after the two chara pointers. Its place among the
+  declarations decides which of the two gets r26 (the head rule's declare_cmd_cnt puts it right after the PC copy).
+  fn_800B1B2C 94 -> 95: the id read into a local before the search loop; left: a folded local (r28) and a 16-byte
+  larger frame.
+- Nov 6, fn_8007A800 84 -> 100: m2c's `loop_N:` / `goto` nest as two `for` loops leaving through one goto when
+  found (84 -> 94), the loadout field through the record `&cr_g_BattleLoadouts[i]` (m2c's byte offset
+  `(i * 0x10) & 0xFFFF0` computes the address in another order), the slot table as `u8 [][4]`, no (u8) on a u8 field.
+- Nov 6, fn_8008C8A8 84 -> 100: the "free every node of type N" walk over the lbl_8039649C list (0x74-byte
+  nodes) is a `for` loop that breaks on a null node; m2c's phi copy (phi_r25_17) took a saved register of its own,
+  so the node is one local. The scratch tool listfree.py makes this rewrite; it lifted fn_800935F8 to 97 (wip) and
+  fn_8008F6E8 to 82.
+- Nov 6, fn_8008F6E8 76 -> 100: also m2c's search loop `loop_N: if (i < 0x100) { if (skip) { i += 1; goto loop_N; } }`
+  as `for (; i < 0x100; i += 1) { if (!(skip)) break; }` (86), and arg0 compared directly: m2c's stack copy
+  `sp8 = arg0;` gave a `lwz r0,8(r1)` reload and one more saved register (100). A `spN = argN` copy in an m2c draft
+  is a candidate for deletion; the sweep (scratch gotofor.py) tries both rewrites on every open draft.
+- **Nov 6, fn_800A0804 95 -> 100: the epilogue order `lwz r0` before `lwz r31` solved.** A dead store to the
+  parameter after the final store, `arg0 = 0;`, puts an `li` in the last block that a later pass deletes, and the
+  final scheduling pass then reschedules the block (the rule in the fn_800F1860 bullet). A bare compare there
+  (`(arg0 & 1) ? (void) 0 : (void) 0;`) gives the same order but keeps its compare, and a compare on the masked
+  value folds into `rlwinm.`. `(arg0 & 1) && 0;` matches too. The sweep (scratch epidead.py) tries `v = 0;` for each
+  int parameter and local, before the closing brace and before each return, on every open draft whose diff moves
+  `lwz r0,N(r1)`.
+- Nov 6, fn_8008CA14 87 -> 100: `u8 += (u8) (C / (f32) d)`: the float quotient cast straight to u8. m2c's
+  `(s32)` cast schedules the int-to-float conversion differently, and `(u8) (s32)` adds a clrlwi.
+- Nov 6, **fn_800B1B2C 95 -> 100: a dead local fills the unused saved register.** The original saves r28 and never
+  uses it. A local copied into the call argument (scratch foldloc.py) got the register count right (98), but its
+  `mr r3,r28` was not folded. What matches is `s32 x;` declared last, `x = 1;` in the else of the first block and
+  `x = x;` after the last call (the fn_800F1860 form). The scratch sweep deadloc.py tries `x = 1;` before each
+  statement, with `x = x;` at the end. It covers every open draft at 80% or more whose original saves a GPR its body
+  never reads (the 229-function scan above). The same sweep on fn_80118C08 (wip 94) is running.
+- Nov 6, **three-float copies are Vec struct copies** (the original copies words: `lwz` / `stw` pairs, where m2c's
+  three f32 assignments give `lfs` / `stfs`). The scratch rewriter veccopy.py turns three consecutive copies
+  `A.x/.y/.z = ...` or `M2C_FIELD(P, f32 *, o / o+4 / o+8) = ...` into one `Vec` assignment. Swept over every open
+  draft it lifts the gun-mode family fn_80046A68 / fn_80046F58 / fn_8004752C / fn_80047AC0 / fn_80048050 /
+  fn_80048708 (62-68 -> 69-84). Then, per member (wip, queue 8): lbl_80329B60 through a local declared first
+  (the original keeps it in r30 / r31, +3-7), the three view vectors as one chained assignment
+  `a6c = a78 = a60 = robo->x110` (fn_80048708 87 -> 92), the stack struct as a `Vec`, and the `(f32) fabs(x)`
+  compare through a float local (the original saves one more FPR: fn_8004752C 85 -> 88). Now 75 / 86 / 88 / 84 /
+  74 / 92. Still open: the original hoists the next statement's `cr_g_CurrentBattleRobo` load into the struct
+  copy, and no spelling tried here does that.
+- Nov 6, fn_80042AB8 (the gun updater, 5.6 KB; part-chain priority list), m2c 34%. The scratch scorer nscore.py
+  ignores stack offsets, registers and the misdecoded psq_st prologue lines; it shows the structure at 79% -> 91.5%.
+  Done: a second float parameter (f2 stored at entry and read later; the caller passes one float), Vec locals and
+  struct copies, MSL sqrtf in source form (the generator rule missed this shape), s32 loop counters (m2c's s8
+  added extsb), for loops for the shot-slot search, the flag word `((s32 *) lbl_8032C234)[0x10]` (m2c read the f32
+  and converted it with fctiwz), and the history pointer temps inlined (they spilled to the stack). Left: the `% 60`
+  index (writing it plainly shrinks the frame by 16 and moves every slot), then registers and stack slots. Wip.
+- Nov 6, cr_WeaponModel_OnLoaded 88 -> 97 (four dead uses `path = path;`, deaduse6.py) and fn_80039FAC 92 -> 93
+  (adjacent-swap sweep); both register-only, wip, queue 8.
+- Nov 6, **the stack-layout method for the big part updaters** (fn_80042AB8 34 -> 55%, fn_8003FE98 38 -> 63%;
+  frame and every stack slot now equal the original's). m2c's `spXX` names are the original's offsets in hex. MWCC at
+  `level=0` gives the local declared first the highest address, so: (1) every stack local gets its true type
+  (`M2C_UNK` / f32 triples whose address is taken are `Vec`, and m2c's `struct { ... } sp;` is flattened); (2) the
+  declarations are sorted by offset, highest first, after the register locals; (3) a temp copied once into a stack
+  local is that local (spC = fabs(...), not t = ...; spC = t); (4) m2c temps that spill and that the original
+  lacks are removed: switch operands, fpclassify operands, `t = x - 1; x = t; if (t == 0)` as `if ((x -= 1) == 0)`,
+  post-increments in compares, phi copies. Scratch tools: stackfix.py does (1)-(3); slotmap.py / slotagree.py
+  map every `N(r1)` of mine to the original's and show what is left; nscore.py scores with stack offsets and registers
+  normalized. A frame larger by 16 x n means n float temps too many (FPR save area); a scalar on the stack in the
+  original but in a register in mine means mine has one register local too few, and the reverse. In both functions
+  the local holding lbl_80329B60 only got its register (as in the original) once every reference went through it,
+  except `&lbl_80329B60[0xA00]` in fn_8003FE98, which stays direct.
+- Nov 6, **two call signatures m2c and ctx_protos.h have short**: fn_8003FE98 calls fn_80044A90 with four
+  arguments, `(slot + 0xA8, rec + 8, 2, farg0)`: the original sets r5 = 2 and f1 = its own float parameter, and that
+  parameter has a stack home only because of this call. ctx has `s32 fn_80044A90(void *, void *)`, and the draft
+  calls it through a cast. Its own wip draft does not change with the two parameters added, because they are unused
+  there. And fn_80042AB8 has a second float parameter (f2, stored at entry and read later) that its caller does
+  not pass. A fix for symbols/cr_types.h when the next batch runs.
+- Nov 6, **an indexed byte read `lbzx rD, base, idx` with `idx = i * stride + off` is a struct-array member**:
+  `((Gun *) arg0)->shot[i].b[5]` computes `mulli; addi idx, idx, off` and then `lbzx`. Every pointer spelling
+  (`((s8 *) arg0)[i * stride + off]`, `*(arg0 + ...)`, M2C_FIELD, the constant first, a cast to u32) folds the
+  constant into the displacement (`add; lbz off(r)`), and only a local index variable gives lbzx too, at the cost
+  of a register. The tiny-function harness (scratch tiny.c through nscore.sides) showed it. The gun and bomb
+  updaters take this form for their shot-slot tests (scratch slotarr.py: FUNC IN OUT BASE STRIDE; fn_80042AB8
+  55 -> 56%). The same probably holds for the `lhzx` / `lwzx` reads of other drafts with a `(i * size) + const`
+  index.
+- Nov 6, **`spA = spB = value` (two stack slots holding one float) is an inline function's return value**; at
+  `level=0` it goes through stack temps. In the pods updater fn_8003DD38, m2c's `sp88 = __fabs(v.y); t = (f32) sp88;
+  sp4C = sp50 = t;` is MSL's `fabsf(x)` (`(float) fabs((double) x)`, with fabs itself an inline returning double:
+  the f64 slot), and `sp54 = sp58 = (f32) atan2(...)` is `atan2f`. With static inlines cr_fabs / cr_fabsf /
+  cr_atan2f the draft goes from 69.6 to 79.3% normalized. m2c also printed the int-to-float conversion as stores
+  (`spE8 = 0x43300000; spEC = (s32) x;`, the compiler's own temps, to be removed), and it cannot decompile a float
+  compare kept as a value (`fcmpo; mfcr; srwi 31`), which it shows as `M2C_ERROR(mfcr) >> 31`. That is
+  `(a < b)` in C; the four in fn_8003DD38 are `x*x + z*z < C * (C * (f32) (r * r))`, read from the asm.
+- Nov 6, **the two m2c failures get drafts: a generator rule for switches spilled to the stack** (draft_batch.py,
+  `spilled_switches`, in the asm preparation before m2c). fn_800A0E64 and fn_800A63C0 (11.7 / 15.4 KB) dispatch
+  through stack slots (`stw r12, 0x13c(r1); lwz r3; lwzx; stw; lwz r0; mtctr; bctr`), and fn_800A63C0 builds its
+  first table's address from plain numbers (`lis r0, 0x8023` ... `subi r0, r3, 0x4ef0`, no relocation). The rule
+  takes each bctr whose window after the bound check (`cmplwi rK, N; bgt`) holds only lis / slwi / addi / subi /
+  stack stw and lwz / lwzx / mtctr. It rebuilds the window as `lis r12, T@ha; slwi r11, rK, 2; addi r12, r12, T@l;
+  lwzx r12, r12, r11; mtctr r12; bctr`. The table (a data object of `.4byte fn+0xOFF` entries, lbl_8022AF44 /
+  lbl_8022B110) becomes `jumptable_<address>`, and the existing loop then adds the labels at its targets. A
+  hand-patched copy of fn_800A63C0's asm let m2c decompile it (2,043 lines).
+  With the rule, `draft_batch.py --only fn_800A63C0 fn_800A0E64` (out decomp/build/sw, 52 s): m2c ok 2, compile
+  failed 0, fn_800A63C0 3% and fn_800A0E64 10%. So every one of the 1,751 game functions now has a C draft that
+  compiles; the next full batch 12 puts these two in decomp/drafts.
+- Nov 6, fn_8003FE98 70 -> 71: the robo-mask tables `M2C_FIELD((p + 0xA94 + (i * 4)), u32 *, 0)` are
+  `((u32 *) (p + 0xA94))[i]`: the base plus the constant in one register (`addi r3, r29, 2708`), then `lwzx`
+  with the scaled index. m2c's sum adds the constant to the index. Swept over the open drafts (scratch
+  arrsweep.py). The saved registers of fn_8003FE98 now all correspond (scratch regmap.py); what is left is
+  volatile numbering from the entry on: mine loads lbl_80329B60's address into r3 and copies it to r29, the
+  original loads it straight into r29 (initializer, cast, `&a[0]`, `+ 0` tried).
+- Nov 6, **cr_SYS_RET_GEKITOU 83 -> 100**. (1) m2c typed the sprintf buffer as one byte (`s8 sp8;`, passed as
+  `(char *) (&sp8)`); the frame size gives it: `char sp8[0x108]` (original frame 304, m2c's 48). (2) m2c's
+  sprintf had a fourth argument repeating the format; the original passes three. (3) The script head keeps the
+  PC in a local (`pc = cr_g_ScriptPC;` and the history reads `*pc`: one more saved register, r26). (4) The script
+  table is an array of 8-byte records `{ u32 pc; char *name; }` read as `((cr_ScrEntry *) lbl_8044F788)[i].name`,
+  which gives the index sum then lwzx (the struct-array rule above), in a for loop. The scratch sweep bufsweep.py
+  tries (1) and (2) on every open draft that has such a buffer or call.
+- Nov 6, **cr_C_ACT_RET 86 -> 100**: the script return stack at chara + 0x1914 (cr_types.h: `u8 unk_1914[0x20]`)
+  is an array member, `((cr_CharaRet *) chara)->stack[--chara->unk_1938]` (a draft typedef with the pad): the
+  index sum `n * 4 + 0x1914` then lwzx off the reloaded chara pointer (the struct-array rule); m2c's temp for the
+  decremented count took a saved register the original does not have. The PC copy in the head stays. For
+  cr_types.h: unk_1914 is `s16 *stack[8]` (the next types round). The buffer sweep (bufsweep.py, 23 drafts)
+  gave a few points here and there and no match.
+- Nov 6, cr_C_ACT_CALL 83 -> 100 by the same array member, `stack[n++] = cr_g_ScriptPC` (the PC copy in the head is a
+  local, `pc`, and the call target is read as `*(s16 ***) (pc + 4)`).
+- Nov 6, **fn_80089550 88 -> 100**: (1) `Mtx sp10` for m2c's `f32 sp10[4]` (the frame 32 bytes short; the known Mtx
+  rule). (2) Four byte copies `dst[k] = tbl[i * 4 + k]` through a pointer temp are a GXColor struct copy
+  `*(GXColor *) (p + 0xE1) = ((GXColor *) lbl_80219448)[i]`. MWCC copies a 4-byte struct of byte alignment with lbz /
+  stb through a compiler temp in r9, where m2c's temp took a saved register. The four bytes from lbl_8044EAE8 ..
+  EB stay four copies, because they are four symbols (relcheck: a struct copy reads one symbol at +1 / +2 / +3).
+  (3) `v = cr_Rand_Int() >> n; v = v % 690;`: m2c's temp for the call result took a saved register.
+- Nov 6, **fn_800FA750 91 -> 100**: (1) the bit-search loop over the slot flags is an inline returning the index
+  (0xFF when none); (2) before the sprintf the original compares the slot count with 9 and drops the result: a
+  compiled-out assert inside a void inline taking a u8 (the clrlwi trace, as fn_8008CA14); (3) the original saves
+  r25 that nothing uses: the assert inline copies its argument to a local (`u8 i = j;`), which takes one more
+  saved register and changes nothing else (a copy of a stack-loaded value into a temp before its first use does
+  the same). Dead locals (`x = 1; ... x = x;`) and pointer locals change the code; this does not.
+- Nov 6, **fn_800FFFFC 77 -> 100**: the HUD layout loop (the sibling of fn_800FA750). (1) The two tables are
+  struct arrays: the 0x18-byte layout records at lbl_80239BA8 `{ x, y, dx, dy, f10, f14 }` and the 0x20-byte
+  sprite records under arg0 + 0x5C -> 0x1C -> 4 `{ f32 f0, f4; s16 s8, sA, sC, sE; u16 id; ... s8 b1B; }`
+  (the id read ends the loop at 0xFFFF), indexed with a u8 (the rlwinm masks); the sprite base is reloaded
+  through the whole chain each time (a macro). (2) The loop body keeps m2c's six float locals and its three
+  pointer locals (`p = &sprites[i];` three times, each for one store pair), with the second float read
+  before the first pointer; the increment at the loop end (m2c put it mid-body from the schedule). The
+  offset table at lbl_80239B48 reads as `((f32 (*)[2]) tbl)[k][0]`. Saved as a template for its siblings.
+- Nov 6, fn_800FFA50 and fn_800FFBB0 (already 100% in the batch by the plain_readonly variant since Nov 3; no hand
+  draft kept, not counted): a second route to the same code, and likely the source's form: m2c's four u16 stack locals loaded from four consecutive
+  2-byte .sdata2 objects (`sp8 = lbl_8045167C; spA = ...`, then read as `(&sp8)[i]`) are one local array with a
+  constant initializer, `u16 sp8[4] = { 3, 4, 5, 6 };` (values from the .sdata2 listing): MWCC puts each element
+  in .sdata2 and copies it with lhz / sth after the first statement; m2c's form loads them early and leaves
+  dead clrlwi. relcheck maps the anonymous constants to the lbl_ objects ("4 literal constants mapped").
+- Same rule, fn_800FFBB0 (initializer { 9, 10, 11, 12 }).
+- Nov 6, **fn_800AC270 39 -> 100**: the same initializer rule with bytes: m2c's u8 stack locals loaded from the
+  four consecutive 0xFF .sdata2 bytes are a local `GXColor c = { 255, 255, 255, 255 };` copied member by member
+  into the object's colour (lbz from the stack, stb). m2c missed the fourth byte's local (it was split by a
+  store), and its temp cost the original's frame (32 vs 16). The scratch sweep initsweep.py tries the rule on
+  every open draft with a run of such copies (63 drafts: this one matched; some others gained a few points).
+- Nov 6, **fn_800EA33C 85 -> 100: `(void) x;` sets the saved-register order with no code.** The original swapped two
+  saved registers (the count r29, the inner loop index r30; m2c's draft the other way round). Declaration order does
+  nothing (all 24 orders tried); a dead `i = 0;` at the top gives the right registers but leaves its `li`; the
+  statement `(void) var_r30_35;` before the first assignment gives the registers and no instruction (MWCC numbers
+  the variables by their first mention in the body, then colours in that order). `x;` alone and `x = x;` do not
+  work. For any draft whose only differences are swapped saved registers, try `(void) v;` for each local at the
+  top (scratch sweep voidsweep.py).
+- Nov 6, **fn_801155AC 85 -> 100** (the debug line draw): (1) the colour writes to the GX pipe are bytes,
+  `*(u8 *) 0xCC008000 = 0xFF` (GXColor4u8; m2c wrote `int` stores: stw for stb); (2) m2c's temp for the second
+  record address took the saved register r28 the original does not have: computed straight into var_r29; (3) that
+  address is computed before the two position writes (the statement order: m2c put it between them, from the
+  schedule; found by trying the orders of the loop head's six statements that keep their dependencies).
+- Nov 6, **fn_80064500 83 -> 100: recursion auto-inlined by the original's file settings.** m2c's draft is nine
+  nested copies of one body (a node's child tested against NULL, the object's flag | 0x20, its colour bytes 0xB0,
+  the node's flag = 1) with the deepest copy's locals on the stack. The source is the 12-line recursive function
+  (`if (n->child != (void *) 0) fn_80064500(n->child);` then the body); MWCC expands the self-call when the file
+  compiles with auto-inlining and a large enough inline size: `#pragma auto_inline on` with
+  `#pragma inline_max_size(N)`, N 1000 or more (the draft has 10000; 512 gives six levels, 256 three; depth pragmas change nothing), inside
+  `#pragma push` / `#pragma pop` so it stays with this function. Written-out `static inline` chains do not inline
+  at all (a recursive inline is refused); plain `inline` on the function emits no body. So the original file of
+  this function was built with `-inline auto` (and a raised size limit): **any draft with nested copies of its own
+  body, or an inline-looking expansion of a small helper m2c could not name, may be this setting**; fn_80095E6C
+  (one level of its own body, 96% in wip) is the next to try.
+- Nov 6, fn_80095E6C by the same setting (wip/fn_80095E6C_auto.c, 91%, the plain source): the recursive display
+  function calls fn_80096374 (instance matrix) and fn_80095D7C (setup matrix) and itself; with
+  `#pragma auto_inline on` and `inline_max_size` 300 to 600, MWCC expands the two helpers at the top level and its
+  own body one level, the shape found by hand on Nov 5 (800 and more expand further, 200 less). fn_80096374 needs
+  its two dirty flags as its own locals (declared d2 before d1: the declaration order of an auto-inlined
+  function's locals sets their registers) and the camera concat through an inline (its locals go to the stack, as
+  the original). Left: the inline temps' stack slots 4 bytes off and the light loop's registers. So the display
+  file (fn_80095D7C .. fn_80096374) and fn_80064500's file were built with auto-inlining; m2c's 13 other
+  self-recursive drafts do not change with it (real recursion in the original).
+- Nov 6, **fn_80093C5C 69 -> 100** by the same setting: m2c's nine nested goto loops (the deepest locals on the
+  stack) are the 18-line recursive search for a joint tree's first DObj (`while (jobj) { dobj =
+  HSD_JObjGetDObj(jobj); if (dobj) break; if (jobj->child) { dobj = fn_80093C5C(jobj->child); if (dobj) break; }
+  jobj = jobj->next; }`), inline_max_size 600 or more (400 gives two levels). The scratch tool recsweep.py takes a
+  plain body and sweeps the size.
+- Nov 6, the same file's animation walkers (fn_80094DD8 79, fn_8009496C 59, fn_80095224 63, fn_800944E4 73,
+  fn_80093F30 66: m2c drafts with nested copies of their own bodies) are this setting too: fn_80094DD8 as the plain
+  recursive walk with the getters fn_80093C30 (dobj->next) / fn_800944B8 (dobj->mobj) defined before it gives the
+  original's expansion shape (wip/fn_80094DD8_auto.c, 58%: getters inlined at the top levels and called at the
+  deepest), with `} while (dobj != (void *) 0);`; left, one more stack temp per inlined getter result in the
+  original (the getters' source form, next to try).
+- Nov 6, **fn_80094DD8 79 -> 100** (the joint tree's animation-rate walk) by the auto-inline setting, size 600:
+  the plain recursive source with the two DObj getters defined before it in the same file, written as
+  `return (d != NULL) ? d->next : 0;` (the ternary gives the extra stack temp per inlined result; the getters
+  still match on their own, fn_80093C30 / fn_800944B8 100%), `} while (dobj != (void *) 0);`, and mobj declared
+  before dobj (the register pair). **Link note**: the hand draft defines fn_80093C30 and fn_800944B8 too (the
+  inliner needs their bodies), so its object must replace theirs, not sit next to them (one file for the three;
+  promote_drafts.py does not do that yet). relcheck.py fixed for such drafts: offsets now count from the
+  function's first instruction (it compared section offsets; every earlier draft had the function at 0).
+- Nov 6, fn_8009496C 59 -> 89 and fn_80095224 63 -> 90 (wip/*_auto.c) by the same rewrite: the DObj -> MObj -> TObj
+  walk (rate / current frame; fn_80095224 also calls HSD_JObjAnim and clears the AObj's 0x40000000 flag first),
+  size 600, loop ends against `(void *) 0`. Both are left with the top-level dobj in r23 where the original has r27
+  (the TObj variables one lower): declaration order, block scopes and (void) mentions do not move it.
+- Nov 6, **fn_80093F30 66 -> 100**: the recursive first-end-frame search (`while (jobj) { if (jobj->aobj) { frame =
+  fn_80094394(jobj->aobj); break; } if (jobj->child) frame = fn_80093F30(jobj->child); jobj = jobj->next; }`,
+  frame starting at 0.0f) with the end-frame getter fn_80094394 (assert + `return aobj->end_frame`) defined
+  before it (link note as fn_80094DD8). It matches at inline_max_size 700 only (600 and 800 expand differently),
+  where fn_80094DD8 needs 600..650 and fn_80093C5C 600 or more: if these share one file the original had one
+  size, so the getters' or callers' exact source form (which sets MWCC's size estimate) is still open; each draft
+  matches on its own.
+- Nov 6, **fn_800A4834 68 -> 100** by the same setting (size 600 or more): the recursive "any AObj in the tree
+  has flag 0x40000000" test, `while (jobj) { if (jobj->aobj && (jobj->aobj->flags & 0x40000000)) return 1; if
+  (jobj->child && fn_800A4834(jobj->child)) return 1; jobj = jobj->next; } return 0;`.
+- Nov 6, **fn_800995A0 44 -> 100** by the same setting (inline_max_size 400): a quicksort of a float key array with a
+  parallel s32 value array, `(s32 *vals, f32 *keys, s16 lo, s16 hi)` (the parameters used directly: m2c's s32
+  parameters and local pointer copies took registers), the pivot `keys[(i + j) / 2]`, both indices clamped at 0,
+  the swap as `tk = keys[i]; tv = vals[i]; keys[i] = keys[j]; vals[i] = vals[j]; keys[j] = tk; vals[j] = tv; i++;
+  j--;` (tv an s16; found by trying the swap orders that keep their dependencies), then the two recursive calls;
+  MWCC expands each call one level.
+- Nov 6, **fn_800F9014 89 -> 100** (the part description lookup): the part index plus the counts of the kinds before
+  it, summed left to right, `spC = spC + ((cr_g_BodyCount + cr_g_GunCount) + cr_g_BombCount);` (index first, then
+  the counts in kind order); the kind's local u32 (`mr`, not `clrlwi`); `(void) var_r29;` at the top for the
+  dead r29 local (the fn_800EA33C rule). Note: hd.py masks relocated fields, so a sum order can match every word
+  with the symbols swapped (a first save at "100%" had 7 relocations wrong and was undone): the scratch sweep
+  f902.py scores words minus differing relocations.
+- Nov 6, check: fn_80095700 (the set-frame walk the body / part poses use; already 100% from m2c) also matches as
+  the 13-line recursive source in the auto-inline setting at inline_max_size 600 or more, the same range as
+  fn_80093C5C / fn_800A4834 / fn_80094DD8 (600..650); fn_80093F30 (700 only) is the odd one.
+- Nov 6, the number-drawing family fn_800AB124 .. fn_800AECE4 (9 drafts, 45..53%): m2c's byte copies between stack
+  slots are **GXColor locals with constant initializers passed by value** (fn_80067848 takes the colour as a struct;
+  MWCC copies it into a per-call stack temp and passes the address); the flag and digit tables are struct-array
+  members (`->flag[i]`, `->dig[i].w`: index sum then lbzx, where `p[i + 0x5D]` folds the constant into the load).
+  wip/fn_800ABC28.c 46 -> 62%; left: the stack order of colours vs temps and the width argument's extension.
+- Nov 6, **the battle action file's statics: lbl_80329B60 (0xA84 bytes of .bss) is the file's own static
+  variables**: a 0xA0C-byte block, then ten Vecs at +0xA0C .. +0xA78 (the view vectors at +0xA60 / +0xA6C /
+  +0xA78, the action targets at +0xA30 / +0xA48 / +0xA54). MWCC addresses a file's statics from one base register
+  loaded at the function entry, and copies between two of them load all three words before storing; a copy inside
+  one object (the extern u8 array, one static struct, a local pointer) goes in pairs. So the about 20 functions of
+  fn_8003FE98 .. fn_8005098C that touch it match only with the statics declared, in a file object. **MWCC lays a
+  file's statics out in the order of their first reference in the file** (not declaration order; tested with
+  cc1.py: three statics referenced as D, C, B land at 0, 12, 24). tools/file_drafts/battle_9B60/ holds these drafts:
+  pool.inc declares the statics `cr_s_9B60_<offset>` and `cr_Pool9B60_Order`, a scoring-only function placed first
+  that references them in address order; score.py compiles pool.inc + a draft and runs hd.py and relcheck.py
+  (relcheck now maps our `...bss.0` one to one onto the original's pool symbol, like the literal constants). At
+  100% there: fn_80045724 (lose, 62 -> 100), fn_800468B8 (landing, 60), fn_800456B8 (stance, 9: the pool was the
+  whole difference), fn_80048E7C (pod, 42), fn_80046A68 (charge attack, 64: the stats' durations / speeds / angles
+  as struct arrays, the climb angle computed before the three velocity copies). Wips there: fn_800490C8 99 (bomb),
+  fn_80048708 96, fn_80046F58 95, fn_8004752C 94, fn_80045CE8 94 (magma), fn_80047AC0 85, fn_8004949C 82 (gun:
+  small inlines; the original copies the anim pointer once and the progress f30 -> f31), fn_80048050 75. The file
+  object itself (every function of the file in address order, the statics declared once, the real first references
+  giving the layout) waits until all of them match.
+- Nov 6, **fn_8004E8D4 51 -> 100** (the end-of-battle setup of one robo): of its three parameters only the action
+  is `volatile` (the original stores it to its stack home and reloads it; the others are plain), `fabs` of a float
+  against an f64 constant (no frsp: `fabs f29; fmr f28`), a 40-byte struct copy for the camera block, a lerp inline
+  over two stack Vecs (b declared first) writing the robo fields directly (an output pointer parameter took a saved
+  register), and the loads in the order t, b.x, a.x, b.y, a.y, b.z, a.z (a sweep of 7 orders: 92..100%).
+- Nov 6, more animation code at 100% (tools/hand_drafts): fn_80045A48 (change: `E0 = E2 = x` chained),
+  fn_8005CE74 (field command list: a while loop with a break), fn_80037FF0 (field motion step: an if-chain on a u32
+  copy of the u16 command, `x != 0` tested first), fn_80072A58 (the stage collision fix-up: the 0x284-byte waypoint
+  record as a u32-array struct, the stage id compare signed). Wips (scratch wip/): cr_MotionFile_Register 71 -> 79
+  (the record as `(cr_MotionRec *) (base + 4) + j`: base + j * 12, then the field displacement; a struct-array member
+  or a cast of base + j * 12 folds the 4 into the index), cr_Motion_SampleTrack 31 (key-decode inlines, {value,
+  time} stack records, a 4-float basis array: the frame is still 0x50 short).

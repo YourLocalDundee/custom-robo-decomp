@@ -2733,4 +2733,12 @@ void cr_Mem_CopyWords(void* dst, void* src, u32 bytes);
 // order). The string parameter is const: fn_8002444C passes literals (.sdata2 / .rodata), never a buffer.
 void fn_8006B144(f32 x, f32 y, const char* text);
 
+// Nov 5, 2026 (hand drafts): signatures read from the callers' code. fn_80073728 (the stage loader) takes the archive as its
+// second argument (fn_80073A74 loads r3 = the file and r4 = lbl_803B8C00 before the call; m2c read only r3); fn_8006E83C
+// gets the model count as a u8 second argument (fn_80073728: clrlwi r4,r24,24 before the call); fn_800B54E8's second
+// argument is a full int (fn_80073A74 passes srawi r4,r29,3 without an extsh).
+void fn_80073728(void* file, struct HSD_Archive* arc);
+void fn_8006E83C(struct HSD_JObj* root, u8 count);
+void fn_800B54E8(struct HSD_JObj* jobj, s32 group);
+
 #endif
