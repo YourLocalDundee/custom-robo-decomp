@@ -57,11 +57,10 @@ PARTS = {
     'pod': ('weapon_pod', 'pod_3d_00001_.glb', [(0, 4, 0, 0, []), (1, 4, 0, 0, []), (2, 3, 0, 0, []), (3, 3, 0, 0, [])]),
     # the stock legs are a calf thruster pack (roots 0 / 2 / 4 / 5) and an ankle clamp (1 / 3): klein_legs2 is the
     # samurai's calf thruster pack (the first try, a shin guard, was the wrong part and too thin to decimate)
-    'legs': ('weapon_leg', 'legs2_3d_00001_.glb', [(0, 5, 280, 128, []),
-                                                   (2, 5, 280, 128, []),
-                                                   (4, 1, 280, 128, ['--fill=0.75', '--shift=-1.0,1.3,0']),
-                                                   (5, 1, 280, 128, ['--fill=0.75', '--shift=-1.0,1.3,0']),
-                                                   (1, 4, 0, 0, []), (3, 4, 0, 0, [])]),
+    # Nov 12, 2026 (owner: "remove them like the back poles"): the calf packs swung out from the calves in every jump
+    # (the leg part's thruster animation pivots at the knee); every leg root is left empty, the legs still work
+    'legs': ('weapon_leg', 'legs2_3d_00001_.glb', [(0, 5, 0, 0, []), (2, 5, 0, 0, []), (4, 1, 0, 0, []),
+                                                   (5, 1, 0, 0, []), (1, 4, 0, 0, []), (3, 4, 0, 0, [])]),
 }
 
 
