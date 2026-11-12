@@ -29,14 +29,36 @@ LIMIT = 0x40000      # the part slots of code/samurai.txt
 # 500 triangles, photo bake) is kept in build/mecha_samurai_full/models_detailed_nov9
 LOOK = ['--look=paint']
 PARTS = {
-    'gun': ('weapon_gun', 'gun_3d_00001_.glb', [(0, 4, 450, 256, []), (1, 3, 450, 256, [])]),
-    'bomb': ('weapon_bom', 'bomb_3d_00001_.glb', [(0, 4, 400, 256, []), (1, 3, 400, 256, [])]),
-    'pod': ('weapon_pod', 'pod_3d_00001_.glb', [(0, 4, 300, 256, []), (1, 4, 300, 256, []), (2, 3, 200, 128, []),
-                                                (3, 3, 200, 128, [])]),
+    # Nov 12, 2026: no --shift any more. The Nov 11 shifts came from robo_preview.py placing parts by the role joint
+    # and the mount offset alone; the game (fn_80039FAC) also turns each part root (robo +0x180C ...) and plays the
+    # part's own animation, so those shifts pushed the parts further off (the victory gun floated above the fist). The
+    # check is now robo_preview.py --gameparts (every part joint as the game drew it, from a Dolphin capture)
+    # Nov 12 (Dolphin capture, tools: wincap.py + handspace.py): in the gun mesh joint's space the forearm runs along
+    # +x from the elbow (0.2, 0.1, 0) to the wrist (1.9, 0.1, 0) (glTF axes, same in every battle frame); the fitted
+    # matchlock's grip (the thin wrist of its stock, x 2.0-2.5) sat at y -2.3, z -0.33: moved up onto the wrist line
+    # (+2.4 y, +0.33 z in glTF axes = Blender 0, -0.33, +2.4 for ai_part)
+    'gun': ('weapon_gun', 'gun_3d_00001_.glb', [(0, 4, 450, 256, ['--shift=0,-0.33,2.4', '--main_only=1']),
+                                                (1, 3, 450, 256, ['--shift=0,-0.33,2.4', '--main_only=1'])]),
+    # Nov 12 (Dolphin capture): bomb root 1 (battle and Customize) - in its mesh joint's space the left forearm runs
+    # along -x (elbow -0.2, wrist -1.9) and the fitted launcher sat at x +0.6..+3.7, off the far side of the elbow:
+    # moved -3 x, -0.5 y (glTF) onto the forearm. Legs roots 4 / 5 (battle and Customize): the shin runs down y (knee
+    # +0.5, ankle -3.1) at z 0.3 and the pack bulged 1-3.5 behind it and 1 to the side ("the balls on the back of his
+    # calves"): 75% size, moved -1 x, -1.3 z (glTF) onto the calf
+    'bomb': ('weapon_bom', 'bomb_3d_00001_.glb', [(0, 4, 400, 256, []),
+                                                  (1, 3, 400, 256, ['--shift=-3.0,0,-0.5'])]),
+    # Nov 11 (robo_preview.py: posed robo + attachment check): the Sashimono poles stand up on the back (--long=x:
+    # world up in the pod roots' drawn frame), seated 5.5 cm into the back (their bases only touched it in the stance and
+    # floated 2-5 cm in the other motions as the back armour moves with the shoulders); the leg packs moved onto the shins by the measured gap x 1.1
+    # Nov 12, 2026: the owner does not want the Sashimono poles on his back ("I don't really need those poles on his
+    # back I told you already"): every pod root is left empty (the pods still fire; legs r1 / r3 are empty the same way)
+    'pod': ('weapon_pod', 'pod_3d_00001_.glb', [(0, 4, 0, 0, []), (1, 4, 0, 0, []), (2, 3, 0, 0, []), (3, 3, 0, 0, [])]),
     # the stock legs are a calf thruster pack (roots 0 / 2 / 4 / 5) and an ankle clamp (1 / 3): klein_legs2 is the
     # samurai's calf thruster pack (the first try, a shin guard, was the wrong part and too thin to decimate)
-    'legs': ('weapon_leg', 'legs2_3d_00001_.glb', [(0, 5, 280, 128, []), (2, 5, 280, 128, []), (4, 1, 280, 128, []),
-                                                   (5, 1, 280, 128, []), (1, 4, 0, 0, []), (3, 4, 0, 0, [])]),
+    'legs': ('weapon_leg', 'legs2_3d_00001_.glb', [(0, 5, 280, 128, []),
+                                                   (2, 5, 280, 128, []),
+                                                   (4, 1, 280, 128, ['--fill=0.75', '--shift=-1.0,1.3,0']),
+                                                   (5, 1, 280, 128, ['--fill=0.75', '--shift=-1.0,1.3,0']),
+                                                   (1, 4, 0, 0, []), (3, 4, 0, 0, [])]),
 }
 
 

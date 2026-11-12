@@ -48,7 +48,12 @@ arm = common.load(STOCK)
 stock = common.model_meshes()
 if JOINT not in arm.data.bones:
     sys.exit(f'{STOCK}: no bone {JOINT}')
-spts = np.array([tuple(o.matrix_world @ v.co) for o in stock for v in o.data.vertices])
+# the stock part where the game draws it: the meshes DEFORMED by their joints (the parent chain's scales 0.7 / 0.75 and
+# turns). The raw vertex data of the export is not that place (gun 7.3 long raw vs 5.1 drawn, pods 8.9 vs 4.6, turned
+# and moved), while the importer takes our mesh as drawn positions: fitting to the raw points made the first in-game
+# samurai's gun 1.4x and pods 1.9x too big and out of place (Customize screenshot, Nov 11, 2026)
+_dg = bpy.context.evaluated_depsgraph_get()
+spts = np.array([tuple(o.matrix_world @ v.co) for o in stock for v in o.evaluated_get(_dg).to_mesh().vertices])
 log(f'stock: {len(stock)} meshes, {len(spts)} vertices')
 
 
@@ -105,6 +110,14 @@ sc, sord, sext, sthick = frame(spts)
 log(f'stock box {np.round(sext, 3).tolist()} long axis {"xyz"[sord[0]]} thick end {"+" if sthick > 0 else "-"}; '
     f'AI box {np.round(hext, 3).tolist()} long axis {"xyz"[hord[0]]} thick end {"+" if hthick > 0 else "-"}')
 # rotation: AI axis hord[k] -> stock axis sord[k]; the long axis signed by the thick ends, the third axis by handedness
+# --long=x|y|z (Nov 11, 2026): the AI model's long axis goes along this axis of the root's drawn frame instead of the
+# stock part's longest side (the Sashimono poles must stand up on the back; the stock pod is a sideways wing);
+# robo_preview.py prints world up in each part's frame
+if opts.get('long'):
+    _l = 'xyz'.index(opts['long'][-1])
+    sord = [_l] + [i for i in sord if i != _l]
+    sthick = -1.0 if opts['long'].startswith('-') else 1.0
+    hthick = 1.0
 R = np.zeros((3, 3))
 R[sord[0], hord[0]] = sthick * hthick
 R[sord[1], hord[1]] = 1.0
@@ -124,6 +137,11 @@ for i in range(3):
     for j in range(3):
         M[i][j] = R[i, j] * s
 M.translation = Vector(sc) - Vector(R @ hc * s)
+# --shift=x,y,z (Nov 11, 2026): moved by that much after the fit, in this root's space (the stock part's drawn frame);
+# robo_preview.py prints the shift that makes a floating part touch the body (the Sashimono pods sat 6-12 cm off the
+# back on Ray 01's pod mount)
+if opts.get('shift'):
+    M.translation += Vector([float(x) for x in opts['shift'].split(',')])
 hme.transform(M)
 hme.update()
 p2 = np.array([tuple(v.co) for v in hme.vertices])
@@ -165,7 +183,10 @@ for f0 in bm.faces:
                     st.append(g)
     shells.append(sh)
 big = max(len(s_) for s_ in shells) if shells else 0
-bmesh.ops.delete(bm, geom=[f for s_ in shells if len(s_) < big * 0.02 for f in s_], context='FACES')
+# --main_only (Nov 12, 2026): keep the biggest shell alone; the twin-barrel gun's second barrel touched the gun at one
+# end only, and in the game's poses it read as a loose stick floating beside the hand
+KEEP = 0.999 if opts.get('main_only') else 0.02
+bmesh.ops.delete(bm, geom=[f for s_ in shells if len(s_) < big * KEEP for f in s_], context='FACES')
 bm.to_mesh(lo_ob.data)
 bm.free()
 log(f'voxel remesh {VOX:.4f}: {len(lo_ob.data.polygons)} faces, {len(shells)} shells')
@@ -293,6 +314,17 @@ bpy.data.objects.remove(hi_ob, do_unlink=True)
 for o in stock:
     bpy.data.objects.remove(o, do_unlink=True)
 lo_ob.vertex_groups.new(name=JOINT).add(list(range(len(lo_ob.data.vertices))), 1.0, 'REPLACE')
+# The mesh was fitted where the stock part is DRAWN. Measured on the pods (Nov 11, 2026): what the importer writes
+# is drawn TURNED by the root joint's rotation (JOBJ_0's pose x inverse rest, a pure turn: pod (x, y, z) -> (-y, -z, x)),
+# the scales of the joint chain are handled by the importer. So the mesh is written with that turn undone. Without
+# this the pods stood sideways and the Sashimono poles floated off the back; the gun (turned about its barrel) and the
+# leg packs (near cubes) hid it
+pb0 = arm.pose.bones['JOBJ_0']
+A0 = arm.matrix_world @ pb0.matrix @ pb0.bone.matrix_local.inverted() @ arm.matrix_world.inverted()
+R0 = A0.to_3x3().normalized().to_4x4()
+lo_ob.data.transform(lo_ob.matrix_world.inverted() @ R0.inverted() @ lo_ob.matrix_world)
+lo_ob.data.update()
+log('root turn undone: ' + str([tuple(round(x, 2) for x in row) for row in R0.to_3x3()]))
 lo_ob.parent = arm
 lo_ob.matrix_parent_inverse = arm.matrix_world.inverted()
 mod = lo_ob.modifiers.new('Armature', 'ARMATURE')

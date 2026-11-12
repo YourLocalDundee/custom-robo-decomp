@@ -37,6 +37,7 @@ put(GUN + 0xA8, '4B', 0, 230, 255, 255)                  # left: cyan
 put(GUN + 0xAC, '4B', 255, 205, 70, 255)                 # middle: gold
 put(GUN + 0xB0, '4B', 0, 230, 255, 255)                  # right: cyan
 put(GUN + 0xB4, '4B', 255, 255, 255, 255)
+put(GUN + 0xB8, 'I', 42)                                 # trail duration: 60 stock; owner (Nov 11): "a little too long"
 for blk in (0xDC, 0x1B4):
     put(GUN + blk + 2, 'BB', 2, 1)                       # two rounds per shot, side by side
     put(GUN + blk + 0xA, 'hh', 1456, 2912)               # +-8 degrees

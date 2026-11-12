@@ -99,3 +99,48 @@ Found on the way: the stock legs part is a calf thruster pack (roots 0 / 2 / 4 /
 not a shin guard; Basic Gun's developer label is "Striker Gun"; the gun record's air-shot block is at +0xB4 past the
 ground block's start (+0x1B4), not at +0x18C as the community field list's sizes suggest (a fifth 0x28-byte block, or
 padding, sits between).
+
+## First in-game look and what was wrong (Nov 11, 2026)
+
+The owner's Customize screenshot of the B3 build showed the samurai crushed into a heap with two tall red tubes over
+him. The T-pose preview had hidden all of it. Three new tools, then the fixes:
+
+- `tools/blender/robo_preview.py`: the robo as the game puts it together: the body posed by a game motion; gun root
+  0, bomb root 1 (0 with `--form0`, the Customize set), pod roots 0 + 1, leg roots 4 / 1 / 5 / 3 (0 / 2 in form 0), each
+  on its role joint with the body's mount offset and the 0.1 scale of `fn_80039FAC`. Checked on stock Ray 01 with
+  stock parts. **Attachment check**: every part must touch its own region of the body (gun the right hand, bomb the
+  left forearm, pods the chest joint, leg packs the shins) and a held part must have the hand ON its grip (30% along
+  its long axis from the elbow end, within 3 cm); loose body pieces are reported; for anything floating it prints the
+  shift (in the part file's frame) that fixes it.
+- `tools/motion_strip.py`: that preview over the motions the mod plays (8 motions x 4 frames), flagged frames framed in
+  red, a `.check.txt` beside the picture. **Nothing goes into the ISO before this passes** (owner, Nov 11).
+- `tools/blender/part_frame_probe.py`: marker points sent through HSDRawViewer's import + export, which measures what
+  the importer does to a part mesh: it turns it by the root joint's rotation (JOBJ_0; measured exactly, error 0, on the
+  gun and the pod), nothing else.
+
+Fixes:
+1. **Body weights** (`atlas_ai_body.py`, seen in a bone-coloured posed render): the head rule had no side limit, so the
+   tops of the T-posed arms followed the chest and tore into flat sheets to the elbows when the arms dropped; the leg
+   rule wanted every vertex 1.5 cm off the centre line at every height, so the inner faces of legs standing close
+   together followed the hips down to the ankles and tore when the legs spread; and, after the first fix, the helmet
+   horns (wider than the shoulders) followed the shoulders. All three fixed: B5. `--rigid` (every face on one joint)
+   and `--rigid=plates` were tried and are worse on this model (slivers, grey bake on the split arms); kept as options.
+2. **Parts** (`ai_part.py`): fitted to the stock root's raw vertex data (not where the game draws it: the gun 1.4x,
+   pods 1.9x, bomb 1.25x too big, the two "tubes" were the pods); now fitted to the drawn stock points, the mesh
+   written with the root joint's turn undone (measured by the probe), `--long=x` stands the Sashimono poles up,
+   `--shift` moves a part by what the attachment check measured (pods seated 5.5 cm into the back, leg packs onto the
+   shins, gun and bomb so the hand sits on the grip).
+
+Result (B5 + these parts, installed Nov 11): 31 of 32 strip frames pass; the one flag is the last frame of victory 1
+(fist raised, the wrist turned: the gun 2.5 cm off the hand, the stock guns ride the forearm the same way). Strip and
+check: `build/mecha_samurai_full/B5/strip_B5final.png` / `.check.txt`.
+
+### The Customize freeze (Nov 11, 2026)
+
+Dolphin froze on the Customize screen as soon as the robo appeared. Read live from the emulator: PC in `PPCHalt` via
+`HSD_Panic` <- `__assert` ("jobj.h" line 899, "jobj") <- `fn_80079214` <- `fn_8005C7F4`, which is motion tag 6 of the
+frame-event table `lbl_801F9DDC` (spawns a battle effect from robo+0x333C0, which is never loaded in Customize).
+Cause: `make_motion.py` copied the shared motions into unused IDs and patched only each copy's length, so the copies
+kept the unused motions' own tag lists. Slot 0 (idle) became ID 2 `sf_back_run_guard`, which has tag 6 at frame 25.
+Fix: each copy's `cr_g_MotionInfo` pointer now points at the stock motion's tag list (length + events), and no
+tag-list header is patched any more (headers are shared between IDs, so the old patches changed other bodies' lengths too).

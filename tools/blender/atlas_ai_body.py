@@ -80,6 +80,16 @@ if SECTIONS:
 # upper arm: position-only weights stretched them like skin and they flared when the legs and arms moved (first big
 # samurai, Customize screenshots Nov 9)
 PLATES = bool(opts.get('plates'))
+# --rigid (Nov 11, 2026): every face rigid on ONE joint, as the stock bodies are built (Ray 01: 42 of 52 PObjs rigid,
+# docs/robo_look.md "Seams"). The smooth weights above only pick the joint (the face's largest summed weight); the mesh
+# is split where neighbouring faces chose different joints. The first in-game look (Customize, Nov 11) showed why: a
+# T-pose skin dragged between bones by the game's poses (arms ~70 degrees down, legs spread) sheared the shoulder
+# plates into flat sheets, folded the upper arms and smeared the skirt over the thighs. Rigid plates move like armour
+RIGID = bool(opts.get('rigid'))
+# --rigid=plates: only the armour plates rigid (shoulder plates on the upper arm, skirt plates on the hips), cut free
+# from the skin; the rest stays skinned. --rigid=1: everything rigid but the joint bands
+RIGID_PLATES_ONLY = opts.get('rigid') == 'plates'
+RIGID_BAND = float(opts.get('rigid_band') or 0.7)   # --rigid_band: below this strongest weight a face stays skinned
 # --look=game: lighter bake for the game's lighting (the game lights the body itself: ambient 70% + diffuse): softer
 # ambient occlusion, metal not darkened as much, levels so the brightest 2% sit near white
 LOOK = opts.get('look') or ''
@@ -1001,6 +1011,8 @@ def plate_fix(p, s, w):
             for b, x in tgt.items():
                 w[b] = w.get(b, 0) + x * k
     return w
+vweights = {}
+vplate = set()
 for v in me.vertices:
     p = v.co
     r = vregion.get(v.index, 'body')
@@ -1012,11 +1024,17 @@ for v in me.vertices:
         add(v.index, H(f'leg_{r[-1]}_ankle'), 1.0)
         continue
     w = {}
-    if p.z > head_lo.z - 0.04:
+    # Nov 11, 2026 (bone-coloured posed render): the head test had no side limit, so the tops of the T-posed arms
+    # (at helmet height) followed the chest and tore into flat sheets when the arms dropped; and the leg test wanted
+    # every vertex 1.5 cm off the centre line at every height, so the inner faces of legs standing close together
+    # followed the hips down to the ankles and tore between the knees when the legs spread
+    # (the helmet's horns and side flaps reach wider than the shoulders: above shoulder height they are the head's)
+    if p.z > head_lo.z - 0.04 and (abs(p.x) < arm_start or p.z > shoulder[s].z + 0.08):
         w = neck_w(p.z)
     else:
         t_arm = smoothstep((abs(p.x) - arm_start) / 0.08) * smoothstep((p.z - (shoulder[s].z - 0.16)) / 0.06)
-        t_leg = smoothstep(((hip[s].z + 0.02) - p.z) / 0.10) * smoothstep((abs(p.x) - 0.015) / 0.03)
+        x_leg = max(smoothstep((abs(p.x) - 0.015) / 0.03), smoothstep(((hip[s].z - 0.05) - p.z) / 0.06))
+        t_leg = smoothstep(((hip[s].z + 0.02) - p.z) / 0.10) * x_leg
         base = torso_w(p.z)
         if t_arm > 0:
             aw = arm_w[s](abs(p.x))
@@ -1031,10 +1049,101 @@ for v in me.vertices:
         else:
             w = base
         if PLATES:
+            w0 = w
             w = plate_fix(p, s, w)
+            if RIGID:
+                # a plate vertex: plate_fix moved its weights. In --rigid the shoulder plates (sode) hang along the
+                # T-posed arm, so they follow the upper arm (rigid on the shoulder joint they stuck out sideways when
+                # the arm dropped); the skirt keeps the hips
+                moved = sum(abs(w.get(b, 0) - w0.get(b, 0)) for b in set(w) | set(w0))
+                if moved > 0.3:
+                    vplate.add(v.index)
+                    sj, uj = J(f'arm_{s}_shoulder'), J(f'arm_{s}_upper')
+                    if sj in w and p.z > hip[s].z + 0.1:
+                        w[uj] = w.get(uj, 0) + w.pop(sj)
     tot = sum(w.values())
+    if RIGID:
+        vweights[v.index] = {b: x / tot for b, x in w.items()}
+        continue
     for b, x in w.items():
         add(v.index, b, x / tot)
+if RIGID:
+    # Each face picks one joint (its corners' summed weights), the picks are smoothed by a majority vote of the
+    # neighbouring faces (single faces of another joint were confetti in the first rigid try), and a face stays SKINNED
+    # only where it is really between two joints (its corners' strongest weight below RIGID_BAND) and is not a plate:
+    # the bands at the elbows, knees and waist that keep the limbs closed, as Ray 01's two envelope PObjs among 42
+    # rigid ones. Rigid faces of different joints are split apart; a band vertex touching a rigid face takes that
+    # face's joint, so the band stretches between rigid pieces
+    for vi in range(len(me.vertices)):
+        if vi not in vweights:
+            g = max(me.vertices[vi].groups, key=lambda x: x.weight)
+            vweights[vi] = {lo_ob.vertex_groups[g.group].name: 1.0}
+    bone_names = sorted({b for d in vweights.values() for b in d})
+    bidx = {b: i for i, b in enumerate(bone_names)}
+    nf = len(me.polygons)
+    fbone = np.zeros(nf, np.int64)
+    fband = np.zeros(nf, bool)
+    for f in me.polygons:
+        acc = {}
+        for vi in f.vertices:
+            for b, x in vweights[vi].items():
+                acc[b] = acc.get(b, 0.0) + x
+        fbone[f.index] = bidx[max(acc, key=acc.get)]
+        strongest = np.mean([max(vweights[vi].values()) for vi in f.vertices])
+        plate = any(vi in vplate for vi in f.vertices)
+        fband[f.index] = (not plate) if RIGID_PLATES_ONLY else (strongest < RIGID_BAND and not plate)
+    # face neighbours by shared edge
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bm.faces.ensure_lookup_table()
+    nbr = [[g.index for e in f.edges for g in e.link_faces if g.index != f.index] for f in bm.faces]
+    for _ in range(3):
+        nxt = fbone.copy()
+        for i in range(nf):
+            if len(nbr[i]) >= 2:
+                cnt = {}
+                for j in nbr[i]:
+                    cnt[fbone[j]] = cnt.get(fbone[j], 0) + 1
+                top = max(cnt, key=cnt.get)
+                if cnt[top] >= 2 and cnt.get(fbone[i], 0) == 0:
+                    nxt[i] = top
+        fbone = nxt
+    for g in list(lo_ob.vertex_groups):
+        lo_ob.vertex_groups.remove(g)
+    groups.clear()
+    lay = bm.faces.layers.int.new('rigid_bone')
+    lay_b = bm.faces.layers.int.new('rigid_band')
+    for f in bm.faces:
+        f[lay] = int(fbone[f.index])
+        f[lay_b] = int(fband[f.index])
+    old_index = bm.verts.layers.int.new('old_index')
+    for v_ in bm.verts:
+        v_[old_index] = v_.index
+    cut = [e for e in bm.edges
+           if len({f[lay] for f in e.link_faces if not f[lay_b]}) > 1]
+    bmesh.ops.split_edges(bm, edges=cut)
+    bm.verts.ensure_lookup_table()
+    vw_new = {}
+    for v_ in bm.verts:
+        rig = [f[lay] for f in v_.link_faces if not f[lay_b]]
+        if rig:
+            vw_new[v_.index] = {bone_names[max(set(rig), key=rig.count)]: 1.0}
+        elif v_.link_faces:
+            vw_new[v_.index] = vweights[v_[old_index]]
+    bm.faces.layers.int.remove(lay)
+    bm.faces.layers.int.remove(lay_b)
+    bm.verts.layers.int.remove(old_index)
+    bm.to_mesh(me)
+    bm.free()
+    me.update()
+    for vi, d in vw_new.items():
+        for b, x in d.items():
+            add(vi, b, x)
+    per = {}
+    for bi in fbone:
+        per[bone_names[bi]] = per.get(bone_names[bi], 0) + 1
+    log(f'rigid: {len(cut)} edges split, {int(fband.sum())} of {nf} faces skinned (joint bands), '
+        f'{len(vplate)} plate vertices; faces per joint {dict(sorted(per.items(), key=lambda kv: -kv[1]))}')
 lo_ob.parent = arm
 lo_ob.matrix_parent_inverse = arm.matrix_world.inverted()
 mod = lo_ob.modifiers.new('Armature', 'ARMATURE')

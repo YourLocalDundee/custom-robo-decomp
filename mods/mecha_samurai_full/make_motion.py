@@ -6,8 +6,8 @@ Writes files/motion.DBN (make_mod.py puts it into logo_read_us.dbn entry 8, the 
 code/motion.txt (body 0's motion set and the motion lengths in main.dol). How (docs/full_custom_robo.md, finding 3):
 - Body 0 (Ray 01) shares 32 of its 38 slots' motions with other bodies (sf_ walk / run / jumps / bomb / pod / gun /
   falls / change, get-up with Splendor and Glory). Each shared motion is copied into a battle motion that no body
-  plays (docs/data_unused_battle_motions.txt) in the same group (so its keys' floats stay valid), the copy gets the
-  stock motion's length in cr_g_MotionInfo (0x80205C94 -> record +4 -> u16, low 12 bits), and body 0's set
+  plays (docs/data_unused_battle_motions.txt) in the same group (so its keys' floats stay valid), the copy's
+  cr_g_MotionInfo entry (0x80205C94) points at the stock motion's tag list (length + frame events), and body 0's set
   (cr_g_BattleMotionSets 0x801C51B8, 38 u16) is pointed at the copy. Then the copy is restyled. The other bodies keep
   the stock motions.
 - Body 0's own four (lose, both victories, the charge attack) are rewritten in place.
@@ -33,7 +33,10 @@ import crmotion_rig as rig  # noqa: E402
 
 TOL = float(sys.argv[1]) if len(sys.argv) > 1 else 0.008
 SETS, BODY = 0x801C51B8, 0
-LOW, SPREAD, LEAN = 0.07, 0.05, 8.0     # stance: hips lower, feet wider (each side), chest forward (degrees)
+# Nov 11, 2026: no extra crouch (was 0.07 lower, 0.05 wider): on the bulky samurai Ray 01's own stance already reads
+# as a crouch, and in Customize (the game's matrices, robo_preview.py --gamemats) the extra drop and spread made a squat
+# that flattened the front skirt plate into a sheet
+LOW, SPREAD, LEAN = 0.0, 0.0, 8.0     # stance: hips lower, feet wider (each side), chest forward (degrees)
 LEG = 0.86                               # a straight leg's IK target distance from the hip joint (Atlas notes)
 
 src = G / 'Custom Robo extracted' / 'files' / c.BOOT_BUNDLE
@@ -83,15 +86,16 @@ for i, v in enumerate(new_set):
     wa = a & ~3
     words.setdefault(wa, bytearray(dol.read(wa, 4)))
     words[wa][a - wa:a - wa + 2] = struct.pack('>H', v)
+# Nov 11, 2026: each copy's cr_g_MotionInfo entry now points at the STOCK motion's tag list (its header = length, and
+# its frame events: effects, sounds). Patching only the copy's length kept the unused motion's own events: slot 0
+# (idle, played in Customize) became ID 2 sf_back_run_guard, whose tag 6 at frame 25 spawns a battle-only effect
+# (fn_8005C7F4 -> fn_80079214 with robo+0x333C0, never loaded in Customize) -> NULL jobj assert, the Customize freeze.
+# The tag lists' headers are also shared between IDs, so patching them changed other bodies' motion lengths.
 for mid, t in target.items():
     if t == mid:
         continue
-    hs, ht = header_addr(mid), header_addr(t)
-    n_src = struct.unpack('>H', dol.read(hs, 2))[0] & 0xFFF
-    wa = ht & ~3
-    words.setdefault(wa, bytearray(dol.read(wa, 4)))
-    old = struct.unpack('>H', words[wa][ht - wa:ht - wa + 2])[0]
-    words[wa][ht - wa:ht - wa + 2] = struct.pack('>H', (old & 0xF000) | n_src)
+    wa = c.INFO_ADDR + 4 * t
+    words[wa] = bytearray(dol.read(c.INFO_ADDR + 4 * mid, 4))
 for wa in sorted(words):
     old = struct.unpack('>I', dol.read(wa, 4))[0]
     new = struct.unpack('>I', bytes(words[wa]))[0]
@@ -341,7 +345,7 @@ for gi, pending in pending_by_group.items():
 (MOD / 'code').mkdir(exist_ok=True)
 (MOD / 'code' / 'motion.txt').write_text(
     '; The mecha samurai\'s own motions (make_motion.py): body 0\'s motion set pointed at copies in unused motion\n'
-    '; IDs, and those IDs given the stock motions\' lengths (cr_g_MotionInfo). Other bodies keep the stock motions.\n'
+    '; IDs, and those IDs given the stock motions\' tag lists (cr_g_MotionInfo: length + frame events). Other bodies keep the stock motions.\n'
     + '\n'.join(code) + '\n')
 print('\n'.join(done))
 print(f'files/motion.DBN, code/motion.txt ({len(code)} words)')
