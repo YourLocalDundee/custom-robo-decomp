@@ -27,7 +27,10 @@ LIMIT = 0x40000      # the part slots of code/samurai.txt
 # Nov 10 (docs/robo_look.md): stock-sized budgets (stock gun ~450 triangles per form, bomb ~400, the pod file ~900 over
 # its four roots, the legs file ~530-690 over six) and the painted look; the first, detailed set (1,000 / 800 / 700 /
 # 500 triangles, photo bake) is kept in build/mecha_samurai_full/models_detailed_nov9
-LOOK = ['--look=paint']
+# Nov 12, 2026 (owner: make things "stand out better"): the parts were painted the same red as the armour and read
+# as lumps of the body; they are black lacquer and gold (parts_palette.json: the AI's red / maroon painted gunmetal,
+# its cream trim gold), against the red armour
+LOOK = ['--look=paint', f'--paint={Path(__file__).resolve().parent / "parts_palette.json"}']
 PARTS = {
     # Nov 12, 2026: no --shift any more. The Nov 11 shifts came from robo_preview.py placing parts by the role joint
     # and the mount offset alone; the game (fn_80039FAC) also turns each part root (robo +0x180C ...) and plays the

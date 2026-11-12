@@ -94,6 +94,9 @@ else:
     for _ in range(n):
         stamp = time.strftime('%H%M%S')
         ok = grab(os.path.join(out, f'frame_{stamp}.png'))
+        if not ok:
+            time.sleep(dt)
+            continue
         try:   # the two robos' bone matrices at the same moment (robo_preview.py --gamemats)
             mem = mem or dolphin_mem.open_mem1()
             mats = {}
@@ -128,7 +131,7 @@ else:
                 mats[f'parts{r}'] = parts
             mats['seq'] = mem.u32(0x8044F2EC) if hasattr(mem, 'u32') else None
             json.dump(mats, open(os.path.join(out, f'mats_{stamp}.json'), 'w'))
-        except Exception as e:
+        except (Exception, SystemExit) as e:
             mem = None
             print('mats:', e)
         time.sleep(dt)
