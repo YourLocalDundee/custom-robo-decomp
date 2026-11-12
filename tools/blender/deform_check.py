@@ -39,6 +39,7 @@ roles = json.load(open(ROLES, encoding='utf-8'))['C']
 role_of = {f'JOBJ_{v}': k for k, v in roles.items()}
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
+bpy.context.scene.render.fps = 30     # the motion glbs are 30 fps: Blender frame = game frame (default 24 scaled them 0.8)
 sc = bpy.context.scene
 bpy.ops.import_scene.gltf(filepath=MOTION)
 act = [o for o in bpy.data.objects if o.type == 'ARMATURE'][0].animation_data.action
@@ -196,9 +197,16 @@ def check(frame):
                 creg[vreg[vi].replace('+blend', '')] = creg.get(vreg[vi].replace('+blend', ''), 0) + 1
         if n:
             clip[f'{ga} in {gb}'] = [n, round(worst, 3)]
+    # the ground (Nov 12, owner: "look at the ankles"): the lowest body point; a standing frame's lowest point is the
+    # sole on the floor (z of frame 0 in a standing motion is the reference, set by the caller as GROUND_Z)
+    low_z = float(P[:, 2].min())
+    low_part = vreg[int(P[:, 2].argmin())]
+    foot = [i for i in range(len(P)) if vreg[i].replace('+blend', '') in ('leg_a_foot', 'leg_b_foot', 'leg_a_ankle', 'leg_b_ankle')]
+    feet_z = {s_: float(min(P[i, 2] for i in foot if vreg[i].startswith(f'leg_{s_}'))) for s_ in 'ab' if any(vreg[i].startswith(f'leg_{s_}') for i in foot)}
     score = sum(v[0] + v[1] for v in per.values()) + sum(v[0] for v in clip.values()) * 3
     return {'frame': frame, 'stretch': {k: [v[0], v[1], round(v[2], 2)] for k, v in per.items()},
-            'clip': clip, 'clip_regions': creg, 'score': score}, mx, mn, clip_v
+            'clip': clip, 'clip_regions': creg, 'score': score, 'low_z': round(low_z, 3), 'low_part': low_part,
+            'feet_z': {k_: round(z_, 3) for k_, z_ in feet_z.items()}}, mx, mn, clip_v
 
 
 results = []
@@ -236,6 +244,9 @@ crt = {}
 for res in results:
     for k, n in res.get('clip_regions', {}).items():
         crt[k] = crt.get(k, 0) + n
+lz = [r['low_z'] for r in results]
+lines.append(f'GROUND: lowest body point z from {min(lz):.3f} to {max(lz):.3f} (frames {results[lz.index(min(lz))]["frame"]} / '
+             f'{results[lz.index(max(lz))]["frame"]}); feet per frame in the .json')
 lines.append('CLIPPING by part: ' + ', '.join(f'{k} {n}' for k, n in sorted(crt.items(), key=lambda kv: -kv[1])))
 lines.append(f'worst frame {worst[0]["frame"]} (score {worst[0]["score"]})')
 open(OUT + '.txt', 'w').write('\n'.join(lines) + '\n')
@@ -299,7 +310,8 @@ if opts.get('render', '1') != '0':
     sc.camera = cam
     # Blender axes (Z up); the robo faces -Y after the glTF import (glTF -Z)
     views = [('front', Vector((0, -1, 0.05))), ('back', Vector((0, 1, 0.05))), ('left', Vector((-1, 0, 0.05))),
-             ('right', Vector((1, 0, 0.05))), ('top', Vector((0.001, -0.05, 1))), ('bottom', Vector((0.001, -0.05, -1)))]
+             ('right', Vector((1, 0, 0.05))), ('top', Vector((0.001, -0.05, 1))), ('bottom', Vector((0.001, -0.05, -1))),
+             ('front34', Vector((-0.8, -1, 0.35))), ('back34', Vector((0.8, 1, 0.35))), ('low', Vector((0.3, -1, -0.35)))]
     shots = []
     for name, d in views:
         d.normalize()
@@ -309,11 +321,12 @@ if opts.get('render', '1') != '0':
         bpy.ops.render.render(write_still=True)
         shots.append(bpy.data.images.load(sc.render.filepath))
     W, H = shots[0].size
-    o2 = bpy.data.images.new('o', W * 3, H * 2)
-    buf = [0.0] * (W * 3 * H * 2 * 4)
+    rows = (len(shots) + 2) // 3
+    o2 = bpy.data.images.new('o', W * 3, H * rows)
+    buf = [0.0] * (W * 3 * H * rows * 4)
     for k, im in enumerate(shots):
         px = list(im.pixels)
-        cx, cy = k % 3, 1 - k // 3
+        cx, cy = k % 3, rows - 1 - k // 3
         for y in range(H):
             s0 = ((cy * H + y) * W * 3 + cx * W) * 4
             buf[s0:s0 + W * 4] = px[y * W * 4:(y + 1) * W * 4]

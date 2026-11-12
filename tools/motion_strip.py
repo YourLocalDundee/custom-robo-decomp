@@ -57,6 +57,7 @@ def main():
     ap.add_argument('--body', type=int, default=0)
     ap.add_argument('--slots', default='stance,walk,run,weapon_jump,gun_stance,bomb_l90,victory1,charge')
     ap.add_argument('--frames', type=int, default=4)
+    ap.add_argument('--partpose', help="a battle capture's mats json: the parts' own joint poses (robo_preview.py)")
     a = ap.parse_args()
     dol = c.load_dol(None)
     ids = mod_set(a.mod, a.body) if a.mod else None
@@ -79,7 +80,8 @@ def main():
             out = tmp / f'{name}_{f:03d}'
             r = subprocess.run([BLENDER, '-b', '--factory-startup', '--python', str(G / 'tools' / 'blender' / 'robo_preview.py'),
                                 '--', a.body_glb, str(mg), a.parts, str(out), f'--frame={f}', '--views=1', '--w=300', '--h=340',
-                                '--ortho=1.75', '--centre=0,0.05,0.85'], capture_output=True, text=True)
+                                '--ortho=1.75', '--centre=0,0.05,0.85'] + ([f'--partpose={a.partpose}'] if a.partpose else []),
+                               capture_output=True, text=True)
             if r.returncode or not (out.with_suffix('.png')).exists():
                 sys.stderr.write(r.stdout[-2000:] + r.stderr[-2000:])
                 raise SystemExit(f'render failed: {name} frame {f}')

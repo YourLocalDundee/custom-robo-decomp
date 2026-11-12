@@ -30,8 +30,13 @@ MOD = Path(__file__).resolve().parent
 sys.path.insert(0, str(G / 'tools'))
 import crmotion as c  # noqa: E402
 import crmotion_rig as rig  # noqa: E402
+sys.path.insert(0, str(MOD))
+import samurai_moves as sm  # noqa: E402
+FLOOR_JSON = MOD / 'floor_lift.json'
+FLOOR = __import__('json').load(open(FLOOR_JSON)) if FLOOR_JSON.exists() else {}
 
 TOL = float(sys.argv[1]) if len(sys.argv) > 1 else 0.008
+TOL_ROT = 1.0     # degrees (Nov 12: our own rotation tracks)
 SETS, BODY = 0x801C51B8, 0
 # Nov 11, 2026: no extra crouch (was 0.07 lower, 0.05 wider): on the bulky samurai Ray 01's own stance already reads
 # as a crouch, and in Customize (the game's matrices, robo_preview.py --gamemats) the extra drop and spread made a squat
@@ -121,7 +126,7 @@ def tip(rel, deg, fz):
 
 
 def off_side(frames):
-    return -1.0 if sum(ch['point3.x'] - ch['point0.x'] for ch in frames) < 0 else 1.0
+    return facing(frames[0])            # the off hand's side is the facing's sign (samurai_moves.side_of)
 
 
 def lerp(a, b, t):
@@ -187,9 +192,9 @@ def heisman(frames):
         fz = facing(ch)
         k = smooth((t - 4) / 14)                    # held to the end (the game stops on the last frame)
         n0 = [v['point0.x'], v['point0.y'], v['point0.z']]
-        put(v, 3, lerp(P(ch, 3), [n0[0] + side * 0.22, n0[1] + 0.42, n0[2] + fz * 0.72], k))   # off the chest plate
+        put(v, 3, lerp(P(ch, 3), [n0[0] + side * 0.32, n0[1] + 0.38, n0[2] + fz * 0.70], k))   # off the chest plate (B10: wider)
         # the tucked gun out of the bulky chest plate (deform_check: arm b inside the torso)
-        put(v, 4, lerp(P(ch, 4), [n0[0] - side * 0.32, n0[1] + 0.26, n0[2] + fz * 0.32], k))
+        put(v, 4, lerp(P(ch, 4), [n0[0] - side * 0.40, n0[1] + 0.22, n0[2] + fz * 0.40], k))   # B10: further out
         for f in (5, 6):
             q = P(ch, f)
             gun_side = (q[0] - P(ch, 0)[0]) * side < 0
@@ -219,7 +224,7 @@ def dust_off(frames):
             k = smooth((t - t0) / 8) * (1 - smooth((t - (t0 + 34)) / 8))
             sw = math.sin(math.pi * 2 * max(0.0, (t - t0 - 8)) / 13.0) if t > t0 + 8 else 0.0
             # outside the shoulder plate (deform_check: the hands went into the chest / shoulder armour)
-            shoulder = [c1[0] + sh_sign * 0.22 + sh_sign * 0.06 * max(sw, 0), c1[1] + 0.08, c1[2] + fz * 0.30]
+            shoulder = [c1[0] + sh_sign * 0.22 + sh_sign * 0.06 * max(sw, 0), c1[1] + 0.08, c1[2] + fz * 0.46]
             return lerp(hand_rest, shoulder, k)
         put(v, 3, lerp(P(ch, 3), brush(44, -side, rest3), smooth(t / 10)))
         put(v, 4, lerp(P(ch, 4), brush(86, side, rest4), smooth(t / 10)))
@@ -303,7 +308,7 @@ def kneel(frames):
         fz = facing(ch)
         p0 = P(ch, 0)
         k = smooth((t - 8) / 30)
-        n0 = [p0[0], p0[1] - 0.26 * k, p0[2]]
+        n0 = [p0[0], p0[1] - 0.14 * k, p0[2]]          # 0.26 put the knee 6 cm into the floor (deform_check)
         v = {}
         put(v, 0, n0)
         for kk in (1, 2):
@@ -313,7 +318,7 @@ def kneel(frames):
         for f in (5, 6):
             q = P(ch, f)
             back = (q[0] - p0[0]) * side > 0         # the off-hand side's foot goes back: that knee goes down
-            want = [q[0], ground, p0[2] - fz * 0.45] if back else [q[0], ground, p0[2] + fz * 0.30]
+            want = [q[0], ground + 0.05, p0[2] - fz * 0.45] if back else [q[0], ground, p0[2] + fz * 0.30]   # back foot up: the shin on the floor, not in it
             put(v, f, lerp(q, want, k))
         for kk, sx in ((3, side), (4, -side)):
             put(v, kk, lerp(P(ch, kk), [n0[0] + sx * 0.24, n0[1] + 0.04, n0[2] + fz * 0.34], k))   # off the thighs (deform_check)
@@ -335,19 +340,23 @@ def iai(frames):
         n0 = [p0[0], p0[1] - 0.16 * crouch, p0[2]]
         v = {}
         put(v, 0, n0)
-        lean = 10 * smooth(ph) + 22 * lunge * (1 - 0.6 * smooth((t - 44) / 14))
+        lean = 6 * smooth(ph) + 12 * lunge * (1 - 0.6 * smooth((t - 44) / 14))   # less lean: the chest folded over the arms (deform_check)
         for kk in (1, 2):
             rel = [a - b for a, b in zip(P(ch, kk), p0)]
             n = tip(rel, lean, fz)
             put(v, kk, [n0[i] + n[i] for i in range(3)])
-        hilt = [n0[0] + side * 0.26, n0[1] + 0.05, n0[2] + fz * 0.26]   # in front of the hip plates (deform_check)
-        # the sweep: from the hilt across the front to full reach on the other side, at chest height
+        hilt = [n0[0] + side * 0.26, n0[1] + 0.02, n0[2] + fz * 0.46]   # well in front of the hip plates: the gun arm reaches in
+        # front of the chest, not across it (B10 sweep: arm b in the torso at the grab)
+        # Nov 12 (deform_check: the two-handed sweep crossed the off arm through the chest): a real draw (nukitsuke) -
+        # the gun hand reaches across to the hilt at the off hip and draws out in a forward arc to its own side at
+        # chest height; the off hand stays at the hip, pulling the scabbard back (saya-biki)
         sw = smooth((t - 20) / 14)
-        ang = math.radians(-70 + 160 * sw)
-        reach = [n0[0] - side * 0.75 * math.sin(ang), n0[1] + 0.32, n0[2] + fz * 0.75 * math.cos(ang)]
-        hand = lerp(hilt, reach, smooth((t - 18) / 6))
-        put(v, 3, lerp(P(ch, 3), hand, smooth(ph * 1.5)))
-        put(v, 4, lerp(P(ch, 4), [hand[0] + side * 0.06, hand[1] - 0.03, hand[2]], smooth(ph * 1.5)))
+        grab = smooth(ph * 1.5)
+        end = [n0[0] - side * 0.62, n0[1] + 0.36, n0[2] + fz * 0.40]
+        arc = lerp(hilt, end, sw)
+        arc[2] += fz * 0.32 * math.sin(math.pi * sw)          # the blade's path bulges forward
+        put(v, 4, lerp(P(ch, 4), arc, grab))
+        put(v, 3, lerp(P(ch, 3), [n0[0] + side * 0.34, n0[1] + 0.02, n0[2] + fz * (0.20 - 0.14 * sw)], grab))
         for f in (5, 6):
             q = P(ch, f)
             sx = 1.0 if q[0] - p0[0] > 0 else -1.0
@@ -390,32 +399,52 @@ ALIAS = ['stance', 'walk', 'run', 'walk_weapon_r180', 'run_weapon_r180', 'back_w
 
 
 def style_for(slot):
-    if slot in (0, 1, 2, 3, 4, 5, 6, 8, 9):
-        return lambda fr: stance(fr, gun_out=0.07)
-    if slot == 10:
-        return air_dash
-    if slot in (7, 11, 12, 13, 21, 22):
-        return lambda fr: stance(fr, low=0.03, spread=0.03, hilt=0.6)
-    if slot in (14, 15, 16, 17):        # bomb: the bomb is on the off arm; the hand stays where the game puts it
-        return lambda fr: stance(fr, low=0.05, hands=False)
-    if slot in (18, 19):
-        return lambda fr: stance(fr, low=0.04, hilt=0.5)
-    if slot in (20, 23, 24, 25):
-        return lambda fr: stance(fr, low=0.06)
-    if slot in (26, 27, 28, 29, 30):
-        return lambda fr: stance(fr, low=0.0, spread=0.04, lean=0.0, hands=False)
-    if slot == 31:
-        return head_check
-    if slot == 32:
-        return kneel
-    if slot == 33:
-        return heisman
-    if slot == 34:
-        return dust_off
-    if slot == 35:
-        return iai
-    return lambda fr: stance(fr, low=0.03, hilt=0.4)       # change
+    """Nov 12, 2026 (owner: "we're not using any of Ray's ... we need all of his"): every slot is generated by
+    samurai_moves.py from scratch; the stock motion only gives its length, root tracks, the hips' travel and (in
+    locomotion) where the feet are planted. The point-only styles above (victories, lose, charge, get-up) run on
+    our own standing pose instead of a stock frame, and every slot gets our rotation joints."""
+    name = ALIAS[slot]
 
+    def on_stand(fn, height=0.98):
+        def f(fr):
+            base = sm.stand(fr, height)
+            merged = [dict(ch, **v) for ch, v in zip(fr, base)]
+            pts = fn(merged)
+            return [dict(b, **p) for b, p in zip(base, pts)]
+        return f
+    if slot == 0:
+        return lambda fr: sm.stand(fr, 0.98)
+    if name in ('walk', 'walk_weapon_r180', 'back_walk_weapon_r180'):
+        return lambda fr: sm.locomotion(fr, 1.06, lift=0.16, lean=6.0, arm_swing=0.10, bob=0.035, twist=8.0)
+    if name in ('run', 'run_weapon_r180', 'back_run_weapon_r180', 'back_run_guard_r180', 'run_guard_r180'):
+        return lambda fr: sm.locomotion(fr, 1.00, lift=0.30, lean=14.0, arm_swing=0.18, bob=0.05, twist=16.0, run=True)
+    if name == 'air_dash':
+        return lambda fr: sm.air(fr, 1.02, tuck=0.10, trail=0.30, lean=24.0, arms_back=0.32, spread=0.10)
+    if name in ('weapon_jump', 'double_jump', 'bomb_jump', 'pod_jump', 'gun_jump', 'gun_jump_stiff'):
+        return lambda fr: sm.air(fr, 1.02, tuck=0.24, trail=0.12, lean=6.0)
+    if name in ('landing', 'landing2'):
+        return lambda fr: sm.action(fr, 0.98, low=0.10, lean=10.0)
+    if name in ('bomb_l90', 'bomb_r90', 'bomb_stance'):
+        return lambda fr: sm.action(fr, 0.98, off_reach=(0.30, 0.30, 0.50), lean=6.0)
+    if name == 'pod':
+        return lambda fr: sm.action(fr, 0.98, off_reach=(0.34, 0.14, 0.26), gun_reach=(0.38, 0.10, 0.20), lean=2.0)
+    if name in ('gun_stance', 'gun_l90', 'gun_r90', 'gun_stiff'):
+        return lambda fr: sm.action(fr, 0.98, gun_reach=(0.22, 0.32, 0.56), lean=6.0, low=0.03)
+    if name in ('fall_back', 'fall_back_wall'):
+        return lambda fr: sm.fall(fr, 0.98, back=True)
+    if name in ('fall_front', 'fall_front_wall', 'fall_magma'):
+        return lambda fr: sm.fall(fr, 0.98, back=False)
+    if name == 'getup':
+        return on_stand(head_check)
+    if name == 'lose':
+        return on_stand(kneel)
+    if name == 'victory1':
+        return on_stand(heisman)
+    if name == 'victory2':
+        return on_stand(dust_off)
+    if name == 'charge':
+        return on_stand(iai)
+    return lambda fr: sm.stand(fr, 0.98, guard=False)       # change
 
 done, pending_by_group = [], {}
 styled = set()
@@ -430,6 +459,18 @@ for slot, x in enumerate(new_set):
     last = max(t['times'][-1] for t in m['tracks'] if t)
     frames = [c.sample(m, data['groups'][gi]['floats'], f) for f in range(last + 1)]
     per = clear_body(style_for(slot)(frames), frames)
+    # the floor (Nov 12, tools/floor_lift.py from a deform sweep): the whole body lifted where its armour sank through
+    lift = FLOOR.get(ALIAS[slot], {})
+    # whole-body lift: the root's translation (root.posy, world) where the motion has root channels (78 tracks), set
+    # on every frame since a track is only taken whole; otherwise every IK point's height on the lifted frames
+    for f_, v in enumerate(per):
+        dy = lift.get(str(f_), 0.0)
+        if lift and 'root.posy' in roles:
+            v['root.posy'] = v.get('root.posy', frames[f_].get('root.posy', 0.0)) + dy
+        elif dy:
+            for k in range(7):
+                key = f'point{k}.y'
+                v[key] = (v[key] if key in v else frames[f_][key]) + dy
     want = {}
     for v in per:
         for k, val in v.items():
@@ -438,15 +479,34 @@ for slot, x in enumerate(new_set):
         if len(vals) != last + 1:
             continue
         ti = roles.index(k)
-        if max(abs(a - fr[k]) for a, fr in zip(vals, frames)) < TOL:
+        # rotation tracks are degrees; per point (Nov 12, the float pool): the feet tight (a planted foot must not
+        # wobble), the hips middling, chest / head / hands loose
+        tol = TOL_ROT if '.rot' in k else {'point5': 0.008, 'point6': 0.008, 'point0': 0.015}.get(k.split('.')[0], 0.03)
+        if max(abs(a - fr.get(k, 0.0)) for a, fr in zip(vals, frames)) < tol:
             continue                    # the style left this track as it was: keep the stock keys (no new floats)
-        keys = rig.reduce_keys(vals, TOL)
+        keys = rig.reduce_keys(vals, tol)
+        # Nov 12: our own motions replace every track, and group 0's float pool (14-bit index, shared with every other
+        # robo's stock motions) overflowed; values and tangents on a coarse grid repeat, and the pool keeps one copy
+        qv, qt = (0.5, 2.0) if '.rot' in k else (0.004, 0.04)
+        for key in keys:
+            key['value'] = round(key['value'] / qv) * qv
+            if key['kind'] == 'smooth':
+                tq = round(key['in'] / qt) * qt
+                if abs(tq) < 1e-9:
+                    key['kind'] = 'flat'
+                    key.pop('in', None)
+                    key.pop('out', None)
+                else:
+                    key['in'] = key['out'] = tq
         pending_by_group.setdefault(gi, []).append((m, ti, keys))
         m['tracks'][ti] = None
     done.append(f'slot {slot:2d} {ALIAS[slot]:22s} {dol.name(mine[slot] & 0x1FFF):28s} -> {dol.name(m["id"]):28s} ({last + 1} frames)')
 for gi, pending in pending_by_group.items():
     g = data['groups'][gi]
     rig.compact_pool(g)
+    base_n = len(g['floats'])
+    need = sum(len(keys) for _, _, keys in pending)
+    print(f'group {gi}: {base_n} floats kept after the compaction, {len(pending)} new tracks, {need} new keys')
     pool = {}
     for w in (2, 1, 3):
         for i in range(len(g['floats']) - w + 1):

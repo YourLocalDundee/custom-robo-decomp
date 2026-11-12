@@ -47,8 +47,11 @@ PARTS = {
     # moved -3 x, -0.5 y (glTF) onto the forearm. Legs roots 4 / 5 (battle and Customize): the shin runs down y (knee
     # +0.5, ankle -3.1) at z 0.3 and the pack bulged 1-3.5 behind it and 1 to the side ("the balls on the back of his
     # calves"): 75% size, moved -1 x, -1.3 z (glTF) onto the calf
+    # Nov 12 later (robo_preview.py rest-pose check; Dolphin captures: in battle the bomb's joints mostly sit in their
+    # rest pose under the root): -3 x had pushed the drum off the far side of the elbow, behind the upper arm; the
+    # check's grip shift, iterated twice (-3,0,-0.5 -> -0.05,0.155,-1.03), puts it on the middle of the forearm
     'bomb': ('weapon_bom', 'bomb_3d_00001_.glb', [(0, 4, 400, 256, []),
-                                                  (1, 3, 400, 256, ['--shift=-3.0,0,-0.5'])]),
+                                                  (1, 3, 400, 256, ['--shift=-0.05,0.155,-1.03'])]),
     # Nov 11 (robo_preview.py: posed robo + attachment check): the Sashimono poles stand up on the back (--long=x:
     # world up in the pod roots' drawn frame), seated 5.5 cm into the back (their bases only touched it in the stance and
     # floated 2-5 cm in the other motions as the back armour moves with the shoulders); the leg packs moved onto the shins by the measured gap x 1.1

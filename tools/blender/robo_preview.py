@@ -66,6 +66,15 @@ if opts.get('gameparts'):
     _gp, _, _gr = opts['gameparts'].rpartition(':') if opts['gameparts'].count(':') > 1 else (opts['gameparts'], '', '0')
     _d = json.load(open(_gp))[f'parts{_gr or "0"}']
     GAMEPARTS = {i: _d.get(hex(0x944 + 4 * i)) for i in range(8)}
+# --partpose=<capture mats json>[:robo] (Nov 12, 2026): the parts' own joint poses (each part plays its own animation
+# frame, fn_80095700) from a captured battle frame, relative to the part's root, put on THIS body's pose (role joint x
+# mount x 0.1, as fn_80039FAC in battle: captures show no extra turn there). Without it a part is drawn in its rest
+# pose, which put the bomb 0.2 off the forearm in motion_strip.py
+PARTPOSE = None
+if opts.get('partpose'):
+    _pp, _, _pr = opts['partpose'].rpartition(':') if opts['partpose'].count(':') > 1 else (opts['partpose'], '', '0')
+    _d = json.load(open(_pp))[f'parts{_pr or "0"}']
+    PARTPOSE = {i: _d.get(hex(0x944 + 4 * i)) for i in range(8)}
 C = Matrix.Rotation(math.radians(90), 4, 'X')          # glTF (Y up) -> Blender (Z up), as the glTF importer does
 Ci = C.inverted()
 
@@ -100,6 +109,7 @@ def rest_world(path):
 
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
+bpy.context.scene.render.fps = 30     # the motion glbs are 30 fps: Blender frame = game frame (default 24 scaled them 0.8)
 sc = bpy.context.scene
 # the motion: its action, put on the body's armature
 bpy.ops.import_scene.gltf(filepath=MOTION)
@@ -178,6 +188,15 @@ import os  # noqa: E402
 used_roots = {}
 for bi, (folder, root, role, mkey, skey) in enumerate(BATTLE):
     gj = GAMEPARTS.get(bi) if GAMEPARTS else None
+    if not gj and PARTPOSE and PARTPOSE.get(bi) and any(PARTPOSE[bi][0]):
+        _pj = PARTPOSE[bi]
+        _G0i = Matrix((_pj[0][0:4], _pj[0][4:8], _pj[0][8:12], (0, 0, 0, 1))).inverted()
+        _s = 0.1 * SCALE.get(skey, 1.0)
+        _root = posed(f'JOBJ_{ROLES[role]}') @ Matrix.Translation(Vector(MOUNT[mkey]) if mkey else Vector((0, 0, 0)))             @ Matrix.Diagonal((_s, _s, _s, 1))
+        gj = []
+        for _v in _pj:
+            _m = _root @ _G0i @ Matrix((_v[0:4], _v[4:8], _v[8:12], (0, 0, 0, 1)))
+            gj.append([x for r_ in range(3) for x in _m[r_]])
     if gj:
         # the game swaps a part's root by state (Nov 12, 2026 capture: battle gun = root 1 (6 joints), pods = roots
         # 2 / 3 (4 joints) or 0 / 1 (13) while firing, Customize gun = root 0 (21)): pick the file root with the

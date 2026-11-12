@@ -37,6 +37,7 @@ roles = json.load(open(ROLES, encoding='utf-8'))['C']
 role_of = {f'JOBJ_{v}': k for k, v in roles.items()}
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
+bpy.context.scene.render.fps = 30     # the motion glbs are 30 fps: Blender frame = game frame (default 24 scaled them 0.8)
 actions = []
 for mp in MOTIONS:
     bpy.ops.import_scene.gltf(filepath=mp)
