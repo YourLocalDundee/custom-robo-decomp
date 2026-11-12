@@ -6,10 +6,10 @@ Read this first when picking the samurai back up. Background and findings: [full
 
 | What | Where |
 |---|---|
-| ISO to play | `build/mods/mecha_samurai_full/mecha_samurai_full.iso`, SHA-1 `c4531dd1bc95defa36709107e45237e191aa44d9` |
+| ISO to play | `build/mods/mecha_samurai_full/mecha_samurai_full.iso`, SHA-1 `17012dac91f269e30b7eceb5de91bf497052ee36` |
 | Patch to share | `mods/mecha_samurai_full/mecha_samurai_full.crpatch` (checked: applied to the clean `Custom Robo (USA).iso` it gives that SHA-1) |
 | Last commit | see `git log` on `main` (pushed) |
-| Body | B7s: B7's mesh with smoothed weights (`build/mecha_samurai_full/B7s/`, installed in `mods/mecha_samurai_full/models/chara/`) |
+| Body | B7c: B7's mesh, smoothed weights, chest sides carved for the arms (`build/reweight/carved2.glb` -> `build/mecha_samurai_full/B7c/`, installed in `mods/mecha_samurai_full/models/chara/`) |
 | Stretch / clipping check | `tools/deform_sweep.py` + `tools/blender/deform_check.py` (reports and 6-angle heat renders in `build/deform/<name>/`) |
 | Parts | `mods/mecha_samurai_full/make_parts.py` (gun + bomb, black lacquer and gold: `parts_palette.json`; pods and legs empty) |
 | Motions | `mods/mecha_samurai_full/make_motion.py` |
@@ -30,6 +30,10 @@ Screenshot key in that build is **1** (not F9; Shift+F9 is a breakpoint).
   Measured on the game file with `tools/deform_sweep.py` (every 3rd frame of 20 motions, stretched = an edge over
   1.6x its rest length): stance 21.6k -> 7.8k stretched triangles, walk 20.9k -> 7.2k, run 20.6k -> 9.4k,
   victory 1 66k -> 39k, lose 59k -> 31k.
+- **Chest sides carved for the arms** (`tools/blender/carve_torso.py`): every arm point of every motion mapped into
+  the chest's rest space; where it was inside the chest, the chest's sides / armpits give way (at most 3.5 cm, never
+  the front, collar or back). Game-file clipping: victory 1 8.2k -> 4.1k vertices, victory 2 11.6k -> 8.1k,
+  charge 11.8k -> 8.7k, gun turn 5.4k -> 3.8k.
 - **Motions keep the hands off the body:** each hand stays 28 cm from his centre line (the stock motions were made
   for Ray 01's slim chest): walk clipping 163 -> 16 vertices, walk_weapon 550 -> 3.
 - **Gun:** grip in the right fist (placed from the game's own joint positions), one barrel, black and gold.
@@ -64,12 +68,10 @@ Screenshot key in that build is **1** (not F9; Shift+F9 is a breakpoint).
 ## What Claude still has to do (in order)
 
 0. **Done Nov 12 (owner away):** capture every 0.33 s; the stretch / clipping sweep over all motions; weights
-   smoothed (B7s); hand clearance; victory / lose / charge hands moved off the chest and thighs. **Left:** the upper
-   arms with their big shoulder plates (sode) still slide into the chest armour when the arms come in (victory 1,
-   charge, lose, falls: almost all remaining "clipping" is arm_*_upper). The arms hang from Ray 01's narrow
-   shoulder joints inside a bulky chest; options: slimmer chest / sode in the model, or a wider shoulder
-   (needs the skeleton's shoulder offset, which the game's IK reads).
-
+   smoothed; chest sides carved; hand clearance; victory / lose / charge hands moved off the chest and thighs.
+   **Left in the numbers:** lose and the falls (his whole body folds on the ground; the stock motions, made for
+   Ray 01, bend him through his own skirt) and some upper-arm / shoulder-plate overlap in victory 2 and the charge.
+   Next lever if the owner still sees it: slimmer shoulder plates (sode) in the model itself.
 1. **Check the new build in a capture**:
    - the parts must stay attached in every motion: `robo_preview.py --gamemats=<mats> --gameparts=<mats>`
      against the captured frames
@@ -86,7 +88,8 @@ Screenshot key in that build is **1** (not F9; Shift+F9 is a breakpoint).
    - the code that sets each part's animation state (`fn_80095700` callers: robo +0x20D4 gun, +0x28EF0 bomb,
      +0x2E470 pods, +0x333B4 legs)
 6. **Get-up "dust off"**: the get-up motion is only 21 frames (the game's), so the dust-off went into
-   victory 2. A longer get-up needs the state code that times it (see 5).
+   victory 2. A longer get-up would also make him stand up slower in battle (more time open to hits), so it is a
+   gameplay change, not just a look: only with the owner's OK, and it needs the state code that times it (see 5).
 7. **Jump sparks**: they share generators with legs 16-33 (no free generator big enough for a private
    copy). A private copy needs a bigger particle bank (relayout of `logo_read_us.dbn` entry 0).
 
@@ -102,6 +105,10 @@ python -I mods/mecha_samurai_full/make_body.py "D:\ai\Pictures\mecha_samurai_v3\
   "--head=D:\ai\Pictures\mecha_samurai_v3\head_3d_00001_.glb" --cull=1 --teximp=1 --edges=0.5 ^
   --skirt_centre=0.12 --neck_up=0.04 --reweight=30,0.5,4 --weight_step=0.05 --work=B8 --dst=build/mecha_samurai_full/B8/dat
   (weights only, from an earlier build's glb: --reuse=build/mecha_samurai_full/B7/samurai.glb)
+then the chest carve (motion glbs from a deform_sweep.py run, e.g. build/deform/B7c_all/*.motion.glb):
+blender -b --factory-startup --python tools/blender/carve_torso.py -- build/mecha_samurai_full/B8/samurai.reweighted.glb ^
+  build/mecha_samurai_full/B5/roles_000.json build/reweight/carved.glb <motion glbs...> --step=4
+python -I mods/mecha_samurai_full/make_body.py x --reuse=build/reweight/carved.glb --weight_step=0.05 --work=B8c --dst=...
   (then copy build/mecha_samurai_full/B8/dat/chara_00*.dat into mods/mecha_samurai_full/models/chara/)
 python -I tools/make_mod.py mods/mecha_samurai_full        -> ISO + .crpatch
 ```
