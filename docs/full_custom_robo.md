@@ -144,3 +144,25 @@ Cause: `make_motion.py` copied the shared motions into unused IDs and patched on
 kept the unused motions' own tag lists. Slot 0 (idle) became ID 2 `sf_back_run_guard`, which has tag 6 at frame 25.
 Fix: each copy's `cr_g_MotionInfo` pointer now points at the stock motion's tag list (length + events), and no
 tag-list header is patched any more (headers are shared between IDs, so the old patches changed other bodies' lengths too).
+
+### Parts placed from the game's own joints (Nov 12, 2026)
+
+The previews passed builds whose gun floated in the game. `tools/dolphin_capture.py` now saves the Dolphin window's
+frames together with both robos' bone matrices (robo +0x1434) and every part joint's world matrix (the JObj trees at
+robo +0x944 gun, +0x948 bomb, +0x94C / +0x950 pods, +0x954..+0x960 legs; JObj +0x44), and
+`robo_preview.py --gamemats=<json> --gameparts=<json>` poses body and parts from exactly those. What it showed:
+- `fn_80039FAC` builds each part root as role matrix x a per-part turn (gun: robo +0x180C, bomb +0x1824, pods
+  +0x183C / +0x1848, shins +0x1860) x 0.1 x the mount offset, and `fn_80095700` sets each part's own animation frame
+  from a state value; the old preview ignored both.
+- The game swaps roots by state: battle gun = root 1 (6 joints), Customize gun = root 0 (21); pods = roots 2 / 3
+  (4 joints), roots 0 / 1 (13) while firing; bomb = root 1 and legs = roots 4 / 1 / 5 / 3 in battle and Customize.
+- In the gun mesh joint's space the forearm runs along +x (elbow 0.2, wrist 1.9, y 0.1, z 0; `part_space.py`);
+  the fitted matchlock's grip sat 2.4 below it. The bomb sat past the elbow (the left forearm runs along -x); the
+  leg packs bulged 1-3.5 behind the shin. Moved in `make_parts.py`; pods emptied (owner: no back poles).
+
+Body (atlas_ai_body.py `--skirt_centre`, `--neck_up`): the front / back centre skirt flaps hang from the hips (thick
+thighs made the plate test treat them as thigh, so they lifted into a sheet between spread knees), the chest / head
+blend is raised into the helmet. Motions: victory 1 = a Heisman pose, victory 2 = look around and dust off both
+shoulders (stock win motion held at its first frame underneath), air dash = forward lean with the arms swept back,
+get-up = a quick look (its 21 frames are the game's), gun hand held out from the skirt, chest lean 4 degrees.
+Jump sparks (`particles.json` "tune"): leg 0's jet generators bigger, longer-lived, wider, a gold glow.

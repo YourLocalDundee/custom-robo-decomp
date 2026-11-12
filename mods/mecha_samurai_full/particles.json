@@ -1,0 +1,11 @@
+{
+  "_why": "Nov 12, 2026, owner: the jump sparks under his feet need 'more pizzazz'. Leg 0's jets (leg_effect_000: generators 3000-3004, 3131; shared by leg_effect 16-33, which use the same jets): the emitters throw faster and wider, the sparks are bigger and live longer, and the glow puff (3002) turns gold beside the blue sparks.",
+  "groups": [{"generators": [3002], "palette": "gold"}],
+  "tune": {
+    "3001": {"size": 1.6, "life": 1.3},
+    "3002": {"size": 1.5, "life": 1.3},
+    "3003": {"speed": 1.3, "angle": 1.5, "random": 1.4},
+    "3004": {"speed": 1.2, "size": 1.8, "random": 1.3},
+    "3131": {"speed": 1.3, "size": 1.4}
+  }
+}

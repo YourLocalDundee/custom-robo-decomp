@@ -80,6 +80,8 @@ if SECTIONS:
 # upper arm: position-only weights stretched them like skin and they flared when the legs and arms moved (first big
 # samurai, Customize screenshots Nov 9)
 PLATES = bool(opts.get('plates'))
+SKIRT_CENTRE = float(opts.get('skirt_centre') or 0)   # --skirt_centre=0.06: centre skirt plates on the hips only
+NECK_UP = float(opts.get('neck_up') or 0)             # --neck_up=0.04: the chest / head blend raised into the helmet
 # --rigid (Nov 11, 2026): every face rigid on ONE joint, as the stock bodies are built (Ray 01: 42 of 52 PObjs rigid,
 # docs/robo_look.md "Seams"). The smooth weights above only pick the joint (the face's largest summed weight); the mesh
 # is split where neighbouring faces chose different joints. The first in-game look (Customize, Nov 11) showed why: a
@@ -949,7 +951,10 @@ for f in me.polygons:
         vregion[vi] = fregion[f.index]
 
 # ---- weights
-neck_w = chain([J('upper_body'), J('head')], [head_lo.z + 0.01], 0.025)
+# --neck_up=<m> (Nov 12, 2026, owner: "his collarbones decided to point forward like the bow of a ship"): the
+# chest-to-head blend sat at the throat, so every head turn and chest lean pulled the collar into a point; raised
+# into the helmet (whose lower rim hides it), the collar stays on the chest
+neck_w = chain([J('upper_body'), J('head')], [head_lo.z + 0.01 + NECK_UP], 0.025 if not NECK_UP else 0.015)
 torso_w = chain([J('lower_body'), J('upper_body')], [upper_z], 0.05)
 arm_w = {s: chain([J(f'arm_{s}_shoulder'), J(f'arm_{s}_upper'), J(f'arm_{s}_fore')], [abs(shoulder[s].x) - 0.005, abs(elbow[s].x)], 0.03) for s in 'ab'}
 leg_w = {s: chain([J('lower_body'), J(f'leg_{s}_thigh'), J(f'leg_{s}_shin')], [-(hip[s].z - 0.02), -knee[s].z], 0.035) for s in 'ab'}
@@ -998,7 +1003,12 @@ def plate_fix(p, s, w):
     if p.z < hip[s].z + 0.03 and t_ < 0.85:
         k = smoothstep((d_ - thigh_r[s] * 1.2) / (thigh_r[s] * 0.6)) * (1 - smoothstep((t_ - 0.6) / 0.25))
         if k > 0:
-            tgt = {J('lower_body'): 0.7 - 0.35 * t_, J(f'leg_{s}_thigh'): 0.3 + 0.35 * t_}
+            # --skirt_centre=<x> (Nov 12, 2026, owner: the front flap fanned out between his spread knees in the game):
+            # the front and back centre plates (|x| below it) were split down the middle between the two thighs and
+            # tore into a fan; they hang from the hips alone, the side plates keep following their thigh
+            c_ = smoothstep((abs(p.x) - SKIRT_CENTRE * 0.5) / max(SKIRT_CENTRE * 0.5, 1e-6)) if SKIRT_CENTRE else 1.0
+            th = (0.3 + 0.35 * t_) * c_
+            tgt = {J('lower_body'): 1.0 - th, J(f'leg_{s}_thigh'): th}
             w = {b: x * (1 - k) for b, x in w.items()}
             for b, x in tgt.items():
                 w[b] = w.get(b, 0) + x * k
@@ -1051,6 +1061,16 @@ for v in me.vertices:
         if PLATES:
             w0 = w
             w = plate_fix(p, s, w)
+            if SKIRT_CENTRE and knee[s].z < p.z < hip[s].z + 0.03 and abs(p.x) < SKIRT_CENTRE \
+                    and abs(p.y - hip[s].y) > 0.05:
+                # the front / back centre flaps (in front of or behind the hip line, not the crotch between the legs):
+                # thick thighs (core radius ~0.15) made plate_fix count them as thigh, so the flap lifted with the knees
+                # into a flat sheet; they hang from the hips
+                kc = 1 - smoothstep((abs(p.x) - SKIRT_CENTRE * 0.6) / (SKIRT_CENTRE * 0.4))
+                kc *= smoothstep((abs(p.y - hip[s].y) - 0.05) / 0.03)
+                if kc > 0:
+                    w = {b: x * (1 - kc) for b, x in w.items()}
+                    w[J('lower_body')] = w.get(J('lower_body'), 0) + kc
             if RIGID:
                 # a plate vertex: plate_fix moved its weights. In --rigid the shoulder plates (sode) hang along the
                 # T-posed arm, so they follow the upper arm (rigid on the shoulder joint they stuck out sideways when

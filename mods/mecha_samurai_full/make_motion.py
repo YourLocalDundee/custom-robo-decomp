@@ -35,8 +35,9 @@ TOL = float(sys.argv[1]) if len(sys.argv) > 1 else 0.008
 SETS, BODY = 0x801C51B8, 0
 # Nov 11, 2026: no extra crouch (was 0.07 lower, 0.05 wider): on the bulky samurai Ray 01's own stance already reads
 # as a crouch, and in Customize (the game's matrices, robo_preview.py --gamemats) the extra drop and spread made a squat
-# that flattened the front skirt plate into a sheet
-LOW, SPREAD, LEAN = 0.0, 0.0, 8.0     # stance: hips lower, feet wider (each side), chest forward (degrees)
+# that flattened the front skirt plate into a sheet. Nov 12: lean 8 -> 4 degrees (the collar pulled to a point, owner:
+# "like the bow of a ship")
+LOW, SPREAD, LEAN = 0.0, 0.0, 4.0     # stance: hips lower, feet wider (each side), chest forward (degrees)
 LEG = 0.86                               # a straight leg's IK target distance from the hip joint (Atlas notes)
 
 src = G / 'Custom Robo extracted' / 'files' / c.BOOT_BUNDLE
@@ -137,7 +138,7 @@ def put(vals, k, p):
         vals[f'point{k}.{a}'] = p[i]
 
 
-def stance(frames, low=LOW, spread=SPREAD, lean=LEAN, hilt=0.75, hands=True, feet=True):
+def stance(frames, low=LOW, spread=SPREAD, lean=LEAN, hilt=0.75, hands=True, feet=True, gun_out=0.0):
     """the samurai stance over a stock motion"""
     side = off_side(frames)
     out = []
@@ -159,8 +160,99 @@ def stance(frames, low=LOW, spread=SPREAD, lean=LEAN, hilt=0.75, hands=True, fee
         if hands and hilt > 0:
             h = [n0[0] + side * 0.20, n0[1] + 0.04, n0[2] + fz * 0.10]
             put(v, 3, lerp(P(ch, 3), h, hilt))
+        if gun_out:
+            # Nov 12 (owner: "his right arm is consistently clipping through his right leg"): the gun hand hangs
+            # beside the bulky skirt; held out from it
+            q = P(ch, 4)
+            put(v, 4, [q[0] - side * gun_out, q[1] + gun_out * 0.3, q[2]])
         out.append(v)
     return out
+
+
+def frozen(frames):
+    """the stock motion held at its first frame (all IK points): the victories are driven entirely by our pose, so
+    the stock win motion's own crouch / jump does not fight it (Nov 12)"""
+    keys = [f'point{k}.{a}' for k in range(7) for a in 'xyz']
+    return [dict(ch, **{k_: frames[0][k_] for k_ in keys if k_ in frames[0]}) for ch in frames]
+
+
+def heisman(frames):
+    frames = frozen(frames)
+    """victory 1 (Nov 12, owner: football celebrations): the Heisman - the gun-side knee up, the off arm stiff-armed
+    straight out in front, the gun tucked at the chest like the ball; held, eased out at the end"""
+    side = off_side(frames)
+    st = stance(frames, low=0.02, spread=0.0, lean=6.0, hands=False)
+    last = len(frames) - 1
+    for t, (ch, v) in enumerate(zip(frames, st)):
+        fz = facing(ch)
+        k = smooth((t - 4) / 14)                    # held to the end (the game stops on the last frame)
+        n0 = [v['point0.x'], v['point0.y'], v['point0.z']]
+        put(v, 3, lerp(P(ch, 3), [n0[0] + side * 0.12, n0[1] + 0.42, n0[2] + fz * 0.72], k))
+        put(v, 4, lerp(P(ch, 4), [n0[0] - side * 0.16, n0[1] + 0.30, n0[2] + fz * 0.10], k))
+        for f in (5, 6):
+            q = P(ch, f)
+            gun_side = (q[0] - P(ch, 0)[0]) * side < 0
+            if gun_side:
+                put(v, f, lerp(q, [q[0], q[1] + 0.32, q[2] + fz * 0.16], k))
+    return st
+
+
+def dust_off(frames):
+    frames = frozen(frames)
+    """victory 2 (Nov 12, owner: "looking around and dusting his dirt off his shoulders like it ain't nothing"):
+    relaxed stance; looks left, then right; the off hand brushes the gun-side shoulder twice, then the gun hand the
+    off-side shoulder twice; chin up at the end"""
+    side = off_side(frames)
+    st = stance(frames, low=0.0, spread=0.02, lean=0.0, hands=False)
+    for t, (ch, v) in enumerate(zip(frames, st)):
+        fz = facing(ch)
+        n0 = [v['point0.x'], v['point0.y'], v['point0.z']]
+        c1 = [v['point1.x'], v['point1.y'], v['point1.z']]
+        h2 = [v['point2.x'], v['point2.y'], v['point2.z']]
+        look = math.sin(math.pi * 2 * smooth(t / 40.0)) * (1 - smooth((t - 34) / 8)) * 0.07
+        chin = 0.025 * smooth((t - 110) / 14)
+        put(v, 2, [h2[0] + look, h2[1] + chin, h2[2] - fz * chin * 0.5])
+        rest3 = [n0[0] + side * 0.20, n0[1] + 0.02, n0[2] + fz * 0.06]
+        rest4 = [n0[0] - side * 0.21, n0[1] + 0.02, n0[2] + fz * 0.06]
+        def brush(t0, sh_sign, hand_rest):
+            k = smooth((t - t0) / 8) * (1 - smooth((t - (t0 + 34)) / 8))
+            sw = math.sin(math.pi * 2 * max(0.0, (t - t0 - 8)) / 13.0) if t > t0 + 8 else 0.0
+            shoulder = [c1[0] + sh_sign * 0.15 + sh_sign * 0.05 * max(sw, 0), c1[1] + 0.06, c1[2] + fz * 0.10]
+            return lerp(hand_rest, shoulder, k)
+        put(v, 3, lerp(P(ch, 3), brush(44, -side, rest3), smooth(t / 10)))
+        put(v, 4, lerp(P(ch, 4), brush(86, side, rest4), smooth(t / 10)))
+    return st
+
+
+def head_check(frames):
+    """get-up (21 frames, the game's own length): a quick look left and right while rising"""
+    st = stance(frames, low=0.04, hilt=0.5)
+    n = max(len(frames) - 1, 1)
+    for t, v in enumerate(st):
+        if 'point2.x' in v:
+            v['point2.x'] += 0.06 * math.sin(math.pi * 2 * t / n)
+        else:
+            q = P(frames[t], 2)
+            put(v, 2, [q[0] + 0.06 * math.sin(math.pi * 2 * t / n), q[1], q[2]])
+    return st
+
+
+def air_dash(frames):
+    """air dash (Nov 12, owner: its own animation): a hard forward lean, both arms swept back, legs trailing"""
+    st = stance(frames, low=0.0, spread=0.0, lean=24.0, hands=False)
+    n = max(len(frames) - 1, 1)
+    for t, (ch, v) in enumerate(zip(frames, st)):
+        fz = facing(ch)
+        k = smooth(t / max(n * 0.3, 1))
+        n0 = [v['point0.x'], v['point0.y'], v['point0.z']]
+        for kk, sx in ((3, 1), (4, -1)):
+            q = P(ch, kk)
+            sx = 1.0 if q[0] - n0[0] > 0 else -1.0
+            put(v, kk, lerp(q, [n0[0] + sx * 0.24, n0[1] + 0.12, n0[2] - fz * 0.30], k))
+        for f in (5, 6):
+            q = P(ch, f)
+            put(v, f, lerp(q, [q[0], q[1] + 0.10, q[2] - fz * 0.22], k))
+    return st
 
 
 def fist_high(frames):
@@ -273,8 +365,10 @@ ALIAS = ['stance', 'walk', 'run', 'walk_weapon_r180', 'run_weapon_r180', 'back_w
 
 def style_for(slot):
     if slot in (0, 1, 2, 3, 4, 5, 6, 8, 9):
-        return lambda fr: stance(fr)
-    if slot in (7, 10, 11, 12, 13, 21, 22):
+        return lambda fr: stance(fr, gun_out=0.07)
+    if slot == 10:
+        return air_dash
+    if slot in (7, 11, 12, 13, 21, 22):
         return lambda fr: stance(fr, low=0.03, spread=0.03, hilt=0.6)
     if slot in (14, 15, 16, 17):        # bomb: the bomb is on the off arm; the hand stays where the game puts it
         return lambda fr: stance(fr, low=0.05, hands=False)
@@ -285,13 +379,13 @@ def style_for(slot):
     if slot in (26, 27, 28, 29, 30):
         return lambda fr: stance(fr, low=0.0, spread=0.04, lean=0.0, hands=False)
     if slot == 31:
-        return lambda fr: stance(fr, low=0.04, hilt=0.5)
+        return head_check
     if slot == 32:
         return kneel
     if slot == 33:
-        return fist_high
+        return heisman
     if slot == 34:
-        return bow
+        return dust_off
     if slot == 35:
         return iai
     return lambda fr: stance(fr, low=0.03, hilt=0.4)       # change

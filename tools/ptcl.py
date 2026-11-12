@@ -193,7 +193,7 @@ def recolour_bytes_file(src, dst, plan):
     """plan: {"generators": [...], "palette": name or {...}} or {"groups": [{"generators": [...], "palette": ...}]};
     the env (glow) colours are recoloured too unless they are black. Returns the number of colour commands changed."""
     plan = json.loads(Path(plan).read_text())
-    groups = plan.get('groups') or [plan]
+    groups = plan.get('groups') or ([plan] if plan.get('generators') else [])
     d = bytearray(Path(src).read_bytes())
     a, z = bundle_entry0(d)
     e = bytearray(d[a:z])
@@ -217,6 +217,24 @@ def recolour_bytes_file(src, dst, plan):
                 for k, v in zip('rgb', shift(old, hue, sat, val)):
                     e[ch[k][0]] = v
                 n += 1
+    # "tune" (Nov 12, 2026): generator header fields scaled in place (HSD_ParticleGenerator, HSDRaw
+    # Common/HSD_ParticleGroup.cs): {"3002": {"size": 1.5, "life": 1.3, "speed": 1.25, "angle": 1.4, "random": 1.3}}
+    FIELDS = {'life': (0x06, '>h'), 'speed': (0x1C, '>f'), 'angle': (0x24, '>f'), 'random': (0x28, '>f'),
+              'size': (0x2C, '>f'), 'friction': (0x10, '>f')}
+    for g, mul in (plan.get('tune') or {}).items():
+        bank = None
+        if isinstance(g, str) and ':' in g:
+            bank, g = (int(x) for x in g.split(':'))
+        gen = find(gens, int(g), bank)
+        if gen is None:
+            raise SystemExit(f'no generator {g}')
+        g0 = gen[2]
+        for k, m in mul.items():
+            off, fmt = FIELDS[k]
+            v = struct.unpack_from(fmt, e, g0 + off)[0]
+            nv = max(1, min(32767, int(round(v * m)))) if fmt == '>h' else v * m
+            struct.pack_into(fmt, e, g0 + off, nv)
+            n += 1
     d[a:z] = e
     Path(dst).write_bytes(bytes(d))
     return n
