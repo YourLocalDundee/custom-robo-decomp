@@ -103,10 +103,10 @@ index 8a02d5d..b99cb9b 100644
  
 diff --git a/HSDRawViewer/ModelImport.cs b/HSDRawViewer/ModelImport.cs
 new file mode 100644
-index 0000000..927fe3e
+index 0000000..e929d90
 --- /dev/null
 +++ b/HSDRawViewer/ModelImport.cs
-@@ -0,0 +1,1137 @@
+@@ -0,0 +1,1166 @@
 +using System;
 +using System.Collections.Generic;
 +using System.IO;
@@ -142,6 +142,8 @@ index 0000000..927fe3e
 +    /// Skeleton
 +    ///  --skeleton template (default): the glb must have exactly the template's joints JOBJ_0..n-1 with the same
 +    ///      parents; every bone transform comes from the template.
++    ///  --bind glb (with --skeleton glb): a template joint whose glb bind matrix differs (rotation or position) takes the
++    ///      glb's whole matrix, local transform and inverse bind matrix (a body rebound in another rest pose)
 +    ///  --skeleton glb: the joint tree is the glb's (the subtree of the bone JOBJ_0). A bone named JOBJ_n reuses
 +    ///      template joint n (its flags, IK settings, robjs, rotation and scale); a bone moved by more than 0.001 gets
 +    ///      its translation (and its inverse bind matrix) moved; a bone with any other name is a new joint, axis-aligned
@@ -196,6 +198,7 @@ index 0000000..927fe3e
 +        {
 +            public bool Replace;
 +            public bool GlbSkeleton;
++            public bool GlbBind;   // --bind glb (with --skeleton glb): a template joint whose glb world matrix differs takes it whole (rotation too) and its inverse bind matrix
 +            public string Roles;
 +            public string EnvelopeJoint;
 +            public int Model = -1;   // scene_data model (stages): --model N
@@ -218,6 +221,9 @@ index 0000000..927fe3e
 +                        case "--replace": o.Replace = true; break;
 +                        case "--skeleton" when i + 1 < extra.Length:
 +                            o.GlbSkeleton = extra[++i] switch { "glb" => true, "template" => false, var s => throw new ImportError($"--skeleton {s}: template or glb") };
++                            break;
++                        case "--bind" when i + 1 < extra.Length:
++                            o.GlbBind = extra[++i] switch { "glb" => true, "template" => false, var s => throw new ImportError($"--bind {s}: template or glb") };
 +                            break;
 +                        case "--roles" when i + 1 < extra.Length: o.Roles = extra[++i]; break;
 +                        case "--envelope-joint" when i + 1 < extra.Length: o.EnvelopeJoint = extra[++i]; break;
@@ -363,7 +369,7 @@ index 0000000..927fe3e
 +            // 2. skeleton
 +            List<Joint> joints;
 +            if (opt.GlbSkeleton)
-+                joints = GlbSkeleton(model, root, tjoints, tparents, tworlds);
++                joints = GlbSkeleton(model, root, tjoints, tparents, tworlds, opt.GlbBind);
 +            else
 +            {
 +                CheckSkeleton(model, tjoints.Count, tparents, tworlds);
@@ -628,7 +634,7 @@ index 0000000..927fe3e
 +        }
 +
 +        /// <summary>The glb's joint tree (--skeleton glb), relinking the template's JOBJs it names and adding new ones.</summary>
-+        private static List<Joint> GlbSkeleton(IOModel model, HSD_JOBJ root, List<HSD_JOBJ> tjoints, int[] tparents, Matrix4x4[] tworlds)
++        private static List<Joint> GlbSkeleton(IOModel model, HSD_JOBJ root, List<HSD_JOBJ> tjoints, int[] tparents, Matrix4x4[] tworlds, bool glbBind = false)
 +        {
 +            IOBone Find(IEnumerable<IOBone> bs)
 +            {
@@ -661,7 +667,30 @@ index 0000000..927fe3e
 +                    jt.J = tjoints[n];
 +                    jt.W = tworlds[n];
 +                    bool reparented = parent == null ? n != 0 : parent.Template != tparents[n];
-+                    if (Vector3.Distance(p, jt.W.Translation) > 1e-3f)
++                    float rdiff = 0;
++                    if (glbBind)
++                        for (int r_ = 0; r_ < 3; r_++)
++                            for (int c_ = 0; c_ < 3; c_++)
++                                rdiff = MathF.Max(rdiff, MathF.Abs(w[r_, c_] - jt.W[r_, c_]));
++                    if (glbBind && (rdiff > 1e-3f || Vector3.Distance(p, jt.W.Translation) > 1e-3f))
++                    {
++                        // gameTesting (Nov 12, 2026): rebind - the whole bind matrix from the glb. The game sets every
++                        // role joint's world matrix itself (cr_Battle_ApplyRoleMatrices copies the computed pose into
++                        // jobj+0x44 and flags it user-defined), so a role joint's rest rotation only enters through its
++                        // inverse bind matrix; children keep their own local transform under the new parent
++                        jt.W = w;
++                        Matrix4x4.Invert(w, out var inv);
++                        if (jt.J.InverseWorldTransform != null)
++                            jt.J.InverseWorldTransform = ToHsd(inv);
++                        moved++;
++                        if (parent != null)
++                        {
++                            Matrix4x4.Invert(parent.W, out var pinv);
++                            SetLocal(jt.J, jt.W * pinv);
++                        }
++                        reparented = false;
++                    }
++                    else if (Vector3.Distance(p, jt.W.Translation) > 1e-3f)
 +                    {
 +                        var nw = jt.W;
 +                        nw.Translation = p;
