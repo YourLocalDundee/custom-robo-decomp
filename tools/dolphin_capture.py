@@ -92,7 +92,9 @@ else:
     os.makedirs(out, exist_ok=True)
     mem = None
     for _ in range(n):
-        stamp = time.strftime('%H%M%S')
+        t0 = time.time()
+        # sub-second names (0.33 s captures, Nov 12): HHMMSS_mmm
+        stamp = time.strftime('%H%M%S') + '_%03d' % int((t0 % 1) * 1000)
         ok = grab(os.path.join(out, f'frame_{stamp}.png'))
         if not ok:
             time.sleep(dt)
@@ -134,4 +136,4 @@ else:
         except (Exception, SystemExit) as e:
             mem = None
             print('mats:', e)
-        time.sleep(dt)
+        time.sleep(max(0.0, dt - (time.time() - t0)))

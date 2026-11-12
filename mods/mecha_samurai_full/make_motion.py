@@ -187,13 +187,14 @@ def heisman(frames):
         fz = facing(ch)
         k = smooth((t - 4) / 14)                    # held to the end (the game stops on the last frame)
         n0 = [v['point0.x'], v['point0.y'], v['point0.z']]
-        put(v, 3, lerp(P(ch, 3), [n0[0] + side * 0.12, n0[1] + 0.42, n0[2] + fz * 0.72], k))
-        put(v, 4, lerp(P(ch, 4), [n0[0] - side * 0.16, n0[1] + 0.30, n0[2] + fz * 0.10], k))
+        put(v, 3, lerp(P(ch, 3), [n0[0] + side * 0.22, n0[1] + 0.42, n0[2] + fz * 0.72], k))   # off the chest plate
+        # the tucked gun out of the bulky chest plate (deform_check: arm b inside the torso)
+        put(v, 4, lerp(P(ch, 4), [n0[0] - side * 0.32, n0[1] + 0.26, n0[2] + fz * 0.32], k))
         for f in (5, 6):
             q = P(ch, f)
             gun_side = (q[0] - P(ch, 0)[0]) * side < 0
             if gun_side:
-                put(v, f, lerp(q, [q[0], q[1] + 0.32, q[2] + fz * 0.16], k))
+                put(v, f, lerp(q, [q[0], q[1] + 0.24, q[2] + fz * 0.16], k))   # knee a bit lower: the side skirt tore
     return st
 
 
@@ -217,7 +218,8 @@ def dust_off(frames):
         def brush(t0, sh_sign, hand_rest):
             k = smooth((t - t0) / 8) * (1 - smooth((t - (t0 + 34)) / 8))
             sw = math.sin(math.pi * 2 * max(0.0, (t - t0 - 8)) / 13.0) if t > t0 + 8 else 0.0
-            shoulder = [c1[0] + sh_sign * 0.15 + sh_sign * 0.05 * max(sw, 0), c1[1] + 0.06, c1[2] + fz * 0.10]
+            # outside the shoulder plate (deform_check: the hands went into the chest / shoulder armour)
+            shoulder = [c1[0] + sh_sign * 0.22 + sh_sign * 0.06 * max(sw, 0), c1[1] + 0.08, c1[2] + fz * 0.30]
             return lerp(hand_rest, shoulder, k)
         put(v, 3, lerp(P(ch, 3), brush(44, -side, rest3), smooth(t / 10)))
         put(v, 4, lerp(P(ch, 4), brush(86, side, rest4), smooth(t / 10)))
@@ -314,7 +316,7 @@ def kneel(frames):
             want = [q[0], ground, p0[2] - fz * 0.45] if back else [q[0], ground, p0[2] + fz * 0.30]
             put(v, f, lerp(q, want, k))
         for kk, sx in ((3, side), (4, -side)):
-            put(v, kk, lerp(P(ch, kk), [n0[0] + sx * 0.16, n0[1] + 0.02, n0[2] + fz * 0.22], k))
+            put(v, kk, lerp(P(ch, kk), [n0[0] + sx * 0.24, n0[1] + 0.04, n0[2] + fz * 0.34], k))   # off the thighs (deform_check)
         out.append(v)
     return out
 
@@ -338,7 +340,7 @@ def iai(frames):
             rel = [a - b for a, b in zip(P(ch, kk), p0)]
             n = tip(rel, lean, fz)
             put(v, kk, [n0[i] + n[i] for i in range(3)])
-        hilt = [n0[0] + side * 0.22, n0[1] + 0.05, n0[2] + fz * 0.12]
+        hilt = [n0[0] + side * 0.26, n0[1] + 0.05, n0[2] + fz * 0.26]   # in front of the hip plates (deform_check)
         # the sweep: from the hilt across the front to full reach on the other side, at chest height
         sw = smooth((t - 20) / 14)
         ang = math.radians(-70 + 160 * sw)
@@ -354,6 +356,30 @@ def iai(frames):
             put(v, f, [q[0] + sx * 0.08 * smooth(ph), q[1], q[2] + fz * dz])
         out.append(v)
     return out
+
+
+CLEAR = 0.28        # a hand's least distance from the body's centre line (hips -> chest)
+
+
+def clear_body(per, frames):
+    """Nov 12, 2026 (tools/deform_sweep.py: arms inside the torso in the turns, the falls, the charge, the victories;
+    the stock motions were made for Ray 01's slim chest): each hand (points 3 / 4) is pushed out to CLEAR from the
+    hips -> chest line at its height, sideways and forward only (its height is kept)"""
+    for v, ch in zip(per, frames):
+        def pt(k):
+            return [v[f'point{k}.{a}'] if f'point{k}.{a}' in v else ch[f'point{k}.{a}'] for a in 'xyz']
+        h0, c1 = pt(0), pt(1)
+        for k in (3, 4):
+            q = pt(k)
+            t = 0.0 if c1[1] == h0[1] else max(0.0, min(1.0, (q[1] - h0[1]) / (c1[1] - h0[1])))
+            ax = [h0[0] + (c1[0] - h0[0]) * t, h0[2] + (c1[2] - h0[2]) * t]
+            dx, dz = q[0] - ax[0], q[2] - ax[1]
+            d = math.hypot(dx, dz)
+            if d < CLEAR and q[1] > h0[1] - 0.35:
+                if d < 1e-4:
+                    dx, dz, d = 0.0, facing(ch), 1.0
+                put(v, k, [ax[0] + dx / d * CLEAR, q[1], ax[1] + dz / d * CLEAR])
+    return per
 
 
 ALIAS = ['stance', 'walk', 'run', 'walk_weapon_r180', 'run_weapon_r180', 'back_walk_weapon_r180', 'back_run_weapon_r180',
@@ -403,7 +429,7 @@ for slot, x in enumerate(new_set):
     roles = c.track_roles(len(m['tracks']))
     last = max(t['times'][-1] for t in m['tracks'] if t)
     frames = [c.sample(m, data['groups'][gi]['floats'], f) for f in range(last + 1)]
-    per = style_for(slot)(frames)
+    per = clear_body(style_for(slot)(frames), frames)
     want = {}
     for v in per:
         for k, val in v.items():

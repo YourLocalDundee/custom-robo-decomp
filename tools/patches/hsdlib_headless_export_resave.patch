@@ -103,10 +103,10 @@ index 8a02d5d..b99cb9b 100644
  
 diff --git a/HSDRawViewer/ModelImport.cs b/HSDRawViewer/ModelImport.cs
 new file mode 100644
-index 0000000..4ed10a4
+index 0000000..927fe3e
 --- /dev/null
 +++ b/HSDRawViewer/ModelImport.cs
-@@ -0,0 +1,1080 @@
+@@ -0,0 +1,1137 @@
 +using System;
 +using System.Collections.Generic;
 +using System.IO;
@@ -199,6 +199,10 @@ index 0000000..4ed10a4
 +            public string Roles;
 +            public string EnvelopeJoint;
 +            public int Model = -1;   // scene_data model (stages): --model N
++            public bool Relayout;   // stages: write the file with HSDLib's full layout (drops the bytes of replaced data) instead of the template's own layout (--relayout)
++            public int TexModel = -1;   // stages: new textured materials copy the first textured material of this model (--tex-model M)
++            public int Root = -1;   // weapon parts (several root<i>_joint roots): import over root N (--root N); no block B check
++            public float WeightStep = 0.1f;   // envelope weights rounded to this step (--weight-step 0.05; the game's own bodies use 0.1)
 +        }
 +
 +        public static int Run(string templatePath, string glbPath, string outPath, string[] extra = null)
@@ -218,6 +222,10 @@ index 0000000..4ed10a4
 +                        case "--roles" when i + 1 < extra.Length: o.Roles = extra[++i]; break;
 +                        case "--envelope-joint" when i + 1 < extra.Length: o.EnvelopeJoint = extra[++i]; break;
 +                        case "--model" when i + 1 < extra.Length && int.TryParse(extra[i + 1], out int mi) && mi >= 0: o.Model = mi; i++; break;
++                        case "--relayout": o.Relayout = true; break;
++                        case "--weight-step" when i + 1 < extra.Length && float.TryParse(extra[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float ws) && ws > 0 && ws <= 0.5f: o.WeightStep = ws; i++; break;
++                        case "--root" when i + 1 < extra.Length && int.TryParse(extra[i + 1], out int ri) && ri >= 0: o.Root = ri; i++; break;
++                        case "--tex-model" when i + 1 < extra.Length && int.TryParse(extra[i + 1], out int ti) && ti >= 0: o.TexModel = ti; i++; break;
 +                        default: throw new ImportError($"unknown option {extra[i]}");
 +                    }
 +                }
@@ -258,6 +266,7 @@ index 0000000..4ed10a4
 +            var sceneNode = dat.Roots.Find(r => r.Name.EndsWith("scene_data"));
 +            bool isScene = opt.Model >= 0 || (sceneNode != null && !dat.Roots.Any(r => r.Name.EndsWith("_joint")));
 +            HSD_JOBJ root;
++            HSD_JOBJ texModelRoot = null;
 +            if (isScene)
 +            {
 +                // a stage / effect / object: import over one model of the scene (docs/MODDING.md "Stages")
@@ -269,13 +278,31 @@ index 0000000..4ed10a4
 +                    throw new ImportError($"{templatePath}: scene_data has no model {opt.Model} (models 0..{descs.Length - 1})");
 +                if (opt.Roles != null) throw new ImportError("--roles is for robo bodies, not scene models");
 +                root = descs[opt.Model].RootJoint;
++                // every image already in the scene: a new material whose encoded image is byte-identical shares it
++                sceneImages.Clear();
++                foreach (var dsc in descs)
++                    if (dsc?.RootJoint != null)
++                        foreach (var jj in dsc.RootJoint.TreeList)
++                            if (jj.Dobj != null)
++                                foreach (var dd in jj.Dobj.List)
++                                    if (dd.Mobj?.Textures != null)
++                                        foreach (var tt in dd.Mobj.Textures.List)
++                                            if (tt.ImageData != null) sceneImages.Add(tt.ImageData);
++                if (opt.TexModel >= 0)
++                {
++                    if (opt.TexModel >= descs.Length || descs[opt.TexModel]?.RootJoint == null)
++                        throw new ImportError($"--tex-model {opt.TexModel}: scene_data has models 0..{descs.Length - 1}");
++                    texModelRoot = descs[opt.TexModel].RootJoint;
++                }
 +            }
 +            else
 +            {
-+                var rootNode = dat.Roots.Find(r => r.Name.EndsWith("_joint"))
++                var rootNode = opt.Root >= 0
++                    ? dat.Roots.Find(r => r.Name == $"root{opt.Root}_joint") ?? throw new ImportError($"{templatePath}: no root{opt.Root}_joint")
++                    : dat.Roots.Find(r => r.Name.EndsWith("_joint"))
 +                    ?? throw new ImportError($"{templatePath}: no *_joint root (a scene_data file needs --model N)");
-+                if (dat.Roots.Count(r => r.Name.EndsWith("_joint")) != 1)
-+                    throw new ImportError($"{templatePath}: more than one *_joint root (not supported)");
++                if (opt.Root < 0 && dat.Roots.Count(r => r.Name.EndsWith("_joint")) != 1)
++                    throw new ImportError($"{templatePath}: more than one *_joint root (a weapon part: say which with --root N)");
 +                root = new HSD_JOBJ { _s = rootNode.Data._s };
 +            }
 +            List<HSD_JOBJ> tjoints = root.TreeList;   // pre-order = the exporter's JOBJ_n numbering
@@ -305,6 +332,14 @@ index 0000000..4ed10a4
 +                    dobjs[(i, d++)] = dobj;
 +                    if (texTemplate == null && dobj.Mobj != null && BaseColourTObj(dobj.Mobj) != null) texTemplate = dobj.Mobj;
 +                }
++            }
++            if (texModelRoot != null)
++            {
++                // --tex-model: the material scheme of new textured meshes comes from another model of the same scene
++                texTemplate = texModelRoot.TreeList.Where(j => j.Dobj != null).SelectMany(j => j.Dobj.List)
++                    .Select(d => d.Mobj).FirstOrDefault(m => m != null && BaseColourTObj(m) != null)
++                    ?? throw new ImportError($"--tex-model {opt.TexModel}: that model has no textured material");
++                Console.WriteLine($"import: new textured materials copy model {opt.TexModel}'s {texTemplate.RenderFlags}");
 +            }
 +            var flatTemplate = dobjs.Values.FirstOrDefault()?.Mobj;
 +            // scene mode: the template's materials by the exporter's material name (a new mesh may use one of them)
@@ -428,13 +463,14 @@ index 0000000..4ed10a4
 +                        textured = Material(matName, gltf, texTemplate, texMats).Diffuse != null;
 +                    if (textured && !mesh.HasUVSet(0))
 +                        throw new ImportError($"{mesh.Name}: material {matName} has a texture but the mesh has no UVs");
-+                    bool clr = isScene && sharedMats.TryGetValue(matName, out var smv) && smv.RenderFlags.HasFlag(RENDER_MODE.VERTEX);
++                    bool clr = isScene && (sharedMats.TryGetValue(matName, out var smv) ? smv.RenderFlags.HasFlag(RENDER_MODE.VERTEX)
++                        : textured && texTemplate != null && texTemplate.RenderFlags.HasFlag(RENDER_MODE.VERTEX));   // a new stage material copied from a vertex-coloured one
 +                    if (!groupMeshes.TryGetValue(matName, out var gm)) groupMeshes[matName] = gm = new SortedSet<string>();
 +                    gm.Add(mesh.Name);
 +                    for (int t = 0; t + 2 < poly.Indicies.Count; t += 3)
 +                    {
 +                        var tri = new[] { poly.Indicies[t], poly.Indicies[t + 1], poly.Indicies[t + 2] };
-+                        var ws = tri.Select(vi => Weights(mesh, mesh.Vertices[vi], byName)).ToArray();
++                        var ws = tri.Select(vi => Weights(mesh, mesh.Vertices[vi], byName, opt.WeightStep)).ToArray();
 +                        bool isRigid = ws.All(w => w.Length == 1) && ws.All(w => w[0].j == ws[0][0].j);
 +                        // the importer's winding: reverse each triangle (ModelImporter's FlipWindingOrder default)
 +                        if (isRigid)
@@ -495,7 +531,7 @@ index 0000000..4ed10a4
 +                var d = new HSD_DOBJ
 +                {
 +                    Mobj = sharedMats.TryGetValue(matName, out var sm) ? sm
-+                        : info.Diffuse != null ? (info.Mobj ??= TexturedMobj(texTemplate, info)) : NewMaterial(matName, gltf, flatTemplate, newMats),
++                        : info.Diffuse != null ? (info.Mobj ??= TexturedMobj(texTemplate, info, isScene)) : NewMaterial(matName, gltf, flatTemplate, newMats),
 +                    Pobj = makePobj(),
 +                };
 +                if (jt.J.Dobj == null) jt.J.Dobj = d; else jt.J.Dobj.Add(d);
@@ -506,7 +542,8 @@ index 0000000..4ed10a4
 +                return d;
 +            }
 +            bool Tex(string matName) => sharedMats.TryGetValue(matName, out var sm) ? sm.Textures != null : texMats[matName].Diffuse != null;
-+            bool Clr(string matName) => sharedMats.TryGetValue(matName, out var sm) && sm.RenderFlags.HasFlag(RENDER_MODE.VERTEX);
++            bool Clr(string matName) => isScene && (sharedMats.TryGetValue(matName, out var sm) ? sm.RenderFlags.HasFlag(RENDER_MODE.VERTEX)
++                : texMats[matName].Diffuse != null && texTemplate != null && texTemplate.RenderFlags.HasFlag(RENDER_MODE.VERTEX));
 +            GXAttribName[] Attrs(string matName, bool env)
 +            {
 +                var a = new List<GXAttribName>();
@@ -570,16 +607,16 @@ index 0000000..4ed10a4
 +                File.WriteAllText(rolesOut, outRoles.ToJsonString(new JsonSerializerOptions { WriteIndented = true }) + "\n");
 +                Console.WriteLine($"import: roles -> {rolesOut}: B {bJoint}, C " + string.Join(" ", c.Select(kv => $"{kv.Key}={kv.Value}")));
 +            }
-+            if (!isScene && (bJoint >= joints.Count || joints[bJoint].J.Dobj?.Mobj == null))
++            if (!isScene && opt.Root < 0 && (bJoint >= joints.Count || joints[bJoint].J.Dobj?.Mobj == null))
 +                throw new ImportError($"block B's material joint JOBJ_{bJoint} has no DObj / material; the game reads its material (put a mesh on it, e.g. the envelope body)");
 +
 +            // the game draws a robo body with ONE material, the block B joint's (fn_800BCC60: HSD_MObjSetup once, then
 +            // its own joint walk): a mesh on a material with another image shows the block B image through its UVs
 +            var images = texMats.Values.Where(m => m.Diffuse != null).Select(m => m.Diffuse).Distinct().Count();
-+            if (!isScene && images > 1)
++            if (!isScene && opt.Root < 0 && images > 1)
 +                Console.WriteLine($"import: warning: {images} different textures on {texMats.Count(m => m.Value.Diffuse != null)} materials; the game draws a robo body with the block B joint's material only (one atlas for the whole body, as its own bodies have)");
 +
-+            if (isScene)
++            if ((isScene || opt.Root >= 0) && !opt.Relayout)
 +                File.WriteAllBytes(outPath, KeepLayout.Save(dat, File.ReadAllBytes(templatePath)));
 +            else
 +                dat.Save(outPath);
@@ -717,7 +754,7 @@ index 0000000..4ed10a4
 +        };
 +
 +        /// <summary>A vertex's bone weights (normalised, at most 4, below 0.01 dropped); no weights = its mesh's parent bone.</summary>
-+        private static (Joint j, float w)[] Weights(IOMesh mesh, IOVertex v, Dictionary<string, Joint> byName)
++        private static (Joint j, float w)[] Weights(IOMesh mesh, IOVertex v, Dictionary<string, Joint> byName, float step = 0.1f)
 +        {
 +            var ws = v.Envelope.Weights.Where(w => w.Weight > 0.01f).GroupBy(w => w.BoneName)
 +                .Select(g => (name: g.Key, w: g.Sum(x => x.Weight))).OrderByDescending(x => x.w).Take(4).ToList();
@@ -732,10 +769,11 @@ index 0000000..4ed10a4
 +            var r = ws.Select(x => (byName.GetValueOrDefault(x.name) ?? throw new ImportError($"{mesh.Name}: bone {x.name} is not in the skeleton"), x.w / sum)).ToArray();
 +            if (r.Length > 1 && r[0].Item2 >= 0.999f) r = new[] { (r[0].Item1, 1f) };
 +            if (r.Length == 1) r[0].Item2 = 1;
-+            // HSD envelopes: weights in 1/10 steps (as the game's own bodies) keep the envelope list short
++            // HSD envelopes: weights in 1/10 steps (as the game's own bodies) keep the envelope list short; --weight-step
++            // (Nov 12, 2026): finer steps for smoothed weights (0.1 steps stair-stepped them back into stretch)
 +            if (r.Length > 1)
 +            {
-+                for (int i = 0; i < r.Length; i++) r[i].Item2 = MathF.Round(r[i].Item2, 1);
++                for (int i = 0; i < r.Length; i++) r[i].Item2 = MathF.Round(r[i].Item2 / step) * step;
 +                r = r.Where(x => x.Item2 > 0).ToArray();
 +                float s2 = r.Sum(x => x.Item2);
 +                r[0].Item2 += 1 - s2;
@@ -888,6 +926,17 @@ index 0000000..4ed10a4
 +
 +        /// <summary>Encoded images by glb image (+ metallic source): two materials on the same image share them.</summary>
 +        private static readonly Dictionary<string, (HSD_Image, HSD_Image)> imageCache = new();
++        private static readonly List<HSD_Image> sceneImages = new();
++
++        /// <summary>The scene's own copy of an image with the same size, format and bytes, else the image itself.</summary>
++        private static HSD_Image Shared(HSD_Image im)
++        {
++            var data = im.ImageData;
++            var same = sceneImages.FirstOrDefault(s => s.Width == im.Width && s.Height == im.Height && s.Format == im.Format
++                && s.ImageData != null && s.ImageData.AsSpan().SequenceEqual(data));
++            if (same != null) { Console.WriteLine($"import: image {im.Width}x{im.Height} {im.Format}: shares an identical image already in the scene"); return same; }
++            return im;
++        }
 +
 +        /// <summary>
 +        /// A glb material for new geometry: its base colour image encoded once (shared by all its MObjs, and by every
@@ -923,7 +972,7 @@ index 0000000..4ed10a4
 +                var px = new byte[img.Width * img.Height * 4];
 +                img.CopyPixelDataTo(px);
 +                var dt = BaseColourTObj(texTemplate);
-+                info.Diffuse = Encode(px, img.Width, img.Height, dt);
++                info.Diffuse = Shared(Encode(px, img.Width, img.Height, dt));
 +                var st = texTemplate.Textures.List.FirstOrDefault(t => t.SpecularLightmap && t.ImageData != null);
 +                if (st != null)
 +                {
@@ -959,7 +1008,7 @@ index 0000000..4ed10a4
 +                            int q = (y * sw + x) * 4;
 +                            sp[q] = sp[q + 1] = sp[q + 2] = g; sp[q + 3] = 255;
 +                        }
-+                    info.Specular = Encode(sp, sw, sh, st);
++                    info.Specular = Shared(Encode(sp, sw, sh, st));
 +                    metal = (float)(metalSum / (sw * sh));
 +                }
 +                imageCache[key] = (info.Diffuse, info.Specular);
@@ -987,10 +1036,18 @@ index 0000000..4ed10a4
 +        }
 +
 +        /// <summary>A copy of the template's textured MObj (every field) with this material's images.</summary>
-+        private static HSD_MOBJ TexturedMobj(HSD_MOBJ template, MatInfo info)
++        private static HSD_MOBJ TexturedMobj(HSD_MOBJ template, MatInfo info, bool scene = false)
 +        {
 +            var m = new HSD_MOBJ { _s = template._s.DeepClone() };
 +            var dt = BaseColourTObj(m);
++            if (scene)
++            {
++                // a stage's template texture may tile (Basic Arena's floor: repeat 16 x 2, nearest filter); a new
++                // material's image maps 1:1 to its UVs (UVs past 0..1 tile it), filtered linearly
++                dt.RepeatS = 1; dt.RepeatT = 1;
++                dt.WrapS = GXWrapMode.REPEAT; dt.WrapT = GXWrapMode.REPEAT;
++                dt.MagFilter = GXTexFilter.GX_LINEAR;
++            }
 +            foreach (var t in m.Textures.List)
 +            {
 +                if (t._s == dt._s) t.ImageData = info.Diffuse;
@@ -1316,7 +1373,7 @@ index 0000000..f9ab4be
 +    }
 +}
 diff --git a/HSDRawViewer/Program.cs b/HSDRawViewer/Program.cs
-index 8eb6817..c272683 100644
+index 8eb6817..6fe3014 100644
 --- a/HSDRawViewer/Program.cs
 +++ b/HSDRawViewer/Program.cs
 @@ -15,6 +15,33 @@ namespace HSDRawViewer
@@ -1344,7 +1401,7 @@ index 8eb6817..c272683 100644
 +                return;
 +            }
 +            //   HSDRawViewer.exe --import <template.dat> <edited.glb> <out.dat>   (import over the template's joint tree, ModelImport.cs)
-+            //   options: [--replace] [--skeleton template|glb] [--roles <roles_by_name.json>] [--envelope-joint JOBJ_n] [--model N]
++            //   options: [--replace] [--skeleton template|glb] [--roles <roles_by_name.json>] [--envelope-joint JOBJ_n] [--model N] [--tex-model M] [--relayout]
 +            if (args.Length >= 4 && args[0] == "--import")
 +            {
 +                System.Environment.ExitCode = ModelImport.Run(args[1], args[2], args[3], args[4..]);
