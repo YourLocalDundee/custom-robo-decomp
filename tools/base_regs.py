@@ -57,7 +57,9 @@ def pairs(func):
     a = open(os.path.join(OUT, 'asm', func + '.s'), encoding='utf-8').read().split('\n')
     regsym, hits = {}, []
     for l in a:
-        m = re.search(r'\taddi (r\d+), r\d+, (\w+)@l', l)
+        # Nov 13: a small-data object's address is `li rN, sym@sda21` (r13-relative; cr_StageSelector_Init keeps
+        # two in r15 / r20)
+        m = re.search(r'\taddi (r\d+), r\d+, (\w+)@l', l) or re.search(r'\tli (r\d+), (\w+)@sda21', l)
         if m:
             regsym[m.group(1)] = m.group(2)
             if int(m.group(1)[1:]) >= 14:

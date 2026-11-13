@@ -2365,7 +2365,7 @@ are **structural** (29: by hand, smallest first).
   The error line dropped and that `==` / `!=` made `>=` / `<` (`cror 2,0,2`: `<=` / `>`): all 12 drafts that have
   it up a little (cr_E_CIRCLE_SET_POS 57 -> 62, fn_8006207C 16 -> 19), none to 100.
 - **Nov 13, where the 100 stand** (`tools/best_of.py`, table `build/triage/low100_progress.tsv`, the drafts in
-  `build/low100/`, not committed): 91 of 100 up, none at 100%; equal words 16,161 -> 19,158 (+2,997); mean score
+  `build/low100/`, not committed): 91 of 100 up, none at 100%; equal words 16,161 -> 19,157 (+2,996); mean score
   15.8 -> 19.3%, shape 57 -> 60%, regs 43 -> 47%. Largest: cr_BattleRobo_UpdateAction 5 -> 16 (169 -> 421 words),
   fn_8000E64C 9 -> 34, cr_SEQ_SCENARIO_Enter 0 -> 31 (it compiles), fn_800F21C8 2 -> 5 (125 -> 260), fn_80109314
   11 -> 22, fn_8005D338 35 -> 52, cr_Chara_PoseLimbs 16 -> 29, fn_800E4AC4 7 -> 26, fn_8009DAD8 20 -> 35, fn_80124F5C
@@ -2379,3 +2379,23 @@ are **structural** (29: by hand, smallest first).
   its first parameter, which its callers pass on): about 28 of the 42 `Read from unset register $r3` errors in 8 of
   the 100 follow calls to these four. Takes
   effect at the next full batch 12.
+- **Nov 13, the next 100** (`build/triage/next100.txt`: the next 100 largest open drafts under 40%, 0.75 - 2.0 KB,
+  129 KB; drafts in `build/next100/`, hand work in `build/hand200/`, table `build/triage/next100_progress.tsv`, the
+  per-function results of both passes in [low_drafts_progress.md](low_drafts_progress.md)). The same chain:
+  base_regs (+1,105 words), index_loads (+36), unk_stack, cror_fix (+1), struct_copies (+6), inline_temps (+93), the
+  order sweep over 8 slices, the chain again: **73 of 100 up, none at 100%; equal words 9,157 -> 10,608; mean score
+  25.0 -> 30.8%, shape 59 -> 64%, regs 47 -> 52%** (fn_80072B90 21 -> 63, fn_8009E6F8 29 -> 54, fn_80078000 12 ->
+  43, fn_80082364 25 -> 46, cr_SEQ_MOVIE_FrameA 23 -> 44, fn_80061620 31 -> 50). Same profile as the first 100 at
+  this size: ~2,450 extra `lis` (the base pointers), indexed loads and stores short. `base_regs.py` now also takes a
+  small-data object's address held in a saved register (`li rN, sym@sda21`; cr_StageSelector_Init keeps two).
+  By hand: **fn_800B7810 34 -> 57%** as plain C: lbl_803B8C00 as one struct (objects at 0x44, sixteen 0x94-byte
+  slots at 0x17A8 that end where an array of 8-byte counters starts, 0x20E8, joints at 0x7240), HSD's `ref_DEC` /
+  release / destroy as an inline, the frame now the original's; left: the original's base is r31 and its loop
+  counter r30 (ours the other way round, whatever the declaration order or counters per loop), and it adds
+  0x17A8 to the base before the index (`addi r27, r31, 0x17a8; add r27, r27, i * 0x94`), ours folds it.
+  fn_80119680: a 4-byte colour copied from small data and passed by value to an inline that paints vertex colours
+  (its two calls are the stack copies at 0xC and 0x8): shape 81 -> 87, score 44 -> 38 (the colour lands at 0x11,
+  the original's at 0x10, in any declaration order; kept as `build/hand200/fn_80119680_inl.c`). Open by hand:
+  fn_80065E10 (three nested inlines: `mr r29, r22; mr r20, r29; mr r31, r20`), fn_800443C0 (three parameters in
+  stack homes), cr_Cam_Init (lbl_80321DD0 as a struct like fn_800B7810's: cameras at 0x2E00, stride 0x13D0, a table
+  at 0x7D40).
