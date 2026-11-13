@@ -2287,3 +2287,14 @@ are **structural** (29: by hand, smallest first).
   (the record as `(cr_MotionRec *) (base + 4) + j`: base + j * 12, then the field displacement; a struct-array member
   or a cast of base + j * 12 folds the 4 into the index), cr_Motion_SampleTrack 31 (key-decode inlines, {value,
   time} stack records, a 4-float basis array: the frame is still 0x50 short).
+- **Nov 12, the statement-order sweep (`tools/order_sweep.py`), fn_8001EA48 89 -> 100.** MWCC numbers its virtual
+  registers in the order the source creates values and the colouring hands out the scratch registers in that order,
+  so two sources that differ only in the order of independent statements compile to the same instructions with
+  different registers. m2c writes statements in instruction order (the scheduler's), not the source's. fn_8001EA48
+  (the Hermite key interpolation; only f8 / f10 / f11 of three constants differed): of the legal orders of its
+  statements one gives the original: `1 - t`, `2t`, `(1 - t)^2`, then the basis values in the order h00, h11, h10,
+  h01. The tool does this for any draft: runs of consecutive simple statements, the pairs that must keep their
+  order (def / use, memory writes against reads, calls), every legal order up to a cap scored with hd.py, the best
+  kept run after run; a 100% is checked with relcheck.py and saved to tools/hand_drafts with `--save`.
+  `python -I tools/order_sweep.py --open 50 99 --save` runs it over every open draft in that score range (results:
+  `build/order_sweep_run1.log`, improved but unmatched drafts in `build/order_sweep/`).
