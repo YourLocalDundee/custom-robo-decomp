@@ -2468,3 +2468,7 @@ are **structural** (29: by hand, smallest first).
   unused local kept in r25), fn_8000B42C 88% (colour initialisers `{ 0xFF, 0xFC, 0x00, 0xFF }` copied through an
   inline helper; the loop limit 110 is a named local; the parameter's register still differs), fn_80067000 75%,
   fn_800EA468 75%, fn_80068DD8 73%, fn_800B4208 64% (a 16-byte copy loaded as words 1, 0, 2, 3, not found).
+- **Nov 13, batch 12 and promotion after the fourth set** (2,495 s): **1,016 of 1,751 game functions at 100%** (998
+  before), 608,020 of 1,230,376 bytes equal (605,340). Promoted: 920 functions (0x319D8 bytes) and 7 file objects;
+  the 15 new matches and the three re-declared lbl_8044F40C drafts are in `decomp/src/game`; `main.dol` still
+  builds with the retail SHA-1 (6a73cd11...).

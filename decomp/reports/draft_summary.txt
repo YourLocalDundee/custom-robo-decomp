@@ -5,23 +5,22 @@ counts only; the drafts themselves are decompiled output and are never committed
 functions 1751
 m2c ok 1751
 m2c failed 0
-compile failed 3
-compiled 1748
-100% MATCH 998
-bytes matched 605340 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
+compile failed 0
+compiled 1751
+100% MATCH 1016
+bytes matched 608020 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
 
-match % histogram of the 1748 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
+match % histogram of the 1751 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
     0- 9%  49
    10-19%  62
    20-29%  78
    30-39%  75
    40-49%  114
-   50-59%  112
-   60-69%  118
+   50-59%  109
+   60-69%  106
    70-79%  99
    80-89%  34
    90-99%  9
-  100%     998
+  100%     1016
 
 most common failures:
-      3  compile: [hand] undefined identifier '*'

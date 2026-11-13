@@ -6,7 +6,6 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 typedef struct cr_CharaEntryHeader cr_CharaEntryHeader;
-extern u8 *lbl_8044F40C;
 typedef struct HSD_Joint HSD_Joint;
 typedef struct cr_ModelDesc
 {
@@ -38,6 +37,9 @@ typedef struct cr_CharaEntrySlot
 __declspec(section ".data") extern cr_CharaEntrySlot cr_g_CharaEntries[100];
 
 /* cr_CharaEntry_OnLoaded: hand-written from main.dol's asm (step 109b): the relocation loop with byte pointers and the header's pointer members added as words (m2c stepped the struct pointer: it did not compile) */
+
+// lbl_8044F40C: the drafts type it differently (CR_MIXED), so the context declares nothing (Nov 13, 2026)
+extern u8 *lbl_8044F40C;
 void cr_CharaEntry_OnLoaded(void) {
     cr_CharaEntryHeader *hdr;
     u32 i;
