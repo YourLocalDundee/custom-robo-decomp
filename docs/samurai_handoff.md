@@ -6,10 +6,10 @@ Read this first when picking the samurai back up. Background and findings: [full
 
 | What | Where |
 |---|---|
-| ISO to play | `build/mods/mecha_samurai_full/mecha_samurai_full.iso`, SHA-1 `a842cb83b7f96c96180557937508f48036c941c5` |
+| ISO to play | `build/mods/mecha_samurai_full/mecha_samurai_full.iso`, SHA-1 `c96bb583f49d77a8423f4387f63a90d2b8dd6eb3` |
 | Patch to share | `mods/mecha_samurai_full/mecha_samurai_full.crpatch` (checked: applied to the clean `Custom Robo (USA).iso` it gives that SHA-1) |
 | Last commit | see `git log` on `main` (pushed) |
-| Body | B12: B10's mesh, weights kept along the skeleton, **rebound in the motions' own pose** (`build/reweight/rebound.glb` -> `build/mecha_samurai_full/B12/`, installed in `mods/mecha_samurai_full/models/chara/`) |
+| Body | B14: weights kept along the skeleton, **rebound at the motions' mean pose** (`build/reweight/rb_1.0.glb` -> `build/mecha_samurai_full/B14/`, installed in `mods/mecha_samurai_full/models/chara/`) |
 | Stretch / clipping check | `tools/deform_sweep.py` + `tools/blender/deform_check.py` (reports and 6-angle heat renders in `build/deform/<name>/`) |
 | Parts | `mods/mecha_samurai_full/make_parts.py` (gun + bomb, black lacquer and gold: `parts_palette.json`; pods and legs empty) |
 | Motions | every slot his own: `mods/mecha_samurai_full/samurai_moves.py` (stand, walk/run, air, falls, actions) + `make_motion.py` (victories, lose, charge, get-up; floor lift from `floor_lift.json`) |
@@ -21,6 +21,23 @@ Dolphin: `D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]\Dolphin.exe`. Clo
 Screenshot key in that build is **1** (not F9; Shift+F9 is a breakpoint).
 
 ## The current build
+
+- **Nov 12, night: body B14 (ISO `c96bb583…`, not yet played).** Rebind at 100% of the motions' mean turn (was
+  70%): stretch -32%, clipping -11% against B12 (glb measure below). Findings:
+  - **Measure on the glb, not the game file.** The game file deforms the same within 4 mm (median 0.4 mm), but
+    it splits the mesh (35k vertices for 15k) and rounds weights to 0.05, which inflates the sweep's counts 2-3x on
+    tiny triangles. Use `tools/deform_sweep.py build/reweight/<body>.glb ...` for comparisons.
+  - **Motion glbs must be baked against the body they are applied to** (rest pose): `rebind.py` needs motions
+    baked against the un-rebound body (`build/deform/glb_pruned/`), the checks against the body under test.
+  - Tried and dropped (measured): untwisting the upper arms per frame (`make_motion.py` UNTWIST, off: the twist
+    went 73 -> 1 degree but the squash stayed and the gun arm's elbow moved worse, stretch +13%); slimming the arms
+    toward their bones (`slim_arms.py`: the upper-arm axis runs inside the wide chest, so clipping doubled); a
+    deeper kneel (more stretch).
+  - Group 1 / 2 motion copies: every group of the boot motion file is registered at boot, so a 78-track copy can
+    live in an unused 78-track ID of group 1 (`MOVE_SLOTS`, empty now) when group 0's float pool is full.
+  - Left (glb measure, 20 motions): stretch 40k / squash 57k / clipping 4.4k vertex-frames, two thirds of it in the
+    victories, lose and charge (extreme arm raises: the Heisman's off arm 124 degrees from the bind). Battle motions
+    are under 1% of triangles per frame.
 
 - **Nov 12, evening: stretch -64%, squash -70% (body B12, ISO `a842cb83…`, not yet played).** Sweep of all 20 motions
   (`build/deform/B12_final/summary.txt` vs `B10_final`): stretched triangles 265.7k -> 96.4k, squashed 226.8k -> 66.9k,

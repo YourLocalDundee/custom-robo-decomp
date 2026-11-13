@@ -68,15 +68,36 @@ def header_addr(mid):
     return struct.unpack('>I', dol.read(p + 4, 4))[0]
 
 
+ALIAS_OF_SLOT = ['stance', 'walk', 'run', 'walk_weapon_r180', 'run_weapon_r180', 'back_walk_weapon_r180',
+                 'back_run_weapon_r180', 'weapon_jump', 'back_run_guard_r180', 'run_guard_r180', 'air_dash', 'double_jump',
+                 'landing', 'landing2', 'bomb_l90', 'bomb_r90', 'bomb_stance', 'bomb_jump', 'pod', 'pod_jump', 'gun_stance',
+                 'gun_jump', 'gun_jump_stiff', 'gun_l90', 'gun_r90', 'gun_stiff', 'fall_back', 'fall_back_wall',
+                 'fall_front', 'fall_front_wall', 'fall_magma', 'getup', 'lose', 'victory1', 'victory2', 'charge',
+                 'change', 'change2']
+
 # ---- slot -> the motion the samurai plays (a copy for every shared one)
 free = {g: [u for u in unused if group_of.get(u) == g] for g in range(3)}
 target, code = {}, []
+# Nov 12, 2026: group 0's float pool (14-bit index, shared with every robo's stock battle motions) has no room left
+# for the per-frame arm roll (untwist); every group of the boot motion file is registered at boot
+# (cr_MotionFile_Register, per motion ID), so these slots' copies go to unused 78-track IDs of groups 1 / 2 instead.
+# A moved copy is sampled from its source group's pool and every track is re-encoded into its new group's pool
+MOVE_SLOTS = set()   # {'fall_back', 'fall_front', ...} when group 0 runs out (untwist needed it; off with it)
+SRC_GROUP = {}
 for slot, x in enumerate(mine):
     mid = x & 0x1FFF
     if mid in target:
         continue
     if mid in used_by_others:
         g = group_of[mid]
+        alt = [h for h in (1, 2) if h != g and free[h]
+               and len(entry[free[h][0]]['tracks']) == len(entry[mid]['tracks'])]
+        if ALIAS_OF_SLOT[slot] in MOVE_SLOTS and alt:
+            t = free[alt[0]].pop(0)
+            SRC_GROUP[t] = g
+            target[mid] = t
+            entry[t]['tracks'] = copy.deepcopy(entry[mid]['tracks'])
+            continue
         if not free[g]:
             raise SystemExit(f'no unused motion left in group {g} for slot {slot}')
         t = free[g].pop(0)
@@ -391,6 +412,148 @@ def clear_body(per, frames):
     return per
 
 
+# ---- untwist (Nov 12, 2026): the upper arms' roll, solved per frame against the body's bind
+# (tools/blender/rebind.py binds the body in the motions' own pose; deform sweep: the Heisman's stiff arm twisted
+# 73 degrees about its own axis on top of a 124 degree raise, which wrung the shoulder band flat - 25k squashed
+# triangles). In the game's pose code (crmotion_rig.pose = cr_Chara_PoseLimbs / LimbA) the upper arm frame is
+# shoulder x R(joint6 / joint11) and then aimed at the hand target by a yaw and a pitch, so the roll left about the
+# arm comes from that joint's rotation; the hand reaches its target whatever the roll (the IK bends in the aimed
+# plane), only the elbow's direction and the twist change. Per frame the x rotation (Rz Ry Rx: the last, the arm's
+# own axis before the aim) is solved for zero twist of the upper arm against the shoulder, measured from the bind
+# (mods/mecha_samurai_full/bind_roles.json, tools/bind_roles.py), then smoothed over time.
+BIND_JSON = MOD / 'bind_roles.json'
+# OFF (Nov 12 evening, measured): untwisting worked (the Heisman's off arm 73 -> 1 degree) but its squash stayed (the
+# 124 degree raise is the cause), and the freed roll swung the gun arm's elbow into worse places: stretch +13%,
+# clipping +38% over 20 motions. Kept for reference; UNTWIST = True turns it back on
+UNTWIST = False
+BIND = __import__('json').load(open(BIND_JSON)) if (UNTWIST and BIND_JSON.exists()) else None
+_ENTRY = G / 'unpacked' / 'chara' / '000.bin'
+LIMB = rig.robo_inputs(_ENTRY.read_bytes())[0] if BIND else None
+TAB = rig.Tables(dol) if BIND else None
+ARMS = (('joint6', 3, 4, 'arm_a_shoulder', 'arm_a_upper'), ('joint11', 7, 8, 'arm_b_shoulder', 'arm_b_upper'))
+
+
+def _r3(m):                  # crmotion_rig.M (3x4 row-major) or a 4x4 list -> 3x3 rows
+    if isinstance(m, list):
+        return [m[0][:3], m[1][:3], m[2][:3]]
+    a = m.m
+    return [a[0:3], a[4:7], a[8:11]]
+
+
+def _mul(a, b):
+    return [[sum(a[i][k] * b[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
+
+
+def _T(a):
+    return [[a[j][i] for j in range(3)] for i in range(3)]
+
+
+def _mv(a, v):
+    return [sum(a[i][k] * v[k] for k in range(3)) for i in range(3)]
+
+
+def _cross(a, b):
+    return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+
+
+def _dot(a, b):
+    return sum(x * y for x, y in zip(a, b))
+
+
+def _unit(a):
+    n = math.sqrt(_dot(a, a)) or 1.0
+    return [x / n for x in a]
+
+
+def _rotate(v, axis, ang):   # Rodrigues
+    c, s_ = math.cos(ang), math.sin(ang)
+    k = _unit(axis)
+    kv = _cross(k, v)
+    kd = _dot(k, v)
+    return [v[i] * c + kv[i] * s_ + k[i] * kd * (1 - c) for i in range(3)]
+
+
+def twist_deg(S, si_sh, si_up, r_sh, r_up):
+    """signed twist (degrees) of the upper arm about its own axis, relative to the shoulder, from the bind"""
+    Bs, Bu = _r3(BIND[r_sh]), _r3(BIND[r_up])
+    Ds = _mul(_r3(S[si_sh]), _T(Bs))
+    Du = _mul(_r3(S[si_up]), _T(Bu))
+    Q = _mul(_T(Ds), Du)                       # the upper arm's turn in the shoulder's bind frame
+    a = _unit([Bu[0][0], Bu[1][0], Bu[2][0]])  # the arm's axis: the bind frame's x (the aim axis)
+    a2 = _unit(_mv(Q, a))
+    u = _unit(_cross(a, [0.0, 0.0, 1.0] if abs(a[2]) < 0.9 else [0.0, 1.0, 0.0]))
+    ax = _cross(a, a2)
+    sw = _rotate(u, ax, math.atan2(math.sqrt(_dot(ax, ax)), _dot(a, a2))) if _dot(ax, ax) > 1e-12 else u
+    qu = _mv(Q, u)
+    return math.degrees(math.atan2(_dot(_cross(sw, qu), a2), _dot(sw, qu)))
+
+
+UNTWIST_RANGE = 120.0       # degrees either side of the motion's own roll
+UNTWIST_MAX = 1.0           # 1.0: the whole twist; less leaves some
+UNTWIST_MIN = 15.0          # degrees: motions twisting less are left as they are
+
+
+UNTWISTED = []
+
+
+def untwist(per, frames):
+    if not BIND:
+        return per
+    for jn, si_sh, si_up, r_sh, r_up in ARMS:
+        key = f'{jn}.rotx'
+        # only where it matters (the float pool is nearly full): a motion whose arm twists past UNTWIST_MIN somewhere
+        worst = 0.0
+        for v, ch in list(zip(per, frames))[::3]:
+            full = dict(ch)
+            full.update(v)
+            S, _ = rig.pose(full, LIMB, TAB)
+            worst = max(worst, abs(twist_deg(S, si_sh, si_up, r_sh, r_up)))
+        if worst < UNTWIST_MIN:
+            continue
+        print(f'untwist: {jn} twisted up to {worst:.0f} degrees: solved per frame')
+        sol, prev = [], None
+        for v, ch in zip(per, frames):
+            full = dict(ch)
+            full.update(v)
+            x0 = full.get(key, 0.0)
+
+            def f(x):
+                full[key] = x
+                S, _ = rig.pose(full, LIMB, TAB)
+                return twist_deg(S, si_sh, si_up, r_sh, r_up)
+            # zero crossings on a 10-degree scan where the twist is continuous (the aim's yaw / pitch jumps near
+            # its poles), refined by bisection; the root nearest the last frame's (else the motion's own roll)
+            xs = [x0 + d for d in range(-int(UNTWIST_RANGE), int(UNTWIST_RANGE) + 1, 10)]
+            ts = [f(x) for x in xs]
+            roots = []
+            for k in range(len(xs) - 1):
+                a_, b_ = ts[k], ts[k + 1]
+                if a_ == 0 or (a_ < 0) != (b_ < 0):
+                    if abs(a_ - b_) > 60:
+                        continue
+                    lo, hi, tl = xs[k], xs[k + 1], a_
+                    for _ in range(14):
+                        mid = 0.5 * (lo + hi)
+                        tm = f(mid)
+                        if (tm < 0) == (tl < 0):
+                            lo, tl = mid, tm
+                        else:
+                            hi = mid
+                    roots.append(0.5 * (lo + hi))
+            ref = prev if prev is not None else x0
+            if roots:
+                x = min(roots, key=lambda r: abs(r - ref))
+            else:
+                x = min(zip(xs, ts), key=lambda p_: abs(p_[1]))[0]
+            x = x0 + (x - x0) * UNTWIST_MAX
+            sol.append(x)
+            prev = x
+        sm_ = [sum(sol[max(0, k - 2):k + 3]) / len(sol[max(0, k - 2):k + 3]) for k in range(len(sol))]
+        for v, x in zip(per, sm_):
+            v[key] = x
+    return per
+
+
 ALIAS = ['stance', 'walk', 'run', 'walk_weapon_r180', 'run_weapon_r180', 'back_walk_weapon_r180', 'back_run_weapon_r180',
          'weapon_jump', 'back_run_guard_r180', 'run_guard_r180', 'air_dash', 'double_jump', 'landing', 'landing2',
          'bomb_l90', 'bomb_r90', 'bomb_stance', 'bomb_jump', 'pod', 'pod_jump', 'gun_stance', 'gun_jump',
@@ -455,10 +618,13 @@ for slot, x in enumerate(new_set):
     styled.add(mid)
     m = entry[mid]
     gi = group_of[mid]
+    moved = mid in SRC_GROUP
     roles = c.track_roles(len(m['tracks']))
     last = max(t['times'][-1] for t in m['tracks'] if t)
-    frames = [c.sample(m, data['groups'][gi]['floats'], f) for f in range(last + 1)]
-    per = clear_body(style_for(slot)(frames), frames)
+    frames = [c.sample(m, data['groups'][SRC_GROUP.get(mid, gi)]['floats'], f) for f in range(last + 1)]
+    per = untwist(clear_body(style_for(slot)(frames), frames), frames)
+    if BIND:
+        UNTWISTED.append(ALIAS[slot])
     # the floor (Nov 12, tools/floor_lift.py from a deform sweep): the whole body lifted where its armour sank through
     lift = FLOOR.get(ALIAS[slot], {})
     # whole-body lift: the root's translation (root.posy, world) where the motion has root channels (78 tracks), set
@@ -472,9 +638,19 @@ for slot, x in enumerate(new_set):
                 key = f'point{k}.y'
                 v[key] = (v[key] if key in v else frames[f_][key]) + dy
     want = {}
+    if moved:                           # every track that has keys, re-encoded into the new group's pool
+        for ti_, tr_ in enumerate(m['tracks']):
+            if tr_:
+                want[roles[ti_]] = [v.get(roles[ti_], ch[roles[ti_]]) for v, ch in zip(per, frames)]
     for v in per:
         for k, val in v.items():
+            if moved:
+                continue
             want.setdefault(k, []).append(val)
+    for v_i, v in enumerate(per) if moved else ():
+        for k, val in v.items():
+            if k not in want:
+                want.setdefault(k, [None] * (last + 1))[v_i] = val
     for k, vals in want.items():
         if len(vals) != last + 1:
             continue
@@ -482,12 +658,18 @@ for slot, x in enumerate(new_set):
         # rotation tracks are degrees; per point (Nov 12, the float pool): the feet tight (a planted foot must not
         # wobble), the hips middling, chest / head / hands loose
         tol = TOL_ROT if '.rot' in k else {'point5': 0.008, 'point6': 0.008, 'point0': 0.015}.get(k.split('.')[0], 0.03)
-        if max(abs(a - fr.get(k, 0.0)) for a, fr in zip(vals, frames)) < tol:
+        if k in ('joint6.rotx', 'joint11.rotx'):
+            tol = 2.5                   # the solved arm roll (untwist): smooth, coarse keys (the float pool)
+        if any(x_ is None for x_ in vals):
+            continue
+        if not moved and max(abs(a - fr.get(k, 0.0)) for a, fr in zip(vals, frames)) < tol:
             continue                    # the style left this track as it was: keep the stock keys (no new floats)
         keys = rig.reduce_keys(vals, tol)
         # Nov 12: our own motions replace every track, and group 0's float pool (14-bit index, shared with every other
         # robo's stock motions) overflowed; values and tangents on a coarse grid repeat, and the pool keeps one copy
-        qv, qt = (0.5, 2.0) if '.rot' in k else (0.004, 0.04)
+        qv, qt = (1.0, 2.0) if '.rot' in k else (0.004, 0.04)   # rotations in 1-degree steps (Nov 12: room for untwist)
+        if k in ('joint6.rotx', 'joint11.rotx'):
+            qv, qt = 2.0, 4.0
         for key in keys:
             key['value'] = round(key['value'] / qv) * qv
             if key['kind'] == 'smooth':
