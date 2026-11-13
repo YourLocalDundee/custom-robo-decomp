@@ -36,6 +36,7 @@ from mathutils import Matrix, Quaternion, Vector
 
 sys.path.insert(0, __import__('os').path.dirname(__import__('os').path.abspath(__file__)))
 import common  # noqa: E402
+import watch  # noqa: E402
 
 a = sys.argv[sys.argv.index('--') + 1:]
 opts = {k[2:]: v for k, _, v in (x.partition('=') for x in a if x.startswith('--'))}
@@ -132,6 +133,33 @@ for r in ORDER:
     print(f'rebind: {r:16s} bind: median {ang0[len(ang0)//2]:6.1f} p90 {ang0[int(len(ang0)*.9)]:6.1f}   '
           f'new: median {tt[len(tt)//2]:6.1f} p90 {tt[int(len(tt)*.9)]:6.1f}   (rest turned {math.degrees(t.angle):5.1f})')
 
+# --watch=<dir> (owner, Nov 12: watch edits live): a 4-view snapshot at every stage, written as it happens; the relax
+# every 20 iterations, coloured by its stretch against the rest edge lengths
+WATCH = None
+if opts.get('watch'):
+    WATCH = watch.Watcher(opts['watch'], size=int(opts.get('watch_size') or 260))
+    WATCH.snap('00_bind_before', [ob])
+
+
+def snap_points(name, Xp, pid_, faces_):
+    if WATCH is None:
+        return
+    V = Xp[pid_]
+    me_ = bpy.data.meshes.new(name)
+    me_.from_pydata([tuple(v) for v in V], [], faces_)
+    me_.update()
+    o_ = bpy.data.objects.new(name, me_)
+    bpy.context.scene.collection.objects.link(o_)
+    hid = ob.hide_render
+    ob.hide_render = True
+    L_ = [[np.linalg.norm(V[f[(i + 1) % len(f)]] - V[f[i]]) / max(np.linalg.norm(REST_V[f[(i + 1) % len(f)]] - REST_V[f[i]]), 1e-6)
+           for i in range(len(f))] for f in faces_]
+    WATCH.snap(name, [o_], heat=watch.heat_from_ratio([max(x) for x in L_], [min(x) for x in L_]))
+    ob.hide_render = hid
+    bpy.data.objects.remove(o_, do_unlink=True)
+    bpy.data.meshes.remove(me_)
+
+
 # 2. pose: deform(child) = deform(parent) x (the turn about the child's rest head)
 D = {}
 for r in ORDER:
@@ -184,6 +212,9 @@ def stretch_stats(Y):
 
 
 before = stretch_stats(X)
+REST_V = rest
+FACES = [tuple(p.vertices) for p in me.polygons]
+snap_points('01_posed_before_relax', X, pid, FACES)
 deg = np.zeros(P); np.add.at(deg, E[:, 0], 1); np.add.at(deg, E[:, 1], 1)
 for it in range(RELAX):
     d = X[E[:, 1]] - X[E[:, 0]]
@@ -197,6 +228,8 @@ for it in range(RELAX):
     lap = nb / np.maximum(deg, 1)[:, None] - X
     step = acc / np.maximum(deg, 1)[:, None] * 0.9 + lap * LAP
     X[free] += step[free]
+    if WATCH is not None and (it + 1) % 20 == 0:
+        snap_points(f'02_relax_{it + 1:03d}', X, pid, FACES)
 after = stretch_stats(X)
 print(f'rebind: {int(free.sum())} blended points relaxed ({RELAX} iterations); in the new rest pose '
       f'bad edges {before[0]:.2f}% -> {after[0]:.2f}%, mean |log stretch| {before[1]:.4f} -> {after[1]:.4f}')

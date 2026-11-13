@@ -20,6 +20,18 @@ Read this first when picking the samurai back up. Background and findings: [full
 Dolphin: `D:\emulators\Project Hive 3.2 [Dolphin Precon 2609a]\Dolphin.exe`. Close it before loading a new ISO.
 Screenshot key in that build is **1** (not F9; Shift+F9 is a breakpoint).
 
+## Watching edits live (owner, Nov 12: much higher recording rates, live, not after the fact)
+
+- `tools/blender/motion_film.py <body.glb> <motion.glb> <out dir>`: the body through a motion **every frame**, 4 views
+  (front, side, back, 3/4 top), triangles coloured by stretch against the rest pose (red > 1.6, yellow > 1.3, blue
+  squash). Each frame's tile (`f_0000.png` ...) and `progress.txt` are written the moment it is rendered; `sheet.png`
+  and `film.mp4` at the end. The motion glb must be baked against that body (any `deform_sweep.py` run on it writes
+  `<slot>.motion.glb`).
+- `tools/blender/watch.py`: the snapshot helper; `rebind.py --watch=<dir>` snaps the bind before, the posed mesh before
+  the relax and every 20 relax iterations, heat-coloured.
+- `tools/deform_sweep.py` checks every frame by default (`--step 1`).
+- Dolphin: capture faster than the old 0.33 s (`tools/dolphin_capture.py <dir> N 0.1`).
+
 ## The current build
 
 - **Nov 12, night: body B14 (ISO `c96bb583…`, not yet played).** Rebind at 100% of the motions' mean turn (was

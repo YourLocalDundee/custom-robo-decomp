@@ -34,7 +34,7 @@ def main():
     ap.add_argument('--mod')
     ap.add_argument('--body', type=int, default=0)
     ap.add_argument('--slots', default=ALL)
-    ap.add_argument('--step', type=int, default=2)
+    ap.add_argument('--step', type=int, default=1)    # every frame (owner, Nov 12: watch at a much higher rate)
     a = ap.parse_args()
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
