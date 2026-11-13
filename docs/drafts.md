@@ -2529,3 +2529,34 @@ are **structural** (29: by hand, smallest first).
   fn_8008F3CC, fn_80092610, fn_80092CB8) were drafted again with `--out build/regen2 --only ...` and their rows,
   sources and objects copied into `decomp/drafts`: **1,041 at 100%**. Promoted: 943 functions (0x32A60 bytes) and 7
   file objects; 90 left out; `main.dol` still builds with the retail SHA-1 (6a73cd11...).
+- **Nov 13, the 150 lowest-scoring open drafts again** (`build/triage/low150.txt`: by the best score any earlier set
+  reached, 1 - 29%, 208 bytes - 15.4 KB, 437 KB, largest first; 76 from the first 100, 47 from the next 100, 25 from
+  the third set, 2 from the fourth; drafts in `build/low150/`, hand work in `build/hand700/`, per function in
+  [low_drafts_progress.md](low_drafts_progress.md); its start column is the current m2c draft, so most of the 107 "up"
+  are the earlier sets' work carried over). Triage (`build/triage/low150_tri.tsv`): all but one compile; mean shape
+  55%; the drafts store to and load from the stack about 7,600 times more than the originals (fn_8010A5CC: 1,303
+  `stw` to the frame against 353), so the large ones need their temporaries restructured by hand.
+  `site_rw.py` (scratch: the table-call, base-first, compound-assignment and u8-cast rewrites, site by site, kept
+  by score) moved 8 of the 150 by a few words; the earlier chains had already rewritten these drafts.
+  **14 matches by hand: 6 of the 150 and 8 related functions outside it.**
+  - **An inline with one parameter per field**: fn_8006A00C / fn_8006A1A8 / fn_8006A344 save r15 - r31 and keep every
+    zero of the window style in its own register. They are the arguments of an inline style setter
+    (`cr_Window_SetStyle(x, y, size, spacing, c0 .. c3, f0c, f0d, f1c, f00, g0, g1)`), each its own parameter.
+    The same inline gives fn_8006A4E0 (one position local per branch, as m2c's two temporaries said) and fn_80069DA4
+    (the object a `void *` parameter, cast at each use).
+  - **`((void **) (steps + i * 8))[1]` keeps `i * 8 + 4` as the index**: every grouped spelling
+    (`steps + (i * 8 + 4)`, casts, operand orders) is reassociated to `(steps + i * 8) + 4`; `| 4` keeps the shape
+    but compiles to `ori`.
+  - **The text-lookup family**: written left to right, `(u8 *) table[a] + off + 8` (fn_80069D20) and
+    `text + off + 8`, with the offset read as `((u32 *) (file + 0x10))[id]` (cr_Text_GetBodyName, GunName,
+    PartDescription; BombName, PodName and LegName also need `arg0 + count1 + count2 ...`, flat, left to right).
+    fn_80066948 stays at 84%: there the text base is added after 8, not before.
+  - **An inline allocator**: fn_80097154 / fn_800972D8 (BGM play) find a free slot in an inline
+    (`for (i = 0; i < 2; i++) if (free) { slot[i] = *default; return &slot[i]; } return NULL;`, the 56-byte
+    default slot copied as a struct). cr_Bgm_Play, the same with an `s16` fade time, is 30 -> 97% (one register).
+  Also up: fn_800735C8 29 -> 61% (the chara-entry relocator: the reloc table is words, not bytes; the original keeps a
+  copy of the base and an alias of the header in their own registers), fn_8006B144 27 -> 42%, cr_SinCos16 17 -> 29%
+  (a frameless leaf: no spelling of its two locals found that keeps them out of saved registers).
+- **Nov 13, the 14 matches drafted again** (`draft_batch.py --out build/regen3 --only ...`, 126 s) and merged into
+  `decomp/drafts` as before: **1,055 of 1,751 at 100%**. Promoted 957 functions (0x33BFC bytes) and 7 file objects;
+  `main.dol` still builds with the retail SHA-1 (6a73cd11...).
