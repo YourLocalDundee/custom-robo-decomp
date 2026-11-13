@@ -46,7 +46,9 @@ BALL = opts.get('ball', '1') != '0'
 CAP = opts.get('cap', '0') != '0'      # off: the funnels close the shells
 BMIN, BMAX = float(opts.get('ball_min') or 0.03), float(opts.get('ball_max') or 0.065)
 BPCT = float(opts.get('ball_pct') or 15)      # the limb's inner core at the hinge, not the armour's outer rim
-FIXED = {'wrist': float(opts.get('wrist') or 0.04), 'ankle': float(opts.get('ankle') or 0.05)}   # no cut there (hands / feet were pieces already)
+FIXED = {'wrist': float(opts.get('wrist') or 0.04), 'ankle': float(opts.get('ankle') or 0.05)}
+if opts.get('shoulder'):
+    FIXED['shoulder'] = float(opts['shoulder'])   # no cut there (hands / feet were pieces already)
 roles = json.load(open(ROLES, encoding='utf-8'))['C']
 rb = {f'JOBJ_{v}': k for k, v in roles.items() if v is not None}
 TRUNK = {'upper_body', 'lower_body', 'head', 'arm_a_shoulder', 'arm_b_shoulder'}
@@ -113,6 +115,7 @@ def piece_of_role(r):
 
 # the darkest spot of each material's image (caps and balls are textured with it)
 DARK = {}
+GOLD = {}
 for mi, mat in enumerate(me.materials):
     uv = (0.5, 0.5)
     img = None
@@ -132,7 +135,17 @@ for mi, mat in enumerate(me.materials):
         by, bx = np.unravel_index(np.argmin(score), score.shape)
         uv = ((bx + 0.5) * k / w_, (by + 0.5) * k / h_)
     DARK[mi] = uv
-    print(f'plate_body: material {mi}: dark texel at uv {uv[0]:.3f}, {uv[1]:.3f}')
+    # the body's own gold trim (hinge bolt heads on the balls): an even block of yellow-gold
+    guv = uv
+    if img is not None and img.size[0] > 0:
+        r_, g_, b_ = px[:hh, :ww, 0], px[:hh, :ww, 1], px[:hh, :ww, 2]
+        gold = ((r_ > 0.55) & (g_ > 0.38) & (g_ < r_ * 0.95) & (b_ < g_ * 0.75)).astype(np.float32)
+        gb = gold.reshape(hh // k, k, ww // k, k).mean((1, 3)) - blk.std((1, 3)) * 2
+        gy, gx = np.unravel_index(np.argmax(gb), gb.shape)
+        if gb[gy, gx] > 0.6:
+            guv = ((gx + 0.5) * k / w_, (gy + 0.5) * k / h_)
+    GOLD[mi] = guv
+    print(f'plate_body: material {mi}: dark texel at uv {uv[0]:.3f}, {uv[1]:.3f}; gold at {GOLD[mi][0]:.3f}, {GOLD[mi][1]:.3f}')
 
 bm = bmesh.new()
 bm.from_mesh(me)
@@ -232,6 +245,8 @@ bm.edges.ensure_lookup_table()
 bm.faces.ensure_lookup_table()
 
 # ---- weights
+SKIRT = float(opts.get('skirt') or 0.0)
+HIP_Z = arm.data.bones[f'JOBJ_{roles["leg_a_thigh"]}'].head_local.z
 mixed = 0
 for v in bm.verts:
     pcs = {f[fpiece].decode() for f in v.link_faces}
@@ -244,6 +259,12 @@ for v in bm.verts:
     v[dl].clear()
     if pc == 'trunk':
         keep = {g: w_ for g, w_ in old.items() if piece_of_role(role_of[g]) == 'trunk'}
+        # --skirt=<f> (Nov 12): below the hip joint the trunk's vertices (the skirt plates) keep f of their thigh
+        # weights, so the skirt lifts with a rising knee instead of letting the thigh through (hanging lames sway)
+        if SKIRT > 0 and v.co.z < HIP_Z:
+            for g, w_ in old.items():
+                if role_of[g].endswith('_thigh'):
+                    keep[g] = w_ * SKIRT
         folded = defaultdict(float)
         for g, w_ in keep.items():
             r = role_of[g]
@@ -297,7 +318,7 @@ if FUNNEL:
             d = v.co - piv
             # hips: only near the joint (further out the skirt plates part from the thigh plates: no joint there);
             # knees / elbows / shoulders: every cut vertex (their bridges all belong to the hinge)
-            lim = max(FUN_NEAR, RAD[n] * FUN_K) if n.startswith('hip') else 0.3
+            lim = max(FUN_NEAR, RAD[n] * FUN_K) if n.startswith(('hip', 'shoulder')) else 0.3     # shoulders too: the sode rim is far from the ball (black fans in the close-up)
             if 1e-6 < d.length < lim:
                 v.co = piv + d.normalized() * RAD[n] * 0.9
                 nfun += 1
@@ -392,7 +413,13 @@ if BALL:
             continue
         r = RAD[name]
         ds = ds or [r]
-        res = bmesh.ops.create_icosphere(bm, subdivisions=2, radius=r, matrix=Matrix.Translation(piv), calc_uvs=False)
+        # a latitude / longitude sphere with its poles on the hinge axis: the gold caps are clean discs (on the
+        # icosphere they came out as jagged stars)
+        axis = Vector((1, 0, 0)) if name.split('_')[0] in ('hip', 'knee', 'ankle') else Vector((0, 1, 0))
+        rot = Vector((0, 0, 1)).rotation_difference(axis).to_matrix().to_4x4()
+        res = bmesh.ops.create_uvsphere(bm, u_segments=10, v_segments=7, radius=r, matrix=Matrix.Translation(piv) @ rot,
+                                        calc_uvs=False)
+        bmesh.ops.triangulate(bm, faces=list({f for v in res['verts'] for f in v.link_faces}))
         bone = role_joint['upper_body'] if p_role.endswith('_shoulder') else role_joint[p_role]
         for v in res['verts']:
             v[dl].clear()
@@ -402,8 +429,11 @@ if BALL:
             f.material_index = mat_default
             f[fpiece] = b'ball'
             f.smooth = True
+            # hinge bolt heads (Nov 12, owner's build for tonight: the balls were plain black spheres): the faces
+            # about the hinge axis take the body's gold - side to side for the legs, front to back for the arms
+            cap = abs((f.calc_center_median() - piv).normalized().dot(axis)) > 0.74
             for l_ in f.loops:
-                l_[uvl].uv = DARK.get(mat_default, (0.5, 0.5))
+                l_[uvl].uv = (GOLD if cap else DARK).get(mat_default, (0.5, 0.5))
         nball += len(fs)
         print(f'plate_body: ball {name:11s} radius {r:.3f} ({len(ds)} cut points within 0.2 m, median {ds[len(ds) // 2]:.3f}) on {names[bone]}')
 bm.normal_update()

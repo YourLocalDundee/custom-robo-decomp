@@ -6,10 +6,10 @@ Read this first when picking the samurai back up. Background and findings: [full
 
 | What | Where |
 |---|---|
-| ISO to play | `build/mods/mecha_samurai_full/mecha_samurai_full.iso`, SHA-1 `3afb03a511175edfbeb76d9efc6c297bc5979dfc` |
+| ISO to play | `build/mods/mecha_samurai_full/mecha_samurai_full.iso`, SHA-1 `0a6007cdacffb9c4f60172829abafa60c4a1859a` |
 | Patch to share | `mods/mecha_samurai_full/mecha_samurai_full.crpatch` (checked: applied to the clean `Custom Robo (USA).iso` it gives that SHA-1) |
 | Last commit | see `git log` on `main` (pushed) |
-| Body | B17: **the plate rebuild** - rigid armour pieces on ball joints, as the game's own robos (`tools/blender/plate_body.py` on `build/reweight/pruned5.glb` -> `build/reweight/plated6.glb` -> `build/mecha_samurai_full/B17/`, installed in `mods/mecha_samurai_full/models/chara/`) |
+| Body | B18 (B17 + gold-capped hinge balls): **the plate rebuild** - rigid armour pieces on ball joints, as the game's own robos (`tools/blender/plate_body.py` on `build/reweight/pruned5.glb` -> `build/reweight/plated8.glb` -> `build/mecha_samurai_full/B18/`, installed in `mods/mecha_samurai_full/models/chara/`) |
 | Stretch / clipping check | `tools/deform_sweep.py` + `tools/blender/deform_check.py` (reports and 6-angle heat renders in `build/deform/<name>/`) |
 | Parts | `mods/mecha_samurai_full/make_parts.py` (gun + bomb, black lacquer and gold: `parts_palette.json`; pods and legs empty) |
 | Motions | every slot his own: `mods/mecha_samurai_full/samurai_moves.py` (stand, walk/run, air, falls, actions) + `make_motion.py` (victories, lose, charge, get-up; floor lift from `floor_lift.json`) |
@@ -33,6 +33,16 @@ Screenshot key in that build is **1** (not F9; Shift+F9 is a breakpoint).
 - Dolphin: capture faster than the old 0.33 s (`tools/dolphin_capture.py <dir> N 0.1`).
 
 ## The current build
+
+- **Nov 12, for the owner's play session: body B18 (ISO `0a6007cd…`, not yet played).** B17 plus:
+  - hinge styling: each ball is a latitude / longitude sphere with its poles on the hinge axis (side to side for
+    hips / knees / ankles, front to back for shoulders / elbows / wrists) and gold discs on the poles, from the
+    body's own gold texel - bolt heads, as on Ray's joints (an icosphere gave jagged stars)
+  - `plate_body.py --skirt=<f>` (the skirt keeps f of its thigh weights): measured and left off (stretch +46%,
+    squash x4.5, clipping unchanged - the sweep's clipping is the upper arms on the chest, not legs in the skirt)
+  - still rough: dark under-suit shards around the shoulder balls (the AI mesh's armpit); plain spheres otherwise
+  - build: `plate_body.py pruned5.glb roles plated8.glb <stance motion baked on pruned5> --ball_max=0.055
+    --ball_pct=8 --ankle=0.042 --wrist=0.034`, then `make_body.py x --reuse=plated8.glb --weight_step=0.05 --bind=glb`
 
 - **Nov 12, late: the plate rebuild, body B17 (ISO `3afb03a5…`, not yet played).** Owner: rebuild the armour as
   separate overlapping systems, learn from the game how it does it, whatever architecture it takes.
