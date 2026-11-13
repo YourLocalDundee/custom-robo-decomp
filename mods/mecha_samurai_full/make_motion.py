@@ -82,7 +82,7 @@ target, code = {}, []
 # for the per-frame arm roll (untwist); every group of the boot motion file is registered at boot
 # (cr_MotionFile_Register, per motion ID), so these slots' copies go to unused 78-track IDs of groups 1 / 2 instead.
 # A moved copy is sampled from its source group's pool and every track is re-encoded into its new group's pool
-MOVE_SLOTS = set()   # {'fall_back', 'fall_front', ...} when group 0 runs out (untwist needed it; off with it)
+MOVE_SLOTS = set()   # {'fall_back', 'fall_front', 'fall_back_wall', 'fall_front_wall', 'fall_magma'}: room in group 0 when needed
 SRC_GROUP = {}
 for slot, x in enumerate(mine):
     mid = x & 0x1FFF
@@ -204,6 +204,9 @@ def frozen(frames):
 
 def heisman(frames):
     frames = frozen(frames)
+    # Nov 12 night (motion film, every frame: blue shoulder as the stiff arm rises, red chest front at the tuck, red
+    # hip band under the raised knee): stiff arm 0.38 -> 0.28 up, tuck lower and further out, knee 0.24 -> 0.16.
+    # Measured: stretch -18%, squash -16%, clipping -39%; still shoulder-high
     """victory 1 (Nov 12, owner: football celebrations): the Heisman - the gun-side knee up, the off arm stiff-armed
     straight out in front, the gun tucked at the chest like the ball; held, eased out at the end"""
     side = off_side(frames)
@@ -213,14 +216,14 @@ def heisman(frames):
         fz = facing(ch)
         k = smooth((t - 4) / 14)                    # held to the end (the game stops on the last frame)
         n0 = [v['point0.x'], v['point0.y'], v['point0.z']]
-        put(v, 3, lerp(P(ch, 3), [n0[0] + side * 0.32, n0[1] + 0.38, n0[2] + fz * 0.70], k))   # off the chest plate (B10: wider)
+        put(v, 3, lerp(P(ch, 3), [n0[0] + side * 0.34, n0[1] + 0.28, n0[2] + fz * 0.68], k))   # off the chest plate (B10: wider)
         # the tucked gun out of the bulky chest plate (deform_check: arm b inside the torso)
-        put(v, 4, lerp(P(ch, 4), [n0[0] - side * 0.40, n0[1] + 0.22, n0[2] + fz * 0.40], k))   # B10: further out
+        put(v, 4, lerp(P(ch, 4), [n0[0] - side * 0.46, n0[1] + 0.14, n0[2] + fz * 0.44], k))   # B10: further out
         for f in (5, 6):
             q = P(ch, f)
             gun_side = (q[0] - P(ch, 0)[0]) * side < 0
             if gun_side:
-                put(v, f, lerp(q, [q[0], q[1] + 0.24, q[2] + fz * 0.16], k))   # knee a bit lower: the side skirt tore
+                put(v, f, lerp(q, [q[0], q[1] + 0.16, q[2] + fz * 0.16], k))   # knee a bit lower: the side skirt tore
     return st
 
 
@@ -245,7 +248,7 @@ def dust_off(frames):
             k = smooth((t - t0) / 8) * (1 - smooth((t - (t0 + 34)) / 8))
             sw = math.sin(math.pi * 2 * max(0.0, (t - t0 - 8)) / 13.0) if t > t0 + 8 else 0.0
             # outside the shoulder plate (deform_check: the hands went into the chest / shoulder armour)
-            shoulder = [c1[0] + sh_sign * 0.22 + sh_sign * 0.06 * max(sw, 0), c1[1] + 0.08, c1[2] + fz * 0.46]
+            shoulder = [c1[0] + sh_sign * 0.18 + sh_sign * 0.06 * max(sw, 0), c1[1] + 0.04, c1[2] + fz * 0.52]   # Nov 12 night: a little forward and lower (clipping -19%)
             return lerp(hand_rest, shoulder, k)
         put(v, 3, lerp(P(ch, 3), brush(44, -side, rest3), smooth(t / 10)))
         put(v, 4, lerp(P(ch, 4), brush(86, side, rest4), smooth(t / 10)))
@@ -426,7 +429,11 @@ BIND_JSON = MOD / 'bind_roles.json'
 # 124 degree raise is the cause), and the freed roll swung the gun arm's elbow into worse places: stretch +13%,
 # clipping +38% over 20 motions. Kept for reference; UNTWIST = True turns it back on
 UNTWIST = False
-BIND = __import__('json').load(open(BIND_JSON)) if (UNTWIST and BIND_JSON.exists()) else None
+# SHOULDER_SHARE (Nov 12 night): the shoulder (clavicle) joints joint5 / joint10 take part of a big arm swing, see
+# share_shoulders() below. 0 turns it off
+SHOULDER_SHARE = 0.0        # OFF (measured, see docs/samurai_handoff.md): 0.4 gave squash -38% but stretch +55%
+SHOULDER_FROM = 0.0         # no dead zone: shoulder_weights.py assumes the shoulder always carries its share
+BIND = __import__('json').load(open(BIND_JSON)) if ((UNTWIST or SHOULDER_SHARE) and BIND_JSON.exists()) else None
 _ENTRY = G / 'unpacked' / 'chara' / '000.bin'
 LIMB = rig.robo_inputs(_ENTRY.read_bytes())[0] if BIND else None
 TAB = rig.Tables(dol) if BIND else None
@@ -488,6 +495,91 @@ def twist_deg(S, si_sh, si_up, r_sh, r_up):
     return math.degrees(math.atan2(_dot(_cross(sw, qu), a2), _dot(sw, qu)))
 
 
+def _euler_zyx(R):
+    """degrees (x, y, z) with R = Rz . Ry . Rx (crmotion_rig.rot_zyx)"""
+    y = -math.asin(max(-1.0, min(1.0, R[2][0])))
+    x = math.atan2(R[2][1], R[2][2])
+    z = math.atan2(R[1][0], R[0][0])
+    return [math.degrees(x), math.degrees(y), math.degrees(z)]
+
+
+def _rot_zyx(x, y, z):
+    return _r3(rig.rot_zyx(x * rig.TO16, y * rig.TO16, z * rig.TO16))
+
+
+def _axis_angle(Q):
+    c = max(-1.0, min(1.0, (Q[0][0] + Q[1][1] + Q[2][2] - 1.0) / 2.0))
+    ang = math.acos(c)
+    ax = [Q[2][1] - Q[1][2], Q[0][2] - Q[2][0], Q[1][0] - Q[0][1]]
+    return _unit(ax), ang
+
+
+def _rot_axis(ax, ang):
+    return _T([_rotate(e, ax, ang) for e in ([1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0])])   # columns = the turned axes
+
+
+def _near(a, ref):
+    while a - ref > 180.0:
+        a -= 360.0
+    while a - ref < -180.0:
+        a += 360.0
+    return a
+
+
+SHARE_ARMS = (('joint5', 'joint6', 3, 4, 'arm_a_shoulder', 'arm_a_upper'),
+              ('joint10', 'joint11', 7, 8, 'arm_b_shoulder', 'arm_b_upper'))
+
+
+def share_shoulders(per, frames):
+    """Nov 12, 2026 (motion films: the shoulder band squashes blue as an arm comes up; the gun arm aims 98-111
+    degrees from the bind, the Heisman's stiff arm 124): the game's skeleton has a shoulder joint between the chest
+    and the upper arm (joint5 / joint10) that these motions never turned, so one band of skin took the whole swing.
+    Per frame the shoulder now turns SHOULDER_SHARE of the upper arm's swing past SHOULDER_FROM (measured from the
+    body's bind, mods/.../bind_roles.json, with the game's own pose code), and the upper arm's own rotation is
+    counter-turned so the frame it is aimed from stays as it was (the hand still reaches its target by IK; the
+    upper arm's root rides up with the shoulder, as a real one does). Motions whose arms stay near the bind are
+    left untouched (no new keys)."""
+    if not (BIND and SHOULDER_SHARE):
+        return per
+    Bch = _r3(BIND['upper_body'])
+    for j_sh, j_up, si_sh, si_up, r_sh, r_up in SHARE_ARMS:
+        Bsh, Bup = _r3(BIND[r_sh]), _r3(BIND[r_up])
+        rows, any_ = [], False
+        prev5, prev6 = [0.0, 0.0, 0.0], None
+        for v, ch in zip(per, frames):
+            full = dict(ch)
+            full.update(v)
+            for ax in 'xyz':
+                full[f'{j_sh}.rot{ax}'] = 0.0
+            S, _ = rig.pose(full, LIMB, TAB)
+            Dch = _mul(_r3(S[1]), _T(Bch))
+            Dup = _mul(_r3(S[si_up]), _T(Bup))
+            axis, ang = _axis_angle(_mul(_T(Dch), Dup))
+            a_eff = SHOULDER_SHARE * max(0.0, math.degrees(ang) - SHOULDER_FROM)
+            r6 = [full.get(f'{j_up}.rot{ax}', 0.0) for ax in 'xyz']
+            if prev6 is None:
+                prev6 = r6
+            if a_eff < 0.5:
+                rows.append(([0.0, 0.0, 0.0], r6))
+                prev5, prev6 = [0.0, 0.0, 0.0], r6
+                continue
+            any_ = True
+            want = _mul(_mul(Dch, _rot_axis(axis, math.radians(a_eff))), Bsh)      # the shoulder's world rotation
+            R5 = _mul(_T(_r3(S[si_sh])), want)
+            R6 = _mul(_T(R5), _rot_zyx(*r6))
+            e5 = [_near(a, b) for a, b in zip(_euler_zyx(R5), prev5)]
+            e6 = [_near(a, b) for a, b in zip(_euler_zyx(R6), prev6)]
+            rows.append((e5, e6))
+            prev5, prev6 = e5, e6
+        if not any_:
+            continue
+        for v, (e5, e6) in zip(per, rows):
+            for k, ax in enumerate('xyz'):
+                v[f'{j_sh}.rot{ax}'] = e5[k]
+                v[f'{j_up}.rot{ax}'] = e6[k]
+    return per
+
+
 UNTWIST_RANGE = 120.0       # degrees either side of the motion's own roll
 UNTWIST_MAX = 1.0           # 1.0: the whole twist; less leaves some
 UNTWIST_MIN = 15.0          # degrees: motions twisting less are left as they are
@@ -497,7 +589,7 @@ UNTWISTED = []
 
 
 def untwist(per, frames):
-    if not BIND:
+    if not (BIND and UNTWIST):
         return per
     for jn, si_sh, si_up, r_sh, r_up in ARMS:
         key = f'{jn}.rotx'
@@ -622,8 +714,8 @@ for slot, x in enumerate(new_set):
     roles = c.track_roles(len(m['tracks']))
     last = max(t['times'][-1] for t in m['tracks'] if t)
     frames = [c.sample(m, data['groups'][SRC_GROUP.get(mid, gi)]['floats'], f) for f in range(last + 1)]
-    per = untwist(clear_body(style_for(slot)(frames), frames), frames)
-    if BIND:
+    per = share_shoulders(untwist(clear_body(style_for(slot)(frames), frames), frames), frames)
+    if BIND and UNTWIST:
         UNTWISTED.append(ALIAS[slot])
     # the floor (Nov 12, tools/floor_lift.py from a deform sweep): the whole body lifted where its armour sank through
     lift = FLOOR.get(ALIAS[slot], {})
@@ -658,7 +750,9 @@ for slot, x in enumerate(new_set):
         # rotation tracks are degrees; per point (Nov 12, the float pool): the feet tight (a planted foot must not
         # wobble), the hips middling, chest / head / hands loose
         tol = TOL_ROT if '.rot' in k else {'point5': 0.008, 'point6': 0.008, 'point0': 0.015}.get(k.split('.')[0], 0.03)
-        if k in ('joint6.rotx', 'joint11.rotx'):
+        if k.split('.')[0] in ('joint5', 'joint10'):
+            tol = 2.0                   # the shoulder share: smooth
+        if UNTWIST and k in ('joint6.rotx', 'joint11.rotx'):
             tol = 2.5                   # the solved arm roll (untwist): smooth, coarse keys (the float pool)
         if any(x_ is None for x_ in vals):
             continue
@@ -668,7 +762,7 @@ for slot, x in enumerate(new_set):
         # Nov 12: our own motions replace every track, and group 0's float pool (14-bit index, shared with every other
         # robo's stock motions) overflowed; values and tangents on a coarse grid repeat, and the pool keeps one copy
         qv, qt = (1.0, 2.0) if '.rot' in k else (0.004, 0.04)   # rotations in 1-degree steps (Nov 12: room for untwist)
-        if k in ('joint6.rotx', 'joint11.rotx'):
+        if (UNTWIST and k in ('joint6.rotx', 'joint11.rotx')) or k.split('.')[0] in ('joint5', 'joint10'):
             qv, qt = 2.0, 4.0
         for key in keys:
             key['value'] = round(key['value'] / qv) * qv

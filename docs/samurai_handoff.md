@@ -6,7 +6,7 @@ Read this first when picking the samurai back up. Background and findings: [full
 
 | What | Where |
 |---|---|
-| ISO to play | `build/mods/mecha_samurai_full/mecha_samurai_full.iso`, SHA-1 `c96bb583f49d77a8423f4387f63a90d2b8dd6eb3` |
+| ISO to play | `build/mods/mecha_samurai_full/mecha_samurai_full.iso`, SHA-1 `fb9ee2230afea325df06574681b2cb2c31dc1778` |
 | Patch to share | `mods/mecha_samurai_full/mecha_samurai_full.crpatch` (checked: applied to the clean `Custom Robo (USA).iso` it gives that SHA-1) |
 | Last commit | see `git log` on `main` (pushed) |
 | Body | B14: weights kept along the skeleton, **rebound at the motions' mean pose** (`build/reweight/rb_1.0.glb` -> `build/mecha_samurai_full/B14/`, installed in `mods/mecha_samurai_full/models/chara/`) |
@@ -33,6 +33,21 @@ Screenshot key in that build is **1** (not F9; Shift+F9 is a breakpoint).
 - Dolphin: capture faster than the old 0.33 s (`tools/dolphin_capture.py <dir> N 0.1`).
 
 ## The current build
+
+- **Nov 12, late night: pose fixes from the films (ISO `fb9ee223…`, body still B14, not yet played).** Watching
+  victory1 every frame showed three red spots; the fixes that measured better are pose-level:
+  - Heisman: stiff arm 0.38 -> 0.28 above the hips (still shoulder-high), the tucked gun lower and further out, the
+    knee 0.24 -> 0.16: stretch -18%, squash -16%, clipping -39%.
+  - Dust-off: the brushing hand a little forward and lower: clipping -19%.
+  - All 20 motions (glb, step 2): stretch 40.4k -> 38.6k, squash 57.0k -> 53.0k, clipping 4.4k -> 4.0k.
+  Structural ideas measured this round and NOT kept (all in the repo, switched off):
+  - `span_weights.py` (no triangle across non-neighbour joints): both-sides rule +25% stretch, skipped-joint rule +2%.
+  - A rest pose weighted to the stance: stance -46% but walk / run + the same amount (a straight trade).
+  - Shoulder (clavicle) share, `make_motion.py` SHOULDER_SHARE + `shoulder_weights.py`: squash -38% but stretch +55%
+    and clipping up; Ray's shoulder joint pivots at the neck base, so it shrugs the whole armpit into the chest.
+  - Fully rigid weights: squash -82%, stretch x3 (the triangles between parts tear). Rigid only works on a model
+    built as separate overlapping plates, as the stock robos are.
+  - The inner-thigh red in the stance is a few big triangles under the front skirt on the wide-planted leg.
 
 - **Nov 12, night: body B14 (ISO `c96bb583…`, not yet played).** Rebind at 100% of the motions' mean turn (was
   70%): stretch -32%, clipping -11% against B12 (glb measure below). Findings:
