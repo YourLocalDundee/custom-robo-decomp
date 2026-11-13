@@ -10,7 +10,8 @@ extern u8 lbl_803BA3A8[2368];
 typedef struct HSD_JObj HSD_JObj;
 void HSD_JObjUnref(HSD_JObj *jobj);
 void fn_80023394(s8 *arg0, u32 arg1);
-extern u32 lbl_8044F730;
+typedef struct cr_BombData cr_BombData;
+extern cr_BombData **lbl_8044F730;
 
 void fn_800B497C(void) {
     u8 var_r31_6;
@@ -30,5 +31,5 @@ void fn_800B497C(void) {
         fn_80023394((signed char *) (lbl_803BA3A8 + (var_r31_6 * 0x94)), 0x94U);
         var_r31_6 += 1;
     }
-    lbl_8044F730 = 0;
+    lbl_8044F730 = NULL;
 }

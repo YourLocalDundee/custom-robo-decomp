@@ -3,25 +3,25 @@ m2c drafts of every game function (decomp/drafts/, gitignored), compiled with th
 counts only; the drafts themselves are decompiled output and are never committed
 
 functions 1751
-m2c ok 1749
-m2c failed 2
-compile failed 0
-compiled 1749
-100% MATCH 882
-bytes matched 592624 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
+m2c ok 1751
+m2c failed 0
+compile failed 3
+compiled 1748
+100% MATCH 998
+bytes matched 605340 of 1230376 (aligned equal words of the compiled drafts, of the bytes of all 1751 functions)
 
-match % histogram of the 1749 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
-    0- 9%  55
-   10-19%  63
-   20-29%  81
-   30-39%  88
-   40-49%  126
-   50-59%  113
-   60-69%  129
-   70-79%  113
-   80-89%  70
-   90-99%  29
-  100%     882
+match % histogram of the 1748 compiled drafts (100% = every word equal, relocation fields masked; below: aligned equal words / words):
+    0- 9%  49
+   10-19%  62
+   20-29%  78
+   30-39%  75
+   40-49%  114
+   50-59%  112
+   60-69%  118
+   70-79%  99
+   80-89%  34
+   90-99%  9
+  100%     998
 
 most common failures:
-      2  m2c: */
+      3  compile: [hand] undefined identifier '*'

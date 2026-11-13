@@ -9,8 +9,8 @@ void fn_80023394(s8 *arg0, u32 arg1);
 extern f32 lbl_8032C234[21];
 s8 fn_80061620(f32 *arg0, void *arg1, void *arg2, u8 arg3, f32 farg0);
 
-void fn_80061B90(s32 arg0, s32 arg1, s32 arg2, f32 farg0) {
+s8 fn_80061B90(s32 arg0, s32 arg1, s32 arg2, f32 farg0) {
 
     fn_80023394((s8 *) lbl_8032C234, 0x54U);
-    fn_80061620((f32 *) arg0, (void *) arg1, (void *) arg2, 0U, farg0);
+    return fn_80061620((f32 *) arg0, (void *) arg1, (void *) arg2, 0U, farg0);
 }

@@ -1,4 +1,7 @@
 /* cr_CharaEntry_OnLoaded: hand-written from main.dol's asm (step 109b): the relocation loop with byte pointers and the header's pointer members added as words (m2c stepped the struct pointer: it did not compile) */
+
+// lbl_8044F40C: the drafts type it differently (CR_MIXED), so the context declares nothing (Nov 13, 2026)
+extern u8 *lbl_8044F40C;
 void cr_CharaEntry_OnLoaded(void) {
     cr_CharaEntryHeader *hdr;
     u32 i;

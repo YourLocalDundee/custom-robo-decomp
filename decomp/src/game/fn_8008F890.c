@@ -5,8 +5,9 @@
 #include "game/cr_game.h"
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
-extern u8 *lbl_8044F40C;
 extern u8 *lbl_8044F6AC;
+
+extern u8 *lbl_8044F40C;
 
 void fn_8008F890(void) {
     void *sp8;

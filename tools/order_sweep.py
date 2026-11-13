@@ -227,7 +227,9 @@ for func in funcs:
         note = ' MATCH, relocations equal' if ok else ' 100% words but relocations differ'
         if ok:
             wins += 1
-            if opts.get('save'):
+            if opts.get('save') and os.path.exists(os.path.join(G, 'tools', 'hand_drafts', func + '.c')):
+                note += ', not saved (a hand draft exists)'     # Nov 13: never overwrite one (and its notes)
+            elif opts.get('save'):
                 body = text[text.index('\n', text.index('#undef')) + 1:].lstrip('\n') if '#undef' in text else text
                 hdr = (f'/* {func}: Nov 12, 2026 hand draft (m2c {base[0]}%): statement order (tools/order_sweep.py: the '
                        f'scratch registers follow the order the source creates its values in) */\n\n')

@@ -2399,3 +2399,44 @@ are **structural** (29: by hand, smallest first).
   fn_80065E10 (three nested inlines: `mr r29, r22; mr r20, r29; mr r31, r20`), fn_800443C0 (three parameters in
   stack homes), cr_Cam_Init (lbl_80321DD0 as a struct like fn_800B7810's: cameras at 0x2E00, stride 0x13D0, a table
   at 0x7D40).
+- **Nov 13, the third set: the 200 lowest-scoring of the rest** (`build/triage/third200.txt`: after the first two
+  sets only 81 open drafts under 40% were left; the 200 lowest-scoring remaining ones, 3 - 49%, 20 bytes - 3.1 KB,
+  139 KB, largest first; drafts in `build/third200/`, hand work in `build/hand300/`, per function in
+  [low_drafts_progress.md](low_drafts_progress.md)). The chain (base_regs +720 words, index_loads +16, cror_fix +7,
+  struct_copies +10, inline_temps +68, reuse_exprs +66), the order sweep as a pool of 8 one-function processes (no
+  slice waits on a large function), the chain again: **113 of 200 up, 28 matched (tools/hand_drafts); equal words
+  14,942 -> 16,468; mean score 46.2 -> 49.9%.**
+- **Nov 13, 28 matches by hand, and what they teach about this game's source** (small functions first; each checked
+  with relcheck.py):
+  - **Named locals take the saved registers, even in a leaf function.** cr_Bits_Test / Clear / Set (`u32 word =
+    bit >> 5; u32 mask = 1 << (bit & 0x1F);` in r31 / r30, the array index computed again from bit), the matrix
+    helpers (`f32 *m = cr_g_CurrentMtx;` in r31: cr_Mtx_TranslateX, fn_8001DC84, fn_8001DCD0, cr_Mtx_Store,
+    fn_8001E0D0, fn_8001DFE8, fn_8005BE70), named f32 partial sums in f31 down (cr_Mtx_TranslateZX, fn_8001DBF0,
+    fn_8001DE6C, cr_Rand_Float, fn_800AC10C). A saved register the code never uses is a named local the optimiser
+    removed (fn_8012D7E8: `u16 v = ...; return v;` saves r31 and loads into r3).
+  - **Declaration order decides which saved register a local gets**: cr_Mtx_Push (m before t), fn_8001D74C (t
+    before m), and the three column rotations fn_8005BD7C / fn_8005BEC8 / fn_8005BFBC (six named products; which
+    three are declared and computed first, and the column pair, tried by script: 6 column pairs x 4 orders, one matches).
+  - **Inline helpers keep their own locals**: cr_Mtx_Push / fn_8001D74C / fn_8001D8DC copy twelve floats through an
+    inline whose two local pointers take r30 / r31 (saved, then coalesced away); cr_Mtx_Pop 23 -> 91% the same way.
+  - **`((void *) 0)` is not `0`**: a pointer test against `((void *) 0)` compiles to `li r0, 0; cmplw` (fn_8001D74C,
+    fn_8001D8DC, fn_8006B0AC), a plain 0 / NULL to `cmplwi`.
+  - **A record copied field by field is `lfs` / `stfs`**; a struct assignment copies words (cr_Vec3_Cross; the order
+    sweep reaches it from the m2c draft as well).
+  - **Our types are sometimes signed where the original is not**: cr_Archive_SetEntryTable stores its 16-bit count
+    through a u16 lvalue (the struct field is s16 in our types), advances `table += 2` and returns 0.
+  - **m2c drops parameters a callback does not read**: fn_800690F4 (three parameters, returns the third).
+  - **Record arrays with a u8 index** (fn_8006B0AC, fn_80124EAC, fn_800AF2E0): `((T *) table)[i].field` per access.
+  Near: cr_Mtx_Pop 91 (r3 / r5 swapped), cr_Cos16 / cr_Sin16 47 -> 63 (`((f32 *) (tbl + 4))[i]`; the original reuses
+  the argument's r3 for the table address), fn_801307C0 61, fn_80069008 (16 of 52 words: an unused colour copied to
+  the stack and a vertex record setter, the order not found).
+- Nov 13, `order_sweep.py --save` no longer overwrites an existing hand draft (the third set's chain had read six of
+  the new hand drafts back into `build/third200/` and the sweep rewrote them with its generic header; restored).
+- **Nov 13, batch 12 and promotion after the three sets** (`tools/draft_batch.py --jobs 8`, 2,494 s; then
+  `tools/promote_drafts.py`): **998 of 1,751 game functions at 100%** (882 at the last report), m2c failed 0 (2
+  before), 605,340 of 1,230,376 bytes equal (592,624). The R3_SET returns took effect (pass 1: 15 prototypes made
+  value-returning by their callers). Promoted: 904 functions (0x30E6C bytes) and 7 file objects (8 functions);
+  `decomp/src/game` 822 -> 914 files; `main.dol` still builds with the retail SHA-1 (`ninja`: build/GXCE01/main.dol
+  OK). Three older hand drafts stopped compiling (fn_800A0C20, cr_CharaEntry_OnLoaded, cr_ModelEntry_LoadAndBuild):
+  the new drafts type lbl_8044F40C differently (CR_MIXED), so the context no longer declares it; each now declares
+  `extern u8 *lbl_8044F40C;` itself and matches again (100%, relocations equal); the next batch counts them.

@@ -64,7 +64,7 @@ __declspec(section ".data") extern cr_GameMode cr_g_GameMode;
 int sprintf(char *s, const char *format, ...);
 extern u8 lbl_8041C828[20];
 extern const char lbl_80451998[5];
-void fn_8006A00C(void *arg0, s32 arg1);
+s32 fn_8006A00C(void *arg0, s32 arg1);
 extern u8 lbl_8041A67C[6700];
 
 void fn_8011725C(void *arg0, f32 farg0) {

@@ -6,10 +6,11 @@
 
 /* from the drafts' context (docs/drafts.md): HSD / SDK headers, symbols/cr_types.h, the data sizes of symbols.txt, the drafts' own prototypes */
 extern void **lbl_8044F6B4;
-extern u8 *lbl_8044F40C;
 void OSPanic(const char *file, int line, const char *msg, ...);
 extern const char lbl_801C0D38[9];
 extern const char lbl_801C0D41[43];
+
+extern u8 *lbl_8044F40C;
 
 void fn_8008FC38(void) {
     u8 *temp_r31_12;

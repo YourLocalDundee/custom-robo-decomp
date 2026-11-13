@@ -1,4 +1,7 @@
 /* fn_800A0C20: Nov 5, 2026 hand draft (m2c 86%): relocates the loaded file (two header pointers, then the relocation table) and keeps its first table in lbl_8044F788. The relocation loop as `p = (u8 **) (base + relocs[i++]); *p += (u32) base;` (as in cr_ModelEntry_LoadAndBuild): m2c's separate `i += 1` swaps the table and entry registers */
+
+// lbl_8044F40C: the drafts type it differently (CR_MIXED), so the context declares nothing (Nov 13, 2026)
+extern u8 *lbl_8044F40C;
 extern u8 *lbl_8044F788;
 
 void fn_800A0C20(void) {

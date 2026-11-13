@@ -58,7 +58,7 @@ Every command runs from the repo root. `tools/check_docs.py` checks this convent
 | [decomp.md](decomp.md) | Ghidra's C (pipeline, output, first findings) and building library objects from C |
 | [compiler.md](compiler.md) | Which CodeWarrior version and flags built each part of `main.dol` (batch 10), as applied in `decomp/configure.py` |
 | [drafts.md](drafts.md) | Batch 12: an m2c C draft of every game function, compiled and compared; promotion into `decomp/src/game` |
-| [low_drafts_progress.md](low_drafts_progress.md) | The 200 largest low-score drafts (Nov 13, 2026): per function the score, shape and regs before and after the draft rewrites, and where the best version is |
+| [low_drafts_progress.md](low_drafts_progress.md) | The 400 lowest-scoring drafts in three sets (Nov 13, 2026): per function the score, shape and regs before and after the draft rewrites, and where the best version is |
 | [scheduler_plan.md](scheduler_plan.md) | The GC/2.6 scheduler wall (handler head, fn_8006EEF8, gap registers): the plan to reverse-engineer the compiler's scheduler and break it; the next session's first task |
 | [sched_model.md](sched_model.md) | The GC/2.6 instruction scheduler as a model (the 1.x algorithm plus the 2.6 differences: gekko = the 750 model, the second-integer-unit check, the 2.x alias ranges, the passes around it), its Python replay and the corpus measurement (step 87) |
 | [roadblock_solutions.md](roadblock_solutions.md) | The seven roadblocks after step 87 (scheduler wall, typed data, HSD remainder, m2c draft limits, splitting the automatic objects, source files, the one-command run): the methods compared, the chosen one, the fallback chain, the done criterion and the first steps for each; the open decisions (Oct 31, 2026) |

@@ -1,4 +1,7 @@
 /* cr_ModelEntry_LoadAndBuild: Nov 5, 2026 hand draft (m2c 79%): the model file's relocations, then the model slot lbl_8024DFA0[n] (0x58 bytes: header word, root joint, 19 role joints, material) built with the path walk and material inlines of cr_Chara_BuildModel (same file; guarded copy). The relocation loop and the role loop share one counter (r26 in both: one variable at level 0), signed (cmpwi 19; the u32 count keeps the first compare unsigned); the relocation table pointer is a local (r21) declared before the entry pointer (r20); the part list is one pointer level deeper than the weapon file's (hdr->x8 is cr_ModelPart8 **) */
+
+// lbl_8044F40C: the drafts type it differently (CR_MIXED), so the context declares nothing (Nov 13, 2026)
+extern u8 *lbl_8044F40C;
 typedef struct { HSD_Joint *joint; HSD_AnimJoint **anim; } cr_ModelPart8;
 typedef struct {
     s32 data_offset; u32 x4; cr_ModelPart8 **part; u8 *xC; u8 *material_path; u32 x14;
