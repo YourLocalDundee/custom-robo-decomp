@@ -2472,3 +2472,60 @@ are **structural** (29: by hand, smallest first).
   before), 608,020 of 1,230,376 bytes equal (605,340). Promoted: 920 functions (0x319D8 bytes) and 7 file objects;
   the 15 new matches and the three re-declared lbl_8044F40C drafts are in `decomp/src/game`; `main.dol` still
   builds with the retail SHA-1 (6a73cd11...).
+- **Nov 13, the rest: every open draft outside the first four sets** (`build/triage/rest176.txt`: the 176 open drafts
+  left once the four sets and the hand drafts are taken out, 66 - 97%, 56 bytes - 3.1 KB, 118 KB, largest first;
+  drafts in `build/rest176/`, hand work in `build/hand500/` and, while batch 12 ran, `build/hand600/`; per function in
+  [low_drafts_progress.md](low_drafts_progress.md)). The chain (base_regs +73 words, index_loads +6, inline_temps +22,
+  reuse_exprs +1), the order sweep as a pool of 7 (1 match, fn_800B14B0), the chain again (+0), then hand work:
+  **24 of the 176 matched, and fn_8008891C from an earlier set: 25 new in tools/hand_drafts.** Equal words of the set
+  against the drafts of the day before the batch: 23,040 -> 23,331 (the first 16).
+- **Nov 13, the 25 new matches (24 by hand, fn_800B14B0 by the order sweep) and what they teach** (each checked
+  with relcheck.py):
+  - **A function-table call takes no arguments m2c gives it**: m2c passes the table and the state block it read
+    (`(*(M2C_UNK (**)()) (tbl + st->f4 * 4))(tbl, st)`), but they are only the registers that held them. Written
+    `((void (**)(void)) tbl)[st->f4]()` ten 56-byte dispatchers match (fn_800A4440, fn_800A46F0, fn_800A4B98,
+    fn_800A4C00, fn_800A9FEC, fn_800B2300, fn_800B2338, fn_800B818C, fn_800BB454, fn_800BC730), with two levels
+    `((void (*(*)[2])(void)) tbl)[st[0]][st[2]]()` fn_80130744, with the state block as a real argument fn_8011AF04,
+    returning u8 fn_800929E0 (`state = ((u8 (**)(void)) tbl)[state - 1]()`), with (robot, slot) fn_80092610.
+    `tblcalls.py` (scratch) tried the rewrite site by site on all 55 open drafts with an indirect call; only small
+    gains outside these.
+  - **A compare whose result nobody reads is a compiled-out debug test**: fn_8008891C loads a byte global and
+    `cmplwi`s it with 1 right before an unrelated test overwrites cr0; `if (lbl_8044F650 == 1) { (void) 0; }` matches
+    (an empty `{}` or a bare expression does not keep it). fn_80044174 has one on a table byte, and a saved register
+    holding the constant 0x20 that nothing reads: the debug test names it, `{ (void) size; }`. A scan of the original
+    code for cr0 compares overwritten unread (`deadcmp.py`, scratch) finds them also in fn_80041140, fn_80068420 /
+    fn_80069214 / fn_80069AD8 (a null test of the glyph range pointer), fn_8006B144, fn_800764D0, fn_800968B4 (a call's
+    result against -1) and fn_80125DCC.
+  - **An unused saved register can be a narrow local the store does not need**: cr_Bgm_FadeOut / fn_80097488 save
+    r29 and never use it; `s16 d = (time * 200) / 60;` stored to the s16 field matches (s32 or u16 locals do not, nor
+    an inline helper). fn_80096E28, the third slot loop, reassigns its u16 parameter and stays at 97% (the store
+    takes the untruncated r0).
+  - **Records with u16 indices**: fn_8008CDE4 / fn_8008CCF8 (the largest keyframe of a 32-byte key list, both
+    indices u16, `((void *) 0)` test), fn_80092CB8 (an alpha pulse over 32-byte vertices, u8 index, `-=` / `+=` on the
+    byte so the address is computed once), fn_8008EE68 (a texture-object cache of 8-word entries, `u32 (*)[8]`;
+    `GXInitTexObjCI` takes a ninth argument, the TLUT name 1, that m2c lost as a stack slot).
+  - **A typed alias of the object outranks it**: fn_8008F3CC reads the flags through `s32 *flags = (s32 *) obj` (r31)
+    and everything else through the parameter; a `void *` alias took the lower register. Its steps are 8-byte
+    records and its `switch` is an if-chain on 0xFFFF / 0xFFFE / 0xFFFD.
+  - **Top-tested loops and the exit store**: fn_800670F0 (text append) stores the terminator on the loop's exit path
+    and returns there, and increments the copy count before the two indices.
+  - **Chained stores**: fn_80044174 writes `a->f300 = a->f304 = c;` and `a->f296 = a->f297 = 0;` (one load, one
+    zero register, the original's store order).
+  Near: fn_8001C5AC 97% (two f64 locals are f32; the rest is one constant the original reads with `lis` / `lfs @l`:
+  its 8-byte dtk size puts it in small data under `-sdata 8`), fn_80096E28 97%, fn_80044A90 96% (a struct copy of a
+  Vec3 into a 0x26C-byte record, base-first sums; two address computations scheduled apart), fn_800666B8 96% (five
+  u16 ids copied as a 10-byte struct; load scheduling), cr_Save_ApplyUnlocks 95%, fn_800389C8 94% (record
+  addresses written `p = (void *) (i * 0xA60 + 0x1DC); p = base + (s32) p;`, base first; the bit index keeps the
+  wrong register), fn_800FE954 93%, fn_8011A37C / fn_80118C08 92% (one shared window-text tail; a helper local takes
+  r27 instead of a coalesced r26), fn_8006975C 86%, fn_80069AD8 49 -> 86% (the glyph decoder: a u16 read for
+  double-byte characters, the counter s16 truncated to s8, the handler called with (code, index); registers left),
+  fn_80068988 86%, fn_800943D8 85%, fn_80079F28 79% (one saved register only).
+- Nov 13, while batch 12 ran (it rewrites `decomp/drafts`), hand drafts were scored against `build/regen`, a
+  `draft_batch.py --out build/regen --only fn_8001C5AC --no-summary` run: it has the same context and every original
+  object. That run was first needed because a wrong sed flag had emptied `decomp/drafts/c/fn_8001C5AC.c`.
+- **Nov 13, batch 12 and promotion after the rest** (2,521 s): **1,033 of 1,751 game functions at 100%** (1,016
+  before), 608,616 of 1,230,376 bytes equal. The batch reads `tools/hand_drafts` as it reaches each function, so the
+  8 matches saved after it had passed them (fn_80044174, fn_800670F0, fn_8008CCF8, fn_8008CDE4, fn_8008EE68,
+  fn_8008F3CC, fn_80092610, fn_80092CB8) were drafted again with `--out build/regen2 --only ...` and their rows,
+  sources and objects copied into `decomp/drafts`: **1,041 at 100%**. Promoted: 943 functions (0x32A60 bytes) and 7
+  file objects; 90 left out; `main.dol` still builds with the retail SHA-1 (6a73cd11...).
