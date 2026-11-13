@@ -2440,3 +2440,31 @@ are **structural** (29: by hand, smallest first).
   OK). Three older hand drafts stopped compiling (fn_800A0C20, cr_CharaEntry_OnLoaded, cr_ModelEntry_LoadAndBuild):
   the new drafts type lbl_8044F40C differently (CR_MIXED), so the context no longer declares it; each now declares
   `extern u8 *lbl_8044F40C;` itself and matches again (100%, relocations equal); the next batch counts them.
+- **Nov 13, the fourth set: the next 200 lowest-scoring** (`build/triage/fourth200.txt`: the 200 lowest-scoring open
+  drafts left after the first three sets and the hand drafts, 3 - 66%, 64 bytes - 15.4 KB, 177 KB, largest first;
+  drafts in `build/fourth200/`, hand work in `build/hand400/`, per function in
+  [low_drafts_progress.md](low_drafts_progress.md)). The chain (base_regs +358 words, index_loads +37, cror_fix +18,
+  struct_copies +11, inline_temps +56, reuse_exprs +72), the order sweep as a pool of 7 one-function processes
+  (52 functions up, +306 words), the chain again (+25), then hand work: **106 of 200 up, 15 matched
+  (tools/hand_drafts); equal words 23,215 -> 24,446; mean score 60.7 -> 64.2%.**
+- **Nov 13, 15 matches by hand, and what they teach** (each checked with relcheck.py):
+  - **Function tables**: fn_80070130 (`((void (**)(void)) tbl)[(s8) state[4]]()`), fn_8011E9E0 / fn_801232E8 /
+    fn_8012CDBC (a two-level table: `((void (*(*)[2])(void)) tbl)[(s8) st[0]][st[1]]()`), fn_80065BA0,
+    fn_8010E3A4 (the handler takes the record and a u8 slot; the count is homed on the stack, `volatile`).
+  - **A callee declared to return s8 adds an `extsb`**: fn_80068C7C / fn_80068B84 call fn_80069AD8 through an
+    `s32`-returning cast and index the name with `(s16) i` (i itself s32).
+  - **A `void *` parameter cast at each use drops in register priority**: fn_80068B84's message parameter is r27 in
+    the original; typed `u8 *` it took r31 and shifted every local.
+  - **Write address sums left to right**: the three heap allocators (cr_Heap2_AllocAligned, cr_Heap_AllocAligned,
+    fn_80023464, one source on three heaps) build the new block as `(u8 *) b + b->used + 0x20`; every grouped
+    spelling (`b + (used + 0x20)`, integer casts, `&((u8 *) b)[...]`) is reassociated to `(used + b) + 0x20`.
+  - **Top-tested loops are `for (;;) { if (...) break; ...}`** (fn_8012F28C, cr_Text_CountChars); a plain `while`
+    is rotated to a bottom test.
+  - **`x = x + (a - b)` is not `x += a - b`** (cr_CAMMODE_SNR_AUTO_Y_ANG_Frame: the long form loads and stores
+    through two separately computed addresses, as the original does).
+  - **Record runs** (fn_80067848: a 32-byte vertex record, colour at 0x18).
+  Near: fn_80069D20 93% and fn_80066948 80% (the window / message text lookups: the original adds the table to
+  `off + 8`, ours is reassociated; the same idiom as cr_Text_Get*Name), fn_80069570 92%, fn_800F8C68 92% (an
+  unused local kept in r25), fn_8000B42C 88% (colour initialisers `{ 0xFF, 0xFC, 0x00, 0xFF }` copied through an
+  inline helper; the loop limit 110 is a named local; the parameter's register still differs), fn_80067000 75%,
+  fn_800EA468 75%, fn_80068DD8 73%, fn_800B4208 64% (a 16-byte copy loaded as words 1, 0, 2, 3, not found).

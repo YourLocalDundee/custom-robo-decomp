@@ -1,0 +1,45 @@
+/* cr_Text_CountChars: Nov 13, 2026 hand draft: counts display characters (two-byte >= 0x81, 0x1A control records); top-tested loop with break, returns the count */
+
+s32 cr_Text_CountChars(u8 *s) {
+    s32 i;
+    u8 *p;
+    s32 n;
+    u32 j;
+    u8 *q;
+
+    i = 0;
+    n = 0;
+    j = 0;
+    for (;;) {
+        if (s[i] == 0) {
+            break;
+        }
+        if ((s[i] >> 5) == 0) {
+            if (s[i] == 0xA) {
+                i++;
+            } else if (s[i] == 0x1A) {
+                p = s + i;
+                if (p[2] == 0xFF && p[4] == 2) {
+                    for (j = 1; j < p[1] - 5;) {
+                        q = p + j;
+                        if (q[5] >= 0x81) {
+                            n++;
+                            j += 2;
+                        } else {
+                            n++;
+                            j++;
+                        }
+                    }
+                }
+                i += p[1];
+            }
+        } else {
+            if (s[i] >= 0x81) {
+                i++;
+            }
+            n++;
+            i++;
+        }
+    }
+    return n;
+}
