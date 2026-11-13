@@ -3,6 +3,8 @@
   python -I tools/order_sweep.py FUNC [FUNC ...] [--out decomp/drafts] [--src <draft.c>] [--cap 240] [--jobs 8]
          [--save] [--min 60]
   python -I tools/order_sweep.py --open 70 99 [--save]      every open draft scoring 70..99% in the draft report
+  python -I tools/order_sweep.py --list build/triage/low100.txt --from build/low100 --keep build/low100
+         (Nov 13: a list file; start from a work folder's FUNC.c when it has one; improved drafts to --keep)
 
 Why: MWCC numbers its virtual registers in the order the source creates values, and the colouring hands out the
 scratch registers in that order, so two sources that differ only in the order of independent statements compile to
@@ -196,12 +198,18 @@ def open_list(lo, hi):
 
 
 funcs = open_list(*opts['open']) if 'open' in opts else pos
+if 'list' in opts:
+    funcs += [l.strip() for l in open(os.path.join(G, opts['list']), encoding='utf-8') if l.strip()]
+FROM = [os.path.join(G, d) for d in opts.get('from', '').split(',') if d]
+KEEP = os.path.join(G, opts.get('keep', os.path.join('build', 'order_sweep')))
 if not funcs:
     sys.exit(__doc__)
 print(f'order_sweep: {len(funcs)} function(s)', flush=True)
 wins = 0
 for func in funcs:
-    src = opts.get('src') if len(funcs) == 1 and opts.get('src') else os.path.join(OUT, 'c', func + '.c')
+    src = opts.get('src') if len(funcs) == 1 and opts.get('src') else \
+        next((os.path.join(d, func + '.c') for d in FROM if os.path.exists(os.path.join(d, func + '.c'))),
+             os.path.join(OUT, 'c', func + '.c'))
     if not os.path.exists(src):
         print(f'{func}: no draft')
         continue
@@ -226,8 +234,7 @@ for func in funcs:
                 open(os.path.join(G, 'tools', 'hand_drafts', func + '.c'), 'w', encoding='utf-8', newline='\n').write(hdr + body)
                 note += ', saved'
     elif best > base:
-        keep = os.path.join(G, 'build', 'order_sweep')
-        os.makedirs(keep, exist_ok=True)
-        open(os.path.join(keep, func + '.c'), 'w', encoding='utf-8', newline='\n').write(text)
+        os.makedirs(KEEP, exist_ok=True)
+        open(os.path.join(KEEP, func + '.c'), 'w', encoding='utf-8', newline='\n').write(text)
     print(f'{func}: {base[0]}% ({base[1]} words) -> {best[0]}% ({best[1]}) over {tried} orders in {nruns} runs{note}', flush=True)
 print(f'order_sweep: {wins} new match(es)')

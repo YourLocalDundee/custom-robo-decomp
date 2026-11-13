@@ -594,7 +594,13 @@ R3_KEEP_VOID = ('fn_8008B930', 'fn_800972D8', 'fn_800932D0')
 # returns m2c's leftover r3 temporary (u8) though its only caller, main, ignores it and takes r3 (43 of 43 void).
 # fn_80098290 (no call, r3 never written) is drafted `return arg0;`: its callers take r3 after it (fn_80064FE4's
 # `lbz r3, 0x5(r31)`; 21 of its 77 callers' drafts change, none of them at 100%, the near ones all up).
-R3_SET = {'fn_8006A4E0': 's32', 'fn_80098484': 'void', 'fn_80098290': 'void'}
+# Nov 13, 2026: four more the pass-1 callers did not agree on (m2c then left `M2C_ERROR(/* Read from unset register
+# $r3 */)` after their calls, ~28 of its 42 uses in 8 of the 100 largest low-score drafts, compiled as 0): fn_8008EDA8 ends with `bl
+# fn_8008EA64` and leaves its pointer (fn_8000CFAC stores through it 9 times), fn_80061B90 with `bl fn_80061620` (s8,
+# tested by its callers), fn_8006A00C with `bl fn_8006A7D8` (s32); fn_8001C98C never writes r3 and its callers pass
+# the value on (`cr_Vec3_LengthInline(r3)`): it returns its first parameter.
+R3_SET = {'fn_8006A4E0': 's32', 'fn_80098484': 'void', 'fn_80098290': 'void',
+          'fn_8008EDA8': 'void *', 'fn_80061B90': 's8', 'fn_8006A00C': 's32', 'fn_8001C98C': 'void *'}
 # step 109a: parameter lists the callers show where the callee never reads the parameter (m2c then says s32):
 # cr_SEQ_BATTLE_FrameC passes its u8 index unextended (`mr r3, r31`, an s32 parameter gives `clrlwi r3, r31, 24`);
 # fn_8012855C passes fn_800AA17C a 0 or a 1 (`li r3, 0x0; bl fn_800AA17C`), which its 100% draft never reads

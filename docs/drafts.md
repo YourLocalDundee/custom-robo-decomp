@@ -2307,3 +2307,75 @@ are **structural** (29: by hand, smallest first).
   `x * 0.0625f`, which loads the constant first (f2 / f3 swapped, `fmuls f31, f3, f1`). `tools/recip_sweep.py`
   tries this on every open draft (literals and `lbl_` constants whose value in main.dol is 1 / 2^k): 6 more
   improved (fn_80101284 88 -> 90, cr_EV_SET_SQARE 52 -> 59, cr_E_CIRCLE_SET_POS 57 -> 61), no new match.
+- **Nov 13, the 100 largest of the lowest-scoring drafts** (`build/triage/low100.txt`: the 100 largest open drafts
+  under 40%, 2.0 - 12.9 KB, 0 - 38% at the start; 410 KB of the 997 KB in the 867 open drafts). New
+  `tools/triage.py` says why a draft scores low: its size against the original, the instruction kinds aligned with
+  registers and immediates dropped (*shape*), the words equal with only the register fields dropped (*regs*), both
+  frames, and the instructions it has too many of. Over the 100 two groups: (a) drafts 1.3 - 1.8x the original
+  with twice its frame (fn_800F21C8, fn_8010A5CC, fn_80128F20, fn_800DF4C8, cr_CAMMODE_CUSTOMIZE_Frame,
+  fn_80101E00, fn_8002B3C4: the originals themselves spill, MWCC out of registers; the drafts spill far more), ~7,100
+  extra stack loads and as many stores, ~4,000 extra `lis`; (b) drafts at the original's size whose shape is 75 -
+  96% and whose score is low only because registers or the frame differ. The score (aligned whole words) cannot see
+  progress in either: a fix that makes the structure right often moves registers and lowers it (fn_8004DC78's
+  struct copy loops and switch: the original's loop exactly, 32 -> 23%). Hand work keeps the structurally right
+  version in `build/hand100/`, the best-scoring one in `build/low100/` (neither committed).
+- Nov 13, what helped (each kept only where the score went up): **`tools/base_regs.py`**, a global whose address
+  the original holds in a saved register (79 of the 100) as a local pointer: 26 drafts up, +970 words (fn_8009DAD8
+  20 -> 35, fn_8005D338 35 -> 46, fn_80124F5C 24 -> 37, fn_80072064 17 -> 27); **`tools/inline_temps.py`**, m2c's
+  pure single-assignment temporaries back into their uses: +249 words; the order sweep over the 100 (`--list
+  --from --keep`); **`tools/struct_copies.py`**, M2C_STRUCT_COPY with its one-unit tail as a struct assignment
+  (the generator's struct_copy_macro misses the tail form): right loops, mixed scores (+10 words). By hand
+  (`build/hand100/`): fn_8000E64C 9 -> 34 (a 23 x 4 byte table copied from read-only data onto the stack, m2c's
+  `s32 sp8[34]` and a broken copy; m2c's `if ((u32) x <= 22)` around the jump-table switch dropped: the switch's own
+  bound), cr_Battle_UpdateRobos 34 -> 37 (two stack Vec3s of a lerp were six loose floats: 11 saved FPRs, now the
+  original's 5), fn_8007B054 35 -> 38 (a 32-byte element struct: `e[i].f10` gives the original's `lhzx` with
+  `i * 32 + 0x10`; m2c's byte arithmetic is reassociated into add + lhz 0x10), cr_SEQ_SCENARIO_Enter compiles again
+  (m2c dropped fn_80073728's second argument, `&lbl_803B8C00`), fn_80022830 (GXInitTexObjCI's ninth argument is
+  on the stack: m2c's `sp8 = 1` + M2C_ERROR is the argument 1).
+- Nov 13, more of the same kind: **`base_regs.py` `reuse`**: the draft already has m2c's register variable for
+  the address (`var_r31 = lbl_80386550;`) but names the global at the later uses; through the variable, all such
+  variables at once (fn_80082F84: either of its two alone 86 -> 59 / 64 words, both 118, 9 -> 14%; its 83 extra lis
+  gone). **`tools/index_loads.py`**: m2c's byte arithmetic on an array of records (`M2C_FIELD((base + ((i << 5) +
+  0x10)), u16 *, 0)`, which MWCC reassociates into add + lhz 0x10) as the record field `((struct E *) base)[i].v`,
+  which gives the original's index-then-indexed-load (lhzx / lwzx / lfsx), and `M2C_FIELD((B + K), T *, i * size)`
+  as `((T *) (B + K))[i]`. **`tools/unk_stack.py`**: m2c's untyped stack areas (`f32 unksp930;` indexed with byte
+  offsets, `*(&unksp930 + ((i * 8) & 0x7FFF8))`: f32 * arithmetic scales them by 4 again, so the draft reads the
+  wrong places and its frame lacks the area) as arrays to the next area with byte offsets that are bytes:
+  fn_8002B3C4 39 -> 93 words; fn_800E4AC4 by hand (three 192-element arrays: {id, count} at 0x930, f32 at 0x630,
+  {id, value} at 0x30) 7 -> 26%, its frame 4032 for the original's 4000 (the draft's: 256). Only those 4 drafts had
+  it, all of them here. **`tools/reuse_exprs.py`** (a register variable's expression written out again later goes
+  through the variable): +1 word over the 4 tried. cr_Battle_ApplyRoleMatrices: its two expanded
+  HSD_JObjCopyMtx bodies (asserts at jobj.h 0x495 / 0x496, PSMTXCopy into jobj->mtx, flags |= 0x03800000, the
+  dirty-mark inline) as inline functions: the same score (279 -> 274), the right shape; its frame is still 48
+  bytes over (the original has a second stack Mtx at 0x60 and fewer spills).
+- Nov 13, measured and dropped: **`tools/split_slots.py`** (one variable per value for m2c's reused stack-slot
+  variables: no change in any draft, MWCC splits a variable's live ranges itself); **`tools/hi_consts.py`** (m2c's
+  bare address halves, `sp3C = 0x80400000;` ... `sp3C + 0x7260`: the original's `lis` of a global spilled to the
+  stack, which the disassembly cannot name; as symbols the drafts spill more, 2 -> 1%); cleaning m2c's reused
+  `var_rNN` names into plain C (cr_SEQ_BATTLE_FrameA 34 -> 29: the original's temporaries really sit in r23 - r27,
+  probably inlined helpers' locals, and m2c's names keep that). Two load / store forms are open: fn_8000E64C's first
+  store of each case is `addi; sth 0(r)` in the original (no form of `cr_g_BattleLoadouts[0].unk_0` tried gives
+  it), fn_801076D8's first load is folded (`lbz r0, sym@l(r5)`) where ours is not. cr_Save_ResetData (1.82x):
+  the original copies cr_g_UnlockBits from cr_g_SaveData.unlocks (0xA8 bytes) with no loop, interleaved with the
+  mode resets; m2c's ~60 temporaries are that schedule; inlining them (all single-assignment ones, stores between
+  ignored) changes nothing. A stack-array cut at the original's save area (m2c sizes the last array to the frame's
+  end: fn_8004DC78 `sp14[11]` for 5) changed no score; dropped.
+- Nov 13, **`tools/cror_fix.py`**: m2c does not know `cror` (MWCC's float `a >= b` is `fcmpo; cror eq, gt, eq;
+  beq`): it leaves `M2C_ERROR(/* unknown instruction: cror 0x2, 0x1, 0x2 */);` and the next condition tests `==`.
+  The error line dropped and that `==` / `!=` made `>=` / `<` (`cror 2,0,2`: `<=` / `>`): all 12 drafts that have
+  it up a little (cr_E_CIRCLE_SET_POS 57 -> 62, fn_8006207C 16 -> 19), none to 100.
+- **Nov 13, where the 100 stand** (`tools/best_of.py`, table `build/triage/low100_progress.tsv`, the drafts in
+  `build/low100/`, not committed): 91 of 100 up, none at 100%; equal words 16,161 -> 19,158 (+2,997); mean score
+  15.8 -> 19.3%, shape 57 -> 60%, regs 43 -> 47%. Largest: cr_BattleRobo_UpdateAction 5 -> 16 (169 -> 421 words),
+  fn_8000E64C 9 -> 34, cr_SEQ_SCENARIO_Enter 0 -> 31 (it compiles), fn_800F21C8 2 -> 5 (125 -> 260), fn_80109314
+  11 -> 22, fn_8005D338 35 -> 52, cr_Chara_PoseLimbs 16 -> 29, fn_800E4AC4 7 -> 26, fn_8009DAD8 20 -> 35, fn_80124F5C
+  24 -> 37. Unchanged: fn_80051384, fn_800AFE3C, fn_800B2370, fn_8008ACEC, fn_8006EEF8, fn_801076D8, fn_8005E270,
+  cr_Pad_Update, fn_80022830. Next: the rewrites that are plain corrections of m2c (cror_fix, unk_stack, the R3_SET
+  returns, struct_copies' tail form) as generator rules so every draft gets them at batch 12; the
+  group (a) giants need the scheduled code read back into source order (cr_Save_ResetData), which no rewrite here
+  does.
+- Nov 13, the generator: `R3_SET` gains fn_8008EDA8 (`void *`: it ends with `bl fn_8008EA64` and leaves the pointer;
+  fn_8000CFAC stores through it 9 times, compiled as 0), fn_80061B90 (s8), fn_8006A00C (s32), fn_8001C98C (`void *`,
+  its first parameter, which its callers pass on): about 28 of the 42 `Read from unset register $r3` errors in 8 of
+  the 100 follow calls to these four. Takes
+  effect at the next full batch 12.
