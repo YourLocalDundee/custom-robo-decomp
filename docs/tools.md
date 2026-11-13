@@ -138,6 +138,24 @@ Durations are from the development desktop (8 cores, Oct 31, 2026); "quick" is u
 | `boot_check.ps1` | Windows: boots an ISO (or a folder's `sys\main.dol`) in Dolphin (`-DolphinDir`, else `CR_DOLPHIN_DIR`, else the pinned `tools/dolphin/Dolphin-x64` that `setup.ps1` downloads; used by batch 11 and `model_loop -Boot`), reports warning dialogs, exit 1 on one (`-Snapshot` saves a picture of the dialog, `-Screenshot` the game window, `-Log` Dolphin's log of that run, `-PressA 16` the A button every 2 s from 16 s until the title file is read: for a Dolphin without a Custom Robo save). The first-start usage-statistics prompt is answered through command-line config | `pwsh tools\boot_check.ps1 <game.iso or folder\sys\main.dol> [seconds] [-Snapshot x.png] [-Screenshot x.png] [-Log x.log] [-DolphinDir <folder>] [-PressA 16]` |
 | `boot_test.ps1` | Windows: boots a build folder in Dolphin (`CR_DOLPHIN_DIR`, else the pinned `tools/dolphin`, else the Project Hive build on this desktop), takes a screenshot after a delay, closes Dolphin. Older than `boot_check.ps1` | `pwsh tools\boot_test.ps1 test_build shot.png 40` |
 
+### Body deformation, films and the plate rebuild (Nov 12, 2026)
+
+All Blender scripts: `blender -b --factory-startup --python tools/blender/<script> -- <args>` (usage in each file's
+docstring). A motion glb must be baked against the body it is used with (`tools/deform_sweep.py` writes
+`<slot>.motion.glb` for the body it is given).
+
+| Tool | What it does |
+|---|---|
+| `tools/deform_sweep.py` + `tools/blender/deform_check.py` | stretched / squashed triangles, clipping vertices and the lowest body point per frame, for every motion of a mod body; `summary.txt` per run. Compare bodies on the glb, not the game-file export (the export splits the mesh and inflates the counts) |
+| `tools/floor_lift.py` | per-frame body lifts from a sweep so lying / kneeling poses stay on the floor (`mods/<mod>/floor_lift.json`, read by the mod's `make_motion.py`) |
+| `tools/blender/motion_film.py` | a body through a motion every frame, 3-4 views: stretch heat colours, or `--textured=1 --parts=<dir>` with the gun and bomb mounted; frames written live, MP4 at the end |
+| `tools/blender/film_reel.py` | several film folders joined into one MP4 |
+| `tools/blender/watch.py` | the snapshot helper the films and `rebind.py --watch` use |
+| `tools/blender/plate_body.py` | a skinned body rebuilt as the game's own robos are: rigid limb pieces, soft trunk, ball joints |
+| `tools/blender/rebind.py`, `reweight.py`, `carve_torso.py` | the skinned route: bind in the motions' mean pose, weights along the skeleton, chest carved for the arms |
+| `tools/blender/span_weights.py`, `shoulder_weights.py`, `slim_arms.py` | measured and not used (worse on the samurai); kept with their numbers in the docstrings |
+| `tools/bind_roles.py` | a body glb's role-joint bind matrices as JSON |
+
 ## Reading aids (Nov 5, 2026)
 
 - `python -I tools/callmap.py SEED... [--up N] [--down N] [--out FILE.md]`: callers N levels up and callees N down of

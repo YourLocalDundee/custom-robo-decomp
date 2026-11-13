@@ -145,6 +145,27 @@ kept the unused motions' own tag lists. Slot 0 (idle) became ID 2 `sf_back_run_g
 Fix: each copy's `cr_g_MotionInfo` pointer now points at the stock motion's tag list (length + events), and no
 tag-list header is patched any more (headers are shared between IDs, so the old patches changed other bodies' lengths too).
 
+### How the game builds a robo body, and the plate rebuild (Nov 12, 2026)
+
+Measured on Ray 01 (`chara_000.dat`, `HSDRawViewer --export`, then a per-mesh weight count in Blender):
+
+- 18 meshes, 2,465 triangles. 17 meshes are 100% rigid, one per joint: head, chest, hips, each thigh, shin, ankle,
+  foot, upper arm, forearm and hand. 96% of all vertices follow exactly one joint.
+- One 210-triangle mesh is skinned (weights 0.4 / 0.6, some 0.2 / 0.8): the waist (hips + chest), the neck, the hip
+  sockets (thigh + hips) and the shoulder sockets (shoulder joint + chest).
+- Elbows, knees, wrists and ankles have no skin. Rigid shells overlap around mechanical hinge discs.
+- On `tools/deform_sweep.py` with its own motions: stance 456 stretched / 0 squashed, run 412 / 0, gun_l90 209 / 0,
+  fall_back 457 / 89, victory1 965 / 57. A fully skinned AI body scored 760-7,900 / 400-21,000 on the same motions.
+- The game writes each role joint's world matrix itself every frame (`cr_Battle_ApplyRoleMatrices` 0x800392B0:
+  `PSMTXCopy` into jobj+0x44, flags |= 0x03800000), so a rigid piece needs nothing but its joint. Shoulder, elbow,
+  hip and knee pivots are exactly the role joints' bind positions (drift 0.0000 m over the motions); hands and
+  feet are placed by the game's own offsets, 0.4-0.9 m from Ray's bind positions, so wrist / ankle pivots are points
+  of the forearm / shin measured from a motion.
+
+`tools/blender/plate_body.py` rebuilds a skinned body in that architecture (rigid limb pieces, a soft trunk, cut rims
+tapered onto ball joints with gold hinge caps). The samurai's result, the tried variants and the build commands:
+[samurai_handoff.md](samurai_handoff.md).
+
 ### Parts placed from the game's own joints (Nov 12, 2026)
 
 The previews passed builds whose gun floated in the game. `tools/dolphin_capture.py` now saves the Dolphin window's
