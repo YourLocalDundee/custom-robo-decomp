@@ -2,6 +2,11 @@
 
   blender -b --factory-startup --python tools/blender/motion_film.py -- <body.glb> <motion.glb> <out dir>
       [--every=1] [--size=260] [--fps=30] [--mp4=1] [--sheet=12]
+      [--textured=1 --parts=<parts export dir> --roles=<roles json>]
+
+--textured=1: the body with its own textures instead of the stretch colours (use the game file's export, e.g.
+build/deform/<body>_export/chara_000/root0_joint.glb), and with --parts the gun and the bomb on the forearms the way
+the game mounts them in battle (role joint x mount offset x 0.1, robo_preview.py), 3 views.
 
 The motion glb must be baked against this body (tools/deform_sweep.py / motion_strip.py do that: crmotion_rig
 cmd_gltf with the body as the skeleton). Writes, as it goes:
@@ -28,7 +33,7 @@ OUT = os.path.abspath(OUT)
 EVERY = int(opts.get('every') or 1)
 SIZE = int(opts.get('size') or 260)
 FPS = int(opts.get('fps') or 30)
-SHEET = int(opts.get('sheet') or 12)
+SHEET = int(opts['sheet']) if opts.get('sheet') not in (None, '') else 12
 os.makedirs(OUT, exist_ok=True)
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -43,6 +48,64 @@ arm = [o for o in bpy.data.objects if o.type == 'ARMATURE'][0]
 meshes = [o for o in bpy.data.objects if o.type == 'MESH' and 'Icosphere' not in o.name]
 for o in [o for o in bpy.data.objects if 'Icosphere' in o.name]:
     bpy.data.objects.remove(o, do_unlink=True)
+TEXTURED = opts.get('textured') == '1'
+PARTS = []       # (static part object, role pose bone, its glTF rest world, mount offset)
+if TEXTURED and opts.get('parts') and opts.get('roles'):
+    import json
+    import math
+    import struct
+    from mathutils import Matrix, Quaternion, Vector
+    C = Matrix.Rotation(math.radians(90), 4, 'X')
+    Ci = C.inverted()
+    roles = json.load(open(opts['roles'], encoding='utf-8'))['C']
+
+    def rest_world(path):
+        d = open(path, 'rb').read()
+        n = struct.unpack_from('<I', d, 12)[0]
+        nodes = json.loads(d[20:20 + n])['nodes']
+        parent = {c: i for i, nd in enumerate(nodes) for c in nd.get('children', [])}
+
+        def local(nd):
+            if 'matrix' in nd:
+                m = nd['matrix']
+                return Matrix([m[0:4], m[4:8], m[8:12], m[12:16]]).transposed()
+            q = nd.get('rotation', (0, 0, 0, 1))
+            s_ = nd.get('scale', (1, 1, 1))
+            return (Matrix.Translation(Vector(nd.get('translation', (0, 0, 0))))
+                    @ Quaternion((q[3], q[0], q[1], q[2])).to_matrix().to_4x4() @ Matrix.Diagonal((s_[0], s_[1], s_[2], 1)))
+        memo = {}
+
+        def world(i):
+            if i not in memo:
+                memo[i] = (world(parent[i]) if i in parent else Matrix.Identity(4)) @ local(nodes[i])
+            return memo[i]
+        return {nd['name']: world(i) for i, nd in enumerate(nodes) if nd.get('name', '').startswith('JOBJ_')}
+    REST = rest_world(BODY)
+    for folder, root, role, off in (('weapon_gun_000', 1, 'arm_b_fore', (-0.02, 0, -0.01)),
+                                    ('weapon_bom_000', 1, 'arm_a_fore', (-0.02, 0, 0.01))):
+        pth = os.path.join(opts['parts'], folder, f'root{root}_joint.glb')
+        if not os.path.exists(pth):
+            continue
+        before = set(bpy.data.objects)
+        bpy.ops.import_scene.gltf(filepath=pth)
+        new = [o for o in bpy.data.objects if o not in before]
+        dg_ = bpy.context.evaluated_depsgraph_get()
+        for o in new:
+            if o.type == 'MESH' and 'Icosphere' not in o.name:
+                me_ = bpy.data.meshes.new_from_object(o.evaluated_get(dg_))
+                me_.transform(o.matrix_world)
+                po = bpy.data.objects.new(f'{folder}_part', me_)
+                bpy.context.scene.collection.objects.link(po)
+                jn = f'JOBJ_{roles[role]}'
+                PARTS.append((po, arm.pose.bones[jn], REST[jn], Vector(off)))
+        for o in new:
+            bpy.data.objects.remove(o, do_unlink=True)
+
+
+def place_parts():
+    for po, pb, rest, off in PARTS:
+        d_bl = arm.matrix_world @ pb.matrix @ pb.bone.matrix_local.inverted() @ arm.matrix_world.inverted()
+        po.matrix_world = d_bl @ C @ rest @ Matrix.Translation(off) @ Matrix.Diagonal((0.1, 0.1, 0.1, 1)) @ Ci
 
 
 def baked():
@@ -79,7 +142,7 @@ try:
 except (AttributeError, IndexError):
     pass
 for o in meshes:
-    o.hide_render = True
+    o.hide_render = not TEXTURED
 f0, f1 = (int(x) for x in act.frame_range)
 w = None
 paths = []
@@ -89,6 +152,21 @@ if ONLY_MP4:
 for fr in ([] if ONLY_MP4 else range(f0, f1 + 1, EVERY)):
     bpy.context.scene.frame_set(fr)
     bpy.context.view_layer.update()
+    if TEXTURED:
+        place_parts()
+        if w is None:
+            fr_box = None
+            if opts.get('box'):
+                bx = [float(x) for x in opts['box'].split(',')]
+                from mathutils import Vector as _V
+                fr_box = (_V(bx[:3]), bx[3])
+            w = watch.Watcher(OUT, size=SIZE, textured=True, frame=fr_box,
+                              views=[('front34', (-0.55, 1, 0.18)), ('side', (1, 0.1, 0.1)), ('back34', (0.6, -1, 0.25))])
+            w.pad = float(opts.get('pad') or 1.0)
+        paths.append(w.snap(f'f_{fr:04d}', meshes + [p[0] for p in PARTS]))
+        with open(os.path.join(OUT, 'progress.txt'), 'w') as fh:
+            fh.write(f'frame {fr} of {f0}..{f1}' + chr(10))
+        continue
     V, _ = baked()
     me = bpy.data.meshes.new('film')
     me.from_pydata([tuple(v) for v in V], [], F)
@@ -112,7 +190,7 @@ for fr in ([] if ONLY_MP4 else range(f0, f1 + 1, EVERY)):
     bpy.data.meshes.remove(me)
 
 # contact sheet
-pick = paths[::max(1, SHEET // EVERY)] if SHEET > 1 else paths
+pick = paths[::max(1, SHEET // EVERY)] if SHEET > 0 else []      # --sheet=0: no contact sheet
 imgs = []
 for p in pick:
     im = bpy.data.images.load(p)

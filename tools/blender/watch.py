@@ -23,7 +23,7 @@ VIEWS = [('front', (0, -1, 0.12)), ('side', (1, 0, 0.12)), ('back', (0, 1, 0.12)
 
 
 class Watcher:
-    def __init__(self, out_dir, size=300, frame=None):
+    def __init__(self, out_dir, size=300, frame=None, textured=False, views=None):
         self.out = os.path.abspath(out_dir)      # Blender saves relative image paths elsewhere
         os.makedirs(self.out, exist_ok=True)
         self.size = size
@@ -31,7 +31,9 @@ class Watcher:
         sc = bpy.context.scene
         sc.render.engine = 'BLENDER_WORKBENCH'
         sc.display.shading.light = 'STUDIO'
-        sc.display.shading.color_type = 'VERTEX'      # colour attributes (Blender 5.2's name)
+        sc.display.shading.color_type = 'TEXTURE' if textured else 'VERTEX'      # VERTEX = colour attributes (5.2's name)
+        self.textured = textured
+        self.views = views or VIEWS
         sc.display.shading.show_shadows = False
         sc.display.shading.show_cavity = True
         sc.render.resolution_x = size
@@ -67,7 +69,7 @@ class Watcher:
                 cols[p.loop_start:p.loop_start + p.loop_total, :3] = c
             attr.data.foreach_set('color', cols.ravel())
             me.color_attributes.active_color = attr
-        else:
+        elif not self.textured:
             for o in objs:
                 if o.type == 'MESH' and not o.data.color_attributes:
                     a = o.data.color_attributes.new('watch_heat', 'BYTE_COLOR', 'CORNER')
@@ -75,8 +77,8 @@ class Watcher:
                     added.append(o)
         tiles = []
         sc = bpy.context.scene
-        self.cam.data.ortho_scale = half * 2
-        for vn, d in VIEWS:
+        self.cam.data.ortho_scale = half * 2 * getattr(self, 'pad', 1.0)
+        for vn, d in self.views:
             dv = Vector(d).normalized()
             self.cam.location = centre + dv * (half * 6)
             self.cam.rotation_euler = (-dv).to_track_quat('-Z', 'Y').to_euler()     # a camera's up is its local Y

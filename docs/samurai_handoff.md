@@ -6,10 +6,10 @@ Read this first when picking the samurai back up. Background and findings: [full
 
 | What | Where |
 |---|---|
-| ISO to play | `build/mods/mecha_samurai_full/mecha_samurai_full.iso`, SHA-1 `fb9ee2230afea325df06574681b2cb2c31dc1778` |
+| ISO to play | `build/mods/mecha_samurai_full/mecha_samurai_full.iso`, SHA-1 `3afb03a511175edfbeb76d9efc6c297bc5979dfc` |
 | Patch to share | `mods/mecha_samurai_full/mecha_samurai_full.crpatch` (checked: applied to the clean `Custom Robo (USA).iso` it gives that SHA-1) |
 | Last commit | see `git log` on `main` (pushed) |
-| Body | B14: weights kept along the skeleton, **rebound at the motions' mean pose** (`build/reweight/rb_1.0.glb` -> `build/mecha_samurai_full/B14/`, installed in `mods/mecha_samurai_full/models/chara/`) |
+| Body | B17: **the plate rebuild** - rigid armour pieces on ball joints, as the game's own robos (`tools/blender/plate_body.py` on `build/reweight/pruned5.glb` -> `build/reweight/plated6.glb` -> `build/mecha_samurai_full/B17/`, installed in `mods/mecha_samurai_full/models/chara/`) |
 | Stretch / clipping check | `tools/deform_sweep.py` + `tools/blender/deform_check.py` (reports and 6-angle heat renders in `build/deform/<name>/`) |
 | Parts | `mods/mecha_samurai_full/make_parts.py` (gun + bomb, black lacquer and gold: `parts_palette.json`; pods and legs empty) |
 | Motions | every slot his own: `mods/mecha_samurai_full/samurai_moves.py` (stand, walk/run, air, falls, actions) + `make_motion.py` (victories, lose, charge, get-up; floor lift from `floor_lift.json`) |
@@ -33,6 +33,34 @@ Screenshot key in that build is **1** (not F9; Shift+F9 is a breakpoint).
 - Dolphin: capture faster than the old 0.33 s (`tools/dolphin_capture.py <dir> N 0.1`).
 
 ## The current build
+
+- **Nov 12, late: the plate rebuild, body B17 (ISO `3afb03a5…`, not yet played).** Owner: rebuild the armour as
+  separate overlapping systems, learn from the game how it does it, whatever architecture it takes.
+  - **How the game builds a robo** (Ray 01, chara_000.dat, measured): 18 meshes, 17 of them 100% rigid, one per
+    joint; 96% of the vertices follow one joint. Only a 210-triangle connector is skinned (waist, neck, hip and
+    shoulder sockets, weights 0.4 / 0.6). Elbows, knees, wrists and ankles have no skin: rigid shells around
+    mechanical hinge discs. 2,465 triangles. On our sweep (its own motions): stance 456 stretched / 0 squashed,
+    run 412 / 0, gun_l90 209 / 0, fall_back 457 / 89, victory1 965 / 57.
+  - **`tools/blender/plate_body.py`** does the same to the samurai, from the clean bind (pruned5, not the rebound
+    mesh: rigid pieces need no rebind, and the rebound skirt was frozen bent):
+    1. 12 limb pieces (arm upper / fore / hand, leg thigh / shin / ankle per side) + the trunk, by each triangle's
+       majority joint; the mesh cut along the boundaries
+    2. limb pieces 100% rigid; the trunk keeps its blend among chest / hips / head only (waist, neck)
+    3. funnels: every cut vertex is pulled onto its joint's ball (hips: only those near it), so each shell tapers
+       into the ball and both rims ride one sphere about the pivot - no shards, no gaps
+    4. 88 bridge triangles between skirt and thigh plates (no joint there) removed
+    5. 12 ball joints (icospheres, the atlas's darkest texel) at shoulders, elbows, wrists, hips, knees, ankles, rigid
+       on the parent joint. Pivots measured from a motion: shoulders / elbows / hips / knees are exactly the bone
+       heads (drift 0.0000 m); wrists / ankles are points of the forearm / shin (the game places hands and feet by
+       its own offsets, 0.4-0.9 m from Ray's bind positions)
+  - **Result** (glb, 20 motions, step 2, against B14): stretch 38.6k -> 8.1k (-79%), squash 53.0k -> 4.4k (-92%),
+    clipping 4.0k -> 5.7k (rigid plates overlap by design; the stock robo scores clipping too). Per motion it is at
+    or under the stock robo: stance 333, run 314, gun_l90 151, fall_back 0, victory1 1,033. The game file is
+    smaller (1.71 MB). Floor lift redone; strips pass; films `build/film/tex17/` and `samurai_B17_plated_reel.mp4`.
+  - Tried on the way: caps over the cut ends (starbursts where a cut is not a clean ring: off), big balls sized
+    from the armour rim (cannonballs: now the inner core, 3.4-5.5 cm), the rebound mesh as the base (spiky skirt).
+  - Open: the balls are plain dark spheres (no hinge detail, exposed on top of the shoulders); thighs pass
+    through the rigid skirt when a knee comes up high; needs a look in the game itself.
 
 - **Nov 12, late night: pose fixes from the films (ISO `fb9ee223…`, body still B14, not yet played).** Watching
   victory1 every frame showed three red spots; the fixes that measured better are pose-level:
