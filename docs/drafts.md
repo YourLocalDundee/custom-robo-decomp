@@ -2298,3 +2298,12 @@ are **structural** (29: by hand, smallest first).
   kept run after run; a 100% is checked with relcheck.py and saved to tools/hand_drafts with `--save`.
   `python -I tools/order_sweep.py --open 50 99 --save` runs it over every open draft in that score range (results:
   `build/order_sweep_run1.log`, improved but unmatched drafts in `build/order_sweep/`).
+- Nov 12, the first full order sweep (`--open 50 99`, 372 open drafts): **77 improved, none to 100% by order
+  alone** (the largest: fn_80130B48 83 -> 96, fn_800999F0 71 -> 84, the seven number-drawing drafts 64 -> 72,
+  fn_800FE954 87 -> 93, cr_Save_ApplyUnlocks 92 -> 95). Statement order is one of several differences in most
+  drafts; the improved sources are the new starting points (`build/order_sweep/`, not committed).
+- **Nov 12, fn_80130B48 96 -> 100: a division by a power of two.** `(f32) (0x10 - n) / 16.0f`: MWCC turns the
+  division into a multiply by the reciprocal with the operands (x, c) (`fmuls f31, f1, f2`); m2c writes
+  `x * 0.0625f`, which loads the constant first (f2 / f3 swapped, `fmuls f31, f3, f1`). `tools/recip_sweep.py`
+  tries this on every open draft (literals and `lbl_` constants whose value in main.dol is 1 / 2^k): 6 more
+  improved (fn_80101284 88 -> 90, cr_EV_SET_SQARE 52 -> 59, cr_E_CIRCLE_SET_POS 57 -> 61), no new match.
