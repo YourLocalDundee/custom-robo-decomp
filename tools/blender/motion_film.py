@@ -83,7 +83,10 @@ for o in meshes:
 f0, f1 = (int(x) for x in act.frame_range)
 w = None
 paths = []
-for fr in range(f0, f1 + 1, EVERY):
+ONLY_MP4 = opts.get('only_mp4') == '1'      # assemble the film from the frames already written
+if ONLY_MP4:
+    paths = sorted(os.path.join(OUT, f) for f in os.listdir(OUT) if f.startswith('f_') and f.endswith('.png'))
+for fr in ([] if ONLY_MP4 else range(f0, f1 + 1, EVERY)):
     bpy.context.scene.frame_set(fr)
     bpy.context.view_layer.update()
     V, _ = baked()
@@ -135,7 +138,7 @@ if opts.get('mp4', '1') != '0' and paths:
     sc = bpy.context.scene
     sc.sequence_editor_create()
     ed = sc.sequence_editor
-    strips = getattr(ed, 'strips', None) or ed.sequences
+    strips = ed.strips if hasattr(ed, 'strips') else ed.sequences      # Blender 5: strips (an empty one is falsy)
     st = strips.new_image('film', paths[0], 1, 1)
     for p in paths[1:]:
         st.elements.append(os.path.basename(p))
@@ -145,6 +148,8 @@ if opts.get('mp4', '1') != '0' and paths:
     sc.render.resolution_percentage = 100
     sc.frame_start, sc.frame_end = 1, len(paths)
     sc.render.fps = max(1, FPS // EVERY)
+    if hasattr(sc.render.image_settings, 'media_type'):
+        sc.render.image_settings.media_type = 'VIDEO'     # Blender 5: video output is a media type
     sc.render.image_settings.file_format = 'FFMPEG'
     sc.render.ffmpeg.format = 'MPEG4'
     sc.render.ffmpeg.codec = 'H264'
