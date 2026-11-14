@@ -2560,3 +2560,78 @@ are **structural** (29: by hand, smallest first).
 - **Nov 13, the 14 matches drafted again** (`draft_batch.py --out build/regen3 --only ...`, 126 s) and merged into
   `decomp/drafts` as before: **1,055 of 1,751 at 100%**. Promoted 957 functions (0x33BFC bytes) and 7 file objects;
   `main.dol` still builds with the retail SHA-1 (6a73cd11...).
+- **Nov 13, the top 150: the 150 highest-scoring open drafts** (`build/triage/top150.txt`: by the best score any
+  earlier set reached, 70 - 97%, 120 bytes - 3.1 KB, 104 KB; best versions merged in `build/top150c/`, hand work in
+  `build/hand800/`, per function in [low_drafts_progress.md](low_drafts_progress.md), whose last table starts from the
+  best version before this set). These drafts had been through every chain tool and the order sweep already, so the
+  set was worked from the other side: find by hand what a family of near misses has in common, make it a tool, run
+  the tool on the set. **23 matches (72 of the 150 up, equal words 20,952 -> 21,941, mean score 79.4 -> 84.1%).** Three tools came out of it:
+  - **`tools/rank_sweep.py`, the register order by dead uses.** Saved registers go by use count (the rule of
+    Nov 6), and `(void) v;` counts as a use without making code. A parameter needs it most: with one use it is
+    not given a register at all (it stays in its stack home, `stw r3, 8(r1)`), with m2c's `arg0 = arg0;` it has
+    three and outranks the locals, with one dead use it has two and takes the lowest register, where the
+    originals have it. For each parameter and local the sweep tries 1 - 6 dead uses and keeps a count when the
+    equal words go up, three rounds, once on the draft and once without its self copies. On the 150: **52 up,
+    +562 words, 3 matches** (fn_8000B42C, fn_8010DD74, fn_8010DE04: one dead use of the first parameter). A second
+    run over the merged results found nothing more.
+  - **`tools/gaps.py` and `tools/gapfix.py`, the saved register nothing uses.** 202 of the 696 open functions (33 of
+    the 150) save a register that no instruction of the body names. It is a narrow local between an expression and
+    a narrower truncation: `s16 g; g = kind - 6; slot = g;` with a u8 `slot` compiles to `extsh` + `clrlwi 24`,
+    the peephole folds the pair into the one `clrlwi`, and `g` keeps the place in the register order it was given
+    before. `u16` before a `u8`, `s16` / `s8` before a `u8`, an `s16` id passed as a `u16` argument all do it; a
+    constant does not (it is loaded into the register), nor a local that is only written (that one goes to the
+    stack). gapfix tries the four types at every assignment to a narrow local or field and at every narrow cast,
+    keeps the candidates that add an unused saved register without adding an instruction, then tries every
+    declaration position. Most of the 26 open gap functions of the set already had theirs (the script-command
+    family through its `if (0)` head); 5 gained one, 2 of them in score (fn_8003ABA0 72 -> 80%, fn_800FE954
+    93 -> 94%).
+  - **`tools/site_rules.py`, five rewrites tried site by site** (kept by score): `regroup` / `ungroup` (the
+    constant of an address sum as the field offset, `M2C_FIELD(B + (i * 2), s16 *, 0x20C)`, compiles to `lhax` with
+    the index `i * 2 + 0x20C`; inside the sum, `B + ((i * 2) + 0x20C)`, to `add; lha 0x20C(r)`: the opposite of
+    what the spelling suggests), `unmask` (m2c's `&A[(i * 0x10) & 0xFF0]` for a u8 index is `A + (i * 0x10)`),
+    `align` (`(x >> 2) << 2` is `clrrwi` from the value's own register; `x & ~3` reuses r0), `voidcall` (a
+    discarded call of a function with a value prototype keeps r3 busy until the statement ends, so the next
+    statement's temporaries start at r4: fn_800EB518 is void, the context says s32; the call is written
+    `((void (*)(s32)) fn_800EB518)(0)`), `home` (m2c's `sp8 = arg3;` for a parameter that lives in its stack home is
+    the parameter itself). On the open drafts of the set: 13 up (fn_8008C788 77 -> 93%, fn_80044EA4 71 -> 83%).
+- **Nov 13, the 23 matches of the top 150 and what they teach** (each checked with relcheck.py):
+  - **The window-text family, all nine** (fn_8011A37C, fn_80118C08, fn_80118468, fn_8011A8FC, fn_8011936C,
+    fn_80119C8C, fn_8011ABA4, fn_80121098, fn_8012180C; 86 - 92% since Nov 6: "a helper local takes r27 instead of a
+    coalesced r26"). Three things together: the inline that shows the message **returns** the result of
+    fn_8006A344 and the caller drops it (r3 stays busy, the next statement's temporaries are r5, r4, r6); the
+    position is written through the array itself, no window local; and the unused r26 / r25 is a folded narrow
+    local: the id of the message (`s16 id = sel + 0x15;` passed as u16) where the id is computed, a `u16`
+    intermediate of the cursor index (`g = sel + 2; idx = g;`) where the ids are constants. Then per function:
+    one dead use each of the index and the old selection (fn_8011A8FC, fn_8011936C); the result index computed
+    before the store of the next sequence (fn_80119C8C); the name buffer `char[24]`, not m2c's one `s8`, and the
+    two flag bytes in the other order (fn_8011ABA4); the cursor index computed before the flag store and the void
+    call above (fn_80121098, fn_8012180C). `wintail.py` (scratch) applied the tail to the family.
+  - **A Vec3 built in place and copied as a struct** (fn_800AC6F0, fn_800ACE74, fn_800AD4A8, fn_800AD880, 70%):
+    x, y, z set to one constant in that order, x and y set again, `b = a;` (three `lwz` / `stw`), the 16-byte
+    table record as `table + i * 0x10`, three dead uses of the object.
+  - **An s32 local returned as s8** (fn_800EA468: `extsb r3, r28` at the return).
+  - **`(size >> 2) << 2`** (fn_8008F8D0, the chunk walk).
+  - **The constant index on a computed pointer** (fn_8003B37C: `((s16 *) ((u8 *) robo + i * 2))[0x106]`, `lhax`;
+    fn_8001E814: `M2C_FIELD(keys + n * 0x1C, f32 *, -0xC)`, `lfsx`). fn_8001E814 also: the copy of the key pointer is a
+    dead stack local, and a value stored to a stack local and used again is read back from it, not held in a
+    temporary (the 14th float local had taken a stack slot of its own).
+  - **A parameter used once lives in its stack home** (fn_800999F0: the count, `stb r6, 8(r1)` and `lbz` at each
+    test; no copy into a local); the two parallel arrays written `a[n] = x; b[n] = y; n++;` (two `slwi` before the
+    first store, the increment its own statement).
+  - **An s16 intermediate declared last** (fn_80079F28: the unused r28), `p` and `p + 1` for the two halves of the
+    screen position, fn_80029A9C returns u8.
+  - **A u16 local of `word >> 16`** (cr_Save_ApplyUnlocks): its test re-derives the value from the word still in
+    r4 (a second `srwi`, the peephole's merge of the local's `clrlwi` with the shift); the result of cr_Bits_Test in
+    a local of its own (`mr. r24, r3`); cr_Bits_Clear takes the id variable where m2c read the constant 1.
+  Near: fn_8006868C 91 -> 97% (the digit loop is a `while` with a `break`, `k * x` for the two scalings, `p[n - 1]`;
+  the head's schedule is left: no order of its eight statements gives it), cr_CM_MOVE 76 -> 92% (one float local
+  for the length, `(u16)` on both fn_8001F060 results, the matrix 48 bytes; left: the load of the stack angle is
+  scheduled before the store of the yaw sum, which the struct field's alias does not allow), the fn_800E9C90
+  family 73 -> 82% (five copies: an inline `rnd()` that returns `r - 3`, one dead use of the parameter; left: the
+  original schedules the int-to-float constant first, which by the hook log needs the global's load to release
+  nothing at its pick; decomp-permuter, 12 minutes, 4 workers: 85% at best), fn_8003ABA0 72 -> 80%.
+- **Nov 13, the 23 matches drafted again** (`draft_batch.py --out build/regen4 --only ...`, 123 s) and merged into
+  `decomp/drafts` as before: **1,078 of 1,751 at 100%**. Promoted 965 functions (0x34988 bytes) and 7 file objects;
+  `main.dol` still builds with the retail SHA-1 (6a73cd11...). Open for the next pass: the `voidcall` evidence as a
+  fix of the prototypes themselves (one wrong return type costs every caller), and the three tools on the 546
+  open drafts outside this set.
