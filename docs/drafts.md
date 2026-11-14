@@ -2787,3 +2787,63 @@ are **structural** (29: by hand, smallest first).
   fn_8001F060 (optimised; to write at level 4), the large ones.
 - **Nov 13, late night: the 8 drafted again** (`--out build/regen9`) and merged: **1,107 of 1,751 at 100%**. Promoted
   986 functions (0x36AA0 bytes) and 8 file objects; `main.dol` still builds with the retail SHA-1 (6a73cd11...).
+- **Nov 13, night: m2c's stack words copied from a `.rodata` label are a local with an initialiser** (the
+  bottom 100, continued). 63 open drafts have runs like `sp18 = M2C_FIELD(lbl_801C3758, u32 *, 0); sp1C =
+  lbl_801C3758[1]; ...`: the compiler keeps the initialiser of a local array / struct as an anonymous constant and
+  copies it to the stack word by word (bytes for a char array, halfwords for u16). Written as
+  `f32 rect[4] = { 0.0f, 640.0f, 0.0f, 480.0f };` the copy is the original's. **15 matches**:
+  - **`tools/local_init.py LIST SRCDIRS KEEPDIR [JOBS]`** does the conversion: the runs are grouped into tables
+    (stack offset and source address both contiguous), the values come from main.dol
+    (**`tools/dol_vals.py ADDR COUNT [TYPE]`**, floats printed so that they round-trip), the uses are renamed,
+    and three placements are scored (first in the function, after the other locals, in a nested block from the
+    first copied word). Over the 646 open drafts: 46 have such tables, 13 score higher at once
+    (`build/li_all2`, log `build/triage/li_all2.log`); the rest need the uses typed by hand first.
+  - **fn_800B4208** (52%, 112 bytes; the tool alone), **fn_80069108** (43%: `s32 table[8]`, the glyph index a
+    local, the width stored unsigned), **fn_800B3640** (63%: the default rectangle; in the 0x800 branch the view
+    pointer `cam + 0x24` is a local assigned after the flag word is set), **fn_8008871C** (76%: a `Vec` with a
+    zero initialiser declared in the block of the test, the matrix a `Mtx`), **fn_800AE690** (55%:
+    `f32 pos[5][2]`; `(u8) i` in the row index; the unsigned count to float; the cursor flags a member array;
+    the goto loop a while / break), **fn_800ABE94** (20%: `char label[5][6]`, 30 bytes of Shift-JIS text, whose
+    tail m2c shows as byte copies through words; position and size are `Vec`s with z unused, which gives the
+    stack layout), **fn_8004FF64** (82%: it returns its flag; `u32 total[4]` with a zero initialiser and one
+    compound assignment `total[robo.team] += robo.hp`, whose base and scaled index are the compiler temporaries
+    r25 / r24; one dead use of the bit mask is still needed), **fn_800FC290** (61%: three initialised locals,
+    `f32 offs[5]` in .rodata and `u16 first[1]`, `u16 ids[4]` in .sdata2; the slot-bit search is the inline of
+    fn_800FBDF8; **the right edge is one flat sum `n * 30 + n * 30 + 30`**: with the last two terms in
+    parentheses the compiler moves the constant out).
+  - **The same label in several functions is one inline function.** lbl_801C3758 is read by fn_800B4208,
+    cr_E_VIEWIN and cr_E_VIEWOUT: the two script commands are their prologue and **fn_800B4208 inlined** (the
+    copy comes after the prologue, which a nested block also gives; written as a static inline with the same
+    body both are 100%). lbl_801C3768 / lbl_801C3778 are the two rectangles of one small inline
+    (`view_reset`: two initialised locals, fn_80029F70 and fn_80029C20), expanded in both branches of
+    **fn_800B4278** (65%) and **fn_800B44D0** (53%; and the rate is stored before the flag is set: m2c prints the
+    scheduled order of the stores, the register of the 0x4330 constant shows the source order). A local's
+    constant exists once per function definition, however often the function is inlined; when the file objects
+    are built these have to be real calls of the one function.
+  - **Pooled constants: a scoring-only function in front.** fn_8008C430 (17%) has five initialised tables
+    (`u16[5]`, `f32[5]`, `f32[5]`, `u16[5]`, `u16[5]`, declared in the order of their source addresses: the
+    constants are emitted in declaration order) and reads them through one base, at lbl_801C0CE0 + 0x10: the
+    first 16 bytes of the pool belong to fn_80092764 of the same file. The draft carries
+    `cr_Pool801C0CE0_Order`, a function with a 16-byte initialised local, in front (the pool.inc idea of
+    `tools/file_drafts/battle_9B60/`, inside the draft); `relcheck.py` maps our `...rodata.0` one to one onto
+    the label. `local_init.py` writes such a function when the first table does not start at its label. The
+    loop has an empty debug test of the array (`if (p == ((void *) 0)) { (void) 0; }`: `li r0, 0` / `cmplw`).
+  - **A function that touches three objects of its file's .bss addresses them from one base**, the file's
+    first .bss object (cr_E_CLOCKIN: `lbl_803B8C00 + 0x1514 / 0x15E8 / 0x5758`, the last being cr_g_Script;
+    fn_800B44D0, which it inlines, touches two and has no base). A draft that DEFINES the objects at their
+    offsets gets the base: `// also defines: lbl_803BA114 lbl_803BA1E8 cr_g_Script`, fillers between them and
+    a `cr_Pool803B8C00_Order` function that references everything in address order
+    (**`tools/pool_prelude.py BASE NAME[=TYPE] ...`** prints the block; a draft with an `also defines` line must
+    not include ctx.h itself, hd.py does it). **cr_E_CLOCKIN and cr_E_CLOCKOUT** (34%) match: the script
+    prologue, then fn_800B44D0 inlined with 0x40 / 0x80 (its tests fold away), and the script pointer read
+    as `pc[0]` / `pc[1]` (uncast: usage 2 each, so it ranks above the count; through casts it ranked below).
+    This is the way into the 92 drafts with a pooled base. cr_E_CIN (the fade command, same pool) 34 -> 81%
+    with it (`build/hand900`; the prologue's volatile registers are left).
+  - Promoted: fn_8008871C and fn_800B3640 as file objects with their own `.rodata` piece. The others own a
+    piece of a pool that other functions share (or carry the scoring function) and wait for their files.
+  - Near: fn_8011C028 13 -> 88% (the sprite colour setter is an inline expanded three times, the colour passed
+    by value; `GXColor white` declared before `GXColor tbl[4]` gives the original's copy; left: the order of
+    the first expansion's argument), fn_80092764 80%.
+- **Nov 13, night: the 15 drafted again** (`--out build/regen10` .. `regen12`) and merged: **1,122 of 1,751 at
+  100%**. Promoted 986 functions (0x36AA0 bytes) and 10 file objects; `main.dol` still builds with the retail
+  SHA-1 (6a73cd11...).

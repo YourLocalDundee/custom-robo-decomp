@@ -158,7 +158,38 @@ From the Sunshine and Wind Waker notes; not yet needed here or not yet checked o
 - **Saved float registers holding partial sums are named locals**, reused per column in the matrix products,
   with the statements staged across the three rows.
 
-## 9. Tools considered
+## 9. Locals with initialisers, shared constants, the .bss pool (Nov 13, night)
+
+- **A run of stack words copied from a `.rodata` label is a local with an initialiser** (63 open drafts).
+  The constant is anonymous, emitted in declaration order, copied word by word (bytes for char arrays, with
+  the tail through word temporaries when registers run out; halfwords for u16). Up to 8 bytes it lives in
+  .sdata2. `tools/local_init.py` converts, `tools/dol_vals.py` prints the values.
+- **Which local is declared first decides which copy spills**: fn_8011C028 has the 4-byte colour declared
+  before the 16-byte table although it lies below it on the stack. "Later declared, lower address" holds for
+  most frames, not all; try both orders.
+- **The same constant in several functions is an inline function** (one constant per function definition):
+  cr_E_VIEWIN / cr_E_VIEWOUT are fn_800B4208 inlined, fn_800B4278 / fn_800B44D0 expand one two-table inline
+  twice, cr_E_CLOCKIN / cr_E_CLOCKOUT are fn_800B44D0 inlined. A table copied in the middle of a function
+  (after its prologue) is the sign. Constant arguments of the inline fold its tests away, also at level 0.
+- **Constants of one file are pooled too**: a function with several initialised locals reads them through
+  one base, the first constant of the file, with offsets (fn_8008C430: +0x10). The draft carries a
+  scoring-only function in front that owns the earlier bytes; relcheck maps `...rodata.0` onto the label.
+- **The .bss pool has a threshold**: a function touching three or more objects of its own file's .bss
+  addresses all of them from the file's first .bss object (cr_E_CLOCKIN, three objects, base lbl_803B8C00);
+  with two it uses each symbol (fn_800B44D0). So the same inline gives pooled code in one caller and plain
+  code in another. `tools/pool_prelude.py` writes the definitions that reproduce the pool in a draft.
+- **m2c prints stores in scheduled order, not source order.** fn_800B44D0: the rate is assigned before the
+  flag is set; the register of the 0x4330 conversion constant (r5, above the flag's r0) shows it was
+  created first. When two volatile registers are swapped between two independent statements, swap them.
+- **A flat sum keeps its constant where it is written**: `n * 30 + n * 30 + 30` gives `add` then nothing
+  moved; `n * 30 + (n * 30 + 30)` has the constant pulled out to the end (fn_800FC290).
+- **A compound assignment through an index keeps base and scaled index in saved registers**:
+  `total[robo.team] += robo.hp` (u32 += f32) holds `&total` in r25 and `team * 4` in r24 (fn_8004FF64); m2c
+  shows two extra locals.
+- **Uncast indexing counts 2 again**: cr_E_CLOCKIN's script pointer read as `pc[0]` / `pc[1]` ranks above
+  the count; through `M2C_FIELD` casts it ranked below (section 1).
+
+## 10. Tools considered
 
 | Tool | Verdict |
 |---|---|
