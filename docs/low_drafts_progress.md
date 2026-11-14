@@ -1,24 +1,25 @@
 # The low-score drafts: progress (Nov 13, 2026)
 
-Seven passes over the game functions whose m2c drafts score lowest: the 100 largest open drafts under 40% (2.0 -
+Eight passes over the game functions whose m2c drafts score lowest: the 100 largest open drafts under 40% (2.0 -
 12.9 KB, 410 KB together), the next 100 (0.75 - 2.0 KB, 129 KB), then the 200 lowest-scoring of the rest (3 - 49%,
 20 bytes - 3.1 KB, 139 KB), the 200 after those (3 - 66%, 64 bytes - 15.4 KB, 177 KB) and then the rest: the 176 open drafts left outside
 every set (66 - 97%, 56 bytes - 3.1 KB, 118 KB), and then the 150 lowest-scoring open drafts of all of them again
 (1 - 29%, 208 bytes - 15.4 KB, 437 KB), largest first, and last the other end: the 150 highest-scoring open drafts
-(70 - 97%, 120 bytes - 3.1 KB, 104 KB). The method, the tools and what was measured are in [drafts.md](drafts.md) (the Nov 13 entries) and [tools.md](tools.md).
+(70 - 97%, 120 bytes - 3.1 KB, 104 KB) and the 100 after those (61 - 75%, 76 bytes - 2.2 KB, 79 KB). The method, the tools and what was measured are in [drafts.md](drafts.md) (the Nov 13 entries) and [tools.md](tools.md).
 
 - **Start column**: the m2c draft of the latest batch (Nov 13, after the rest set; hand drafts are part of it), so a
   function already matched by hand is 100% on both sides and is not counted as up; the per-set totals in drafts.md
   were measured against the drafts of their own day. The last table (the top 150) is the exception: its start
   column is the best version that existed before that set (`build/triage/top150_start.tsv`), so it shows the
-  set's own work.
+  set's own work; its rows for the six functions matched later, in the next-100 round, are updated, the others
+  are as that pass left them. The next-100 table starts from the m2c draft.
 - **Score**: aligned equal words of the compiled draft against the original (`tools/sched/scratch/hand/hd.py`);
   100% is a match.
 - **Shape**: the instruction kinds aligned, registers and immediates dropped (`tools/triage.py`).
 - **Regs**: the words equal once only the register fields are dropped.
 - **Best version**: where the best-scoring draft lives. These are decompiled drafts and are never committed:
   `build/low100/`, `build/next100/`, `build/third200/`, `build/fourth200/`, `build/rest176/`, `build/low150/` (the tool chain and the order sweep), `build/hand100/`,
-  `build/hand200/`, `build/hand300/`, `build/hand400/`, `build/hand500/`, `build/hand600/`, `build/hand700/`, `build/hand800/` (by hand, kept by score or by structure), `build/top150c/` (the top 150: the rank sweep, gapfix, site_rules and hand work merged); a match is in `tools/hand_drafts/`. To rebuild them: run the tools in the order drafts.md gives on the lists
+  `build/hand200/`, `build/hand300/`, `build/hand400/`, `build/hand500/`, `build/hand600/`, `build/hand700/`, `build/hand800/` (by hand, kept by score or by structure), `build/top150c/` (the top 150: the rank sweep, gapfix, site_rules and hand work merged), `build/b100c/` (the next 100: rank_solve, goto_loops, site_rules, gapfix and hand work merged); a match is in `tools/hand_drafts/`. To rebuild them: run the tools in the order drafts.md gives on the lists
   `build/triage/low100.txt` / `next100.txt` (`tools/triage.py --low 40 --top 100` writes the first).
 
 ## The first 100
@@ -991,12 +992,12 @@ every set (66 - 97%, 56 bytes - 3.1 KB, 118 KB), and then the 150 lowest-scoring
 
 ## The top 150: the highest-scoring open drafts
 
-72 of 150 up, 25 at 100%; equal words 20,952 -> 21,970 (+1,018); mean score 79.4 -> 84.2%, shape 92.8 -> 93.7%, regs 89.7 -> 90.9%.
+76 of 150 up, 30 at 100%; equal words 20,952 -> 22,111 (+1,159); mean score 79.4 -> 84.9%, shape 92.8 -> 93.9%, regs 89.7 -> 91.2%.
 
 | Function | Address | Bytes | Score | Shape | Regs | Words | Best version |
 |---|---|---:|---|---|---|---|---|
 | `fn_8001C5AC` | 8001C5AC | 992 | 97 -> 97% | 99 -> 99% | 98 -> 98% | 243 -> 243 | build/top150b |
-| `fn_80096E28` | 80096E28 | 148 | 97 -> 97% | 100 -> 100% | 100 -> 100% | 36 -> 36 | build/top150b |
+| `fn_80096E28` | 80096E28 | 148 | 97 -> 100% | 100 -> 100% | 100 -> 100% | 36 -> 37 | tools/hand_drafts |
 | `fn_80044A90` | 80044A90 | 1044 | 96 -> 96% | 98 -> 98% | 97 -> 97% | 251 -> 251 | build/top150b |
 | `fn_800666B8` | 800666B8 | 532 | 96 -> 96% | 96 -> 96% | 96 -> 96% | 129 -> 129 | build/top150b |
 | `cr_Save_ApplyUnlocks` | 80011AC0 | 840 | 95 -> 100% | 99 -> 100% | 99 -> 100% | 200 -> 210 | m2c draft |
@@ -1047,7 +1048,7 @@ every set (66 - 97%, 56 bytes - 3.1 KB, 118 KB), and then the 150 lowest-scoring
 | `fn_800224F0` | 800224F0 | 832 | 82 -> 82% | 87 -> 87% | 84 -> 84% | 138 -> 138 | m2c draft |
 | `cr_StageSelector_Update` | 80113680 | 692 | 82 -> 86% | 92 -> 92% | 89 -> 89% | 147 -> 154 | build/top150b |
 | `fn_800BA488` | 800BA488 | 616 | 82 -> 82% | 90 -> 90% | 87 -> 87% | 133 -> 133 | m2c draft |
-| `cr_SYS_OVERLAY_WAIT` | 800D8B68 | 452 | 82 -> 84% | 100 -> 100% | 100 -> 100% | 93 -> 96 | build/top150b |
+| `cr_SYS_OVERLAY_WAIT` | 800D8B68 | 452 | 82 -> 100% | 100 -> 100% | 100 -> 100% | 93 -> 113 | tools/hand_drafts |
 | `fn_800A0CB0` | 800A0CB0 | 356 | 82 -> 87% | 94 -> 94% | 94 -> 94% | 73 -> 78 | build/top150b |
 | `fn_8008CBE8` | 8008CBE8 | 272 | 82 -> 82% | 95 -> 95% | 89 -> 89% | 56 -> 56 | build/top150b |
 | `fn_800381D0` | 800381D0 | 2040 | 81 -> 91% | 98 -> 99% | 94 -> 98% | 415 -> 469 | build/top150b |
@@ -1069,7 +1070,7 @@ every set (66 - 97%, 56 bytes - 3.1 KB, 118 KB), and then the 150 lowest-scoring
 | `fn_8008F8D0` | 8008F8D0 | 200 | 78 -> 100% | 98 -> 100% | 98 -> 100% | 39 -> 50 | m2c draft |
 | `fn_80112C24` | 80112C24 | 172 | 78 -> 78% | 85 -> 85% | 85 -> 85% | 37 -> 37 | m2c draft |
 | `cr_Vec3_RotateAboutAxis` | 8001BF04 | 1704 | 77 -> 82% | 93 -> 93% | 89 -> 89% | 339 -> 358 | build/top150b |
-| `fn_80015388` | 80015388 | 740 | 77 -> 77% | 90 -> 90% | 84 -> 84% | 145 -> 145 | m2c draft |
+| `fn_80015388` | 80015388 | 740 | 77 -> 100% | 90 -> 100% | 84 -> 100% | 145 -> 185 | tools/hand_drafts |
 | `fn_80048E7C` | 80048E7C | 588 | 77 -> 77% | 84 -> 84% | 84 -> 84% | 115 -> 115 | build/top150b |
 | `fn_80079F28` | 80079F28 | 520 | 77 -> 100% | 96 -> 100% | 95 -> 100% | 101 -> 130 | m2c draft |
 | `cr_F_CUSTOMIZE_ON` | 800BF38C | 512 | 77 -> 77% | 91 -> 91% | 87 -> 87% | 99 -> 99 | m2c draft |
@@ -1091,7 +1092,7 @@ every set (66 - 97%, 56 bytes - 3.1 KB, 118 KB), and then the 150 lowest-scoring
 | `fn_80117574` | 80117574 | 248 | 76 -> 76% | 85 -> 85% | 76 -> 76% | 53 -> 53 | m2c draft |
 | `fn_80045FEC` | 80045FEC | 2252 | 75 -> 75% | 97 -> 97% | 93 -> 93% | 424 -> 424 | build/top150b |
 | `fn_800177F0` | 800177F0 | 1568 | 75 -> 75% | 96 -> 96% | 90 -> 90% | 309 -> 309 | m2c draft |
-| `fn_800944E4` | 800944E4 | 1160 | 75 -> 75% | 90 -> 90% | 77 -> 77% | 218 -> 218 | build/top150b |
+| `fn_800944E4` | 800944E4 | 1160 | 75 -> 100% | 90 -> 100% | 77 -> 100% | 218 -> 290 | tools/hand_drafts |
 | `fn_80029FD4` | 80029FD4 | 864 | 75 -> 87% | 97 -> 97% | 92 -> 92% | 162 -> 190 | build/top150b |
 | `fn_8007A39C` | 8007A39C | 740 | 75 -> 75% | 89 -> 89% | 82 -> 82% | 139 -> 140 | build/top150b |
 | `fn_80067000` | 80067000 | 240 | 75 -> 88% | 93 -> 93% | 93 -> 93% | 45 -> 53 | build/top150b |
@@ -1116,7 +1117,7 @@ every set (66 - 97%, 56 bytes - 3.1 KB, 118 KB), and then the 150 lowest-scoring
 | `fn_8011214C` | 8011214C | 328 | 73 -> 73% | 87 -> 87% | 79 -> 79% | 60 -> 60 | m2c draft |
 | `cr_SYS_SCR_END` | 800DB7B4 | 240 | 73 -> 73% | 95 -> 95% | 95 -> 95% | 44 -> 44 | m2c draft |
 | `fn_80069668` | 80069668 | 212 | 73 -> 73% | 96 -> 96% | 96 -> 96% | 39 -> 39 | m2c draft |
-| `fn_80066F58` | 80066F58 | 168 | 73 -> 73% | 92 -> 92% | 92 -> 92% | 31 -> 31 | m2c draft |
+| `fn_80066F58` | 80066F58 | 168 | 73 -> 100% | 92 -> 100% | 92 -> 100% | 31 -> 42 | tools/hand_drafts |
 | `fn_800E9C90` | 800E9C90 | 164 | 73 -> 82% | 90 -> 90% | 90 -> 90% | 30 -> 34 | build/top150b |
 | `fn_800E9D34` | 800E9D34 | 164 | 73 -> 82% | 90 -> 90% | 90 -> 90% | 30 -> 34 | build/top150b |
 | `fn_800E9DD8` | 800E9DD8 | 164 | 73 -> 82% | 90 -> 90% | 90 -> 90% | 30 -> 34 | build/top150b |
@@ -1145,3 +1146,110 @@ every set (66 - 97%, 56 bytes - 3.1 KB, 118 KB), and then the 150 lowest-scoring
 | `fn_800ACE74` | 800ACE74 | 260 | 70 -> 100% | 87 -> 100% | 87 -> 100% | 46 -> 65 | m2c draft |
 | `fn_800AD4A8` | 800AD4A8 | 260 | 70 -> 100% | 87 -> 100% | 87 -> 100% | 46 -> 65 | m2c draft |
 | `fn_800AD880` | 800AD880 | 260 | 70 -> 100% | 87 -> 100% | 87 -> 100% | 46 -> 65 | m2c draft |
+
+## The next 100: the highest-scoring open drafts after the top 150
+
+65 of 100 up, 12 at 100%; equal words 12,904 -> 14,298 (+1,394); mean score 61.8 -> 70.7%, shape 83.7 -> 86.5%, regs 76.5 -> 80.0%.
+
+| Function | Address | Bytes | Score | Shape | Regs | Words | Best version |
+|---|---|---:|---|---|---|---|---|
+| `fn_80066D3C` | 80066D3C | 144 | 63 -> 100% | 91 -> 100% | 91 -> 100% | 23 -> 36 | m2c draft |
+| `fn_80066E5C` | 80066E5C | 144 | 66 -> 100% | 91 -> 100% | 91 -> 100% | 24 -> 36 | m2c draft |
+| `fn_80090058` | 80090058 | 312 | 69 -> 73% | 88 -> 91% | 85 -> 88% | 54 -> 57 | build/allbest2 |
+| `fn_800ADC54` | 800ADC54 | 260 | 64 -> 100% | 87 -> 100% | 86 -> 100% | 42 -> 65 | m2c draft |
+| `fn_800AEB7C` | 800AEB7C | 260 | 64 -> 100% | 87 -> 100% | 86 -> 100% | 42 -> 65 | m2c draft |
+| `fn_800AEF50` | 800AEF50 | 260 | 64 -> 100% | 87 -> 100% | 86 -> 100% | 42 -> 65 | m2c draft |
+| `fn_80067778` | 80067778 | 76 | 57 -> 100% | 89 -> 100% | 89 -> 100% | 11 -> 19 | m2c draft |
+| `fn_800456B8` | 800456B8 | 108 | 9 -> 70% | 33 -> 88% | 37 -> 81% | 5 -> 19 | build/allbest2 |
+| `fn_800FC674` | 800FC674 | 1468 | 69 -> 69% | 80 -> 80% | 74 -> 74% | 254 -> 254 | m2c draft |
+| `fn_80017E10` | 80017E10 | 1404 | 69 -> 70% | 83 -> 83% | 80 -> 80% | 245 -> 249 | build/allbest2 |
+| `fn_80118ED4` | 80118ED4 | 1176 | 69 -> 74% | 88 -> 93% | 83 -> 90% | 209 -> 220 | build/allbest2 |
+| `fn_80019AF0` | 80019AF0 | 916 | 68 -> 100% | 96 -> 100% | 87 -> 100% | 159 -> 229 | m2c draft |
+| `fn_80064AB8` | 80064AB8 | 812 | 69 -> 100% | 91 -> 100% | 87 -> 100% | 141 -> 203 | m2c draft |
+| `fn_800663A4` | 800663A4 | 788 | 67 -> 69% | 91 -> 91% | 87 -> 86% | 133 -> 136 | build/allbest2 |
+| `cr_CM_ALL_SET` | 800CA43C | 716 | 69 -> 69% | 88 -> 88% | 79 -> 79% | 125 -> 125 | m2c draft |
+| `cr_CM_MOVE_CM_POS` | 800C9B50 | 688 | 69 -> 69% | 86 -> 86% | 76 -> 76% | 123 -> 123 | m2c draft |
+| `fn_80018630` | 80018630 | 532 | 69 -> 69% | 88 -> 88% | 83 -> 83% | 92 -> 92 | m2c draft |
+| `fn_8011266C` | 8011266C | 476 | 69 -> 69% | 87 -> 87% | 78 -> 78% | 90 -> 90 | m2c draft |
+| `fn_80080C7C` | 80080C7C | 424 | 69 -> 69% | 82 -> 82% | 82 -> 82% | 74 -> 74 | m2c draft |
+| `fn_80024A88` | 80024A88 | 316 | 69 -> 69% | 87 -> 87% | 82 -> 82% | 55 -> 55 | m2c draft |
+| `fn_800450EC` | 800450EC | 1484 | 68 -> 68% | 85 -> 85% | 79 -> 79% | 262 -> 264 | build/allbest2 |
+| `fn_800F56B0` | 800F56B0 | 1332 | 68 -> 68% | 77 -> 77% | 68 -> 68% | 237 -> 237 | m2c draft |
+| `fn_800EEDDC` | 800EEDDC | 1204 | 68 -> 68% | 79 -> 79% | 68 -> 68% | 215 -> 215 | m2c draft |
+| `fn_800426D4` | 800426D4 | 996 | 68 -> 79% | 84 -> 84% | 81 -> 81% | 170 -> 197 | build/allbest2 |
+| `fn_800FF614` | 800FF614 | 836 | 68 -> 68% | 83 -> 83% | 77 -> 77% | 143 -> 143 | m2c draft |
+| `fn_8012D804` | 8012D804 | 704 | 68 -> 69% | 83 -> 88% | 81 -> 85% | 120 -> 123 | build/allbest2 |
+| `cr_CM_TAR_SET` | 800CA188 | 692 | 68 -> 68% | 88 -> 88% | 78 -> 78% | 119 -> 119 | m2c draft |
+| `fn_801147B4` | 801147B4 | 660 | 66 -> 73% | 91 -> 91% | 88 -> 87% | 116 -> 128 | build/allbest2 |
+| `fn_8006E83C` | 8006E83C | 504 | 68 -> 69% | 84 -> 87% | 79 -> 80% | 86 -> 87 | build/allbest2 |
+| `cr_StageSelector_PickRandom` | 80111AF0 | 504 | 68 -> 68% | 94 -> 94% | 85 -> 85% | 88 -> 88 | m2c draft |
+| `cr_SEQ_MOVIE_FrameC` | 80016868 | 2200 | 67 -> 69% | 90 -> 90% | 82 -> 81% | 376 -> 388 | build/allbest2 |
+| `fn_801187B8` | 801187B8 | 1104 | 67 -> 73% | 87 -> 93% | 82 -> 89% | 191 -> 202 | build/allbest2 |
+| `fn_800B1544` | 800B1544 | 812 | 67 -> 67% | 78 -> 78% | 77 -> 77% | 140 -> 140 | m2c draft |
+| `fn_8000B55C` | 8000B55C | 796 | 63 -> 69% | 91 -> 91% | 85 -> 84% | 132 -> 144 | build/allbest2 |
+| `fn_80131910` | 80131910 | 760 | 67 -> 67% | 82 -> 82% | 81 -> 81% | 128 -> 128 | m2c draft |
+| `cr_SEQ_LOGO_Leave` | 80019568 | 700 | 66 -> 67% | 89 -> 89% | 74 -> 73% | 125 -> 128 | build/allbest2 |
+| `fn_80061BE8` | 80061BE8 | 560 | 67 -> 67% | 89 -> 91% | 83 -> 84% | 98 -> 99 | build/allbest2 |
+| `fn_800F5574` | 800F5574 | 316 | 67 -> 67% | 75 -> 75% | 67 -> 67% | 56 -> 56 | m2c draft |
+| `fn_8001B29C` | 8001B29C | 236 | 66 -> 67% | 87 -> 87% | 79 -> 79% | 41 -> 42 | build/allbest2 |
+| `fn_80048050` | 80048050 | 1720 | 62 -> 71% | 80 -> 87% | 73 -> 81% | 298 -> 318 | build/allbest2 |
+| `fn_80046F58` | 80046F58 | 1492 | 66 -> 68% | 76 -> 76% | 71 -> 71% | 281 -> 289 | build/allbest2 |
+| `fn_8004752C` | 8004752C | 1428 | 66 -> 68% | 76 -> 76% | 71 -> 71% | 272 -> 280 | build/allbest2 |
+| `fn_80088C8C` | 80088C8C | 1204 | 61 -> 67% | 77 -> 80% | 76 -> 75% | 187 -> 205 | build/allbest2 |
+| `fn_800E9000` | 800E9000 | 1064 | 62 -> 73% | 90 -> 93% | 70 -> 72% | 170 -> 199 | build/allbest2 |
+| `fn_80120528` | 80120528 | 1044 | 54 -> 66% | 77 -> 85% | 70 -> 80% | 153 -> 173 | build/allbest2 |
+| `fn_8011A5D0` | 8011A5D0 | 812 | 65 -> 67% | 94 -> 96% | 91 -> 93% | 133 -> 138 | build/allbest2 |
+| `fn_8009381C` | 8009381C | 724 | 64 -> 100% | 93 -> 100% | 91 -> 100% | 117 -> 181 | m2c draft |
+| `fn_800EA830` | 800EA830 | 520 | 66 -> 66% | 84 -> 84% | 80 -> 80% | 87 -> 87 | m2c draft |
+| `fn_80041140` | 80041140 | 440 | 54 -> 70% | 90 -> 84% | 77 -> 80% | 60 -> 78 | build/allbest2 |
+| `fn_80066EEC` | 80066EEC | 108 | 66 -> 100% | 88 -> 100% | 88 -> 100% | 18 -> 27 | m2c draft |
+| `fn_800B54E8` | 800B54E8 | 1652 | 65 -> 65% | 86 -> 87% | 81 -> 81% | 282 -> 284 | build/allbest2 |
+| `fn_8010DF48` | 8010DF48 | 1116 | 45 -> 71% | 82 -> 91% | 72 -> 86% | 137 -> 200 | build/allbest2 |
+| `fn_800633BC` | 800633BC | 664 | 54 -> 65% | 85 -> 83% | 79 -> 75% | 91 -> 108 | build/allbest2 |
+| `fn_80068420` | 80068420 | 620 | 60 -> 72% | 81 -> 86% | 78 -> 81% | 94 -> 112 | build/allbest2 |
+| `fn_800B4278` | 800B4278 | 600 | 65 -> 65% | 83 -> 83% | 81 -> 81% | 114 -> 114 | m2c draft |
+| `fn_800EB8A0` | 800EB8A0 | 576 | 65 -> 65% | 79 -> 79% | 65 -> 65% | 98 -> 98 | m2c draft |
+| `fn_80036100` | 80036100 | 572 | 65 -> 65% | 97 -> 97% | 79 -> 79% | 94 -> 94 | m2c draft |
+| `fn_8009E49C` | 8009E49C | 604 | 59 -> 64% | 75 -> 75% | 67 -> 67% | 94 -> 102 | build/allbest2 |
+| `fn_800EBD18` | 800EBD18 | 588 | 64 -> 64% | 79 -> 79% | 64 -> 64% | 96 -> 96 | m2c draft |
+| `fn_800EA0F4` | 800EA0F4 | 584 | 68 -> 67% | 84 -> 87% | 76 -> 76% | 91 -> 98 | build/allbest2 |
+| `fn_80095224` | 80095224 | 1244 | 63 -> 100% | 89 -> 100% | 67 -> 100% | 198 -> 311 | tools/hand_drafts |
+| `cr_CAMMODE_OPENING_Start` | 8003577C | 1104 | 63 -> 63% | 81 -> 81% | 69 -> 69% | 183 -> 183 | m2c draft |
+| `fn_800220C4` | 800220C4 | 1068 | 63 -> 63% | 84 -> 84% | 72 -> 72% | 181 -> 181 | m2c draft |
+| `fn_80018844` | 80018844 | 1008 | 63 -> 63% | 69 -> 69% | 63 -> 63% | 159 -> 159 | m2c draft |
+| `fn_80089BB0` | 80089BB0 | 912 | 63 -> 63% | 73 -> 73% | 71 -> 71% | 144 -> 144 | m2c draft |
+| `fn_80072B90` | 80072B90 | 904 | 21 -> 63% | 56 -> 77% | 41 -> 78% | 69 -> 149 | build/allbest2 |
+| `fn_800EB518` | 800EB518 | 904 | 59 -> 63% | 91 -> 89% | 83 -> 79% | 136 -> 143 | build/allbest2 |
+| `fn_800EAA38` | 800EAA38 | 512 | 63 -> 63% | 85 -> 85% | 82 -> 82% | 82 -> 82 | m2c draft |
+| `fn_800B5B5C` | 800B5B5C | 496 | 62 -> 63% | 84 -> 75% | 66 -> 67% | 87 -> 89 | build/allbest2 |
+| `fn_800B3640` | 800B3640 | 476 | 52 -> 63% | 86 -> 84% | 76 -> 69% | 68 -> 85 | build/allbest2 |
+| `fn_8010DBA8` | 8010DBA8 | 460 | 63 -> 63% | 77 -> 77% | 77 -> 77% | 77 -> 77 | m2c draft |
+| `cr_SEQ_CUSTOMIZE_Leave` | 800156DC | 284 | 63 -> 63% | 84 -> 84% | 78 -> 78% | 50 -> 50 | m2c draft |
+| `cr_Cos16` | 8001F428 | 152 | 47 -> 63% | 100 -> 100% | 100 -> 100% | 18 -> 24 | build/allbest2 |
+| `cr_Sin16` | 8001F4C0 | 152 | 47 -> 63% | 100 -> 100% | 100 -> 100% | 18 -> 24 | build/allbest2 |
+| `fn_800A3C0C` | 800A3C0C | 2100 | 45 -> 90% | 86 -> 93% | 80 -> 93% | 263 -> 476 | build/hand800 |
+| `fn_80123584` | 80123584 | 1660 | 62 -> 72% | 90 -> 97% | 87 -> 94% | 261 -> 302 | build/allbest2 |
+| `fn_800E52D0` | 800E52D0 | 1640 | 62 -> 66% | 94 -> 95% | 82 -> 82% | 255 -> 273 | build/allbest2 |
+| `fn_8006EA34` | 8006EA34 | 1220 | 61 -> 62% | 87 -> 87% | 77 -> 76% | 206 -> 209 | build/allbest2 |
+| `fn_800EBF64` | 800EBF64 | 1128 | 62 -> 62% | 77 -> 77% | 46 -> 46% | 186 -> 186 | m2c draft |
+| `fn_8004949C` | 8004949C | 1120 | 62 -> 63% | 77 -> 77% | 73 -> 73% | 208 -> 210 | build/allbest2 |
+| `cr_E_CIRCLE_SET_POS` | 800C2218 | 1064 | 57 -> 62% | 73 -> 76% | 68 -> 71% | 186 -> 203 | build/allbest2 |
+| `cr_SYS_SCENE_CHANGE` | 800D9184 | 1000 | 54 -> 63% | 83 -> 92% | 70 -> 76% | 149 -> 158 | build/allbest2 |
+| `fn_800798CC` | 800798CC | 932 | 62 -> 62% | 73 -> 73% | 69 -> 69% | 145 -> 145 | m2c draft |
+| `fn_800B3EF8` | 800B3EF8 | 784 | 58 -> 70% | 81 -> 76% | 70 -> 77% | 115 -> 141 | build/allbest2 |
+| `fn_800658F8` | 800658F8 | 680 | 54 -> 76% | 82 -> 91% | 76 -> 84% | 94 -> 131 | build/allbest2 |
+| `cr_Cam_Update` | 80036954 | 632 | 62 -> 62% | 82 -> 82% | 75 -> 75% | 98 -> 98 | m2c draft |
+| `fn_800EBAE0` | 800EBAE0 | 568 | 62 -> 62% | 78 -> 78% | 62 -> 62% | 91 -> 91 | m2c draft |
+| `fn_8008A6B0` | 8008A6B0 | 512 | 62 -> 62% | 82 -> 82% | 75 -> 75% | 78 -> 78 | m2c draft |
+| `fn_80011E08` | 80011E08 | 432 | 62 -> 67% | 73 -> 73% | 67 -> 67% | 67 -> 73 | build/allbest2 |
+| `fn_800965F4` | 800965F4 | 352 | 55 -> 100% | 88 -> 100% | 77 -> 100% | 52 -> 88 | m2c draft |
+| `fn_800208F0` | 800208F0 | 336 | 62 -> 62% | 80 -> 80% | 71 -> 71% | 54 -> 54 | m2c draft |
+| `fn_8005C384` | 8005C384 | 332 | 62 -> 62% | 74 -> 74% | 67 -> 67% | 63 -> 63 | m2c draft |
+| `fn_800E7FC8` | 800E7FC8 | 1436 | 55 -> 61% | 77 -> 83% | 66 -> 71% | 203 -> 228 | build/allbest2 |
+| `fn_800E3F80` | 800E3F80 | 1132 | 56 -> 65% | 84 -> 86% | 70 -> 71% | 164 -> 193 | build/allbest2 |
+| `cr_OBJ_TURN` | 800CE35C | 1068 | 59 -> 63% | 82 -> 83% | 66 -> 68% | 168 -> 178 | build/allbest2 |
+| `fn_800FC290` | 800FC290 | 996 | 59 -> 61% | 78 -> 80% | 71 -> 72% | 160 -> 167 | build/allbest2 |
+| `fn_800968B4` | 800968B4 | 884 | 61 -> 67% | 93 -> 94% | 76 -> 78% | 137 -> 149 | build/allbest2 |
+| `fn_800FE644` | 800FE644 | 784 | 59 -> 61% | 80 -> 80% | 72 -> 72% | 118 -> 121 | build/allbest2 |
+| `fn_80124CA0` | 80124CA0 | 524 | 61 -> 61% | 91 -> 91% | 85 -> 85% | 82 -> 82 | m2c draft |
+| `fn_8007BB60` | 8007BB60 | 516 | 60 -> 61% | 93 -> 92% | 86 -> 85% | 78 -> 79 | build/allbest2 |

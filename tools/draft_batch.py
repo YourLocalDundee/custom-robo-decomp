@@ -4215,8 +4215,13 @@ def one(job):
         pre = ''
         if body.startswith(NO_RO):   # the variant plain_readonly: the context's read-only data declared plainly
             body, pre = body[len(NO_RO):], '#define CR_NO_RO\n'
+        # `// also defines: fn_A fn_B` (a hand draft that defines helpers under their real names, e.g. auto-inlined
+        # getters): the context's prototypes of those are renamed away as well
+        also = sum([l.split() for l in re.findall(r'(?m)^// also defines: (.+)$', body)], [])
         lines = ('// m2c draft of %s (0x%08X, %d bytes): decompiled output, gitignored, never commit\n'
-                 '%s#define %s %s__proto\n#include "ctx.h"\n#undef %s\n\n%s' % (name, addr, size, pre, name, name, name, body)).split('\n')
+                 '%s#define %s %s__proto\n%s#include "ctx.h"\n#undef %s\n%s\n%s'
+                 % (name, addr, size, pre, name, name, ''.join('#define %s %s__proto\n' % (x, x) for x in also), name,
+                    ''.join('#undef %s\n' % x for x in also), body)).split('\n')
         cmd = mwcc_cmd(W['ver']) + ['-c'] + W['flags'] + CTX_DEFS + ['-DCR_DRAFT_CC', '-i', out.replace(os.sep, '/')] + sum([['-i', i] for i in CTX_INC], []) + ['-o', o, c.replace('\\', '/')]
         fixes = []
         while True:

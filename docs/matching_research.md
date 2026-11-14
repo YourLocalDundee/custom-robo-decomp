@@ -10,9 +10,9 @@ speed`) before it was used. Where the check disagreed, the measured behaviour is
 
 | Source | What it is | What was used |
 |---|---|---|
-| https://github.com/doldecomp/sms `docs/AGENT_MATCHING_TIPS.md` and `AGENTS.md` | Super Mario Sunshine (GC/1.2.5, `-O4,p`): a long list of matching facts, most of them read from the compiler's decompilation | the register rules, the stack frame arithmetic, the forms of removed debug code, "replay the allocator instead of guessing" |
+| https://github.com/doldecomp/sms: `AGENT_MATCHING_TIPS.md` (in its docs folder) and `AGENTS.md` | Super Mario Sunshine (GC/1.2.5, `-O4,p`): a long list of matching facts, most of them read from the compiler's decompilation | the register rules, the stack frame arithmetic, the forms of removed debug code, "replay the allocator instead of guessing" |
 | https://github.com/rayanht/mwcc (already in `tools/downloads/rayanht_mwcc`, never run) | a matching decompilation of `mwcceppc.exe` GC/1.0 - 1.3 | `src/backend/CodeGen.c` (`allocate_saved_gprs`, `allocate_object_registers`, the pass order of `CodeGen_Generator`), `src/optimizer/COptimizer.c` (how a variable's usage is counted), `src/frontend/CFunc.c` (statement weights), `src/backend/TOC.c` (pooled-data base objects) |
-| https://github.com/zeldaret/tww `docs/regalloc.md`, `docs/decompiling.md` | The Wind Waker (GC/1.3.2, C++): a cheat sheet of register swaps | declaration order, a local copy of a base pointer, casts, `const` on inline parameters, if / else against the ternary |
+| https://github.com/zeldaret/tww: `regalloc.md` and `decompiling.md` (in its docs folder) | The Wind Waker (GC/1.3.2, C++): a cheat sheet of register swaps | declaration order, a local copy of a base pointer, casts, `const` on inline parameters, if / else against the ternary |
 | https://github.com/simonlindholm/decomp-permuter (already set up, `tools/sched/permuter_setup.py`) | random and guided source permutation | `PERM_GENERAL` / `PERM_RANDOMIZE` exist for guided runs; not needed yet |
 | https://github.com/macabeus/mizuchi, https://github.com/maci0/rebrew | pipelines around m2c, objdiff, the permuter and a language model; a genetic search over flags and source | read for ideas only: both are the loop this repository already runs (draft, compile, score, keep) |
 | https://hackmd.io/vPmcgdaFSlq4R2mfkq4bJg | the IDO (N64) -O2 guide | the order of work: control flow, then the set of saved registers, then small reorderings, then registers |
@@ -79,13 +79,14 @@ through the second base (`var_r24 - 0x6BA4`), which took fn_800A3C0C from 75% to
 shape itself is still open (every spelling folds the constant into the displacement; an inline helper that
 returns the address gives the shape but takes a saved register per site).
 
-**Proof with fn_800456B8** (`tools/pooled_drafts/`): with its three vectors defined in the draft, a pad before
-them and a static function that references them in address order (the pool is laid out in the order of first
-reference), the compiler makes the base itself and emits the original's struct copies, three loads and then
-three stores: 27 of 27 words, where the pointer draft is at 70% because a pointer local has the worst-case
-alias and the scheduler may not move a load above a store. The relocations then name the draft's own `.bss`,
-so this is evidence and not a linkable draft. 92 open drafts have such a base: they need file objects that
-define the file's data.
+**This was already established here on Nov 6** ([drafts.md](drafts.md), "the battle action file's statics";
+`tools/file_drafts/battle_9B60/`): `pool.inc` declares the statics of that file and a scoring-only function that
+references them in address order (the pool is laid out in the order of first reference), `score.py` compiles
+`pool.inc` plus a draft, and `relcheck.py` maps the draft's `...bss.0` one to one onto the original's pool symbol.
+fn_800456B8 and four others are at 100% there. This round re-derived it from scratch (the same recipe, 27 of 27
+words for fn_800456B8) before finding the earlier work, which at least confirms it independently. What is new
+is the count: **92 open drafts** have a `base_lbl_` local, in more files than the battle action one; each such
+file needs its own `pool.inc`.
 
 ## 3. The stack frame
 

@@ -2677,12 +2677,10 @@ are **structural** (29: by hand, smallest first).
     `rank_sweep.py`: 52 of 150 in 80 minutes).
   - **`tools/goto_loops.py`**: m2c's `loop_N:` / `goto loop_N;` as `while (C) { if (!D) { break; } ... }` (four
     forms, kept by score). 209 open drafts have such loops; over all of them 66 up, +416 words.
-  - **Pooled data needs the file** ([matching_research.md](matching_research.md) section 2,
-    `tools/pooled_drafts/`): the base register m2c prints as `base_lbl_...` is the compiler's own base for the
-    file's pooled data. With the three vectors of fn_800456B8 defined in the draft the compiler emits the
-    original's struct copies (three loads, then three stores) and the function is 27 of 27 words (70% as a
-    pointer draft); its relocations then name the draft's own `.bss`, so it is evidence, not a hand draft. 92 open
-    drafts have such a base: they are the case for file objects.
+  - **Pooled data needs the file** ([matching_research.md](matching_research.md) section 2): the base register
+    m2c prints as `base_lbl_...` is the compiler's own base for the file's pooled data. That is the Nov 6 finding
+    of `tools/file_drafts/battle_9B60/` (fn_800456B8 and four others at 100% with `pool.inc`); it was re-derived
+    here before the earlier work was found again. New: 92 open drafts have such a base, in several files.
 - **Nov 13, night: 14 matches** (4 of them from the top 150's open list):
   - cr_SYS_OVERLAY_WAIT: `rank_solve.py` alone.
   - The text offset family, fn_80067778 / fn_80066EEC / fn_80066D3C / fn_80066E5C (73 - 81%): the table read as
@@ -2708,3 +2706,42 @@ are **structural** (29: by hand, smallest first).
   moves the operands).
 - **Nov 13, night: the 14 drafted again** (`--out build/regen6`) and merged: **1,094 of 1,751 at 100%**. Promoted 978
   functions (0x35DC4 bytes) and 7 file objects; `main.dol` still builds with the retail SHA-1 (6a73cd11...).
+- **Nov 13, late: four recursive walks from their natural source, and fn_80015388 (19 matches in the next-100
+  round).** Eight open
+  drafts call themselves. In four the original is a short recursive function that the compiler inlined into
+  itself; m2c printed every level:
+  - fn_80064AB8 (above) and **fn_80019AF0** (68%, 916 bytes): for every joint of a tree, the diffuse colour of each
+    display object whose red is 0xFF is set to a colour passed **by value** (the 4-byte copies on the stack in the
+    draft are that argument, once per expansion). 25 lines with `#pragma auto_inline on` and
+    `#pragma inline_max_size(500)`; typed pointers, no dead use. The depth is set by the size budget: 300 gives two
+    levels fewer, 700 too many.
+  - **fn_800944E4** (73%, 1,160 bytes), **fn_8009496C** (59%, 1,132 bytes), **fn_80095224** (63%, 1,244 bytes): the
+    render-flag, animation-rate and set-frame walks of the file of fn_80094DD8 (matched Nov 6 the same way). The
+    two getters fn_80093C30 / fn_800944B8 are real functions of the file that the compiler inlines until the
+    budget runs out; the deepest level calls them, so a draft with its own `static inline` copies is 100% of the
+    words but fails relcheck (`bl DObjGetMObj` against `bl fn_800944B8`). They are defined in the draft under
+    their real names. With the context's signature (`s32 (void *)`) their bodies read the object through a cast,
+    which counts 1 in the register rule where the original's `dobj->mobj` counted 2, and the caller's `dobj` then
+    ranks below the joints (85%; dead uses do not repair it, each expansion repeats them and the size budget
+    shifts). So a draft may now say **`// also defines: fn_A fn_B`**: `hd.py` and `draft_batch.py` rename the
+    context's prototypes of those too, and the draft gives them their real types
+    (`HSD_MObj *fn_800944B8(HSD_DObj *dobj) { return dobj != NULL ? dobj->mobj : NULL; }`). All three then match
+    with equal relocations. The object loops are `if (p != NULL) do { ... } while (p != ((void *) 0));`: `mr.` at the
+    guard, `li r0, 0` / `cmplw` at the bottom.
+  Such an object also holds the two getters, so `promote_drafts.py` leaves it out (as fn_80094DD8) until the
+  file is one object; fn_80019AF0 and fn_80064AB8 are promoted.
+  Not this pattern: fn_800647CC (one plain recursive call), fn_80095E6C (the joint display walk: other inlines,
+  1,288 bytes, still to write), fn_800220C4 (not read yet).
+  - **fn_80015388** (77%, 740 bytes; it only calls itself): the parameters used directly instead of m2c's copies,
+    the position a Vec on the stack (three separate floats took f29 / f30), the matrix 48 bytes (frame 144),
+    if / else for the two returns, and the camera pointer **assigned inside its test**
+    (`if ((cobj = HSD_CObjGetCurrent()) != ((void *) 0))`): the assignment and the test are one occurrence, so the
+    pointer has usage 2 and the matrix parameter (3, and a parameter loses ties) ranks above it, as in the
+    original. One dead use of the parameter had put it two registers too high; the rule named the real form.
+- **Nov 13, late: a correction.** The pooled-data finding of this round (and a `tools/pooled_drafts/` folder that
+  was committed for an hour) repeats the Nov 6 work in `tools/file_drafts/battle_9B60/`; the folder is removed
+  and the notes point there. The file drafts stand at fn_800490C8 99% (one volatile register after
+  fn_8001C98C: r3 against r4; seven spellings of the negated z tried), fn_80048708 96, fn_80046F58 95,
+  fn_8004752C 94, fn_80045CE8 94, fn_80047AC0 85, fn_8004949C 82, fn_80045FEC 80, fn_80048050 75.
+- **Nov 13, late: the 5 drafted again** (`--out build/regen7`, `regen8`) and merged: **1,099 of 1,751 at 100%**. Promoted 980
+  functions (0x3643C bytes) and 7 file objects; `main.dol` still builds with the retail SHA-1 (6a73cd11...).

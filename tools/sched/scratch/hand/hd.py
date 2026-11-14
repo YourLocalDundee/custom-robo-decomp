@@ -33,8 +33,12 @@ body = open(src, encoding="utf-8").read().replace("\r\n", "\n")
 pre = ""
 if body.startswith(db.NO_RO):
     body, pre = body[len(db.NO_RO):], "#define CR_NO_RO\n"
-text = ('// hand draft check of %s\n%s#define %s %s__proto\n#include "ctx.h"\n#undef %s\n\n%s'
-        % (name, pre, name, name, name, body))
+# `// also defines: fn_A fn_B` in a draft: helpers it defines under their real names (auto-inlined getters); the
+# context's prototypes of those are renamed away too, so the draft can give them their real types
+also = sum([l.split() for l in re.findall(r'(?m)^// also defines: (.+)$', body)], [])
+text = ('// hand draft check of %s\n%s#define %s %s__proto\n%s#include "ctx.h"\n#undef %s\n%s\n%s'
+        % (name, pre, name, name, ''.join('#define %s %s__proto\n' % (x, x) for x in also), name,
+           ''.join('#undef %s\n' % x for x in also), body))
 tmp = tempfile.mkdtemp()
 c = os.path.join(tmp, name + ".c")
 o = os.path.join(tmp, name + ".o")
