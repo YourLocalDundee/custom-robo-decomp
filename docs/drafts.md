@@ -2847,3 +2847,74 @@ are **structural** (29: by hand, smallest first).
 - **Nov 13, night: the 15 drafted again** (`--out build/regen10` .. `regen12`) and merged: **1,122 of 1,751 at
   100%**. Promoted 986 functions (0x36AA0 bytes) and 10 file objects; `main.dol` still builds with the retail
   SHA-1 (6a73cd11...).
+- **Nov 13 - 14, night: the next bottom 100** (`build/triage/bottom100b.txt`: the 100 lowest-scoring open drafts after
+  the first bottom 100, by their best version: 24 - 38%, 208 bytes - 6.1 KB, 158 KB). Rewritten from the
+  original's assembly as typed C, the small ones first; the script commands among them led to the file's
+  .bss pool and to a converter for every draft on a pool. **39 matches**, 16 of them from the list:
+  - **fn_80069008, fn_80068E50, fn_80068F20** (23 / 21 / 24%; the sprite terminators of the text file): a 0x20-byte
+    record array indexed by a u8 counter (`flags |= 0x40`, `|= 0x8000`, `|= 1`, `id = 0xFFF0`, `n++`,
+    `return &spr[n]`), an unused `GXColor` local with an initialiser, and **`(void) arg0;`**: the unused first
+    parameter named once keeps r3 out of the temporaries (40 -> 100%; at the top or at the end, the same). The
+    other two are fn_80069008 **inlined** with `p = arg0 + 5` as its first argument.
+  - **fn_80029A9C** (38%): the screen projection of fn_80029924 with a result; both camera rectangles copied as
+    structs; the width and the view origin are dead stack locals, the width assigned first.
+  - **fn_801142B4** (28%): the mode is the third parameter (m2c read "unset register r5"); the clear colour a
+    `GXColor` with a zero initialiser (a constant of zeros lives in **.sbss2**), copied through a block local.
+  - **fn_80099BB0** (19%): the nearest-target search on the arrays of fn_800999F0. The two saved registers that
+    are never used are s16 intermediates (`tools/gapfix.py` found them on the typed draft); **the three
+    differences are in the order x, y, z** where m2c printed x, z, y (78 -> 100% on that alone).
+  - **fn_80098104 and fn_80098290** (25 / 31%; sound): two inlines, the free-slot search over the 0x60 slots
+    (a 0x38-byte struct copy of the default record) and the start by group. fn_80098290 is
+    **fn_80098104(id, 0x7F) inlined**: one more copy of the slot pointer, one more saved register.
+  - **fn_8008E5D0** (31%): the 2D view matrix. `// also defines: lbl_80391430` gives the port record its real
+    type; `up` / `eye` / `at` are Vecs; the statement order came from **`tools/order_climb.py`**.
+  - **fn_8008D110** (31%): the pool record typed; two record pointers as locals, the list one assigned first;
+    the parameters are `(f32, f32, s32)`, which gives the stack homes their order.
+  - **cr_FileSys_Init** (37%): **the file system file's .bss pool** (base cr_g_EntryTableLoad). Typed it was
+    85% at once; `addi r6, r31, 0xC` / `stw r7, 8(r6)` and `addi r3, r31, 0xF34` show where one object ends
+    and the next begins (a member would fold its offset): the loader's 0xC bytes, a 0x10-byte record, the
+    tree head (0x18 bytes) and the 0x2B entry numbers are four objects. Returns 0.
+  - **The script command prologue** (cr_E_CIN 34%, cr_MAP_NEXT_SET 35%, cr_MAP_LINK 33%, cr_E_COUT 8%): on the
+    pool these stopped at 81 - 91% whatever the statement order (720 orders, three spellings of each
+    statement). The history store is **`cmd_history[history_index] = (s16) pc[0];`**: the cast, a no-op, is
+    one temporary, and without it every volatile register of the block is coloured one step off. The dead
+    `if (0) { (*cmd_cnt)++; }` behind the prologue is needed as well (93 / 80 / 90% without it). Both were
+    already in the Oct drafts of the unpooled commands; the pooled ones were written fresh without them.
+    **A redundant cast of an m2c draft costs a temporary in the same way**: fn_800B1358 (56%) matched by
+    removing two `(u8)` and one `(s16)`.
+  - **`tools/script_pool.py LIST SRCDIRS KEEPDIR [JOBS]`** does the conversion for every draft on a pool:
+    each `BASE + 0xNNNN` resolved to its symbol, the access rewritten as a member of that object
+    (`((struct cr_PF_off_T *) &OBJ)->v`: `addi rX, base, obj` then the displacement; offset 0 and m2c's direct
+    form fold), the objects defined in front (`tools/pool_prelude.py`), and for the script file the prologue
+    replaced by its source form, with the argument reads as `pc[k]` or left as casts, whichever scores higher
+    (a cast read counts one use of pc in the register order, `pc[k]` two; commands differ). Over the 646 open
+    drafts: **97 up**, cr_CM_PLAYER_RESET (17%) and, after the casts above, cr_S_BGM_DEFAULT (59%) to a match
+    without a hand; 30 others at 70% and more (`build/sp_all2`, log `build/triage/sp_all2.log`). Pools seen:
+    the script file (lbl_803B8C00, 58 drafts), lbl_8041A598 / lbl_8023CF28 (20), the camera file
+    (lbl_80321DD0, 14), lbl_80238008 (10), lbl_8041CC10 (8), lbl_80386550 (6).
+  - **From its output, with the tables typed**: the door commands cr_MAP_DOOR_OPEN / CLOSE / LOOK / NOLOOK / OUT
+    (42 - 49%; the door table lbl_803BA3A8 is 16 records of 0x94 bytes: `door[pc[1]].flags |= 8` is base +
+    (index * 0x94 + 4), indexed), the light commands cr_LGT_SET_POS / POP_POS / PUSH_POS / SET_COLOR /
+    SET_RESRV_COLOR (34 - 49%; lbl_803BADA8 is `Light [2][2]` of 0x60 bytes, lbl_803BAD68 `Vec [2][2]`,
+    lbl_803BAD98 `GXColor [2][2]`, lbl_803B8C44 a light pointer table), the object commands cr_OBJ_MOVE /
+    ROT_INF / SCALING_Y / DISP / UNDISP / NO_TOUCH_SET / POS_GET, cr_CHAR_DISP and cr_EV_TRAIN_START (39 - 53%; lbl_803BC028 is 24 records of 0x174 bytes; the search
+    by id is an inline, `obj_find(s16 id)`, with a u16 counter, and its result variable starts as NULL), and
+    cr_SYS_RET (44%: `cr_g_ScriptPC = cr_g_ScriptReturnStack[--cr_g_ScriptDepth];`). m2c's comma conditions
+    (`if ((o != NULL) && (a = ..., b = ..., c))`) are plain statements inside the `if`.
+  - **`tools/order_climb.py LIST SRCDIRS KEEPDIR [JOBS]`**: statement order by hill climbing, for runs too long
+    for `order_sweep.py` to enumerate (every move of one statement is compiled and scored, the best taken).
+    It works on typed drafts (fn_8008E5D0); on raw m2c drafts the score surface is flat (fn_8013098C, 25
+    statements: 29 -> 33%).
+  - **The pool threshold measured** (`build/pooltest`): three distinct objects of the file's own .bss in one
+    function give the base register; two do not, three references to two objects do not. Not reproduced
+    for .data: fn_800BC5C8 reads two tables of its file's .data through a base and no draft of it gets one.
+  - **Where a pointer ranks against the pool base** decides the last few of these: members read through a
+    cast count one use, `p->m` two. cr_CHAR_DISP needs all six reads of the character through a cast,
+    cr_OBJ_POS_GET one of three, cr_MAP_DOOR_LOOK the door index; cr_OBJ_DISP only the object pointer declared
+    after the script pointer (a tie).
+  - Not matched: cr_EV_TRAIN_END 83%, cr_OBJ_ARROW_CLEAR 81% and cr_MAP_SET 88% (`build/hand900`,
+    `build/sp_all2`: a loop counter that ranks above the pool base, whatever its uses; more tables to type), fn_800672AC (the window style setter with saved globals),
+    fn_8013098C, fn_800BC5C8, and the converter's other outputs, which need their tables typed as above.
+- **Nov 14: the 39 drafted again** (`--out build/regen13` .. `regen16`) and merged: **1,160 of 1,751 at
+  100%**. Promoted 991 functions (0x37204 bytes) and 11 file objects; `main.dol` still builds with the retail
+  SHA-1 (6a73cd11...).

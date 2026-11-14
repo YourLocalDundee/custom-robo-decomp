@@ -42,16 +42,15 @@ def ctx_decl(name):
     return m.group(1) if m else None
 
 
-def main():
-    base = sys.argv[1]
+def build(base, args):
     sym = symbols()
     sec, b0, _ = sym[base]
     items = []
-    for a in sys.argv[2:]:
+    for a in args:
         name, _, typ = a.partition('=')
         s, addr, size = sym[name]
         if s != sec or addr < b0:
-            raise SystemExit(f'{name} is not in {base}\'s section at or after it')
+            raise SystemExit(f"{name} is not in the section of {base}, or lies before it")
         if typ:
             m = re.match(r'(.*?)(\[.*\])?$', typ)
             decl = f'{m.group(1)} {name}{m.group(2) or ""}'
@@ -61,7 +60,7 @@ def main():
     items.sort()
     tag = base[-4:] if base.startswith('lbl_') else base
     out = ['// also defines: ' + ' '.join(i[2] for i in items),
-           f'/* the file\'s .bss from its first object ({base}): scoring only (tools/pool_prelude.py) */']
+           f"/* the file's .bss from its first object ({base}): scoring only (tools/pool_prelude.py) */"]
     order, pos = [], b0
     for addr, size, name, decl in items:
         if addr > pos:
@@ -77,7 +76,11 @@ def main():
     out.append(f'void cr_Pool{base[4:] if base.startswith("lbl_") else base}_Order(void) {{')
     out += [f'    cr_Pool_Use({o});' for o in order]
     out.append('}')
-    print(NL.join(out))
+    return NL.join(out)
+
+
+def main():
+    print(build(sys.argv[1], sys.argv[2:]))
 
 
 if __name__ == '__main__':

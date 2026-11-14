@@ -189,7 +189,33 @@ From the Sunshine and Wind Waker notes; not yet needed here or not yet checked o
 - **Uncast indexing counts 2 again**: cr_E_CLOCKIN's script pointer read as `pc[0]` / `pc[1]` ranks above
   the count; through `M2C_FIELD` casts it ranked below (section 1).
 
-## 10. Tools considered
+## 10. Casts are temporaries; the pool as a method (Nov 13 - 14, the next bottom 100)
+
+- **A cast that changes nothing is still one temporary**, and the volatile registers of a block are handed
+  out over all its temporaries: one missing or one extra shifts registers far from the cast. The script
+  prologue needs `(s16) pc[0]` (81 -> 100% in cr_E_CIN); fn_800B1358 needs m2c's `(u8)` / `(s16)` casts
+  removed. When a straight-line block has the right instructions and only volatile registers differ, and no
+  statement order fixes it, look for a cast to add or remove before anything else.
+- **A dead variable counts too**: `if (0) { (*cmd_cnt)++; }` behind the prologue (the variable is declared,
+  the block compiles to nothing) is needed for the same commands.
+- **`(void) arg0;` for an unused parameter** keeps its register (r3) out of the temporaries (fn_80069008).
+- **Member or object?** On a pool, `addi rX, base, off` followed by a displacement is a member of the object
+  at `off`; a folded `disp(base)` is the object's first member (or its only one). Two adjacent ranges
+  addressed with their own `addi` are two objects, whatever the symbol table says (cr_FileSys_Init).
+- **A global struct array indexed by a variable** is base + (index * size + member), indexed load: the
+  door / light / object tables of the script file. A 2D table `T tbl[2][2]` gives the two multiplies.
+- **m2c's comma condition** `if ((p != NULL) && (a = x, b = y, cond))` is `if (p != NULL) { a = x; b = y;
+  if (cond) { ... } }`.
+- **Argument reads count differently**: `pc[k]` is two uses of pc in the register order, a cast read one.
+  Commands differ in which they need (the pool base, the object pointer and pc are close in rank); the
+  converter tries both, and a tie is settled by the order of the declarations.
+- **The same function inlined is the usual reason for "the same code with one more register"**:
+  fn_80098290 = fn_80098104(id, 0x7F), fn_80068E50 / fn_80068F20 = fn_80069008, the three script
+  commands of section 9.
+- Open: a loop counter that the original ranks below the pool base and ours above it (cr_EV_TRAIN_END,
+  cr_OBJ_ARROW_CLEAR: counter 8 - 10 uses); dead references to pool objects do not raise the base.
+
+## 11. Tools considered
 
 | Tool | Verdict |
 |---|---|
