@@ -215,7 +215,32 @@ From the Sunshine and Wind Waker notes; not yet needed here or not yet checked o
 - Open: a loop counter that the original ranks below the pool base and ours above it (cr_EV_TRAIN_END,
   cr_OBJ_ARROW_CLEAR: counter 8 - 10 uses); dead references to pool objects do not raise the base.
 
-## 11. Tools considered
+## 11. Parameter copies, declaration ties, statements out of their run (Nov 14, the third bottom 100)
+
+- **m2c's copy of a parameter (`var = arg0;`) is not in the source**: written as a local, MWCC spills the
+  parameter to its stack home and reloads it (`stw r3,8(r1); lwz r28,8(r1)`). Use the parameter
+  (cr_FileSys_RegisterPath 76 -> 100%, fn_80008CB0, fn_8002A334).
+- **A statement can belong outside the run m2c printed it in**: the script prologue swallows the body's first
+  statement (cr_SYS_SAVE_RET), stores land on the wrong side of an argument read (cr_E_WIN). Moving each line
+  through the whole body (`tools/move_sweep.py`) finds them; the dead `cmd_cnt` block can sit at the end.
+- **An argument read into a local keeps a saved register** that the inline expression does not (cr_E_WIN:
+  `time = pc[1]` right before its use).
+- **Declaration order settles ties, also between loop counters and call results**: the inner counter before
+  the outer (fn_8007571C), the new arena low before the high (cr_Game_InitSystem).
+- **A dead compare with a call inside is an assert without its message**: `(a + f(x) < N) ? (void) 0 :
+  (void) 0` (fn_80008CB0); a local for the call result takes a saved register and, at five, stmw.
+- **lfs / stfs pairs between two stack structs are member copies**, lwz / stw a struct copy (fn_800AC7F4).
+- **Melee's jobj.h inlines match as written** (HSD_JObjGetMtxPtr: the 0x47C assert, HSD_JObjSetupMatrix and
+  the dirty test with 0x25D), defined as static inlines in the draft (fn_80061E18, first try).
+- **An inline that returns a value costs a saved register for the result** (four FPRs for fn_8002A334's dot
+  products, a GPR for cr_Game_InitSystem's reset test): write the expression out where the original has no
+  extra saved register.
+- Open: a frame laid out the other way (fn_800ABC28's family: the first declared local lowest, the per-call
+  temporaries above the locals, ascending); `base + 0x10000` of a .data object hoisted into a register with
+  three extra saved registers (fn_800BB4C8, cr_SYS_BATTLE); two parameter moves at entry in the other order
+  (fn_8002A334, fn_8002A598).
+
+## 12. Tools considered
 
 | Tool | Verdict |
 |---|---|

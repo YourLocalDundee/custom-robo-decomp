@@ -1,10 +1,10 @@
 m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md steps 58, 63)
 one object per function, or one per file of consecutive functions that share their constant pool (file objects); batch 9 links them and checks the SHA-1
 
-drafts at 100% MATCH: 1160
-promoted: 991 (225796 bytes = 0x37204)
-file objects: 11 (12 functions, 4472 bytes = 0x1178)
-left out: 157
+drafts at 100% MATCH: 1182
+promoted: 1000 (228788 bytes = 0x37DB4)
+file objects: 14 (15 functions, 6120 bytes = 0x17E8)
+left out: 167
 kept from earlier runs (draft no longer 100%): 2
 removed (function name no longer ours): 0
 
@@ -32,6 +32,7 @@ removed (function name no longer ours): 0
 80008C28  cr_SEQ_ILLUSTRATED_BOOK_FrameB                   4
 80008C2C  cr_SEQ_ILLUSTRATED_BOOK_FrameA                 100
 80008C90  fn_80008C90                                     32
+80008CB0  fn_80008CB0                                    272
 80008DC0  fn_80008DC0                                    112
 80008E30  fn_80008E30                                     80
 80008E80  fn_80008E80                                     88
@@ -692,6 +693,10 @@ removed (function name no longer ours): 0
 800C2B20  cr_E_END_WAIT                                  152
 800C2DD0  cr_E_SISRIN                                    212
 800C2EA4  cr_E_SISROUT                                   212
+800C3270  cr_E_WIN                                       312
+800C33A8  cr_E_WOUT                                      312
+800C34E0  cr_E_FIN                                       312
+800C3618  cr_E_FOUT                                      312
 800C3750  cr_S_DUMMY_016                                 152
 800C37E8  cr_S_DUMMY_015                                 152
 800C3880  cr_S_DUMMY_014                                 152
@@ -813,6 +818,8 @@ removed (function name no longer ours): 0
 800D6B78  cr_MAP_INIT_SCRIPT                             512
 800D6D78  cr_MAP_BEF_SCRIPT                              512
 800D7564  cr_SYS_DUMMY_016                               152
+800D75FC  cr_SYS_SAVE_RET                                232
+800D76E4  cr_SYS_SAVE_NEXT                               232
 800D78B8  cr_SYS_RET_GEKITOU                             896
 800D7C38  cr_SYS_JP_GEKITOU                              556
 800D7E64  cr_SYS_SAVE_TABLE                              228
@@ -945,6 +952,8 @@ removed (function name no longer ours): 0
 8011449C  fn_8011449C                                    160
 8011453C  fn_8011453C                                     76
 801155AC  fn_801155AC                                    876
+80115918  fn_80115918                                    504
+80115D04  fn_80115D04                                    504
 8011725C  fn_8011725C                                    792
 801177CC  fn_801177CC                                    364
 8011AF04  fn_8011AF04                                     96
@@ -1003,22 +1012,26 @@ removed (function name no longer ours): 0
 
 == file runs of the drafts with data of their own (range, first..last, functions; the users of every entry the run's drafts own, closed: plan.md steps 63, 64)
 800057B8-8000860C  fn_800057B8..fn_8000805C  16 functions, 15 at 100%: not available yet (1 not matched: cr_BattleRobo_InitFromLoadout)
-80008ED8-8001B1A0  fn_80008ED8..cr_SEQ_LOGO_FrameA  129 functions, 95 at 100%: not available yet (34 not matched: fn_80009018, fn_800095F4, fn_80009A90, cr_SEQ_NAME_ENTRY_FrameA, fn_8000B258, fn_8000B55C ...)
+80008ED8-8001B1A0  fn_80008ED8..cr_SEQ_LOGO_FrameA  129 functions, 96 at 100%: not available yet (33 not matched: fn_80009018, fn_800095F4, fn_80009A90, cr_SEQ_NAME_ENTRY_FrameA, fn_8000B258, fn_8000B55C ...)
 8000B42C-8000B55C  fn_8000B42C..fn_8000B42C  1 functions, 1 at 100%: the file does not compile: '*' expected
+8000F900-8000FA54  cr_SEQ_STAGE_SELECTOR_Leave..cr_SEQ_STAGE_SELECTOR_Leave  1 functions, 1 at 100%: FILE OBJECT game/cr_SEQ_STAGE_SELECTOR_Leave_cr_SEQ_STAGE_SELECTOR_Leave.c ()
 80016088-800161B8  cr_SEQ_TITLE_Leave..cr_SEQ_TITLE_Leave  1 functions, 1 at 100%: .sdata2 piece 0x8045025C is not in main.dol's .sdata2 or not aligned
 8001E6B0-8001E814  fn_8001E6B0..fn_8001E6B0  1 functions, 1 at 100%: the file does not compile: illegal function definition
 80021AB0-80021CB4  fn_80021AB0..fn_80021AB0  1 functions, 1 at 100%: FILE OBJECT game/fn_80021AB0_fn_80021AB0.c (.data 0x801F5D30-0x801F5D64)
 80021CB4-80021EF4  cr_FileSys_Init..cr_FileSys_Init  1 functions, 1 at 100%: cr_FileSys_Init: the object is not exactly the function (cr_Pool80320168_Order 0x64, cr_FileSys_Init 0x240)
-8002419C-800373AC  fn_8002419C..fn_80036FB0  75 functions, 32 at 100%: not available yet (43 not matched: fn_8002419C, fn_80024634, fn_80024A88, fn_80024BC4, fn_80024EB0, fn_800259D4 ...)
-80026920-80036BCC  fn_80026920..cr_Cam_Update  55 functions, 23 at 100%: not available yet (32 not matched: fn_80026920, fn_80026D04, fn_80027170, fn_8002745C, fn_80029060, fn_800294D8 ...)
+80023A04-80023CBC  cr_Game_InitSystem..cr_Game_InitSystem  1 functions, 1 at 100%: FILE OBJECT game/cr_Game_InitSystem_cr_Game_InitSystem.c ()
+8002419C-800373AC  fn_8002419C..fn_80036FB0  75 functions, 33 at 100%: not available yet (42 not matched: fn_8002419C, fn_80024634, fn_80024A88, fn_80024BC4, fn_80024EB0, fn_800259D4 ...)
+80026920-80036BCC  fn_80026920..cr_Cam_Update  55 functions, 24 at 100%: not available yet (31 not matched: fn_80026D04, fn_80027170, fn_8002745C, fn_80029060, fn_800294D8, fn_80029FD4 ...)
 80037D14-80050388  cr_Motion_Play..fn_8004FF64  72 functions, 31 at 100%: not available yet (41 not matched: fn_800381D0, fn_800389C8, cr_Battle_ApplyRoleMatrices, fn_80039FAC, fn_8003ABA0, fn_8003AFF0 ...)
 800527D4-8005299C  cr_Motion_UpdateBlend..fn_800528B8  2 functions, 2 at 100%: FILE OBJECT game/cr_Motion_UpdateBlend_fn_800528B8.c (.sdata2 0x804507E8-0x804507F0)
 800527D4-8005C384  cr_Motion_UpdateBlend..fn_8005C0B0  21 functions, 7 at 100%: not available yet (14 not matched: fn_8005299C, fn_80053430, cr_Chara_BuildJointRotations, cr_Motion_UpdatePoints, cr_Motion_UpdateRoot, fn_80056C6C ...)
 8005C4D0-8005C628  fn_8005C4D0..fn_8005C4D0  1 functions, 1 at 100%: FILE OBJECT game/fn_8005C4D0_fn_8005C4D0.c (.sdata2 0x804509A0-0x804509A8)
 8005CF0C-8005D024  fn_8005CF0C..fn_8005CF0C  1 functions, 1 at 100%: FILE OBJECT game/fn_8005CF0C_fn_8005CF0C.c (.rodata 0x801C0A28-0x801C0A68)
+80061E18-8006207C  fn_80061E18..fn_80061E18  1 functions, 1 at 100%: FILE OBJECT game/fn_80061E18_fn_80061E18.c (.rodata 0x801C0A10-0x801C0A28)
 80067904-8006B0AC  fn_80067904..fn_8006A7D8  38 functions, 28 at 100%: not available yet (10 not matched: fn_80067904, fn_80068420, fn_8006868C, fn_80068988, fn_80068DD8, fn_80069214 ...)
 80068E50-800690D8  fn_80068E50..fn_80069008  3 functions, 3 at 100%: the file does not compile: illegal use of '*'
 8006EEF8-8006FE38  fn_8006EEF8..fn_8006FDD0  7 functions, 6 at 100%: not available yet (1 not matched: fn_8006EEF8)
+8007571C-80075950  fn_8007571C..fn_8007571C  1 functions, 1 at 100%: fn_8007571C: the object is not exactly the function (cr_Pool80377E60_Order 0x74, fn_8007571C 0x234)
 8007A800-8007BB60  fn_8007A800..fn_8007B054  5 functions, 3 at 100%: not available yet (2 not matched: fn_8007AB38, fn_8007B054)
 8007C094-8008052C  fn_8007C094..fn_8007FCD8  22 functions, 14 at 100%: not available yet (8 not matched: fn_8007C094, fn_8007DD60, fn_8007E400, fn_8007EA04, fn_8007EEB0, fn_8007F35C ...)
 8007D0D4-8008052C  fn_8007D0D4..fn_8007FCD8  18 functions, 11 at 100%: not available yet (7 not matched: fn_8007DD60, fn_8007E400, fn_8007EA04, fn_8007EEB0, fn_8007F35C, fn_8007F808 ...)
@@ -1032,7 +1045,7 @@ removed (function name no longer ours): 0
 8008C430-8008C5F0  fn_8008C430..fn_8008C430  1 functions, 1 at 100%: fn_8008C430: the object is not exactly the function (cr_Pool801C0CE0_Order 0x4C, fn_8008C430 0x1C0)
 80093F30-800944B8  fn_80093F30..fn_800943D8  3 functions, 2 at 100%: not available yet (1 not matched: fn_800943D8)
 80096594-80098F4C  cr_Bgm_GetVolume..fn_80098484  25 functions, 19 at 100%: not available yet (6 not matched: fn_80096754, fn_800968B4, fn_80097670, fn_80097834, fn_80097CA8, fn_80098484)
-800999F0-800DA048  fn_800999F0..cr_SYS_BATTLE  463 functions, 358 at 100%: not available yet (105 not matched: cr_Chara_UpdateAll, fn_8009AEC4, fn_8009D620, fn_8009DAD8, fn_8009E49C, fn_8009E6F8 ...)
+800999F0-800DA048  fn_800999F0..cr_SYS_BATTLE  463 functions, 368 at 100%: not available yet (95 not matched: cr_Chara_UpdateAll, fn_8009AEC4, fn_8009D620, fn_8009DAD8, fn_8009E49C, fn_8009E6F8 ...)
 800AA130-800AA17C  fn_800AA130..fn_800AA130  1 functions, 1 at 100%: FILE OBJECT game/fn_800AA130_fn_800AA130.c (.data 0x8022B130-0x8022B204)
 800AC270-800AC2D0  fn_800AC270..fn_800AC270  1 functions, 1 at 100%: .sdata2 piece 0x8045123F is not in main.dol's .sdata2 or not aligned
 800B1358-800B14B0  fn_800B1358..fn_800B1358  1 functions, 1 at 100%: fn_800B1358: the object is not exactly the function (cr_Pool803B8C00_Order 0x74, fn_800B1358 0x158)
@@ -1066,34 +1079,38 @@ removed (function name no longer ours): 0
 800D6F78-800D719C  cr_MAP_LINK..cr_MAP_LINK  1 functions, 1 at 100%: cr_MAP_LINK: the object is not exactly the function (cr_Pool803B8C00_Order 0x5C, cr_MAP_LINK 0x224)
 800DA35C-800DA780  cr_SYS_RET..cr_SYS_RET  1 functions, 1 at 100%: cr_SYS_RET: the object is not exactly the function (cr_Pool803B8C00_Order 0x5C, cr_SYS_RET 0x424)
 800DBAD0-800EAC38  fn_800DBAD0..fn_800EAA38  50 functions, 16 at 100%: not available yet (34 not matched: fn_800DBAD0, fn_800DDCD4, fn_800DE7A8, fn_800DF4C8, fn_800E17F8, fn_800E1ED4 ...)
-800F91E0-80106EB8  fn_800F91E0..fn_801067E0  61 functions, 35 at 100%: not available yet (26 not matched: fn_800F91E0, fn_800F96A4, fn_800FAE8C, fn_800FBC48, fn_800FC674, fn_800FCC30 ...)
+800F91E0-80106EB8  fn_800F91E0..fn_801067E0  61 functions, 38 at 100%: not available yet (23 not matched: fn_800F91E0, fn_800F96A4, fn_800FAE8C, fn_800FC674, fn_800FCC30, fn_800FCE50 ...)
 800FB688-800FB924  fn_800FB688..fn_800FB688  1 functions, 1 at 100%: FILE OBJECT game/fn_800FB688_fn_800FB688.c (.sdata2 0x804516F8-0x80451700)
 800FC290-800FC674  fn_800FC290..fn_800FC290  1 functions, 1 at 100%: .sdata2 piece 0x804516E4 is not in main.dol's .sdata2 or not aligned
+800FDBE8-800FE008  fn_800FDBE8..fn_800FDBE8  1 functions, 1 at 100%: the file does not compile: '*' expected
 8010E47C-80112AB8  fn_8010E47C..fn_80112A0C  27 functions, 16 at 100%: not available yet (11 not matched: fn_8010E820, fn_8010E9DC, fn_8010EB5C, fn_8010F07C, fn_8010F87C, fn_8010FE6C ...)
 80111EEC-8011214C  fn_80111EEC..fn_80111EEC  1 functions, 1 at 100%: FILE OBJECT game/fn_80111EEC_fn_80111EEC.c (.sdata2 0x80451888-0x80451890)
 801142B4-801143D0  fn_801142B4..fn_801142B4  1 functions, 1 at 100%: FILE OBJECT game/fn_801142B4_fn_801142B4.c ()
-801147B4-80124EAC  fn_801147B4..fn_80124CA0  77 functions, 33 at 100%: not available yet (44 not matched: fn_801147B4, fn_80114A48, fn_80114EB8, fn_8011513C, fn_80115918, fn_80115B10 ...)
+801147B4-80124EAC  fn_801147B4..fn_80124CA0  77 functions, 35 at 100%: not available yet (42 not matched: fn_801147B4, fn_80114A48, fn_80114EB8, fn_8011513C, fn_80115B10, fn_80115EFC ...)
 80125C2C-80130710  fn_80125C2C..fn_8012F3C4  29 functions, 14 at 100%: not available yet (15 not matched: fn_80125DCC, fn_8012646C, fn_8012752C, fn_80127954, fn_801288F4, fn_80128F20 ...)
 80130B48-801310D4  fn_80130B48..cr_Ending_LoadPartPictures  2 functions, 1 at 100%: not available yet (1 not matched: cr_Ending_LoadPartPictures)
 fn_800057B8: the users of the entries its draft owns span fn_800057B8..fn_8000805C (0x800057B8-0x8000860C, 16 functions, 15 at 100%)
 cr_BattleRobo_ApplyLegValues: the users of the entries its draft owns span fn_800057B8..fn_8000805C (0x800057B8-0x8000860C, 16 functions, 15 at 100%)
 fn_8000805C: the users of the entries its draft owns span fn_800057B8..fn_8000805C (0x800057B8-0x8000860C, 16 functions, 15 at 100%)
-fn_80008ED8: the users of the entries its draft owns span fn_80008ED8..cr_SEQ_LOGO_FrameC (0x80008ED8-0x8001AA98, 127 functions, 94 at 100%)
-fn_80008F8C: the users of the entries its draft owns span fn_80008ED8..cr_SEQ_LOGO_FrameC (0x80008ED8-0x8001AA98, 127 functions, 94 at 100%)
-fn_8000AFBC: the users of the entries its draft owns span fn_80008ED8..cr_SEQ_LOGO_FrameC (0x80008ED8-0x8001AA98, 127 functions, 94 at 100%)
+fn_80008ED8: the users of the entries its draft owns span fn_80008ED8..cr_SEQ_LOGO_FrameC (0x80008ED8-0x8001AA98, 127 functions, 95 at 100%)
+fn_80008F8C: the users of the entries its draft owns span fn_80008ED8..cr_SEQ_LOGO_FrameC (0x80008ED8-0x8001AA98, 127 functions, 95 at 100%)
+fn_8000AFBC: the users of the entries its draft owns span fn_80008ED8..cr_SEQ_LOGO_FrameC (0x80008ED8-0x8001AA98, 127 functions, 95 at 100%)
 fn_8000B42C: the users of the entries its draft owns span fn_8000B42C..fn_8000B42C (0x8000B42C-0x8000B55C, 1 functions, 1 at 100%)
-fn_80015E2C: the users of the entries its draft owns span fn_80008ED8..cr_SEQ_LOGO_FrameC (0x80008ED8-0x8001AA98, 127 functions, 94 at 100%)
+cr_SEQ_STAGE_SELECTOR_Leave: the users of the entries its draft owns span cr_SEQ_STAGE_SELECTOR_Leave..cr_SEQ_STAGE_SELECTOR_Leave (0x8000F900-0x8000FA54, 1 functions, 1 at 100%)
+fn_80015E2C: the users of the entries its draft owns span fn_80008ED8..cr_SEQ_LOGO_FrameC (0x80008ED8-0x8001AA98, 127 functions, 95 at 100%)
 cr_SEQ_TITLE_Leave: the users of the entries its draft owns span cr_SEQ_TITLE_Leave..cr_SEQ_TITLE_Leave (0x80016088-0x800161B8, 1 functions, 1 at 100%)
-fn_800192C4: the users of the entries its draft owns span fn_80008ED8..cr_SEQ_LOGO_FrameA (0x80008ED8-0x8001B1A0, 129 functions, 95 at 100%)
+fn_800192C4: the users of the entries its draft owns span fn_80008ED8..cr_SEQ_LOGO_FrameA (0x80008ED8-0x8001B1A0, 129 functions, 96 at 100%)
 fn_8001E6B0: the users of the entries its draft owns span fn_8001E6B0..fn_8001E6B0 (0x8001E6B0-0x8001E814, 1 functions, 1 at 100%)
 fn_80021AB0: the users of the entries its draft owns span fn_80021AB0..fn_80021AB0 (0x80021AB0-0x80021CB4, 1 functions, 1 at 100%)
 cr_FileSys_Init: the users of the entries its draft owns span cr_FileSys_Init..cr_FileSys_Init (0x80021CB4-0x80021EF4, 1 functions, 1 at 100%)
-fn_8002557C: the users of the entries its draft owns span fn_8002419C..fn_80036FB0 (0x8002419C-0x800373AC, 75 functions, 32 at 100%)
-fn_80029C84: the users of the entries its draft owns span fn_80026920..cr_Cam_Update (0x80026920-0x80036BCC, 55 functions, 23 at 100%)
-fn_8002E564: the users of the entries its draft owns span fn_80026920..cr_Cam_Update (0x80026920-0x80036BCC, 55 functions, 23 at 100%)
-fn_8002E944: the users of the entries its draft owns span fn_80026920..cr_Cam_Update (0x80026920-0x80036BCC, 55 functions, 23 at 100%)
-fn_8002EBB0: the users of the entries its draft owns span fn_80026920..cr_Cam_Update (0x80026920-0x80036BCC, 55 functions, 23 at 100%)
-fn_8002EFB0: the users of the entries its draft owns span fn_80026920..cr_Cam_Update (0x80026920-0x80036BCC, 55 functions, 23 at 100%)
+cr_Game_InitSystem: the users of the entries its draft owns span cr_Game_InitSystem..cr_Game_InitSystem (0x80023A04-0x80023CBC, 1 functions, 1 at 100%)
+fn_8002557C: the users of the entries its draft owns span fn_8002419C..fn_80036FB0 (0x8002419C-0x800373AC, 75 functions, 33 at 100%)
+fn_80026920: the users of the entries its draft owns span fn_80026920..cr_Cam_Update (0x80026920-0x80036BCC, 55 functions, 24 at 100%)
+fn_80029C84: the users of the entries its draft owns span fn_80026920..cr_Cam_Update (0x80026920-0x80036BCC, 55 functions, 24 at 100%)
+fn_8002E564: the users of the entries its draft owns span fn_80026920..cr_Cam_Update (0x80026920-0x80036BCC, 55 functions, 24 at 100%)
+fn_8002E944: the users of the entries its draft owns span fn_80026920..cr_Cam_Update (0x80026920-0x80036BCC, 55 functions, 24 at 100%)
+fn_8002EBB0: the users of the entries its draft owns span fn_80026920..cr_Cam_Update (0x80026920-0x80036BCC, 55 functions, 24 at 100%)
+fn_8002EFB0: the users of the entries its draft owns span fn_80026920..cr_Cam_Update (0x80026920-0x80036BCC, 55 functions, 24 at 100%)
 cr_Motion_Play: the users of the entries its draft owns span cr_Motion_Play..fn_8004FF64 (0x80037D14-0x80050388, 72 functions, 31 at 100%)
 fn_80037FF0: the users of the entries its draft owns span cr_Motion_Play..fn_8004FF64 (0x80037D14-0x80050388, 72 functions, 31 at 100%)
 fn_800440BC: the users of the entries its draft owns span cr_Motion_Play..fn_8004EDE4 (0x80037D14-0x8004F6D4, 70 functions, 30 at 100%)
@@ -1110,6 +1127,7 @@ fn_800528B8: the users of the entries its draft owns span cr_Motion_UpdateBlend.
 fn_8005BE70: the users of the entries its draft owns span cr_Motion_UpdateBlend..fn_8005C0B0 (0x800527D4-0x8005C384, 21 functions, 7 at 100%)
 fn_8005C4D0: the users of the entries its draft owns span fn_8005C4D0..fn_8005C4D0 (0x8005C4D0-0x8005C628, 1 functions, 1 at 100%)
 fn_8005CF0C: the users of the entries its draft owns span fn_8005CF0C..fn_8005CF0C (0x8005CF0C-0x8005D024, 1 functions, 1 at 100%)
+fn_80061E18: the users of the entries its draft owns span fn_80061E18..fn_80061E18 (0x80061E18-0x8006207C, 1 functions, 1 at 100%)
 fn_800683B4: the users of the entries its draft owns span fn_80067904..fn_8006A7D8 (0x80067904-0x8006B0AC, 38 functions, 28 at 100%)
 fn_80068E50: the users of the entries its draft owns span fn_80068E50..fn_80069008 (0x80068E50-0x800690D8, 3 functions, 3 at 100%)
 fn_80068F20: the users of the entries its draft owns span fn_80068E50..fn_80069008 (0x80068E50-0x800690D8, 3 functions, 3 at 100%)
@@ -1117,6 +1135,7 @@ fn_80069008: the users of the entries its draft owns span fn_80068E50..fn_800690
 fn_80069108: the users of the entries its draft owns span fn_80067904..fn_8006A7D8 (0x80067904-0x8006B0AC, 38 functions, 28 at 100%)
 fn_800694C4: the users of the entries its draft owns span fn_80067904..fn_8006A7D8 (0x80067904-0x8006B0AC, 38 functions, 28 at 100%)
 fn_8006FDD0: the users of the entries its draft owns span fn_8006EEF8..fn_8006FDD0 (0x8006EEF8-0x8006FE38, 7 functions, 6 at 100%)
+fn_8007571C: the users of the entries its draft owns span fn_8007571C..fn_8007571C (0x8007571C-0x80075950, 1 functions, 1 at 100%)
 fn_8007A800: the users of the entries its draft owns span fn_8007A800..fn_8007B054 (0x8007A800-0x8007BB60, 5 functions, 3 at 100%)
 fn_8007CC90: the users of the entries its draft owns span fn_8007C094..fn_8007E400 (0x8007C094-0x8007EA04, 17 functions, 14 at 100%)
 fn_8007CD3C: the users of the entries its draft owns span fn_8007C094..fn_8007E400 (0x8007C094-0x8007EA04, 17 functions, 14 at 100%)
@@ -1139,43 +1158,47 @@ fn_8008E7EC: the users of the entries its draft owns span fn_8008A484..fn_800907
 fn_8008E8F4: the users of the entries its draft owns span fn_8008A484..fn_80090710 (0x8008A484-0x80091518, 68 functions, 48 at 100%)
 fn_80093F30: the users of the entries its draft owns span fn_80093F30..fn_800943D8 (0x80093F30-0x800944B8, 3 functions, 2 at 100%)
 cr_Bgm_GetVolume: the users of the entries its draft owns span cr_Bgm_GetVolume..fn_80098484 (0x80096594-0x80098F4C, 25 functions, 19 at 100%)
-fn_800A4CEC: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 307 at 100%)
-fn_800A514C: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 341 at 100%)
-fn_800A54A4: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-fn_800A5638: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
+fn_800A4CEC: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 315 at 100%)
+fn_800A514C: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
+fn_800A54A4: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800A5638: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
 fn_800AA130: the users of the entries its draft owns span fn_800AA130..fn_800AA130 (0x800AA130-0x800AA17C, 1 functions, 1 at 100%)
-fn_800ABE94: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
+fn_800ABE94: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
 fn_800AC270: the users of the entries its draft owns span fn_800AC270..fn_800AC270 (0x800AC270-0x800AC2D0, 1 functions, 1 at 100%)
-fn_800AC6F0: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-fn_800ACE74: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-fn_800AD4A8: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-fn_800AD880: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-fn_800ADC54: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-fn_800AE690: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-fn_800AEB7C: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-fn_800AEF50: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-fn_800AF398: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 341 at 100%)
+fn_800AC6F0: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800AC7F4: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800ACE74: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800ACF78: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800AD4A8: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800AD880: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800ADC54: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800AE690: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800AEB7C: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800AEF50: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800AF398: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
 fn_800B1358: the users of the entries its draft owns span fn_800B1358..fn_800B1358 (0x800B1358-0x800B14B0, 1 functions, 1 at 100%)
-fn_800B1FBC: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 307 at 100%)
+fn_800B1FBC: the users of the entries its draft owns span fn_800999F0..fn_800D0E60 (0x800999F0-0x800D1078, 400 functions, 315 at 100%)
 fn_800B3640: the users of the entries its draft owns span fn_800B3640..fn_800B3640 (0x800B3640-0x800B381C, 1 functions, 1 at 100%)
-fn_800B4208: the users of the entries its draft owns span fn_800B4208..cr_E_VIEWOUT (0x800B4208-0x800C2DD0, 126 functions, 105 at 100%)
-fn_800B4278: the users of the entries its draft owns span fn_800B4278..cr_E_CLOCKOUT (0x800B4278-0x800C3270, 129 functions, 108 at 100%)
-fn_800B44D0: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-fn_800B7D8C: the users of the entries its draft owns span fn_800999F0..cr_SYS_BATTLE (0x800999F0-0x800DA048, 463 functions, 358 at 100%)
-cr_C_ACT_TURN: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 341 at 100%)
-cr_C_ACT_MOVE_LENG: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-cr_C_ACT_MOVE: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
+fn_800B4208: the users of the entries its draft owns span fn_800B4208..cr_E_VIEWOUT (0x800B4208-0x800C2DD0, 126 functions, 107 at 100%)
+fn_800B4278: the users of the entries its draft owns span fn_800B4278..cr_E_CLOCKOUT (0x800B4278-0x800C3270, 129 functions, 110 at 100%)
+fn_800B44D0: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+fn_800B7D8C: the users of the entries its draft owns span fn_800999F0..cr_SYS_BATTLE (0x800999F0-0x800DA048, 463 functions, 368 at 100%)
+cr_C_ACT_TURN: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
+cr_C_ACT_MOVE_LENG: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+cr_C_ACT_MOVE: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+cr_E_CIRCLE_OUT: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
+cr_E_CIRCLE_IN: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
 cr_E_CIN: the users of the entries its draft owns span cr_E_CIN..cr_E_CIN (0x800C28B8-0x800C29AC, 1 functions, 1 at 100%)
 cr_E_COUT: the users of the entries its draft owns span cr_E_COUT..cr_E_COUT (0x800C29AC-0x800C2B20, 1 functions, 1 at 100%)
-cr_E_VIEWIN: the users of the entries its draft owns span fn_800B4208..cr_E_VIEWOUT (0x800B4208-0x800C2DD0, 126 functions, 105 at 100%)
-cr_E_VIEWOUT: the users of the entries its draft owns span fn_800B4208..cr_E_VIEWOUT (0x800B4208-0x800C2DD0, 126 functions, 105 at 100%)
+cr_E_VIEWIN: the users of the entries its draft owns span fn_800B4208..cr_E_VIEWOUT (0x800B4208-0x800C2DD0, 126 functions, 107 at 100%)
+cr_E_VIEWOUT: the users of the entries its draft owns span fn_800B4208..cr_E_VIEWOUT (0x800B4208-0x800C2DD0, 126 functions, 107 at 100%)
 cr_E_CLOCKIN: the users of the entries its draft owns span cr_E_CLOCKIN..cr_E_CLOCKIN (0x800C2F78-0x800C30F4, 1 functions, 1 at 100%)
 cr_E_CLOCKOUT: the users of the entries its draft owns span cr_E_CLOCKOUT..cr_E_CLOCKOUT (0x800C30F4-0x800C3270, 1 functions, 1 at 100%)
 cr_S_BGM_DEFAULT: the users of the entries its draft owns span cr_S_BGM_DEFAULT..cr_S_BGM_DEFAULT (0x800C3F08-0x800C4150, 1 functions, 1 at 100%)
-cr_S_BGM_PLAY: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-cr_S_BGM_CROSS: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 341 at 100%)
-cr_S_BGM_FIN: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 341 at 100%)
-cr_S_BGM_FOUT: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 341 at 100%)
+cr_S_BGM_PLAY: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+cr_S_BGM_CROSS: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
+cr_S_BGM_FIN: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
+cr_S_BGM_FOUT: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
 cr_LGT_POP_POS: the users of the entries its draft owns span cr_LGT_POP_POS..cr_LGT_POP_POS (0x800C5DB4-0x800C6004, 1 functions, 1 at 100%)
 cr_LGT_PUSH_POS: the users of the entries its draft owns span cr_LGT_PUSH_POS..cr_LGT_PUSH_POS (0x800C6004-0x800C634C, 1 functions, 1 at 100%)
 cr_LGT_SET_RESRV_COLOR: the users of the entries its draft owns span cr_LGT_SET_RESRV_COLOR..cr_LGT_SET_RESRV_COLOR (0x800C634C-0x800C6708, 1 functions, 1 at 100%)
@@ -1190,14 +1213,14 @@ cr_OBJ_POS_GET: the users of the entries its draft owns span cr_OBJ_POS_GET..cr_
 cr_OBJ_UNDISP: the users of the entries its draft owns span cr_OBJ_UNDISP..cr_OBJ_UNDISP (0x800CDE3C-0x800CE080, 1 functions, 1 at 100%)
 cr_OBJ_DISP: the users of the entries its draft owns span cr_OBJ_DISP..cr_OBJ_DISP (0x800CE080-0x800CE2C4, 1 functions, 1 at 100%)
 cr_OBJ_MOVE: the users of the entries its draft owns span cr_OBJ_MOVE..cr_OBJ_MOVE (0x800CE788-0x800CEA7C, 1 functions, 1 at 100%)
-cr_CHAR_MOVE_COURSE_PS: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 341 at 100%)
-cr_CHAR_MOVE_COURSE: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 341 at 100%)
+cr_CHAR_MOVE_COURSE_PS: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
+cr_CHAR_MOVE_COURSE: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
 cr_CHAR_DISP: the users of the entries its draft owns span cr_CHAR_DISP..cr_CHAR_DISP (0x800D1E6C-0x800D20F8, 1 functions, 1 at 100%)
-cr_CHAR_TURN: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 341 at 100%)
-cr_CHAR_MOVE_LENG: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-cr_CHAR_MOVE_REL: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-cr_CHAR_MOVE: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 353 at 100%)
-cr_CHAR_SET_POS_DIR: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 341 at 100%)
+cr_CHAR_TURN: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
+cr_CHAR_MOVE_LENG: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+cr_CHAR_MOVE_REL: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+cr_CHAR_MOVE: the users of the entries its draft owns span cr_Chara_UpdateAll..cr_SYS_BATTLE (0x80099EAC-0x800DA048, 458 functions, 363 at 100%)
+cr_CHAR_SET_POS_DIR: the users of the entries its draft owns span fn_8009AEC4..cr_MAP_LINK (0x8009AEC4-0x800D719C, 434 functions, 349 at 100%)
 cr_MAP_DOOR_OUT: the users of the entries its draft owns span cr_MAP_DOOR_OUT..cr_MAP_DOOR_OUT (0x800D5260-0x800D54B8, 1 functions, 1 at 100%)
 cr_MAP_DOOR_NOLOOK: the users of the entries its draft owns span cr_MAP_DOOR_NOLOOK..cr_MAP_DOOR_NOLOOK (0x800D54B8-0x800D56A0, 1 functions, 1 at 100%)
 cr_MAP_DOOR_LOOK: the users of the entries its draft owns span cr_MAP_DOOR_LOOK..cr_MAP_DOOR_LOOK (0x800D56A0-0x800D58A4, 1 functions, 1 at 100%)
@@ -1210,24 +1233,27 @@ fn_800DF018: the users of the entries its draft owns span fn_800DBAD0..fn_800EAA
 fn_800E4618: the users of the entries its draft owns span fn_800DBAD0..fn_800EA468 (0x800DBAD0-0x800EA548, 46 functions, 14 at 100%)
 fn_800EA468: the users of the entries its draft owns span fn_800DBAD0..fn_800EA468 (0x800DBAD0-0x800EA548, 46 functions, 14 at 100%)
 fn_800FB688: the users of the entries its draft owns span fn_800FB688..fn_800FB688 (0x800FB688-0x800FB924, 1 functions, 1 at 100%)
-fn_800FBAB4: the users of the entries its draft owns span fn_800FAE8C..fn_801067E0 (0x800FAE8C-0x80106EB8, 51 functions, 27 at 100%)
+fn_800FBAB4: the users of the entries its draft owns span fn_800FAE8C..fn_801067E0 (0x800FAE8C-0x80106EB8, 51 functions, 30 at 100%)
+fn_800FBC48: the users of the entries its draft owns span fn_800F91E0..fn_8010071C (0x800F91E0-0x80100BD0, 38 functions, 25 at 100%)
 fn_800FC290: the users of the entries its draft owns span fn_800FC290..fn_800FC290 (0x800FC290-0x800FC674, 1 functions, 1 at 100%)
-fn_800FFFFC: the users of the entries its draft owns span fn_800F91E0..fn_8010071C (0x800F91E0-0x80100BD0, 38 functions, 22 at 100%)
+fn_800FDBE8: the users of the entries its draft owns span fn_800FDBE8..fn_800FDBE8 (0x800FDBE8-0x800FE008, 1 functions, 1 at 100%)
+fn_800FED34: the users of the entries its draft owns span fn_800F91E0..fn_8010071C (0x800F91E0-0x80100BD0, 38 functions, 25 at 100%)
+fn_800FFFFC: the users of the entries its draft owns span fn_800F91E0..fn_8010071C (0x800F91E0-0x80100BD0, 38 functions, 25 at 100%)
 fn_8010E47C: the users of the entries its draft owns span fn_8010E47C..fn_80112A0C (0x8010E47C-0x80112AB8, 27 functions, 16 at 100%)
 fn_80111EEC: the users of the entries its draft owns span fn_80111EEC..fn_80111EEC (0x80111EEC-0x8011214C, 1 functions, 1 at 100%)
 fn_80112998: the users of the entries its draft owns span fn_8010E47C..fn_80112A0C (0x8010E47C-0x80112AB8, 27 functions, 16 at 100%)
 fn_80112A0C: the users of the entries its draft owns span fn_8010E47C..fn_80112A0C (0x8010E47C-0x80112AB8, 27 functions, 16 at 100%)
 fn_801142B4: the users of the entries its draft owns span fn_801142B4..fn_801142B4 (0x801142B4-0x801143D0, 1 functions, 1 at 100%)
-cr_Records_BuildBodyRows: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 33 at 100%)
-fn_80118468: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 33 at 100%)
-fn_80118C08: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 33 at 100%)
-fn_8011936C: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 33 at 100%)
-fn_80119C8C: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 33 at 100%)
-fn_8011A37C: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 33 at 100%)
-fn_8011A8FC: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 33 at 100%)
-fn_8011ABA4: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 33 at 100%)
-fn_80121098: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 33 at 100%)
-fn_8012180C: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 33 at 100%)
+cr_Records_BuildBodyRows: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 35 at 100%)
+fn_80118468: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 35 at 100%)
+fn_80118C08: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 35 at 100%)
+fn_8011936C: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 35 at 100%)
+fn_80119C8C: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 35 at 100%)
+fn_8011A37C: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 35 at 100%)
+fn_8011A8FC: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 35 at 100%)
+fn_8011ABA4: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 35 at 100%)
+fn_80121098: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 35 at 100%)
+fn_8012180C: the users of the entries its draft owns span fn_801147B4..fn_80124CA0 (0x801147B4-0x80124EAC, 77 functions, 35 at 100%)
 fn_8012855C: the users of the entries its draft owns span fn_80125C2C..fn_8012F3C4 (0x80125C2C-0x80130710, 29 functions, 14 at 100%)
 fn_8012F28C: the users of the entries its draft owns span fn_80125DCC..fn_8012F28C (0x80125DCC-0x8012F318, 23 functions, 9 at 100%)
 fn_80130B48: the users of the entries its draft owns span fn_80130B48..cr_Ending_LoadPartPictures (0x80130B48-0x801310D4, 2 functions, 1 at 100%)
@@ -1245,8 +1271,10 @@ fn_80130B48: the users of the entries its draft owns span fn_80130B48..cr_Ending
 800192C4  fn_800192C4                                    676  has data of its own (.sdata2 0x10): needs the data piece split too
 8001E6B0  fn_8001E6B0                                    356  has data of its own (.data 0x24): needs the data piece split too
 80021CB4  cr_FileSys_Init                                576  has data of its own (.bss 0x1BD8): needs the data piece split too
+80021EF4  cr_FileSys_RegisterPath                        464  the promoted file does not compile: illegal use of incomplete struct/union/class '*'
 8002444C  fn_8002444C                                    300  relocation at +0xC goes to lbl_804504E8, the original's to @22
 8002557C  fn_8002557C                                   1112  has data of its own (.sdata2 0x14): needs the data piece split too
+80026920  fn_80026920                                    348  has data of its own (.sdata2 0x8): needs the data piece split too
 80029C84  fn_80029C84                                    748  has data of its own (.sdata2 0x8): needs the data piece split too
 8002E564  fn_8002E564                                    992  has data of its own (.sdata2 0x8): needs the data piece split too
 8002E944  fn_8002E944                                    620  has data of its own (.sdata2 0x8): needs the data piece split too
@@ -1276,6 +1304,7 @@ fn_80130B48: the users of the entries its draft owns span fn_80130B48..cr_Ending
 80073A74  fn_80073A74                                    580  the promoted file does not compile: illegal use of incomplete struct/union/class '*'
 80074110  cr_Chara_BuildModel                           1460  the promoted file does not compile: illegal use of incomplete struct/union/class '*'
 800748A8  cr_ModelEntry_LoadAndBuild                    1316  the promoted file does not compile: illegal use of incomplete struct/union/class '*'
+8007571C  fn_8007571C                                    564  has data of its own (.bss 0x4D0): needs the data piece split too
 8007A800  fn_8007A800                                    692  has data of its own (.sdata2 0x8): needs the data piece split too
 8007CC90  fn_8007CC90                                    172  has data of its own (.sdata2 0x8): needs the data piece split too
 8007CD3C  fn_8007CD3C                                    224  has data of its own (.sdata2 0x8): needs the data piece split too
@@ -1309,7 +1338,9 @@ fn_80130B48: the users of the entries its draft owns span fn_80130B48..cr_Ending
 800ABE94  fn_800ABE94                                    532  has data of its own (.rodata 0x1E, .sdata2 0x8): needs the data piece split too
 800AC270  fn_800AC270                                     96  has data of its own (.sdata2 0x4): needs the data piece split too
 800AC6F0  fn_800AC6F0                                    260  has data of its own (.sdata2 0x8): needs the data piece split too
+800AC7F4  fn_800AC7F4                                    284  has data of its own (.sdata2 0x8): needs the data piece split too
 800ACE74  fn_800ACE74                                    260  has data of its own (.sdata2 0x8): needs the data piece split too
+800ACF78  fn_800ACF78                                    284  has data of its own (.sdata2 0x8): needs the data piece split too
 800AD4A8  fn_800AD4A8                                    260  has data of its own (.sdata2 0x8): needs the data piece split too
 800AD880  fn_800AD880                                    260  has data of its own (.sdata2 0x8): needs the data piece split too
 800ADC54  fn_800ADC54                                    260  has data of its own (.sdata2 0x8): needs the data piece split too
@@ -1326,6 +1357,8 @@ fn_80130B48: the users of the entries its draft owns span fn_80130B48..cr_Ending
 800BE32C  cr_C_ACT_TURN                                  352  has data of its own (.sdata2 0x8): needs the data piece split too
 800BE48C  cr_C_ACT_MOVE_LENG                             384  has data of its own (.sdata2 0x8): needs the data piece split too
 800BE60C  cr_C_ACT_MOVE                                  336  has data of its own (.sdata2 0x8): needs the data piece split too
+800C1E04  cr_E_CIRCLE_OUT                                516  has data of its own (.sdata2 0x8): needs the data piece split too
+800C2008  cr_E_CIRCLE_IN                                 528  has data of its own (.sdata2 0x8): needs the data piece split too
 800C2640  cr_E_CIRCLE_SET                                632  uses M2C_ERROR that the drafts' context does not declare
 800C28B8  cr_E_CIN                                       244  has data of its own (.bss 0x5BDC, .sdata2 0x8): needs the data piece split too
 800C29AC  cr_E_COUT                                      372  has data of its own (.bss 0x5BDC, .sdata2 0x10): needs the data piece split too
@@ -1372,7 +1405,10 @@ fn_80130B48: the users of the entries its draft owns span fn_80130B48..cr_Ending
 800E4618  fn_800E4618                                    344  has data of its own (.sdata2 0x8): needs the data piece split too
 800EA468  fn_800EA468                                    224  has data of its own (.sdata2 0x8): needs the data piece split too
 800FBAB4  fn_800FBAB4                                    360  has data of its own (.sdata2 0x8): needs the data piece split too
+800FBC48  fn_800FBC48                                    432  has data of its own (.sdata2 0x10): needs the data piece split too
 800FC290  fn_800FC290                                    996  has data of its own (.rodata 0x14, .sdata2 0xA): needs the data piece split too
+800FDBE8  fn_800FDBE8                                   1056  has data of its own (.rodata 0x1E): needs the data piece split too
+800FED34  fn_800FED34                                    708  has data of its own (.sdata2 0x18): needs the data piece split too
 800FFFFC  fn_800FFFFC                                    852  has data of its own (.sdata2 0x8): needs the data piece split too
 8010E47C  fn_8010E47C                                    932  has data of its own (.sdata2 0x8): needs the data piece split too
 80112998  fn_80112998                                    116  has data of its own (.sdata2 0x8): needs the data piece split too

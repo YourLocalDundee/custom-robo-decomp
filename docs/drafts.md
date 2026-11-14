@@ -2918,3 +2918,64 @@ are **structural** (29: by hand, smallest first).
 - **Nov 14: the 39 drafted again** (`--out build/regen13` .. `regen16`) and merged: **1,160 of 1,751 at
   100%**. Promoted 991 functions (0x37204 bytes) and 11 file objects; `main.dol` still builds with the retail
   SHA-1 (6a73cd11...).
+- **Nov 14: the third bottom 100** (`build/triage/bottom100c.txt`: the 100 lowest-scoring open drafts after the
+  second bottom 100, by their best version: 39 - 52%, 232 bytes - 8.3 KB, 126 KB). Rewritten from the original's
+  assembly as typed C, the small ones first, each statement's place found by moving it through the whole body
+  (**`tools/move_sweep.py`**, new). **22 matches**, all from the list:
+  - **cr_SYS_SAVE_RET / cr_SYS_SAVE_NEXT** (43%): m2c printed the body's first statement (`cr_g_Scenario.unk_000 |= 1`)
+    inside the script prologue; first in the body, after the prologue, they match. A move across the prologue is
+    one no run-based tool tries.
+  - **cr_E_WIN / WOUT / FIN / FOUT** (41%; the wipe and fade commands): the time argument is a **u32 local read
+    right before the mode stores** (`time = pc[1]`): it is the original's fourth saved register (73% without it);
+    then mode, `|= 0x2000`, `255 / time` (fn_800EAC48's order), the flag word cleared and set.
+  - **fn_80008CB0** (42%; the texture palette loader): TEXPalette / descriptor pairs typed, the descriptor tested
+    against `((void *) 0)`, and the size check after the archive call **an assert without its message with the
+    call inside it**: `(offset + cr_Archive_GetEntrySize(...) < 0x154000) ? (void) 0 : (void) 0` (a size local
+    took a fifth saved register, and five saved registers mean stmw).
+  - **fn_800AC7F4 / fn_800ACF78** (40%): a Rect built in a local and **copied member by member** into a second
+    Rect (lfs / stfs; a struct copy is lwz / stw).
+  - **cr_SEQ_STAGE_SELECTOR_Leave** (42%): the clear colour saved and replaced through two GXColor block locals
+    (byte copies), the new one declared first; a GXColor with a zero initialiser (.sbss2).
+  - **fn_80026920** (40%): the mean of a point table, a Vec sum on the stack; the three divides before the six
+    stores (m2c interleaved them and printed the loop z, y, x).
+  - **fn_800FBC48, fn_800FED34, fn_800FDBE8** (47 / 44 / 50%; the slot markers): the robo record typed (0x4994
+    bytes), the slot search an inline returning 0xFF, the scale pairs `f32[2]` with initialisers, the scaled sizes
+    computed after the size record is fetched, h before w; fn_800FDBE8 adds an alpha-fade inline (a switch on the
+    robo's fade mode) expanded in both branches and two local tables (.rodata).
+  - **cr_FileSys_RegisterPath** (47%; the path lookup): returns the size. **m2c's copy of a parameter
+    (`var_r28 = desc;`) makes MWCC spill the parameter to its stack home** (`stw r3,8(r1); lwz r28,8(r1)`): with
+    the parameter used directly it matched at once (76 -> 100%). The same spill cost fn_80008CB0 two points.
+  - **fn_80115918 / fn_80115D04** (49%; a records page): first try, once typed: every member access through the
+    list's count written out (this file reloads each global at each use, nine reads of the count per pass).
+  - **cr_E_CIRCLE_OUT / cr_E_CIRCLE_IN** (51 / 44%): the circle record lbl_803BA330 typed; the same store order in
+    both branches (step, target, total, time, the flags), found for OUT by move_sweep and a permutation of the
+    else branch, and then written for IN at once.
+  - **fn_8007571C** (46%): the file's .bss pool from lbl_80377E60 defined (a 5x4 pointer table, four 4-pointer
+    tables and four arrays of 0x44-byte archives, **each addressed with its own addi, so separate objects** although
+    the symbol table has one 0x450-byte block); the buffers stepped as `(k * size) / 4`; the dead mask kept; **the
+    inner counter declared before the outer one** (88 -> 100%).
+  - **fn_80061E18** (46%): first try: HSD's matrix getter inlined as Melee's jobj.h writes it (the 0x47C assert,
+    HSD_JObjSetupMatrix with the dirty test and the 0x25D assert) as three static inlines, two Vec locals with
+    initialisers, the robo table through a local pointer.
+  - **cr_Game_InitSystem** (44%): the render mode through a local pointer, the reset-code and progressive tests
+    written out with their result variables (as inlines they cost a copy each), the VI pointer taken after the
+    first render-mode store, and **the new arena low in a variable declared before the high one**: the
+    original's fifth saved register (95 -> 100%).
+  - Not matched (kept in `build/hand1000`): fn_8002A334 98% (only the order of the two parameter moves at entry;
+    an inline dot product cost four saved FPRs, written out it is 98%), fn_8002A598 97%, fn_80027170 96% (the last
+    store's right side is evaluated first in the original), fn_80097670 92% (fn_80098104's inlines: one register
+    between the counter and the slot pointer), fn_800F5D44 89% (two variables' registers swapped; no declaration
+    order moves them), **the number-drawing family fn_800ABC28 / AD23C / AD614 / AD9E8 at 72%**: the whole frame
+    is laid out the other way (the first declared colour lowest, the per-call temporaries above the locals and
+    ascending) and no declaration order, array, struct or pragma tried reverses it; cr_CAMMODE_BTL_WAIT_Start 74%
+    (two 4-byte stack gaps), **fn_800BB4C8 64% and cr_SYS_BATTLE / _EF** (the battle record lookup:
+    `lbl_8021AF28 + 0x10000` hoisted into a register, three saved registers more than any form tried; a .data
+    prelude does not give it), fn_8005E0BC 63% (nested inlines), fn_80098F8C (four inline copies spilling as the
+    saved registers run out), fn_8006611C.
+  - `tools/order_climb.py` over the 94 open drafts of the list (prepared by moving the dead `cmd_cnt` block to
+    the end, so a command's prologue and body are one run): 20 done in 2.5 hours, small gains on raw drafts
+    (fn_80106EB8 40 -> 49%, cr_Battle_UpdateRobos 40 -> 47%); stopped. `tools/script_pool.py` on the list: 13
+    on a pool, 10 kept (cr_OBJ_TOUCH_SET 49%, fn_8002F320 50%), none matched without a hand.
+- **Nov 14: the 22 drafted again** (`--out build/regen18`) and merged: **1,182 of 1,751 at 100%**. Promoted
+  1,000 functions (0x37DB4 bytes) and 14 file objects; `main.dol` still builds with the retail SHA-1
+  (6a73cd11...).
