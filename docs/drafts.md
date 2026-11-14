@@ -2660,3 +2660,51 @@ are **structural** (29: by hand, smallest first).
     `&= 1` loads through r3 where the original uses r0).
 - **Nov 13, the 2 matches drafted again** (`--out build/regen5`) and merged: **1,080 of 1,751 at 100%**. Promoted 967
   functions (0x34FE4 bytes) and 7 file objects; `main.dol` still builds with the retail SHA-1 (6a73cd11...).
+- **Nov 13, night: the next 100 (the highest-scoring open drafts outside the top 150), with research first**
+  (`build/triage/top100b.txt`: 61 - 75%, 76 bytes - 2.2 KB, 79 KB; best versions in `build/b100/`, hand work in
+  `build/hand800/`). What other projects know and what the compiler's decompiled source says is written up in
+  [matching_research.md](matching_research.md); the part that changed the work:
+  - **The saved registers are a formula.** At level 0 the compiler hands r31 down to the named locals and
+    parameters before colouring, by usage (`allocate_saved_gprs` in rayanht/mwcc's CodeGen.c): highest usage
+    first, at least 2, a tie to a local before a parameter, to the first-declared local, to the later parameter.
+    Usage was then measured on GC/2.6 (dead uses needed to flip a pair in fn_800A44D4): 1 per occurrence, no loop
+    weight; 2 for `v += x` / `v++`; **2 for an indirection through the variable with no cast** (`*v`, `v[i]`,
+    `v->m`), 1 behind a cast (so every `M2C_FIELD(v, ...)` counts 1 where the original's `v->m` counted 2: this is
+    why m2c drafts need dead uses at all). The rule gives the register order of 200 of 207 matched m2c-named drafts.
+  - **`tools/rank_solve.py`** computes the answer: targets from m2c's register names and the original's entry
+    block, the locals declared in register order, the fewest `(void) v;` lines. One compile per function. All 671
+    open drafts: **137 up, +2,483 words, 1 match (cr_SYS_OVERLAY_WAIT, 84%)** in 20 minutes (the search of
+    `rank_sweep.py`: 52 of 150 in 80 minutes).
+  - **`tools/goto_loops.py`**: m2c's `loop_N:` / `goto loop_N;` as `while (C) { if (!D) { break; } ... }` (four
+    forms, kept by score). 209 open drafts have such loops; over all of them 66 up, +416 words.
+  - **Pooled data needs the file** ([matching_research.md](matching_research.md) section 2,
+    `tools/pooled_drafts/`): the base register m2c prints as `base_lbl_...` is the compiler's own base for the
+    file's pooled data. With the three vectors of fn_800456B8 defined in the draft the compiler emits the
+    original's struct copies (three loads, then three stores) and the function is 27 of 27 words (70% as a
+    pointer draft); its relocations then name the draft's own `.bss`, so it is evidence, not a hand draft. 92 open
+    drafts have such a base: they are the case for file objects.
+- **Nov 13, night: 14 matches** (4 of them from the top 150's open list):
+  - cr_SYS_OVERLAY_WAIT: `rank_solve.py` alone.
+  - The text offset family, fn_80067778 / fn_80066EEC / fn_80066D3C / fn_80066E5C (73 - 81%): the table read as
+    `((s32 *) (file + 0x10))[id]`, the text address one flat sum `base + off + 8` (two statements create the
+    temporaries in the other order: r4 / r5 swap). fn_80066F58 (the chunk scan): `(size >> 2) << 2`, the size
+    read through the header copy, and the result of cr_Archive_GetEntrySize compared with 0x1C000 in an empty
+    debug test.
+  - fn_800ADC54 / fn_800AEB7C / fn_800AEF50 (73%): the Vec3 struct copy of the fn_800AC6F0 family.
+  - fn_8009381C (66%, 812 bytes): its four goto loops as while loops with a break (90 -> 98%), the byte copy
+    without m2c's `(u8)` cast.
+  - fn_80096E28 (97% since the rest set) and fn_800965F4: `slot->fade_time = time = time * 200 / 60;` as one
+    chained assignment through a u16 field: the store takes the untruncated r0, the variable the `clrlwi` (the
+    Sunshine notes' "chained assignment"). fn_800965F4 is two expansions of that loop; each starts from the slot
+    table itself, and the second reads slot 1 before it takes the table.
+  - cr_Bgm_Play (97%, "one register"): one dead use of the fade-time local puts it above the inline's result;
+    read off the rule instead of searched.
+  - **fn_80064AB8 (69%, 812 bytes) from 13 lines**: a recursive list walk that the compiler inlines into itself
+    eight times (`#pragma auto_inline on`, `#pragma inline_max_size(700)`; the ninth level is the call). Written
+    with typed node pointers it needs no dead use: `n->next` counts 2, so the nodes outrank the objects as in the
+    original. The m2c draft had the nine levels written out.
+  Near: fn_800A3C0C 75 -> 90% (far pooled offsets through the second base; the `addi`-then-`lwzx` shape of a pooled
+  address is left), fn_800389C8 94 -> 99% (`cmpw r0, r27` against ours `cmpw r27, r0`: no spelling of the compare
+  moves the operands).
+- **Nov 13, night: the 14 drafted again** (`--out build/regen6`) and merged: **1,094 of 1,751 at 100%**. Promoted 978
+  functions (0x35DC4 bytes) and 7 file objects; `main.dol` still builds with the retail SHA-1 (6a73cd11...).

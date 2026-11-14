@@ -23,6 +23,7 @@ Tools, file-format docs, a named symbol map and a growing matching-C decompilati
 | Help match a library file to C | [CONTRIBUTING.md](CONTRIBUTING.md#matching-a-library-file-phase-4), [docs/decomp.md](docs/decomp.md#building-library-objects-from-c-phase-4-milestone-4-oct-29-2026) |
 | Help match game functions (m2c drafts, the work list) | [docs/drafts.md](docs/drafts.md) |
 | Where the 400 lowest-scoring drafts stand (per function, Nov 13, 2026) | [docs/low_drafts_progress.md](docs/low_drafts_progress.md) |
+| How the compiler picks registers, and what other projects know about matching (Nov 14, 2026) | [docs/matching_research.md](docs/matching_research.md) |
 | Know which compiler and flags built each part | [docs/compiler.md](docs/compiler.md) |
 | Understand a file format | [docs/formats/](docs/formats/) |
 | Install the tools (Windows; the Linux / macOS notes are not maintained at the moment) | [Install the tools](#install-the-tools) |

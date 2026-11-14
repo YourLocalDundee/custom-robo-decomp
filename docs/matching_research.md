@@ -1,0 +1,152 @@
+# Matching research: what other projects and the compiler's source say (Nov 13, 2026)
+
+Written while working the "next 100" set of [drafts.md](drafts.md). The question was: what do other CodeWarrior
+GameCube decompilations know about getting the last registers and instructions right, and what tools exist beyond
+the ones already here ([tools.md](tools.md))? Everything below was read on the web (reference only; nothing was
+copied into the repository) and then **checked on this game's compiler** (GC/2.6, `-opt level=0,peephole,schedule,
+speed`) before it was used. Where the check disagreed, the measured behaviour is what is written.
+
+## Sources
+
+| Source | What it is | What was used |
+|---|---|---|
+| https://github.com/doldecomp/sms `docs/AGENT_MATCHING_TIPS.md` and `AGENTS.md` | Super Mario Sunshine (GC/1.2.5, `-O4,p`): a long list of matching facts, most of them read from the compiler's decompilation | the register rules, the stack frame arithmetic, the forms of removed debug code, "replay the allocator instead of guessing" |
+| https://github.com/rayanht/mwcc (already in `tools/downloads/rayanht_mwcc`, never run) | a matching decompilation of `mwcceppc.exe` GC/1.0 - 1.3 | `src/backend/CodeGen.c` (`allocate_saved_gprs`, `allocate_object_registers`, the pass order of `CodeGen_Generator`), `src/optimizer/COptimizer.c` (how a variable's usage is counted), `src/frontend/CFunc.c` (statement weights), `src/backend/TOC.c` (pooled-data base objects) |
+| https://github.com/zeldaret/tww `docs/regalloc.md`, `docs/decompiling.md` | The Wind Waker (GC/1.3.2, C++): a cheat sheet of register swaps | declaration order, a local copy of a base pointer, casts, `const` on inline parameters, if / else against the ternary |
+| https://github.com/simonlindholm/decomp-permuter (already set up, `tools/sched/permuter_setup.py`) | random and guided source permutation | `PERM_GENERAL` / `PERM_RANDOMIZE` exist for guided runs; not needed yet |
+| https://github.com/macabeus/mizuchi, https://github.com/maci0/rebrew | pipelines around m2c, objdiff, the permuter and a language model; a genetic search over flags and source | read for ideas only: both are the loop this repository already runs (draft, compile, score, keep) |
+| https://hackmd.io/vPmcgdaFSlq4R2mfkq4bJg | the IDO (N64) -O2 guide | the order of work: control flow, then the set of saved registers, then small reorderings, then registers |
+
+Not found: a guide for this exact configuration (GC/2.x at level 0 with the peephole and the scheduler on). The
+level-0 rules below are this project's own measurements, with the 1.x source as the hypothesis.
+
+## 1. Saved registers are computed, not searched
+
+At level 0 the compiler does **not** colour the named locals: `allocate_registers_and_local_slots` takes the
+`allocate_saved_gprs` / `allocate_saved_fprs` path (the hook log shows the locals already in r26 - r31 in the first
+scheduling pass, before colouring; only temporaries get virtual registers). The 1.x source of that function:
+
+```
+while a saved register is free:
+    best = none, bestWeight = -1
+    for each parameter, in order:        if usage >= bestWeight and usage >= 2: best = it
+    for each local, in list order:       if usage >= bestWeight and usage >= 2: best = it
+    for each pooled-data base object:    if usage >= bestWeight and usage >= 3: best = it
+    give best the next register (r31 down / f31 down)
+```
+
+The local list is in reverse declaration order (each new local is prepended), and `>=` lets a later candidate
+replace an equal earlier one. So:
+
+- the variable with the highest usage gets r31;
+- a tie goes to a local before a parameter, to the **first-declared** of two locals, to the **later** of two
+  parameters;
+- usage 1 gets no register: a parameter then stays in its stack home (`stw r3, 8(r1)`), a local goes to the stack;
+- `volatile` and address-taken variables are never candidates.
+
+**Usage on GC/2.6 at these flags** (measured by counting the dead uses that flip a pair of registers in
+fn_800A44D4; the 1.x source adds the statement weight, x8 per loop level under `-opt speed`, and that is **not**
+what this compiler does):
+
+| Form | Usage added |
+|---|---|
+| any occurrence: read, write, argument, compare, `(void) v;`, also inside `if (0) { }` and inside a loop | 1 |
+| `v += x`, `v++`, `++v`, `v = v` | 2 |
+| an indirection through the variable with no cast between: `*v`, `*(v + 1)`, `v[i]`, `v->m`, a store through it | 2 |
+| the same behind a cast: `*(T *) v`, `M2C_FIELD(v, T *, off)`, `((T *) v)[i]`; and `&v->m` | 1 |
+
+Checked against the matched drafts whose locals m2c named after their registers: the rule and this table give the
+register order of **200 of 207** functions (`usage_model.py`, scratch; x8 loop weights give 130).
+
+`tools/rank_solve.py` uses it: the target register of a local is in its m2c name, of a parameter in the original's
+entry block; the tool declares the locals in register order and adds the fewest `(void) v;` lines that make the
+rule produce the target. One compile per function. Over the 671 open drafts: **137 up, +2,483 words, 1 match**
+(cr_SYS_OVERLAY_WAIT) in about 20 minutes, where the search (`rank_sweep.py`) needed 80 minutes for 150 functions.
+
+What a needed dead use *means* (the Sunshine guide calls a dummy that fixes allocation a pointer to the real
+difference): the original used the variable once more than the draft does. Usually that is a use m2c folded away
+(a second read of a parameter the draft reads through a copy, as in fn_80066F58), an indirection the draft writes
+through a cast, or a compiled-out debug statement.
+
+## 2. Pooled-data base registers are not variables
+
+`lis r4, sym@ha; addi r31, r4, sym@l` at the top of a function, with many `N(r31)` accesses and sometimes a second
+`addis r24, r31, 1`, is the compiler's own base object for the file's pooled data (the third loop above: usage at
+least 3). m2c prints it as a local (`var_r31 = lbl_8021AF28;`) with byte offsets, which is why such a draft needs
+dozens of dead uses of it. The original names the globals; `addi r3, r24, -27556; lwzx r0, r3, r0` is "address of
+that global, then index". A draft compiled alone cannot pool, so this stays an emulation: far offsets written
+through the second base (`var_r24 - 0x6BA4`), which took fn_800A3C0C from 75% to 90%. The `addi`-then-`lwzx`
+shape itself is still open (every spelling folds the constant into the displacement; an inline helper that
+returns the address gives the shape but takes a saved register per site).
+
+**Proof with fn_800456B8** (`tools/pooled_drafts/`): with its three vectors defined in the draft, a pad before
+them and a static function that references them in address order (the pool is laid out in the order of first
+reference), the compiler makes the base itself and emits the original's struct copies, three loads and then
+three stores: 27 of 27 words, where the pointer draft is at 70% because a pointer local has the worst-case
+alias and the scheduler may not move a load above a store. The relocations then name the draft's own `.bss`,
+so this is evidence and not a linkable draft. 92 open drafts have such a base: they need file objects that
+define the file's data.
+
+## 3. The stack frame
+
+```
+frame = round8( 8 + round8(locals) + 4 x saved GPRs + 8 x saved FPRs )
+```
+
+- A frame that is too small usually means missing inline expansions, not a missing local: an inlined call
+  reserves a slot for its return value (when it returns one), for each argument that is an expression, and for
+  each named local of its body, also when the final code never touches them.
+- m2c's 1-byte or 4-byte slot for a buffer that is passed by address is the buffer's first element: the frame
+  size gives the real size (`char sp8[84]` in fn_80108290, `char sp8[24]` in fn_8011ABA4).
+- A local that is only written goes to the stack (usage 1) and its store can be removed, leaving the slot.
+- Each int-to-float conversion site reserves 8 bytes above the named locals.
+
+## 4. Forms the removed debug code leaves
+
+- `if (cond) { }` keeps the compare alive until after register allocation (a dead `cmpwi` whose flags nothing
+  reads); `if (cond) (void) 0;` drops it earlier. This game's originals have both shapes: `{ (void) 0; }` matched
+  fn_8008891C, fn_80044174 and fn_80066F58 (a call's result compared with 0x1C000 for nothing).
+- A discarded call of a function that returns a value keeps r3 busy to the end of the statement; of a void
+  function not. One wrong return type in the context shifts the temporaries of every caller
+  (`site_rules.py` voidcall / valuecall).
+
+## 5. Control flow
+
+- MWCC never swaps the two arms of an `if` and never reorders `case` labels; a loop at level 0 jumps to its test at
+  the bottom (`b test` ... `blt body`).
+- m2c prints a loop that leaves through a test as `loop_N:` with `goto loop_N;`. That form tests at the top and
+  does not match. `tools/goto_loops.py` rewrites it as `while (C) { if (!D) { break; } ... }` (and three other
+  forms, kept by score): fn_8009381C 90 -> 98%; over the 660 open drafts 66 up, +416 words.
+- A branch target that only moves a value into the result register is a ternary; one that loads a constant is an
+  early return.
+
+## 6. Address sums (confirms the Nov 13 findings)
+
+- Pointer arithmetic is normalised to `add rD, rBase, rOffset`; integer arithmetic keeps the source order.
+- The constant of a sum goes into the displacement or into the index depending on where it is written:
+  `((s32 *) (file + 0x10))[id]` is `add base, index; lwz 0x10(r)` (fn_80067778 and four siblings),
+  `M2C_FIELD(B + (i * 2), s16 *, 0x20C)` is `lhax` with the index `i * 2 + 0x20C`.
+- `text = base + off + 8`, flat and left to right, in one statement: two statements create the temporaries in the
+  other order and the volatile registers swap (fn_80066D3C).
+
+## 7. Other levers to remember
+
+From the Sunshine and Wind Waker notes; not yet needed here or not yet checked on GC/2.6:
+
+- a move between two named locals never coalesces (`mr r27, r28` stays); a move into a temporary does;
+- `int` against `s32` for a float-to-int conversion (two `stfd` / `lwz` pairs against one);
+- a redundant cast emits a dead `rlwinm` that the scheduler still sees, so it moves other instructions;
+- `mr rD, rS` against `addi rD, rS, 0`: the late peephole rewrites a copy that is not first in its block;
+- a local that feeds a call argument moves its computation in front of the argument moves (temporaries of an
+  argument expression can never take r3 / r4);
+- `&&` / `||` assigned to a bool makes flag temporaries (`li 0`, `li 1`, `clrlwi.`); nested ifs do not.
+
+## 8. Tools considered
+
+| Tool | Verdict |
+|---|---|
+| `rank_solve.py`, `goto_loops.py` (new, this repository) | built from sections 1 and 5; in [tools.md](tools.md) |
+| the compiler-state debugger the Sunshine project describes (`mwcc-izer`: dumps the AST, PCode, interference graph and frame per pass) | not public as far as the search shows; this repository's `tools/sched/hook` already logs the scheduler's input and picks for GC/2.6, and the first-pass log shows which locals are pre-assigned. Extending the hook to dump the colouring of the temporaries is the next step for the volatile-register differences |
+| https://github.com/cadmic/mwcc-debugger (in `tools/downloads`, addresses for GC/2.6) | the source of the hook's addresses; its pass breakpoints are where such a dump would go |
+| decomp-permuter | kept for single functions with a register-only residue; 12 minutes on fn_800E9C90 gave 85%, no match |
+| language-model pipelines (mizuchi and similar) | the same draft / compile / score loop; nothing to add |
