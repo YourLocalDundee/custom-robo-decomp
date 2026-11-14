@@ -2745,3 +2745,45 @@ are **structural** (29: by hand, smallest first).
   fn_8004752C 94, fn_80045CE8 94, fn_80047AC0 85, fn_8004949C 82, fn_80045FEC 80, fn_80048050 75.
 - **Nov 13, late: the 5 drafted again** (`--out build/regen7`, `regen8`) and merged: **1,099 of 1,751 at 100%**. Promoted 980
   functions (0x3643C bytes) and 7 file objects; `main.dol` still builds with the retail SHA-1 (6a73cd11...).
+- **Nov 13, late night: the bottom 100** (`build/triage/bottom100.txt`: the 100 lowest-scoring open drafts by their
+  best version, 1 - 24%, 216 bytes - 15.4 KB, 365 KB). These are not drafts to repair: the small ones were
+  rewritten from the original's assembly as typed, natural C, with the register rule of
+  [matching_research.md](matching_research.md) as the check that the reconstruction is right. **8 matches** (4 of
+  the 100, and 4 neighbours the same findings closed):
+  - **Part of the game is compiled above optimization level 0.** cr_SinCos16 (17%; "a frameless leaf: no spelling
+    of its two locals keeps them out of saved registers", Nov 13) is a frameless leaf with three locals in r6 - r8,
+    which level 0 cannot produce. Inside `#pragma push` / `#pragma optimization_level 4` / `#pragma pop` (3 gives the
+    same code) the plain function matches. cr_Sin16 and cr_Cos16 (63%) are in the same file: level 4, and **the
+    table with its real type**: `extern f32 lbl_801E6580[1025];` after `// also defines: lbl_801E6580` (the line
+    renames the context's `u8[4100]` away, for data as for functions). Through a cast the base and the index
+    took each other's registers; the array itself is right. The quadrant index is written inline in each branch.
+    `tools/opt_sweep.py` compiles a draft at levels 0 - 4: of the 646 open drafts 44 score higher above level 0
+    (+854 words; fn_80056C6C 7 -> 14%, fn_8005ED28, fn_8005E270, fn_8000CFAC, cr_Chara_PoseLimbB, fn_800BBD04,
+    cr_Chara_UpdateAll, fn_8001F060 27 -> 45%), almost all at level 1 and none to a match: an m2c draft has the
+    shape of level-0 code. The list is where to look for more optimised files (fn_8001F060, the arctangent next to
+    the sine functions, keeps its flags in r0 / r4 / r5 across branches).
+  - **Saved float registers with partial sums are named locals.** cr_Mtx_Mul (15%) and fn_8001D350 (13%, now 97%):
+    the 3x3 / 3x4 matrix products. Six float locals reused for every column, the statements staged (the three
+    products, the three partial sums, the three stores); row by row is 69%, staged 100%. fn_8001D350 saves r31 and
+    r30 and never uses them: two pointer locals to the stack matrix (the Nov 6 rule), one for the stores and one,
+    assigned just before, for the copy-out; left: the three stores of the fourth column keep `N(r31)` where the
+    original has them folded onto r1.
+  - **A local table with an initialiser** (fn_8005CF0C, 14%): m2c's fifteen stack words copied from a `.rodata`
+    label through r26 are `f32 table[5][3] = { ... };` (the values read from the label; our constant stands for it
+    in relcheck, and promote_drafts.py made the function a file object with that `.rodata`).
+  - **fn_80029924 (12%)**, the screen projection: the camera rectangle copied as a struct, the near plane a dead
+    stack local, the matrix parameter (one use) in its stack home, the point a Vec. Stack objects declared later
+    get the lower addresses. The saved-and-unused r30 is the camera parameter: its copy is forwarded from r3 and
+    removed.
+  - **fn_8001E6B0 (31%), all typed, no dead use**: with a 0x1C-byte key struct, an 8-byte track, three `Vec *`
+    outputs and an `f32 *` range, every variable has usage 6 except the counters, and the ties fall exactly as the
+    original's registers (the local key pointer r31, then the parameters from the last to the first). The mask is
+    the u16 parameter itself, `(keys + n)[-1].t1` gives the index `n * 28 - 12`, and the switch keeps the original
+    order of its cases.
+  - **Temporaries take registers in reverse order of creation** (the Sunshine notes' colouring rule, checked):
+    cr_Mtx_Pop (91% since Nov 6) matches with its four statements as depth--, top -= 12, m = current, t = top: the
+    address created last gets r3.
+  Not yet: fn_800BBD04 (a run of small struct copies whose loads the scheduler hoists into every register),
+  fn_8001F060 (optimised; to write at level 4), the large ones.
+- **Nov 13, late night: the 8 drafted again** (`--out build/regen9`) and merged: **1,107 of 1,751 at 100%**. Promoted
+  986 functions (0x36AA0 bytes) and 8 file objects; `main.dol` still builds with the retail SHA-1 (6a73cd11...).

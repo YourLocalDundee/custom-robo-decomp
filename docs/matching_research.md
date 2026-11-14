@@ -142,7 +142,23 @@ From the Sunshine and Wind Waker notes; not yet needed here or not yet checked o
   argument expression can never take r3 / r4);
 - `&&` / `||` assigned to a bool makes flag temporaries (`li 0`, `li 1`, `clrlwi.`); nested ifs do not.
 
-## 8. Tools considered
+## 8. Found while using these rules (the bottom 100)
+
+- **Not all of the game is level 0.** The sine / cosine file is optimised: `#pragma optimization_level 4` around
+  cr_SinCos16, cr_Sin16, cr_Cos16. The sign in the original: locals in volatile registers without a frame, or a
+  value kept in r0 / r4 / r5 across branches. `tools/opt_sweep.py` lists the drafts that score higher above level 0.
+- **A global with the wrong type costs registers.** `// also defines: lbl_X` renames the context's declaration away
+  and the draft declares the real one (`extern f32 lbl_801E6580[1025];`): the array's own address, not a cast
+  pointer, is what the original indexes.
+- **Typed code is the test.** fn_8001E6B0 written with real structs has usage 6 for six of its variables and
+  the tie-breaks alone give the original's nine registers. When a reconstruction needs a dead use, a type or a
+  use is still wrong; when it needs none, it is probably the source.
+- **Volatile registers follow creation order backwards** (the Sunshine rule, section 1 of its notes): the
+  temporary created last takes the lowest free register. cr_Mtx_Pop needed only its statements reordered.
+- **Saved float registers holding partial sums are named locals**, reused per column in the matrix products,
+  with the statements staged across the three rows.
+
+## 9. Tools considered
 
 | Tool | Verdict |
 |---|---|
