@@ -28,12 +28,14 @@ for line in open('%s/asm/%s.s' % (out, func), encoding='utf-8'):
 # our compiler's literal constants (`@729`) stand for the original's pooled ones (lbl_...): accepted when the mapping
 # is one to one over the whole function. So does our file-static section (`...bss.0`: a draft that defines a file's
 # .bss pool as statics, e.g. the battle action file's 0x80329B60, docs/drafts.md Nov 6) for the original's pool symbol.
+# And our pooled constants (`...rodata.0`: several initialised locals in one function, with the file's earlier
+# constants given by a scoring-only function in front, fn_8008C430, Nov 13) for the original's .rodata pool label.
 pool, back, bad = {}, {}, []
 for i in sorted(set(orig) | set(mine)):
     a, b = orig.get(i), mine.get(i)
     if a == b:
         continue
-    if a and b and (b.startswith('@') or b.startswith('...bss')) and pool.setdefault(b, a) == a and back.setdefault(a, b) == b:
+    if a and b and (b.startswith('@') or b.startswith('...bss') or b.startswith('...rodata')) and pool.setdefault(b, a) == a and back.setdefault(a, b) == b:
         continue
     bad.append((i, a, b))
 for i, a, b in bad:
