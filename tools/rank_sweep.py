@@ -1,10 +1,12 @@
 """rank_sweep.py LIST SRCDIR KEEPDIR [JOBS] [KMAX]: saved registers go by use count, so a dead use `(void) v;` moves a
 parameter or local up the order without changing the code.  For each function of LIST (a file, or names with commas):
 for each parameter and local, try 1..KMAX dead uses (kept only when the equal words go up), up to 3 rounds; the same
-again on the source without its `x = x;` self copies (m2c's way of giving a parameter a register: 2 uses).
+again on the source without its `x = x;` self copies (m2c's way of giving a parameter a register: 2 uses);
+then, for 2 - 4 parameters, every combination of 0..3 dead uses of each.
 Source: SRCDIR/FUNC.c, else tools/hand_drafts, else decomp/drafts/c.  Writes KEEPDIR/FUNC.c when it improves, and a
 line per function: name, start %, best %, start words, best words, the counts.
 """
+import itertools
 import os
 import re
 import subprocess
@@ -104,6 +106,22 @@ def one(f):
                     break
             if not moved or best[1] == 100:
                 break
+        # the parameters together: 0..3 dead uses of each (one at a time does not always get there: fn_80069AD8
+        # needs 3, 2, 2 and no single step of that path gains)
+        sig = re.search(r'(?m)^[A-Za-z].*\b' + re.escape(f) + r'\(([^)]*)\) \{$', s)
+        npar = len([x for x in sig.group(1).split(',') if x.strip() and x.strip() != 'void']) if sig else 0
+        if best[1] < 100 and 2 <= npar <= 4:
+            pars = names[:npar]
+            for combo in itertools.product(range(4), repeat=npar):
+                c = dict(counts)
+                c.update(zip(pars, combo))
+                if c == counts:
+                    continue
+                sc = score(f, build(c), 'r')
+                if sc > best:
+                    best, counts = sc, c
+                    if sc[1] == 100:
+                        break
         if best > top[0]:
             top = (best, build(counts), ('noself ' if bi else '') + ' '.join(f'{n}:{k}' for n, k in counts.items() if k))
         if best[1] == 100:

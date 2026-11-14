@@ -1,8 +1,8 @@
 m2c drafts promoted to decomp/src/game (tools/promote_drafts.py; method: its docstring, plan.md steps 58, 63)
 one object per function, or one per file of consecutive functions that share their constant pool (file objects); batch 9 links them and checks the SHA-1
 
-drafts at 100% MATCH: 1078
-promoted: 965 (215432 bytes = 0x34988)
+drafts at 100% MATCH: 1080
+promoted: 967 (217060 bytes = 0x34FE4)
 file objects: 7 (8 functions, 2920 bytes = 0xB68)
 left out: 105
 kept from earlier runs (draft no longer 100%): 2
@@ -327,6 +327,7 @@ removed (function name no longer ours): 0
 80069614  fn_80069614                                     84
 8006973C  fn_8006973C                                     32
 800699E0  fn_800699E0                                    248
+80069AD8  fn_80069AD8                                    584
 80069D20  fn_80069D20                                    132
 80069DA4  fn_80069DA4                                    616
 8006A00C  fn_8006A00C                                    412
@@ -886,6 +887,7 @@ removed (function name no longer ours): 0
 80105E70  fn_80105E70                                      4
 80107310  fn_80107310                                    632
 80108230  fn_80108230                                     96
+80108290  fn_80108290                                   1044
 8010D2D0  fn_8010D2D0                                   1712
 8010D980  fn_8010D980                                    544
 8010DBA0  fn_8010DBA0                                      8
@@ -987,7 +989,7 @@ removed (function name no longer ours): 0
 800527D4-8005299C  cr_Motion_UpdateBlend..fn_800528B8  2 functions, 2 at 100%: FILE OBJECT game/cr_Motion_UpdateBlend_fn_800528B8.c (.sdata2 0x804507E8-0x804507F0)
 800527D4-8005C384  cr_Motion_UpdateBlend..fn_8005C0B0  21 functions, 7 at 100%: not available yet (14 not matched: fn_8005299C, fn_80053430, cr_Chara_BuildJointRotations, cr_Motion_UpdatePoints, cr_Motion_UpdateRoot, fn_80056C6C ...)
 8005C4D0-8005C628  fn_8005C4D0..fn_8005C4D0  1 functions, 1 at 100%: FILE OBJECT game/fn_8005C4D0_fn_8005C4D0.c (.sdata2 0x804509A0-0x804509A8)
-80067904-8006B0AC  fn_80067904..fn_8006A7D8  38 functions, 23 at 100%: not available yet (15 not matched: fn_80067904, fn_80068420, fn_8006868C, fn_80068988, fn_80068DD8, fn_80068E50 ...)
+80067904-8006B0AC  fn_80067904..fn_8006A7D8  38 functions, 24 at 100%: not available yet (14 not matched: fn_80067904, fn_80068420, fn_8006868C, fn_80068988, fn_80068DD8, fn_80068E50 ...)
 8006EEF8-8006FE38  fn_8006EEF8..fn_8006FDD0  7 functions, 6 at 100%: not available yet (1 not matched: fn_8006EEF8)
 8007A800-8007BB60  fn_8007A800..fn_8007B054  5 functions, 3 at 100%: not available yet (2 not matched: fn_8007AB38, fn_8007B054)
 8007C094-8008052C  fn_8007C094..fn_8007FCD8  22 functions, 14 at 100%: not available yet (8 not matched: fn_8007C094, fn_8007DD60, fn_8007E400, fn_8007EA04, fn_8007EEB0, fn_8007F35C ...)
@@ -1042,8 +1044,8 @@ cr_Motion_UpdateBlend: the users of the entries its draft owns span cr_Motion_Up
 fn_800528B8: the users of the entries its draft owns span cr_Motion_UpdateBlend..fn_800528B8 (0x800527D4-0x8005299C, 2 functions, 2 at 100%)
 fn_8005BE70: the users of the entries its draft owns span cr_Motion_UpdateBlend..fn_8005C0B0 (0x800527D4-0x8005C384, 21 functions, 7 at 100%)
 fn_8005C4D0: the users of the entries its draft owns span fn_8005C4D0..fn_8005C4D0 (0x8005C4D0-0x8005C628, 1 functions, 1 at 100%)
-fn_800683B4: the users of the entries its draft owns span fn_80067904..fn_8006A7D8 (0x80067904-0x8006B0AC, 38 functions, 23 at 100%)
-fn_800694C4: the users of the entries its draft owns span fn_80067904..fn_8006A7D8 (0x80067904-0x8006B0AC, 38 functions, 23 at 100%)
+fn_800683B4: the users of the entries its draft owns span fn_80067904..fn_8006A7D8 (0x80067904-0x8006B0AC, 38 functions, 24 at 100%)
+fn_800694C4: the users of the entries its draft owns span fn_80067904..fn_8006A7D8 (0x80067904-0x8006B0AC, 38 functions, 24 at 100%)
 fn_8006FDD0: the users of the entries its draft owns span fn_8006EEF8..fn_8006FDD0 (0x8006EEF8-0x8006FE38, 7 functions, 6 at 100%)
 fn_8007A800: the users of the entries its draft owns span fn_8007A800..fn_8007B054 (0x8007A800-0x8007BB60, 5 functions, 3 at 100%)
 fn_8007CC90: the users of the entries its draft owns span fn_8007C094..fn_8007E400 (0x8007C094-0x8007EA04, 17 functions, 14 at 100%)

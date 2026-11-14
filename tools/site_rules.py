@@ -6,6 +6,8 @@ only when the equal words go up:
   align    E & 0xFFFFFFFC -> (E >> 2) << 2  (and ~7 / ~0xF / ~0x1F with 3 / 4 / 5): clrrwi from the value's own register
   voidcall F(args); with a value prototype in ctx_protos.h -> ((void (*)(params)) F)(args);  (the result of a
            value call stays in r3 until the statement ends, so the next statement's temporaries start at r4)
+  valuecall the reverse: F(args); with a void prototype -> ((s32 (*)(params)) F)(args);  (fn_8006A344 returns a
+           value its callers drop; the context says void)
   home     spN = argK; (m2c's copy of a parameter that lives in its stack home) -> the parameter itself
 Source: SRCDIR/FUNC.c, else tools/hand_drafts, else decomp/drafts/c."""
 import os
@@ -56,6 +58,28 @@ def voidcall(m):
 
 
 RULES.append(('voidcall', CALL, voidcall))
+
+
+def void_protos():
+    out = {}
+    for l in open('decomp/drafts/ctx_protos.h', encoding='utf-8'):
+        m = re.match(r'void (\w+)\(([^;]*)\);$', l.strip())
+        if m:
+            out[m.group(1)] = m.group(2)
+    return out
+
+
+VOIDS = void_protos()
+
+
+def valuecall(m):
+    name = m.group(2)
+    if name not in VOIDS:
+        return m.group(0)
+    return f'{m.group(1)}((s32 (*)({VOIDS[name]})) {name}){m.group(3)}'
+
+
+RULES.append(('valuecall', CALL, valuecall))
 
 
 def score(f, text):

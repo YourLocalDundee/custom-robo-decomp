@@ -2635,3 +2635,28 @@ are **structural** (29: by hand, smallest first).
   `main.dol` still builds with the retail SHA-1 (6a73cd11...). Open for the next pass: the `voidcall` evidence as a
   fix of the prototypes themselves (one wrong return type costs every caller), and the three tools on the 546
   open drafts outside this set.
+- **Nov 13, later: two more of the top 150 (25 of the 150), and the tools widened.**
+  - fn_80069AD8 (the glyph decoder, 92%): three dead uses of the text pointer and two each of the glyph record and
+    the string. No single step on that path gains a word, so the sweep's one-variable search stopped at 92%:
+    `rank_sweep.py` now also tries every combination of 0 - 3 dead uses of 2 - 4 parameters. (On the 124 open of the
+    set that stage found one more gain, +2 words: the case is rare.) The page is stored through a u16 field
+    (`rlwinm r0` and `sth`; through an s16 field the value takes r3).
+  - fn_80108290 (93%): the name buffer is `char[84]` (frame 128, where m2c had a 4-byte slot), the two loops share
+    one u8 counter (m2c's two variables for r30), and **fn_8006A344 returns a value** that its callers drop: after
+    the call the next statement loads through r4 because r3 is still busy. The context says void (the callee's own
+    draft sets no result m2c could see). This is what the window-text family's inline "returns the result" was
+    standing in for.
+  - `site_rules.py` has the reverse rule now, `valuecall`: a discarded call of a void prototype written
+    `((s32 (*)(params)) F)(args)`. On eight callers of fn_8006A344 outside the set it gives fn_80116BAC 55 -> 80%,
+    fn_80114EB8 81 -> 86%, fn_8011D710 83 -> 89% and 2 - 5 points on the other five.
+  - **Changing the two prototypes themselves is not safe yet.** With fn_8006A344 as s32 and fn_800EB518 as void in
+    a copy of the context (`proto_try.py`, scratch; `build/regen4` as the output folder), the 42 open drafts that
+    call them go 14 up, 18 down, equal words 6,051 -> 5,941: the gains are in the drafts above 45%, the losses in
+    the low ones, where one changed register moves the alignment of the whole diff. So the rules stay per site,
+    kept by score; a prototype fix needs the vote taken only over callers that already match in shape.
+  - `site_rules.py` over the 546 open drafts outside the set (`build/allbest/`, the best version of each;
+    results in `build/rw_rest/`): 76 up, +592 words, 16 of them through `voidcall`; no match.
+  - Left near: fn_8011D710 83 -> 93% (the value call, and the cursor index read before the flag store; the toggle's
+    `&= 1` loads through r3 where the original uses r0).
+- **Nov 13, the 2 matches drafted again** (`--out build/regen5`) and merged: **1,080 of 1,751 at 100%**. Promoted 967
+  functions (0x34FE4 bytes) and 7 file objects; `main.dol` still builds with the retail SHA-1 (6a73cd11...).
